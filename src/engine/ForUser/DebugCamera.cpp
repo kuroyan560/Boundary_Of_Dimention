@@ -45,8 +45,8 @@ void KuroEngine::DebugCamera::Move()
 	//マウス左クリックでカメラ回転
 	if (KuroEngine::UsersInput::Instance()->MouseInput(MOUSE_BUTTON::RIGHT))
 	{
-		float dy = mouseMove.m_inputX * m_scale.y;
 		float dx = mouseMove.m_inputY * m_scale.x;
+		float dy = mouseMove.m_inputX * m_scale.y;
 
 		angleX = -dx * XM_PI;
 		angleY = -dy * XM_PI;
