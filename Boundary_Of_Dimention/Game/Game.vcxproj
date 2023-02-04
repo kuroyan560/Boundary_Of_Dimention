@@ -1,0 +1,270 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{c8367882-2957-4eb8-9f15-5410d3cdfa41}</ProjectGuid>
+    <RootNamespace>Game</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(SolutionDir)lib\DirectXTex\inc;$(SolutionDir)lib\GLTFSDK\inc;$(SolutionDir)lib\magic_enum;$(SolutionDir)lib\dxcompiler\inc;$(SolutionDir)lib\glTF-SDK-master\GLTFSDK\Inc;$(SolutionDir)lib\imgui;$(SolutionDir)src\engine</IncludePath>
+    <LibraryPath>$(SolutionDir)lib\dxcompiler\lib\x64;$(SolutionDir)lib\DirectXTex\lib\$(Configuration);$(SolutionDir)lib\GLTFSDK\lib\$(Configuration);$(LibraryPath)</LibraryPath>
+    <OutDir>$(ProjectDir)</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(SolutionDir)lib\DirectXTex\inc;$(SolutionDir)lib\GLTFSDK\inc;$(SolutionDir)lib\magic_enum;$(SolutionDir)lib\dxcompiler\inc;$(SolutionDir)lib\glTF-SDK-master\GLTFSDK\Inc;$(SolutionDir)lib\imgui;$(SolutionDir)src\engine</IncludePath>
+    <LibraryPath>$(SolutionDir)lib\dxcompiler\lib\x64;$(SolutionDir)lib\DirectXTex\lib\$(Configuration);$(SolutionDir)lib\GLTFSDK\lib\$(Configuration);$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <TreatWarningAsError>true</TreatWarningAsError>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>dxcompiler.lib;DirectXTex.lib;GLTFSDK.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)dxcompiler.dll" $(TargetDir) /Y
+xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
+    </PostBuildEvent>
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <TreatWarningAsError>true</TreatWarningAsError>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>dxcompiler.lib;DirectXTex.lib;GLTFSDK.lib;</AdditionalDependencies>
+      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy "$(SolutionDir)dxcompiler.dll" $(TargetDir) /Y
+xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
+    </PostBuildEvent>
+    <PreLinkEvent>
+      <Command>
+      </Command>
+    </PreLinkEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\lib\imgui\imgui_demo.cpp" />
+    <ClCompile Include="..\..\lib\imgui\imgui_draw.cpp" />
+    <ClCompile Include="..\..\lib\imgui\imgui_impl_dx12.cpp" />
+    <ClCompile Include="..\..\lib\imgui\imgui.cpp" />
+    <ClCompile Include="..\..\lib\imgui\imgui_impl_win32.cpp" />
+    <ClCompile Include="..\..\lib\imgui\imgui_spectrum.cpp" />
+    <ClCompile Include="..\..\lib\imgui\imgui_tables.cpp" />
+    <ClCompile Include="..\..\lib\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="..\..\src\engine\Common\PerlinNoise.cpp" />
+    <ClCompile Include="..\..\src\engine\Common\Primitive.cpp" />
+    <ClCompile Include="..\..\src\engine\Common\Subject.cpp" />
+    <ClCompile Include="..\..\src\engine\Common\Transform.cpp" />
+    <ClCompile Include="..\..\src\engine\Common\Transform2D.cpp" />
+    <ClCompile Include="..\..\src\engine\DirectX12\D3D12App.cpp" />
+    <ClCompile Include="..\..\src\engine\DirectX12\D3D12Data.cpp" />
+    <ClCompile Include="..\..\src\engine\DirectX12\DescriptorHeap.cpp" />
+    <ClCompile Include="..\..\src\engine\DirectX12\Swapchain.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\Collision\Collider.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\Collision\Collision.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\Collision\CollisionManager.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\DebugCamera.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\Debugger.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Color.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_FillTex.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Mask.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Shadow.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\3D\DrawFunc3D.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\BillBoard\DrawFuncBillBoard.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\HandShake.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\ImguiDebugInterface.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\ImpactShake.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\MotionWork.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\Object\Model.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\Object\Object.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\Object\Sprite.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\Object\Sprite_Shadow.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\CRTColorNoise.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\GaussianBlur.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\RadialBlur.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\ScanLine.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\Vignette.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\RandBox2D.cpp" />
+    <ClCompile Include="..\..\src\engine\FrameWork\AudioApp.cpp" />
+    <ClCompile Include="..\..\src\engine\FrameWork\Fps.cpp" />
+    <ClCompile Include="..\..\src\engine\FrameWork\ImguiApp.cpp" />
+    <ClCompile Include="..\..\src\engine\FrameWork\Importer.cpp" />
+    <ClCompile Include="..\..\src\engine\FrameWork\UsersInput.cpp" />
+    <ClCompile Include="..\..\src\engine\FrameWork\WinApp.cpp" />
+    <ClCompile Include="..\..\src\engine\KuroEngineDevice.cpp" />
+    <ClCompile Include="..\..\src\engine\KuroEngine.cpp" />
+    <ClCompile Include="..\..\src\engine\Render\CubeMap.cpp" />
+    <ClCompile Include="..\..\src\engine\Render\DOF.cpp" />
+    <ClCompile Include="..\..\src\engine\Render\GraphicsManager.cpp" />
+    <ClCompile Include="..\..\src\engine\Render\LightBloomDevice.cpp" />
+    <ClCompile Include="..\..\src\engine\Render\RenderObject\Camera.cpp" />
+    <ClCompile Include="..\..\src\engine\Render\RenderObject\Light.cpp" />
+    <ClCompile Include="..\..\src\engine\Render\RenderObject\LightManager.cpp" />
+    <ClCompile Include="..\..\src\engine\Render\RenderObject\ModelInfo\Material.cpp" />
+    <ClCompile Include="..\..\src\engine\Render\RenderObject\ModelInfo\ModelAnimator.cpp" />
+    <ClCompile Include="..\..\src\engine\Render\RenderObject\ModelInfo\ModelMesh.cpp" />
+    <ClCompile Include="..\..\src\engine\Render\RenderObject\ModelInfo\Skeleton.cpp" />
+    <ClCompile Include="..\..\src\engine\Render\RenderObject\SpriteMesh.cpp" />
+    <ClCompile Include="..\..\src\engine\Render\ShadowMapDevice.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\GameScene.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\lib\dxcompiler\inc\d3d12shader.h" />
+    <ClInclude Include="..\..\lib\dxcompiler\inc\dxcapi.h" />
+    <ClInclude Include="..\..\lib\imgui\imconfig.h" />
+    <ClInclude Include="..\..\lib\imgui\imgui.h" />
+    <ClInclude Include="..\..\lib\imgui\imgui_impl_dx12.h" />
+    <ClInclude Include="..\..\lib\imgui\imgui_impl_win32.h" />
+    <ClInclude Include="..\..\lib\imgui\imgui_internal.h" />
+    <ClInclude Include="..\..\lib\imgui\imgui_spectrum.h" />
+    <ClInclude Include="..\..\lib\imgui\imstb_rectpack.h" />
+    <ClInclude Include="..\..\lib\imgui\imstb_textedit.h" />
+    <ClInclude Include="..\..\lib\imgui\imstb_truetype.h" />
+    <ClInclude Include="..\..\lib\magic_enum\magic_enum.h" />
+    <ClInclude Include="..\..\src\engine\Common\Angle.h" />
+    <ClInclude Include="..\..\src\engine\Common\Color.h" />
+    <ClInclude Include="..\..\src\engine\Common\Command.h" />
+    <ClInclude Include="..\..\src\engine\Common\ImportHeader.h" />
+    <ClInclude Include="..\..\src\engine\Common\Observer.h" />
+    <ClInclude Include="..\..\src\engine\Common\PerlinNoise.h" />
+    <ClInclude Include="..\..\src\engine\Common\Primitive.h" />
+    <ClInclude Include="..\..\src\engine\Common\Singleton.h" />
+    <ClInclude Include="..\..\src\engine\Common\Subject.h" />
+    <ClInclude Include="..\..\src\engine\Common\Transform.h" />
+    <ClInclude Include="..\..\src\engine\Common\Transform2D.h" />
+    <ClInclude Include="..\..\src\engine\Common\ValueMinMax.h" />
+    <ClInclude Include="..\..\src\engine\Common\Vec.h" />
+    <ClInclude Include="..\..\src\engine\DirectX12\D3D12App.h" />
+    <ClInclude Include="..\..\src\engine\DirectX12\D3D12Data.h" />
+    <ClInclude Include="..\..\src\engine\DirectX12\DescriptorHeap.h" />
+    <ClInclude Include="..\..\src\engine\DirectX12\Swapchain.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\Collision\Collider.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\Collision\ColliderParentObject.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\Collision\Collision.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\Collision\CollisionCallBack.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\Collision\CollisionManager.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\Collision\CollisionResultInfo.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\DebugCamera.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\Debugger.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Color.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_FillTex.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Mask.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Shadow.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\3D\DrawFunc3D.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\BillBoard\DrawFuncBillBoard.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\HandShake.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\ImguiDebugInterface.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\ImpactShake.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\MotionWork.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\Object\Model.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\Object\Object.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\Object\Sprite.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\Object\Sprite_Shadow.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\CRTColorNoise.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\GaussianBlur.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\RadialBlur.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\ScanLine.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\Vignette.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\RandBox2D.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\Timer.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\TimeScale.h" />
+    <ClInclude Include="..\..\src\engine\FrameWork\AudioApp.h" />
+    <ClInclude Include="..\..\src\engine\FrameWork\Fps.h" />
+    <ClInclude Include="..\..\src\engine\FrameWork\ImguiApp.h" />
+    <ClInclude Include="..\..\src\engine\FrameWork\Importer.h" />
+    <ClInclude Include="..\..\src\engine\FrameWork\StreamReader.h" />
+    <ClInclude Include="..\..\src\engine\FrameWork\UsersInput.h" />
+    <ClInclude Include="..\..\src\engine\FrameWork\WinApp.h" />
+    <ClInclude Include="..\..\src\engine\KuroEngineDevice.h" />
+    <ClInclude Include="..\..\src\engine\KuroEngine.h" />
+    <ClInclude Include="..\..\src\engine\Render\CubeMap.h" />
+    <ClInclude Include="..\..\src\engine\Render\DOF.h" />
+    <ClInclude Include="..\..\src\engine\Render\GraphicsManager.h" />
+    <ClInclude Include="..\..\src\engine\Render\LightBloomDevice.h" />
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\Animation.h" />
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\Camera.h" />
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\Light.h" />
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\LightManager.h" />
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\Mesh.h" />
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\ModelInfo\Material.h" />
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\ModelInfo\ModelAnimator.h" />
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\ModelInfo\ModelMesh.h" />
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\ModelInfo\Skeleton.h" />
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\SpriteMesh.h" />
+    <ClInclude Include="..\..\src\engine\Render\ShadowMapDevice.h" />
+    <ClInclude Include="src\GameScene.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
