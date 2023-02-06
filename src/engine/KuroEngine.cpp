@@ -1029,6 +1029,12 @@ KuroEngine::Angle KuroEngine::Math::GetAngleAbs(Vec2<float> From, Vec2<float> To
 {
     return acos(From.Dot(To));
 }
+KuroEngine::Vec3<float> KuroEngine::Math::TransformVec3(const Vec3<float>& Value, const Quaternion& Quaternion)
+{
+    auto val = XMVectorSet(Value.x, Value.y, Value.z, 1.0f);
+    val = XMQuaternionMultiply(XMQuaternionMultiply(Quaternion, val), XMQuaternionConjugate(Quaternion));
+    return Vec3<float>(val.m128_f32[0], val.m128_f32[1], val.m128_f32[2]);
+}
 KuroEngine::Vec3<float> KuroEngine::Math::TransformVec3(const Vec3<float>& Value, const Matrix& Mat)
 {
     XMVECTOR valVec = XMVectorSet(Value.x, Value.y, Value.z, 1.0f);

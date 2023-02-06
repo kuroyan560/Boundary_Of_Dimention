@@ -30,7 +30,7 @@ namespace KuroEngine
 		Matrix m_localMat = XMMatrixIdentity();
 		Vec3<float>m_pos = { 0,0,0 };
 		Vec3<float>m_scale = { 1,1,1 };
-		Matrix m_rotate = DirectX::XMMatrixIdentity();
+		Quaternion m_rotate = XMQuaternionIdentity();
 
 		bool m_frameDirty = true;
 		bool m_dirty = true;
@@ -47,6 +47,13 @@ namespace KuroEngine
 		Transform(Transform* Parent = nullptr) {
 			SetParent(Parent);
 			s_transformList.emplace_back(this);
+
+			auto front = Vec3<float>::GetZAxis();
+			auto up = Vec3<float>::GetYAxis();
+			m_rotate = XMQuaternionRotationMatrix(XMMatrixLookToLH(
+				XMVectorSet(m_pos.x, m_pos.y, m_pos.z, 1.0f),
+				XMVectorSet(front.x, front.y, front.z, 1.0f),
+				XMVectorSet(up.x, up.y, up.z, 1.0f)));
 		}
 		~Transform() {
 			(void)s_transformList.remove_if([this](Transform* tmp) {
@@ -62,31 +69,32 @@ namespace KuroEngine
 		//ゲッタ
 		const Vec3<float>& GetPos()const { return m_pos; }
 		const Vec3<float>& GetScale()const { return m_scale; }
-		const Vec3<Angle>& GetAngle()const {
-			auto sy = m_rotate.r[0].m128_f32[2];
-			auto unlocked = std::abs(sy) < 0.99999f;
-			return Vec3<Angle>(
-				unlocked ? std::atan2(-m_rotate.r[1].m128_f32[2], m_rotate.r[2].m128_f32[2]) : std::atan2(m_rotate.r[2].m128_f32[1], m_rotate.r[1].m128_f32[1]),
-				std::asin(sy),
-				unlocked ? std::atan2(-m_rotate.r[0].m128_f32[1], m_rotate.r[0].m128_f32[0]) : 0);
+		Vec3<Angle> GetAngle()const {
+			auto q0 = m_rotate.m128_f32[0];
+			auto q1 = m_rotate.m128_f32[1];
+			auto q2 = m_rotate.m128_f32[2];
+			auto q3 = m_rotate.m128_f32[3];
+
+			auto roll = atan2(2.0f * (q2 * q3 + q0 * q1), q0 * q0 - q1 * q1 - q2 * q2 + q3 * q3);
+			auto pitch = asin(2.0f * (q0 * q2 - q1 * q3));
+			auto yaw = atan2(2.0f * (q1 * q2 + q0 * q3), q0 * q0 + q1 * q1 - q2 * q2 - q3 * q3);
+
+			return Vec3<Angle>(-roll, pitch, yaw);
 		}
-		const DirectX::XMVECTOR& GetQuaternion()const {
-			return XMQuaternionRotationMatrix(m_rotate);
-		}
-		const Matrix& GetRotate()const { return m_rotate; }
-		Vec3<float> GetFront()const {
-			XMVECTOR front = XMVectorSet(0, 0, 1, 1);
-			front = XMVector3Transform(front, m_rotate);
+		const XMVECTOR& GetRotate()const { return m_rotate; }
+		Vec3<float> GetFront()const{
+			auto front = XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f);
+			front = XMQuaternionMultiply(XMQuaternionMultiply(m_rotate, front), XMQuaternionConjugate(m_rotate));
 			return Vec3<float>(front.m128_f32[0], front.m128_f32[1], front.m128_f32[2]);
 		}
 		Vec3<float> GetRight()const {
-			XMVECTOR right = XMVectorSet(1, 0, 0, 1);
-			right = XMVector3Transform(right, m_rotate);
+			auto right = XMVectorSet(1.0f, 0.0f, 1.0f, 1.0f);
+			right = XMQuaternionMultiply(XMQuaternionMultiply(m_rotate, right), XMQuaternionConjugate(m_rotate));
 			return Vec3<float>(right.m128_f32[0], right.m128_f32[1], right.m128_f32[2]);
 		}
 		Vec3<float> GetUp()const {
-			XMVECTOR up = XMVectorSet(0, 1, 0, 1);
-			up = XMVector3Transform(up, m_rotate);
+			auto up = XMVectorSet(0, 1, 0, 1);
+			up = XMQuaternionMultiply(XMQuaternionMultiply(m_rotate, up), XMQuaternionConjugate(m_rotate));
 			return Vec3<float>(up.m128_f32[0], up.m128_f32[1], up.m128_f32[2]);
 		}
 
@@ -108,19 +116,19 @@ namespace KuroEngine
 			MatReset();
 		}
 		void SetRotate(const Angle& X, const Angle& Y, const Angle& Z) {
-			m_rotate = KuroEngine::Math::RotateMat(X, Y, Z);
+			m_rotate = XMQuaternionRotationRollPitchYaw(Y, Z, -X);
 			MatReset();
 		}
 		void SetRotate(const DirectX::XMVECTOR& Quaternion) {
-			m_rotate = DirectX::XMMatrixRotationQuaternion(Quaternion);
+			m_rotate = Quaternion;
 			MatReset();
 		}
 		void SetRotate(const Vec3<float>& Axis, const Angle& Angle) {
-			m_rotate = KuroEngine::Math::RotateMat(Axis, Angle);
+			m_rotate = XMQuaternionRotationAxis(XMVectorSet(Axis.x, Axis.y, Axis.z, 1.0f), Angle);
 			MatReset();
 		}
 		void SetRotate(const Matrix& RotateMat) {
-			m_rotate = RotateMat;
+			m_rotate = XMQuaternionRotationMatrix(RotateMat);
 			MatReset();
 		}
 		void SetLookAtRotate(const Vec3<float>& Target, const Vec3<float>& UpAxis = Vec3<float>(0, 1, 0)) {
@@ -128,33 +136,18 @@ namespace KuroEngine
 			Vec3<float>x = UpAxis.Cross(z).GetNormal();
 			Vec3<float>y = z.Cross(x).GetNormal();
 
-			Matrix rot = XMMatrixIdentity();
-			rot.r[0].m128_f32[0] = x.x; rot.r[0].m128_f32[1] = x.y; rot.r[0].m128_f32[2] = x.z;
-			rot.r[1].m128_f32[0] = y.x; rot.r[1].m128_f32[1] = y.y; rot.r[1].m128_f32[2] = y.z;
-			rot.r[2].m128_f32[0] = z.x; rot.r[2].m128_f32[1] = z.y; rot.r[2].m128_f32[2] = z.z;
-
-			if (rot == m_rotate)return;
-			m_rotate = rot;
-
-			MatReset();
+			SetRotate(XMMatrixLookAtLH(
+				XMVectorSet(m_pos.x, m_pos.y, m_pos.z, 1.0f),
+				XMVectorSet(Target.x, Target.y, Target.z, 1.0f),
+				XMVectorSet(UpAxis.x, UpAxis.y, UpAxis.z, 1.0f)));
 		}
 		void SetUp(const Vec3<float>& Up)
 		{
-			Vec3<float> defUp = { 0,1,0 };
-			Matrix rot = KuroEngine::Math::RotateMat(defUp, Up);
-			if (rot == m_rotate)return;
-			m_rotate = rot;
-
-			MatReset();
+			SetRotate(KuroEngine::Math::RotateMat(Vec3<float>::GetYAxis(), Up));
 		}
 		void SetFront(const Vec3<float>& Front)
 		{
-			Vec3<float>defFront = { 0,0,1 };
-			Matrix rot = KuroEngine::Math::RotateMat(defFront, Front);
-			if (rot == m_rotate)return;
-			m_rotate = rot;
-
-			MatReset();
+			SetRotate(KuroEngine::Math::RotateMat(Vec3<float>::GetZAxis(), Front));
 		}
 
 		//ローカル行列ゲッタ

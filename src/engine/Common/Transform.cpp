@@ -4,7 +4,7 @@ std::list<KuroEngine::Transform*> KuroEngine::Transform::s_transformList;
 
 void KuroEngine::Transform::CalculateMat()
 {
-	m_localMat = DirectX::XMMatrixScaling(m_scale.x, m_scale.y, m_scale.z) * m_rotate;
+	m_localMat = DirectX::XMMatrixScaling(m_scale.x, m_scale.y, m_scale.z) * DirectX::XMMatrixRotationQuaternion(m_rotate);
 	m_localMat *= DirectX::XMMatrixTranslation(m_pos.x, m_pos.y, m_pos.z);
 	m_worldMat = m_localMat;
 
@@ -29,7 +29,7 @@ const KuroEngine::Matrix& KuroEngine::Transform::GetWorldMat()
 
 KuroEngine::Matrix KuroEngine::Transform::GetWorldMat(const Matrix& arg_billBoardMat)
 {
-	Matrix result = DirectX::XMMatrixScaling(m_scale.x, m_scale.y, m_scale.z) * m_rotate;
+	Matrix result = DirectX::XMMatrixScaling(m_scale.x, m_scale.y, m_scale.z) * DirectX::XMMatrixRotationQuaternion(m_rotate);
 	result *= arg_billBoardMat;
 	result *= DirectX::XMMatrixTranslation(m_pos.x, m_pos.y, m_pos.z);
 

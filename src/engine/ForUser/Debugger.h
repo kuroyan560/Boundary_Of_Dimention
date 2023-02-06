@@ -36,8 +36,8 @@ namespace KuroEngine
 	protected:
 		//imguiウィンドウ名
 		std::string m_title;
-		Debugger(std::string arg_title, ImGuiWindowFlags arg_imguiWinFlags = 0)
-			:m_title(arg_title), m_id(s_id++), m_imguiWinFlags(arg_imguiWinFlags) {}
+		Debugger(std::string arg_title, bool arg_active = false, ImGuiWindowFlags arg_imguiWinFlags = 0)
+			:m_title(arg_title), m_active(arg_active), m_id(s_id++), m_imguiWinFlags(arg_imguiWinFlags) {}
 
 		//imguiの項目 Begin ~ End 間に呼び出す処理
 		virtual void OnImguiItems() = 0;

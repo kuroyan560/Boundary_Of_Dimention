@@ -10,6 +10,7 @@
 namespace KuroEngine
 {
     using Matrix = DirectX::XMMATRIX;
+    using Quaternion = DirectX::XMVECTOR;
     using namespace DirectX;
 
 	bool LoadData(FILE* Fp, void* Data, const size_t& Size, const int& ElementNum);
@@ -240,6 +241,8 @@ namespace KuroEngine
         //２つのベクトルの角度差を取得
         static Angle GetAngleAbs(Vec2<float>From, Vec2<float>To);
 
+        //Vec3にクォータニオンを反映
+        static Vec3<float>TransformVec3(const Vec3<float>& Value, const Quaternion& Quaternion);
         //Vec3に行列を反映
         static Vec3<float>TransformVec3(const Vec3<float>& Value, const Matrix& Mat);
         //回転軸を指定して回転

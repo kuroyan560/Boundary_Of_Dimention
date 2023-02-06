@@ -1,6 +1,8 @@
 #include "GameScene.h"
 #include"DirectX12/D3D12App.h"
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
+#include"ForUser/Debugger.h"
+#include"OperationConfig.h"
 
 GameScene::GameScene()
 {
@@ -17,10 +19,22 @@ void GameScene::OnInitialize()
 	playerInitTransform.SetPos({ 0,0,-10 });
 	playerInitTransform.SetFront({ 0,0,1 });
 	m_player.Init(playerInitTransform);
+
+	KuroEngine::Debugger::Register({ 
+		OperationConfig::Instance(),
+		&m_player
+		});
 }
 
 void GameScene::OnUpdate()
 {
+	//デバッグ用
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_I))
+	{
+		this->Finalize();
+		this->Initialize();
+	}
+
 	m_debugCam.Move();
 	m_player.Update();
 }
@@ -51,5 +65,15 @@ void GameScene::OnDraw()
 		m_pngTex,
 		transform,
 		*nowCamera);
+}
+
+void GameScene::OnImguiDebug()
+{
+	KuroEngine::Debugger::Draw();
+}
+
+void GameScene::OnFinalize()
+{
+	KuroEngine::Debugger::ClearRegister();
 }
 
