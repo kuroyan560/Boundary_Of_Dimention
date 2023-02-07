@@ -69,7 +69,11 @@ namespace KuroEngine
 		//ゲッタ
 		const Vec3<float>& GetPos()const { return m_pos; }
 		const Vec3<float>& GetScale()const { return m_scale; }
-		Vec3<Angle> GetAngle()const {
+		
+		//回転クォータニオンゲッタ
+		const XMVECTOR& GetRotate()const { return m_rotate; }
+		//オイラー角で回転量取得
+		Vec3<Angle> GetRotateAsEuler()const {
 			auto q0 = m_rotate.m128_f32[0];
 			auto q1 = m_rotate.m128_f32[1];
 			auto q2 = m_rotate.m128_f32[2];
@@ -81,17 +85,19 @@ namespace KuroEngine
 
 			return Vec3<Angle>(-roll, pitch, yaw);
 		}
-		const XMVECTOR& GetRotate()const { return m_rotate; }
+		//前ベクトルゲッタ
 		Vec3<float> GetFront()const{
 			auto front = XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f);
 			front = XMQuaternionMultiply(XMQuaternionMultiply(m_rotate, front), XMQuaternionConjugate(m_rotate));
 			return Vec3<float>(front.m128_f32[0], front.m128_f32[1], front.m128_f32[2]);
 		}
+		//右ベクトルゲッタ
 		Vec3<float> GetRight()const {
 			auto right = XMVectorSet(1.0f, 0.0f, 1.0f, 1.0f);
 			right = XMQuaternionMultiply(XMQuaternionMultiply(m_rotate, right), XMQuaternionConjugate(m_rotate));
 			return Vec3<float>(right.m128_f32[0], right.m128_f32[1], right.m128_f32[2]);
 		}
+		//上ベクトルゲッタ
 		Vec3<float> GetUp()const {
 			auto up = XMVectorSet(0, 1, 0, 1);
 			up = XMQuaternionMultiply(XMQuaternionMultiply(m_rotate, up), XMQuaternionConjugate(m_rotate));

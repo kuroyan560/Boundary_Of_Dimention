@@ -16,6 +16,9 @@ class Player : public KuroEngine::Debugger
 	//一人称カメラ
 	std::shared_ptr<KuroEngine::Camera>m_cam;
 
+	//カメラ感度
+	float m_camSensitivity = 1.0f;
+
 	void OnImguiItems()override;
 
 public:

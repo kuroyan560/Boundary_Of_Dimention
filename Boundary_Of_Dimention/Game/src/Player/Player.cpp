@@ -11,7 +11,7 @@ void Player::OnImguiItems()
 	if (ImGui::TreeNode("Transform"))
 	{
 		auto pos = m_transform.GetPos();
-		auto angle = m_transform.GetAngle();
+		auto angle = m_transform.GetRotateAsEuler();
 
 		if (ImGui::DragFloat3("Position", (float*)&pos, 0.5f))
 		{
@@ -36,6 +36,7 @@ void Player::OnImguiItems()
 
 		ImGui::DragFloat3("Position", (float*)&pos, 0.5f);
 		ImGui::DragFloat3("Target", (float*)&target, 0.5f);
+		ImGui::DragFloat("Sensitivity", &m_camSensitivity, 0.05f);
 
 		ImGui::TreePop();
 	}
@@ -57,30 +58,31 @@ void Player::Update()
 	using namespace KuroEngine;
 
 	auto pos = m_transform.GetPos();
-	auto angle = m_transform.GetAngle();
+	auto rotate = m_transform.GetRotate();
 
 	//“ü—Í‚³‚ê‚½ˆÚ“®—Ê‚ðŽæ“¾
 	auto move = OperationConfig::Instance()->GetMove(0.1f);
 	//“ü—Í‚³‚ê‚½Ž‹üˆÚ“®Šp“x—Ê‚ðŽæ“¾
-	auto scopeMove = OperationConfig::Instance()->GetScopeMove(1);
+	auto scopeMove = OperationConfig::Instance()->GetScopeMove(m_camSensitivity);
 
-	//ˆÚ“®—Ê‚É‰ñ“]‚ð“K—p
-	move = Math::TransformVec3(move, m_transform.GetRotate());
+	//ˆÚ“®—Ê‚ÉYŽ²‰ñ“]‚ð“K—p
+	auto ySpin = XMVectorSet(0.0f, rotate.m128_f32[1], 0.0f, rotate.m128_f32[3]);
+	move = Math::TransformVec3(move, ySpin);
 	//ˆÚ“®—Ê‰ÁŽZ
 	pos += move;
 
 	//Ž‹üˆÚ“®Šp“x—Ê‰ÁŽZ
-	/*angle += scopeMove;
-	angle.x.Normalize();
-	angle.y.Normalize();
-	angle.z.Normalize();*/
+	auto yScopeSpin = XMQuaternionRotationAxis(XMVectorSet(0.0f, -1.0f, 0.0f, 1.0f), scopeMove.y);
+	auto xScopeSpin = XMQuaternionRotationAxis(XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f), -scopeMove.x);
+	rotate = XMQuaternionMultiply(yScopeSpin, rotate);
+	rotate = XMQuaternionMultiply(xScopeSpin, rotate);
 
 	//ƒgƒ‰ƒ“ƒXƒtƒH[ƒ€‚Ì•Ï‰»‚ð“K—p
 	m_transform.SetPos(pos);
-	//m_transform.SetRotate(angle.x, angle.y, angle.z);
+	m_transform.SetRotate(rotate);
 	m_cam->SetPos(pos);
 	auto front = m_transform.GetFront();
-	m_cam->SetTarget(pos + m_transform.GetFront());
+	m_cam->SetTarget(pos + m_transform.GetFront() * 6.0f);
 }
 
 void Player::Draw()
