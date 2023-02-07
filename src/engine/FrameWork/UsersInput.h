@@ -9,6 +9,7 @@
 
 #include<wrl.h>
 #include <Xinput.h>
+
 namespace KuroEngine
 {
 	enum MOUSE_BUTTON { LEFT, RIGHT, CENTER };
@@ -101,21 +102,21 @@ namespace KuroEngine
 
 		void Update(const HWND& Hwnd, const Vec2<float>& WinSize);
 
-		//キーボード
+		//キーボード入力取得
 		bool KeyOnTrigger(int KeyCode)const;
 		bool KeyInput(int KeyCode)const;
 		bool KeyOffTrigger(int KeyCode)const;
 
-		//マウス
+		//マウス入力取得
 		bool MouseOnTrigger(MOUSE_BUTTON Button)const;
 		bool MouseInput(MOUSE_BUTTON Button)const;
 		bool MouseOffTrigger(MOUSE_BUTTON Button)const;
-
+		//マウスの座標取得
 		const Vec2<float>& GetMousePos()const { return m_mousePos; }
+		//マウスの移動量取得
 		MouseMove GetMouseMove()const;
-		//Ray GetMouseRay();
 
-		//XBOXコントローラー
+		//XBOXコントローラー入力取得
 		bool ControllerOnTrigger(const int& ControllerIdx, XBOX_BUTTON Button)const;
 		bool ControllerOnTrigger(const int& ControllerIdx, XBOX_STICK StickInput, const float& DeadRange = 0.3f, const Vec2<float>& DeadRate = { 1.0f,1.0f })const;
 		bool ControllerInput(const int& ControllerIdx, XBOX_BUTTON Button)const;
@@ -126,7 +127,8 @@ namespace KuroEngine
 		//デッドゾーン判定の度合い(1.0fだとデフォルト採用)
 		Vec2<float>GetLeftStickVec(const int& ControllerIdx, const Vec2<float>& DeadRate = { 1.0f,1.0f })const;
 		Vec2<float>GetRightStickVec(const int& ControllerIdx, const Vec2<float>& DeadRate = { 1.0f,1.0f })const;
-		// "Power" must fit between 0.0f and 1.0f.
+
+		//コントローラーを振動させる（Power は 0.0f ~ 1.0f）
 		void ShakeController(const int& ControllerIdx, const float& Power, const int& Span);
 	};
 }

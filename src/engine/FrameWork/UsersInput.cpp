@@ -2,6 +2,7 @@
 #include <cassert>
 #include<DirectXMath.h>
 #include"KuroEngine.h"
+#include"Render/RenderObject/Camera.h"
 
 #pragma comment(lib,"xinput.lib")
 
@@ -148,27 +149,6 @@ KuroEngine::UsersInput::MouseMove KuroEngine::UsersInput::GetMouseMove()const
 	tmp.m_inputZ = m_mouseState.lZ;
 	return tmp;
 }
-
-//#include"ForUser/Object/Object.h"
-//#include"FrameWork/WinApp.h"
-//Ray KuroEngine::UsersInput::GetMouseRay()
-//{
-//	Ray mouseRay;
-//	Vec3<float> start = MyFunc::ConvertScreenToWorld(mousePos, 0.0f,
-//	KuroEngine::Camera::GetNowCam()->MatView(),
-//		KuroEngine::Camera::GetNowCam()->MatProjection(),
-//		App::GetWinApp().GetWinSize());
-//	mouseRay.start = { start.x,start.y,start.z };
-//
-//	Vec3<float> to = MyFunc::ConvertScreenToWorld(mousePos, 1.0f,
-//		KuroEngine::Camera::GetNowCam()->MatView(),
-//		KuroEngine::Camera::GetNowCam()->MatProjection(),
-//		App::GetWinApp().GetWinSize());
-//	Vec3<float> vec(to - start);
-//	mouseRay.dir = vec.GetNormal();
-//
-//	return mouseRay;
-//}
 
 bool KuroEngine::UsersInput::ControllerOnTrigger(const int& ControllerIdx, XBOX_BUTTON Button)const
 {
