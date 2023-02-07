@@ -88,7 +88,7 @@ bool KuroEngine::KuroEngineDevice::Initialize(const EngineOption& Option)
 	srand(static_cast<unsigned int>(time(NULL)));
 
 	//ウィンドウアプリ生成
-	m_winApp = std::make_unique<WinApp>(Option.m_windowName, Option.m_windowSize, Option.m_iconPath);
+	m_winApp = std::make_unique<WinApp>(Option.m_windowName, Option.m_windowSize, Option.m_fullScreen, Option.m_showCursor, Option.m_iconPath);
 
 	//D3D12アプリ生成
 	m_d3d12App = std::make_unique<D3D12App>(m_winApp->GetHwnd(), Option.m_windowSize, Option.m_useHDR, Option.m_backBuffClearColor);

@@ -59,6 +59,8 @@ namespace KuroEngine
 		//ウィンドウ関連
 		std::string m_windowName;	//ウィンドウ名
 		Vec2<int>m_windowSize;	//ウィンドウサイズ
+		bool m_fullScreen = false;	//フルスクリーン設定
+		bool m_showCursor = true;	//マウス表示設定
 		const wchar_t* m_iconPath = nullptr;	//ウィンドウアイコンファイル名
 
 		//バックバッファ関連

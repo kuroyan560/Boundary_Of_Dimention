@@ -19,10 +19,10 @@ LRESULT WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
     return DefWindowProc(hwnd, msg, wparam, lparam);	//標準の処理を行う
 }
 
-void KuroEngine::WinApp::Initialize(const std::string& WinName, const Vec2<int>WinSize, const bool& FullScreen, const wchar_t* IconPath = nullptr)
+void KuroEngine::WinApp::Initialize(const std::string& arg_winName, const Vec2<int>arg_winSize, const bool& arg_fullScreen, const bool& arg_showCursor, const wchar_t* arg_iconPath = nullptr)
 {
-    const std::wstring winWideName = GetWideStrFromStr(WinName);
-    m_winSize = WinSize;
+    const std::wstring winWideName = GetWideStrFromStr(arg_winName);
+    m_winSize = arg_winSize;
 
     m_wc.cbSize = sizeof(m_wc);
     m_wc.lpfnWndProc = (WNDPROC)WindowProc;
@@ -33,10 +33,10 @@ void KuroEngine::WinApp::Initialize(const std::string& WinName, const Vec2<int>W
     m_wc.hCursor = LoadCursor(NULL, IDC_ARROW);
 
     //ウィンドウアイコン設定
-    if (IconPath != nullptr)
+    if (arg_iconPath != nullptr)
     {
         m_wc.hIcon = (HICON)LoadImage(
-            NULL, IconPath, IMAGE_ICON,
+            NULL, arg_iconPath, IMAGE_ICON,
             0, 0, LR_SHARED | LR_LOADFROMFILE);
     }
     
@@ -45,7 +45,7 @@ void KuroEngine::WinApp::Initialize(const std::string& WinName, const Vec2<int>W
 
     RECT rect;
     DWORD dwStyle = WS_OVERLAPPEDWINDOW & ~WS_SIZEBOX;
-    if (FullScreen)
+    if (arg_fullScreen)
     {
         // Get the settings of the primary display
         DEVMODE devMode = {};
@@ -64,7 +64,7 @@ void KuroEngine::WinApp::Initialize(const std::string& WinName, const Vec2<int>W
         m_winSize.x = rect.right - rect.left;
         m_winSize.y = rect.bottom - rect.top;
 
-        m_winDifferRate = m_winSize.Float() / WinSize.Float();
+        m_winDifferRate = m_winSize.Float() / arg_winSize.Float();
     }
     else
     {
@@ -85,7 +85,7 @@ void KuroEngine::WinApp::Initialize(const std::string& WinName, const Vec2<int>W
         nullptr);   //オプション
 
     //ウィンドウ表示
-    if (FullScreen)
+    if (arg_fullScreen)
     {
         SetWindowLong(m_hwnd, GWL_STYLE, WS_OVERLAPPEDWINDOW & ~(WS_CAPTION | WS_MAXIMIZEBOX | WS_MINIMIZEBOX /*| WS_SYSMENU*/ | WS_THICKFRAME));
 
@@ -106,4 +106,6 @@ void KuroEngine::WinApp::Initialize(const std::string& WinName, const Vec2<int>W
         //ウィンドウ表示
         ShowWindow(m_hwnd, SW_SHOW);
     }
+
+    ShowCursor(arg_showCursor);
 }
