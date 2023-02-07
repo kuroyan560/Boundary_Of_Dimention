@@ -71,10 +71,13 @@ void Player::Update()
 	//移動量加算
 	pos += move;
 
-	//視線移動角度量加算
+	//視線移動角度量加算（Y軸：左右）
 	auto yScopeSpin = XMQuaternionRotationAxis(XMVectorSet(0.0f, -1.0f, 0.0f, 1.0f), scopeMove.y);
-	auto xScopeSpin = XMQuaternionRotationAxis(XMVectorSet(1.0f, 0.0f, 0.0f, 1.0f), -scopeMove.x);
 	rotate = XMQuaternionMultiply(yScopeSpin, rotate);
+	m_transform.SetRotate(rotate);
+
+	//視線移動角度量加算（X軸：上下）
+	auto xScopeSpin = XMQuaternionRotationAxis(m_transform.GetRight(), -scopeMove.x);
 	rotate = XMQuaternionMultiply(xScopeSpin, rotate);
 
 	//トランスフォームの変化を適用
