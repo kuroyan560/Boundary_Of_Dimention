@@ -19,7 +19,7 @@ LRESULT WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
     return DefWindowProc(hwnd, msg, wparam, lparam);	//標準の処理を行う
 }
 
-void KuroEngine::WinApp::Initialize(const std::string& arg_winName, const Vec2<int>arg_winSize, const bool& arg_fullScreen, const bool& arg_showCursor, const wchar_t* arg_iconPath = nullptr)
+void KuroEngine::WinApp::Initialize(const std::string& arg_winName, const Vec2<int>arg_winSize, const bool& arg_fullScreen, const wchar_t* arg_iconPath = nullptr)
 {
     const std::wstring winWideName = GetWideStrFromStr(arg_winName);
     m_winSize = arg_winSize;
@@ -106,6 +106,4 @@ void KuroEngine::WinApp::Initialize(const std::string& arg_winName, const Vec2<i
         //ウィンドウ表示
         ShowWindow(m_hwnd, SW_SHOW);
     }
-
-    ShowCursor(arg_showCursor);
 }

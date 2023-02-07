@@ -88,7 +88,7 @@ bool KuroEngine::KuroEngineDevice::Initialize(const EngineOption& Option)
 	srand(static_cast<unsigned int>(time(NULL)));
 
 	//ウィンドウアプリ生成
-	m_winApp = std::make_unique<WinApp>(Option.m_windowName, Option.m_windowSize, Option.m_fullScreen, Option.m_showCursor, Option.m_iconPath);
+	m_winApp = std::make_unique<WinApp>(Option.m_windowName, Option.m_windowSize, Option.m_fullScreen, Option.m_iconPath);
 
 	//D3D12アプリ生成
 	m_d3d12App = std::make_unique<D3D12App>(m_winApp->GetHwnd(), Option.m_windowSize, Option.m_useHDR, Option.m_backBuffClearColor);
@@ -105,11 +105,17 @@ bool KuroEngine::KuroEngineDevice::Initialize(const EngineOption& Option)
 	//FPS固定機能
 	Fps::Instance()->LoopInit(Option.m_frameRate);
 
-
 	//平行投影行列定数バッファ生成
 	auto parallelMatProj = DirectX::XMMatrixOrthographicOffCenterLH(0.0f, m_winApp->GetExpandWinSize().x, m_winApp->GetExpandWinSize().y, 0.0f, 0.0f, 1.0f);
 	m_parallelMatProjBuff = m_d3d12App->GenerateConstantBuffer(sizeof(XMMATRIX), 1, 
 		&parallelMatProj);
+
+	//マウスの設定
+	ShowCursor(Option.m_showCursor);
+	RECT winRect;
+	GetWindowRect(m_winApp->GetHwnd(), &winRect);
+	if (Option.m_clipCursor)ClipCursor(&winRect);
+
 
 	printf("KuroEngine起動成功\n");
 	m_invalid = false;

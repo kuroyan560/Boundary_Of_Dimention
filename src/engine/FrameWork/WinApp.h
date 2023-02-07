@@ -26,10 +26,10 @@ namespace KuroEngine
 		WNDCLASSEX m_wc{};
 		HWND m_hwnd;
 
-		void Initialize(const std::string& arg_winName, const Vec2<int>arg_winSize, const bool& arg_fullScreen, const bool& arg_showCursor, const wchar_t* arg_iconPath);
+		void Initialize(const std::string& arg_winName, const Vec2<int>arg_winSize, const bool& arg_fullScreen, const wchar_t* arg_iconPath);
 
 	public:
-		WinApp(const std::string& arg_winName, const Vec2<int>arg_winSize, const bool& arg_fullScreen, const bool& arg_showCursor, const wchar_t* arg_iconPath = nullptr)
+		WinApp(const std::string& arg_winName, const Vec2<int>arg_winSize, const bool& arg_fullScreen, const wchar_t* arg_iconPath = nullptr)
 		{
 			if (s_instance != nullptr)
 			{
@@ -37,11 +37,11 @@ namespace KuroEngine
 				assert(0);
 			}
 			s_instance = this;
-			Initialize(arg_winName, arg_winSize, arg_fullScreen, arg_showCursor, arg_iconPath);
+			Initialize(arg_winName, arg_winSize, arg_fullScreen, arg_iconPath);
 		}
 		const HWND& GetHwnd() { return m_hwnd; }
 		const WNDCLASSEX& GetWinClass() { return m_wc; }
-		const Vec2<int>& Getarg_winSize() { return m_winSize; }
+		const Vec2<int>& GetWinSize() { return m_winSize; }
 		const Vec2<int>& GetWinCenter() { return m_winSize / 2; }
 		Vec2<float>GetExpandWinSize() { return m_winSize.Float() * m_winDifferRate; }	//ウィンドウサイズ倍率がかかったサイズ
 		Vec2<float>GetExpandWinCenter() { return GetExpandWinSize() / 2.0f; }

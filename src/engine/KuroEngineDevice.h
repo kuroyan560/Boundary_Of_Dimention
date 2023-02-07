@@ -61,6 +61,7 @@ namespace KuroEngine
 		Vec2<int>m_windowSize;	//ウィンドウサイズ
 		bool m_fullScreen = false;	//フルスクリーン設定
 		bool m_showCursor = true;	//マウス表示設定
+		bool m_clipCursor = true;	//マウスをウィンドウ領域内に限定するか
 		const wchar_t* m_iconPath = nullptr;	//ウィンドウアイコンファイル名
 
 		//バックバッファ関連
