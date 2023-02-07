@@ -271,6 +271,9 @@
     <ClCompile Include="src\OperationConfig.cpp">
       <Filter>src\user</Filter>
     </ClCompile>
+    <ClCompile Include="src\DebugController.cpp">
+      <Filter>src\user</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -532,6 +535,9 @@
       <Filter>src\user\Player</Filter>
     </ClInclude>
     <ClInclude Include="src\OperationConfig.h">
+      <Filter>src\user</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DebugController.h">
       <Filter>src\user</Filter>
     </ClInclude>
   </ItemGroup>

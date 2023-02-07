@@ -28,7 +28,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	engineOption.m_windowName = "Boundary Of DImention";
 	engineOption.m_windowSize = { 1280,720 };
 	engineOption.m_fullScreen = false;
-	engineOption.m_showCursor = true;
+	engineOption.m_showCursor = false;
 	engineOption.m_iconPath = nullptr;
 	engineOption.m_backBuffClearColor = KuroEngine::Color(0, 0, 0, 0);
 	engineOption.m_useHDR = false;

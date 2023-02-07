@@ -174,6 +174,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="..\..\src\engine\Render\RenderObject\ModelInfo\Skeleton.cpp" />
     <ClCompile Include="..\..\src\engine\Render\RenderObject\SpriteMesh.cpp" />
     <ClCompile Include="..\..\src\engine\Render\ShadowMapDevice.cpp" />
+    <ClCompile Include="src\DebugController.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\GameScene.cpp" />
     <ClCompile Include="src\OperationConfig.cpp" />
@@ -264,6 +265,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="..\..\src\engine\Render\RenderObject\ModelInfo\Skeleton.h" />
     <ClInclude Include="..\..\src\engine\Render\RenderObject\SpriteMesh.h" />
     <ClInclude Include="..\..\src\engine\Render\ShadowMapDevice.h" />
+    <ClInclude Include="src\DebugController.h" />
     <ClInclude Include="src\GameScene.h" />
     <ClInclude Include="src\OperationConfig.h" />
     <ClInclude Include="src\Player\Player.h" />

@@ -3,6 +3,7 @@
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"ForUser/Debugger.h"
 #include"OperationConfig.h"
+#include"DebugController.h"
 
 GameScene::GameScene()
 {
@@ -34,6 +35,9 @@ void GameScene::OnUpdate()
 		this->Finalize();
 		this->Initialize();
 	}
+
+	//デバッグモード更新
+	DebugController::Instance()->Update();
 
 	m_debugCam.Move();
 	m_player.Update();
@@ -69,6 +73,8 @@ void GameScene::OnDraw()
 
 void GameScene::OnImguiDebug()
 {
+	if (!DebugController::Instance()->IsActive())return;
+
 	KuroEngine::Debugger::Draw();
 }
 
