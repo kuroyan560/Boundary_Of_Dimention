@@ -87,21 +87,15 @@ namespace KuroEngine
 		}
 		//前ベクトルゲッタ
 		Vec3<float> GetFront()const{
-			auto front = XMVectorSet(0.0f, 0.0f, 1.0f, 1.0f);
-			front = XMQuaternionMultiply(XMQuaternionMultiply(m_rotate, front), XMQuaternionConjugate(m_rotate));
-			return Vec3<float>(front.m128_f32[0], front.m128_f32[1], front.m128_f32[2]);
+			return KuroEngine::Math::TransformVec3(Vec3<float>::GetZAxis(), m_rotate);
 		}
 		//右ベクトルゲッタ
 		Vec3<float> GetRight()const {
-			auto right = XMVectorSet(1.0f, 0.0f, 1.0f, 1.0f);
-			right = XMQuaternionMultiply(XMQuaternionMultiply(m_rotate, right), XMQuaternionConjugate(m_rotate));
-			return Vec3<float>(right.m128_f32[0], right.m128_f32[1], right.m128_f32[2]);
+			return KuroEngine::Math::TransformVec3(Vec3<float>::GetXAxis(), m_rotate);
 		}
 		//上ベクトルゲッタ
 		Vec3<float> GetUp()const {
-			auto up = XMVectorSet(0, 1, 0, 1);
-			up = XMQuaternionMultiply(XMQuaternionMultiply(m_rotate, up), XMQuaternionConjugate(m_rotate));
-			return Vec3<float>(up.m128_f32[0], up.m128_f32[1], up.m128_f32[2]);
+			return KuroEngine::Math::TransformVec3(Vec3<float>::GetYAxis(), m_rotate);
 		}
 
 		//セッタ
