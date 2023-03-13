@@ -1,6 +1,8 @@
 #include "Player.h"
 #include"Render/RenderObject/Camera.h"
 #include"../OperationConfig.h"
+#include"FrameWork/ModelImporter.h"
+#include"ForUser/DrawFunc/3D/DrawFunc3D.h"
 
 void Player::OnImguiItems()
 {
@@ -34,8 +36,8 @@ void Player::OnImguiItems()
 		auto pos = m_cam->GetPos();
 		auto target = m_cam->GetTarget();
 
-		ImGui::DragFloat3("Position", (float*)&pos, 0.5f);
-		ImGui::DragFloat3("Target", (float*)&target, 0.5f);
+		ImGui::DragFloat3("PositionOffset", (float*)&m_camPosOffset, 0.5f);
+		// ImGui::DragFloat3("Target", (float*)&target, 0.5f);
 		ImGui::DragFloat("Sensitivity", &m_camSensitivity, 0.05f);
 
 		ImGui::TreePop();
@@ -45,12 +47,17 @@ void Player::OnImguiItems()
 Player::Player()
 	:KuroEngine::Debugger("Player", true)
 {
+	//モデル読み込み
+	m_model = KuroEngine::ModelImporter::Instance()->LoadModel("resource/user/model/", "player.glb");
+
+	//カメラ生成
 	m_cam = std::make_shared<KuroEngine::Camera>("Player's Camera");
 }
 
 void Player::Init(KuroEngine::Transform arg_initTransform)
 {
 	m_transform = arg_initTransform;
+	m_camPosOffset = m_camPosOffsetDefault;
 }
 
 void Player::Update()
@@ -83,13 +90,17 @@ void Player::Update()
 	//トランスフォームの変化を適用
 	m_transform.SetPos(pos);
 	m_transform.SetRotate(rotate);
-	m_cam->SetPos(pos);
+	m_cam->SetPos(pos + m_camPosOffset);
 	auto front = m_transform.GetFront();
 	m_cam->SetTarget(pos + m_transform.GetFront() * 6.0f);
 }
 
 void Player::Draw()
 {
+	KuroEngine::DrawFunc3D::DrawNonShadingModel(
+		m_model,
+		m_transform,
+		*m_cam);
 }
 
 void Player::Finalize()

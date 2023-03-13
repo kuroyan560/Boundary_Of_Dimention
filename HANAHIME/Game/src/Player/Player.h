@@ -7,14 +7,24 @@
 namespace KuroEngine
 {
 	class Camera;
+	class Model;
 }
 
 class Player : public KuroEngine::Debugger
 {
+	//モデル
+	std::shared_ptr<KuroEngine::Model>m_model;
+
 	//トランスフォーム
 	KuroEngine::Transform m_transform;
-	//一人称カメラ
+
+	//カメラインスタンス
 	std::shared_ptr<KuroEngine::Camera>m_cam;
+	
+	//カメラ位置オフセット（デフォルト値）
+	KuroEngine::Vec3<float>m_camPosOffsetDefault = { 0.0f,9.0f,-11.0f };
+	//カメラ位置オフセット
+	KuroEngine::Vec3<float>m_camPosOffset = m_camPosOffsetDefault;
 
 	//カメラ感度
 	float m_camSensitivity = 1.0f;

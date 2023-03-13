@@ -69,6 +69,8 @@ void GameScene::OnDraw()
 		m_pngTex,
 		transform,
 		*nowCamera);
+
+	m_player.Draw();
 }
 
 void GameScene::OnImguiDebug()
