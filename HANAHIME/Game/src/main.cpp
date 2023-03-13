@@ -25,8 +25,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
 	//エンジン設定（ユーザー設定）========
 	KuroEngine::EngineOption engineOption;
-	engineOption.m_windowName = "Boundary Of DImention";
+	engineOption.m_windowName = "華姫";
 	engineOption.m_windowSize = { 1280,720 };
+	//engineOption.m_windowSize = { 1920,1080 };
 	engineOption.m_fullScreen = false;
 	engineOption.m_showCursor = false;
 	engineOption.m_iconPath = nullptr;
