@@ -10,6 +10,7 @@
 #include"FrameWork/UsersInput.h"
 #include"FrameWork/AudioApp.h"
 #include"FrameWork/ImguiApp.h"
+#include"FrameWork/ModelImporter.h"
 #include"Render/GraphicsManager.h"
 
 namespace KuroEngine
@@ -100,6 +101,8 @@ namespace KuroEngine
 		std::unique_ptr<AudioApp>m_audioApp;
 		//Imguiアプリ
 		std::unique_ptr<ImguiApp>m_imguiApp;
+		//モデルインポーター
+		std::unique_ptr<ModelImporter>m_modelImporter;
 
 		//グラフィックスマネージャ（レンダリング統括、Zソートなどを行う）
 		GraphicsManager m_gManager;

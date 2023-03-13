@@ -1,5 +1,5 @@
 #include "Object.h"
-#include"FrameWork/Importer.h"
+#include"FrameWork/ModelImporter.h"
 #include"Render/RenderObject/ModelInfo/ModelAnimator.h"
 #include"ForUser/Object/Model.h"
 
@@ -16,7 +16,7 @@ void KuroEngine::ModelObject::AttachModel(const std::shared_ptr<Model>& Model)
 
 KuroEngine::ModelObject::ModelObject(const std::string& Dir, const std::string& FileName)
 {
-	AttachModel(Importer::Instance()->LoadModel(Dir, FileName));
+	AttachModel(ModelImporter::Instance()->LoadModel(Dir, FileName));
 }
 
 const std::shared_ptr<KuroEngine::ConstantBuffer>& KuroEngine::ModelObject::GetTransformBuff()
