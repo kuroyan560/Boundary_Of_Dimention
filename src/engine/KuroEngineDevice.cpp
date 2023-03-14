@@ -105,9 +105,6 @@ bool KuroEngine::KuroEngineDevice::Initialize(const EngineOption& Option)
 	//インポーター
 	m_importer = std::make_unique<Importer>();
 
-	//エクスポーター
-	m_exporter = std::make_unique<Exporter>();
-
 	//FPS固定機能
 	Fps::Instance()->LoopInit(Option.m_frameRate);
 
