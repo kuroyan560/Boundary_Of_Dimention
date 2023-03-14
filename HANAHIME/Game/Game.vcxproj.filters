@@ -284,7 +284,7 @@
       <Filter>src\user\Stage</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\ForUser\JsonData.cpp">
-      <Filter>src</Filter>
+      <Filter>src\engine\ForUser</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

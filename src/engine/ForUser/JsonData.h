@@ -25,7 +25,7 @@ namespace KuroEngine
 		/// <param name="arg_keyArray">キー指定（順列でキーを見て階層を潜っていく）</param>
 		/// <returns>値を格納したか</returns>
 		template<typename T>
-		bool Get(T& arg_dest, std::initializer_list<std::string>arg_keyArray);
+		bool Get(T& arg_dest, std::initializer_list<std::string>arg_keyArray)const;
 
 		/// <summary>
 		/// ファイル出力
@@ -33,7 +33,8 @@ namespace KuroEngine
 		/// <param name="arg_dir">ディレクトリパス</param>
 		/// <param name="arg_name">ファイル名</param>
 		/// <param name="arg_ext">拡張子</param>
-		void Export(std::string arg_dir, std::string arg_name, std::string arg_ext);
+		/// <param name="arg_safeRewrite">上書き保存の場合、最終確認するか</param>
+		void Export(std::string arg_dir, std::string arg_name, std::string arg_ext, bool arg_safeRewrite = true);
 
 		/// <summary>
 		/// ファイル読み込み
@@ -44,7 +45,7 @@ namespace KuroEngine
 	};
 
 	template<typename T>
-	inline bool JsonData::Get(T& arg_dest, std::initializer_list<std::string> arg_keyArray)
+	inline bool JsonData::Get(T& arg_dest, std::initializer_list<std::string> arg_keyArray)const
 	{
 		//データが空
 		if (m_jsonData.empty())return false;

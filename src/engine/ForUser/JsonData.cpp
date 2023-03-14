@@ -2,7 +2,7 @@
 #include"KuroEngine.h"
 #include<fstream>
 
-void KuroEngine::JsonData::Export(std::string arg_dir, std::string arg_name, std::string arg_ext)
+void KuroEngine::JsonData::Export(std::string arg_dir, std::string arg_name, std::string arg_ext, bool arg_safeRewrite)
 {
 	//空っぽ
 	if (m_jsonData.empty())
@@ -12,7 +12,7 @@ void KuroEngine::JsonData::Export(std::string arg_dir, std::string arg_name, std
 	}
 
 	//上書き保存の確認
-	if (ExistFile(arg_dir + arg_name + arg_ext))
+	if (arg_safeRewrite && ExistFile(arg_dir + arg_name + arg_ext))
 	{
 		if (!AppearMessageBoxYN(arg_name + arg_ext, "同名のファイルがあるけど上書きして良い？"))return;
 	}

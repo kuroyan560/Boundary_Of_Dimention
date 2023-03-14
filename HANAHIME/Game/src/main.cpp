@@ -14,6 +14,8 @@
 
 #include"ForUser/DrawFunc/BillBoard/DrawFuncBillBoard.h"
 
+#include"ForUser/Debugger.h"
+
 #include"GameScene.h"
 
 #ifdef _DEBUG
@@ -39,6 +41,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//エンジン起動（失敗したら終了）
 	KuroEngine::KuroEngineDevice engine;
 	if (engine.Initialize(engineOption))return 1;
+
+	//デバッガのパラメータログ読み込み
+	KuroEngine::Debugger::ImportParameterLog();
 
 	//シーンリスト（ユーザー設定）=========
 	std::map<std::string, KuroEngine::BaseScene*>sceneList =
@@ -93,6 +98,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 		KuroEngine::DrawFuncBillBoard::CountReset();
 	}
+
+	KuroEngine::Debugger::ExportParameterLog();
 
 	return 0;
 }
