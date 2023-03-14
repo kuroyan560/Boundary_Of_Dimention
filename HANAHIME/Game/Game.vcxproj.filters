@@ -65,6 +65,9 @@
     <Filter Include="src\user\Player">
       <UniqueIdentifier>{db5b29a9-a60e-49a4-84b7-0ad077a3eb25}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\user\Stage">
+      <UniqueIdentifier>{6fcfac86-026f-48bd-a5db-8c79a5b3de54}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\KuroEngineDevice.cpp">
@@ -273,6 +276,12 @@
     </ClCompile>
     <ClCompile Include="src\DebugController.cpp">
       <Filter>src\user</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Stage\StageManager.cpp">
+      <Filter>src\user\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Stage\Stage.cpp">
+      <Filter>src\user\Stage</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -539,6 +548,12 @@
     </ClInclude>
     <ClInclude Include="src\DebugController.h">
       <Filter>src\user</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\StageManager.h">
+      <Filter>src\user\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\Stage.h">
+      <Filter>src\user\Stage</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

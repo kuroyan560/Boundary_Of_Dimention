@@ -4,6 +4,7 @@
 #include"ForUser/Debugger.h"
 #include"OperationConfig.h"
 #include"DebugController.h"
+#include"Stage/StageManager.h"
 
 GameScene::GameScene()
 {
@@ -23,7 +24,8 @@ void GameScene::OnInitialize()
 
 	KuroEngine::Debugger::Register({ 
 		OperationConfig::Instance(),
-		&m_player
+		&m_player,
+		StageManager::Instance(),
 		});
 }
 
@@ -39,7 +41,16 @@ void GameScene::OnUpdate()
 	//デバッグモード更新
 	DebugController::Instance()->Update();
 
-	m_debugCam.Move();
+	//デバッグモード有効
+	if (DebugController::Instance()->IsActive())
+	{
+		//デバッグカメラの更新
+		m_debugCam.Move();
+
+		//以下ゲーム内オブジェクトの処理スキップ
+		return;
+	}
+
 	m_player.Update();
 }
 
@@ -57,6 +68,12 @@ void GameScene::OnDraw()
 
 	auto nowCamera = m_player.GetCamera().lock();
 
+	//デバッグモードが有効ならデバッグカメラ
+	if (DebugController::Instance()->IsActive())nowCamera = m_debugCam;
+
+	//ステージ描画
+	StageManager::Instance()->Draw(*nowCamera);
+	
 	Transform transform;
 	transform.SetPos({ -0.5f,0,0 });
 	DrawFunc3D::DrawNonShadingPlane(
@@ -70,7 +87,7 @@ void GameScene::OnDraw()
 		transform,
 		*nowCamera);
 
-	m_player.Draw();
+	m_player.Draw(*nowCamera);
 }
 
 void GameScene::OnImguiDebug()

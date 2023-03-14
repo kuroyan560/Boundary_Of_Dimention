@@ -48,7 +48,7 @@ Player::Player()
 	:KuroEngine::Debugger("Player", true)
 {
 	//ÉÇÉfÉãì«Ç›çûÇ›
-	m_model = KuroEngine::ModelImporter::Instance()->LoadModel("resource/user/model/", "player.glb");
+	m_model = KuroEngine::ModelImporter::Instance()->LoadModel("resource/user/model/", "Player.glb");
 
 	//ÉJÉÅÉâê∂ê¨
 	m_cam = std::make_shared<KuroEngine::Camera>("Player's Camera");
@@ -95,12 +95,12 @@ void Player::Update()
 	m_cam->SetTarget(pos + m_transform.GetFront() * 6.0f);
 }
 
-void Player::Draw()
+void Player::Draw(KuroEngine::Camera& arg_cam)
 {
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_model,
 		m_transform,
-		*m_cam);
+		arg_cam);
 }
 
 void Player::Finalize()

@@ -29,13 +29,14 @@ class Player : public KuroEngine::Debugger
 	//カメラ感度
 	float m_camSensitivity = 1.0f;
 
+	//Imguiデバッグ関数オーバーライド
 	void OnImguiItems()override;
 
 public:
 	Player();
 	void Init(KuroEngine::Transform arg_initTransform);
 	void Update();
-	void Draw();
+	void Draw(KuroEngine::Camera& arg_cam);
 	void Finalize();
 
 	std::weak_ptr<KuroEngine::Camera>GetCamera() { return m_cam; }
