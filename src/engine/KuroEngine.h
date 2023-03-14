@@ -13,12 +13,11 @@ namespace KuroEngine
     using Quaternion = DirectX::XMVECTOR;
     using namespace DirectX;
 
-	bool LoadData(FILE* Fp, void* Data, const size_t& Size, const int& ElementNum);
-	bool SaveData(FILE* Fp, const void* Data, const size_t& Size, const int& ElementNum);
-
+    //通常の文字列からワイド文字列取得
 	std::wstring GetWideStrFromStr(const std::string& Str);
 	std::wstring GetWideStrFromStr(const char* Str);
 
+    //拡張子取得
 	std::string GetExtension(const std::string& Path);
 
 	void GetDivideStr(const std::string& Str, std::string* Dir, std::string* FileName);
@@ -27,6 +26,11 @@ namespace KuroEngine
 		const Matrix& ViewMat, const Matrix& ProjMat, const Vec2<float>&WinSize);
 	Vec3<float> ConvertScreenToWorld(Vec2<float> ScreenPos, float Z,
 		const Matrix& ViewMat, const Matrix& ProjMat, const Vec2<int>&WinSize);
+
+    //メッセージボックスの表示
+    void AppearMessageBox(std::string WindowName, std::string Text);
+    //メッセージボックスの表示（Yes or No）
+    bool AppearMessageBoxYN(std::string WindowName, std::string Text);
 
 	//中心座標が画面内に映っているか
 	bool InScreen(Vec2<float>ScreenPos, Vec2<float> WinSize);

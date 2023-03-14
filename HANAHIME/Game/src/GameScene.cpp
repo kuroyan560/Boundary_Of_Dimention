@@ -6,6 +6,8 @@
 #include"DebugController.h"
 #include"Stage/StageManager.h"
 
+#include"ForUser/JsonData.h"
+
 GameScene::GameScene()
 {
 	m_ddsTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.dds");
@@ -27,6 +29,31 @@ void GameScene::OnInitialize()
 		&m_player,
 		StageManager::Instance(),
 		});
+
+	KuroEngine::JsonData test;
+	//test.m_jsonData["debugger"]["player"] = { {"move",3},{"jump",4} };
+	//test.m_jsonData["debugger"]["camera"] = { { "sensitivity",2 } };
+	//test.m_jsonData["debugger"]["stage"] = 5;
+
+	test.m_jsonData["debugger"] = {
+		{"player",{
+			{"move",3},{"jump",4}}
+		},
+		{"camera",{
+			{"sensitivity",2}}
+		},
+		{"stage",5}
+	};
+	test.m_jsonData["name"] = "DebuggerParams";
+
+
+	std::string name;
+	test.Get<std::string>(name, { "name" });
+
+	float sens;
+	test.Get<float>(sens, { "debugger","camera","sensitivity" });
+
+	test.Export("resource/user/", "test", ".json");
 }
 
 void GameScene::OnUpdate()

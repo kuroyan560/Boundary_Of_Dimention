@@ -22,16 +22,6 @@ bool KuroEngine::operator==(const Matrix& lhs, const Matrix& rhs)
 	return !(lhs != rhs);
 }
 
-bool KuroEngine::LoadData(FILE* Fp, void* Data, const size_t& Size, const int& ElementNum)
-{
-	return 1 <= fread(Data, Size, ElementNum, Fp);
-}
-
-bool KuroEngine::SaveData(FILE* Fp, const void* Data, const size_t& Size, const int& ElementNum)
-{
-	return 1 <= fwrite(Data, Size, ElementNum, Fp);
-}
-
 std::wstring KuroEngine::GetWideStrFromStr(const std::string& Str)
 {
 	auto num1 = MultiByteToWideChar(
@@ -143,6 +133,20 @@ KuroEngine::Vec3<float> KuroEngine::ConvertScreenToWorld(Vec2<float> ScreenPos, 
 
 	return result;
 }
+
+void KuroEngine::AppearMessageBox(std::string WindowName, std::string Text)
+{
+    MessageBeep(MB_OK);
+    MessageBox(NULL, GetWideStrFromStr(Text).c_str(), GetWideStrFromStr(WindowName).c_str(), MB_OK);
+}
+
+bool KuroEngine::AppearMessageBoxYN(std::string WindowName, std::string Text)
+{
+    MessageBeep(MB_OK);
+    int button = MessageBox(NULL, GetWideStrFromStr(Text).c_str(), GetWideStrFromStr(WindowName).c_str(), MB_YESNO | MB_ICONQUESTION);
+    return button == IDYES;
+}
+
 
 bool KuroEngine::InScreen(Vec2<float> ScreenPos, Vec2<float> WinSize)
 {
