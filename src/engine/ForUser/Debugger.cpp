@@ -38,81 +38,88 @@ void KuroEngine::Debugger::LoadParameterLog()
 
 	nlohmann::json& json = s_parameterLog.m_jsonData[m_title];
 
-	for (auto& param : m_parameterLogArray)
+	for (auto& param : m_customParamList)
 	{
-		//このパラメータのログがない
-		if (!json.contains(param.m_key))continue;
+		auto& jsonObj = json;
+		for (auto& key : param.m_key)
+		{
+			//キーが存在しない
+			if (!jsonObj.contains(key))continue;
 
-		//キーからjsonオブジェクト取得
-		auto& obj = json[param.m_key];
+			//階層を下げる
+			jsonObj = jsonObj[key];
+		}
 
 		switch (param.m_type)
 		{
-		case LOG_TYPE::INT:
+		case PARAM_TYPE::INT:
 		{
-			auto data = obj.get<int>();
+			auto data = jsonObj.get<int>();
 			memcpy(param.m_dataPtr, &data, sizeof(int));
 			break;
 		}
-		case LOG_TYPE::INT_VEC2:
+		case PARAM_TYPE::INT_VEC2:
 		{
-			Vec2<int>data = { (int)obj[0],(int)obj[1] };
+			Vec2<int>data = { (int)jsonObj[0],(int)jsonObj[1] };
 			memcpy(param.m_dataPtr, &data, sizeof(int) * 2);
 			break;
 		}
-		case LOG_TYPE::INT_VEC3:
+		case PARAM_TYPE::INT_VEC3:
 		{
-			Vec3<int>data = { (int)obj[0],(int)obj[1],(int)obj[2] };
+			Vec3<int>data = { (int)jsonObj[0],(int)jsonObj[1],(int)jsonObj[2] };
 			memcpy(param.m_dataPtr, &data, sizeof(int) * 3);
 			break;
 		}
-		case LOG_TYPE::INT_VEC4:
+		case PARAM_TYPE::INT_VEC4:
 		{
-			Vec4<int>data = { (int)obj[0],(int)obj[1],(int)obj[2],(int)obj[3] };
+			Vec4<int>data = { (int)jsonObj[0],(int)jsonObj[1],(int)jsonObj[2],(int)jsonObj[3] };
 			memcpy(param.m_dataPtr, &data, sizeof(int) * 4);
 			break;
 		}
 
-		case LOG_TYPE::FLOAT:
+		case PARAM_TYPE::FLOAT:
 		{
-			auto data = obj.get<float>();
+			auto data = jsonObj.get<float>();
 			memcpy(param.m_dataPtr, &data, sizeof(float));
 			break;
 		}
-		case LOG_TYPE::FLOAT_VEC2:
+		case PARAM_TYPE::FLOAT_VEC2:
 		{
-			Vec2<float>data = { (float)obj[0],(float)obj[1] };
+			Vec2<float>data = { (float)jsonObj[0],(float)jsonObj[1] };
 			memcpy(param.m_dataPtr, &data, sizeof(float) * 2);
 			break;
 		}
-		case LOG_TYPE::FLOAT_VEC3:
+		case PARAM_TYPE::FLOAT_VEC3:
 		{
-			Vec3<float>data = { (float)obj[0],(float)obj[1],(float)obj[2] };
+			Vec3<float>data = { (float)jsonObj[0],(float)jsonObj[1],(float)jsonObj[2] };
 			memcpy(param.m_dataPtr, &data, sizeof(float) * 3);
 			break;
 		}
-		case LOG_TYPE::FLOAT_VEC4:
+		case PARAM_TYPE::FLOAT_VEC4:
 		{
-			Vec4<float>data = { (float)obj[0],(float)obj[1],(float)obj[2],(float)obj[3] };
+			Vec4<float>data = { (float)jsonObj[0],(float)jsonObj[1],(float)jsonObj[2],(float)jsonObj[3] };
 			memcpy(param.m_dataPtr, &data, sizeof(float) * 4);
 			break;
 		}
 
-		case LOG_TYPE::BOOL:
+		case PARAM_TYPE::BOOL:
 		{
-			bool data = obj.get<bool>();
+			bool data = jsonObj.get<bool>();
 			memcpy(param.m_dataPtr, &data, sizeof(bool));
 			break;
 		}
 
-		case LOG_TYPE::STRING:
+		case PARAM_TYPE::STRING:
 		{
-			std::string data = obj.get<std::string>();
+			std::string data = jsonObj.get<std::string>();
 			memcpy(param.m_dataPtr, &data, sizeof(data));
 			break;
 		}
+
 		default:
-			AppearMessageBox("Debugger's parameter log ERROR", "\"" + param.m_key + "\" 's parameter's type is none");
+			std::string name = m_title;
+			for (const auto& key : param.m_key)name = name + " - " + key;
+			AppearMessageBox("Debugger's parameter log ERROR", "\"" + name + "\" 's parameter's type is none");
 			break;
 		}
 	}
@@ -122,49 +129,61 @@ void KuroEngine::Debugger::WriteParameterLog()
 {
 	using namespace KuroEngine;
 
-	if (m_parameterLogArray.empty())return;
+	if (m_customParamList.empty())return;
 
-	nlohmann::json& json = s_parameterLog.m_jsonData[m_title];
+	s_parameterLog.m_jsonData[m_title] = nlohmann::json::object();
+	nlohmann::json* parent = &s_parameterLog.m_jsonData[m_title];
 
-	for (auto& param : m_parameterLogArray)
+	for (auto& param : m_customParamList)
 	{
+		for (int keyIdx = 0; keyIdx < static_cast<int>(param.m_key.size() - 1); ++keyIdx)
+		{
+			(*parent)[param.m_key[keyIdx]] = nlohmann::json::object();
+			parent = &(*parent)[param.m_key[keyIdx]];
+		}
+
+		nlohmann::json& paramObj = *parent;
+		auto key = param.m_key.back();
 		switch (param.m_type)
 		{
-		case LOG_TYPE::INT:
-			json[param.m_key] = *(int*)param.m_dataPtr;
+		case PARAM_TYPE::INT:
+			paramObj[key] = *(int*)param.m_dataPtr;
 			break;
-		case LOG_TYPE::INT_VEC2:
-			json[param.m_key] = { ((int*)param.m_dataPtr)[0],((int*)param.m_dataPtr)[1] };
+		case PARAM_TYPE::INT_VEC2:
+			paramObj[key] = { ((int*)param.m_dataPtr)[0],((int*)param.m_dataPtr)[1] };
 			break;
-		case LOG_TYPE::INT_VEC3:
-			json[param.m_key] = { ((int*)param.m_dataPtr)[0],((int*)param.m_dataPtr)[1],((int*)param.m_dataPtr)[2] };
+		case PARAM_TYPE::INT_VEC3:
+			paramObj[key] = { ((int*)param.m_dataPtr)[0],((int*)param.m_dataPtr)[1],((int*)param.m_dataPtr)[2] };
 			break;
-		case LOG_TYPE::INT_VEC4:
-			json[param.m_key] = { ((int*)param.m_dataPtr)[0],((int*)param.m_dataPtr)[1],((int*)param.m_dataPtr)[2],((int*)param.m_dataPtr)[3] };
-			break;
-
-		case LOG_TYPE::FLOAT:
-			json[param.m_key] = *(float*)param.m_dataPtr;
-			break;
-		case LOG_TYPE::FLOAT_VEC2:
-			json[param.m_key] = { ((float*)param.m_dataPtr)[0],((float*)param.m_dataPtr)[1] };
-			break;
-		case LOG_TYPE::FLOAT_VEC3:
-			json[param.m_key] = { ((float*)param.m_dataPtr)[0],((float*)param.m_dataPtr)[1],((float*)param.m_dataPtr)[2] };
-			break;
-		case LOG_TYPE::FLOAT_VEC4:
-			json[param.m_key] = { ((float*)param.m_dataPtr)[0],((float*)param.m_dataPtr)[1],((float*)param.m_dataPtr)[2],((float*)param.m_dataPtr)[3] };
+		case PARAM_TYPE::INT_VEC4:
+			paramObj[key] = { ((int*)param.m_dataPtr)[0],((int*)param.m_dataPtr)[1],((int*)param.m_dataPtr)[2],((int*)param.m_dataPtr)[3] };
 			break;
 
-		case LOG_TYPE::BOOL:
-			json[param.m_key] = *(bool*)param.m_dataPtr;
+		case PARAM_TYPE::FLOAT:
+			paramObj[key] = *(float*)param.m_dataPtr;
+			break;
+		case PARAM_TYPE::FLOAT_VEC2:
+			paramObj[key] = { ((float*)param.m_dataPtr)[0],((float*)param.m_dataPtr)[1] };
+			break;
+		case PARAM_TYPE::FLOAT_VEC3:
+			paramObj[key] = { ((float*)param.m_dataPtr)[0],((float*)param.m_dataPtr)[1],((float*)param.m_dataPtr)[2] };
+			break;
+		case PARAM_TYPE::FLOAT_VEC4:
+			paramObj[key] = { ((float*)param.m_dataPtr)[0],((float*)param.m_dataPtr)[1],((float*)param.m_dataPtr)[2],((float*)param.m_dataPtr)[3] };
 			break;
 
-		case LOG_TYPE::STRING:
-			json[param.m_key] = *(std::string*)param.m_dataPtr;
+		case PARAM_TYPE::BOOL:
+			paramObj[key] = *(bool*)param.m_dataPtr;
 			break;
+
+		case PARAM_TYPE::STRING:
+			paramObj[key] = *(std::string*)param.m_dataPtr;
+			break;
+
 		default:
-			AppearMessageBox("Debugger's parameter log ERROR", "\"" + param.m_key + "\" 's parameter's type is none");
+			std::string name = m_title;
+			for (const auto& key : param.m_key)name = name + " - " + key;
+			AppearMessageBox("Debugger's parameter log ERROR", "\"" + name + "\" 's parameter's type is none");
 			break;
 		}
 	}

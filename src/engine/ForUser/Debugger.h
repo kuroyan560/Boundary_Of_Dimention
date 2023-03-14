@@ -1,6 +1,7 @@
 #pragma once
 #include<string>
 #include<vector>
+#include<list>
 #include"FrameWork/ImguiApp.h"
 #include"JsonData.h"
 
@@ -66,7 +67,7 @@ namespace KuroEngine
 		void WriteParameterLog();
 
 	protected:
-		enum struct LOG_TYPE
+		enum struct PARAM_TYPE
 		{
 			INT, INT_VEC2, INT_VEC3, INT_VEC4,
 			FLOAT, FLOAT_VEC2, FLOAT_VEC3, FLOAT_VEC4,
@@ -74,15 +75,18 @@ namespace KuroEngine
 			STRING,
 			NONE
 		};
-		struct ParameterLogInfo
+		struct CustomParameter
 		{
-			std::string m_key;
-			LOG_TYPE m_type = LOG_TYPE::NONE;
+			std::vector<std::string>m_key;
+			PARAM_TYPE m_type = PARAM_TYPE::NONE;
 			void* m_dataPtr = nullptr;
+
+			CustomParameter(std::initializer_list<std::string>arg_key, PARAM_TYPE arg_type, void* arg_destPtr)
+				:m_key(arg_key), m_type(arg_type), m_dataPtr(arg_destPtr) {}
 		};
 
 		//パラメータログ（exe閉じても残すパラメータ）
-		std::vector<ParameterLogInfo>m_parameterLogArray;
+		std::list<CustomParameter>m_customParamList;
 
 		//imguiウィンドウ名
 		std::string m_title;

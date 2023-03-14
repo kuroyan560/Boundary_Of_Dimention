@@ -1,5 +1,7 @@
 {
   "Player": {
-    "sensitivity": 2.700000047683716
+    "camera": {
+      "sensitivity": 0.6000000238418579
+    }
   }
 }
