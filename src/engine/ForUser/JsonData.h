@@ -8,6 +8,12 @@ namespace KuroEngine
 	class JsonData
 	{
 	public:
+		JsonData() {}
+		JsonData(std::string arg_dir, std::string arg_fileName)
+		{
+			Import(arg_dir, arg_fileName);
+		}
+
 		//JSONをデシリアライズしたデータ
 		nlohmann::json m_jsonData;
 
@@ -28,6 +34,13 @@ namespace KuroEngine
 		/// <param name="arg_name">ファイル名</param>
 		/// <param name="arg_ext">拡張子</param>
 		void Export(std::string arg_dir, std::string arg_name, std::string arg_ext);
+
+		/// <summary>
+		/// ファイル読み込み
+		/// </summary>
+		/// <param name="arg_dir">ディレクトリパス</param>
+		/// <param name="arg_fileName">ファイル名（拡張子含め）</param>
+		void Import(std::string arg_dir, std::string arg_fileName);
 	};
 
 	template<typename T>

@@ -54,6 +54,10 @@ void GameScene::OnInitialize()
 	test.Get<float>(sens, { "debugger","camera","sensitivity" });
 
 	test.Export("resource/user/", "test", ".json");
+
+	KuroEngine::JsonData importData("resource/user/", "test.json");
+
+	int k = 0;
 }
 
 void GameScene::OnUpdate()

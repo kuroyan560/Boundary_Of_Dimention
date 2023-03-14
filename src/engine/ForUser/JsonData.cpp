@@ -23,3 +23,16 @@ void KuroEngine::JsonData::Export(std::string arg_dir, std::string arg_name, std
 	file << serialized << std::endl;
 	file.close();
 }
+
+void KuroEngine::JsonData::Import(std::string arg_dir, std::string arg_fileName)
+{
+	std::ifstream file;
+	file.open(arg_dir + arg_fileName);
+	if (file.fail())
+	{
+		AppearMessageBox(arg_fileName, "ファイル開くのに失敗しちゃった。");
+		return;
+	}
+	file >> m_jsonData;
+	file.close();
+}
