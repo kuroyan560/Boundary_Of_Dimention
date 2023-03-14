@@ -132,6 +132,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="..\..\src\engine\ForUser\Collision\CollisionManager.cpp" />
     <ClCompile Include="..\..\src\engine\ForUser\DebugCamera.cpp" />
     <ClCompile Include="..\..\src\engine\ForUser\Debugger.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\DeserializedData.cpp" />
     <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D.cpp" />
     <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Color.cpp" />
     <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_FillTex.cpp" />
@@ -154,6 +155,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="..\..\src\engine\ForUser\PostEffect\Vignette.cpp" />
     <ClCompile Include="..\..\src\engine\ForUser\RandBox2D.cpp" />
     <ClCompile Include="..\..\src\engine\FrameWork\AudioApp.cpp" />
+    <ClCompile Include="..\..\src\engine\FrameWork\Exporter.cpp" />
     <ClCompile Include="..\..\src\engine\FrameWork\Fps.cpp" />
     <ClCompile Include="..\..\src\engine\FrameWork\ImguiApp.cpp" />
     <ClCompile Include="..\..\src\engine\FrameWork\Importer.cpp" />
@@ -220,6 +222,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="..\..\src\engine\ForUser\Collision\CollisionResultInfo.h" />
     <ClInclude Include="..\..\src\engine\ForUser\DebugCamera.h" />
     <ClInclude Include="..\..\src\engine\ForUser\Debugger.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\DeserializedData.h" />
     <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D.h" />
     <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Color.h" />
     <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_FillTex.h" />
@@ -244,6 +247,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="..\..\src\engine\ForUser\Timer.h" />
     <ClInclude Include="..\..\src\engine\ForUser\TimeScale.h" />
     <ClInclude Include="..\..\src\engine\FrameWork\AudioApp.h" />
+    <ClInclude Include="..\..\src\engine\FrameWork\Exporter.h" />
     <ClInclude Include="..\..\src\engine\FrameWork\Fps.h" />
     <ClInclude Include="..\..\src\engine\FrameWork\ImguiApp.h" />
     <ClInclude Include="..\..\src\engine\FrameWork\Importer.h" />
