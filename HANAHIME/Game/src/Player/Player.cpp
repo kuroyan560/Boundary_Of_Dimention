@@ -1,7 +1,7 @@
 #include "Player.h"
 #include"Render/RenderObject/Camera.h"
 #include"../OperationConfig.h"
-#include"FrameWork/ModelImporter.h"
+#include"FrameWork/Importer.h"
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
 
 void Player::OnImguiItems()
@@ -48,7 +48,7 @@ Player::Player()
 	:KuroEngine::Debugger("Player", true)
 {
 	//ƒ‚ƒfƒ‹“Ç‚İ‚İ
-	m_model = KuroEngine::ModelImporter::Instance()->LoadModel("resource/user/model/", "Player.glb");
+	m_model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Player.glb");
 
 	//ƒJƒƒ‰¶¬
 	m_cam = std::make_shared<KuroEngine::Camera>("Player's Camera");

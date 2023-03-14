@@ -156,7 +156,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="..\..\src\engine\FrameWork\AudioApp.cpp" />
     <ClCompile Include="..\..\src\engine\FrameWork\Fps.cpp" />
     <ClCompile Include="..\..\src\engine\FrameWork\ImguiApp.cpp" />
-    <ClCompile Include="..\..\src\engine\FrameWork\ModelImporter.cpp" />
+    <ClCompile Include="..\..\src\engine\FrameWork\Importer.cpp" />
     <ClCompile Include="..\..\src\engine\FrameWork\UsersInput.cpp" />
     <ClCompile Include="..\..\src\engine\FrameWork\WinApp.cpp" />
     <ClCompile Include="..\..\src\engine\KuroEngineDevice.cpp" />
@@ -246,7 +246,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="..\..\src\engine\FrameWork\AudioApp.h" />
     <ClInclude Include="..\..\src\engine\FrameWork\Fps.h" />
     <ClInclude Include="..\..\src\engine\FrameWork\ImguiApp.h" />
-    <ClInclude Include="..\..\src\engine\FrameWork\ModelImporter.h" />
+    <ClInclude Include="..\..\src\engine\FrameWork\Importer.h" />
     <ClInclude Include="..\..\src\engine\FrameWork\StreamReader.h" />
     <ClInclude Include="..\..\src\engine\FrameWork\UsersInput.h" />
     <ClInclude Include="..\..\src\engine\FrameWork\WinApp.h" />

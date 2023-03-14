@@ -103,7 +103,7 @@ bool KuroEngine::KuroEngineDevice::Initialize(const EngineOption& Option)
 	m_imguiApp = std::make_unique<ImguiApp>(m_d3d12App->GetDevice(), m_winApp->GetHwnd());
 
 	//モデルインポーター
-	m_modelImporter = std::make_unique<ModelImporter>();
+	m_modelImporter = std::make_unique<Importer>();
 
 	//FPS固定機能
 	Fps::Instance()->LoopInit(Option.m_frameRate);

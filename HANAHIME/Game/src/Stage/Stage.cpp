@@ -1,5 +1,5 @@
 #include "Stage.h"
-#include"FrameWork/ModelImporter.h"
+#include"FrameWork/Importer.h"
 
 Stage::Stage()
 {
@@ -8,10 +8,10 @@ Stage::Stage()
 //デフォルトのモデル
 	//スカイドーム
 	static std::shared_ptr<Model>s_defaultSkydomeModel
-		= ModelImporter::Instance()->LoadModel("resource/user/model/", "Skydome.glb");
+		= Importer::Instance()->LoadModel("resource/user/model/", "Skydome.glb");
 	//森林円柱
 	static std::shared_ptr<Model>s_defaultWoodsCylinderModel
-		= ModelImporter::Instance()->LoadModel("resource/user/model/", "Woods.glb");
+		= Importer::Instance()->LoadModel("resource/user/model/", "Woods.glb");
 
 //デフォルトの画像
 	//地面

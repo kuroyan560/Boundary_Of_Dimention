@@ -133,7 +133,7 @@
     <ClCompile Include="..\..\src\engine\FrameWork\ImguiApp.cpp">
       <Filter>src\engine\FrameWork</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\FrameWork\ModelImporter.cpp">
+    <ClCompile Include="..\..\src\engine\FrameWork\Importer.cpp">
       <Filter>src\engine\FrameWork</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\engine\FrameWork\UsersInput.cpp">
@@ -384,7 +384,7 @@
     <ClInclude Include="..\..\src\engine\FrameWork\ImguiApp.h">
       <Filter>src\engine\FrameWork</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\engine\FrameWork\ModelImporter.h">
+    <ClInclude Include="..\..\src\engine\FrameWork\Importer.h">
       <Filter>src\engine\FrameWork</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\FrameWork\StreamReader.h">

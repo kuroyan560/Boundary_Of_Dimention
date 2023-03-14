@@ -1,12 +1,12 @@
-﻿#include "ModelImporter.h"
+﻿#include "Importer.h"
 #include"KuroEngine.h"
 #include<Windows.h>
 #include"ForUser/Object/Model.h"
 #include"DirectX12/D3D12App.h"
 
-KuroEngine::ModelImporter* KuroEngine::ModelImporter::s_instance = nullptr;
+KuroEngine::Importer* KuroEngine::Importer::s_instance = nullptr;
 
-void KuroEngine::ModelImporter::ErrorMessage(const std::string& FuncName, const bool& Fail, const std::string& Comment)
+void KuroEngine::Importer::ErrorMessage(const std::string& FuncName, const bool& Fail, const std::string& Comment)
 {
 	if (Fail)
 	{
@@ -15,17 +15,17 @@ void KuroEngine::ModelImporter::ErrorMessage(const std::string& FuncName, const 
 	}
 }
 
-bool KuroEngine::ModelImporter::LoadData(FILE* Fp, void* Data, const size_t& Size, const int& ElementNum)
+bool KuroEngine::Importer::LoadData(FILE* Fp, void* Data, const size_t& Size, const int& ElementNum)
 {
 	return 1 <= fread(Data, Size, ElementNum, Fp);
 }
 
-bool KuroEngine::ModelImporter::SaveData(FILE* Fp, const void* Data, const size_t& Size, const int& ElementNum)
+bool KuroEngine::Importer::SaveData(FILE* Fp, const void* Data, const size_t& Size, const int& ElementNum)
 {
 	return 1 <= fwrite(Data, Size, ElementNum, Fp);
 }
 
-void KuroEngine::ModelImporter::LoadGLTFPrimitive(ModelMesh& ModelMesh, const Microsoft::glTF::MeshPrimitive& GLTFPrimitive, const Microsoft::glTF::Skin* GLTFSkin, const Microsoft::glTF::GLTFResourceReader& Reader, const Microsoft::glTF::Document& Doc)
+void KuroEngine::Importer::LoadGLTFPrimitive(ModelMesh& ModelMesh, const Microsoft::glTF::MeshPrimitive& GLTFPrimitive, const Microsoft::glTF::Skin* GLTFSkin, const Microsoft::glTF::GLTFResourceReader& Reader, const Microsoft::glTF::Document& Doc)
 {
 	using namespace Microsoft::glTF;
 
@@ -122,7 +122,7 @@ void KuroEngine::ModelImporter::LoadGLTFPrimitive(ModelMesh& ModelMesh, const Mi
 	}
 }
 
-void KuroEngine::ModelImporter::PrintDocumentInfo(const Microsoft::glTF::Document& document)
+void KuroEngine::Importer::PrintDocumentInfo(const Microsoft::glTF::Document& document)
 {
 	// Asset Info
 	std::cout << "Asset Version:    " << document.asset.version << "\n";
@@ -185,7 +185,7 @@ void KuroEngine::ModelImporter::PrintDocumentInfo(const Microsoft::glTF::Documen
 	}
 }
 
-void KuroEngine::ModelImporter::PrintResourceInfo(const Microsoft::glTF::Document& document, const Microsoft::glTF::GLTFResourceReader& resourceReader)
+void KuroEngine::Importer::PrintResourceInfo(const Microsoft::glTF::Document& document, const Microsoft::glTF::GLTFResourceReader& resourceReader)
 {
 	using namespace Microsoft::glTF;
 	// Use the resource reader to get each mesh primitive's position data
@@ -246,7 +246,7 @@ void KuroEngine::ModelImporter::PrintResourceInfo(const Microsoft::glTF::Documen
 	}
 }
 
-std::shared_ptr<KuroEngine::Model> KuroEngine::ModelImporter::CheckAlreadyExsit(const std::string& Dir, const std::string& FileName)
+std::shared_ptr<KuroEngine::Model> KuroEngine::Importer::CheckAlreadyExsit(const std::string& Dir, const std::string& FileName)
 {
 	//生成済
 	for (auto& m : m_models)
@@ -258,7 +258,7 @@ std::shared_ptr<KuroEngine::Model> KuroEngine::ModelImporter::CheckAlreadyExsit(
 	return std::shared_ptr<Model>();
 }
 
-void KuroEngine::ModelImporter::LoadGLTFMaterial(const MATERIAL_TEX_TYPE& Type, std::weak_ptr<Material> AttachMaterial, const Microsoft::glTF::Image& Img, const std::string& Dir, const Microsoft::glTF::GLTFResourceReader& Reader, const Microsoft::glTF::Document& Doc)
+void KuroEngine::Importer::LoadGLTFMaterial(const MATERIAL_TEX_TYPE& Type, std::weak_ptr<Material> AttachMaterial, const Microsoft::glTF::Image& Img, const std::string& Dir, const Microsoft::glTF::GLTFResourceReader& Reader, const Microsoft::glTF::Document& Doc)
 {
 	auto material = AttachMaterial.lock();
 	//テクスチャ画像ファイル読み込み
@@ -278,7 +278,7 @@ void KuroEngine::ModelImporter::LoadGLTFMaterial(const MATERIAL_TEX_TYPE& Type, 
 }
 
 #include<sstream>
-std::shared_ptr<KuroEngine::Model> KuroEngine::ModelImporter::LoadGLTFModel(const std::string& Dir, const std::string& FileName, const std::string& Ext)
+std::shared_ptr<KuroEngine::Model> KuroEngine::Importer::LoadGLTFModel(const std::string& Dir, const std::string& FileName, const std::string& Ext)
 {
 	printf("glTFロード\nDir : %s , FileName : %s\n", Dir.c_str(), FileName.c_str());
 	std::shared_ptr<Model>result = std::make_shared<Model>(Dir, FileName);
@@ -596,7 +596,7 @@ std::shared_ptr<KuroEngine::Model> KuroEngine::ModelImporter::LoadGLTFModel(cons
 	return result;
 }
 
-std::shared_ptr<KuroEngine::Model> KuroEngine::ModelImporter::LoadModel(const std::string& Dir, const std::string& FileName)
+std::shared_ptr<KuroEngine::Model> KuroEngine::Importer::LoadModel(const std::string& Dir, const std::string& FileName)
 {
 	//ファイルが存在しているか確認
 	ErrorMessage("LoadModel", !ExistFile(Dir + FileName), Dir + FileName + " wasn't found.\n");

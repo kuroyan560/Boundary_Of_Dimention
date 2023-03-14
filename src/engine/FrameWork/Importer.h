@@ -16,13 +16,13 @@ namespace KuroEngine
 {
 	class Model;
 
-	class ModelImporter
+	class Importer
 	{
 	private:
-		static ModelImporter* s_instance;
+		static Importer* s_instance;
 
 	public:
-		static ModelImporter* Instance()
+		static Importer* Instance()
 		{
 			assert(s_instance != nullptr);
 			return s_instance;
@@ -61,12 +61,12 @@ namespace KuroEngine
 		//※ ファイル名は拡張子つき
 		std::shared_ptr<Model> LoadGLTFModel(const std::string& Dir, const std::string& FileName, const std::string& Ext);
 	public:
-		ModelImporter()
+		Importer()
 		{
 			assert(s_instance == nullptr);
 			s_instance = this;
 		}
-		~ModelImporter() {  }
+		~Importer() {  }
 
 		std::shared_ptr<Model>LoadModel(const std::string& Dir, const std::string& FileName);
 	};
