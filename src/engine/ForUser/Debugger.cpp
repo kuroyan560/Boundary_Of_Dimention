@@ -79,11 +79,10 @@ void KuroEngine::Debugger::Draw()
 			ImGui::PushStyleColor(ImGuiCol_Text, titleTextColor);
 
 			std::string winTitle = debugger->m_title + " - CustomParameter";
-			ImGui::Begin(winTitle.c_str(), nullptr, 0);
-
+			ImGui::Begin(winTitle.c_str(), nullptr, ImGuiWindowFlags_MenuBar);
 			ImGui::PopStyleColor();
 
-			//ユーザー設定のimgui処理
+			//カスタムパラメータのimgui処理
 			debugger->CustomParameterOnImgui();
 
 			ImGui::PopStyleColor();
@@ -280,6 +279,25 @@ void KuroEngine::Debugger::WriteParameterLog()
 
 void KuroEngine::Debugger::CustomParameterOnImgui()
 {
+	//メニュー
+	bool dragSpeed = false;
+	if (ImGui::BeginMenuBar())
+	{
+		if (ImGui::BeginMenu("Settings"))
+		{
+			if (ImGui::MenuItem("DragSpeed"))dragSpeed = true;
+			ImGui::EndMenu();
+		}
+		ImGui::EndMenuBar();
+	}
+
+	if (dragSpeed)ImGui::OpenPopup("DragSpeedSetting");
+	if (ImGui::BeginPopup("DragSpeedSetting"))
+	{
+		ImGui::PushItemWidth(100);
+		ImGui::InputFloat("DragSpeed", &m_customParamDragSpeed);
+		ImGui::EndPopup();
+	}
 
 	//登録されたカスタムパラメータの設定
 	for (auto& paramGroup : m_customParamGroup)
