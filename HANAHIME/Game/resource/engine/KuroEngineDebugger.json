@@ -1,7 +1,7 @@
 {
   "Player": {
     "camera": {
-      "sensitivity": 2.0
+      "sensitivity": 1.25
     }
   },
   "StageManager": {

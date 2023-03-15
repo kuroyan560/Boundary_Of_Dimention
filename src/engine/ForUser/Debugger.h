@@ -126,7 +126,7 @@ namespace KuroEngine
 		bool m_textColor = false;
 
 		Debugger(std::string arg_title, bool arg_active = false, bool arg_customParamActive = false, ImGuiWindowFlags arg_imguiWinFlags = 0)
-			:m_title(arg_title), m_active(arg_active), m_customParamActive(arg_customParamActive), m_id(s_id++), m_imguiWinFlags(ImGuiWindowFlags_MenuBar | arg_imguiWinFlags)
+			:m_title(arg_title), m_active(arg_active), m_customParamActive(arg_customParamActive), m_id(s_id++), m_imguiWinFlags(arg_imguiWinFlags)
 		{
 		}
 

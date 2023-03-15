@@ -16,7 +16,20 @@ void KuroEngine::Debugger::Draw()
 	ImGui::Separator();
 	for (auto& debugger : s_debuggerArray)
 	{
+		bool colorWidget = false;
+		if (ImGui::ColorButton(("ColorWidget" + debugger->m_title).c_str(), debugger->m_debuggerColor))colorWidget = true;
+		ImGui::SameLine();
+
 		ImGui::Checkbox(debugger->m_title.c_str(), &debugger->m_active);
+
+		//イメージカラー設定
+		if (colorWidget)ImGui::OpenPopup(("PickColor" + debugger->m_title).c_str());
+		if (ImGui::BeginPopup(("PickColor" + debugger->m_title).c_str()))
+		{
+			ImGui::ColorPicker4("ImageColor", (float*)&debugger->m_debuggerColor);
+			ImGui::Checkbox("TextColor(White)", &debugger->m_textColor);
+			ImGui::EndPopup();
+		}
 	}
 	ImGui::End();
 
@@ -36,32 +49,6 @@ void KuroEngine::Debugger::Draw()
 
 		ImGui::Begin(std::string(debugger->m_title + " (Debugger)").c_str(), nullptr, debugger->m_imguiWinFlags);
 		ImGui::PopStyleColor();
-
-		bool pickColorWidget = false;
-		if (ImGui::BeginMenuBar())
-		{
-			if (ImGui::BeginMenu("Setting"))
-			{
-				if (ImGui::MenuItem("Color"))pickColorWidget = true;
-
-				std::string customParamItem = "CustomParameter - " + std::string(debugger->m_customParamActive ? "On" : "Off");
-				if (ImGui::MenuItem(customParamItem.c_str()))
-				{
-					debugger->m_customParamActive = !debugger->m_customParamActive;
-				}
-				ImGui::EndMenu();
-			}
-			ImGui::EndMenuBar();
-		}
-
-		//イメージカラー設定
-		if(pickColorWidget)ImGui::OpenPopup("PickColor");
-		if (ImGui::BeginPopup("PickColor"))
-		{
-			ImGui::ColorPicker4("ImageColor", (float*)&debugger->m_debuggerColor);
-			ImGui::Checkbox("TextColor(White)", &debugger->m_textColor);
-			ImGui::EndPopup();
-		}
 
 		//カスタムパラメータウィンドウのアクティブ状態
 		if (!debugger->m_customParamList.empty())
