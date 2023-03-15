@@ -38,23 +38,21 @@ void KuroEngine::Debugger::LoadParameterLog()
 
 	for (auto& param : m_customParamList)
 	{
-		nlohmann::json& json = s_parameterLog.m_jsonData[m_title];
-
-		auto& jsonObj = json;
+		const auto* jsonObj = &s_parameterLog.m_jsonData[m_title];
 		for (auto& key : param.m_key)
 		{
 			//ƒL[‚ª‘¶Ý‚µ‚È‚¢
-			if (!jsonObj.contains(key))continue;
+			if (!jsonObj->contains(key))continue;
 
 			//ŠK‘w‚ð‰º‚°‚é
-			jsonObj = jsonObj[key];
+			jsonObj = &jsonObj->at(key);
 		}
 
 		switch (param.m_type)
 		{
 		case PARAM_TYPE::INT:
 		{
-			auto data = jsonObj.get<int>();
+			auto data = jsonObj->get<int>();
 			memcpy(param.m_dataPtr, &data, sizeof(int));
 			break;
 		}
@@ -79,7 +77,7 @@ void KuroEngine::Debugger::LoadParameterLog()
 
 		case PARAM_TYPE::FLOAT:
 		{
-			auto data = jsonObj.get<float>();
+			auto data = jsonObj->get<float>();
 			memcpy(param.m_dataPtr, &data, sizeof(float));
 			break;
 		}
@@ -104,14 +102,14 @@ void KuroEngine::Debugger::LoadParameterLog()
 
 		case PARAM_TYPE::BOOL:
 		{
-			bool data = jsonObj.get<bool>();
+			bool data = jsonObj->get<bool>();
 			memcpy(param.m_dataPtr, &data, sizeof(bool));
 			break;
 		}
 
 		case PARAM_TYPE::STRING:
 		{
-			std::string data = jsonObj.get<std::string>();
+			std::string data = jsonObj->get<std::string>();
 			memcpy(param.m_dataPtr, &data, sizeof(data));
 			break;
 		}

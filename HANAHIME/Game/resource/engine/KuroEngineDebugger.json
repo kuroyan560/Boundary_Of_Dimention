@@ -6,11 +6,11 @@
   },
   "StageManager": {
     "scaling": {
-      "ground": 1.0,
-      "skydome": 1.0,
+      "ground": 311.3999938964844,
+      "skydome": 500.0,
       "woods": {
-        "height": 1.0,
-        "radius": 1.0
+        "height": 186.0,
+        "radius": 309.0
       }
     }
   }
