@@ -4,6 +4,8 @@
       "sensitivity": 3.049999952316284
     },
     "debuggerSetting": {
+      "active": true,
+      "customParamActive": true,
       "imageColor": [
         0.8478261232376099,
         0.041469771414995193,
@@ -15,6 +17,8 @@
   },
   "StageManager": {
     "debuggerSetting": {
+      "active": false,
+      "customParamActive": false,
       "imageColor": [
         0.07407845556735992,
         0.717391312122345,

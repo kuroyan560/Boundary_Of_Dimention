@@ -26,12 +26,16 @@ namespace KuroEngine
 		//パラメータログのファイル拡張子
 		static const std::string s_jsonExt;
 
-		//Debuggerの設定項目キー
+		//デバッガの設定項目キー
 		static const std::string s_settingKey;
-		//Debuggerのイメージカラー項目キー
+		//デバッガのイメージカラー項目キー
 		static const std::string s_settingColKey;
-		//Debuggerのテキストカラーーフラグ項目キー
+		//デバッガのテキストカラーーフラグ項目キー
 		static const std::string s_settingTextColKey;
+		//デバッガのアクティブ状態項目キー
+		static const std::string s_settingActiveKey;
+		//デバッガのカスタムパラメータのアクティブ状態項目キー
+		static const std::string s_settingCustomParamKey;
 
 		//パラメータログ
 		static JsonData s_parameterLog;

@@ -7,9 +7,13 @@ int KuroEngine::Debugger::s_id = 0;
 const std::string KuroEngine::Debugger::s_jsonFileDir = "resource/engine/";
 const std::string KuroEngine::Debugger::s_jsonName = "KuroEngineDebugger";
 const std::string KuroEngine::Debugger::s_jsonExt = ".json";
+
 const std::string KuroEngine::Debugger::s_settingKey = "debuggerSetting";
 const std::string KuroEngine::Debugger::s_settingColKey = "imageColor";
 const std::string KuroEngine::Debugger::s_settingTextColKey = "textColorFlg";
+const std::string KuroEngine::Debugger::s_settingActiveKey = "active";
+const std::string KuroEngine::Debugger::s_settingCustomParamKey = "customParamActive";
+
 KuroEngine::JsonData KuroEngine::Debugger::s_parameterLog;
 
 
@@ -106,14 +110,16 @@ void KuroEngine::Debugger::LoadParameterLog()
 		const auto& settings = s_parameterLog.m_jsonData[m_title][s_settingKey];
 		//デバッガのイメージカラー読込
 		if (settings.contains(s_settingColKey))
-		{
 			m_debuggerColor = { (float)settings[s_settingColKey][0],(float)settings[s_settingColKey][1],(float)settings[s_settingColKey][2],(float)settings[s_settingColKey][3] };
-		}
 		//テキストカラーフラグ読込
-		if (s_parameterLog.m_jsonData[m_title].contains(s_settingTextColKey))
-		{
+		if (settings.contains(s_settingTextColKey))
 			m_textColor = settings[s_settingTextColKey].get<bool>();
-		}
+		//デバッガのアクティブ状態女見込み
+		if (settings.contains(s_settingActiveKey))
+			m_active = settings[s_settingActiveKey].get<bool>();
+		//デバッガのカスタムパラメータアクティブ状態
+		if (settings.contains(s_settingCustomParamKey))
+			m_customParamActive = settings[s_settingCustomParamKey].get<bool>();
 	}
 
 	for (auto& param : m_customParamList)
@@ -218,6 +224,10 @@ void KuroEngine::Debugger::WriteParameterLog()
 	settings[s_settingColKey] = { m_debuggerColor.x,m_debuggerColor.y,m_debuggerColor.z,m_debuggerColor.w };
 	//テキストカラーフラグ項目
 	settings[s_settingTextColKey] = m_textColor;
+	//デバッガのアクティブ状態
+	settings[s_settingActiveKey] = m_active;
+	//デバッガのカスタムパラメータアクティブ状態
+	settings[s_settingCustomParamKey] = m_customParamActive;
 
 	for (auto& param : m_customParamList)
 	{
