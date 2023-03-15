@@ -26,6 +26,16 @@ namespace KuroEngine
 		//パラメータログ
 		static JsonData s_parameterLog;
 
+	protected:
+		enum struct PARAM_TYPE
+		{
+			INT, INT_VEC2, INT_VEC3, INT_VEC4,
+			FLOAT, FLOAT_VEC2, FLOAT_VEC3, FLOAT_VEC4,
+			BOOL,
+			STRING,
+			NONE
+		};
+
 	public:
 		virtual ~Debugger() {  }
 		//デバッグ機構表示
@@ -66,15 +76,6 @@ namespace KuroEngine
 		void LoadParameterLog();
 		void WriteParameterLog();
 
-	protected:
-		enum struct PARAM_TYPE
-		{
-			INT, INT_VEC2, INT_VEC3, INT_VEC4,
-			FLOAT, FLOAT_VEC2, FLOAT_VEC3, FLOAT_VEC4,
-			BOOL,
-			STRING,
-			NONE
-		};
 		struct CustomParameter
 		{
 			std::vector<std::string>m_key;
@@ -88,6 +89,7 @@ namespace KuroEngine
 		//パラメータログ（exe閉じても残すパラメータ）
 		std::list<CustomParameter>m_customParamList;
 
+	protected:
 		//imguiウィンドウ名
 		std::string m_title;
 		Debugger(std::string arg_title, bool arg_active = false, ImGuiWindowFlags arg_imguiWinFlags = 0)
@@ -95,5 +97,10 @@ namespace KuroEngine
 
 		//imguiの項目 Begin ~ End 間に呼び出す処理
 		virtual void OnImguiItems() = 0;
+
+		void AddCustomParameter(std::initializer_list<std::string>arg_key, PARAM_TYPE arg_type, void* arg_destPtr)
+		{
+			m_customParamList.emplace_back(arg_key, arg_type, arg_destPtr);
+		}
 	};
 }

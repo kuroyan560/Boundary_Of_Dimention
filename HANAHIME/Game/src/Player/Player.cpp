@@ -53,8 +53,7 @@ Player::Player()
 	//ÉJÉÅÉâê∂ê¨
 	m_cam = std::make_shared<KuroEngine::Camera>("Player's Camera");
 
-	Debugger::CustomParameter param({ "camera","sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity);
-	m_customParamList.emplace_back(param);
+	AddCustomParameter({ "camera","sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity);
 }
 
 void Player::Init(KuroEngine::Transform arg_initTransform)
