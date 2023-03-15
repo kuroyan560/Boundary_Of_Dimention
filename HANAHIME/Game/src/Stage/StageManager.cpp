@@ -3,7 +3,7 @@
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
 
 StageManager::StageManager()
-	:KuroEngine::Debugger("StageManager", true)
+	:KuroEngine::Debugger("StageManager", true, true)
 {
 	//テスト用ステージ生成
 	m_testStage = std::make_shared<Stage>();
@@ -12,10 +12,10 @@ StageManager::StageManager()
 	m_nowStage = m_testStage;
 
 	//デバッガでのカスタムパラメータ追加
-	AddCustomParameter({ "scaling","skydome" }, PARAM_TYPE::FLOAT, &m_skydomeScaling);
-	AddCustomParameter({ "scaling","woods","radius"}, PARAM_TYPE::FLOAT, &m_woodsRadius);
-	AddCustomParameter({ "scaling","woods","height"}, PARAM_TYPE::FLOAT, &m_woodsHeight);
-	AddCustomParameter({ "scaling","ground" }, PARAM_TYPE::FLOAT, &m_groundScaling);
+	AddCustomParameter("Skydome", { "scaling", "skydome" }, PARAM_TYPE::FLOAT, &m_skydomeScaling, "Scaling");
+	AddCustomParameter("Woods_Radius", { "scaling", "woods", "radius" }, PARAM_TYPE::FLOAT, &m_woodsRadius, "Scaling");
+	AddCustomParameter("Woods_Height", { "scaling", "woods", "height" }, PARAM_TYPE::FLOAT, &m_woodsHeight, "Scaling");
+	AddCustomParameter("Ground", { "scaling", "ground" }, PARAM_TYPE::FLOAT, &m_groundScaling, "Scaling");
 }
 
 void StageManager::OnImguiItems()

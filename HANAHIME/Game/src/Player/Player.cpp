@@ -45,7 +45,7 @@ void Player::OnImguiItems()
 }
 
 Player::Player()
-	:KuroEngine::Debugger("Player", true)
+	:KuroEngine::Debugger("Player", true,true)
 {
 	//ÉÇÉfÉãì«Ç›çûÇ›
 	m_model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Player.glb");
@@ -53,7 +53,7 @@ Player::Player()
 	//ÉJÉÅÉâê∂ê¨
 	m_cam = std::make_shared<KuroEngine::Camera>("Player's Camera");
 
-	AddCustomParameter({ "camera","sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity);
+	AddCustomParameter("Sensitivity", { "camera", "sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity, "Camera");
 }
 
 void Player::Init(KuroEngine::Transform arg_initTransform)

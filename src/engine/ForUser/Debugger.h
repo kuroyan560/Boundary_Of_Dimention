@@ -4,6 +4,7 @@
 #include<list>
 #include"FrameWork/ImguiApp.h"
 #include"JsonData.h"
+#include<map>
 
 namespace KuroEngine
 {
@@ -27,6 +28,7 @@ namespace KuroEngine
 		static JsonData s_parameterLog;
 
 	protected:
+		//カスタムパラメータの型
 		enum struct PARAM_TYPE
 		{
 			INT, INT_VEC2, INT_VEC3, INT_VEC4,
@@ -73,34 +75,74 @@ namespace KuroEngine
 		//imguiWindowフラグ
 		ImGuiWindowFlags m_imguiWinFlags;
 
+		//パラメータログからカスタムパラメータ読込
 		void LoadParameterLog();
+		//パラメータログにカスタムパラメータを記録
 		void WriteParameterLog();
 
+		//カスタムパラメータ（exe閉じても調整した値を残す）
 		struct CustomParameter
 		{
+			//名前
+			std::string m_label;
+			//jsonに記録する際のキー配列（順列で階層を下りていく）
 			std::vector<std::string>m_key;
+			//型
 			PARAM_TYPE m_type = PARAM_TYPE::NONE;
+			//値を同期する変数のポインタ
 			void* m_dataPtr = nullptr;
+			//上限下限をつけるか
+			bool m_isMinMax = false;
+			//下限
+			float m_min = 0.0f;
+			//上限
+			float m_max = 0.0f;
 
-			CustomParameter(std::initializer_list<std::string>arg_key, PARAM_TYPE arg_type, void* arg_destPtr)
-				:m_key(arg_key), m_type(arg_type), m_dataPtr(arg_destPtr) {}
+			CustomParameter(std::string arg_label, std::initializer_list<std::string>arg_key, PARAM_TYPE arg_type, void* arg_destPtr,
+				bool arg_isMinMax, float arg_min, float arg_max)
+				:m_label(arg_label), m_key(arg_key), m_type(arg_type), m_dataPtr(arg_destPtr), m_isMinMax(arg_isMinMax), m_min(arg_min), m_max(arg_max) {}
 		};
 
 		//パラメータログ（exe閉じても残すパラメータ）
 		std::list<CustomParameter>m_customParamList;
+		//カスタムパラメータをimgui上で表示する際のTree組分け
+		std::map<std::string, std::vector<CustomParameter*>>m_customParamGroup;
+
+
+		//カスタムパラメータをimgui上でいじる関数
+		void CustomParameterOnImgui();
+		//カスタムパラメータ調整ウィンドウのアクティブ状態
+		bool m_customParamActive = true;
+		//（※数値に限り）値をドラッグする際の変化量
+		float m_customParamDragSpeed = 0.05f;
 
 	protected:
 		//imguiウィンドウ名
 		std::string m_title;
-		Debugger(std::string arg_title, bool arg_active = false, ImGuiWindowFlags arg_imguiWinFlags = 0)
-			:m_title(arg_title), m_active(arg_active), m_id(s_id++), m_imguiWinFlags(arg_imguiWinFlags) {}
+		Debugger(std::string arg_title, bool arg_active = false, bool arg_customParamActive = false, ImGuiWindowFlags arg_imguiWinFlags = 0)
+			:m_title(arg_title), m_active(arg_active), m_customParamActive(arg_customParamActive), m_id(s_id++), m_imguiWinFlags(arg_imguiWinFlags) {}
 
-		//imguiの項目 Begin ~ End 間に呼び出す処理
-		virtual void OnImguiItems() = 0;
+		/// <summary>
+		/// カスタムパラメータ以外のImgui処理を自由に定義（Begin ~ End の間で呼ばれる）
+		/// </summary>
+		virtual void OnImguiItems() {};
 
-		void AddCustomParameter(std::initializer_list<std::string>arg_key, PARAM_TYPE arg_type, void* arg_destPtr)
+		/// <summary>
+		/// カスタムパラメータの追加
+		/// </summary>
+		/// <param name="arg_label">カスタムパラメータの名前</param>
+		/// <param name="arg_key">json上で記録する際のキー配列（順列で階層を下りていく）</param>
+		/// <param name="arg_type">パラメータの型</param>
+		/// <param name="arg_destPtr">カスタムパラメータの同期先</param>
+		/// <param name="arg_imguiTreeName">imgui上でのTree組分け先グループ名</param>
+		/// <param name="arg_isMinMax">（※数値にかぎり）上限下限をつけるか</param>
+		/// <param name="arg_min">下限</param>
+		/// <param name="arg_max">上限</param>
+		void AddCustomParameter(std::string arg_label, std::initializer_list<std::string>arg_key, PARAM_TYPE arg_type, void* arg_destPtr, std::string arg_imguiTreeName,
+			bool arg_isMinMax = false, float arg_min = 0.0f, float arg_max = 0.0f)
 		{
-			m_customParamList.emplace_back(arg_key, arg_type, arg_destPtr);
+			m_customParamList.emplace_back(arg_label, arg_key, arg_type, arg_destPtr, arg_isMinMax, arg_min, arg_max);
+			m_customParamGroup[arg_imguiTreeName].push_back(&m_customParamList.back());
 		}
 	};
 }

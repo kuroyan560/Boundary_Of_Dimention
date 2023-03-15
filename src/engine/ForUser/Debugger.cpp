@@ -24,8 +24,27 @@ void KuroEngine::Debugger::Draw()
 	{
 		if (!debugger->m_active)continue;
 		ImGui::Begin(debugger->m_title.c_str(), nullptr, debugger->m_imguiWinFlags);
+
+		//カスタムパラメータウィンドウのアクティブ状態
+		if (!debugger->m_customParamList.empty())
+		{
+			ImGui::Checkbox("CustomParameter", &debugger->m_customParamActive);
+			ImGui::Separator();
+		}
+
+		//ユーザー定義のimgui処理
 		debugger->OnImguiItems();
+
 		ImGui::End();
+
+		//カスタムパラメータウィンドウ
+		if (debugger->m_customParamActive)
+		{
+			std::string winTitle = debugger->m_title + " - CustomParameter";
+			ImGui::Begin(winTitle.c_str(), nullptr, debugger->m_imguiWinFlags);
+			debugger->CustomParameterOnImgui();
+			ImGui::End();
+		}
 	}
 }
 
@@ -115,9 +134,7 @@ void KuroEngine::Debugger::LoadParameterLog()
 		}
 
 		default:
-			std::string name = m_title;
-			for (const auto& key : param.m_key)name = name + " - " + key;
-			AppearMessageBox("Debugger's parameter log ERROR", "\"" + name + "\" 's parameter's type is none");
+			AppearMessageBox("Debugger：LoadParameterLog()失敗", param.m_label + "のタイプがNONEだったので上手く読み込めなかったよ");
 			break;
 		}
 	}
@@ -183,10 +200,85 @@ void KuroEngine::Debugger::WriteParameterLog()
 			break;
 
 		default:
-			std::string name = m_title;
-			for (const auto& key : param.m_key)name = name + " - " + key;
-			AppearMessageBox("Debugger's parameter log ERROR", "\"" + name + "\" 's parameter's type is none");
+			AppearMessageBox("Debugger：WriteParameterLog()失敗", param.m_label + "のタイプがNONEだったので上手く書き込めなかったよ");
 			break;
 		}
 	}
+}
+
+void KuroEngine::Debugger::CustomParameterOnImgui()
+{
+
+	//登録されたカスタムパラメータの設定
+	for (auto& paramGroup : m_customParamGroup)
+	{
+		ImGui::SetNextItemOpen(true);
+		ImGui::PushItemWidth(100);
+
+		if (ImGui::TreeNode("%s", paramGroup.first.c_str()))
+		{
+			auto& itemList = paramGroup.second;
+
+			std::vector<CustomParameter*>::iterator itr = itemList.begin();
+			for (; itr != itemList.end();)
+			{
+				const auto& item = **itr;
+				const char* label = item.m_label.c_str();
+				bool error = false;
+				float min = item.m_isMinMax ? item.m_min : 0.0f;
+				float max = item.m_isMinMax ? item.m_max : 0.0f;
+
+				switch (item.m_type)
+				{
+				case PARAM_TYPE::INT:
+					ImGui::DragInt(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
+					break;
+				case PARAM_TYPE::INT_VEC2:
+					ImGui::DragInt2(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
+					break;
+				case PARAM_TYPE::INT_VEC3:
+					ImGui::DragInt3(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
+					break;
+				case PARAM_TYPE::INT_VEC4:
+					ImGui::DragInt4(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
+					break;
+
+				case PARAM_TYPE::FLOAT:
+					ImGui::DragFloat(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
+					break;
+				case PARAM_TYPE::FLOAT_VEC2:
+					ImGui::DragFloat2(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
+					break;
+				case PARAM_TYPE::FLOAT_VEC3:
+					ImGui::DragFloat3(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
+					break;
+				case PARAM_TYPE::FLOAT_VEC4:
+					ImGui::DragFloat4(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
+					break;
+
+				case PARAM_TYPE::BOOL:
+					ImGui::Checkbox(label, (bool*)item.m_dataPtr);
+					break;
+
+				case PARAM_TYPE::STRING:
+				{
+					std::string* strPtr = (std::string*)item.m_dataPtr;
+					ImGui::InputText(label, (char*)strPtr->c_str(), strPtr->capacity() + 1);
+					break;
+				}
+
+				default:
+					AppearMessageBox("Debugger：CustomParamterOnImgui()失敗", item.m_label + "のタイプがNONEだったのでimgui上でいじれないよ");
+					error = true;
+					break;
+				}
+
+				if (error)itr = itemList.erase(itr);
+				else itr++;
+			}
+
+			ImGui::TreePop();
+		}
+	}
+
 }
