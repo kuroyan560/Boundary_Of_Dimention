@@ -10,6 +10,12 @@ StageManager::StageManager()
 
 	//現在のステージ指定（デフォルトはテスト用ステージ）
 	m_nowStage = m_testStage;
+
+	//デバッガでのカスタムパラメータ追加
+	AddCustomParameter({ "scaling","skydome" }, PARAM_TYPE::FLOAT, &m_skydomeScaling);
+	AddCustomParameter({ "scaling","woods","radius"}, PARAM_TYPE::FLOAT, &m_woodsRadius);
+	AddCustomParameter({ "scaling","woods","height"}, PARAM_TYPE::FLOAT, &m_woodsHeight);
+	AddCustomParameter({ "scaling","ground" }, PARAM_TYPE::FLOAT, &m_groundScaling);
 }
 
 void StageManager::OnImguiItems()

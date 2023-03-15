@@ -3,5 +3,15 @@
     "camera": {
       "sensitivity": 2.0
     }
+  },
+  "StageManager": {
+    "scaling": {
+      "ground": 1.0,
+      "skydome": 1.0,
+      "woods": {
+        "height": 1.0,
+        "radius": 1.0
+      }
+    }
   }
 }

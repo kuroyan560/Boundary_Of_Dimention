@@ -36,10 +36,10 @@ void KuroEngine::Debugger::LoadParameterLog()
 	//ÉçÉOÇ™Ç»Ç¢
 	if (!s_parameterLog.m_jsonData.contains(m_title))return;
 
-	nlohmann::json& json = s_parameterLog.m_jsonData[m_title];
-
 	for (auto& param : m_customParamList)
 	{
+		nlohmann::json& json = s_parameterLog.m_jsonData[m_title];
+
 		auto& jsonObj = json;
 		for (auto& key : param.m_key)
 		{
@@ -132,13 +132,17 @@ void KuroEngine::Debugger::WriteParameterLog()
 	if (m_customParamList.empty())return;
 
 	s_parameterLog.m_jsonData[m_title] = nlohmann::json::object();
-	nlohmann::json* parent = &s_parameterLog.m_jsonData[m_title];
 
 	for (auto& param : m_customParamList)
 	{
+		nlohmann::json* parent = &s_parameterLog.m_jsonData[m_title];
+
 		for (int keyIdx = 0; keyIdx < static_cast<int>(param.m_key.size() - 1); ++keyIdx)
 		{
-			(*parent)[param.m_key[keyIdx]] = nlohmann::json::object();
+			if (!parent->contains(param.m_key[keyIdx]))
+			{
+				(*parent)[param.m_key[keyIdx]] = nlohmann::json::object();
+			}
 			parent = &(*parent)[param.m_key[keyIdx]];
 		}
 
