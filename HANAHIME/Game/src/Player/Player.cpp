@@ -45,7 +45,7 @@ void Player::OnImguiItems()
 }
 
 Player::Player()
-	:KuroEngine::Debugger("Player", true,true)
+	:KuroEngine::Debugger("Player", true, true, KuroEngine::Color(1.0f, 0.0f, 0.0f, 1.0f))
 {
 	//ƒ‚ƒfƒ‹“Ç‚Ýž‚Ý
 	m_model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Player.glb");

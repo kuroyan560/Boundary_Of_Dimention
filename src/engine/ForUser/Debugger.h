@@ -5,6 +5,7 @@
 #include"FrameWork/ImguiApp.h"
 #include"JsonData.h"
 #include<map>
+#include"Common/Color.h"
 
 namespace KuroEngine
 {
@@ -119,8 +120,15 @@ namespace KuroEngine
 	protected:
 		//imguiウィンドウ名
 		std::string m_title;
+		//色
+		ImVec4 m_debuggerColor = ImVec4(0.8f, 0.8f, 0.8f, 1.0f);
+		//文字色白黒
+		bool m_textColor = false;
+
 		Debugger(std::string arg_title, bool arg_active = false, bool arg_customParamActive = false, ImGuiWindowFlags arg_imguiWinFlags = 0)
-			:m_title(arg_title), m_active(arg_active), m_customParamActive(arg_customParamActive), m_id(s_id++), m_imguiWinFlags(arg_imguiWinFlags) {}
+			:m_title(arg_title), m_active(arg_active), m_customParamActive(arg_customParamActive), m_id(s_id++), m_imguiWinFlags(ImGuiWindowFlags_MenuBar | arg_imguiWinFlags)
+		{
+		}
 
 		/// <summary>
 		/// カスタムパラメータ以外のImgui処理を自由に定義（Begin ~ End の間で呼ばれる）

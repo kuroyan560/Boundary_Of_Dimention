@@ -11,7 +11,7 @@ KuroEngine::JsonData KuroEngine::Debugger::s_parameterLog;
 
 void KuroEngine::Debugger::Draw()
 {
-	ImGui::Begin("DebuggerMgr");
+	ImGui::Begin("DebuggerMgr", nullptr, ImGuiWindowFlags_NoDocking);
 	Fps::Instance()->OnImguiItems();
 	ImGui::Separator();
 	for (auto& debugger : s_debuggerArray)
@@ -23,7 +23,45 @@ void KuroEngine::Debugger::Draw()
 	for (auto& debugger : s_debuggerArray)
 	{
 		if (!debugger->m_active)continue;
-		ImGui::Begin(debugger->m_title.c_str(), nullptr, debugger->m_imguiWinFlags);
+
+		ImVec4 color = debugger->m_debuggerColor;
+		color.w *= 0.8f;
+		ImVec4 activeColor = debugger->m_debuggerColor;
+		ImVec4 titleTextColor = debugger->m_textColor ? ImVec4(1.0f, 1.0f, 1.0f, 1.0f) : ImVec4(0.2f, 0.2f, 0.2f, 1.0f);
+
+		ImGui::PushStyleColor(ImGuiCol_Border, color);
+		ImGui::PushStyleColor(ImGuiCol_TitleBg, color);
+		ImGui::PushStyleColor(ImGuiCol_TitleBgActive, activeColor);
+		ImGui::PushStyleColor(ImGuiCol_Text, titleTextColor);
+
+		ImGui::Begin(std::string(debugger->m_title + " (Debugger)").c_str(), nullptr, debugger->m_imguiWinFlags);
+		ImGui::PopStyleColor();
+
+		bool pickColorWidget = false;
+		if (ImGui::BeginMenuBar())
+		{
+			if (ImGui::BeginMenu("Setting"))
+			{
+				if (ImGui::MenuItem("Color"))pickColorWidget = true;
+
+				std::string customParamItem = "CustomParameter - " + std::string(debugger->m_customParamActive ? "On" : "Off");
+				if (ImGui::MenuItem(customParamItem.c_str()))
+				{
+					debugger->m_customParamActive = !debugger->m_customParamActive;
+				}
+				ImGui::EndMenu();
+			}
+			ImGui::EndMenuBar();
+		}
+
+		//イメージカラー設定
+		if(pickColorWidget)ImGui::OpenPopup("PickColor");
+		if (ImGui::BeginPopup("PickColor"))
+		{
+			ImGui::ColorPicker4("ImageColor", (float*)&debugger->m_debuggerColor);
+			ImGui::Checkbox("TextColor(White)", &debugger->m_textColor);
+			ImGui::EndPopup();
+		}
 
 		//カスタムパラメータウィンドウのアクティブ状態
 		if (!debugger->m_customParamList.empty())
@@ -35,14 +73,31 @@ void KuroEngine::Debugger::Draw()
 		//ユーザー定義のimgui処理
 		debugger->OnImguiItems();
 
+		ImGui::PopStyleColor();
+		ImGui::PopStyleColor();
+		ImGui::PopStyleColor();
+
 		ImGui::End();
 
 		//カスタムパラメータウィンドウ
 		if (debugger->m_customParamActive)
 		{
+			ImGui::PushStyleColor(ImGuiCol_Border, color);
+			ImGui::PushStyleColor(ImGuiCol_TitleBg, color);
+			ImGui::PushStyleColor(ImGuiCol_TitleBgActive, activeColor);
+			ImGui::PushStyleColor(ImGuiCol_Text, titleTextColor);
+
 			std::string winTitle = debugger->m_title + " - CustomParameter";
-			ImGui::Begin(winTitle.c_str(), nullptr, debugger->m_imguiWinFlags);
+			ImGui::Begin(winTitle.c_str(), nullptr, 0);
+
+			ImGui::PopStyleColor();
+
+			//ユーザー設定のimgui処理
 			debugger->CustomParameterOnImgui();
+
+			ImGui::PopStyleColor();
+			ImGui::PopStyleColor();
+			ImGui::PopStyleColor();
 			ImGui::End();
 		}
 	}
