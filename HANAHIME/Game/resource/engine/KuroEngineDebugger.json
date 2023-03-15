@@ -2,9 +2,27 @@
   "Player": {
     "camera": {
       "sensitivity": 1.25
+    },
+    "debuggerSetting": {
+      "imageColor": [
+        0.8478261232376099,
+        0.041469771414995193,
+        0.041469771414995193,
+        1.0
+      ],
+      "textColorFlg": false
     }
   },
   "StageManager": {
+    "debuggerSetting": {
+      "imageColor": [
+        0.07407845556735992,
+        0.717391312122345,
+        0.19295141100883484,
+        1.0
+      ],
+      "textColorFlg": false
+    },
     "scaling": {
       "ground": 311.3999938964844,
       "skydome": 500.54998779296875,

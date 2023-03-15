@@ -7,7 +7,11 @@ int KuroEngine::Debugger::s_id = 0;
 const std::string KuroEngine::Debugger::s_jsonFileDir = "resource/engine/";
 const std::string KuroEngine::Debugger::s_jsonName = "KuroEngineDebugger";
 const std::string KuroEngine::Debugger::s_jsonExt = ".json";
+const std::string KuroEngine::Debugger::s_settingKey = "debuggerSetting";
+const std::string KuroEngine::Debugger::s_settingColKey = "imageColor";
+const std::string KuroEngine::Debugger::s_settingTextColKey = "textColorFlg";
 KuroEngine::JsonData KuroEngine::Debugger::s_parameterLog;
+
 
 void KuroEngine::Debugger::Draw()
 {
@@ -96,6 +100,22 @@ void KuroEngine::Debugger::LoadParameterLog()
 
 	//ログがない
 	if (!s_parameterLog.m_jsonData.contains(m_title))return;
+
+	//デバッガの設定読み込み
+	if (s_parameterLog.m_jsonData[m_title].contains(s_settingKey))
+	{
+		const auto& settings = s_parameterLog.m_jsonData[m_title][s_settingKey];
+		//デバッガのイメージカラー読込
+		if (settings.contains(s_settingColKey))
+		{
+			m_debuggerColor = { (float)settings[s_settingColKey][0],(float)settings[s_settingColKey][1],(float)settings[s_settingColKey][2],(float)settings[s_settingColKey][3] };
+		}
+		//テキストカラーフラグ読込
+		if (s_parameterLog.m_jsonData[m_title].contains(s_settingTextColKey))
+		{
+			m_textColor = settings[s_settingTextColKey].get<bool>();
+		}
+	}
 
 	for (auto& param : m_customParamList)
 	{
@@ -189,6 +209,16 @@ void KuroEngine::Debugger::WriteParameterLog()
 	if (m_customParamList.empty())return;
 
 	s_parameterLog.m_jsonData[m_title] = nlohmann::json::object();
+
+	//デバッガの設定項目オブジェクト生成
+	if (!s_parameterLog.m_jsonData[m_title].contains(s_settingKey))
+		s_parameterLog.m_jsonData[m_title][s_settingKey] = nlohmann::json::object();
+
+	//デバッガのイメージカラー項目
+	auto& settings = s_parameterLog.m_jsonData[m_title][s_settingKey];
+	settings[s_settingColKey] = { m_debuggerColor.x,m_debuggerColor.y,m_debuggerColor.z,m_debuggerColor.w };
+	//テキストカラーフラグ項目
+	settings[s_settingTextColKey] = m_textColor;
 
 	for (auto& param : m_customParamList)
 	{
