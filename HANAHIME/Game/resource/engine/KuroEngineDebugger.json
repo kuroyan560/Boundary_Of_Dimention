@@ -1,7 +1,20 @@
 {
+  "OperationConfig": {
+    "debuggerSetting": {
+      "active": false,
+      "customParamActive": false,
+      "imageColor": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "textColorFlg": false
+    }
+  },
   "Player": {
     "camera": {
-      "sensitivity": 3.049999952316284
+      "sensitivity": 3.450000047683716
     },
     "debuggerSetting": {
       "active": true,
@@ -17,8 +30,8 @@
   },
   "StageManager": {
     "debuggerSetting": {
-      "active": false,
-      "customParamActive": false,
+      "active": true,
+      "customParamActive": true,
       "imageColor": [
         0.07407845556735992,
         0.717391312122345,

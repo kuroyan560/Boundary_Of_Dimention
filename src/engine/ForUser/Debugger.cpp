@@ -56,44 +56,28 @@ void KuroEngine::Debugger::Draw()
 		ImGui::PushStyleColor(ImGuiCol_Text, titleTextColor);
 
 		ImGui::Begin(std::string(debugger->m_title + " (Debugger)").c_str(), nullptr, debugger->m_imguiWinFlags);
-		ImGui::PopStyleColor();
+		ImGui::PopStyleColor(1);
 
-		//カスタムパラメータウィンドウのアクティブ状態
+		//カスタムパラメータが存在
 		if (!debugger->m_customParamList.empty())
 		{
+			//カスタムパラメータウィンドウのアクティブ状態
 			ImGui::Checkbox("CustomParameter", &debugger->m_customParamActive);
+			if (debugger->m_customParamActive)
+			{
+				//カスタムパラメータのimgui処理
+				debugger->CustomParameterOnImgui();
+			}
+
 			ImGui::Separator();
 		}
 
 		//ユーザー定義のimgui処理
 		debugger->OnImguiItems();
 
-		ImGui::PopStyleColor();
-		ImGui::PopStyleColor();
-		ImGui::PopStyleColor();
+		ImGui::PopStyleColor(3);
 
 		ImGui::End();
-
-		//カスタムパラメータウィンドウ
-		if (debugger->m_customParamActive)
-		{
-			ImGui::PushStyleColor(ImGuiCol_Border, color);
-			ImGui::PushStyleColor(ImGuiCol_TitleBg, color);
-			ImGui::PushStyleColor(ImGuiCol_TitleBgActive, activeColor);
-			ImGui::PushStyleColor(ImGuiCol_Text, titleTextColor);
-
-			std::string winTitle = debugger->m_title + " - CustomParameter";
-			ImGui::Begin(winTitle.c_str(), nullptr, ImGuiWindowFlags_MenuBar);
-			ImGui::PopStyleColor();
-
-			//カスタムパラメータのimgui処理
-			debugger->CustomParameterOnImgui();
-
-			ImGui::PopStyleColor();
-			ImGui::PopStyleColor();
-			ImGui::PopStyleColor();
-			ImGui::End();
-		}
 	}
 }
 
@@ -211,8 +195,6 @@ void KuroEngine::Debugger::WriteParameterLog()
 {
 	using namespace KuroEngine;
 
-	if (m_customParamList.empty())return;
-
 	s_parameterLog.m_jsonData[m_title] = nlohmann::json::object();
 
 	//デバッガの設定項目オブジェクト生成
@@ -228,6 +210,9 @@ void KuroEngine::Debugger::WriteParameterLog()
 	settings[s_settingActiveKey] = m_active;
 	//デバッガのカスタムパラメータアクティブ状態
 	settings[s_settingCustomParamKey] = m_customParamActive;
+
+	//カスタムパラメータがなければここで終了
+	if (m_customParamList.empty())return;
 
 	for (auto& param : m_customParamList)
 	{
@@ -289,35 +274,17 @@ void KuroEngine::Debugger::WriteParameterLog()
 
 void KuroEngine::Debugger::CustomParameterOnImgui()
 {
-	//メニュー
-	bool dragSpeed = false;
-	if (ImGui::BeginMenuBar())
-	{
-		if (ImGui::BeginMenu("Settings"))
-		{
-			if (ImGui::MenuItem("DragSpeed"))dragSpeed = true;
-			ImGui::EndMenu();
-		}
-		ImGui::EndMenuBar();
-	}
-
-	if (dragSpeed)ImGui::OpenPopup("DragSpeedSetting");
-	if (ImGui::BeginPopup("DragSpeedSetting"))
-	{
-		ImGui::PushItemWidth(100);
-		ImGui::InputFloat("DragSpeed", &m_customParamDragSpeed);
-		ImGui::EndPopup();
-	}
+	static const float INDENT_AMOUNT = 10.0f;
+	ImGui::Indent(INDENT_AMOUNT);
 
 	//登録されたカスタムパラメータの設定
 	for (auto& paramGroup : m_customParamGroup)
 	{
-		ImGui::SetNextItemOpen(true);
-		ImGui::PushItemWidth(100);
-
 		if (ImGui::TreeNode("%s", paramGroup.first.c_str()))
 		{
 			auto& itemList = paramGroup.second;
+
+			ImGui::PushItemWidth(100);
 
 			std::vector<CustomParameter*>::iterator itr = itemList.begin();
 			for (; itr != itemList.end();)
@@ -377,8 +344,9 @@ void KuroEngine::Debugger::CustomParameterOnImgui()
 				else itr++;
 			}
 
+			ImGui::PopItemWidth();
 			ImGui::TreePop();
 		}
 	}
-
+	ImGui::Unindent(INDENT_AMOUNT);
 }
