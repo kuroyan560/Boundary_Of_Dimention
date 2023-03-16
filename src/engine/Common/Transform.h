@@ -141,14 +141,6 @@ namespace KuroEngine
 				XMVectorSet(Target.x, Target.y, Target.z, 1.0f),
 				XMVectorSet(UpAxis.x, UpAxis.y, UpAxis.z, 1.0f)));
 		}
-		void SetUp(const Vec3<float>& Up)
-		{
-			SetRotate(KuroEngine::Math::RotateMat(Vec3<float>::GetYAxis(), Up));
-		}
-		void SetFront(const Vec3<float>& Front)
-		{
-			SetRotate(KuroEngine::Math::RotateMat(Vec3<float>::GetZAxis(), Front));
-		}
 
 		//ローカル行列ゲッタ
 		const Matrix& GetLocalMat();

@@ -27,6 +27,14 @@ void Player::OnImguiItems()
 			m_transform.SetRotate(Angle::ConvertToRadian(eular.x), Angle::ConvertToRadian(eular.y), Angle::ConvertToRadian(eular.z));
 		}
 		ImGui::TreePop();
+
+		//前ベクトル
+		auto front = m_transform.GetFront();
+		ImGui::Text("Front : %.2f ,%.2f , %.2f", front.x, front.y, front.z);
+
+		//上ベクトル
+		auto up = m_transform.GetUp();
+		ImGui::Text("Up : %.2f ,%.2f , %.2f", up.x, up.y, up.z);
 	}
 
 	//カメラ
@@ -48,6 +56,7 @@ Player::Player()
 {
 	//モデル読み込み
 	m_model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Player.glb");
+	m_axisModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Axis.glb");
 	m_camModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Camera.glb");
 
 	//カメラ生成
@@ -74,16 +83,16 @@ void Player::Update()
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove(m_camSensitivity);
 
-	//移動量にY軸回転を適用
-	auto ySpin = XMVectorSet(0.0f, rotate.m128_f32[1], 0.0f, rotate.m128_f32[3]);
-	move = Math::TransformVec3(move, ySpin);
-	//移動量加算
-	pos += move;
+	////移動量にY軸回転を適用
+	//auto ySpin = XMVectorSet(0.0f, rotate.m128_f32[1], 0.0f, rotate.m128_f32[3]);
+	//move = Math::TransformVec3(move, ySpin);
+	////移動量加算
+	//pos += move;
 
 	//視線移動角度量加算（Y軸：左右）
 	auto yScopeSpin = XMQuaternionRotationAxis(XMVectorSet(0.0f, -1.0f, 0.0f, 1.0f), scopeMove.y);
+	//rotate = XMQuaternionMultiply(yScopeSpin, rotate);
 	rotate = XMQuaternionMultiply(yScopeSpin, rotate);
-	m_transform.SetRotate(rotate);
 
 	//トランスフォームの変化を適用
 	m_transform.SetPos(pos);
@@ -98,6 +107,11 @@ void Player::Draw(KuroEngine::Camera& arg_cam, bool arg_cameraDraw)
 {
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_model,
+		m_transform,
+		arg_cam);
+
+	KuroEngine::DrawFunc3D::DrawNonShadingModel(
+		m_axisModel,
 		m_transform,
 		arg_cam);
 

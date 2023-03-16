@@ -22,13 +22,12 @@ void GameScene::OnInitialize()
 	&m_player,
 	m_player.GetCameraControllerDebugger(),
 	StageManager::Instance(),
-		});
+	});
 
 	m_debugCam.Init({ 0,0,-10 }, { 0,0,0 });
 
 	KuroEngine::Transform playerInitTransform;
 	playerInitTransform.SetPos({ 0,0,-10 });
-	playerInitTransform.SetFront({ 0,0,1 });
 	m_player.Init(playerInitTransform);
 }
 

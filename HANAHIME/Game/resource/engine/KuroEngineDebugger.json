@@ -22,7 +22,7 @@
   },
   "OperationConfig": {
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": false,
       "imageColor": [
         0.800000011920929,
@@ -51,7 +51,7 @@
   },
   "StageManager": {
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.3099597990512848,
