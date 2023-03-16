@@ -28,9 +28,11 @@ class Player : public KuroEngine::Debugger
 
 	//カメラのコントローラー
 	CameraController m_camController;
-	
+
 	//カメラ感度
 	float m_camSensitivity = 1.0f;
+
+	float m_moveScalar = 0.5f;
 
 	//Imguiデバッグ関数オーバーライド
 	void OnImguiItems()override;

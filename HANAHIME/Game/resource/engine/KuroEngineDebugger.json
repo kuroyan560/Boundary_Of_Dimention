@@ -35,7 +35,7 @@
   },
   "Player": {
     "camera": {
-      "sensitivity": 2.75
+      "sensitivity": 1.0
     },
     "debuggerSetting": {
       "active": true,
@@ -47,7 +47,8 @@
         1.0
       ],
       "textColorFlg": false
-    }
+    },
+    "moveScalar": 1.0
   },
   "StageManager": {
     "debuggerSetting": {

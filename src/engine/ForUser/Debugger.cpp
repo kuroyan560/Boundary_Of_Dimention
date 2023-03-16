@@ -109,14 +109,21 @@ void KuroEngine::Debugger::LoadParameterLog()
 	for (auto& param : m_customParamList)
 	{
 		const auto* jsonObj = &s_parameterLog.m_jsonData[m_title];
+		bool noKey = false;
 		for (auto& key : param.m_key)
 		{
 			//キーが存在しない
-			if (!jsonObj->contains(key))continue;
+			if (!jsonObj->contains(key))
+			{
+				noKey = true;
+				break;
+			}
 
 			//階層を下げる
 			jsonObj = &jsonObj->at(key);
 		}
+
+		if (noKey)break;
 
 		switch (param.m_type)
 		{
@@ -280,7 +287,7 @@ void KuroEngine::Debugger::CustomParameterOnImgui()
 	//登録されたカスタムパラメータの設定
 	for (auto& paramGroup : m_customParamGroup)
 	{
-		if (ImGui::TreeNode("%s", paramGroup.first.c_str()))
+		if (ImGui::TreeNode(paramGroup.first.c_str()))
 		{
 			auto& itemList = paramGroup.second;
 
