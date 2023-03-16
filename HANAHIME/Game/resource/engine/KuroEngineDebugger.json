@@ -1,7 +1,28 @@
 {
+  "CameraController": {
+    "InitializedParameter": {
+      "Angle_X": -2.5,
+      "DistanceToTarget": 16.049999237060547,
+      "GazePoint": {
+        "Distance": 10.149999618530273,
+        "Height": 0.8999999761581421
+      }
+    },
+    "debuggerSetting": {
+      "active": true,
+      "customParamActive": true,
+      "imageColor": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "textColorFlg": false
+    }
+  },
   "OperationConfig": {
     "debuggerSetting": {
-      "active": false,
+      "active": true,
       "customParamActive": false,
       "imageColor": [
         0.800000011920929,
@@ -14,15 +35,15 @@
   },
   "Player": {
     "camera": {
-      "sensitivity": 3.450000047683716
+      "sensitivity": 2.75
     },
     "debuggerSetting": {
       "active": true,
       "customParamActive": true,
       "imageColor": [
-        0.8478261232376099,
-        0.041469771414995193,
-        0.041469771414995193,
+        0.864130437374115,
+        0.05165998637676239,
+        0.05165998637676239,
         1.0
       ],
       "textColorFlg": false
@@ -33,9 +54,9 @@
       "active": true,
       "customParamActive": true,
       "imageColor": [
-        0.07407845556735992,
-        0.717391312122345,
-        0.19295141100883484,
+        0.3099597990512848,
+        0.864130437374115,
+        0.4123609662055969,
         1.0
       ],
       "textColorFlg": false

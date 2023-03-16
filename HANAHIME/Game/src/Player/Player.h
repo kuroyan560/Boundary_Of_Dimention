@@ -2,6 +2,7 @@
 #include"KuroEngine.h"
 #include"Common/Transform.h"
 #include"ForUser/Debugger.h"
+#include"CameraController.h"
 
 #include<memory>
 namespace KuroEngine
@@ -12,20 +13,21 @@ namespace KuroEngine
 
 class Player : public KuroEngine::Debugger
 {
-	//モデル
+	//プレイヤーのモデル
 	std::shared_ptr<KuroEngine::Model>m_model;
+
+	//カメラのモデル（デバッグ用）
+	std::shared_ptr<KuroEngine::Model>m_camModel;
 
 	//トランスフォーム
 	KuroEngine::Transform m_transform;
 
 	//カメラインスタンス
 	std::shared_ptr<KuroEngine::Camera>m_cam;
-	
-	//カメラ位置オフセット（デフォルト値）
-	KuroEngine::Vec3<float>m_camPosOffsetDefault = { 0.0f,9.0f,-11.0f };
-	//カメラ位置オフセット
-	KuroEngine::Vec3<float>m_camPosOffset = m_camPosOffsetDefault;
 
+	//カメラのコントローラー
+	CameraController m_camController;
+	
 	//カメラ感度
 	float m_camSensitivity = 1.0f;
 
@@ -36,9 +38,12 @@ public:
 	Player();
 	void Init(KuroEngine::Transform arg_initTransform);
 	void Update();
-	void Draw(KuroEngine::Camera& arg_cam);
+	void Draw(KuroEngine::Camera& arg_cam, bool arg_cameraDraw = false);
 	void Finalize();
 
 	std::weak_ptr<KuroEngine::Camera>GetCamera() { return m_cam; }
+
+	//カメラコントローラーのデバッガポインタ取得
+	KuroEngine::Debugger* GetCameraControllerDebugger() { return &m_camController; }
 };
 

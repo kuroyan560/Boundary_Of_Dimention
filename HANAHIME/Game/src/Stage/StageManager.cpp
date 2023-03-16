@@ -20,17 +20,6 @@ StageManager::StageManager()
 
 void StageManager::OnImguiItems()
 {
-	//スケーリング設定
-	ImGui::SetNextItemOpen(true);
-	ImGui::PushItemWidth(100);
-	if (ImGui::TreeNode("Scaling"))
-	{
-		ImGui::DragFloat("Skydome", &m_skydomeScaling, 0.1f, 0.0f);
-		ImGui::DragFloat("Woods_Radius", &m_woodsRadius, 0.1f, 0.0f);
-		ImGui::DragFloat("Woods_Height", &m_woodsHeight, 0.1f, 0.0f);
-		ImGui::DragFloat("Ground", &m_groundScaling, 0.1f, 0.0f);
-		ImGui::TreePop();
-	}
 }
 
 void StageManager::Draw(KuroEngine::Camera& arg_cam)

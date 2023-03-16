@@ -286,6 +286,9 @@
     <ClCompile Include="..\..\src\engine\ForUser\JsonData.cpp">
       <Filter>src\engine\ForUser</Filter>
     </ClCompile>
+    <ClCompile Include="src\Player\CameraController.cpp">
+      <Filter>src\user\Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -560,6 +563,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\engine\ForUser\JsonData.h">
       <Filter>src\engine\ForUser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Player\CameraController.h">
+      <Filter>src\user\Player</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

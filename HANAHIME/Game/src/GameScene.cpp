@@ -17,45 +17,19 @@ GameScene::GameScene()
 
 void GameScene::OnInitialize()
 {
+	KuroEngine::Debugger::Register({
+	OperationConfig::Instance(),
+	&m_player,
+	m_player.GetCameraControllerDebugger(),
+	StageManager::Instance(),
+		});
+
 	m_debugCam.Init({ 0,0,-10 }, { 0,0,0 });
 
 	KuroEngine::Transform playerInitTransform;
 	playerInitTransform.SetPos({ 0,0,-10 });
 	playerInitTransform.SetFront({ 0,0,1 });
 	m_player.Init(playerInitTransform);
-
-	KuroEngine::Debugger::Register({ 
-		OperationConfig::Instance(),
-		&m_player,
-		StageManager::Instance(),
-		});
-
-	KuroEngine::JsonData test;
-	//test.m_jsonData["debugger"]["player"] = { {"move",3},{"jump",4} };
-	//test.m_jsonData["debugger"]["camera"] = { { "sensitivity",2 } };
-	//test.m_jsonData["debugger"]["stage"] = 5;
-
-	test.m_jsonData["debugger"] = {
-		{"player",{
-			{"move",3},{"jump",4}}
-		},
-		{"camera",{
-			{"sensitivity",2}}
-		},
-		{"stage",5}
-	};
-	test.m_jsonData["name"] = "DebuggerParams";
-
-
-	std::string name;
-	test.Get<std::string>(name, { "name" });
-
-	float sens;
-	test.Get<float>(sens, { "debugger","camera","sensitivity" });
-
-	KuroEngine::JsonData importData("resource/user/", "test.json");
-
-	int k = 0;
 }
 
 void GameScene::OnUpdate()
@@ -75,9 +49,6 @@ void GameScene::OnUpdate()
 	{
 		//デバッグカメラの更新
 		m_debugCam.Move();
-
-		//以下ゲーム内オブジェクトの処理スキップ
-		return;
 	}
 
 	m_player.Update();
@@ -116,7 +87,7 @@ void GameScene::OnDraw()
 		transform,
 		*nowCamera);
 
-	m_player.Draw(*nowCamera);
+	m_player.Draw(*nowCamera, DebugController::Instance()->IsActive());
 }
 
 void GameScene::OnImguiDebug()

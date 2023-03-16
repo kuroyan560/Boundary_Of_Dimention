@@ -2,6 +2,7 @@
 #include"KuroEngine.h"
 #include<memory>
 #include<string>
+#include"Common/Transform.h"
 
 namespace KuroEngine
 {
@@ -43,6 +44,8 @@ namespace KuroEngine
 
 		Matrix viewInvMat; //ビュー行列の逆行列
 
+		Transform transform;
+
 		//マッピングの判断用ダーティフラグ
 		bool dirty = true;
 		void CameraInfoUpdate();
@@ -59,7 +62,7 @@ namespace KuroEngine
 			SetPos(Other.pos);
 			SetUp(Other.up);
 			SetTarget(Other.target);
-			SetAngleOfView(Other.angleOfView);
+			SetViewAngle(Other.angleOfView);
 			SetWidth(Other.width);
 			SetHeight(Other.height);
 			SetAspect(Other.aspect);
@@ -96,7 +99,7 @@ namespace KuroEngine
 			target = Target;
 			dirty = true;
 		}
-		void SetAngleOfView(const Angle& Angle)
+		void SetViewAngle(const Angle& Angle)
 		{
 			angleOfView = Angle;
 			dirty = true;
@@ -122,6 +125,7 @@ namespace KuroEngine
 		const Vec3<float>& GetUp() { return up; }
 		const Vec3<float>& GetTarget() { return target; }
 		const Angle& GetAngleOfView() { return angleOfView; }
+		const Transform& GetTransform() { CameraInfoUpdate(); return transform; }
 		const Matrix& GetViewMat() { CameraInfoUpdate(); return cameraInfo.matView; }
 		const Matrix& GetProjectionMat() { CameraInfoUpdate(); return cameraInfo.matProjection; }
 		const Matrix& GetBillBoardMat() { CameraInfoUpdate(); return cameraInfo.billboardMat; }

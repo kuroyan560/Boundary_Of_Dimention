@@ -36,7 +36,6 @@ void Player::OnImguiItems()
 		auto pos = m_cam->GetPos();
 		auto target = m_cam->GetTarget();
 
-		ImGui::DragFloat3("PositionOffset", (float*)&m_camPosOffset, 0.5f);
 		// ImGui::DragFloat3("Target", (float*)&target, 0.5f);
 		ImGui::DragFloat("Sensitivity", &m_camSensitivity, 0.05f);
 
@@ -49,6 +48,7 @@ Player::Player()
 {
 	//モデル読み込み
 	m_model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Player.glb");
+	m_camModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Camera.glb");
 
 	//カメラ生成
 	m_cam = std::make_shared<KuroEngine::Camera>("Player's Camera");
@@ -59,7 +59,7 @@ Player::Player()
 void Player::Init(KuroEngine::Transform arg_initTransform)
 {
 	m_transform = arg_initTransform;
-	m_camPosOffset = m_camPosOffsetDefault;
+	m_camController.Init();
 }
 
 void Player::Update()
@@ -85,24 +85,31 @@ void Player::Update()
 	rotate = XMQuaternionMultiply(yScopeSpin, rotate);
 	m_transform.SetRotate(rotate);
 
-	//視線移動角度量加算（X軸：上下）
-	auto xScopeSpin = XMQuaternionRotationAxis(m_transform.GetRight(), -scopeMove.x);
-	rotate = XMQuaternionMultiply(xScopeSpin, rotate);
-
 	//トランスフォームの変化を適用
 	m_transform.SetPos(pos);
 	m_transform.SetRotate(rotate);
-	m_cam->SetPos(pos + m_camPosOffset);
+
+	//カメラ操作
 	auto front = m_transform.GetFront();
-	m_cam->SetTarget(pos + m_transform.GetFront() * 6.0f);
+	m_camController.Update(m_cam, pos, front);
 }
 
-void Player::Draw(KuroEngine::Camera& arg_cam)
+void Player::Draw(KuroEngine::Camera& arg_cam, bool arg_cameraDraw)
 {
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_model,
 		m_transform,
 		arg_cam);
+
+	if (arg_cameraDraw)
+	{
+		auto camTransform = m_cam->GetTransform();
+		KuroEngine::DrawFunc3D::DrawNonShadingModel(
+			m_camModel,
+			camTransform.GetWorldMat(),
+			camTransform.GetPos().z,
+			arg_cam);
+	}
 }
 
 void Player::Finalize()

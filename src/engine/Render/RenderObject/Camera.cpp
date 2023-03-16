@@ -7,6 +7,7 @@ void KuroEngine::Camera::CameraInfoUpdate()
 	if (dirty)
 	{
 		cameraInfo.eye = pos;
+		transform.SetPos(pos);
 
 		//視点座標
 		XMVECTOR eyePosition = XMLoadFloat3((XMFLOAT3*)&cameraInfo.eye);
@@ -50,6 +51,8 @@ void KuroEngine::Camera::CameraInfoUpdate()
 		//転置により逆行列（逆回転）を計算
 		cameraInfo.matView = XMMatrixTranspose(matCameraRot);
 
+		transform.SetRotate(matCameraRot);
+
 		//視点座標に-1をかけた座標
 		XMVECTOR reverseEyePosition = XMVectorNegate(eyePosition);
 		//カメラの位置からワールド原点へのベクトル（カメラ座標系）
@@ -61,7 +64,7 @@ void KuroEngine::Camera::CameraInfoUpdate()
 
 		//ビュー行列に平行移動成分を設定
 		cameraInfo.matView.r[3] = translateion;
-
+		
 		//全方向ビルボード行列の計算
 		cameraInfo.billboardMat = XMMatrixInverse(nullptr, cameraInfo.matView);
 		//cameraInfo.billboardMat.r[0] = cameraAxisX;

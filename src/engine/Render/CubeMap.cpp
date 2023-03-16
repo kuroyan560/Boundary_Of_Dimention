@@ -289,7 +289,7 @@ KuroEngine::DynamicCubeMap::DynamicCubeMap(const int& CubeMapEdge)
 		{
 			camera[surfaceIdx] = std::make_unique<Camera>("DynamicCubeMap" + s_surfaceNameTag[surfaceIdx]);
 			camera[surfaceIdx]->SetPos({ 0,0,0 });
-			camera[surfaceIdx]->SetAngleOfView(Angle(90));
+			camera[surfaceIdx]->SetViewAngle(Angle(90));
 			camera[surfaceIdx]->SetTarget(target[surfaceIdx]);
 			camera[surfaceIdx]->SetAspect(1.0f);
 			camera[surfaceIdx]->SetUp(up[surfaceIdx]);

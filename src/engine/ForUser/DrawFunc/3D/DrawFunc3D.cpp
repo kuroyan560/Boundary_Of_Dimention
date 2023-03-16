@@ -103,7 +103,7 @@ void KuroEngine::DrawFunc3D::DrawLine(Camera& arg_cam, const Vec3<float>& arg_fr
 	s_drawLineCount++;
 }
 
-void KuroEngine::DrawFunc3D::DrawNonShadingModel(const std::weak_ptr<Model> arg_model, Transform& arg_transform, Camera& arg_cam, const float& arg_alpha, std::shared_ptr<ModelAnimator> arg_animator, const AlphaBlendMode& arg_blendMode)
+void KuroEngine::DrawFunc3D::DrawNonShadingModel(const std::weak_ptr<Model> arg_model, const Matrix& arg_worldMat, float arg_depth, Camera& arg_camera, const float& arg_alpha, std::shared_ptr<ModelAnimator> arg_animator, const AlphaBlendMode& arg_blendMode)
 {
 	static std::map<DXGI_FORMAT, std::array<std::shared_ptr<GraphicsPipeline>, AlphaBlendModeNum>>PIPELINE;
 	static std::vector<std::shared_ptr<ConstantBuffer>>DRWA_DATA_BUFF;
@@ -140,7 +140,7 @@ void KuroEngine::DrawFunc3D::DrawNonShadingModel(const std::weak_ptr<Model> arg_
 		//レンダーターゲット描画先情報
 		std::vector<RenderTargetInfo>RENDER_TARGET_INFO = { RenderTargetInfo(targetFormat, arg_blendMode) };
 		//パイプライン生成
-		PIPELINE[targetFormat][arg_blendMode] = D3D12App::Instance()->GenerateGraphicsPipeline(PIPELINE_OPTION, SHADERS, KuroEngine::ModelMesh::Vertex::GetInputLayout(), ROOT_PARAMETER, RENDER_TARGET_INFO, {WrappedSampler(true, true)});
+		PIPELINE[targetFormat][arg_blendMode] = D3D12App::Instance()->GenerateGraphicsPipeline(PIPELINE_OPTION, SHADERS, KuroEngine::ModelMesh::Vertex::GetInputLayout(), ROOT_PARAMETER, RENDER_TARGET_INFO, { WrappedSampler(true, true) });
 	}
 
 	KuroEngine::KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(PIPELINE[targetFormat][arg_blendMode]);
@@ -151,7 +151,7 @@ void KuroEngine::DrawFunc3D::DrawNonShadingModel(const std::weak_ptr<Model> arg_
 	}
 
 	DrawData drawData;
-	drawData.m_transformMat = arg_transform.GetWorldMat();
+	drawData.m_transformMat = arg_worldMat;
 	drawData.m_alpha = arg_alpha;
 	DRWA_DATA_BUFF[s_drawNonShadingCount]->Mapping(&drawData);
 
@@ -166,13 +166,13 @@ void KuroEngine::DrawFunc3D::DrawNonShadingModel(const std::weak_ptr<Model> arg_
 			mesh.mesh->vertBuff,
 			mesh.mesh->idxBuff,
 			{
-				{arg_cam.GetBuff(),CBV},
+				{arg_camera.GetBuff(),CBV},
 				{DRWA_DATA_BUFF[s_drawNonShadingCount],CBV},
 				{boneBuff,CBV},
 				{mesh.material->texBuff[COLOR_TEX],SRV},
 				{mesh.material->buff,CBV}
 			},
-			arg_transform.GetPos().z,
+			arg_depth,
 			arg_blendMode == AlphaBlendMode_Trans);
 	}
 
