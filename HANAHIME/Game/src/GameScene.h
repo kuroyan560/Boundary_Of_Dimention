@@ -7,7 +7,6 @@ class GameScene : public KuroEngine::BaseScene
 {
 	std::shared_ptr<KuroEngine::TextureBuffer>m_ddsTex;
 	std::shared_ptr<KuroEngine::TextureBuffer>m_pngTex;
-	KuroEngine::DebugCamera m_debugCam;
 	Player m_player;
 	
 	void OnInitialize()override;
