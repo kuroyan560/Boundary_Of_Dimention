@@ -8,26 +8,36 @@ class OperationConfig : public KuroEngine::DesignPattern::Singleton<OperationCon
 	friend class KuroEngine::DesignPattern::Singleton<OperationConfig>;
 	OperationConfig();
 
-	//コントローラー操作か
-	bool m_controller = false;
+	enum INPUT_DEVICE { KEY_BOARD_MOUSE, CONTROLLER, NUM }m_nowInputDevice = INPUT_DEVICE::KEY_BOARD_MOUSE;
 
-	//カメラ感度
-	float m_camSensitivity = 0.2f;
+	struct Parameter
+	{
+		float m_camSensitivity = 0.2f;
+
+		Parameter(float arg_camSensitivity)
+			:m_camSensitivity(arg_camSensitivity) {}
+	};
+
+	std::array<Parameter, static_cast<int>(INPUT_DEVICE::NUM)>m_params =
+	{
+		Parameter(0.2f),
+		Parameter(0.1f),
+	};
 
 	void OnImguiItems()override;
 
 public:
 	/// <summary>
-	/// 入力による移動量の取得
+	/// 入力によるXZ平面移動方向（方向指定）
 	/// </summary>
-	/// <param name="arg_moveScalar">移動量</param>
-	/// <returns>移動ベクトル</returns>
-	KuroEngine::Vec3<float> GetMove(float arg_moveScalar);
+	/// <param name="arg_rotate">移動対象の回転量</param>
+	/// <returns>移動の単位ベクトル</returns>
+	KuroEngine::Vec3<float>GetMoveVec(KuroEngine::Quaternion arg_rotate);
 
 	/// <summary>
 	/// 入力による視線移動量の取得
 	/// </summary>
 	/// <param name="arg_sensitivity">感度</param>
 	/// <returns>視線移動角度</returns>
-	KuroEngine::Vec3<KuroEngine::Angle>GetScopeMove(float arg_sensitivity);
+	KuroEngine::Vec3<KuroEngine::Angle>GetScopeMove();
 };

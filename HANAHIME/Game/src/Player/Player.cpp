@@ -80,15 +80,12 @@ void Player::Update()
 	auto rotate = m_transform.GetRotate();
 
 	//入力された移動量を取得
-	auto move = OperationConfig::Instance()->GetMove(m_moveScalar);
+	auto moveVec = OperationConfig::Instance()->GetMoveVec(rotate);
 	//入力された視線移動角度量を取得
-	auto scopeMove = OperationConfig::Instance()->GetScopeMove(m_camSensitivity);
+	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
 
-	//移動量にY軸回転を適用
-	auto ySpin = XMVectorSet(0.0f, rotate.m128_f32[1], 0.0f, rotate.m128_f32[3]);
-	move = Math::TransformVec3(move, ySpin);
 	//移動量加算
-	pos += move;
+	pos += moveVec * m_moveScalar;
 
 	//視線移動角度量加算（Y軸：左右）
 	auto yScopeSpin = XMQuaternionRotationAxis(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), scopeMove.y);

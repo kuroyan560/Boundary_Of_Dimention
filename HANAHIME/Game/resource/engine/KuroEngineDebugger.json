@@ -9,7 +9,7 @@
       }
     },
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.800000011920929,
@@ -22,8 +22,8 @@
   },
   "OperationConfig": {
     "debuggerSetting": {
-      "active": false,
-      "customParamActive": false,
+      "active": true,
+      "customParamActive": true,
       "imageColor": [
         0.800000011920929,
         0.800000011920929,

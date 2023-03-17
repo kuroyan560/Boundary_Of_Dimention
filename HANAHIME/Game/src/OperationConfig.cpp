@@ -10,6 +10,11 @@ OperationConfig::OperationConfig()
 void OperationConfig::OnImguiItems()
 {
     using namespace KuroEngine;
+
+    static std::array<std::string, INPUT_DEVICE::NUM>s_inputDeviceNames = { "KEY_BOARD_MOUSE","CONTROLLER" };
+    int deviceIdx = m_nowInputDevice;
+    m_nowInputDevice = (INPUT_DEVICE)ImguiApp::WrappedCombo("InputDevice", s_inputDeviceNames.data(), INPUT_DEVICE::NUM, deviceIdx);
+
     auto mouseMove = UsersInput::Instance()->GetMouseMove();
     ImGui::BeginChild(ImGui::GetID((void*)0), ImVec2(250, 150));
     ImGui::Text("inputX : %d", mouseMove.m_inputX);
@@ -19,42 +24,66 @@ void OperationConfig::OnImguiItems()
 
 }
 
-KuroEngine::Vec3<float> OperationConfig::GetMove(float arg_moveScalar)
+KuroEngine::Vec3<float> OperationConfig::GetMoveVec(KuroEngine::Quaternion arg_rotate)
 {
     using namespace KuroEngine;
 
-    if (m_controller)
+    Vec3<float>result;
+
+    switch (m_nowInputDevice)
     {
+    case KEY_BOARD_MOUSE:
+        if (UsersInput::Instance()->KeyInput(DIK_W))result.z += 1.0f;
+        if (UsersInput::Instance()->KeyInput(DIK_S))result.z -= 1.0f;
+        if (UsersInput::Instance()->KeyInput(DIK_D))result.x += 1.0f;
+        if (UsersInput::Instance()->KeyInput(DIK_A))result.x -= 1.0f;
+        break;
+
+    case CONTROLLER:
         //左スティックの入力を変換
         auto input = UsersInput::Instance()->GetLeftStickVec(0);
-        return Vec3<float>(input.x, 0.0f, input.y) * arg_moveScalar;
+        result = Vec3<float>(input.x, 0.0f, -input.y);
+        break;
     }
 
-    //WASD入力
-    Vec3<float>result = { 0,0,0 };
-    if (UsersInput::Instance()->KeyInput(DIK_W))result.z += arg_moveScalar;
-    if (UsersInput::Instance()->KeyInput(DIK_S))result.z -= arg_moveScalar;
-    if (UsersInput::Instance()->KeyInput(DIK_D))result.x += arg_moveScalar;
-    if (UsersInput::Instance()->KeyInput(DIK_A))result.x -= arg_moveScalar;
+    //入力があったら
+    if (!result.IsZero())
+    {
+        //一応正規化
+        result.Normalize();
+        //回転を適用
+        result = KuroEngine::Math::TransformVec3(result, arg_rotate);
+    }
     return result;
 }
 
-KuroEngine::Vec3<KuroEngine::Angle> OperationConfig::GetScopeMove(float arg_sensitivity)
+KuroEngine::Vec3<KuroEngine::Angle> OperationConfig::GetScopeMove()
 {
     using namespace KuroEngine;
 
-    if (m_controller)
+    float sensitivity = m_params[m_nowInputDevice].m_camSensitivity;
+
+    switch (m_nowInputDevice)
     {
-        //右スティックの入力を変換
-        auto input = UsersInput::Instance()->GetRightStickVec(0);
-        return Vec3<Angle>(input.x * arg_sensitivity, -input.y * arg_sensitivity, 0.0f);
+        case KEY_BOARD_MOUSE:
+        {
+            //マウス入力
+            auto mouseMove = UsersInput::Instance()->GetMouseMove();
+            //ウィンドウサイズによって相対的なスケールに合わせる
+            const auto scale = Vec2<float>(1.0f, 1.0f) / WinApp::Instance()->GetExpandWinSize();
+            return Vec3<Angle>(mouseMove.m_inputY * scale.x * sensitivity,
+                mouseMove.m_inputX * scale.y * sensitivity,
+                0.0f);
+        }
+
+        case CONTROLLER:
+        {
+            //右スティックの入力を変換
+            auto input = UsersInput::Instance()->GetRightStickVec(0);
+            return Vec3<Angle>(input.x * sensitivity, -input.y * sensitivity, 0.0f);
+        }
     }
 
-    //マウス入力
-    auto mouseMove = UsersInput::Instance()->GetMouseMove();
-    //ウィンドウサイズによって相対的なスケールに合わせる
-    const auto scale = Vec2<float>(1.0f, 1.0f) / WinApp::Instance()->GetExpandWinSize();
-    return Vec3<Angle>(mouseMove.m_inputY * scale.x * arg_sensitivity,
-        mouseMove.m_inputX * scale.y * arg_sensitivity,
-        0.0f);
+    AppearMessageBox("OperationConfig : GetScopeMove()失敗", "入力デバイスがおかしいみたい");
+    exit(EXIT_FAILURE);
 }
