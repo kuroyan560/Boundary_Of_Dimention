@@ -24,6 +24,8 @@ void GameScene::OnInitialize()
 	StageManager::Instance(),
 	});
 
+	m_debugCam.Init({ 0,5,-10 }, { 0,1,0 });
+
 	KuroEngine::Transform playerInitTransform;
 	playerInitTransform.SetPos({ 0,0,-10 });
 	m_player.Init(playerInitTransform);
@@ -41,6 +43,8 @@ void GameScene::OnUpdate()
 	//デバッグモード更新
 	DebugController::Instance()->Update();
 
+	if (DebugController::Instance()->IsActive())m_debugCam.Move();
+
 	m_player.Update();
 }
 
@@ -57,6 +61,7 @@ void GameScene::OnDraw()
 	);
 
 	auto nowCamera = m_player.GetCamera().lock();
+	if (DebugController::Instance()->IsActive())nowCamera = m_debugCam;
 
 	//ステージ描画
 	StageManager::Instance()->Draw(*nowCamera);
