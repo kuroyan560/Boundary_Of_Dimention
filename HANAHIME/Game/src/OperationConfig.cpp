@@ -5,15 +5,20 @@
 OperationConfig::OperationConfig()
     :KuroEngine::Debugger("OperationConfig", true)
 {
+    for (int i = 0; i < INPUT_DEVICE::NUM; ++i)
+    {
+        auto deviceName = m_inputDeviceNames[i];
+        AddCustomParameter("CameraSensitivity", { deviceName,"CameraSensitivity" },
+            PARAM_TYPE::FLOAT, &m_params[i].m_camSensitivity, deviceName);
+    }
 }
 
 void OperationConfig::OnImguiItems()
 {
     using namespace KuroEngine;
 
-    static std::array<std::string, INPUT_DEVICE::NUM>s_inputDeviceNames = { "KEY_BOARD_MOUSE","CONTROLLER" };
     int deviceIdx = m_nowInputDevice;
-    m_nowInputDevice = (INPUT_DEVICE)ImguiApp::WrappedCombo("InputDevice", s_inputDeviceNames.data(), INPUT_DEVICE::NUM, deviceIdx);
+    m_nowInputDevice = (INPUT_DEVICE)ImguiApp::WrappedCombo("InputDevice", m_inputDeviceNames.data(), INPUT_DEVICE::NUM, deviceIdx);
 
     auto mouseMove = UsersInput::Instance()->GetMouseMove();
     ImGui::BeginChild(ImGui::GetID((void*)0), ImVec2(250, 150));
@@ -71,8 +76,8 @@ KuroEngine::Vec3<KuroEngine::Angle> OperationConfig::GetScopeMove()
             auto mouseMove = UsersInput::Instance()->GetMouseMove();
             //ウィンドウサイズによって相対的なスケールに合わせる
             const auto scale = Vec2<float>(1.0f, 1.0f) / WinApp::Instance()->GetExpandWinSize();
-            return Vec3<Angle>(mouseMove.m_inputY * scale.x * sensitivity,
-                mouseMove.m_inputX * scale.y * sensitivity,
+            return Vec3<Angle>(mouseMove.m_inputX * scale.x * sensitivity,
+                mouseMove.m_inputY * scale.y * sensitivity,
                 0.0f);
         }
 

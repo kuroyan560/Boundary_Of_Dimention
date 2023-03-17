@@ -9,6 +9,10 @@ class OperationConfig : public KuroEngine::DesignPattern::Singleton<OperationCon
 	OperationConfig();
 
 	enum INPUT_DEVICE { KEY_BOARD_MOUSE, CONTROLLER, NUM }m_nowInputDevice = INPUT_DEVICE::KEY_BOARD_MOUSE;
+	const std::array<std::string, INPUT_DEVICE::NUM>m_inputDeviceNames =
+	{
+		"KEY_BOARD_MOUSE","CONTROLLER"
+	};
 
 	struct Parameter
 	{
