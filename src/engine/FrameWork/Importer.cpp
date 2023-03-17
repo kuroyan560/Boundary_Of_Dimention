@@ -591,6 +591,12 @@ std::shared_ptr<KuroEngine::Model> KuroEngine::Importer::LoadGLTFModel(const std
 		}
 	}
 
+	for (auto& mesh : result->m_meshes)
+	{
+		if (mesh.material->IsInvalid())
+			mesh.material->CreateBuff();
+	}
+
 	RegisterImportModel(Dir, FileName, result);
 
 	return result;

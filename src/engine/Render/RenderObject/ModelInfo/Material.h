@@ -12,7 +12,6 @@ namespace KuroEngine
 
 	class Material
 	{
-	private:
 		bool invalid = true;
 	public:
 		std::string name = "DefaultMaterial";
@@ -61,5 +60,6 @@ namespace KuroEngine
 		Material();
 		void CreateBuff();
 		void Mapping();
+		const bool& IsInvalid()const { return invalid; }
 	};
 }
