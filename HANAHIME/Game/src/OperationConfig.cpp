@@ -5,6 +5,7 @@
 OperationConfig::OperationConfig()
     :KuroEngine::Debugger("OperationConfig", true)
 {
+    //各デバイスでの設定値をカスタムパラメータに追加
     for (int i = 0; i < INPUT_DEVICE::NUM; ++i)
     {
         auto deviceName = m_inputDeviceNames[i];
@@ -17,9 +18,10 @@ void OperationConfig::OnImguiItems()
 {
     using namespace KuroEngine;
 
-    int deviceIdx = m_nowInputDevice;
-    m_nowInputDevice = (INPUT_DEVICE)ImguiApp::WrappedCombo("InputDevice", m_inputDeviceNames.data(), INPUT_DEVICE::NUM, deviceIdx);
+    //最後の入力のデバイス
+    ImGui::Text("LatestDevice : %s", m_inputDeviceNames[m_nowInputDevice].c_str());
 
+    //マウス入力表示
     auto mouseMove = UsersInput::Instance()->GetMouseMove();
     ImGui::BeginChild(ImGui::GetID((void*)0), ImVec2(250, 150));
     ImGui::Text("inputX : %d", mouseMove.m_inputX);
@@ -35,60 +37,44 @@ KuroEngine::Vec3<float> OperationConfig::GetMoveVec(KuroEngine::Quaternion arg_r
 
     Vec3<float>result;
 
-    switch (m_nowInputDevice)
-    {
-    case KEY_BOARD_MOUSE:
-        if (UsersInput::Instance()->KeyInput(DIK_W))result.z += 1.0f;
-        if (UsersInput::Instance()->KeyInput(DIK_S))result.z -= 1.0f;
-        if (UsersInput::Instance()->KeyInput(DIK_D))result.x += 1.0f;
-        if (UsersInput::Instance()->KeyInput(DIK_A))result.x -= 1.0f;
-        break;
-
-    case CONTROLLER:
-        //左スティックの入力を変換
-        auto input = UsersInput::Instance()->GetLeftStickVec(0);
-        result = Vec3<float>(input.x, 0.0f, -input.y);
-        break;
-    }
-
-    //入力があったら
+    if (UsersInput::Instance()->KeyInput(DIK_W))result.z += 1.0f;
+    if (UsersInput::Instance()->KeyInput(DIK_S))result.z -= 1.0f;
+    if (UsersInput::Instance()->KeyInput(DIK_D))result.x += 1.0f;
+    if (UsersInput::Instance()->KeyInput(DIK_A))result.x -= 1.0f;
     if (!result.IsZero())
     {
-        //一応正規化
-        result.Normalize();
-        //回転を適用
-        result = KuroEngine::Math::TransformVec3(result, arg_rotate);
+        RegisterLatestDevice(INPUT_DEVICE::KEY_BOARD_MOUSE);
+        return KuroEngine::Math::TransformVec3(result.GetNormal(), arg_rotate);
     }
-    return result;
+
+    //左スティックの入力を変換
+    auto input = UsersInput::Instance()->GetLeftStickVec(0);
+    if (!input.IsZero())RegisterLatestDevice(INPUT_DEVICE::CONTROLLER);
+    result = Vec3<float>(input.x, 0.0f, -input.y);
+    return KuroEngine::Math::TransformVec3(result.GetNormal(), arg_rotate);
 }
 
-KuroEngine::Vec3<KuroEngine::Angle> OperationConfig::GetScopeMove()
+KuroEngine::Vec3<float> OperationConfig::GetScopeMove()
 {
     using namespace KuroEngine;
 
     float sensitivity = m_params[m_nowInputDevice].m_camSensitivity;
+    Vec3<float>result;
 
-    switch (m_nowInputDevice)
+    //マウス入力
+    auto mouseMove = UsersInput::Instance()->GetMouseMove();
+    //ウィンドウサイズによって相対的なスケールに合わせる
+    const auto scale = Vec2<float>(1.0f, 1.0f) / WinApp::Instance()->GetExpandWinSize();
+    result = { mouseMove.m_inputX * scale.x * sensitivity,  mouseMove.m_inputY * scale.y * sensitivity,0.0f };
+    if (!result.IsZero())
     {
-        case KEY_BOARD_MOUSE:
-        {
-            //マウス入力
-            auto mouseMove = UsersInput::Instance()->GetMouseMove();
-            //ウィンドウサイズによって相対的なスケールに合わせる
-            const auto scale = Vec2<float>(1.0f, 1.0f) / WinApp::Instance()->GetExpandWinSize();
-            return Vec3<Angle>(mouseMove.m_inputX * scale.x * sensitivity,
-                mouseMove.m_inputY * scale.y * sensitivity,
-                0.0f);
-        }
-
-        case CONTROLLER:
-        {
-            //右スティックの入力を変換
-            auto input = UsersInput::Instance()->GetRightStickVec(0);
-            return Vec3<Angle>(input.x * sensitivity, -input.y * sensitivity, 0.0f);
-        }
+        RegisterLatestDevice(INPUT_DEVICE::KEY_BOARD_MOUSE);
+        return result;
     }
 
-    AppearMessageBox("OperationConfig : GetScopeMove()失敗", "入力デバイスがおかしいみたい");
-    exit(EXIT_FAILURE);
+    //右スティックの入力を変換
+    auto input = UsersInput::Instance()->GetRightStickVec(0);
+    result = { input.x * sensitivity, -input.y * sensitivity, 0.0f };
+    if (!input.IsZero())RegisterLatestDevice(INPUT_DEVICE::CONTROLLER);
+    return result;
 }

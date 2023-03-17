@@ -30,6 +30,12 @@ class OperationConfig : public KuroEngine::DesignPattern::Singleton<OperationCon
 
 	void OnImguiItems()override;
 
+	//最後に使った入力デバイスを記録
+	void RegisterLatestDevice(INPUT_DEVICE arg_device)
+	{
+		m_nowInputDevice = arg_device;
+	}
+
 public:
 	/// <summary>
 	/// 入力によるXZ平面移動方向（方向指定）
@@ -42,6 +48,6 @@ public:
 	/// 入力による視線移動量の取得
 	/// </summary>
 	/// <param name="arg_sensitivity">感度</param>
-	/// <returns>視線移動角度</returns>
-	KuroEngine::Vec3<KuroEngine::Angle>GetScopeMove();
+	/// <returns>視線移動角度（ラジアン）</returns>
+	KuroEngine::Vec3<float>GetScopeMove();
 };
