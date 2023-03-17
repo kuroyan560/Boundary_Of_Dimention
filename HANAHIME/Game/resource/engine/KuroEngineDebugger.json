@@ -2,7 +2,7 @@
   "CameraController": {
     "GazePointLerpRate": 0.20000000298023224,
     "InitializedParameter": {
-      "Angle_X": -2.5,
+      "Angle_X": -2.549999952316284,
       "DistanceToTarget": 16.049999237060547,
       "GazePoint": {
         "Distance": 10.149999618530273,
@@ -30,7 +30,7 @@
       "CameraSensitivity": 1.7000000476837158
     },
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.800000011920929,
