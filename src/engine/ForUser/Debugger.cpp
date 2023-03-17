@@ -238,43 +238,43 @@ void KuroEngine::Debugger::WriteParameterLog()
 		auto key = param.m_key.back();
 		switch (param.m_type)
 		{
-		case PARAM_TYPE::INT:
-			paramObj[key] = *(int*)param.m_dataPtr;
-			break;
-		case PARAM_TYPE::INT_VEC2:
-			paramObj[key] = { ((int*)param.m_dataPtr)[0],((int*)param.m_dataPtr)[1] };
-			break;
-		case PARAM_TYPE::INT_VEC3:
-			paramObj[key] = { ((int*)param.m_dataPtr)[0],((int*)param.m_dataPtr)[1],((int*)param.m_dataPtr)[2] };
-			break;
-		case PARAM_TYPE::INT_VEC4:
-			paramObj[key] = { ((int*)param.m_dataPtr)[0],((int*)param.m_dataPtr)[1],((int*)param.m_dataPtr)[2],((int*)param.m_dataPtr)[3] };
-			break;
+			case PARAM_TYPE::INT:
+				paramObj[key] = *(int*)param.m_dataPtr;
+				break;
+			case PARAM_TYPE::INT_VEC2:
+				paramObj[key] = { ((int*)param.m_dataPtr)[0],((int*)param.m_dataPtr)[1] };
+				break;
+			case PARAM_TYPE::INT_VEC3:
+				paramObj[key] = { ((int*)param.m_dataPtr)[0],((int*)param.m_dataPtr)[1],((int*)param.m_dataPtr)[2] };
+				break;
+			case PARAM_TYPE::INT_VEC4:
+				paramObj[key] = { ((int*)param.m_dataPtr)[0],((int*)param.m_dataPtr)[1],((int*)param.m_dataPtr)[2],((int*)param.m_dataPtr)[3] };
+				break;
 
-		case PARAM_TYPE::FLOAT:
-			paramObj[key] = *(float*)param.m_dataPtr;
-			break;
-		case PARAM_TYPE::FLOAT_VEC2:
-			paramObj[key] = { ((float*)param.m_dataPtr)[0],((float*)param.m_dataPtr)[1] };
-			break;
-		case PARAM_TYPE::FLOAT_VEC3:
-			paramObj[key] = { ((float*)param.m_dataPtr)[0],((float*)param.m_dataPtr)[1],((float*)param.m_dataPtr)[2] };
-			break;
-		case PARAM_TYPE::FLOAT_VEC4:
-			paramObj[key] = { ((float*)param.m_dataPtr)[0],((float*)param.m_dataPtr)[1],((float*)param.m_dataPtr)[2],((float*)param.m_dataPtr)[3] };
-			break;
+			case PARAM_TYPE::FLOAT:
+				paramObj[key] = *(float*)param.m_dataPtr;
+				break;
+			case PARAM_TYPE::FLOAT_VEC2:
+				paramObj[key] = { ((float*)param.m_dataPtr)[0],((float*)param.m_dataPtr)[1] };
+				break;
+			case PARAM_TYPE::FLOAT_VEC3:
+				paramObj[key] = { ((float*)param.m_dataPtr)[0],((float*)param.m_dataPtr)[1],((float*)param.m_dataPtr)[2] };
+				break;
+			case PARAM_TYPE::FLOAT_VEC4:
+				paramObj[key] = { ((float*)param.m_dataPtr)[0],((float*)param.m_dataPtr)[1],((float*)param.m_dataPtr)[2],((float*)param.m_dataPtr)[3] };
+				break;
 
-		case PARAM_TYPE::BOOL:
-			paramObj[key] = *(bool*)param.m_dataPtr;
-			break;
+			case PARAM_TYPE::BOOL:
+				paramObj[key] = *(bool*)param.m_dataPtr;
+				break;
 
-		case PARAM_TYPE::STRING:
-			paramObj[key] = *(std::string*)param.m_dataPtr;
-			break;
+			case PARAM_TYPE::STRING:
+				paramObj[key] = *(std::string*)param.m_dataPtr;
+				break;
 
-		default:
-			AppearMessageBox("Debugger：WriteParameterLog()失敗", param.m_label + "のタイプがNONEだったので上手く書き込めなかったよ");
-			break;
+			default:
+				AppearMessageBox("Debugger：WriteParameterLog()失敗", param.m_label + "のタイプがNONEだったので上手く書き込めなかったよ");
+				break;
 		}
 	}
 }
@@ -304,47 +304,47 @@ void KuroEngine::Debugger::CustomParameterOnImgui()
 
 				switch (item.m_type)
 				{
-				case PARAM_TYPE::INT:
-					ImGui::DragInt(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
-					break;
-				case PARAM_TYPE::INT_VEC2:
-					ImGui::DragInt2(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
-					break;
-				case PARAM_TYPE::INT_VEC3:
-					ImGui::DragInt3(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
-					break;
-				case PARAM_TYPE::INT_VEC4:
-					ImGui::DragInt4(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
-					break;
+					case PARAM_TYPE::INT:
+						ImGui::DragInt(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
+						break;
+					case PARAM_TYPE::INT_VEC2:
+						ImGui::DragInt2(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
+						break;
+					case PARAM_TYPE::INT_VEC3:
+						ImGui::DragInt3(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
+						break;
+					case PARAM_TYPE::INT_VEC4:
+						ImGui::DragInt4(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
+						break;
 
-				case PARAM_TYPE::FLOAT:
-					ImGui::DragFloat(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
-					break;
-				case PARAM_TYPE::FLOAT_VEC2:
-					ImGui::DragFloat2(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
-					break;
-				case PARAM_TYPE::FLOAT_VEC3:
-					ImGui::DragFloat3(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
-					break;
-				case PARAM_TYPE::FLOAT_VEC4:
-					ImGui::DragFloat4(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
-					break;
+					case PARAM_TYPE::FLOAT:
+						ImGui::DragFloat(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
+						break;
+					case PARAM_TYPE::FLOAT_VEC2:
+						ImGui::DragFloat2(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
+						break;
+					case PARAM_TYPE::FLOAT_VEC3:
+						ImGui::DragFloat3(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
+						break;
+					case PARAM_TYPE::FLOAT_VEC4:
+						ImGui::DragFloat4(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
+						break;
 
-				case PARAM_TYPE::BOOL:
-					ImGui::Checkbox(label, (bool*)item.m_dataPtr);
-					break;
+					case PARAM_TYPE::BOOL:
+						ImGui::Checkbox(label, (bool*)item.m_dataPtr);
+						break;
 
-				case PARAM_TYPE::STRING:
-				{
-					std::string* strPtr = (std::string*)item.m_dataPtr;
-					ImGui::InputText(label, (char*)strPtr->c_str(), strPtr->capacity() + 1);
-					break;
-				}
+					case PARAM_TYPE::STRING:
+					{
+						std::string* strPtr = (std::string*)item.m_dataPtr;
+						ImGui::InputText(label, (char*)strPtr->c_str(), strPtr->capacity() + 1);
+						break;
+					}
 
-				default:
-					AppearMessageBox("Debugger：CustomParamterOnImgui()失敗", item.m_label + "のタイプがNONEだったのでimgui上でいじれないよ");
-					error = true;
-					break;
+					default:
+						AppearMessageBox("Debugger：CustomParamterOnImgui()失敗", item.m_label + "のタイプがNONEだったのでimgui上でいじれないよ");
+						error = true;
+						break;
 				}
 
 				if (error)itr = itemList.erase(itr);
