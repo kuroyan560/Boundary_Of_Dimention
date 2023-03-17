@@ -54,8 +54,8 @@ namespace KuroEngine
 		/// <param name="arg_label">ラベル名</param>
 		/// <param name="arg_nameArray">要素の名前配列</param>
 		/// <param name="arg_arraySize">配列サイズ</param>
-		/// <param name="arg_selectedIdx">現在選択されているインデックス参照</param>
-		/// <returns>変化したか</returns>
-		static bool WrappedCombo(const std::string arg_label, const std::string* arg_nameArray, const size_t arg_arraySize, int& arg_selectedIdx);
+		/// <param name="arg_selectedIdx">現在選択されているインデックス</param>
+		/// <returns>新しいインデックス</returns>
+		static int WrappedCombo(const std::string arg_label, const std::string* arg_nameArray, const size_t arg_arraySize, int arg_selectedIdx);
 	};
 }
