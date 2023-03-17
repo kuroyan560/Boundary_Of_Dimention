@@ -36,5 +36,8 @@ class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>,p
 
 public:
 	void Draw(KuroEngine::Camera& arg_cam);
+
+	//現在のステージのゲッタ
+	std::weak_ptr<Stage>GetNowStage() { return m_nowStage; }
 };
 
