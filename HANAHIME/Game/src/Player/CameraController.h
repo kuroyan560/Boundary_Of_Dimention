@@ -31,6 +31,11 @@ public:
 	//現在のパラメータ
 	Parameter m_nowParam;
 
+	//カメラ座標移動のLerp値
+	float m_camPosLerpRate = 0.8f;
+	//カメラ注視点移動のLerp値
+	float m_camGazePointLerpRate = 0.8f;
+
 	//コンストラクタ
 	CameraController();
 

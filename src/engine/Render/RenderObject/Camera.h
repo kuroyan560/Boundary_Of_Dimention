@@ -123,7 +123,7 @@ namespace KuroEngine
 		//ƒQƒbƒ^
 		const Vec3<float>& GetPos() { return pos; }
 		const Vec3<float>& GetUp() { return up; }
-		const Vec3<float>& GetTarget() { return target; }
+		const Vec3<float>& GetGazePointPos() { return target; }
 		const Angle& GetAngleOfView() { return angleOfView; }
 		const Transform& GetTransform() { CameraInfoUpdate(); return transform; }
 		const Matrix& GetViewMat() { CameraInfoUpdate(); return cameraInfo.matView; }

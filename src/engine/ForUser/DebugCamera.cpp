@@ -5,7 +5,7 @@
 void KuroEngine::DebugCamera::MoveXMVector(const XMVECTOR& MoveVector)
 {
 	auto pos = m_cam->GetPos();
-	auto target = m_cam->GetTarget();
+	auto target = m_cam->GetGazePointPos();
 
 	Vec3<float>move(MoveVector.m128_f32[0], MoveVector.m128_f32[1], MoveVector.m128_f32[2]);
 	pos += move;
@@ -18,7 +18,7 @@ void KuroEngine::DebugCamera::MoveXMVector(const XMVECTOR& MoveVector)
 KuroEngine::DebugCamera::DebugCamera()
 {
 	m_cam = std::make_shared<Camera>("DebugCamera");
-	m_dist = m_cam->GetPos().Distance(m_cam->GetTarget());
+	m_dist = m_cam->GetPos().Distance(m_cam->GetGazePointPos());
 
 	//画面サイズに対する相対的なスケールに調整
 	m_scale.x = 1.0f / (float)KuroEngine::WinApp::Instance()->GetExpandWinSize().x;
@@ -93,7 +93,7 @@ void KuroEngine::DebugCamera::Move()
 		vUp = XMVector3Transform(vUp, m_matRot);
 
 		// 注視点からずらした位置に視点座標を決定
-		Vec3<float>target = m_cam->GetTarget();
+		Vec3<float>target = m_cam->GetGazePointPos();
 		m_cam->SetPos({ target.x + vTargetEye.m128_f32[0], target.y + vTargetEye.m128_f32[1], target.z + vTargetEye.m128_f32[2] });
 		m_cam->SetUp({ vUp.m128_f32[0], vUp.m128_f32[1], vUp.m128_f32[2] });
 	}

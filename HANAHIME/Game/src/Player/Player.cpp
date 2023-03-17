@@ -42,7 +42,7 @@ void Player::OnImguiItems()
 	if (ImGui::TreeNode("Camera"))
 	{
 		auto pos = m_cam->GetPos();
-		auto target = m_cam->GetTarget();
+		auto target = m_cam->GetGazePointPos();
 
 		// ImGui::DragFloat3("Target", (float*)&target, 0.5f);
 		ImGui::DragFloat("Sensitivity", &m_camSensitivity, 0.05f);
@@ -88,7 +88,7 @@ void Player::Update()
 	pos += moveVec * m_moveScalar;
 
 	//視線移動角度量加算（Y軸：左右）
-	auto yScopeSpin = XMQuaternionRotationAxis(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), scopeMove.y);
+	auto yScopeSpin = XMQuaternionRotationAxis(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), scopeMove.x);
 	rotate = XMQuaternionMultiply(yScopeSpin, rotate);
 
 	//トランスフォームの変化を適用

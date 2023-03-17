@@ -31,6 +31,8 @@ CameraController::CameraController()
 	AddCustomParameter("GazePoint_Height", { "InitializedParameter","GazePoint","Height" }, PARAM_TYPE::FLOAT, &m_initializedParam.m_gazePointHeight, "InitializedParameter");
 	AddCustomParameter("GazePoint_Distance", { "InitializedParameter","GazePoint","Distance" }, PARAM_TYPE::FLOAT, &m_initializedParam.m_gazePointDist, "InitializedParameter");
 	AddCustomParameter("Angle_X", { "InitializedParameter","Angle_X" }, PARAM_TYPE::FLOAT, &m_initializedParam.m_xAngle, "InitializedParameter");
+	AddCustomParameter("PosLerpRate", { "PosLerpRate" }, PARAM_TYPE::FLOAT, &m_camPosLerpRate, "UpdateParameter");
+	AddCustomParameter("GazePointLerpRate", { "GazePointLerpRate" }, PARAM_TYPE::FLOAT, &m_camGazePointLerpRate, "UpdateParameter");
 }
 
 void CameraController::Init()
@@ -47,16 +49,18 @@ void CameraController::Update(std::shared_ptr<KuroEngine::Camera>arg_cam, KuroEn
 	frontOnXZ.y = 0.0f;
 
 	//カメラの位置(XZ)を算出
-	Vec3<float>camPos = arg_targetPos - (arg_frontVec * m_nowParam.m_distToTarget);
+	Vec3<float>newPos = arg_targetPos - (arg_frontVec * m_nowParam.m_distToTarget);
 
 	//注視点の位置を算出
-	Vec3<float>gazePointPos = camPos + (arg_frontVec * m_nowParam.m_gazePointDist);
-	gazePointPos.y = m_nowParam.m_gazePointHeight;
+	Vec3<float>newGazePoint = newPos + (arg_frontVec * m_nowParam.m_gazePointDist);
+	newGazePoint.y = m_nowParam.m_gazePointHeight;
 
 	//カメラの高さを算出
-	camPos.y = tan(m_nowParam.m_xAngle) * m_nowParam.m_gazePointDist;
+	newPos.y = tan(m_nowParam.m_xAngle) * m_nowParam.m_gazePointDist;
 
-	//計算した値をカメラに適用
-	arg_cam->SetPos(camPos);
-	arg_cam->SetTarget(gazePointPos);
+	//計算した値にLerpで近づく
+	auto nowPos = arg_cam->GetPos();
+	arg_cam->SetPos(Math::Lerp(nowPos, newPos, m_camPosLerpRate));
+	auto nowGazePoint = arg_cam->GetGazePointPos();
+	arg_cam->SetTarget(Math::Lerp(nowGazePoint, newGazePoint, m_camGazePointLerpRate));
 }
