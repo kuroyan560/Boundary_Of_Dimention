@@ -176,7 +176,7 @@ namespace KuroEngine
 			float len = Length();
 			if (len == 0.0f)
 			{
-				assert(0);
+				return;
 			}
 			x /= len;
 			y /= len;
