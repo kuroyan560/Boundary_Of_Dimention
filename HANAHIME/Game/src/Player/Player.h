@@ -42,7 +42,7 @@ class Player : public KuroEngine::Debugger
 	//Imguiデバッグ関数オーバーライド
 	void OnImguiItems()override;
 
-	bool HitCheck(const KuroEngine::Vec3<float>arg_from, const KuroEngine::Vec3<float> arg_to, const std::vector<Terrian>& arg_terrianArray, KuroEngine::Vec3<float>* arg_terrianNormal = nullptr);
+	bool HitCheck(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_to, const std::vector<Terrian>& arg_terrianArray, KuroEngine::Vec3<float>* arg_terrianNormal = nullptr);
 
 public:
 	Player();
