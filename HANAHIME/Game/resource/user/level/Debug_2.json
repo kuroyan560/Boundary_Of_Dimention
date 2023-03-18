@@ -222,28 +222,6 @@
         },
         {
             "type": "MESH",
-            "name": "Athletic_2",
-            "transform": {
-                "translation": [
-                    -12.508249282836914,
-                    33.05992126464844,
-                    5.0
-                ],
-                "rotation": [
-                    180.0,
-                    -0.0,
-                    -70.00001525878906
-                ],
-                "scaling": [
-                    3.0,
-                    0.8000001907348633,
-                    3.0
-                ]
-            },
-            "file_name": "Athletic_2"
-        },
-        {
-            "type": "MESH",
             "name": "Athletic_3",
             "transform": {
                 "translation": [
