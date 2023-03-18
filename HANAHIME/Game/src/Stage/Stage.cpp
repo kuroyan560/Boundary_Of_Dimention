@@ -2,6 +2,7 @@
 #include"FrameWork/Importer.h"
 #include"ForUser/JsonData.h"
 #include"FrameWork/Importer.h"
+#include"../Graphics/BasicDraw.h"
 
 std::string Stage::s_terrianModelDir = "resource/user/model/terrian/";
 
@@ -35,6 +36,18 @@ void Stage::TerrianInit(float arg_scaling)
 		terrian.m_transform.SetPos(terrian.m_initializedTransform.GetPos() * arg_scaling);
 		terrian.m_transform.SetScale(terrian.m_initializedTransform.GetScale() * arg_scaling);
 		terrian.m_transform.SetRotate(terrian.m_initializedTransform.GetRotate());
+	}
+}
+
+void Stage::TerrianDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+{
+	for (auto& terrian : m_terrianArray)
+	{
+		BasicDraw::Instance()->Draw(
+			arg_cam,
+			arg_ligMgr,
+			terrian.m_model.lock(),
+			terrian.m_transform);
 	}
 }
 

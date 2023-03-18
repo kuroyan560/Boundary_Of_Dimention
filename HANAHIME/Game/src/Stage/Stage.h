@@ -7,6 +7,8 @@ namespace KuroEngine
 {
 	class Model;
 	class TextureBuffer;
+	class LightManager;
+	class Camera;
 }
 
 //地形情報
@@ -45,6 +47,7 @@ private:
 
 public:
 	Stage();
+
 	
 	/// <summary>
 	/// 地形のトランスフォーム初期化
@@ -52,10 +55,13 @@ public:
 	/// <param name="arg_scaling">スケーリング</param>
 	void TerrianInit(float arg_scaling);
 
+	//地形の描画
+	void TerrianDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
+
 	//ステージのロード
 	void Load(std::string arg_dir, std::string arg_fileName);
 
-	std::vector<Terrian>& GetTerrianArray() { return m_terrianArray; }
+	const std::vector<Terrian>& GetTerrianArray()const { return m_terrianArray; }
 
 //モデルのゲッタ
 	//スカイドーム

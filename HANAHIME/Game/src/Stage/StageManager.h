@@ -39,7 +39,6 @@ class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>,p
 	void OnImguiItems()override;
 
 public:
-	void Init();
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
 
 	//現在のステージのゲッタ

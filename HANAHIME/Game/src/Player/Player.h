@@ -12,6 +12,9 @@ namespace KuroEngine
 	class LightManager;
 }
 
+class Stage;
+class Terrian;
+
 class Player : public KuroEngine::Debugger
 {
 	//プレイヤーのモデル
@@ -38,10 +41,12 @@ class Player : public KuroEngine::Debugger
 	//Imguiデバッグ関数オーバーライド
 	void OnImguiItems()override;
 
+	bool HitCheck(const KuroEngine::Vec3<float>arg_from, const KuroEngine::Vec3<float> arg_to, const std::vector<Terrian>& arg_terrianArray, KuroEngine::Vec3<float>* arg_terrianNormal = nullptr);
+
 public:
 	Player();
 	void Init(KuroEngine::Transform arg_initTransform);
-	void Update();
+	void Update(const std::weak_ptr<Stage>arg_nowStage);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw = false);
 	void Finalize();
 

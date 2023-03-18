@@ -62,19 +62,6 @@ void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 		transform,
 		arg_cam);
 
-	//’nŒ`•`‰æ
-	for (auto& terrian : m_nowStage->GetTerrianArray())
-	{
-		BasicDraw::Instance()->Draw(
-			arg_cam,
-			arg_ligMgr,
-			terrian.m_model.lock(),
-			terrian.m_transform);
 
-		/*DrawFunc3D::DrawNonShadingModel(
-			terrian.m_model.lock(),
-			terrian.m_transform,
-			arg_cam);*/
-	}
-
+	m_nowStage->TerrianDraw(arg_cam, arg_ligMgr);
 }
