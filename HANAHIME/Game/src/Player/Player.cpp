@@ -466,7 +466,8 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float
 		static const float OFFSET = 0.01f;
 
 		//押し戻す。
-		arg_rayPos = output.m_pos + output.m_normal * (m_transform.GetScale().x - OFFSET);
+		auto aa = m_transform.GetScale().x - output.m_distance;
+		arg_rayPos += output.m_normal * std::fabs((output.m_distance - m_transform.GetScale().x) - OFFSET);
 
 		//レイの種類によって保存するデータを変える。
 		switch (arg_rayID)
