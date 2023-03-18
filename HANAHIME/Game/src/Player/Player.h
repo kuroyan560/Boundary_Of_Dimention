@@ -62,13 +62,18 @@ public:
 
 private:
 
-	// レイとメッシュの当たり判定出力用構造体
+	//レイとメッシュの当たり判定出力用構造体
 	struct MeshCollisionOutput {
 		bool m_isHit;						// レイがメッシュに当たったかどうか 当たったメッシュまでの距離は考慮されておらず、ただ当たったかどうかを判断する用。
 		float m_distance;					// レイがメッシュに当たった場合、衝突地点までの距離が入る。このパラメーターとm_isHitを組み合わせて正しい衝突判定を行う。
 		KuroEngine::Vec3<float> m_pos;		// レイの衝突地点の座標
 		KuroEngine::Vec3<float> m_normal;	// レイの衝突地点の法線
 		KuroEngine::Vec2<float> m_uv;		// レイの衝突地点のUV
+	};
+	//発射するレイのID
+	enum class RAY_ID {
+		GROUND,	//地上向かって飛ばすレイ。設置判定で使用する。
+		AROUND,	//周囲に向かって飛ばすレイ。壁のぼり判定で使用する。
 	};
 	/// <summary>
 	/// レイとメッシュの当たり判定
@@ -89,6 +94,8 @@ private:
 	/// ベクトルに行列を乗算する。
 	/// </summary>
 	KuroEngine::Vec3<float> MulMat(const KuroEngine::Vec3<float>& arg_target, const DirectX::XMMATRIX arg_mat);
+
+	void CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float>& arg_rayDir, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_isHit, KuroEngine::Vec3<float>& arg_hitNormal, RAY_ID arg_rayID);
 
 };
 

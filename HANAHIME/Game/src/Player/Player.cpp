@@ -84,36 +84,21 @@ bool Player::HitCheck(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<fl
 
 			//判定↓============================================
 
-			MeshCollisionOutput output;
+
+			//右方向にレイを飛ばす。これは壁にくっつく用。
+			CastRay(arg_to, m_transform.GetRight(), modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::AROUND);
+
+			//左方向にレイを飛ばす。これは壁にくっつく用。
+			CastRay(arg_to, -m_transform.GetRight(), modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::AROUND);
+
+			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
+			CastRay(arg_to, -m_transform.GetFront(), modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::AROUND);
 
 			//正面方向にレイを飛ばす。これは壁にくっつく用。
-			output = MeshCollision(arg_to, m_transform.GetFront(), modelMesh, terrian.m_transform);
-
-			//レイがメッシュに衝突しており、衝突地点までの距離がプレイヤーの大きさより小さかったら地面に衝突している。
-			if (output.m_isHit && std::fabs(output.m_distance) <= m_transform.GetScale().x) {
-
-				// 外部に渡す用のデータを保存。
-				isHit = true;
-				hitNormal = output.m_normal;
-
-				//押し戻す。
-				arg_to = output.m_pos + output.m_normal * m_transform.GetScale().x;
-
-			}
+			CastRay(arg_to, m_transform.GetFront(), modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::AROUND);
 
 			//下方向にレイを飛ばす。これは地面との押し戻し用。
-			output = MeshCollision(arg_to, -m_transform.GetUp(), modelMesh, terrian.m_transform);
-
-			//レイがメッシュに衝突しており、衝突地点までの距離がプレイヤーの大きさより小さかったら地面に衝突している。
-			if (output.m_isHit && std::fabs(output.m_distance) <= m_transform.GetScale().y) {
-
-				//設置判定
-				m_onGround = true;
-
-				//押し戻す。
-				arg_to = output.m_pos + output.m_normal * m_transform.GetScale().y;
-
-			}
+			CastRay(arg_to, -m_transform.GetUp(), modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::GROUND);
 
 
 			//=================================================
@@ -123,7 +108,7 @@ bool Player::HitCheck(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<fl
 	//当たり判定がtrueなら当たった地形の法線を格納
 	if (isHit && arg_terrianNormal)
 	{
-		//*arg_terrianNormal = hitNormal;
+		*arg_terrianNormal = hitNormal;
 	}
 	return isHit;
 }
@@ -463,5 +448,46 @@ inline KuroEngine::Vec3<float> Player::MulMat(const KuroEngine::Vec3<float>& arg
 	KuroEngine::Vec3<float> returnVec = { resultVec.m128_f32[0], resultVec.m128_f32[1], resultVec.m128_f32[2] };
 
 	return returnVec;
+
+}
+
+void Player::CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float>& arg_rayDir, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_isHit, KuroEngine::Vec3<float>& arg_hitNormal, RAY_ID arg_rayID)
+{
+
+	/*===== 当たり判定用のレイを撃つ =====*/
+
+	//レイを飛ばす。
+	MeshCollisionOutput output = MeshCollision(arg_rayPos, arg_rayDir, arg_targetMesh, arg_targetTransform);
+
+	//レイがメッシュに衝突しており、衝突地点までの距離がプレイヤーの大きさより小さかったら衝突している。
+	if (output.m_isHit && std::fabs(output.m_distance) <= m_transform.GetScale().x) {
+
+		//ぴったり押し戻してしまうと重力の関係でガクガクしてしまうので、微妙にめり込ませて押し戻す。
+		static const float OFFSET = 0.01f;
+
+		//押し戻す。
+		arg_rayPos = output.m_pos + output.m_normal * (m_transform.GetScale().x - OFFSET);
+
+		//レイの種類によって保存するデータを変える。
+		switch (arg_rayID)
+		{
+		case Player::RAY_ID::GROUND:
+
+			//接地判定
+			m_onGround = true;
+
+			break;
+		case Player::RAY_ID::AROUND:
+
+			//外部に渡す用のデータを保存。
+			arg_isHit = true;
+			arg_hitNormal = output.m_normal;
+
+			break;
+		default:
+			break;
+		}
+
+	}
 
 }
