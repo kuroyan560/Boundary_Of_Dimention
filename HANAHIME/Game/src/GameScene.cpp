@@ -51,7 +51,7 @@ void GameScene::OnUpdate()
 
 	if (DebugController::Instance()->IsActive())m_debugCam.Move();
 
-	m_player.Update();
+	m_player.Update(StageManager::Instance()->GetNowStage());
 }
 
 void GameScene::OnDraw()

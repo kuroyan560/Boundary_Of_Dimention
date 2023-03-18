@@ -56,7 +56,7 @@ void Player::OnImguiItems()
 bool Player::HitCheck(const KuroEngine::Vec3<float>arg_from, const KuroEngine::Vec3<float> arg_to, const std::vector<Terrian>& arg_terrianArray, KuroEngine::Vec3<float>* arg_terrianNormal)
 {
 	/*
-	arg_from … 移動前の座標	
+	arg_from … 移動前の座標
 	arg_to … 移動後の座標
 	arg_terrianArray … 地形の配列
 	arg_terrianNormal … 当たった地形のメッシュの法線、格納先
@@ -64,6 +64,7 @@ bool Player::HitCheck(const KuroEngine::Vec3<float>arg_from, const KuroEngine::V
 
 	//当たり判定結果
 	bool isHit = false;
+	KuroEngine::Vec3<float> hitNormal;
 
 	//地形配列走査
 	for (auto& terrian : arg_terrianArray)
@@ -81,8 +82,24 @@ bool Player::HitCheck(const KuroEngine::Vec3<float>arg_from, const KuroEngine::V
 
 			//判定↓============================================
 
-			//mesh->vertices
-			
+			MeshCollisionOutput output;
+
+			//下方向にレイを飛ばす。 これは地面との押し戻し用。
+			output = MeshCollision(transform.GetPos(), -transform.GetUp(), modelMesh, terrian.m_transform);
+
+			//レイがメッシュに衝突しており、衝突地点までの距離がプレイヤーの大きさより小さかったら地面に衝突している。
+			if (output.m_isHit && std::fabs(output.m_distance) <= m_transform.GetScale().y) {
+				
+				isHit = true;
+				hitNormal = output.m_normal;
+
+				//ぴったり押し戻すと次のフレームにて重力の関係でがくがくするかもしれないので、それの対処用に多少多めに押し戻す。
+				static const float OFFSET = 1.0f;
+
+				//押し戻す。
+				m_transform.SetPos(output.m_pos + output.m_normal * (output.m_distance + OFFSET));
+
+			}
 
 
 			//=================================================
@@ -92,6 +109,8 @@ bool Player::HitCheck(const KuroEngine::Vec3<float>arg_from, const KuroEngine::V
 	//当たり判定がtrueなら当たった地形の法線を格納
 	if (isHit && arg_terrianNormal)
 	{
+		int a = 0;
+		++a;
 		//*arg_terrianNormal = ;
 	}
 	return isHit;
@@ -188,4 +207,244 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 
 void Player::Finalize()
 {
+}
+
+
+Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform) {
+
+
+	/*===== メッシュとレイの当たり判定 =====*/
+
+	/*-- ① モデル情報から当たり判定用のポリゴンを作り出す --*/
+
+	//当たり判定用ポリゴン
+	struct Polygon {
+		bool m_isActive;					//このポリゴンが有効化されているかのフラグ
+		KuroEngine::ModelMesh::Vertex m_p0;	//頂点0
+		KuroEngine::ModelMesh::Vertex m_p1;	//頂点1
+		KuroEngine::ModelMesh::Vertex m_p2;	//頂点2
+	};
+
+	//当たり判定用ポリゴンコンテナを作成。
+	std::vector<Polygon> checkHitPolygons;
+	checkHitPolygons.resize(arg_targetMesh.mesh->indices.size() / static_cast<size_t>(3));
+
+	//当たり判定用ポリゴンコンテナにデータを入れていく。
+	for (auto& index : checkHitPolygons) {
+
+		// 現在のIndex数。
+		int nowIndex = static_cast<int>(&index - &checkHitPolygons[0]);
+
+		// 頂点情報を保存。
+		index.m_p0 = arg_targetMesh.mesh->vertices[arg_targetMesh.mesh->indices[nowIndex * 3 + 0]];
+		index.m_p1 = arg_targetMesh.mesh->vertices[arg_targetMesh.mesh->indices[nowIndex * 3 + 1]];
+		index.m_p2 = arg_targetMesh.mesh->vertices[arg_targetMesh.mesh->indices[nowIndex * 3 + 2]];
+
+		// ポリゴンを有効化。
+		index.m_isActive = true;
+
+	}
+
+	/*-- ② ポリゴンを法線情報をもとにカリングする --*/
+
+	//法線とレイの方向の内積が0より小さかった場合、そのポリゴンは背面なのでカリングする。
+	for (auto& index : checkHitPolygons) {
+
+		if (index.m_p1.normal.Dot(arg_rayDir) < -0.0001f) continue;
+
+		index.m_isActive = false;
+
+	}
+
+
+	/*-- ③ ポリゴンをワールド変換する --*/
+
+	//ワールド行列
+	DirectX::XMMATRIX targetRotMat = DirectX::XMMatrixRotationQuaternion(arg_targetTransform.GetRotate());
+	DirectX::XMMATRIX targetWorldMat = DirectX::XMMatrixIdentity();
+	targetWorldMat *= DirectX::XMMatrixScaling(arg_targetTransform.GetScale().x, arg_targetTransform.GetScale().y, arg_targetTransform.GetScale().z);
+	targetWorldMat *= targetRotMat;
+	targetWorldMat.r[3].m128_f32[0] = arg_targetTransform.GetPos().x;
+	targetWorldMat.r[3].m128_f32[1] = arg_targetTransform.GetPos().y;
+	targetWorldMat.r[3].m128_f32[2] = arg_targetTransform.GetPos().z;
+	for (auto& index : checkHitPolygons) {
+		//頂点を変換
+		index.m_p0.pos = MulMat(index.m_p0.pos, targetWorldMat);
+		index.m_p1.pos = MulMat(index.m_p1.pos, targetWorldMat);
+		index.m_p2.pos = MulMat(index.m_p2.pos, targetWorldMat);
+		//法線を回転行列分だけ変換
+		index.m_p0.normal = MulMat(index.m_p0.normal, targetRotMat);
+		index.m_p0.normal.Normalize();
+		index.m_p1.normal = MulMat(index.m_p1.normal, targetRotMat);
+		index.m_p1.normal.Normalize();
+		index.m_p2.normal = MulMat(index.m_p2.normal, targetRotMat);
+		index.m_p2.normal.Normalize();
+	}
+
+
+	/*-- ④ ポリゴンとレイの当たり判定を行い、各情報を記録する --*/
+
+	// 記録用データ
+	std::vector<std::pair<Player::MeshCollisionOutput, Polygon>> hitDataContainer;
+
+	for (auto& index : checkHitPolygons) {
+
+		//ポリゴンが無効化されていたら次の処理へ
+		if (!index.m_isActive) continue;
+
+		//レイの開始地点から平面におろした垂線の長さを求める
+		KuroEngine::Vec3<float> planeNorm = -index.m_p0.normal;
+		float rayToOriginLength = arg_rayPos.Dot(planeNorm);
+		float planeToOriginLength = index.m_p0.pos.Dot(planeNorm);
+		//視点から平面におろした垂線の長さ
+		float perpendicularLine = rayToOriginLength - planeToOriginLength;
+
+		//三角関数を利用して視点から衝突店までの距離を求める
+		float dist = planeNorm.Dot(arg_rayDir);
+		float impDistance = perpendicularLine / -dist;
+
+		//衝突地点
+		KuroEngine::Vec3<float> impactPoint = arg_rayPos + arg_rayDir * impDistance;
+
+		/*----- 衝突点がポリゴンの内側にあるかを調べる -----*/
+
+		/* 辺1本目 */
+		KuroEngine::Vec3<float> P1ToImpactPos = (impactPoint - index.m_p0.pos).GetNormal();
+		KuroEngine::Vec3<float> P1ToP2 = (index.m_p1.pos - index.m_p0.pos).GetNormal();
+		KuroEngine::Vec3<float> P1ToP3 = (index.m_p2.pos - index.m_p0.pos).GetNormal();
+
+		//衝突点と辺1の内積
+		float impactDot = P1ToImpactPos.Dot(P1ToP2);
+		//点1と点3の内積
+		float P1Dot = P1ToP2.Dot(P1ToP3);
+
+		//衝突点と辺1の内積が点1と点3の内積より小さかったらアウト
+		if (impactDot < P1Dot) {
+			index.m_isActive = false;
+			continue;
+		}
+
+		/* 辺2本目 */
+		KuroEngine::Vec3<float> P2ToImpactPos = (impactPoint - index.m_p1.pos).GetNormal();
+		KuroEngine::Vec3<float> P2ToP3 = (index.m_p2.pos - index.m_p1.pos).GetNormal();
+		KuroEngine::Vec3<float> P2ToP1 = (index.m_p0.pos - index.m_p1.pos).GetNormal();
+
+		//衝突点と辺2の内積
+		impactDot = P2ToImpactPos.Dot(P2ToP3);
+		//点2と点1の内積
+		float P2Dot = P2ToP3.Dot(P2ToP1);
+
+		//衝突点と辺2の内積が点2と点1の内積より小さかったらアウト
+		if (impactDot < P2Dot) {
+			index.m_isActive = false;
+			continue;
+		}
+
+		/* 辺3本目 */
+		KuroEngine::Vec3<float> P3ToImpactPos = (impactPoint - index.m_p2.pos).GetNormal();
+		KuroEngine::Vec3<float> P3ToP1 = (index.m_p0.pos - index.m_p2.pos).GetNormal();
+		KuroEngine::Vec3<float> P3ToP2 = (index.m_p1.pos - index.m_p2.pos).GetNormal();
+
+		//衝突点と辺3の内積
+		impactDot = P3ToImpactPos.Dot(P3ToP1);
+		//点3と点2の内積
+		float P3Dot = P3ToP1.Dot(P3ToP2);
+
+		//衝突点と辺3の内積が点3と点2の内積より小さかったらアウト
+		if (impactDot < P3Dot) {
+			index.m_isActive = false;
+			continue;
+		}
+
+		/* ここまで来たらポリゴンに衝突してる！ */
+		Player::MeshCollisionOutput data;
+		data.m_pos = impactPoint;
+		data.m_distance = impDistance;
+		data.m_normal = index.m_p0.normal;
+		hitDataContainer.emplace_back(std::pair(data, index));
+
+	}
+
+
+	/*-- ⑤ 記録した情報から最終的な衝突点を求める --*/
+
+	//hitPorygonの値が1以上だったら距離が最小の要素を検索
+	if (0 < hitDataContainer.size()) {
+
+		//距離が最小の要素を検索
+		int min = 0;
+		float minDistance = std::numeric_limits<float>().max();
+		for (auto& index : hitDataContainer) {
+			if (fabs(index.first.m_distance) < fabs(minDistance)) {
+				minDistance = index.first.m_distance;
+				min = static_cast<int>(&index - &hitDataContainer[0]);
+			}
+		}
+
+		//重心座標を求める。
+		KuroEngine::Vec3<float> bary = CalBary(hitDataContainer[min].second.m_p0.pos, hitDataContainer[min].second.m_p1.pos, hitDataContainer[min].second.m_p2.pos, hitDataContainer[min].first.m_pos);
+
+		KuroEngine::Vec3<float> baryBuff = bary;
+
+		//UVWの値がずれるので修正。
+		bary.x = baryBuff.y;
+		bary.y = baryBuff.z;
+		bary.z = baryBuff.x;
+
+		KuroEngine::Vec2<float> uv = KuroEngine::Vec2<float>();
+
+		//重心座標からUVを求める。
+		uv.x += hitDataContainer[min].second.m_p0.uv.x * bary.x;
+		uv.x += hitDataContainer[min].second.m_p1.uv.x * bary.y;
+		uv.x += hitDataContainer[min].second.m_p2.uv.x * bary.z;
+
+		uv.y += hitDataContainer[min].second.m_p0.uv.y * bary.x;
+		uv.y += hitDataContainer[min].second.m_p1.uv.y * bary.y;
+		uv.y += hitDataContainer[min].second.m_p2.uv.y * bary.z;
+
+		hitDataContainer[min].first.m_uv = uv;
+
+		return hitDataContainer[min].first;
+	}
+	else {
+
+		return Player::MeshCollisionOutput();
+
+	}
+
+
+}
+
+inline KuroEngine::Vec3<float> Player::CalBary(const KuroEngine::Vec3<float>& PosA, const KuroEngine::Vec3<float>& PosB, const KuroEngine::Vec3<float>& PosC, const KuroEngine::Vec3<float>& TargetPos)
+{
+
+	/*===== 重心座標を求める =====*/
+
+	KuroEngine::Vec3<float> uvw = KuroEngine::Vec3<float>();
+
+	// 三角形の面積を求める。
+	float areaABC = (PosC - PosA).Cross(PosB - PosA).Length() / 2.0f;
+
+	// 重心座標を求める。
+	uvw.x = ((PosA - TargetPos).Cross(PosB - TargetPos).Length() / 2.0f) / areaABC;
+	uvw.y = ((PosB - TargetPos).Cross(PosC - TargetPos).Length() / 2.0f) / areaABC;
+	uvw.z = ((PosC - TargetPos).Cross(PosA - TargetPos).Length() / 2.0f) / areaABC;
+
+	return uvw;
+
+}
+
+inline KuroEngine::Vec3<float> Player::MulMat(const KuroEngine::Vec3<float>& arg_target, const DirectX::XMMATRIX arg_mat)
+{
+
+	/*===== ベクトルに行列を乗算する =====*/
+
+	//乗算する。
+	DirectX::XMVECTOR resultVec = DirectX::XMVector3Transform(arg_target, arg_mat);
+
+	//KuroEngine::Vec3<float>になおす。
+	KuroEngine::Vec3<float> returnVec = { resultVec.m128_f32[0], resultVec.m128_f32[1], resultVec.m128_f32[2] };
+
+	return returnVec;
+
 }

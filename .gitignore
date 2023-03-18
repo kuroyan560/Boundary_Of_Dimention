@@ -1,2 +1,4 @@
 .vs/
 HANAHIME/Game/x64/
+*.pdb
+*.exe
