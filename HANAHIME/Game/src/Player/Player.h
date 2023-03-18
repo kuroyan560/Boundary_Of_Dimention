@@ -39,6 +39,9 @@ class Player : public KuroEngine::Debugger
 
 	float m_moveScalar = 0.5f;
 
+	//設置フラグ
+	bool m_onGround;
+
 	//Imguiデバッグ関数オーバーライド
 	void OnImguiItems()override;
 

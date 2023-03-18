@@ -6,13 +6,6 @@
 #include"../Graphics/BasicDraw.h"
 #include"../Stage/Stage.h"
 
-static KuroEngine::Vec3<float> frontHitNormal;
-static KuroEngine::Vec3<float> frontHitPos;
-static KuroEngine::Vec3<float> bottomHitNormal;
-static KuroEngine::Vec3<float> bottomHitPos;
-static bool isGrav = false;
-
-
 void Player::OnImguiItems()
 {
 	using namespace KuroEngine;
@@ -45,13 +38,6 @@ void Player::OnImguiItems()
 		auto up = m_transform.GetUp();
 		ImGui::Text("Up : %.2f ,%.2f , %.2f", up.x, up.y, up.z);
 
-
-
-		ImGui::Text("FrontHitNormal : %.2f ,%.2f , %.2f", frontHitNormal.x, frontHitNormal.y, frontHitNormal.z);
-		ImGui::Text("FrontHitPos : %.2f ,%.2f , %.2f", frontHitPos.x, frontHitPos.y, frontHitPos.z);
-		ImGui::Text("BottomHitNormal : %.2f ,%.2f , %.2f", bottomHitNormal.x, bottomHitNormal.y, bottomHitNormal.z);
-		ImGui::Text("BottomHitPos : %.2f ,%.2f , %.2f", bottomHitPos.x, bottomHitPos.y, bottomHitPos.z);
-		ImGui::Checkbox("Grav", &isGrav);
 	}
 
 	//カメラ
@@ -79,12 +65,8 @@ bool Player::HitCheck(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<fl
 
 	//当たり判定結果
 	bool isHit = false;
+	m_onGround = false;
 	KuroEngine::Vec3<float> hitNormal;
-
-	frontHitNormal = KuroEngine::Vec3<float>(0, 0, 0);
-	frontHitPos = KuroEngine::Vec3<float>(0, 0, 0);
-	bottomHitNormal = KuroEngine::Vec3<float>(0, 0, 0);
-	bottomHitPos = KuroEngine::Vec3<float>(0, 0, 0);
 
 	//地形配列走査
 	for (auto& terrian : arg_terrianArray)
@@ -104,44 +86,34 @@ bool Player::HitCheck(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<fl
 
 			MeshCollisionOutput output;
 
+			//正面方向にレイを飛ばす。これは壁にくっつく用。
+			output = MeshCollision(arg_to, m_transform.GetFront(), modelMesh, terrian.m_transform);
+
+			//レイがメッシュに衝突しており、衝突地点までの距離がプレイヤーの大きさより小さかったら地面に衝突している。
+			if (output.m_isHit && std::fabs(output.m_distance) <= m_transform.GetScale().x) {
+
+				// 外部に渡す用のデータを保存。
+				isHit = true;
+				hitNormal = output.m_normal;
+
+				//押し戻す。
+				arg_to = output.m_pos + output.m_normal * m_transform.GetScale().x;
+
+			}
+
 			//下方向にレイを飛ばす。これは地面との押し戻し用。
-			output = MeshCollision(arg_to, -transform.GetUp(), modelMesh, terrian.m_transform);
+			output = MeshCollision(arg_to, -m_transform.GetUp(), modelMesh, terrian.m_transform);
 
 			//レイがメッシュに衝突しており、衝突地点までの距離がプレイヤーの大きさより小さかったら地面に衝突している。
 			if (output.m_isHit && std::fabs(output.m_distance) <= m_transform.GetScale().y) {
 
-				//ぴったり押し戻すと次のフレームにて重力の関係でがくがくするかもしれないので、それの対処用に多少多めに押し戻す。
-				static const float OFFSET = 0.01f;
+				//設置判定
+				m_onGround = true;
 
 				//押し戻す。
-				arg_to = output.m_pos + output.m_normal * (m_transform.GetScale().y + OFFSET);
-
-				bottomHitPos = output.m_pos;
-				bottomHitNormal = output.m_normal;
+				arg_to = output.m_pos + output.m_normal * m_transform.GetScale().y;
 
 			}
-
-			////正面方向にレイを飛ばす。これは壁にくっつく用。
-			//output = MeshCollision(arg_to, transform.GetFront(), modelMesh, terrian.m_transform);
-
-			////レイがメッシュに衝突しており、衝突地点までの距離がプレイヤーの大きさより小さかったら地面に衝突している。
-			//if (output.m_isHit && std::fabs(output.m_distance) <= m_transform.GetScale().x) {
-
-			//	// 外部に渡す用のデータを保存。
-			//	isHit = true;
-			//	hitNormal = output.m_normal;
-
-			//	//ぴったり押し戻すと次のフレームにて重力の関係でがくがくするかもしれないので、それの対処用に多少多めに押し戻す。
-			//	static const float OFFSET = 0.001f;
-
-			//	//押し戻す。
-			//	arg_to = output.m_pos + output.m_normal * (output.m_distance + OFFSET);
-
-
-			//	frontHitPos = output.m_pos;
-			//	frontHitNormal = output.m_normal;
-
-			//}
 
 
 			//=================================================
@@ -193,8 +165,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//移動量加算
 	newPos += moveVec * m_moveScalar;
 
-	if (isGrav) {
-		newPos.y -= 0.05f;
+	if (!m_onGround) {
+		newPos.y -= 0.2f;
 	}
 
 	//視線移動角度量加算（Y軸：左右）
@@ -291,7 +263,7 @@ Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>&
 
 	/*-- ② ポリゴンを法線情報をもとにカリングする --*/
 
-	//法線とレイの方向の内積が0より小さかった場合、そのポリゴンは背面なのでカリングする。
+	//法線とレイの方向の内積が0より小さかった場合、そのポリゴンは背面なのでカリングする。	当たり判定をより強度にするために一旦コメントアウトするが、処理負荷問題が発生したら復活させる。
 	for (auto& index : checkHitPolygons) {
 
 		if (index.m_p1.normal.Dot(arg_rayDir) < -0.0001f) continue;
