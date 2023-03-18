@@ -28,6 +28,16 @@ Stage::Stage()
 	m_groundTex = s_defaultGroundTex;
 }
 
+void Stage::TerrianInit(float arg_scaling)
+{
+	for (auto& terrian : m_terrianArray)
+	{
+		terrian.m_transform.SetPos(terrian.m_initializedTransform.GetPos() * arg_scaling);
+		terrian.m_transform.SetScale(terrian.m_initializedTransform.GetScale() * arg_scaling);
+		terrian.m_transform.SetRotate(terrian.m_initializedTransform.GetRotate());
+	}
+}
+
 void Stage::Load(std::string arg_dir, std::string arg_fileName)
 {
 	using namespace KuroEngine;
@@ -47,36 +57,35 @@ void Stage::Load(std::string arg_dir, std::string arg_fileName)
 		//トランスフォームのパラメータがない
 		if (!obj.contains("transform"))continue;
 
-		//地形追加
-		m_terrianArray.emplace_back();
-		//新しい地形情報の参照
-		auto& newTerrian = m_terrianArray.back();
-
 		//地形の名前設定
-		newTerrian.m_name = obj["name"].get<std::string>();
+		auto name = obj["name"].get<std::string>();
 
 		//モデル設定
-		newTerrian.m_model = Importer::Instance()->LoadModel(s_terrianModelDir, obj["file_name"].get<std::string>() + ".glb");
+		auto model = Importer::Instance()->LoadModel(s_terrianModelDir, obj["file_name"].get<std::string>() + ".glb");
 
 		//トランスフォーム取得
-		auto transform = obj["transform"];
+		auto transformObj = obj["transform"];
 
 		//平行移動
-		Vec3<float>translation = { -(float)transform["translation"][0],(float)transform["translation"][2],-(float)transform["translation"][1] };
+		Vec3<float>translation = { -(float)transformObj["translation"][0],(float)transformObj["translation"][2],-(float)transformObj["translation"][1] };
 
 		//回転
-		Vec3<float>rotate = { -(float)transform["rotation"][1],-(float)transform["rotation"][2], (float)transform["rotation"][0] };
+		Vec3<float>rotate = { -(float)transformObj["rotation"][1],-(float)transformObj["rotation"][2], (float)transformObj["rotation"][0] };
 		//ラジアンに直す
 		rotate.x = Angle::ConvertToRadian(rotate.x);
 		rotate.y = Angle::ConvertToRadian(rotate.y);
 		rotate.z = Angle::ConvertToRadian(rotate.z);
 
 		//スケーリング
-		Vec3<float>scaling = { (float)transform["scaling"][0],(float)transform["scaling"][2] ,(float)transform["scaling"][1] };
+		Vec3<float>scaling = { (float)transformObj["scaling"][0],(float)transformObj["scaling"][2] ,(float)transformObj["scaling"][1] };
 
 		//トランスフォーム設定
-		newTerrian.m_transform.SetPos(translation);
-		newTerrian.m_transform.SetRotate(XMQuaternionRotationRollPitchYaw(rotate.z, rotate.y, rotate.x));
-		newTerrian.m_transform.SetScale(scaling);
+		Transform transform;
+		transform.SetPos(translation);
+		transform.SetRotate(XMQuaternionRotationRollPitchYaw(rotate.z, rotate.y, rotate.x));
+		transform.SetScale(scaling);
+
+		//地形追加
+		m_terrianArray.emplace_back(name, model, transform);
 	}
 }

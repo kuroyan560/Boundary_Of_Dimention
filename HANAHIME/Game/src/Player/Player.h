@@ -9,6 +9,7 @@ namespace KuroEngine
 {
 	class Camera;
 	class Model;
+	class LightManager;
 }
 
 class Player : public KuroEngine::Debugger
@@ -41,7 +42,7 @@ public:
 	Player();
 	void Init(KuroEngine::Transform arg_initTransform);
 	void Update();
-	void Draw(KuroEngine::Camera& arg_cam, bool arg_cameraDraw = false);
+	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw = false);
 	void Finalize();
 
 	std::weak_ptr<KuroEngine::Camera>GetCamera() { return m_cam; }

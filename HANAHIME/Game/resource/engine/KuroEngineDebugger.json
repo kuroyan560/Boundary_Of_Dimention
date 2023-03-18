@@ -1,4 +1,59 @@
 {
+  "BasicDraw": {
+    "DefaultDrawParam": {
+      "BrightMulColor": [
+        0.3025548458099365,
+        0.9281768202781677,
+        0.3993360698223114,
+        0.8563535809516907
+      ],
+      "DarkMulColor": [
+        0.39501893520355225,
+        0.6850829124450684,
+        0.31793901324272156,
+        0.4364640712738037
+      ],
+      "EdgeColor": [
+        0.1260034739971161,
+        0.530386745929718,
+        0.4030395448207855,
+        1.0
+      ],
+      "FillColor": [
+        0.988950252532959,
+        0.13659539818763733,
+        0.13659539818763733,
+        0.0
+      ],
+      "LimBrightColor": [
+        0.0,
+        1.0,
+        0.9171268939971924,
+        0.0
+      ]
+    },
+    "Edge": {
+      "DepthDifferenceThreshold": 0.800000011920929
+    },
+    "Toon": {
+      "BrightThreshold": {
+        "Low": 0.6600000262260437,
+        "Range": 0.029999999329447746
+      },
+      "LimThreshold": 0.4000000059604645
+    },
+    "debuggerSetting": {
+      "active": true,
+      "customParamActive": true,
+      "imageColor": [
+        0.3920130133628845,
+        0.1807064712047577,
+        0.875,
+        1.0
+      ],
+      "textColorFlg": false
+    }
+  },
   "CameraController": {
     "GazePointLerpRate": 0.20000000298023224,
     "InitializedParameter": {
@@ -11,12 +66,12 @@
     },
     "PosLerpRate": 0.20000000298023224,
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
-        0.800000011920929,
-        0.800000011920929,
-        0.800000011920929,
+        0.1879725158214569,
+        0.8130200505256653,
+        0.9347826242446899,
         1.0
       ],
       "textColorFlg": false
@@ -33,9 +88,9 @@
       "active": false,
       "customParamActive": true,
       "imageColor": [
-        0.800000011920929,
-        0.800000011920929,
-        0.800000011920929,
+        0.7863483428955078,
+        0.8695652484893799,
+        0.10396973043680191,
         1.0
       ],
       "textColorFlg": false
@@ -73,6 +128,7 @@
     "scaling": {
       "ground": 311.3999938964844,
       "skydome": 500.54998779296875,
+      "terrian": 2.3499999046325684,
       "woods": {
         "height": 186.0,
         "radius": 309.0

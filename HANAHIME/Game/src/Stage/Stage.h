@@ -16,8 +16,13 @@ struct Terrian
 	std::string m_name;
 	//モデルポインタ
 	std::weak_ptr<KuroEngine::Model>m_model;
+	//デフォルト（元データ）のトランスフォーム
+	const KuroEngine::Transform m_initializedTransform;
 	//トランスフォーム
 	KuroEngine::Transform m_transform;
+
+	Terrian(std::string arg_name, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
+		:m_name(arg_name), m_model(arg_model), m_initializedTransform(arg_initTransform) {}
 };
 
 class Stage
@@ -40,6 +45,12 @@ private:
 
 public:
 	Stage();
+	
+	/// <summary>
+	/// 地形のトランスフォーム初期化
+	/// </summary>
+	/// <param name="arg_scaling">スケーリング</param>
+	void TerrianInit(float arg_scaling);
 
 	//ステージのロード
 	void Load(std::string arg_dir, std::string arg_fileName);

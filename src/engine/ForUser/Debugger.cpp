@@ -191,6 +191,13 @@ void KuroEngine::Debugger::LoadParameterLog()
 			break;
 		}
 
+		case PARAM_TYPE::COLOR:
+		{
+			Color data = { (float)jsonObj->at(0),jsonObj->at(1),jsonObj->at(2),jsonObj->at(3) };
+			memcpy(param.m_dataPtr, &data, sizeof(float) * 4);
+			break;
+		}
+
 		default:
 			AppearMessageBox("Debugger：LoadParameterLog()失敗", param.m_label + "のタイプがNONEだったので上手く読み込めなかったよ");
 			break;
@@ -272,6 +279,10 @@ void KuroEngine::Debugger::WriteParameterLog()
 				paramObj[key] = *(std::string*)param.m_dataPtr;
 				break;
 
+			case PARAM_TYPE::COLOR:
+				paramObj[key] = { ((float*)param.m_dataPtr)[0],((float*)param.m_dataPtr)[1],((float*)param.m_dataPtr)[2],((float*)param.m_dataPtr)[3] };
+				break;
+
 			default:
 				AppearMessageBox("Debugger：WriteParameterLog()失敗", param.m_label + "のタイプがNONEだったので上手く書き込めなかったよ");
 				break;
@@ -284,14 +295,16 @@ void KuroEngine::Debugger::CustomParameterOnImgui()
 	static const float INDENT_AMOUNT = 10.0f;
 	ImGui::Indent(INDENT_AMOUNT);
 
+	m_customParamDirty = false;
+
+	auto& dirty = m_customParamDirty;
+
 	//登録されたカスタムパラメータの設定
 	for (auto& paramGroup : m_customParamGroup)
 	{
 		if (ImGui::TreeNode(paramGroup.first.c_str()))
 		{
 			auto& itemList = paramGroup.second;
-
-			ImGui::PushItemWidth(100);
 
 			std::vector<CustomParameter*>::iterator itr = itemList.begin();
 			for (; itr != itemList.end();)
@@ -302,44 +315,53 @@ void KuroEngine::Debugger::CustomParameterOnImgui()
 				float min = item.m_isMinMax ? item.m_min : 0.0f;
 				float max = item.m_isMinMax ? item.m_max : 0.0f;
 
+				if (item.m_type != PARAM_TYPE::BOOL && item.m_type != PARAM_TYPE::STRING && item.m_type != PARAM_TYPE::COLOR)
+				{
+					ImGui::PushItemWidth(100);
+				}
+
 				switch (item.m_type)
 				{
 					case PARAM_TYPE::INT:
-						ImGui::DragInt(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
+						dirty = dirty ? dirty : ImGui::DragInt(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
 						break;
 					case PARAM_TYPE::INT_VEC2:
-						ImGui::DragInt2(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
+						dirty = dirty ? dirty : ImGui::DragInt2(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
 						break;
 					case PARAM_TYPE::INT_VEC3:
-						ImGui::DragInt3(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
+						dirty = dirty ? dirty : ImGui::DragInt3(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
 						break;
 					case PARAM_TYPE::INT_VEC4:
-						ImGui::DragInt4(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
+						dirty = dirty ? dirty : ImGui::DragInt4(label, (int*)(item.m_dataPtr), m_customParamDragSpeed, (int)min, (int)max);
 						break;
 
 					case PARAM_TYPE::FLOAT:
-						ImGui::DragFloat(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
+						dirty = dirty ? dirty : ImGui::DragFloat(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
 						break;
 					case PARAM_TYPE::FLOAT_VEC2:
-						ImGui::DragFloat2(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
+						dirty = dirty ? dirty : ImGui::DragFloat2(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
 						break;
 					case PARAM_TYPE::FLOAT_VEC3:
-						ImGui::DragFloat3(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
+						dirty = dirty ? dirty : ImGui::DragFloat3(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
 						break;
 					case PARAM_TYPE::FLOAT_VEC4:
-						ImGui::DragFloat4(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
+						dirty = dirty ? dirty : ImGui::DragFloat4(label, (float*)(item.m_dataPtr), m_customParamDragSpeed, min, max);
 						break;
 
 					case PARAM_TYPE::BOOL:
-						ImGui::Checkbox(label, (bool*)item.m_dataPtr);
+						dirty = dirty ? dirty : ImGui::Checkbox(label, (bool*)item.m_dataPtr);
 						break;
 
 					case PARAM_TYPE::STRING:
 					{
 						std::string* strPtr = (std::string*)item.m_dataPtr;
-						ImGui::InputText(label, (char*)strPtr->c_str(), strPtr->capacity() + 1);
+						dirty = dirty ? dirty : ImGui::InputText(label, (char*)strPtr->c_str(), strPtr->capacity() + 1);
 						break;
 					}
+
+					case PARAM_TYPE::COLOR:
+						dirty = dirty ? dirty : ImGui::ColorPicker4(label, (float*)(item.m_dataPtr), ImGuiColorEditFlags_AlphaBar);
+						break;
 
 					default:
 						AppearMessageBox("Debugger：CustomParamterOnImgui()失敗", item.m_label + "のタイプがNONEだったのでimgui上でいじれないよ");
@@ -347,11 +369,15 @@ void KuroEngine::Debugger::CustomParameterOnImgui()
 						break;
 				}
 
+				if (item.m_type != PARAM_TYPE::BOOL && item.m_type != PARAM_TYPE::STRING && item.m_type != PARAM_TYPE::COLOR)
+				{
+					ImGui::PopItemWidth();
+				}
+
 				if (error)itr = itemList.erase(itr);
 				else itr++;
 			}
 
-			ImGui::PopItemWidth();
 			ImGui::TreePop();
 		}
 	}

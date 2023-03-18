@@ -68,6 +68,9 @@
     <Filter Include="src\user\Stage">
       <UniqueIdentifier>{6fcfac86-026f-48bd-a5db-8c79a5b3de54}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\user\Graphics">
+      <UniqueIdentifier>{ade67a3f-0cb6-47a3-9c70-5d41e5454e2e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\KuroEngineDevice.cpp">
@@ -288,6 +291,12 @@
     </ClCompile>
     <ClCompile Include="src\Player\CameraController.cpp">
       <Filter>src\user\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\BasicDrawParameters.cpp">
+      <Filter>src\user\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\BasicDraw.cpp">
+      <Filter>src\user\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -566,6 +575,12 @@
     </ClInclude>
     <ClInclude Include="src\Player\CameraController.h">
       <Filter>src\user\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\BasicDraw.h">
+      <Filter>src\user\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\BasicDrawParameters.h">
+      <Filter>src\user\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

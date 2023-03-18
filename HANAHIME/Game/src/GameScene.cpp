@@ -7,11 +7,16 @@
 #include"Stage/StageManager.h"
 
 #include"ForUser/JsonData.h"
+#include"Graphics/BasicDraw.h"
 
 GameScene::GameScene()
 {
 	m_ddsTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.dds");
 	m_pngTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
+
+	KuroEngine::Vec3<float>dir = { -1.0f,-0.8f,0.7f };
+	m_dirLig.SetDir(dir.GetNormal());
+	m_ligMgr.RegisterDirLight(&m_dirLig);
 }
 
 
@@ -22,6 +27,7 @@ void GameScene::OnInitialize()
 	&m_player,
 	m_player.GetCameraControllerDebugger(),
 	StageManager::Instance(),
+	BasicDraw::Instance(),
 	});
 
 	m_debugCam.Init({ 0,5,-10 }, { 0,1,0 });
@@ -51,12 +57,33 @@ void GameScene::OnUpdate()
 void GameScene::OnDraw()
 {
 	using namespace KuroEngine;
-	static auto ds = D3D12App::Instance()->GenerateDepthStencil(D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize());
+	static auto targetSize = D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize();
+	static auto ds = D3D12App::Instance()->GenerateDepthStencil(targetSize);
+	static auto emissiveMap = D3D12App::Instance()->GenerateRenderTarget(
+		DXGI_FORMAT_R32G32B32A32_FLOAT,
+		Color(0.0f, 0.0f, 0.0f, 1.0f),
+		targetSize, L"EmissiveMap");
+	static auto depthMap = D3D12App::Instance()->GenerateRenderTarget(
+		DXGI_FORMAT_R32_FLOAT,
+		Color(FLT_MAX, 0.0f, 0.0f, 0.0f),
+		targetSize, L"DepthMap");
+	static auto edgeColMap = D3D12App::Instance()->GenerateRenderTarget(
+		D3D12App::Instance()->GetBackBuffFormat(),
+		Color(0.0f, 0.0f, 0.0f, 1.0f),
+		targetSize, L"EdgeColorMap");
 
+	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(emissiveMap);
+	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(depthMap);
+	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(edgeColMap);
 	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(
-		{ D3D12App::Instance()->GetBackBuffRenderTarget() },
+		{ 
+			D3D12App::Instance()->GetBackBuffRenderTarget(),
+			emissiveMap,
+			depthMap,
+			edgeColMap
+		},
 		ds
 	);
 
@@ -64,7 +91,7 @@ void GameScene::OnDraw()
 	if (DebugController::Instance()->IsActive())nowCamera = m_debugCam;
 
 	//ステージ描画
-	StageManager::Instance()->Draw(*nowCamera);
+	StageManager::Instance()->Draw(*nowCamera, m_ligMgr);
 	
 	Transform transform;
 	transform.SetPos({ -0.5f,0,0 });
@@ -79,7 +106,9 @@ void GameScene::OnDraw()
 		transform,
 		*nowCamera);
 
-	m_player.Draw(*nowCamera, DebugController::Instance()->IsActive());
+	m_player.Draw(*nowCamera, m_ligMgr, DebugController::Instance()->IsActive());
+
+	BasicDraw::Instance()->DrawEdge(depthMap, edgeColMap);
 }
 
 void GameScene::OnImguiDebug()

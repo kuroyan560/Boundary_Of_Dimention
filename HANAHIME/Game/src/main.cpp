@@ -18,6 +18,8 @@
 
 #include"GameScene.h"
 
+#include"Graphics/BasicDraw.h"
+
 #ifdef _DEBUG
 int main()
 #else
@@ -36,6 +38,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	engineOption.m_backBuffClearColor = KuroEngine::Color(0, 0, 0, 0);
 	engineOption.m_useHDR = false;
 	engineOption.m_frameRate = 60;
+
 	//================================
 
 	//エンジン起動（失敗したら終了）
@@ -44,6 +47,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 
 	//デバッガのパラメータログ読み込み
 	KuroEngine::Debugger::ImportParameterLog();
+
+	BasicDraw::Instance()->Awake(engineOption.m_windowSize.Float());
 
 	//シーンリスト（ユーザー設定）=========
 	std::map<std::string, KuroEngine::BaseScene*>sceneList =
@@ -97,6 +102,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		KuroEngine::DrawFunc3D::CountReset();
 
 		KuroEngine::DrawFuncBillBoard::CountReset();
+
+		BasicDraw::Instance()->CountReset();
 	}
 
 	KuroEngine::Debugger::ExportParameterLog();

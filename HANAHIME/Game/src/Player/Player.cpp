@@ -3,6 +3,7 @@
 #include"../OperationConfig.h"
 #include"FrameWork/Importer.h"
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
+#include"../Graphics/BasicDraw.h"
 
 void Player::OnImguiItems()
 {
@@ -100,12 +101,20 @@ void Player::Update()
 	m_camController.Update(m_cam, pos, front);
 }
 
-void Player::Draw(KuroEngine::Camera& arg_cam, bool arg_cameraDraw)
+void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
 {
+	/*
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_model,
 		m_transform,
 		arg_cam);
+	*/
+
+	BasicDraw::Instance()->Draw(
+		arg_cam,
+		arg_ligMgr,
+		m_model,
+		m_transform);
 
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_axisModel,

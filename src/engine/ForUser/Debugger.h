@@ -48,6 +48,7 @@ namespace KuroEngine
 			FLOAT, FLOAT_VEC2, FLOAT_VEC3, FLOAT_VEC4,
 			BOOL,
 			STRING,
+			COLOR,
 			NONE
 		};
 
@@ -128,6 +129,8 @@ namespace KuroEngine
 		bool m_customParamActive = true;
 		//（※数値に限り）値をドラッグする際の変化量
 		float m_customParamDragSpeed = 0.05f;
+		//カスタムパラメータが変化したか
+		bool m_customParamDirty = false;
 
 	protected:
 		//imguiウィンドウ名
@@ -164,5 +167,8 @@ namespace KuroEngine
 			m_customParamList.emplace_back(arg_label, arg_key, arg_type, arg_destPtr, arg_isMinMax, arg_min, arg_max);
 			m_customParamGroup[arg_imguiTreeName].push_back(&m_customParamList.back());
 		}
+
+		//カスタムパラメータが変化したか
+		const bool& CustomParamDirty()const { return m_customParamDirty; }
 	};
 }

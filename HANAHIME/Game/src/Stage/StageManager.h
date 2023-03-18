@@ -7,6 +7,7 @@ namespace KuroEngine
 {
 	class Model;
 	class Camera;
+	class LightManager;
 }
 
 class Stage;
@@ -25,6 +26,9 @@ class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>,p
 	//地面の大きさ
 	float m_groundScaling = 1.0f;
 
+	float m_terrianScaling = 1.0f;
+	float m_oldTerrianScaling = m_terrianScaling;
+
 	//デバッグ用テストステージ
 	std::shared_ptr<Stage>m_testStage;
 
@@ -35,7 +39,8 @@ class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>,p
 	void OnImguiItems()override;
 
 public:
-	void Draw(KuroEngine::Camera& arg_cam);
+	void Init();
+	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
 
 	//現在のステージのゲッタ
 	std::weak_ptr<Stage>GetNowStage() { return m_nowStage; }
