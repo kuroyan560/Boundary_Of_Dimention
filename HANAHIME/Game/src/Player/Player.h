@@ -40,12 +40,23 @@ class Player : public KuroEngine::Debugger
 	float m_moveScalar = 0.5f;
 
 	//設置フラグ
-	bool m_onGround;
+	//bool m_onGround;
 
 	//Imguiデバッグ関数オーバーライド
 	void OnImguiItems()override;
 
-	bool HitCheck(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_to, const std::vector<Terrian>& arg_terrianArray, KuroEngine::Vec3<float>* arg_terrianNormal = nullptr);
+	struct HitCheckResult
+	{
+		KuroEngine::Vec3<float>m_interPos;
+		KuroEngine::Vec3<float>m_terrianNormal;
+	};
+	bool HitCheck(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_to, const std::vector<Terrian>& arg_terrianArray, HitCheckResult* arg_hitInfo = nullptr);
+
+	//プレイヤーの大きさ（半径）
+	float GetPlayersRadius()
+	{
+		return m_transform.GetScale().x;
+	}
 
 public:
 	Player();
@@ -61,7 +72,6 @@ public:
 
 
 private:
-
 	//レイとメッシュの当たり判定出力用構造体
 	struct MeshCollisionOutput {
 		bool m_isHit;						// レイがメッシュに当たったかどうか 当たったメッシュまでの距離は考慮されておらず、ただ当たったかどうかを判断する用。
@@ -90,12 +100,7 @@ private:
 	/// </summary>
 	KuroEngine::Vec3<float> CalBary(const KuroEngine::Vec3<float>& PosA, const KuroEngine::Vec3<float>& PosB, const KuroEngine::Vec3<float>& PosC, const KuroEngine::Vec3<float>& TargetPos);
 
-	/// <summary>
-	/// ベクトルに行列を乗算する。
-	/// </summary>
-	KuroEngine::Vec3<float> MulMat(const KuroEngine::Vec3<float>& arg_target, const DirectX::XMMATRIX arg_mat);
-
-	void CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float>& arg_rayDir, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_isHit, KuroEngine::Vec3<float>& arg_hitNormal, RAY_ID arg_rayID);
+	void CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float>& arg_rayDir, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_isHit, HitCheckResult& arg_hitResult, RAY_ID arg_rayID);
 
 };
 
