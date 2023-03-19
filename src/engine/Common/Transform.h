@@ -129,6 +129,8 @@ namespace KuroEngine
 			m_scale = s;
 			MatReset();
 		}
+
+		//回転の代入
 		void SetRotate(const Angle& X, const Angle& Y, const Angle& Z) {
 			m_rotate = XMQuaternionRotationRollPitchYaw(Y, Z, -X);
 			MatReset();
@@ -137,28 +139,36 @@ namespace KuroEngine
 			m_rotate = Quaternion;
 			MatReset();
 		}
-		void SetRotate(const Vec3<float>& Axis, const Angle& Angle) {
-			m_rotate = XMQuaternionRotationAxis(XMVectorSet(Axis.x, Axis.y, Axis.z, 1.0f), Angle);
-			MatReset();
-		}
 		void SetRotate(const Matrix& RotateMat) {
 			m_rotate = XMQuaternionRotationMatrix(RotateMat);
 			MatReset();
 		}
-		void SetLookAtRotate(const Vec3<float>& Target) {
-			if (Target == m_pos)return;
+		void SetRotate(const Vec3<float>& Axis, const Angle& Angle) {
+			m_rotate = XMQuaternionRotationAxis(XMVectorSet(Axis.x, Axis.y, Axis.z, 1.0f), Angle);
+			MatReset();
+		}
+
+		void SetFront(Vec3<float>Front) {
+			SetRotate(Math::GetLookAtQuaternion(Vec3<float>::GetZAxis(), Front));
+		}
+		void SetRight(Vec3<float>Right) {
+			SetRotate(Math::GetLookAtQuaternion(Vec3<float>::GetXAxis(), Right));
+		}
+		void SetUp(Vec3<float>Up) {
+			SetRotate(Math::GetLookAtQuaternion(Vec3<float>::GetYAxis(), Up));
+		}
+		void SetLookAtRotate(Vec3<float>Target) {
 			SetFront((Target - m_pos).GetNormal());
 		}
-		void SetFront(Vec3<float>Front)
-		{
+
+		//現在の回転をさらに回転させて合わせる
+		void SetFrontBySpin(Vec3<float>Front)	{
 			SetRotate(XMQuaternionMultiply(Math::GetLookAtQuaternion(GetFront(), Front), m_rotate));
 		}
-		void SetRight(Vec3<float>Right)
-		{
+		void SetRightBySpin(Vec3<float>Right)	{
 			SetRotate(XMQuaternionMultiply(Math::GetLookAtQuaternion(GetRight(), Right), m_rotate));
 		}
-		void SetUp(Vec3<float>Up)
-		{
+		void SetUpBySpin(Vec3<float>Up){
 			SetRotate(XMQuaternionMultiply(Math::GetLookAtQuaternion(GetUp(), Up), m_rotate));
 		}
 
@@ -170,13 +180,11 @@ namespace KuroEngine
 		//ワールド行列（ビルボード適用）
 		Matrix GetMatWorld(const Matrix& arg_billBoardMat);
 		//Dirtyフラグゲッタ
-		bool IsDirty()const
-		{
+		bool IsDirty()const{
 			return m_dirty || (m_parent != nullptr && (m_parent->IsFrameDirty() || m_parent->IsDirty()));
 		}
 		//フレーム単位のDirtyフラグゲッタ
-		bool IsFrameDirty()const
-		{
+		bool IsFrameDirty()const{
 			return m_frameDirty || (m_parent != nullptr && m_parent->IsFrameDirty());
 		}
 	};
