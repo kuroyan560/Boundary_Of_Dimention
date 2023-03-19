@@ -66,8 +66,8 @@ bool Player::HitCheck(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<fl
 	*/
 
 	//当たり判定結果
-	bool isHit = false;
-	m_onGround = false;
+	bool isHitWall = false;
+	bool onGround = false;
 	KuroEngine::Vec3<float> hitNormal;
 
 	//地形配列走査
@@ -88,34 +88,34 @@ bool Player::HitCheck(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<fl
 
 
 			//右方向にレイを飛ばす。これは壁にくっつく用。
-			CastRay(arg_to, m_transform.GetRight(), m_transform.GetScale().x, modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::AROUND);
+			CastRay(arg_to, m_transform.GetRight(), m_transform.GetScale().x, modelMesh, terrian.m_transform, onGround, isHitWall, hitNormal, RAY_ID::AROUND);
 
 			//左方向にレイを飛ばす。これは壁にくっつく用。
-			CastRay(arg_to, -m_transform.GetRight(), m_transform.GetScale().x, modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::AROUND);
+			CastRay(arg_to, -m_transform.GetRight(), m_transform.GetScale().x, modelMesh, terrian.m_transform, onGround, isHitWall, hitNormal, RAY_ID::AROUND);
 
 			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
-			CastRay(arg_to, -m_transform.GetFront(), m_transform.GetScale().z, modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::AROUND);
+			CastRay(arg_to, -m_transform.GetFront(), m_transform.GetScale().z, modelMesh, terrian.m_transform, onGround, isHitWall, hitNormal, RAY_ID::AROUND);
 
 			//正面方向にレイを飛ばす。これは壁にくっつく用。
-			CastRay(arg_to, m_transform.GetFront(), m_transform.GetScale().z, modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::AROUND);
+			CastRay(arg_to, m_transform.GetFront(), m_transform.GetScale().z, modelMesh, terrian.m_transform, onGround, isHitWall, hitNormal, RAY_ID::AROUND);
 
 			//下方向にレイを飛ばす。これは地面との押し戻し用。
-			CastRay(arg_to, -m_transform.GetUp(), m_transform.GetScale().y, modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::GROUND);
+			CastRay(arg_to, -m_transform.GetUp(), m_transform.GetScale().y, modelMesh, terrian.m_transform, onGround, isHitWall, hitNormal, RAY_ID::GROUND);
 
 			//空中にいるトリガーの場合は崖の処理。
 			if (!m_onGround && m_prevOnGround) {
 
 				//前に進んで崖に落ちた場合。
-				CastRay(arg_to - KuroEngine::Vec3<float>(0, m_transform.GetScale().y, 0), -m_transform.GetFront(), m_transform.GetScale().x, modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::CLIFF);
+				CastRay(arg_to - KuroEngine::Vec3<float>(0, m_transform.GetScale().y, 0), -m_transform.GetFront(), m_transform.GetScale().x * 2.0f, modelMesh, terrian.m_transform, onGround, isHitWall, hitNormal, RAY_ID::CLIFF);
 
 				//後ろに進んで崖に落ちた場合。
-				CastRay(arg_to - KuroEngine::Vec3<float>(0, m_transform.GetScale().y, 0), m_transform.GetFront(), m_transform.GetScale().x, modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::CLIFF);
+				CastRay(arg_to - KuroEngine::Vec3<float>(0, m_transform.GetScale().y, 0), m_transform.GetFront(), m_transform.GetScale().x * 2.0f, modelMesh, terrian.m_transform, onGround, isHitWall, hitNormal, RAY_ID::CLIFF);
 
 				//右に進んで崖に落ちた場合。
-				CastRay(arg_to - KuroEngine::Vec3<float>(0, m_transform.GetScale().y, 0), m_transform.GetRight(), m_transform.GetScale().z, modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::CLIFF);
+				CastRay(arg_to - KuroEngine::Vec3<float>(0, m_transform.GetScale().y, 0), m_transform.GetRight(), m_transform.GetScale().z * 2.0f, modelMesh, terrian.m_transform, onGround, isHitWall, hitNormal, RAY_ID::CLIFF);
 
 				//左に進んで崖に落ちた場合。
-				CastRay(arg_to - KuroEngine::Vec3<float>(0, m_transform.GetScale().y, 0), -m_transform.GetRight(), m_transform.GetScale().z, modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::CLIFF);
+				CastRay(arg_to - KuroEngine::Vec3<float>(0, m_transform.GetScale().y, 0), -m_transform.GetRight(), m_transform.GetScale().z * 2.0f, modelMesh, terrian.m_transform, onGround, isHitWall, hitNormal, RAY_ID::CLIFF);
 
 			}
 
@@ -124,12 +124,23 @@ bool Player::HitCheck(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<fl
 		}
 	}
 
+	if (!onGround) {
+
+		int a = 0;
+		++a;
+
+	}
+
+	//接地フラグを保存
+	m_prevOnGround = m_onGround;
+	m_onGround = onGround;
+
 	//当たり判定がtrueなら当たった地形の法線を格納
-	if (isHit && arg_terrianNormal)
+	if (isHitWall && arg_terrianNormal)
 	{
 		*arg_terrianNormal = hitNormal;
 	}
-	return isHit;
+	return isHitWall;
 }
 
 Player::Player()
@@ -155,6 +166,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
+
 	using namespace KuroEngine;
 
 	auto beforePos = m_transform.GetPos();
@@ -165,9 +177,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	auto moveVec = OperationConfig::Instance()->GetMoveVec(rotate);
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
-
-	//接地フラグを保存。
-	m_prevOnGround = m_onGround;
 
 	//移動量加算
 	newPos += moveVec * m_moveScalar;
@@ -473,7 +482,7 @@ KuroEngine::Vec3<float> Player::MulMat(const KuroEngine::Vec3<float>& arg_target
 
 }
 
-void Player::CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_isHit, KuroEngine::Vec3<float>& arg_hitNormal, RAY_ID arg_rayID)
+void Player::CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_onGround, bool& arg_isHitWall, KuroEngine::Vec3<float>& arg_hitNormal, RAY_ID arg_rayID)
 {
 
 	/*===== 当たり判定用のレイを撃つ =====*/
@@ -494,7 +503,7 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float
 		case Player::RAY_ID::GROUND:
 
 			//接地判定
-			m_onGround = true;
+			arg_onGround = true;
 
 			//押し戻す。
 			arg_rayPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
@@ -502,10 +511,20 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float
 			break;
 
 		case Player::RAY_ID::CLIFF:
+
+			//外部に渡す用のデータを保存。
+			arg_isHitWall = true;
+			arg_hitNormal = output.m_normal;
+
+			//レイの衝突地点から法線方向に伸ばした位置に移動させる。
+			arg_rayPos = output.m_pos + output.m_normal * (arg_rayLength / 2.0f - OFFSET);
+
+			break;
+
 		case Player::RAY_ID::AROUND:
 
 			//外部に渡す用のデータを保存。
-			arg_isHit = true;
+			arg_isHitWall = true;
 			arg_hitNormal = output.m_normal;
 
 			//レイの衝突地点から法線方向に伸ばした位置に移動させる。

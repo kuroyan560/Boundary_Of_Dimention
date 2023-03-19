@@ -105,10 +105,11 @@ private:
 	/// <param name="arg_rayLength"> レイの長さ </param>
 	/// <param name="arg_targetMesh"> 判定を行う対象のメッシュ </param>
 	/// <param name="arg_targetTransform"> 判定を行う対象のトランスフォーム </param>
-	/// <param name="arg_isHit"> レイが当たったかどうか </param>
+	/// <param name="arg_onGround"> 接地フラグ </param>
+	/// <param name="arg_isHitWall"> レイが壁に当たったかどうか </param>
 	/// <param name="arg_hitNormal"> レイが当たった地点の法線 </param>
 	/// <param name="arg_rayID"> レイの種類 </param>
-	void CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_isHit, KuroEngine::Vec3<float>& arg_hitNormal, RAY_ID arg_rayID);
+	void CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_onGround, bool& arg_isHitWall, KuroEngine::Vec3<float>& arg_hitNormal, RAY_ID arg_rayID);
 
 };
 
