@@ -44,9 +44,6 @@ void Player::OnImguiItems()
 	ImGui::SetNextItemOpen(true);
 	if (ImGui::TreeNode("Camera"))
 	{
-		auto pos = m_cam->GetPos();
-		auto target = m_cam->GetGazePointPos();
-
 		// ImGui::DragFloat3("Target", (float*)&target, 0.5f);
 		ImGui::DragFloat("Sensitivity", &m_camSensitivity, 0.05f);
 
@@ -123,6 +120,8 @@ Player::Player()
 
 	//カメラ生成
 	m_cam = std::make_shared<KuroEngine::Camera>("Player's Camera");
+	//カメラのコントローラーにアタッチ
+	m_camController.AttachCamera(m_cam);
 
 	AddCustomParameter("MoveScalar", { "moveScalar" }, PARAM_TYPE::FLOAT, &m_moveScalar, "Player");
 	AddCustomParameter("Sensitivity", { "camera", "sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity, "Camera");
@@ -167,15 +166,14 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	if (HitCheckAndPushBack(beforePos, newPos, arg_nowStage.lock()->GetTerrianArray(), &hitResult))
 	{
 		//上ベクトルを地形の法線に合わせる回転
-		m_transform.SetUp(hitResult.m_terrianNormal);
+		m_transform.SetUpBySpin(hitResult.m_terrianNormal);
 	}
 
 	//座標変化適用
 	m_transform.SetPos(newPos);
 
 	//カメラ操作
-	auto front = Math::TransformVec3(m_transform.GetFront(),rotate);
-	m_camController.Update(m_cam, newPos, front);
+	m_camController.Update(scopeMove, newPos);
 
 }
 
@@ -204,7 +202,7 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		auto camTransform = m_cam->GetTransform();
 		KuroEngine::DrawFunc3D::DrawNonShadingModel(
 			m_camModel,
-			camTransform.GetWorldMat(),
+			camTransform.GetMatWorld(),
 			camTransform.GetPos().z,
 			arg_cam);
 	}

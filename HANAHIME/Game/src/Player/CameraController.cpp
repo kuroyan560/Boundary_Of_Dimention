@@ -15,11 +15,11 @@ void CameraController::OnImguiItems()
 	//現在のパラメータ表示
 	if (ImGui::BeginChild("NowParam"))
 	{
-		ImGui::Text("DistnceToTarget : %.2f", m_nowParam.m_distToTarget);
-		ImGui::Text("GazePoint_Height : %.2f", m_nowParam.m_gazePointHeight);
-		ImGui::Text("GazePoint_Distance : %.2f", m_nowParam.m_gazePointDist);
-		float degree = static_cast<float>(KuroEngine::Angle::ConvertToDegree(m_nowParam.m_xAngle));
-		ImGui::Text("Angle_X : %.2f", degree);
+		ImGui::Text("posOffsetZ : %.2f", m_nowParam.m_posOffsetZ);
+		float degree = static_cast<float>(KuroEngine::Angle::ConvertToDegree(m_nowParam.m_xAxisAngle));
+		ImGui::Text("xAxisAngle : %.2f", degree);
+		degree = static_cast<float>(KuroEngine::Angle::ConvertToDegree(m_nowParam.m_yAxisAngle));
+		ImGui::Text("yAxisAngle : %.2f", degree);
 		ImGui::EndChild();
 	}
 }
@@ -27,12 +27,24 @@ void CameraController::OnImguiItems()
 CameraController::CameraController()
 	:KuroEngine::Debugger("CameraController", true, true)
 {
-	AddCustomParameter("Distance_To_Target", { "InitializedParameter","DistanceToTarget" }, PARAM_TYPE::FLOAT, &m_initializedParam.m_distToTarget, "InitializedParameter");
-	AddCustomParameter("GazePoint_Height", { "InitializedParameter","GazePoint","Height" }, PARAM_TYPE::FLOAT, &m_initializedParam.m_gazePointHeight, "InitializedParameter");
-	AddCustomParameter("GazePoint_Distance", { "InitializedParameter","GazePoint","Distance" }, PARAM_TYPE::FLOAT, &m_initializedParam.m_gazePointDist, "InitializedParameter");
-	AddCustomParameter("Angle_X", { "InitializedParameter","Angle_X" }, PARAM_TYPE::FLOAT, &m_initializedParam.m_xAngle, "InitializedParameter");
-	AddCustomParameter("PosLerpRate", { "PosLerpRate" }, PARAM_TYPE::FLOAT, &m_camPosLerpRate, "UpdateParameter");
-	AddCustomParameter("GazePointLerpRate", { "GazePointLerpRate" }, PARAM_TYPE::FLOAT, &m_camGazePointLerpRate, "UpdateParameter");
+	AddCustomParameter("posOffsetZ", { "InitializedParameter","posOffsetZ" }, PARAM_TYPE::FLOAT, &m_initializedParam.m_posOffsetZ, "InitializedParameter");
+	AddCustomParameter("xAxisAngle", { "InitializedParameter","xAxisAngle" }, PARAM_TYPE::FLOAT, &m_initializedParam.m_xAxisAngle, "InitializedParameter");
+
+	AddCustomParameter("gazePointOffset", { "gazePointOffset" }, PARAM_TYPE::FLOAT_VEC3, &m_gazePointOffset, "UpdateParameter");
+	AddCustomParameter("posOffsetDepthMin", { "posOffsetDepth","min"}, PARAM_TYPE::FLOAT, &m_posOffsetDepthMin, "UpdateParameter");
+	AddCustomParameter("posOffsetDepthMax", { "posOffsetDepth","max"}, PARAM_TYPE::FLOAT, &m_posOffsetDepthMax, "UpdateParameter");
+	AddCustomParameter("xAxisAngleMin", { "xAxisAngle","min"}, PARAM_TYPE::FLOAT, &m_xAxisAngleMin, "UpdateParameter");
+	AddCustomParameter("xAxisAngleMax", { "xAxisAngle","max"}, PARAM_TYPE::FLOAT, &m_xAxisAngleMax, "UpdateParameter");
+	AddCustomParameter("camFowardPosLerpRate", { "PosLerpRate" }, PARAM_TYPE::FLOAT, &m_camForwardPosLerpRate, "UpdateParameter");
+	AddCustomParameter("camFollowLerpRate", { "FollowLerpRate" }, PARAM_TYPE::FLOAT, &m_camFollowLerpRate, "UpdateParameter");
+}
+
+void CameraController::AttachCamera(std::shared_ptr<KuroEngine::Camera> arg_cam)
+{
+	//操作対象となるカメラのポインタを保持
+	m_attachedCam = arg_cam;
+	//コントローラーのトランスフォームを親として設定
+	arg_cam->GetTransform().SetParent(&m_camParentTransform);
 }
 
 void CameraController::Init()
@@ -40,27 +52,33 @@ void CameraController::Init()
 	m_nowParam = m_initializedParam;
 }
 
-void CameraController::Update(std::shared_ptr<KuroEngine::Camera>arg_cam, KuroEngine::Vec3<float>arg_targetPos, KuroEngine::Vec3<float>arg_frontVec)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Vec3<float>arg_targetPos)
 {
 	using namespace KuroEngine;
+	
+	//カメラがアタッチされていない
+	if (m_attachedCam.expired())return;
 
-	//XZ平面上での前ベクトル
-	Vec3<float>frontOnXZ = arg_frontVec;
-	frontOnXZ.y = 0.0f;
+	//入力による操作
+	{
+		//左右カメラ操作
+		m_nowParam.m_yAxisAngle += arg_scopeMove.x;
 
-	//カメラの位置(XZ)を算出
-	Vec3<float>newPos = arg_targetPos - (arg_frontVec * m_nowParam.m_distToTarget);
+		//上下カメラ操作
+	}
 
-	//注視点の位置を算出
-	Vec3<float>newGazePoint = newPos + (arg_frontVec * m_nowParam.m_gazePointDist);
-	newGazePoint.y = arg_targetPos.y + m_nowParam.m_gazePointHeight;
+	m_nowParam.m_posOffsetZ = std::clamp(m_nowParam.m_posOffsetZ, m_posOffsetDepthMin, m_posOffsetDepthMax);
+	m_nowParam.m_xAxisAngle = std::clamp(m_nowParam.m_xAxisAngle, m_xAxisAngleMin, m_xAxisAngleMax);
 
-	//カメラの高さを算出
-	newPos.y = arg_targetPos.y + tan(m_nowParam.m_xAngle) * m_nowParam.m_gazePointDist;
+	//操作するカメラのトランスフォーム（前後移動）更新
+	auto& transform = m_attachedCam.lock()->GetTransform();
+	auto localPos = m_gazePointOffset;
+	localPos.z += m_nowParam.m_posOffsetZ;
+	localPos.y += tan(-m_nowParam.m_xAxisAngle) * m_nowParam.m_posOffsetZ;
+	transform.SetPos(Math::Lerp(transform.GetPos(), localPos, m_camForwardPosLerpRate));
+	transform.SetRotate(Vec3<float>::GetXAxis(), m_nowParam.m_xAxisAngle);
 
-	//計算した値にLerpで近づく
-	auto nowPos = arg_cam->GetPos();
-	arg_cam->SetPos(Math::Lerp(nowPos, newPos, m_camPosLerpRate));
-	auto nowGazePoint = arg_cam->GetGazePointPos();
-	arg_cam->SetTarget(Math::Lerp(nowGazePoint, newGazePoint, m_camGazePointLerpRate));
+	//コントローラーのトランスフォーム（対象の周囲、左右移動）更新
+	m_camParentTransform.SetRotate(Vec3<float>::GetYAxis(), m_nowParam.m_yAxisAngle);
+	m_camParentTransform.SetPos(Math::Lerp(m_camParentTransform.GetPos(), arg_targetPos, m_camFollowLerpRate));
 }
