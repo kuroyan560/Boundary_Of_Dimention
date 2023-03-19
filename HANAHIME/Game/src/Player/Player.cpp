@@ -142,31 +142,19 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	auto rotate = m_transform.GetRotate();
 
 	//入力された移動量を取得
-	auto moveVec = OperationConfig::Instance()->GetMoveVec(rotate);
+	//auto moveVec = OperationConfig::Instance()->GetMoveVec(rotate);
+	auto moveVec = OperationConfig::Instance()->GetMoveVec(m_camController.GetPosRotate());
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
 
 	//移動量加算
 	newPos += moveVec * m_moveScalar;
 
-	//プレイヤーの下向きにベクトル（重力的な）
-	//newPos += Math::TransformVec3({ 0.0f,-0.2f,0.0f }, rotate);
-
-	/*if (!m_onGround) {
-		newPos.y -= 0.2f;
-	}*/
-
-	//視線移動角度量加算（Y軸：左右）
-	auto yScopeSpin = XMQuaternionRotationAxis(XMVectorSet(0.0f, 1.0f, 0.0f, 1.0f), scopeMove.x);
-	rotate = XMQuaternionMultiply(yScopeSpin, rotate);
-	//m_transform.SetRotate(rotate);
-
 	//当たり判定
 	HitCheckResult hitResult;
 	if (HitCheckAndPushBack(beforePos, newPos, arg_nowStage.lock()->GetTerrianArray(), &hitResult))
 	{
-		//上ベクトルを地形の法線に合わせる回転
-		m_transform.SetUpBySpin(hitResult.m_terrianNormal);
+		m_transform.SetUp(hitResult.m_terrianNormal);
 	}
 
 	//座標変化適用

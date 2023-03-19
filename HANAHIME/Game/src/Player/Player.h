@@ -37,6 +37,7 @@ class Player : public KuroEngine::Debugger
 	//カメラ感度
 	float m_camSensitivity = 1.0f;
 
+	//移動ベクトルのスカラー
 	float m_moveScalar = 0.5f;
 
 	//設置フラグ

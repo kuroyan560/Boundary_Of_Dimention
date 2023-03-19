@@ -947,12 +947,14 @@ KuroEngine::Vec4<float> KuroEngine::Math::GetSpline(const int& Timer, const int&
 #pragma region Matrix
  KuroEngine::Quaternion KuroEngine::Math::GetLookAtQuaternion(const Vec3<float>& VecA, const Vec3<float>& VecB)
 {
+     if ((VecA - VecB).IsZero())return XMQuaternionIdentity();
+
      auto a = VecA.GetNormal();
      auto b = VecB.GetNormal();
      XMVECTOR q = { 0,0,0,0 };
-     auto normal = b.Cross(a);
+     auto normal = a.Cross(b);
      float angle = acosf(a.Dot(b));
-     if (normal.IsZero())
+     if (normal.x <= FLT_EPSILON && normal.y <= FLT_EPSILON && normal.z <= FLT_EPSILON)
      {
          normal = { 0,0,1 };
          angle = Angle::PI();

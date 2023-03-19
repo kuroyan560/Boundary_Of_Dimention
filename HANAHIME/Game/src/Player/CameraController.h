@@ -60,4 +60,8 @@ public:
 
 	void Init();
 	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Vec3<float>arg_targetPos);
+
+	const KuroEngine::Quaternion& GetPosRotate() {
+		return m_camParentTransform.GetRotate();
+	}
 };
