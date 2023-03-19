@@ -109,7 +109,8 @@ void KuroEngine::Debugger::LoadParameterLog()
 	for (auto& param : m_customParamList)
 	{
 		const auto* jsonObj = &s_parameterLog.m_jsonData[m_title];
-		bool noKey = param.m_key.size() == 1 ? jsonObj->contains(param.m_key[0]) : false;
+		bool noKey = false;
+
 		for (auto& key : param.m_key)
 		{
 			//ÉLÅ[Ç™ë∂ç›ÇµÇ»Ç¢
@@ -160,19 +161,19 @@ void KuroEngine::Debugger::LoadParameterLog()
 		}
 		case PARAM_TYPE::FLOAT_VEC2:
 		{
-			Vec2<float>data = { (float)jsonObj[0],(float)jsonObj[1] };
+			Vec2<float>data = { (float)jsonObj->at(0),(float)jsonObj->at(1) };
 			memcpy(param.m_dataPtr, &data, sizeof(float) * 2);
 			break;
 		}
 		case PARAM_TYPE::FLOAT_VEC3:
 		{
-			Vec3<float>data = { (float)jsonObj[0],(float)jsonObj[1],(float)jsonObj[2] };
+			Vec3<float>data = { (float)jsonObj->at(0),(float)jsonObj->at(1),(float)jsonObj->at(2) };
 			memcpy(param.m_dataPtr, &data, sizeof(float) * 3);
 			break;
 		}
 		case PARAM_TYPE::FLOAT_VEC4:
 		{
-			Vec4<float>data = { (float)jsonObj[0],(float)jsonObj[1],(float)jsonObj[2],(float)jsonObj[3] };
+			Vec4<float>data = { (float)jsonObj->at(0),(float)jsonObj->at(1),(float)jsonObj->at(2),(float)jsonObj->at(3) };
 			memcpy(param.m_dataPtr, &data, sizeof(float) * 4);
 			break;
 		}
