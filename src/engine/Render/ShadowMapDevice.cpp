@@ -13,7 +13,7 @@ KuroEngine::ShadowMapDevice::ShadowMapDevice() :m_lightCamera("LightCamera")
 	auto& camTransform = m_lightCamera.GetTransform();
 	camTransform.SetPos({ 0, 10, 0 });
 	camTransform.SetLookAtRotate({ 0,0,0 });
-	camTransform.SetUp({ 1,0,0 });
+	camTransform.SetRotate(Math::GetLookAtQuaternion(Vec3<float>::GetYAxis(), { 1,0,0 }));
 	m_lightCamera.SetViewAngle(Angle(60));
 
 	m_gaussianBlur = std::make_shared<GaussianBlur>(Vec2<int>(2048, 2048), DXGI_FORMAT_R32G32_FLOAT);

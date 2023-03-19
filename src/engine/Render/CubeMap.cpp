@@ -293,7 +293,7 @@ KuroEngine::DynamicCubeMap::DynamicCubeMap(const int& CubeMapEdge)
 			camera[surfaceIdx]->SetViewAngle(Angle(90));
 			camTransform.SetLookAtRotate(target[surfaceIdx]);
 			camera[surfaceIdx]->SetAspect(1.0f);
-			camTransform.SetUp(up[surfaceIdx]);
+			camTransform.SetRotate(Math::GetLookAtQuaternion(Vec3<float>::GetYAxis(), up[surfaceIdx]));
 			viewProj[surfaceIdx] = camera[surfaceIdx]->GetViewMat() * camera[surfaceIdx]->GetProjectionMat();
 		}
 

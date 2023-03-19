@@ -154,7 +154,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	HitCheckResult hitResult;
 	if (HitCheckAndPushBack(beforePos, newPos, arg_nowStage.lock()->GetTerrianArray(), &hitResult))
 	{
-		m_transform.SetUp(hitResult.m_terrianNormal);
 	}
 
 	//À•W•Ï‰»“K—p
