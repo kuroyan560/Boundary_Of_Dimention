@@ -22,6 +22,7 @@ void CameraController::OnImguiItems()
 		ImGui::Text("yAxisAngle : %.2f", degree);
 		ImGui::EndChild();
 	}
+
 }
 
 CameraController::CameraController()
@@ -50,6 +51,7 @@ void CameraController::AttachCamera(std::shared_ptr<KuroEngine::Camera> arg_cam)
 void CameraController::Init()
 {
 	m_nowParam = m_initializedParam;
+	m_verticalControl = ANGLE;
 }
 
 void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Vec3<float>arg_targetPos)
@@ -59,22 +61,32 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	//カメラがアタッチされていない
 	if (m_attachedCam.expired())return;
 
-	//入力による操作
-	{
-		//左右カメラ操作
-		m_nowParam.m_yAxisAngle += arg_scopeMove.x;
+	//左右カメラ操作
+	m_nowParam.m_yAxisAngle += arg_scopeMove.x;
 
-		//上下カメラ操作
+	//上下カメラ操作
+	switch (m_verticalControl)
+	{
+		case ANGLE:
+			m_nowParam.m_xAxisAngle -= arg_scopeMove.y * 0.3f;
+			if (m_nowParam.m_xAxisAngle <= m_xAxisAngleMin)m_verticalControl = DIST;
+			break;
+
+		case DIST:
+			m_nowParam.m_posOffsetZ += arg_scopeMove.y * 6.0f;
+			if (m_nowParam.m_posOffsetZ <= m_posOffsetDepthMin)m_verticalControl = ANGLE;
+			break;
 	}
 
+	//上限値超えないようにする
 	m_nowParam.m_posOffsetZ = std::clamp(m_nowParam.m_posOffsetZ, m_posOffsetDepthMin, m_posOffsetDepthMax);
 	m_nowParam.m_xAxisAngle = std::clamp(m_nowParam.m_xAxisAngle, m_xAxisAngleMin, m_xAxisAngleMax);
 
 	//操作するカメラのトランスフォーム（前後移動）更新
 	auto& transform = m_attachedCam.lock()->GetTransform();
-	auto localPos = m_gazePointOffset;
-	localPos.z += m_nowParam.m_posOffsetZ;
-	localPos.y += tan(-m_nowParam.m_xAxisAngle) * m_nowParam.m_posOffsetZ;
+	Vec3<float> localPos = { 0,0,0 };
+	localPos.z = m_nowParam.m_posOffsetZ;
+	localPos.y = m_gazePointOffset.y + tan(-m_nowParam.m_xAxisAngle) * m_nowParam.m_posOffsetZ;
 	transform.SetPos(Math::Lerp(transform.GetPos(), localPos, m_camForwardPosLerpRate));
 	transform.SetRotate(Vec3<float>::GetXAxis(), m_nowParam.m_xAxisAngle);
 

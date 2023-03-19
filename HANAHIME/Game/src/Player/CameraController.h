@@ -21,14 +21,14 @@ class CameraController : public KuroEngine::Debugger
 	float m_posOffsetDepthMax = -0.1f;
 	//X軸角度（高さ傾き）の最小と最大
 	KuroEngine::Angle m_xAxisAngleMin = KuroEngine::Angle(10);
-	KuroEngine::Angle m_xAxisAngleMax = KuroEngine::Angle(80);
+	KuroEngine::Angle m_xAxisAngleMax = KuroEngine::Angle(20);
 
 	struct Parameter
 	{
 		//対象との相対的なZオフセット
 		float m_posOffsetZ = -10.0f;
 		//X軸角度（高さ傾き）
-		KuroEngine::Angle m_xAxisAngle = KuroEngine::Angle(45);
+		KuroEngine::Angle m_xAxisAngle = KuroEngine::Angle(20);
 
 		//Y軸角度
 		KuroEngine::Angle m_yAxisAngle = KuroEngine::Angle(0);
@@ -48,6 +48,9 @@ class CameraController : public KuroEngine::Debugger
 
 	//カメラの座標追従のLerp値
 	float m_camFollowLerpRate = 0.8f;
+
+	//現在の上下方向で操作しているもの
+	enum VERTICAL_MOVE { ANGLE, DIST }m_verticalControl = ANGLE;
 
 public:
 	//コンストラクタ

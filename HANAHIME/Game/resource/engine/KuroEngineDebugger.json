@@ -57,8 +57,8 @@
   "CameraController": {
     "FollowLerpRate": 0.800000011920929,
     "InitializedParameter": {
-      "posOffsetZ": -10.0,
-      "xAxisAngle": 0.7853981852531433
+      "posOffsetZ": -18.0,
+      "xAxisAngle": 0.44999998807907104
     },
     "PosLerpRate": 0.800000011920929,
     "debuggerSetting": {
@@ -78,11 +78,11 @@
       0.0
     ],
     "posOffsetDepth": {
-      "max": -0.10000000149011612,
-      "min": -10.0
+      "max": -2.0,
+      "min": -18.0
     },
     "xAxisAngle": {
-      "max": 1.3962633609771729,
+      "max": 0.5989999771118164,
       "min": 0.1745329201221466
     }
   },
