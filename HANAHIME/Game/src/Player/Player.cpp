@@ -38,6 +38,8 @@ void Player::OnImguiItems()
 		auto up = m_transform.GetUp();
 		ImGui::Text("Up : %.2f ,%.2f , %.2f", up.x, up.y, up.z);
 
+		ImGui::Text("OnGround : %d", m_onGround);
+
 	}
 
 	//カメラ
@@ -86,19 +88,26 @@ bool Player::HitCheck(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<fl
 
 
 			//右方向にレイを飛ばす。これは壁にくっつく用。
-			CastRay(arg_to, m_transform.GetRight(), modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::AROUND);
+			CastRay(arg_to, m_transform.GetRight(), m_transform.GetScale().x, modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::AROUND);
 
 			//左方向にレイを飛ばす。これは壁にくっつく用。
-			CastRay(arg_to, -m_transform.GetRight(), modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::AROUND);
+			CastRay(arg_to, -m_transform.GetRight(), m_transform.GetScale().x, modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::AROUND);
 
 			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
-			CastRay(arg_to, -m_transform.GetFront(), modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::AROUND);
+			CastRay(arg_to, -m_transform.GetFront(), m_transform.GetScale().z, modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::AROUND);
 
 			//正面方向にレイを飛ばす。これは壁にくっつく用。
-			CastRay(arg_to, m_transform.GetFront(), modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::AROUND);
+			CastRay(arg_to, m_transform.GetFront(), m_transform.GetScale().z, modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::AROUND);
 
 			//下方向にレイを飛ばす。これは地面との押し戻し用。
-			CastRay(arg_to, -m_transform.GetUp(), modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::GROUND);
+			CastRay(arg_to, -m_transform.GetUp(), m_transform.GetScale().y, modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::GROUND);
+
+			//空中にいるトリガーの場合は
+			if (!m_onGround) {
+
+				//
+
+			}
 
 
 			//=================================================
@@ -146,6 +155,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	auto moveVec = OperationConfig::Instance()->GetMoveVec(rotate);
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
+
+	//接地フラグを保存。
+	m_prevOnGround = m_onGround;
 
 	//移動量加算
 	newPos += moveVec * m_moveScalar;
@@ -417,7 +429,7 @@ Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>&
 
 }
 
-inline KuroEngine::Vec3<float> Player::CalBary(const KuroEngine::Vec3<float>& PosA, const KuroEngine::Vec3<float>& PosB, const KuroEngine::Vec3<float>& PosC, const KuroEngine::Vec3<float>& TargetPos)
+KuroEngine::Vec3<float> Player::CalBary(const KuroEngine::Vec3<float>& PosA, const KuroEngine::Vec3<float>& PosB, const KuroEngine::Vec3<float>& PosC, const KuroEngine::Vec3<float>& TargetPos)
 {
 
 	/*===== 重心座標を求める =====*/
@@ -436,7 +448,7 @@ inline KuroEngine::Vec3<float> Player::CalBary(const KuroEngine::Vec3<float>& Po
 
 }
 
-inline KuroEngine::Vec3<float> Player::MulMat(const KuroEngine::Vec3<float>& arg_target, const DirectX::XMMATRIX arg_mat)
+KuroEngine::Vec3<float> Player::MulMat(const KuroEngine::Vec3<float>& arg_target, const DirectX::XMMATRIX arg_mat)
 {
 
 	/*===== ベクトルに行列を乗算する =====*/
@@ -451,7 +463,7 @@ inline KuroEngine::Vec3<float> Player::MulMat(const KuroEngine::Vec3<float>& arg
 
 }
 
-void Player::CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float>& arg_rayDir, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_isHit, KuroEngine::Vec3<float>& arg_hitNormal, RAY_ID arg_rayID)
+void Player::CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_isHit, KuroEngine::Vec3<float>& arg_hitNormal, RAY_ID arg_rayID)
 {
 
 	/*===== 当たり判定用のレイを撃つ =====*/
@@ -459,15 +471,14 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float
 	//レイを飛ばす。
 	MeshCollisionOutput output = MeshCollision(arg_rayPos, arg_rayDir, arg_targetMesh, arg_targetTransform);
 
-	//レイがメッシュに衝突しており、衝突地点までの距離がプレイヤーの大きさより小さかったら衝突している。
-	if (output.m_isHit && std::fabs(output.m_distance) <= m_transform.GetScale().x) {
+	//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
+	if (output.m_isHit && std::fabs(output.m_distance) < arg_rayLength) {
 
 		//ぴったり押し戻してしまうと重力の関係でガクガクしてしまうので、微妙にめり込ませて押し戻す。
 		static const float OFFSET = 0.01f;
 
 		//押し戻す。
-		auto aa = m_transform.GetScale().x - output.m_distance;
-		arg_rayPos += output.m_normal * std::fabs((output.m_distance - m_transform.GetScale().x) - OFFSET);
+		arg_rayPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
 
 		//レイの種類によって保存するデータを変える。
 		switch (arg_rayID)

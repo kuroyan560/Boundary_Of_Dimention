@@ -39,8 +39,9 @@ class Player : public KuroEngine::Debugger
 
 	float m_moveScalar = 0.5f;
 
-	//設置フラグ
-	bool m_onGround;
+	//接地フラグ
+	bool m_onGround;		//接地フラグ
+	bool m_prevOnGround;	//1F前の接地フラグ
 
 	//Imguiデバッグ関数オーバーライド
 	void OnImguiItems()override;
@@ -95,7 +96,18 @@ private:
 	/// </summary>
 	KuroEngine::Vec3<float> MulMat(const KuroEngine::Vec3<float>& arg_target, const DirectX::XMMATRIX arg_mat);
 
-	void CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float>& arg_rayDir, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_isHit, KuroEngine::Vec3<float>& arg_hitNormal, RAY_ID arg_rayID);
+	/// <summary>
+	/// レイを発射し、その後の一連の処理をまとめた関数
+	/// </summary>
+	/// <param name="arg_rayPos"> レイの射出地点 </param>
+	/// <param name="arg_rayDir"> レイの射出方向 </param>
+	/// <param name="arg_rayLength"> レイの長さ </param>
+	/// <param name="arg_targetMesh"> 判定を行う対象のメッシュ </param>
+	/// <param name="arg_targetTransform"> 判定を行う対象のトランスフォーム </param>
+	/// <param name="arg_isHit"> レイが当たったかどうか </param>
+	/// <param name="arg_hitNormal"> レイが当たった地点の法線 </param>
+	/// <param name="arg_rayID"> レイの種類 </param>
+	void CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_isHit, KuroEngine::Vec3<float>& arg_hitNormal, RAY_ID arg_rayID);
 
 };
 
