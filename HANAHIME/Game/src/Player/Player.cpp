@@ -105,7 +105,7 @@ bool Player::HitCheck(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<fl
 			//空中にいるトリガーの場合は崖の処理。
 			if (!m_onGround && m_prevOnGround) {
 
-				//前に進んで崖に落ちた場合。
+				//前に進んで崖に落ちた場合。	*2しているのは、デフォルトのサイズをそのまま使うと移動速度が速すぎて飛び出してしまうから。
 				CastRay(arg_to - KuroEngine::Vec3<float>(0, m_transform.GetScale().y, 0), -m_transform.GetFront(), m_transform.GetScale().x * 2.0f, modelMesh, terrian.m_transform, onGround, isHitWall, hitNormal, RAY_ID::CLIFF);
 
 				//後ろに進んで崖に落ちた場合。
@@ -122,13 +122,6 @@ bool Player::HitCheck(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<fl
 
 			//=================================================
 		}
-	}
-
-	if (!onGround) {
-
-		int a = 0;
-		++a;
-
 	}
 
 	//接地フラグを保存
@@ -516,7 +509,7 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float
 			arg_isHitWall = true;
 			arg_hitNormal = output.m_normal;
 
-			//レイの衝突地点から法線方向に伸ばした位置に移動させる。
+			//レイの衝突地点から法線方向に伸ばした位置に移動させる。 /2しているのはレイの長さをあらかじめ二倍にしているから。
 			arg_rayPos = output.m_pos + output.m_normal * (arg_rayLength / 2.0f - OFFSET);
 
 			break;
