@@ -28,14 +28,6 @@ class Player : public KuroEngine::Debugger
 	//トランスフォーム
 	KuroEngine::Transform m_transform;
 
-
-
-	// デバッグ用
-	KuroEngine::Transform m_debugModelTransform;
-
-
-
-
 	//カメラインスタンス
 	std::shared_ptr<KuroEngine::Camera>m_cam;
 

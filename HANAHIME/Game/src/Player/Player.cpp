@@ -155,13 +155,6 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
-
-	// デバッグ用
-	m_debugModelTransform.SetScale(KuroEngine::Vec3<float>(1, 1, 1));
-	m_debugModelTransform.SetRotate(m_transform.GetRotate());
-
-
-
 	using namespace KuroEngine;
 
 	auto beforePos = m_transform.GetPos();
@@ -219,14 +212,6 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		m_model,
 		m_transform);
 
-	//デバッグ用
-	BasicDraw::Instance()->Draw(
-		arg_cam,
-		arg_ligMgr,
-		m_model,
-		m_debugModelTransform);
-
-
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_axisModel,
 		m_transform,
@@ -283,19 +268,8 @@ Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>&
 
 	}
 
-	/*-- ② ポリゴンを法線情報をもとにカリングする --*/
 
-	//法線とレイの方向の内積が0より小さかった場合、そのポリゴンは背面なのでカリングする。	当たり判定をより強度にするために一旦コメントアウトするが、処理負荷問題が発生したら復活させる。
-	for (auto& index : checkHitPolygons) {
-
-		if (index.m_p1.normal.Dot(arg_rayDir) < -0.0001f) continue;
-
-		index.m_isActive = false;
-
-	}
-
-
-	/*-- ③ ポリゴンをワールド変換する --*/
+	/*-- ② ポリゴンをワールド変換する --*/
 
 	//ワールド行列
 	DirectX::XMMATRIX targetRotMat = DirectX::XMMatrixRotationQuaternion(arg_targetTransform.GetRotate());
@@ -319,6 +293,17 @@ Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>&
 		index.m_p2.normal.Normalize();
 	}
 
+	/*-- ③ ポリゴンを法線情報をもとにカリングする --*/
+
+	//法線とレイの方向の内積が0より小さかった場合、そのポリゴンは背面なのでカリングする。
+	for (auto& index : checkHitPolygons) {
+
+		if (index.m_p1.normal.Dot(arg_rayDir) < -0.0001f) continue;
+
+		index.m_isActive = false;
+
+	}
+
 
 	/*-- ④ ポリゴンとレイの当たり判定を行い、各情報を記録する --*/
 
@@ -337,7 +322,7 @@ Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>&
 		//視点から平面におろした垂線の長さ
 		float perpendicularLine = rayToOriginLength - planeToOriginLength;
 
-		//三角関数を利用して視点から衝突店までの距離を求める
+		//三角関数を利用して視点から衝突点までの距離を求める
 		float dist = planeNorm.Dot(arg_rayDir);
 		float impDistance = perpendicularLine / -dist;
 
@@ -517,9 +502,6 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float
 			break;
 
 		case Player::RAY_ID::CLIFF:
-
-			m_debugModelTransform.SetPos(output.m_pos + output.m_normal * (arg_rayLength - OFFSET));
-
 		case Player::RAY_ID::AROUND:
 
 			//外部に渡す用のデータを保存。
