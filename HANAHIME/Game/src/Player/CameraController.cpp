@@ -53,10 +53,10 @@ void CameraController::Update(std::shared_ptr<KuroEngine::Camera>arg_cam, KuroEn
 
 	//注視点の位置を算出
 	Vec3<float>newGazePoint = newPos + (arg_frontVec * m_nowParam.m_gazePointDist);
-	newGazePoint.y = m_nowParam.m_gazePointHeight;
+	newGazePoint.y = arg_targetPos.y + m_nowParam.m_gazePointHeight;
 
 	//カメラの高さを算出
-	newPos.y = tan(m_nowParam.m_xAngle) * m_nowParam.m_gazePointDist;
+	newPos.y = arg_targetPos.y + tan(m_nowParam.m_xAngle) * m_nowParam.m_gazePointDist;
 
 	//計算した値にLerpで近づく
 	auto nowPos = arg_cam->GetPos();

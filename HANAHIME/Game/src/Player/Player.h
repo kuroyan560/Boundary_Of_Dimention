@@ -50,7 +50,7 @@ class Player : public KuroEngine::Debugger
 		KuroEngine::Vec3<float>m_interPos;
 		KuroEngine::Vec3<float>m_terrianNormal;
 	};
-	bool HitCheck(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_to, const std::vector<Terrian>& arg_terrianArray, HitCheckResult* arg_hitInfo = nullptr);
+	bool HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, const std::vector<Terrian>& arg_terrianArray, HitCheckResult* arg_hitInfo = nullptr);
 
 	//プレイヤーの大きさ（半径）
 	float GetPlayersRadius()
@@ -80,11 +80,7 @@ private:
 		KuroEngine::Vec3<float> m_normal;	// レイの衝突地点の法線
 		KuroEngine::Vec2<float> m_uv;		// レイの衝突地点のUV
 	};
-	//発射するレイのID
-	enum class RAY_ID {
-		GROUND,	//地上向かって飛ばすレイ。設置判定で使用する。
-		AROUND,	//周囲に向かって飛ばすレイ。壁のぼり判定で使用する。
-	};
+
 	/// <summary>
 	/// レイとメッシュの当たり判定
 	/// </summary>
@@ -100,7 +96,7 @@ private:
 	/// </summary>
 	KuroEngine::Vec3<float> CalBary(const KuroEngine::Vec3<float>& PosA, const KuroEngine::Vec3<float>& PosB, const KuroEngine::Vec3<float>& PosC, const KuroEngine::Vec3<float>& TargetPos);
 
-	void CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float>& arg_rayDir, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_isHit, HitCheckResult& arg_hitResult, RAY_ID arg_rayID);
+	void CastRay(KuroEngine::Vec3<float>& arg_newPos, KuroEngine::Vec3<float>& arg_rayDir, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_isHit, HitCheckResult& arg_hitResult);
 
 };
 

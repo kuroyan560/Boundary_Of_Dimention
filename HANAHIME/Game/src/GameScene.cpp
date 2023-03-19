@@ -33,7 +33,7 @@ void GameScene::OnInitialize()
 	m_debugCam.Init({ 0,5,-10 }, { 0,1,0 });
 
 	KuroEngine::Transform playerInitTransform;
-	playerInitTransform.SetPos({ 0,0,-10 });
+	playerInitTransform.SetPos({ 0,3.0f,-15 });
 	m_player.Init(playerInitTransform);
 }
 
