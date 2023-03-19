@@ -945,21 +945,7 @@ KuroEngine::Vec4<float> KuroEngine::Math::GetSpline(const int& Timer, const int&
 #pragma endregion
 
 #pragma region Matrix
-KuroEngine::Matrix KuroEngine::Math::RotateMat(const Angle& X, const Angle& Y, const Angle& Z)
-{
-    return DirectX::XMMatrixRotationRollPitchYaw(X, Y, Z);
-}
-
-KuroEngine::Matrix KuroEngine::Math::RotateMat(const Vec3<float>& Axis, const float& Radian)
-{
-    Vec3<float>axis = Axis;
-    if (1.0f < axis.Length())axis.Normalize();
-    XMVECTOR vec = XMVectorSet(axis.x, axis.y, axis.z, 1.0f);
-    auto result = XMMatrixRotationQuaternion(XMQuaternionRotationAxis(vec, Radian));
-    return result;
-}
-
-KuroEngine::Matrix KuroEngine::Math::RotateMat(const Vec3<float>& VecA, const Vec3<float>& VecB)
+ KuroEngine::Quaternion KuroEngine::Math::GetLookAtQuaternion(const Vec3<float>& VecA, const Vec3<float>& VecB)
 {
     auto a = VecA.GetNormal();
     auto b = VecB.GetNormal();
@@ -993,7 +979,7 @@ KuroEngine::Matrix KuroEngine::Math::RotateMat(const Vec3<float>& VecA, const Ve
         q.m128_f32[2] = e.z;
         q.m128_f32[3] = sqrt(0.5f * (1.0f + ip));
     }
-    return XMMatrixRotationQuaternion(q);
+    return q;
 }
 KuroEngine::Vec2<float> KuroEngine::Math::RotateVec2(const Vec2<float>& Vec, const float& Radian)
 {

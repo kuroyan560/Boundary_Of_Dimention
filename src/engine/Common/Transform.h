@@ -131,16 +131,23 @@ namespace KuroEngine
 			m_rotate = XMQuaternionRotationMatrix(RotateMat);
 			MatReset();
 		}
-		void SetLookAtRotate(const Vec3<float>& Target, const Vec3<float>& UpAxis = Vec3<float>(0, 1, 0)) {
-			Vec3<float>z = Vec3<float>(Target - m_pos).GetNormal();
-			Vec3<float>x = UpAxis.Cross(z).GetNormal();
-			Vec3<float>y = z.Cross(x).GetNormal();
-
-			SetRotate(XMMatrixLookAtLH(
-				XMVectorSet(m_pos.x, m_pos.y, m_pos.z, 1.0f),
-				XMVectorSet(Target.x, Target.y, Target.z, 1.0f),
-				XMVectorSet(UpAxis.x, UpAxis.y, UpAxis.z, 1.0f)));
+		void SetLookAtRotate(const Vec3<float>& Target) {
+			if (Target == m_pos)return;
+			SetFront((Target - m_pos).GetNormal());
 		}
+		void SetFront(Vec3<float>Front)
+		{
+			SetRotate(XMQuaternionMultiply(Math::GetLookAtQuaternion(GetFront(), Front), m_rotate));
+		}
+		void SetRight(Vec3<float>Right)
+		{
+			SetRotate(XMQuaternionMultiply(Math::GetLookAtQuaternion(GetRight(), Right), m_rotate));
+		}
+		void SetUp(Vec3<float>Up)
+		{
+			SetRotate(XMQuaternionMultiply(Math::GetLookAtQuaternion(GetUp(), Up), m_rotate));
+		}
+
 
 		//ローカル行列ゲッタ
 		const Matrix& GetLocalMat();

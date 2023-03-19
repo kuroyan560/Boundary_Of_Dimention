@@ -165,11 +165,16 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	if (HitCheck(beforePos, newPos, arg_nowStage.lock()->GetTerrianArray(), &hitResult))
 	{
 		//押し戻し
-		/*Vec3<float>pushBackVec = (hitResult.m_interPos - newPos).GetNormal();
-		newPos += pushBackVec * ((hitResult.m_interPos - newPos).Length() + GetPlayersRadius());*/
+		Vec3<float>pushBackVec = (hitResult.m_interPos - newPos).GetNormal();
+		newPos += pushBackVec * ((hitResult.m_interPos - newPos).Length() + GetPlayersRadius());
+
+		//上ベクトルを地形の法線に合わせる回転
+		auto terrianSpin = Math::GetLookAtQuaternion(m_transform.GetUp(), hitResult.m_terrianNormal);
+		rotate = XMQuaternionMultiply(terrianSpin, rotate);
+		m_transform.SetRotate(rotate);
 	}
 
-	//トランスフォームの変化を適用
+	//座標変化適用
 	m_transform.SetPos(newPos);
 
 	//カメラ操作

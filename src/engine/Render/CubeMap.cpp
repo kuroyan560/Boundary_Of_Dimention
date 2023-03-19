@@ -51,14 +51,14 @@ void KuroEngine::StaticallyCubeMap::ResetMeshVertices()
 	enum { LB, LT, RB, RT, IDX_NUM };
 
 	//FRONT面からのオフセット回転行列
-	static const std::array<Matrix, SURFACE_NUM>OFFSET_MAT =
+	static const std::array<Quaternion, SURFACE_NUM>OFFSET_MAT =
 	{
-		XMMatrixIdentity(),	//基準
-		KuroEngine::Math::RotateMat(0.0f,Angle(180),0.0f),
-		KuroEngine::Math::RotateMat({0,0,1},{1,0,0}),
-		KuroEngine::Math::RotateMat({0,0,1},{-1,0,0}),
-		KuroEngine::Math::RotateMat({0,0,1},{0,1,0}),
-		KuroEngine::Math::RotateMat({0,0,1},{0,-1,0}),
+		XMQuaternionIdentity(),	//基準
+		XMQuaternionRotationAxis(XMVectorSet(0.0f,1.0f,0.0f,1.0f),Angle::PI()),
+		Math::GetLookAtQuaternion({0,0,1},{1,0,0}),
+		Math::GetLookAtQuaternion({0,0,1},{-1,0,0}),
+		Math::GetLookAtQuaternion({0,0,1},{0,1,0}),
+		Math::GetLookAtQuaternion({0,0,1},{0,-1,0}),
 	};
 
 	//辺の長さの半分

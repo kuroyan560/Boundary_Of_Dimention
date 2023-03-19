@@ -225,12 +225,8 @@ namespace KuroEngine
         static Vec4<float> GetSpline(const float& T, const int& P1Idx, const std::vector<Vec4<float>>& Array, bool Loop = false);
         static Vec4<float> GetSpline(const int& Timer, const int& TotalTime, const int& P1Idx, const std::vector<Vec4<float>>& Array, bool Loop = false);
 
-        //x,y,z‚ÌŠp“x‚©‚ç‰ñ“]s—ñ‚ğ¶¬
-        static Matrix RotateMat(const Angle& X, const Angle& Y, const Angle& Z);
-        //²‚ÆŠp“x‚ğw’è‚µ‚Ä‰ñ“]s—ñ‚ğ¶¬
-        static Matrix RotateMat(const Vec3<float>& Axis, const float& Radian);
-        //a‚ğb‚ÉŒü‚©‚¹‚é‰ñ“]s—ñ‚ğ‹‚ß‚é
-        static Matrix RotateMat(const Vec3<float>& VecA, const Vec3<float>& VecB);
+        //a‚ğb‚ÉŒü‚©‚¹‚é‰ñ“]‚ğ‹‚ß‚é
+        static Quaternion GetLookAtQuaternion(const Vec3<float>& VecA, const Vec3<float>& VecB);
 
         //2DƒxƒNƒgƒ‹‚ğ‰ñ“]‚³‚¹‚é
         static Vec2<float>RotateVec2(const Vec2<float>& Vec, const float& Radian);
