@@ -28,6 +28,14 @@ class Player : public KuroEngine::Debugger
 	//トランスフォーム
 	KuroEngine::Transform m_transform;
 
+
+
+	// デバッグ用
+	KuroEngine::Transform m_debugModelTransform;
+
+
+
+
 	//カメラインスタンス
 	std::shared_ptr<KuroEngine::Camera>m_cam;
 
@@ -75,6 +83,7 @@ private:
 	enum class RAY_ID {
 		GROUND,	//地上向かって飛ばすレイ。設置判定で使用する。
 		AROUND,	//周囲に向かって飛ばすレイ。壁のぼり判定で使用する。
+		CLIFF,	//崖で明日もとに向かって飛ばすレイ。崖を降りる際に使用する。
 	};
 	/// <summary>
 	/// レイとメッシュの当たり判定

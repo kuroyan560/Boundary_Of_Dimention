@@ -102,10 +102,20 @@ bool Player::HitCheck(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<fl
 			//下方向にレイを飛ばす。これは地面との押し戻し用。
 			CastRay(arg_to, -m_transform.GetUp(), m_transform.GetScale().y, modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::GROUND);
 
-			//空中にいるトリガーの場合は
-			if (!m_onGround) {
+			//空中にいるトリガーの場合は崖の処理。
+			if (!m_onGround && m_prevOnGround) {
 
-				//
+				//前に進んで崖に落ちた場合。
+				CastRay(arg_to - KuroEngine::Vec3<float>(0, m_transform.GetScale().y, 0), -m_transform.GetFront(), m_transform.GetScale().x, modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::CLIFF);
+
+				//後ろに進んで崖に落ちた場合。
+				CastRay(arg_to - KuroEngine::Vec3<float>(0, m_transform.GetScale().y, 0), m_transform.GetFront(), m_transform.GetScale().x, modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::CLIFF);
+
+				//右に進んで崖に落ちた場合。
+				CastRay(arg_to - KuroEngine::Vec3<float>(0, m_transform.GetScale().y, 0), m_transform.GetRight(), m_transform.GetScale().z, modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::CLIFF);
+
+				//左に進んで崖に落ちた場合。
+				CastRay(arg_to - KuroEngine::Vec3<float>(0, m_transform.GetScale().y, 0), -m_transform.GetRight(), m_transform.GetScale().z, modelMesh, terrian.m_transform, isHit, hitNormal, RAY_ID::CLIFF);
 
 			}
 
@@ -145,6 +155,13 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
+
+	// デバッグ用
+	m_debugModelTransform.SetScale(KuroEngine::Vec3<float>(1, 1, 1));
+	m_debugModelTransform.SetRotate(m_transform.GetRotate());
+
+
+
 	using namespace KuroEngine;
 
 	auto beforePos = m_transform.GetPos();
@@ -201,6 +218,14 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		arg_ligMgr,
 		m_model,
 		m_transform);
+
+	//デバッグ用
+	BasicDraw::Instance()->Draw(
+		arg_cam,
+		arg_ligMgr,
+		m_model,
+		m_debugModelTransform);
+
 
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_axisModel,
@@ -477,8 +502,6 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float
 		//ぴったり押し戻してしまうと重力の関係でガクガクしてしまうので、微妙にめり込ませて押し戻す。
 		static const float OFFSET = 0.01f;
 
-		//押し戻す。
-		arg_rayPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
 
 		//レイの種類によって保存するデータを変える。
 		switch (arg_rayID)
@@ -488,12 +511,23 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float
 			//接地判定
 			m_onGround = true;
 
+			//押し戻す。
+			arg_rayPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
+
 			break;
+
+		case Player::RAY_ID::CLIFF:
+
+			m_debugModelTransform.SetPos(output.m_pos + output.m_normal * (arg_rayLength - OFFSET));
+
 		case Player::RAY_ID::AROUND:
 
 			//外部に渡す用のデータを保存。
 			arg_isHit = true;
 			arg_hitNormal = output.m_normal;
+
+			//レイの衝突地点から法線方向に伸ばした位置に移動させる。
+			arg_rayPos = output.m_pos + output.m_normal * (arg_rayLength - OFFSET);
 
 			break;
 		default:
