@@ -947,39 +947,17 @@ KuroEngine::Vec4<float> KuroEngine::Math::GetSpline(const int& Timer, const int&
 #pragma region Matrix
  KuroEngine::Quaternion KuroEngine::Math::GetLookAtQuaternion(const Vec3<float>& VecA, const Vec3<float>& VecB)
 {
-    auto a = VecA.GetNormal();
-    auto b = VecB.GetNormal();
-    XMVECTOR q = { 0,0,0,0 };
-    auto c = b.Cross(a);
-    auto d = -c.Length();
-
-    float epsilon = 0.0002f;
-    auto ip = a.Dot(b);
-    if (-epsilon < d || 1.0f < ip)
-    {
-        if (ip < (epsilon - 1.0f))
-        {
-            auto a2 = Vec3<float>(-a.y, a.z, a.x);
-            c = a2.Cross(a).GetNormal();
-            q.m128_f32[0] = c.x;
-            q.m128_f32[1] = c.y;
-            q.m128_f32[2] = c.z;
-            q.m128_f32[3] = 0.0f;
-        }
-        else
-        {
-            q = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
-        }
-    }
-    else
-    {
-        auto e = c.GetNormal() * sqrt(0.5f * (1.0f - ip));
-        q.m128_f32[0] = e.x;
-        q.m128_f32[1] = e.y;
-        q.m128_f32[2] = e.z;
-        q.m128_f32[3] = sqrt(0.5f * (1.0f + ip));
-    }
-    return q;
+     auto a = VecA.GetNormal();
+     auto b = VecB.GetNormal();
+     XMVECTOR q = { 0,0,0,0 };
+     auto normal = b.Cross(a);
+     float angle = acosf(a.Dot(b));
+     if (normal.IsZero())
+     {
+         normal = { 0,0,1 };
+         angle = Angle::PI();
+     }
+     return XMQuaternionRotationAxis(XMVectorSet(normal.x, normal.y, normal.z, 1.0f), angle);
 }
 KuroEngine::Vec2<float> KuroEngine::Math::RotateVec2(const Vec2<float>& Vec, const float& Radian)
 {
