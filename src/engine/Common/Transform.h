@@ -69,9 +69,15 @@ namespace KuroEngine
 		//ゲッタ
 		const Vec3<float>& GetPos()const { return m_pos; }
 		const Vec3<float>& GetScale()const { return m_scale; }
-		
-		//回転クォータニオンゲッタ
 		const XMVECTOR& GetRotate()const { return m_rotate; }
+
+		//親の回転も考慮したクォータニオン
+		XMVECTOR GetRotateWorld()const
+		{
+			XMVECTOR parent = m_parent ? m_parent->GetRotateWorld() : XMQuaternionIdentity();
+			return XMQuaternionMultiply(parent, m_rotate);
+		}
+
 		//オイラー角で回転量取得
 		Vec3<Angle> GetRotateAsEuler()const {
 			auto q0 = m_rotate.m128_f32[0];
@@ -85,17 +91,25 @@ namespace KuroEngine
 
 			return Vec3<Angle>(-roll, pitch, yaw);
 		}
-		//前ベクトルゲッタ
+		//前・右・上ベクトルゲッタ
 		Vec3<float> GetFront()const{
 			return KuroEngine::Math::TransformVec3(Vec3<float>::GetZAxis(), m_rotate);
 		}
-		//右ベクトルゲッタ
 		Vec3<float> GetRight()const {
 			return KuroEngine::Math::TransformVec3(Vec3<float>::GetXAxis(), m_rotate);
 		}
-		//上ベクトルゲッタ
 		Vec3<float> GetUp()const {
 			return KuroEngine::Math::TransformVec3(Vec3<float>::GetYAxis(), m_rotate);
+		}
+		//前・右・上ベクトルゲッタ（親の回転考慮）
+		Vec3<float> GetFrontWorld()const {
+			return KuroEngine::Math::TransformVec3(Vec3<float>::GetZAxis(), GetRotateWorld());
+		}
+		Vec3<float> GetRightWorld()const {
+			return KuroEngine::Math::TransformVec3(Vec3<float>::GetXAxis(), GetRotateWorld());
+		}
+		Vec3<float> GetUpWorld()const {
+			return KuroEngine::Math::TransformVec3(Vec3<float>::GetYAxis(), GetRotateWorld());
 		}
 
 		//セッタ
@@ -150,11 +164,11 @@ namespace KuroEngine
 
 
 		//ローカル行列ゲッタ
-		const Matrix& GetLocalMat();
+		const Matrix& GetMatLocal();
 		//ワールド行列ゲッタ
-		const Matrix& GetWorldMat();
+		const Matrix& GetMatWorld();
 		//ワールド行列（ビルボード適用）
-		Matrix GetWorldMat(const Matrix& arg_billBoardMat);
+		Matrix GetMatWorld(const Matrix& arg_billBoardMat);
 		//Dirtyフラグゲッタ
 		bool IsDirty()const
 		{

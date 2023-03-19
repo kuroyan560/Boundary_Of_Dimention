@@ -109,7 +109,7 @@ void KuroEngine::Debugger::LoadParameterLog()
 	for (auto& param : m_customParamList)
 	{
 		const auto* jsonObj = &s_parameterLog.m_jsonData[m_title];
-		bool noKey = false;
+		bool noKey = param.m_key.size() == 1 ? jsonObj->contains(param.m_key[0]) : false;
 		for (auto& key : param.m_key)
 		{
 			//ƒL[‚ª‘¶İ‚µ‚È‚¢

@@ -105,9 +105,9 @@ namespace KuroEngine
 		}
 
 		//ローカル行列ゲッタ
-		const Matrix& GetLocalMat();
+		const Matrix& GetMatLocal();
 		//ワールド行列ゲッタ
-		const Matrix& GetWorldMat();
+		const Matrix& GetMatWorld();
 		//Dirtyフラグゲッタ
 		bool IsDirty()const
 		{

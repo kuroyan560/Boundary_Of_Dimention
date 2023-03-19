@@ -10,9 +10,10 @@ KuroEngine::ShadowMapDevice::ShadowMapDevice() :m_lightCamera("LightCamera")
 	//シャドウマップ関連
 	m_shadowMap = D3D12App::Instance()->GenerateRenderTarget(DXGI_FORMAT_R32G32_FLOAT, Color(), { 2048,2048 }, L"ShadowMap");
 	m_shadowMapDepth = D3D12App::Instance()->GenerateDepthStencil({ 2048,2048 });
-	m_lightCamera.SetPos({ 0, 10, 0 });
-	m_lightCamera.SetTarget({ 0,0,0 });
-	m_lightCamera.SetUp({ 1,0,0 });
+	auto& camTransform = m_lightCamera.GetTransform();
+	camTransform.SetPos({ 0, 10, 0 });
+	camTransform.SetLookAtRotate({ 0,0,0 });
+	camTransform.SetUp({ 1,0,0 });
 	m_lightCamera.SetViewAngle(Angle(60));
 
 	m_gaussianBlur = std::make_shared<GaussianBlur>(Vec2<int>(2048, 2048), DXGI_FORMAT_R32G32_FLOAT);
@@ -67,7 +68,7 @@ void KuroEngine::ShadowMapDevice::DrawShadowMap(const std::vector<std::weak_ptr<
 		std::shared_ptr<ConstantBuffer>boneBuff;
 		if (obj->m_animator)boneBuff = obj->m_animator->GetBoneMatBuff();
 
-		TRANSFORM_BUFF[i]->Mapping(&obj->m_transform.GetWorldMat());
+		TRANSFORM_BUFF[i]->Mapping(&obj->m_transform.GetMatWorld());
 
 		for (int meshIdx = 0; meshIdx < obj->m_model->m_meshes.size(); ++meshIdx)
 		{
@@ -138,7 +139,7 @@ void KuroEngine::ShadowMapDevice::DrawShadowReceiver(const std::vector<std::weak
 	{
 		auto obj = Models[i].lock();
 
-		TRANSFORM_BUFF[i]->Mapping(&obj->m_transform.GetWorldMat());
+		TRANSFORM_BUFF[i]->Mapping(&obj->m_transform.GetMatWorld());
 
 		auto model = obj->m_model;
 
@@ -163,12 +164,12 @@ void KuroEngine::ShadowMapDevice::DrawShadowReceiver(const std::vector<std::weak
 
 void KuroEngine::ShadowMapDevice::SetPos(const Vec3<float> Pos)
 {
-	m_lightCamera.SetPos(Pos);
+	m_lightCamera.GetTransform().SetPos(Pos);
 }
 
 void KuroEngine::ShadowMapDevice::SetTarget(const Vec3<float> Target)
 {
-	m_lightCamera.SetTarget(Target);
+	m_lightCamera.GetTransform().SetLookAtRotate(Target);
 }
 
 void KuroEngine::ShadowMapDevice::SetBlurPower(const float& BlurPower)

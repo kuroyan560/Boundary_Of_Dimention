@@ -44,7 +44,7 @@ KuroEngine::Sprite::Sprite(const std::shared_ptr<TextureBuffer>& Texture, const 
 	SetTexture(Texture);
 
 	//行列初期化
-	m_constData.m_mat = m_transform.GetWorldMat();
+	m_constData.m_mat = m_transform.GetMatWorld();
 
 	//定数バッファ生成
 	m_constBuff = D3D12App::Instance()->GenerateConstantBuffer(sizeof(m_constData), 1, &m_constData, Name);
@@ -82,6 +82,6 @@ void KuroEngine::Sprite::Draw(const AlphaBlendMode& BlendMode)
 
 void KuroEngine::Sprite::SendTransformBuff()
 {
-	m_constData.m_mat = m_transform.GetWorldMat();
+	m_constData.m_mat = m_transform.GetMatWorld();
 	m_constBuff->Mapping(&m_constData);
 }

@@ -239,7 +239,7 @@ void KuroEngine::StaticallyCubeMap::Draw(Camera& Cam)
 
 	KuroEngine::KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(PIPELINE);
 
-	m_transformBuff->Mapping(&m_transform.GetWorldMat());
+	m_transformBuff->Mapping(&m_transform.GetMatWorld());
 
 	for (int surfaceIdx = 0; surfaceIdx < SURFACE_NUM; ++surfaceIdx)
 	{
@@ -287,12 +287,13 @@ KuroEngine::DynamicCubeMap::DynamicCubeMap(const int& CubeMapEdge)
 		std::array<std::unique_ptr<Camera>, SURFACE_NUM>camera;	//Še–Ê‚É•`‰æ‚·‚éÛ‚É—p‚¢‚éƒJƒƒ‰
 		for (int surfaceIdx = 0; surfaceIdx < SURFACE_NUM; ++surfaceIdx)
 		{
+			auto& camTransform = camera[surfaceIdx]->GetTransform();
 			camera[surfaceIdx] = std::make_unique<Camera>("DynamicCubeMap" + s_surfaceNameTag[surfaceIdx]);
-			camera[surfaceIdx]->SetPos({ 0,0,0 });
+			camTransform.SetPos({ 0,0,0 });
 			camera[surfaceIdx]->SetViewAngle(Angle(90));
-			camera[surfaceIdx]->SetTarget(target[surfaceIdx]);
+			camTransform.SetLookAtRotate(target[surfaceIdx]);
 			camera[surfaceIdx]->SetAspect(1.0f);
-			camera[surfaceIdx]->SetUp(up[surfaceIdx]);
+			camTransform.SetUp(up[surfaceIdx]);
 			viewProj[surfaceIdx] = camera[surfaceIdx]->GetViewMat() * camera[surfaceIdx]->GetProjectionMat();
 		}
 

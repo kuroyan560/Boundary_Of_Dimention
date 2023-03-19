@@ -9,18 +9,18 @@ namespace KuroEngine
 	{
 		std::shared_ptr<Camera>m_cam;
 
-		//カメラ～注視点までの距離
-		float m_dist = 20.0f;
 		//スケーリング
 		Vec2<float>m_scale;
-		//回転行列
-		Matrix m_matRot = XMMatrixIdentity();
+		
+		//注視点のトランスフォーム（座標情報のみ格納）
+		Transform m_gazePointTransform;
 
-		void MoveXMVector(const XMVECTOR& MoveVector);
+		//注視点をどの座標角度から見ているかの情報のトランスフォーム
+		Transform m_posAngleTransform;
 
 	public:
 		DebugCamera();
-		void Init(const Vec3<float>& InitPos, const Vec3<float>& Target);
+		void Init(const Vec3<float>& InitPos);
 		void Move();
 
 		operator std::shared_ptr<Camera>& ()
