@@ -12,18 +12,18 @@ void KuroEngine::Transform2D::CalculateMat()
 
 	if (m_parent != nullptr)
 	{
-		m_worldMat *= m_parent->GetWorldMat();
+		m_worldMat *= m_parent->GetMatWorld();
 	}
 	m_dirty = false;
 }
 
-const KuroEngine::Matrix& KuroEngine::Transform2D::GetLocalMat()
+const KuroEngine::Matrix& KuroEngine::Transform2D::GetMatLocal()
 {
 	if (IsDirty())CalculateMat();
 	return m_localMat;
 }
 
-const KuroEngine::Matrix& KuroEngine::Transform2D::GetWorldMat()
+const KuroEngine::Matrix& KuroEngine::Transform2D::GetMatWorld()
 {
 	if (IsDirty())CalculateMat();
 	return m_worldMat;

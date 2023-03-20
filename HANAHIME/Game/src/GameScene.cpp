@@ -30,10 +30,10 @@ void GameScene::OnInitialize()
 	BasicDraw::Instance(),
 	});
 
-	m_debugCam.Init({ 0,5,-10 }, { 0,1,0 });
+	m_debugCam.Init({ 0,5,-10 });
 
 	KuroEngine::Transform playerInitTransform;
-	playerInitTransform.SetPos({ 0,0,-10 });
+	playerInitTransform.SetPos({ 0,1.0f,-15 });
 	m_player.Init(playerInitTransform);
 }
 

@@ -295,7 +295,7 @@ void KuroEngine::DrawFunc3D::DrawADSShadingModel(LightManager& arg_ligManager, c
 		TRANSFORM_BUFF.emplace_back(D3D12App::Instance()->GenerateConstantBuffer(sizeof(Matrix), 1, nullptr, ("DrawADSShadingModel_Transform -" + std::to_string(s_drawAdsShadingCount)).c_str()));
 	}
 
-	TRANSFORM_BUFF[s_drawAdsShadingCount]->Mapping(&arg_transform.GetWorldMat());
+	TRANSFORM_BUFF[s_drawAdsShadingCount]->Mapping(&arg_transform.GetMatWorld());
 
 	auto model = arg_model.lock();
 	std::shared_ptr<ConstantBuffer>boneBuff;
@@ -376,7 +376,7 @@ void KuroEngine::DrawFunc3D::DrawPBRShadingModel(LightManager& arg_ligManager, c
 		TRANSFORM_BUFF.emplace_back(D3D12App::Instance()->GenerateConstantBuffer(sizeof(Matrix), 1, nullptr, ("DrawPBRShadingModel_Transform -" + std::to_string(s_drawPbrShadingCount)).c_str()));
 	}
 
-	TRANSFORM_BUFF[s_drawPbrShadingCount]->Mapping(&arg_transform.GetWorldMat());
+	TRANSFORM_BUFF[s_drawPbrShadingCount]->Mapping(&arg_transform.GetMatWorld());
 
 
 	//ボーン行列バッファ取得（アニメーターがnullptrなら空）
@@ -463,7 +463,7 @@ void KuroEngine::DrawFunc3D::DrawToonModel(const std::weak_ptr<TextureBuffer> ar
 		TRANSFORM_BUFF.emplace_back(D3D12App::Instance()->GenerateConstantBuffer(sizeof(Matrix), 1, nullptr, ("DrawShadingModel_Transform -" + std::to_string(s_drawToonCount)).c_str()));
 	}
 
-	TRANSFORM_BUFF[s_drawToonCount]->Mapping(&arg_transform.GetWorldMat());
+	TRANSFORM_BUFF[s_drawToonCount]->Mapping(&arg_transform.GetMatWorld());
 
 	auto model = arg_model.lock();
 
@@ -559,7 +559,7 @@ void KuroEngine::DrawFunc3D::DrawNonShadingPlane(const std::weak_ptr<TextureBuff
 	{
 		TRANSFORM_BUFF.emplace_back(D3D12App::Instance()->GenerateConstantBuffer(sizeof(Matrix), 1, nullptr, ("DrawNonShadingPlane -" + std::to_string(s_drawNonShadingPlaneCount)).c_str()));
 	}
-	TRANSFORM_BUFF[s_drawNonShadingPlaneCount]->Mapping(&arg_transform.GetWorldMat());
+	TRANSFORM_BUFF[s_drawNonShadingPlaneCount]->Mapping(&arg_transform.GetMatWorld());
 
 	//レンダー
 	KuroEngine::KuroEngineDevice::Instance()->Graphics().ObjectRender(

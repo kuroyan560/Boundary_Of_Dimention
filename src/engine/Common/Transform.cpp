@@ -10,24 +10,24 @@ void KuroEngine::Transform::CalculateMat()
 
 	if (m_parent != nullptr)
 	{
-		m_worldMat *= m_parent->GetWorldMat();
+		m_worldMat *= m_parent->GetMatWorld();
 	}
 	m_dirty = false;
 }
 
-const KuroEngine::Matrix& KuroEngine::Transform::GetLocalMat()
+const KuroEngine::Matrix& KuroEngine::Transform::GetMatLocal()
 {
 	if (IsDirty())CalculateMat();
 	return m_localMat;
 }
 
-const KuroEngine::Matrix& KuroEngine::Transform::GetWorldMat()
+const KuroEngine::Matrix& KuroEngine::Transform::GetMatWorld()
 {
 	if (IsDirty())CalculateMat();
 	return m_worldMat;
 }
 
-KuroEngine::Matrix KuroEngine::Transform::GetWorldMat(const Matrix& arg_billBoardMat)
+KuroEngine::Matrix KuroEngine::Transform::GetMatWorld(const Matrix& arg_billBoardMat)
 {
 	Matrix result = DirectX::XMMatrixScaling(m_scale.x, m_scale.y, m_scale.z) * DirectX::XMMatrixRotationQuaternion(m_rotate);
 	result *= arg_billBoardMat;
@@ -35,7 +35,7 @@ KuroEngine::Matrix KuroEngine::Transform::GetWorldMat(const Matrix& arg_billBoar
 
 	if (m_parent != nullptr)
 	{
-		result *= (m_parent->GetWorldMat());
+		result *= (m_parent->GetMatWorld());
 	}
 	return result;
 }

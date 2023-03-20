@@ -37,6 +37,7 @@ class Player : public KuroEngine::Debugger
 	//カメラ感度
 	float m_camSensitivity = 1.0f;
 
+	//移動ベクトルのスカラー
 	float m_moveScalar = 0.5f;
 
 	//接地フラグ
@@ -46,7 +47,18 @@ class Player : public KuroEngine::Debugger
 	//Imguiデバッグ関数オーバーライド
 	void OnImguiItems()override;
 
-	bool HitCheck(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_to, const std::vector<Terrian>& arg_terrianArray, KuroEngine::Vec3<float>* arg_terrianNormal = nullptr);
+	struct HitCheckResult
+	{
+		KuroEngine::Vec3<float>m_interPos;
+		KuroEngine::Vec3<float>m_terrianNormal;
+	};
+	bool HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, const std::vector<Terrian>& arg_terrianArray, HitCheckResult* arg_hitInfo = nullptr);
+
+	//プレイヤーの大きさ（半径）
+	float GetPlayersRadius()
+	{
+		return m_transform.GetScale().x;
+	}
 
 public:
 	Player();
@@ -62,7 +74,6 @@ public:
 
 
 private:
-
 	//レイとメッシュの当たり判定出力用構造体
 	struct MeshCollisionOutput {
 		bool m_isHit;						// レイがメッシュに当たったかどうか 当たったメッシュまでの距離は考慮されておらず、ただ当たったかどうかを判断する用。
@@ -93,11 +104,6 @@ private:
 	KuroEngine::Vec3<float> CalBary(const KuroEngine::Vec3<float>& PosA, const KuroEngine::Vec3<float>& PosB, const KuroEngine::Vec3<float>& PosC, const KuroEngine::Vec3<float>& TargetPos);
 
 	/// <summary>
-	/// ベクトルに行列を乗算する。
-	/// </summary>
-	KuroEngine::Vec3<float> MulMat(const KuroEngine::Vec3<float>& arg_target, const DirectX::XMMATRIX arg_mat);
-
-	/// <summary>
 	/// レイを発射し、その後の一連の処理をまとめた関数
 	/// </summary>
 	/// <param name="arg_rayPos"> レイの射出地点 </param>
@@ -109,7 +115,7 @@ private:
 	/// <param name="arg_isHitWall"> レイが壁に当たったかどうか </param>
 	/// <param name="arg_hitNormal"> レイが当たった地点の法線 </param>
 	/// <param name="arg_rayID"> レイの種類 </param>
-	void CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_onGround, bool& arg_isHitWall, KuroEngine::Vec3<float>& arg_hitNormal, RAY_ID arg_rayID);
+	void CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_onGround, bool& arg_isHitWall, HitCheckResult& arg_hitResult, RAY_ID arg_rayID);
 
 };
 

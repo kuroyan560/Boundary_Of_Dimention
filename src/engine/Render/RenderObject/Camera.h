@@ -30,9 +30,7 @@ namespace KuroEngine
 		//プロジェクション行列が透視射影か平行投影かどうか
 		ProjMatMode projMatMode = Perspective;
 
-		Vec3<float>pos = { 0,0,-10 };
-		Vec3<float>target = { 0,0,0 };
-		Vec3<float>up = { 0,1,0 };
+		Transform m_transform;
 		Angle angleOfView = Angle(60);	//画角
 		float nearZ = 0.1f;
 		float farZ = 3000.0f;
@@ -43,8 +41,6 @@ namespace KuroEngine
 		float height = 720.0f;
 
 		Matrix viewInvMat; //ビュー行列の逆行列
-
-		Transform transform;
 
 		//マッピングの判断用ダーティフラグ
 		bool dirty = true;
@@ -59,9 +55,6 @@ namespace KuroEngine
 			SetProjMatMode(Other.projMatMode);
 			SetNearZ(Other.nearZ);
 			SetFarZ(Other.farZ);
-			SetPos(Other.pos);
-			SetUp(Other.up);
-			SetTarget(Other.target);
 			SetViewAngle(Other.angleOfView);
 			SetWidth(Other.width);
 			SetHeight(Other.height);
@@ -82,21 +75,6 @@ namespace KuroEngine
 		void SetFarZ(const float& FarZ)
 		{
 			farZ = FarZ;
-			dirty = true;
-		}
-		void SetPos(const Vec3<float>& Pos)
-		{
-			pos = Pos;
-			dirty = true;
-		}
-		void SetUp(const Vec3<float>& Up)
-		{
-			up = Up;
-			dirty = true;
-		}
-		void SetTarget(const Vec3<float>& Target)
-		{
-			target = Target;
 			dirty = true;
 		}
 		void SetViewAngle(const Angle& Angle)
@@ -121,16 +99,11 @@ namespace KuroEngine
 		}
 
 		//ゲッタ
-		const Vec3<float>& GetPos() { return pos; }
-		const Vec3<float>& GetUp() { return up; }
-		const Vec3<float>& GetGazePointPos() { return target; }
+		Transform& GetTransform() { return m_transform; }
 		const Angle& GetAngleOfView() { return angleOfView; }
-		const Transform& GetTransform() { CameraInfoUpdate(); return transform; }
 		const Matrix& GetViewMat() { CameraInfoUpdate(); return cameraInfo.matView; }
 		const Matrix& GetProjectionMat() { CameraInfoUpdate(); return cameraInfo.matProjection; }
 		const Matrix& GetBillBoardMat() { CameraInfoUpdate(); return cameraInfo.billboardMat; }
-		const Vec3<float>GetForward();
-		const Vec3<float>GetRight();
 		const float& GetNearZ() { return nearZ; }
 		const float& GetFarZ() { return farZ; }
 

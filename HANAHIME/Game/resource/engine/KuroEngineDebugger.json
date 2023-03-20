@@ -55,18 +55,14 @@
     }
   },
   "CameraController": {
-    "GazePointLerpRate": 0.20000000298023224,
+    "FollowLerpRate": 0.800000011920929,
     "InitializedParameter": {
-      "Angle_X": -2.549999952316284,
-      "DistanceToTarget": 16.049999237060547,
-      "GazePoint": {
-        "Distance": 10.149999618530273,
-        "Height": 0.8999999761581421
-      }
+      "posOffsetZ": -18.0,
+      "xAxisAngle": 0.44999998807907104
     },
-    "PosLerpRate": 0.20000000298023224,
+    "PosLerpRate": 0.800000011920929,
     "debuggerSetting": {
-      "active": false,
+      "active": true,
       "customParamActive": true,
       "imageColor": [
         0.1879725158214569,
@@ -75,6 +71,19 @@
         1.0
       ],
       "textColorFlg": false
+    },
+    "gazePointOffset": [
+      0.0,
+      0.5,
+      0.0
+    ],
+    "posOffsetDepth": {
+      "max": -0.10000000149011612,
+      "min": -18.0
+    },
+    "xAxisAngle": {
+      "max": 0.5989999771118164,
+      "min": 0.1745329201221466
     }
   },
   "OperationConfig": {
@@ -111,7 +120,7 @@
       ],
       "textColorFlg": false
     },
-    "moveScalar": 1.0
+    "moveScalar": 0.5
   },
   "StageManager": {
     "debuggerSetting": {

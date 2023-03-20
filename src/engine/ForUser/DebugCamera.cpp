@@ -2,35 +2,25 @@
 #include"FrameWork/WinApp.h"
 #include"FrameWork/UsersInput.h"
 
-void KuroEngine::DebugCamera::MoveXMVector(const XMVECTOR& MoveVector)
-{
-	auto pos = m_cam->GetPos();
-	auto target = m_cam->GetGazePointPos();
-
-	Vec3<float>move(MoveVector.m128_f32[0], MoveVector.m128_f32[1], MoveVector.m128_f32[2]);
-	pos += move;
-	target += move;
-
-	m_cam->SetPos(pos);
-	m_cam->SetTarget(target);
-}
-
 KuroEngine::DebugCamera::DebugCamera()
 {
 	m_cam = std::make_shared<Camera>("DebugCamera");
-	m_dist = m_cam->GetPos().Distance(m_cam->GetGazePointPos());
+
+	auto& transform = m_cam->GetTransform();
+	transform.SetParent(&m_posAngleTransform);
+	m_posAngleTransform.SetParent(&m_gazePointTransform);
 
 	//画面サイズに対する相対的なスケールに調整
 	m_scale.x = 1.0f / (float)KuroEngine::WinApp::Instance()->GetExpandWinSize().x;
 	m_scale.y = 1.0f / (float)KuroEngine::WinApp::Instance()->GetExpandWinSize().y;
 }
 
-void KuroEngine::DebugCamera::Init(const Vec3<float>& InitPos, const Vec3<float>& Target)
+void KuroEngine::DebugCamera::Init(const Vec3<float>& InitPos)
 {
-	m_cam->SetPos(InitPos);
-	m_cam->SetTarget(Target);
-
-	m_dist = InitPos.Distance(Target);
+	m_cam->GetTransform().SetPos(InitPos);
+	m_cam->GetTransform().SetRotate(XMQuaternionIdentity());
+	m_posAngleTransform.SetRotate(XMQuaternionIdentity());
+	m_gazePointTransform.SetPos(InitPos + KuroEngine::Vec3<float>(0.0f, 0.0f, 3.0f));
 }
 
 void KuroEngine::DebugCamera::Move()
@@ -48,9 +38,12 @@ void KuroEngine::DebugCamera::Move()
 		float dx = mouseMove.m_inputY * m_scale.x;
 		float dy = mouseMove.m_inputX * m_scale.y;
 
-		angleX = -dx * XM_PI;
-		angleY = -dy * XM_PI;
-		moveDirty = true;
+		angleX = -dx * XM_PI * 0.65f;
+		angleY = -dy * XM_PI * 0.65f;
+
+		auto rotate = m_posAngleTransform.GetRotate();
+		rotate = XMQuaternionMultiply(XMQuaternionRotationRollPitchYaw(-angleX, -angleY, 0.0f), rotate);
+		m_posAngleTransform.SetRotate(rotate);
 	}
 
 	//マウス中クリックでカメラ平行移動
@@ -59,42 +52,21 @@ void KuroEngine::DebugCamera::Move()
 		float dx = mouseMove.m_inputX / 100.0f;
 		float dy = mouseMove.m_inputY / 100.0f;
 
-		XMVECTOR move = { -dx,+dy,0,0 };
-		move = XMVector3Transform(move, m_matRot);
+		auto move = Math::TransformVec3({ -dx,+dy,0 }, m_cam->GetTransform().GetRotateWorld());
 
-		MoveXMVector(move);
+		m_cam->GetTransform().SetPos(m_cam->GetTransform().GetPos() + move);
+		m_gazePointTransform.SetPos(m_gazePointTransform.GetPos() + move);
+
 		moveDirty = true;
 	}
 
 	//ホイール入力で距離を変更
 	if (mouseMove.m_inputZ != 0)
 	{
-		m_dist -= mouseMove.m_inputZ / 100.0f;
-		m_dist = std::max(m_dist, 1.0f);
-		moveDirty = true;
-	}
-
-	if (moveDirty)
-	{
-		//追加回転分の回転行列を生成
-		XMMATRIX matRotNew = XMMatrixIdentity();
-		matRotNew *= XMMatrixRotationX(-angleX);
-		matRotNew *= XMMatrixRotationY(-angleY);
-		// ※回転行列を累積していくと、誤差でスケーリングがかかる危険がある為
-		// クォータニオンを使用する方が望ましい
-		m_matRot = matRotNew * m_matRot;
-
-		// 注視点から視点へのベクトルと、上方向ベクトル
-		XMVECTOR vTargetEye = { 0.0f, 0.0f, -m_dist, 1.0f };
-		XMVECTOR vUp = { 0.0f, 1.0f, 0.0f, 0.0f };
-
-		// ベクトルを回転
-		vTargetEye = XMVector3Transform(vTargetEye, m_matRot);
-		vUp = XMVector3Transform(vUp, m_matRot);
-
-		// 注視点からずらした位置に視点座標を決定
-		Vec3<float>target = m_cam->GetGazePointPos();
-		m_cam->SetPos({ target.x + vTargetEye.m128_f32[0], target.y + vTargetEye.m128_f32[1], target.z + vTargetEye.m128_f32[2] });
-		m_cam->SetUp({ vUp.m128_f32[0], vUp.m128_f32[1], vUp.m128_f32[2] });
+		float inputZ = mouseMove.m_inputZ / 50.0f;
+		auto pos = m_cam->GetTransform().GetPos();
+		pos.z += inputZ;
+		pos.z = std::min(pos.z, -1.0f);
+		m_cam->GetTransform().SetPos(pos);
 	}
 }

@@ -85,7 +85,7 @@ KuroEngine::Sprite_Shadow::Sprite_Shadow(const std::shared_ptr<TextureBuffer>& T
 	SetTexture(Texture, NormalMap, EmissiveMap);
 
 	//行列初期化
-	m_constData.m_mat = m_transform.GetWorldMat();
+	m_constData.m_mat = m_transform.GetMatWorld();
 
 	//定数バッファ生成
 	m_constBuff = D3D12App::Instance()->GenerateConstantBuffer(sizeof(m_constData), 1, &m_constData, Name);
@@ -148,7 +148,7 @@ void KuroEngine::Sprite_Shadow::Draw(LightManager& LigManager)
 
 	if (m_transform.IsDirty())
 	{
-		m_constData.m_mat = m_transform.GetWorldMat();
+		m_constData.m_mat = m_transform.GetMatWorld();
 		m_constBuff->Mapping(&m_constData);
 	}
 

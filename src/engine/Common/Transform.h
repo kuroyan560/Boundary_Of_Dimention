@@ -69,9 +69,15 @@ namespace KuroEngine
 		//ゲッタ
 		const Vec3<float>& GetPos()const { return m_pos; }
 		const Vec3<float>& GetScale()const { return m_scale; }
-		
-		//回転クォータニオンゲッタ
 		const XMVECTOR& GetRotate()const { return m_rotate; }
+
+		//親の回転も考慮したクォータニオン
+		XMVECTOR GetRotateWorld()const
+		{
+			XMVECTOR parent = m_parent ? m_parent->GetRotateWorld() : XMQuaternionIdentity();
+			return XMQuaternionMultiply(parent, m_rotate);
+		}
+
 		//オイラー角で回転量取得
 		Vec3<Angle> GetRotateAsEuler()const {
 			auto q0 = m_rotate.m128_f32[0];
@@ -85,17 +91,25 @@ namespace KuroEngine
 
 			return Vec3<Angle>(-roll, pitch, yaw);
 		}
-		//前ベクトルゲッタ
+		//前・右・上ベクトルゲッタ
 		Vec3<float> GetFront()const{
 			return KuroEngine::Math::TransformVec3(Vec3<float>::GetZAxis(), m_rotate);
 		}
-		//右ベクトルゲッタ
 		Vec3<float> GetRight()const {
 			return KuroEngine::Math::TransformVec3(Vec3<float>::GetXAxis(), m_rotate);
 		}
-		//上ベクトルゲッタ
 		Vec3<float> GetUp()const {
 			return KuroEngine::Math::TransformVec3(Vec3<float>::GetYAxis(), m_rotate);
+		}
+		//前・右・上ベクトルゲッタ（親の回転考慮）
+		Vec3<float> GetFrontWorld()const {
+			return KuroEngine::Math::TransformVec3(Vec3<float>::GetZAxis(), GetRotateWorld());
+		}
+		Vec3<float> GetRightWorld()const {
+			return KuroEngine::Math::TransformVec3(Vec3<float>::GetXAxis(), GetRotateWorld());
+		}
+		Vec3<float> GetUpWorld()const {
+			return KuroEngine::Math::TransformVec3(Vec3<float>::GetYAxis(), GetRotateWorld());
 		}
 
 		//セッタ
@@ -115,47 +129,60 @@ namespace KuroEngine
 			m_scale = s;
 			MatReset();
 		}
-		void SetRotate(const Angle& X, const Angle& Y, const Angle& Z) {
-			m_rotate = XMQuaternionRotationRollPitchYaw(Y, Z, -X);
-			MatReset();
-		}
+
+		//回転の代入
 		void SetRotate(const DirectX::XMVECTOR& Quaternion) {
 			m_rotate = Quaternion;
+			m_rotate = XMQuaternionNormalize(m_rotate);
 			MatReset();
 		}
-		void SetRotate(const Vec3<float>& Axis, const Angle& Angle) {
-			m_rotate = XMQuaternionRotationAxis(XMVectorSet(Axis.x, Axis.y, Axis.z, 1.0f), Angle);
-			MatReset();
+		void SetRotate(const Angle& X, const Angle& Y, const Angle& Z) {
+			SetRotate(XMQuaternionRotationRollPitchYaw(Y, Z, -X));
 		}
 		void SetRotate(const Matrix& RotateMat) {
-			m_rotate = XMQuaternionRotationMatrix(RotateMat);
-			MatReset();
+			SetRotate(XMQuaternionRotationMatrix(RotateMat));
 		}
-		void SetLookAtRotate(const Vec3<float>& Target, const Vec3<float>& UpAxis = Vec3<float>(0, 1, 0)) {
-			Vec3<float>z = Vec3<float>(Target - m_pos).GetNormal();
-			Vec3<float>x = UpAxis.Cross(z).GetNormal();
-			Vec3<float>y = z.Cross(x).GetNormal();
+		void SetRotate(const Vec3<float>& Axis, const Angle& Angle) {
+			SetRotate(XMQuaternionRotationAxis(XMVectorSet(Axis.x, Axis.y, Axis.z, 1.0f), Angle));
+		}
 
-			SetRotate(XMMatrixLookAtLH(
-				XMVectorSet(m_pos.x, m_pos.y, m_pos.z, 1.0f),
-				XMVectorSet(Target.x, Target.y, Target.z, 1.0f),
-				XMVectorSet(UpAxis.x, UpAxis.y, UpAxis.z, 1.0f)));
+		void SetFront(Vec3<float>Front) {
+			SetRotate(Math::GetLookAtQuaternion(Vec3<float>::GetZAxis(), Front));
 		}
+		void SetRight(Vec3<float>Right) {
+			SetRotate(Math::GetLookAtQuaternion(Vec3<float>::GetXAxis(), Right));
+		}
+		void SetUp(Vec3<float>Up) {
+			SetRotate(Math::GetLookAtQuaternion(Vec3<float>::GetYAxis(), Up));
+		}
+		void SetLookAtRotate(Vec3<float>Target) {
+			SetFront((Target - m_pos).GetNormal());
+		}
+
+		//現在の回転をさらに回転させて合わせる
+		void SetFrontBySpin(Vec3<float>Front)	{
+			SetRotate(XMQuaternionMultiply(Math::GetLookAtQuaternion(GetFront(), Front), m_rotate));
+		}
+		void SetRightBySpin(Vec3<float>Right)	{
+			SetRotate(XMQuaternionMultiply(Math::GetLookAtQuaternion(GetRight(), Right), m_rotate));
+		}
+		void SetUpBySpin(Vec3<float>Up){
+			SetRotate(XMQuaternionMultiply(Math::GetLookAtQuaternion(GetUp(), Up), m_rotate));
+		}
+
 
 		//ローカル行列ゲッタ
-		const Matrix& GetLocalMat();
+		const Matrix& GetMatLocal();
 		//ワールド行列ゲッタ
-		const Matrix& GetWorldMat();
+		const Matrix& GetMatWorld();
 		//ワールド行列（ビルボード適用）
-		Matrix GetWorldMat(const Matrix& arg_billBoardMat);
+		Matrix GetMatWorld(const Matrix& arg_billBoardMat);
 		//Dirtyフラグゲッタ
-		bool IsDirty()const
-		{
+		bool IsDirty()const{
 			return m_dirty || (m_parent != nullptr && (m_parent->IsFrameDirty() || m_parent->IsDirty()));
 		}
 		//フレーム単位のDirtyフラグゲッタ
-		bool IsFrameDirty()const
-		{
+		bool IsFrameDirty()const{
 			return m_frameDirty || (m_parent != nullptr && m_parent->IsFrameDirty());
 		}
 	};

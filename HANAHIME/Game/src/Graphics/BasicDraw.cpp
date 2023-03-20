@@ -189,7 +189,7 @@ void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_
 	{
 		m_drawTransformBuff.emplace_back(D3D12App::Instance()->GenerateConstantBuffer(sizeof(Matrix), 1, nullptr, ("BasicDraw - Transform -" + std::to_string(m_drawCount)).c_str()));
 	}
-	m_drawTransformBuff[m_drawCount]->Mapping(&arg_transform.GetWorldMat());
+	m_drawTransformBuff[m_drawCount]->Mapping(&arg_transform.GetMatWorld());
 
 	//トゥーンの個別パラメータバッファ送信
 	if (m_toonIndividualParamBuff.size() < (m_drawCount + 1))

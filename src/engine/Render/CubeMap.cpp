@@ -51,14 +51,14 @@ void KuroEngine::StaticallyCubeMap::ResetMeshVertices()
 	enum { LB, LT, RB, RT, IDX_NUM };
 
 	//FRONT面からのオフセット回転行列
-	static const std::array<Matrix, SURFACE_NUM>OFFSET_MAT =
+	static const std::array<Quaternion, SURFACE_NUM>OFFSET_MAT =
 	{
-		XMMatrixIdentity(),	//基準
-		KuroEngine::Math::RotateMat(0.0f,Angle(180),0.0f),
-		KuroEngine::Math::RotateMat({0,0,1},{1,0,0}),
-		KuroEngine::Math::RotateMat({0,0,1},{-1,0,0}),
-		KuroEngine::Math::RotateMat({0,0,1},{0,1,0}),
-		KuroEngine::Math::RotateMat({0,0,1},{0,-1,0}),
+		XMQuaternionIdentity(),	//基準
+		XMQuaternionRotationAxis(XMVectorSet(0.0f,1.0f,0.0f,1.0f),Angle::PI()),
+		Math::GetLookAtQuaternion({0,0,1},{1,0,0}),
+		Math::GetLookAtQuaternion({0,0,1},{-1,0,0}),
+		Math::GetLookAtQuaternion({0,0,1},{0,1,0}),
+		Math::GetLookAtQuaternion({0,0,1},{0,-1,0}),
 	};
 
 	//辺の長さの半分
@@ -239,7 +239,7 @@ void KuroEngine::StaticallyCubeMap::Draw(Camera& Cam)
 
 	KuroEngine::KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(PIPELINE);
 
-	m_transformBuff->Mapping(&m_transform.GetWorldMat());
+	m_transformBuff->Mapping(&m_transform.GetMatWorld());
 
 	for (int surfaceIdx = 0; surfaceIdx < SURFACE_NUM; ++surfaceIdx)
 	{
@@ -287,12 +287,13 @@ KuroEngine::DynamicCubeMap::DynamicCubeMap(const int& CubeMapEdge)
 		std::array<std::unique_ptr<Camera>, SURFACE_NUM>camera;	//各面に描画する際に用いるカメラ
 		for (int surfaceIdx = 0; surfaceIdx < SURFACE_NUM; ++surfaceIdx)
 		{
+			auto& camTransform = camera[surfaceIdx]->GetTransform();
 			camera[surfaceIdx] = std::make_unique<Camera>("DynamicCubeMap" + s_surfaceNameTag[surfaceIdx]);
-			camera[surfaceIdx]->SetPos({ 0,0,0 });
+			camTransform.SetPos({ 0,0,0 });
 			camera[surfaceIdx]->SetViewAngle(Angle(90));
-			camera[surfaceIdx]->SetTarget(target[surfaceIdx]);
+			camTransform.SetLookAtRotate(target[surfaceIdx]);
 			camera[surfaceIdx]->SetAspect(1.0f);
-			camera[surfaceIdx]->SetUp(up[surfaceIdx]);
+			camTransform.SetRotate(Math::GetLookAtQuaternion(Vec3<float>::GetYAxis(), up[surfaceIdx]));
 			viewProj[surfaceIdx] = camera[surfaceIdx]->GetViewMat() * camera[surfaceIdx]->GetProjectionMat();
 		}
 

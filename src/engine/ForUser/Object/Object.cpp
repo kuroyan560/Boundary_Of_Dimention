@@ -26,7 +26,7 @@ const std::shared_ptr<KuroEngine::ConstantBuffer>& KuroEngine::ModelObject::GetT
 		m_transformBuff = D3D12App::Instance()->GenerateConstantBuffer(sizeof(Matrix), 1, nullptr, (m_model->m_header.fileName + " - ModelObject - Transform").c_str());
 	}
 
-	m_transformBuff->Mapping(&m_transform.GetWorldMat());
+	m_transformBuff->Mapping(&m_transform.GetMatWorld());
 
 	return m_transformBuff;
 }
