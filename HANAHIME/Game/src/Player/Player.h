@@ -112,6 +112,16 @@ private:
 	/// </summary>
 	KuroEngine::Vec3<float> CalBary(const KuroEngine::Vec3<float>& PosA, const KuroEngine::Vec3<float>& PosB, const KuroEngine::Vec3<float>& PosC, const KuroEngine::Vec3<float>& TargetPos);
 
+	//CastRayに渡すデータ用構造体
+	struct CastRayArgument {
+		KuroEngine::ModelMesh m_mesh;				//判定を行う対象のメッシュ
+		KuroEngine::Transform m_targetTransform;	//判定を行う対象のトランスフォーム
+		bool& m_onGround;							//接地フラグ
+		bool& m_isHitWall;							//レイが壁に当たったかどうか
+		HitCheckResult& m_hitResult;				//当たり判定結果データ
+		CastRayArgument(bool& arg_onGround, bool& arg_isHitWall, HitCheckResult& arg_hitResult) : m_onGround(arg_onGround), m_isHitWall(arg_isHitWall), m_hitResult(arg_hitResult) {};
+	};
+
 	/// <summary>
 	/// レイを発射し、その後の一連の処理をまとめた関数
 	/// </summary>
@@ -119,13 +129,9 @@ private:
 	/// <param name="arg_rayCastPos"> レイの射出地点 </param>
 	/// <param name="arg_rayDir"> レイの射出方向 </param>
 	/// <param name="arg_rayLength"> レイの長さ </param>
-	/// <param name="arg_targetMesh"> 判定を行う対象のメッシュ </param>
-	/// <param name="arg_targetTransform"> 判定を行う対象のトランスフォーム </param>
-	/// <param name="arg_onGround"> 接地フラグ </param>
-	/// <param name="arg_isHitWall"> レイが壁に当たったかどうか </param>
-	/// <param name="arg_hitNormal"> レイが当たった地点の法線 </param>
+	/// <param name="arg_collisionData"> 引数をまとめた構造体 </param>
 	/// <param name="arg_rayID"> レイの種類 </param>
-	void CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos , const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_onGround, bool& arg_isHitWall, HitCheckResult& arg_hitResult, RAY_ID arg_rayID);
+	void CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument arg_collisionData, RAY_ID arg_rayID);
 
 };
 
