@@ -218,7 +218,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 		//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
 		auto playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
-		m_transform.SetRotate(DirectX::XMQuaternionMultiply(spin, playerYSpin));
+		m_transform.SetRotate(DirectX::XMQuaternionMultiply(m_cameraQ, playerYSpin));
 
 	}
 
