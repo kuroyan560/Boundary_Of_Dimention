@@ -181,7 +181,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//入力された移動量を取得
 	auto moveVec = OperationConfig::Instance()->GetMoveVec(rotate);
-	//auto moveVec = OperationConfig::Instance()->GetMoveVec(XMQuaternionMultiply(m_camController.GetPosRotate(), rotate));
+	auto rowMoveVec = OperationConfig::Instance()->GetMoveVec(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
 
@@ -189,8 +189,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_cameraRotY += scopeMove.x;
 
 	//プレイヤーの回転を保存。入力があったときは。
-	if (0 < moveVec.Length()) {
-		m_playerRotY = atan2f(moveVec.x, moveVec.z);
+	if (0 < rowMoveVec.Length()) {
+		m_playerRotY = atan2f(rowMoveVec.x, rowMoveVec.z);
 	}
 
 	//移動量加算
@@ -205,24 +205,21 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	HitCheckResult hitResult;
 	if (HitCheckAndPushBack(beforePos, newPos, arg_nowStage.lock()->GetTerrianArray(), &hitResult))
 	{
-		/*float angle = acosf(hitResult.m_terrianNormal.Dot(m_transform.GetUp()));
-		m_transform.SetRotate(XMQuaternionRotationAxis(m_transform.GetRight() * -(float)GetNumSign(angle), angle));*/
-
-		//m_transform.SetUpBySpin(hitResult.m_terrianNormal);
 
 		//法線方向を見るクォータニオン
-		auto spin = Math::GetLookAtQuaternion({0,1,0}, hitResult.m_terrianNormal);
+		auto spin = Math::GetLookAtQuaternion({ 0,1,0 }, hitResult.m_terrianNormal);
 		auto spinMat = DirectX::XMMatrixRotationQuaternion(spin);
 
 		//カメラ目線でY軸回転させるクォータニオン
 		auto ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_cameraRotY);
 
-		//プレイヤーの移動方向でY軸回転させるクォータニオン
-		auto playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
-
+		//カメラ方向でのクォータニオンを求める。進む方向などを判断するのに使用するのはこっち。Fの一番最初にこの値を入れることでplayerYSpinの回転を打ち消す。
 		m_cameraQ = DirectX::XMQuaternionMultiply(spin, ySpin);
+
+		//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
+		auto playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
 		m_transform.SetRotate(DirectX::XMQuaternionMultiply(spin, playerYSpin));
-		//m_transform.SetUp(hitResult.m_terrianNormal);
+
 	}
 
 	//座標変化適用
