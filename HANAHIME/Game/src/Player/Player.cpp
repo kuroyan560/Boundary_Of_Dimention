@@ -154,6 +154,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	HitCheckResult hitResult;
 	if (HitCheckAndPushBack(beforePos, newPos, arg_nowStage.lock()->GetTerrianArray(), &hitResult))
 	{
+
 	}
 
 	//À•W•Ï‰»“K—p
