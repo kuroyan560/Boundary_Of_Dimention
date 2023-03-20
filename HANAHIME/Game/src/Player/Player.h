@@ -28,6 +28,9 @@ class Player : public KuroEngine::Debugger
 	//トランスフォーム
 	KuroEngine::Transform m_transform;
 
+	//移動量
+	KuroEngine::Vec3<float> m_rowMoveVec;
+
 	//カメラインスタンス
 	std::shared_ptr<KuroEngine::Camera>m_cam;
 
@@ -112,7 +115,8 @@ private:
 	/// <summary>
 	/// レイを発射し、その後の一連の処理をまとめた関数
 	/// </summary>
-	/// <param name="arg_rayPos"> レイの射出地点 </param>
+	/// <param name="arg_rayCastPos"> キャラクターの座標 </param>
+	/// <param name="arg_rayCastPos"> レイの射出地点 </param>
 	/// <param name="arg_rayDir"> レイの射出方向 </param>
 	/// <param name="arg_rayLength"> レイの長さ </param>
 	/// <param name="arg_targetMesh"> 判定を行う対象のメッシュ </param>
@@ -121,7 +125,7 @@ private:
 	/// <param name="arg_isHitWall"> レイが壁に当たったかどうか </param>
 	/// <param name="arg_hitNormal"> レイが当たった地点の法線 </param>
 	/// <param name="arg_rayID"> レイの種類 </param>
-	void CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_onGround, bool& arg_isHitWall, HitCheckResult& arg_hitResult, RAY_ID arg_rayID);
+	void CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos , const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_onGround, bool& arg_isHitWall, HitCheckResult& arg_hitResult, RAY_ID arg_rayID);
 
 };
 

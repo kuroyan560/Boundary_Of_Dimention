@@ -85,34 +85,34 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 
 
 			//右方向にレイを飛ばす。これは壁にくっつく用。
-			CastRay(arg_newPos, m_transform.GetRight(), m_transform.GetScale().x, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::AROUND);
+			CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), m_transform.GetScale().x, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::AROUND);
 
 			//左方向にレイを飛ばす。これは壁にくっつく用。
-			CastRay(arg_newPos, -m_transform.GetRight(), m_transform.GetScale().x, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::AROUND);
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), m_transform.GetScale().x, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::AROUND);
 
 			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
-			CastRay(arg_newPos, -m_transform.GetFront(), m_transform.GetScale().z, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::AROUND);
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), m_transform.GetScale().z, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::AROUND);
 
 			//正面方向にレイを飛ばす。これは壁にくっつく用。
-			CastRay(arg_newPos, m_transform.GetFront(), m_transform.GetScale().z, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::AROUND);
+			CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), m_transform.GetScale().z, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::AROUND);
 
 			//下方向にレイを飛ばす。これは地面との押し戻し用。
-			CastRay(arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::GROUND);
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::GROUND);
 
 			//空中にいるトリガーの場合は崖の処理。
 			if (!m_onGround && m_prevOnGround) {
 
 				//前に進んで崖に落ちた場合。	*2しているのは、デフォルトのサイズをそのまま使うと移動速度が速すぎて飛び出してしまうから。
-				CastRay(arg_newPos - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetFront(), m_transform.GetScale().x * 2.0f, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::CLIFF);
+				CastRay(arg_newPos, arg_newPos - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetFront(), m_transform.GetScale().x, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::CLIFF);
 
 				//後ろに進んで崖に落ちた場合。
-				CastRay(arg_newPos - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetFront(), m_transform.GetScale().x * 2.0f, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::CLIFF);
+				CastRay(arg_newPos, arg_newPos - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetFront(), m_transform.GetScale().x, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::CLIFF);
 
 				//右に進んで崖に落ちた場合。
-				CastRay(arg_newPos - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetRight(), m_transform.GetScale().z * 2.0f, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::CLIFF);
+				CastRay(arg_newPos, arg_newPos - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetRight(), m_transform.GetScale().z, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::CLIFF);
 
 				//左に進んで崖に落ちた場合。
-				CastRay(arg_newPos - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetRight(), m_transform.GetScale().z * 2.0f, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::CLIFF);
+				CastRay(arg_newPos, arg_newPos - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetRight(), m_transform.GetScale().z, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::CLIFF);
 
 			}
 
@@ -181,7 +181,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//入力された移動量を取得
 	auto moveVec = OperationConfig::Instance()->GetMoveVec(rotate);
-	auto rowMoveVec = OperationConfig::Instance()->GetMoveVec(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
+	m_rowMoveVec = OperationConfig::Instance()->GetMoveVec(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
 
@@ -189,8 +189,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_cameraRotY += scopeMove.x;
 
 	//プレイヤーの回転を保存。入力があったときは。
-	if (0 < rowMoveVec.Length()) {
-		m_playerRotY = atan2f(rowMoveVec.x, rowMoveVec.z);
+	if (0 < m_rowMoveVec.Length()) {
+		m_playerRotY = atan2f(m_rowMoveVec.x, m_rowMoveVec.z);
 	}
 
 	//移動量加算
@@ -491,13 +491,13 @@ KuroEngine::Vec3<float> Player::CalBary(const KuroEngine::Vec3<float>& PosA, con
 
 }
 
-void Player::CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_onGround, bool& arg_isHitWall, HitCheckResult& arg_hitResult, RAY_ID arg_rayID)
+void Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform, bool& arg_onGround, bool& arg_isHitWall, HitCheckResult& arg_hitResult, RAY_ID arg_rayID)
 {
 
 	/*===== 当たり判定用のレイを撃つ =====*/
 
 	//レイを飛ばす。
-	MeshCollisionOutput output = MeshCollision(arg_rayPos, arg_rayDir, arg_targetMesh, arg_targetTransform);
+	MeshCollisionOutput output = MeshCollision(arg_rayCastPos, arg_rayDir, arg_targetMesh, arg_targetTransform);
 
 	//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 	if (output.m_isHit && std::fabs(output.m_distance) < arg_rayLength) {
@@ -522,7 +522,7 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float
 			//arg_isHitWall = true;
 
 			//押し戻す。
-			arg_rayPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
+			arg_charaPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
 
 			break;
 
@@ -534,7 +534,7 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float
 			arg_hitResult.m_terrianNormal = output.m_normal;
 
 			//レイの衝突地点から法線方向に伸ばした位置に移動させる。 /2しているのはレイの長さをあらかじめ二倍にしているから。
-			arg_rayPos = output.m_pos + output.m_normal * (arg_rayLength / 2.0f - OFFSET);
+			arg_charaPos = output.m_pos + output.m_normal * (arg_rayLength - OFFSET);
 
 			break;
 
@@ -546,12 +546,13 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float
 			arg_hitResult.m_terrianNormal = output.m_normal;
 
 			//レイの衝突地点から法線方向に伸ばした位置に移動させる。
-			arg_rayPos = output.m_pos + output.m_normal * (arg_rayLength - OFFSET);
+			arg_charaPos = output.m_pos + output.m_normal * (arg_rayLength - OFFSET);
 
 			break;
 		default:
 			break;
 		}
 	}
+
 }
 
