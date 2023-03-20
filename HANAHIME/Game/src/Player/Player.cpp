@@ -103,22 +103,28 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			if (!m_onGround && m_prevOnGround) {
 
 				//前に進んで崖に落ちた場合。	*2しているのは、デフォルトのサイズをそのまま使うと移動速度が速すぎて飛び出してしまうから。
-				CastRay(arg_newPos - KuroEngine::Vec3<float>(0, m_transform.GetScale().y, 0), -m_transform.GetFront(), m_transform.GetScale().x * 2.0f, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::CLIFF);
+				CastRay(arg_newPos - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetFront(), m_transform.GetScale().x * 2.0f, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::CLIFF);
 
 				//後ろに進んで崖に落ちた場合。
-				CastRay(arg_newPos - KuroEngine::Vec3<float>(0, m_transform.GetScale().y, 0), m_transform.GetFront(), m_transform.GetScale().x * 2.0f, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::CLIFF);
+				CastRay(arg_newPos - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetFront(), m_transform.GetScale().x * 2.0f, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::CLIFF);
 
 				//右に進んで崖に落ちた場合。
-				CastRay(arg_newPos - KuroEngine::Vec3<float>(0, m_transform.GetScale().y, 0), m_transform.GetRight(), m_transform.GetScale().z * 2.0f, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::CLIFF);
+				CastRay(arg_newPos - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetRight(), m_transform.GetScale().z * 2.0f, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::CLIFF);
 
 				//左に進んで崖に落ちた場合。
-				CastRay(arg_newPos - KuroEngine::Vec3<float>(0, m_transform.GetScale().y, 0), -m_transform.GetRight(), m_transform.GetScale().z * 2.0f, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::CLIFF);
+				CastRay(arg_newPos - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetRight(), m_transform.GetScale().z * 2.0f, modelMesh, terrian.m_transform, onGround, isHitWall, hitResult, RAY_ID::CLIFF);
 
 			}
 
 
 			//=================================================
 		}
+	}
+
+	//周囲のレイが壁に当たっていなかったら、下方向のレイを姿勢として使用する。
+	if (!isHitWall && onGround) {
+		hitResult.m_terrianNormal = hitResult.m_bottmRayTerrianNormal;
+		isHitWall = true;
 	}
 
 	//接地フラグを保存
@@ -148,12 +154,15 @@ Player::Player()
 
 	AddCustomParameter("MoveScalar", { "moveScalar" }, PARAM_TYPE::FLOAT, &m_moveScalar, "Player");
 	AddCustomParameter("Sensitivity", { "camera", "sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity, "Camera");
+
+	m_rotY = 0;
 }
 
 void Player::Init(KuroEngine::Transform arg_initTransform)
 {
 	m_transform = arg_initTransform;
 	m_camController.Init();
+	m_rotY = 0;
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
@@ -174,6 +183,11 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//移動量加算
 	newPos += moveVec * m_moveScalar;
 
+	//地面に張り付ける用の重力。
+	if (!m_onGround) {
+		newPos -= m_transform.GetUp() * (m_transform.GetScale().y / 2.0f);
+	}
+
 	//当たり判定
 	HitCheckResult hitResult;
 	if (HitCheckAndPushBack(beforePos, newPos, arg_nowStage.lock()->GetTerrianArray(), &hitResult))
@@ -183,8 +197,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 		//m_transform.SetUpBySpin(hitResult.m_terrianNormal);
 
-		auto spin = Math::GetLookAtQuaternion(m_transform.GetUp(), hitResult.m_terrianNormal);
-		m_transform.SetRotate(XMQuaternionMultiply(spin, rotate));
+		auto spin = Math::GetLookAtQuaternion({0,1,0}, hitResult.m_terrianNormal);
+
+		m_transform.SetRotate(spin);
 		//m_transform.SetUp(hitResult.m_terrianNormal);
 	}
 
@@ -475,41 +490,48 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_rayPos, KuroEngine::Vec3<float
 		//レイの種類によって保存するデータを変える。
 		switch (arg_rayID)
 		{
-			case Player::RAY_ID::GROUND:
+		case Player::RAY_ID::GROUND:
 
-				//接地判定
-				arg_onGround = true;
-
-				//押し戻す。
-				arg_rayPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
-
-				break;
-
-			case Player::RAY_ID::CLIFF:
-
-				//外部に渡す用のデータを保存。
-				arg_isHitWall = true;
+			//外部に渡す用のデータを保存
+			if (!arg_isHitWall) {/*
 				arg_hitResult.m_interPos = output.m_pos;
-				arg_hitResult.m_terrianNormal = output.m_normal;
+				arg_hitResult.m_terrianNormal = output.m_normal;*/
+			}
+			arg_hitResult.m_interPos = output.m_pos;
+			arg_hitResult.m_bottmRayTerrianNormal = output.m_normal;
+			arg_onGround = true;
+			//arg_isHitWall = true;
 
-				//レイの衝突地点から法線方向に伸ばした位置に移動させる。 /2しているのはレイの長さをあらかじめ二倍にしているから。
-				arg_rayPos = output.m_pos + output.m_normal * (arg_rayLength / 2.0f - OFFSET);
+			//押し戻す。
+			arg_rayPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
 
-				break;
+			break;
 
-			case Player::RAY_ID::AROUND:
+		case Player::RAY_ID::CLIFF:
 
-				//外部に渡す用のデータを保存。
-				arg_isHitWall = true;
-				arg_hitResult.m_interPos = output.m_pos;
-				arg_hitResult.m_terrianNormal = output.m_normal;
+			//外部に渡す用のデータを保存。
+			arg_isHitWall = true;
+			arg_hitResult.m_interPos = output.m_pos;
+			arg_hitResult.m_terrianNormal = output.m_normal;
 
-				//レイの衝突地点から法線方向に伸ばした位置に移動させる。
-				arg_rayPos = output.m_pos + output.m_normal * (arg_rayLength - OFFSET);
+			//レイの衝突地点から法線方向に伸ばした位置に移動させる。 /2しているのはレイの長さをあらかじめ二倍にしているから。
+			arg_rayPos = output.m_pos + output.m_normal * (arg_rayLength / 2.0f - OFFSET);
 
-				break;
-			default:
-				break;
+			break;
+
+		case Player::RAY_ID::AROUND:
+
+			//外部に渡す用のデータを保存。
+			arg_isHitWall = true;
+			arg_hitResult.m_interPos = output.m_pos;
+			arg_hitResult.m_terrianNormal = output.m_normal;
+
+			//レイの衝突地点から法線方向に伸ばした位置に移動させる。
+			arg_rayPos = output.m_pos + output.m_normal * (arg_rayLength - OFFSET);
+
+			break;
+		default:
+			break;
 		}
 	}
 }

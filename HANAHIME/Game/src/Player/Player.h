@@ -37,6 +37,9 @@ class Player : public KuroEngine::Debugger
 	//カメラ感度
 	float m_camSensitivity = 1.0f;
 
+	//プレイヤーY軸回転量
+	float m_rotY;
+
 	//移動ベクトルのスカラー
 	float m_moveScalar = 0.5f;
 
@@ -51,6 +54,7 @@ class Player : public KuroEngine::Debugger
 	{
 		KuroEngine::Vec3<float>m_interPos;
 		KuroEngine::Vec3<float>m_terrianNormal;
+		KuroEngine::Vec3<float>m_bottmRayTerrianNormal;
 	};
 	bool HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, const std::vector<Terrian>& arg_terrianArray, HitCheckResult* arg_hitInfo = nullptr);
 

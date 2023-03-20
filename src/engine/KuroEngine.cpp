@@ -952,14 +952,22 @@ KuroEngine::Vec4<float> KuroEngine::Math::GetSpline(const int& Timer, const int&
      auto a = VecA.GetNormal();
      auto b = VecB.GetNormal();
      auto normal = a.Cross(b).GetNormal();
+     auto dot = a.Dot(b);
      float angle = acosf(a.Dot(b));
-     if (normal.x <= FLT_EPSILON && normal.y <= FLT_EPSILON && normal.z <= FLT_EPSILON)
+     if (std::isnan(angle)) {
+         return XMQuaternionIdentity();
+     }
+     if (normal.Length() <= 0.1f) {
+         return XMQuaternionIdentity();
+     }
+     if (fabs(normal.x) <= FLT_EPSILON && fabs(normal.y) <= FLT_EPSILON && fabs(normal.z) <= FLT_EPSILON)
      {
          normal = { 0,0,1 };
          if (normal == VecA || normal == VecB)normal = { 0,1,0 };
          angle = Angle::PI();
      }
      auto q = XMQuaternionRotationAxis(XMVectorSet(normal.x, normal.y, normal.z, 1.0f), angle);
+     auto aa = XMMatrixRotationQuaternion(q);
      return XMQuaternionNormalize(q);
 }
 KuroEngine::Vec2<float> KuroEngine::Math::RotateVec2(const Vec2<float>& Vec, const float& Radian)
