@@ -1578,7 +1578,7 @@ void KuroEngine::D3D12App::SetBackBufferRenderTarget()
 	m_commandList->OMSetRenderTargets(static_cast<UINT>(BACK_BUFF_HANDLE.size()), &BACK_BUFF_HANDLE[0], FALSE, nullptr);
 }
 
-void KuroEngine::D3D12App::DispathOneShot(std::weak_ptr<ComputePipeline>Pipeline, Vec3<int> ThreadNum, std::vector<RegisterDescriptorData>& DescDatas)
+void KuroEngine::D3D12App::DispathOneShot(std::weak_ptr<ComputePipeline>Pipeline, Vec3<int> ThreadNum, std::vector<RegisterDescriptorData> DescDatas)
 {
 	Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>cmdList;
 	auto hr = m_device->CreateCommandList(

@@ -199,6 +199,6 @@ namespace KuroEngine
 		void SetBackBufferRenderTarget();
 
 		//ワンショットコマンドアロケーターを利用してコンピュートパイプラインを直ちに実行
-		void DispathOneShot(std::weak_ptr<ComputePipeline>Pipeline, Vec3<int>ThreadNum, std::vector<RegisterDescriptorData>& DescDatas);
+		void DispathOneShot(std::weak_ptr<ComputePipeline>Pipeline, Vec3<int>ThreadNum, std::vector<RegisterDescriptorData> DescDatas);
 	};
 }
