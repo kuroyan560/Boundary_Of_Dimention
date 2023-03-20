@@ -3,6 +3,8 @@
 #include"ForUser/DebugCamera.h"
 #include"Player/Player.h"
 #include"Render/RenderObject/LightManager.h"
+#include"Graphics/CanvasPostEffect.h"
+#include"ForUser/PostEffect/Vignette.h"
 
 class GameScene : public KuroEngine::BaseScene
 {
@@ -16,6 +18,12 @@ class GameScene : public KuroEngine::BaseScene
 	KuroEngine::LightManager m_ligMgr;
 	//ディレクションライト
 	KuroEngine::Light::Direction m_dirLig;
+
+	//ヴィネットポストエフェクト
+	KuroEngine::Vignette m_vignettePostEffect;
+
+	//キャンバスに描いた風にするポストエフェクト（Gris的な）
+	CanvasPostEffect m_canvasPostEffect;
 
 	void OnInitialize()override;
 	void OnUpdate()override;

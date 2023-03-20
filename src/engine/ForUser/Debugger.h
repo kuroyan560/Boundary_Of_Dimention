@@ -151,6 +151,11 @@ namespace KuroEngine
 		virtual void OnImguiItems() {};
 
 		/// <summary>
+		/// カスタムパラメータを読み込んだあとに呼び出す処理
+		/// </summary>
+		virtual void OnLoadCustomParams() {};
+
+		/// <summary>
 		/// カスタムパラメータの追加
 		/// </summary>
 		/// <param name="arg_label">カスタムパラメータの名前</param>

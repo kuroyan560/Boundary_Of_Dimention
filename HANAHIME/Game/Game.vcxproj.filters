@@ -301,6 +301,9 @@
     <ClCompile Include="src\Stage\Grass.cpp">
       <Filter>src\user\Stage</Filter>
     </ClCompile>
+    <ClCompile Include="src\Graphics\CanvasPostEffect.cpp">
+      <Filter>src\user\Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -587,6 +590,9 @@
     </ClInclude>
     <ClInclude Include="src\Stage\Grass.h">
       <Filter>src\user\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\CanvasPostEffect.h">
+      <Filter>src\user\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

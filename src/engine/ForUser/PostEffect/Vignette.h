@@ -29,6 +29,7 @@ namespace KuroEngine
 		Info m_vignetteInfo;
 
 		void OnImguiItems()override;
+		void OnLoadCustomParams()override;
 
 	public:
 		Vignette();

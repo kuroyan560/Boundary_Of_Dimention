@@ -28,6 +28,7 @@ void GameScene::OnInitialize()
 	m_player.GetCameraControllerDebugger(),
 	StageManager::Instance(),
 	BasicDraw::Instance(),
+	&m_vignettePostEffect,
 	});
 
 	m_debugCam.Init({ 0,5,-10 });
@@ -59,6 +60,12 @@ void GameScene::OnDraw()
 	using namespace KuroEngine;
 	static auto targetSize = D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize();
 	static auto ds = D3D12App::Instance()->GenerateDepthStencil(targetSize);
+
+	static auto main = D3D12App::Instance()->GenerateRenderTarget(
+		D3D12App::Instance()->GetBackBuffFormat(),
+		Color(0.0f, 0.0f, 0.0f, 0.0f),
+		targetSize,
+		L"MainRenderTarget");
 	static auto emissiveMap = D3D12App::Instance()->GenerateRenderTarget(
 		DXGI_FORMAT_R32G32B32A32_FLOAT,
 		Color(0.0f, 0.0f, 0.0f, 1.0f),
@@ -79,7 +86,7 @@ void GameScene::OnDraw()
 
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(
 		{ 
-			D3D12App::Instance()->GetBackBuffRenderTarget(),
+			main,
 			emissiveMap,
 			depthMap,
 			edgeColMap
@@ -108,7 +115,18 @@ void GameScene::OnDraw()
 
 	m_player.Draw(*nowCamera, m_ligMgr, DebugController::Instance()->IsActive());
 
+	m_canvasPostEffect.Execute();
+
 	BasicDraw::Instance()->DrawEdge(depthMap, edgeColMap);
+
+	m_vignettePostEffect.Register(main);
+
+	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(
+		{
+			D3D12App::Instance()->GetBackBuffRenderTarget(),
+		});
+
+	m_vignettePostEffect.DrawResult(AlphaBlendMode_None);
 }
 
 void GameScene::OnImguiDebug()

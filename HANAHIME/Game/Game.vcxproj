@@ -178,6 +178,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\DebugController.cpp" />
     <ClCompile Include="src\Graphics\BasicDraw.cpp" />
     <ClCompile Include="src\Graphics\BasicDrawParameters.cpp" />
+    <ClCompile Include="src\Graphics\CanvasPostEffect.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\GameScene.cpp" />
     <ClCompile Include="src\OperationConfig.cpp" />
@@ -277,6 +278,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\GameScene.h" />
     <ClInclude Include="src\Graphics\BasicDraw.h" />
     <ClInclude Include="src\Graphics\BasicDrawParameters.h" />
+    <ClInclude Include="src\Graphics\CanvasPostEffect.h" />
     <ClInclude Include="src\OperationConfig.h" />
     <ClInclude Include="src\Player\CameraController.h" />
     <ClInclude Include="src\Player\Player.h" />

@@ -204,6 +204,8 @@ void KuroEngine::Debugger::LoadParameterLog()
 			break;
 		}
 	}
+
+	OnLoadCustomParams();
 }
 
 void KuroEngine::Debugger::WriteParameterLog()
