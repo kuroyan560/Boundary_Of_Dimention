@@ -155,20 +155,25 @@ Player::Player()
 	AddCustomParameter("MoveScalar", { "moveScalar" }, PARAM_TYPE::FLOAT, &m_moveScalar, "Player");
 	AddCustomParameter("Sensitivity", { "camera", "sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity, "Camera");
 
-	m_rotY = 0;
+	m_cameraRotY = 0;
+	m_cameraQ = DirectX::XMQuaternionIdentity();
 }
 
 void Player::Init(KuroEngine::Transform arg_initTransform)
 {
 	m_transform = arg_initTransform;
 	m_camController.Init();
-	m_rotY = 0;
+	m_cameraRotY = 0;
+	m_cameraQ = DirectX::XMQuaternionIdentity();
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
 
 	using namespace KuroEngine;
+
+	//プレイヤーの回転をカメラ基準にする。(移動方向の基準がカメラの角度なため)
+	m_transform.SetRotate(m_cameraQ);
 
 	auto beforePos = m_transform.GetPos();
 	auto newPos = beforePos;
@@ -180,7 +185,13 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
 
-	m_rotY += scopeMove.x;
+	//カメラの回転を保存。
+	m_cameraRotY += scopeMove.x;
+
+	//プレイヤーの回転を保存。入力があったときは。
+	if (0 < moveVec.Length()) {
+		m_playerRotY = atan2f(moveVec.x, moveVec.z);
+	}
 
 	//移動量加算
 	newPos += moveVec * m_moveScalar;
@@ -201,11 +212,16 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 		//法線方向を見るクォータニオン
 		auto spin = Math::GetLookAtQuaternion({0,1,0}, hitResult.m_terrianNormal);
+		auto spinMat = DirectX::XMMatrixRotationQuaternion(spin);
 
-		//Y軸回転させるクォータニオン
-		auto ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_rotY);
+		//カメラ目線でY軸回転させるクォータニオン
+		auto ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_cameraRotY);
 
-		m_transform.SetRotate(DirectX::XMQuaternionMultiply(spin, ySpin));
+		//プレイヤーの移動方向でY軸回転させるクォータニオン
+		auto playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
+
+		m_cameraQ = DirectX::XMQuaternionMultiply(spin, ySpin);
+		m_transform.SetRotate(DirectX::XMQuaternionMultiply(spin, playerYSpin));
 		//m_transform.SetUp(hitResult.m_terrianNormal);
 	}
 
