@@ -180,6 +180,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
 
+	m_rotY += scopeMove.x;
+
 	//移動量加算
 	newPos += moveVec * m_moveScalar;
 
@@ -197,9 +199,13 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 		//m_transform.SetUpBySpin(hitResult.m_terrianNormal);
 
+		//法線方向を見るクォータニオン
 		auto spin = Math::GetLookAtQuaternion({0,1,0}, hitResult.m_terrianNormal);
 
-		m_transform.SetRotate(spin);
+		//Y軸回転させるクォータニオン
+		auto ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_rotY);
+
+		m_transform.SetRotate(DirectX::XMQuaternionMultiply(spin, ySpin));
 		//m_transform.SetUp(hitResult.m_terrianNormal);
 	}
 
