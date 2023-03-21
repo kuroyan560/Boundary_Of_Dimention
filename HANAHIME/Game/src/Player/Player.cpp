@@ -110,16 +110,16 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			if (!m_onGround && m_prevOnGround) {
 
 				//前に進んで崖に落ちた場合。
-				CastRay(arg_newPos, arg_newPos - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetFront(), m_transform.GetScale().x, castRayArgument, RAY_ID::CLIFF);
+				CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetFront(), m_transform.GetScale().x, castRayArgument, RAY_ID::CLIFF);
 
 				//後ろに進んで崖に落ちた場合。
-				CastRay(arg_newPos, arg_newPos - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetFront(), m_transform.GetScale().x, castRayArgument, RAY_ID::CLIFF);
+				CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetFront(), m_transform.GetScale().x,  castRayArgument, RAY_ID::CLIFF);
 
 				//右に進んで崖に落ちた場合。
-				CastRay(arg_newPos, arg_newPos - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetRight(), m_transform.GetScale().z, castRayArgument, RAY_ID::CLIFF);
+				CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetRight(), m_transform.GetScale().z,  castRayArgument, RAY_ID::CLIFF);
 
 				//左に進んで崖に落ちた場合。
-				CastRay(arg_newPos, arg_newPos - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetRight(), m_transform.GetScale().z, castRayArgument, RAY_ID::CLIFF);
+				CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetRight(), m_transform.GetScale().z,  castRayArgument, RAY_ID::CLIFF);
 
 			}
 
@@ -205,7 +205,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//地面に張り付ける用の重力。
 	if (!m_onGround) {
-		newPos -= m_transform.GetUp() * (m_transform.GetScale().y / 2.0f);
+		newPos.y -= (m_transform.GetScale().y / 2.0f);
 	}
 
 	//当たり判定
@@ -522,7 +522,6 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 			arg_collisionData.m_hitResult.m_interPos = output.m_pos;
 			arg_collisionData.m_hitResult.m_bottmRayTerrianNormal = output.m_normal;
 			arg_collisionData.m_onGround = true;
-			//arg_isHitWall = true;
 
 			//押し戻す。
 			arg_charaPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
