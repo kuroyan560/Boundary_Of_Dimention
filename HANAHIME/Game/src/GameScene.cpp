@@ -36,6 +36,8 @@ void GameScene::OnInitialize()
 	KuroEngine::Transform playerInitTransform;
 	playerInitTransform.SetPos({ 0,1.0f,-15 });
 	m_player.Init(playerInitTransform);
+
+	m_grass.Init();
 }
 
 void GameScene::OnUpdate()
@@ -53,6 +55,8 @@ void GameScene::OnUpdate()
 	if (DebugController::Instance()->IsActive())m_debugCam.Move();
 
 	m_player.Update(StageManager::Instance()->GetNowStage());
+
+	m_grass.Update(1.0f, m_player.GetTransform().GetPos(), m_player.GetTransform().GetRotate());
 }
 
 void GameScene::OnDraw()
@@ -114,6 +118,8 @@ void GameScene::OnDraw()
 		*nowCamera);
 
 	m_player.Draw(*nowCamera, m_ligMgr, DebugController::Instance()->IsActive());
+
+	m_grass.Draw(*nowCamera, m_ligMgr);
 
 	m_canvasPostEffect.Execute();
 

@@ -81,6 +81,8 @@ public:
 	//カメラコントローラーのデバッガポインタ取得
 	KuroEngine::Debugger* GetCameraControllerDebugger() { return &m_camController; }
 
+	KuroEngine::Transform& GetTransform() { return m_transform; }
+
 
 private:
 	//レイとメッシュの当たり判定出力用構造体

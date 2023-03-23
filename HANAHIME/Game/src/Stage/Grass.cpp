@@ -1,9 +1,14 @@
 #include "Grass.h"
 #include"DirectX12/D3D12App.h"
+#include"FrameWork/Importer.h"
+#include"../Graphics/BasicDraw.h"
 
 Grass::Grass()
 {
 	using namespace KuroEngine;
+
+	//仮置きの草ブロックモデル
+	m_grassBlockModel = Importer::Instance()->LoadModel("resource/user/model/", "GrassBlock.gltf");
 
 	//コンピュートシェーダーのルートパラメータ
 	const std::vector<RootParam>rootParam =
@@ -36,7 +41,7 @@ Grass::Grass()
 	int maxVertexNum = 1000;
 	m_uavDataArray.resize(maxVertexNum);
 	//頂点バッファ生成
-	D3D12App::Instance()->GenerateVertexBuffer(
+	m_uavDataBuffer = D3D12App::Instance()->GenerateVertexBuffer(
 		sizeof(UAVdata),
 		maxVertexNum,
 		m_uavDataArray.data(),
@@ -56,9 +61,15 @@ void Grass::Init()
 			{m_constBuffer,CBV},
 			{m_uavDataBuffer->GetRWStructuredBuff().lock(),UAV},
 		});
+
+	//ワールド行列配列初期化
+	m_grassWorldMatArray.clear();
+
+	m_oldPlayerPos = { -1000,-1000,-1000 };
+	m_plantTimer.Reset(0);
 }
 
-void Grass::Update(float arg_timeScale)
+void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_playerPos, const KuroEngine::Quaternion arg_playerRotate)
 {
 	using namespace KuroEngine;
 
@@ -77,8 +88,37 @@ void Grass::Update(float arg_timeScale)
 			{m_constBuffer,CBV},
 			{m_uavDataBuffer->GetRWStructuredBuff().lock(),UAV},
 		});
+
+	//プレイヤーが移動した
+	if (!((arg_playerPos - m_oldPlayerPos).Length() < FLT_MIN))
+	{
+		if (m_plantTimer.IsTimeUp())
+		{
+			Transform grassTransform;
+			grassTransform.SetPos(arg_playerPos);
+			grassTransform.SetRotate(arg_playerRotate);
+			grassTransform.SetScale({ 1.0f,1.0f,1.0f });
+			Plant(grassTransform.GetMatWorld());
+			m_plantTimer.Reset(3);
+		}
+		m_plantTimer.UpdateTimer();
+	}
+
+	m_oldPlayerPos = arg_playerPos;
 }
 
-void Grass::Draw()
+void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
+	BasicDraw::Instance()->InstancingDraw(
+		arg_cam,
+		arg_ligMgr,
+		m_grassBlockModel,
+		m_grassWorldMatArray,
+		false,
+		KuroEngine::AlphaBlendMode_Trans);
+}
+
+void Grass::Plant(KuroEngine::Matrix arg_worldMat)
+{
+	m_grassWorldMatArray.push_back(arg_worldMat);
 }

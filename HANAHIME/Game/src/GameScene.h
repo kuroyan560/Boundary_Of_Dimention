@@ -5,6 +5,7 @@
 #include"Render/RenderObject/LightManager.h"
 #include"Graphics/CanvasPostEffect.h"
 #include"ForUser/PostEffect/Vignette.h"
+#include"Stage/Grass.h"
 
 class GameScene : public KuroEngine::BaseScene
 {
@@ -24,6 +25,8 @@ class GameScene : public KuroEngine::BaseScene
 
 	//キャンバスに描いた風にするポストエフェクト（Gris的な）
 	CanvasPostEffect m_canvasPostEffect;
+
+	Grass m_grass;
 
 	void OnInitialize()override;
 	void OnUpdate()override;

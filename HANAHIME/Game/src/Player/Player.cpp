@@ -252,10 +252,10 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		m_model,
 		m_transform);
 
-	KuroEngine::DrawFunc3D::DrawNonShadingModel(
+	/*KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_axisModel,
 		m_transform,
-		arg_cam);
+		arg_cam);*/
 
 	if (arg_cameraDraw)
 	{

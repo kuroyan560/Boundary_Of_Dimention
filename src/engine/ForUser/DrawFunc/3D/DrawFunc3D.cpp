@@ -182,6 +182,7 @@ void KuroEngine::DrawFunc3D::DrawNonShadingModel(const std::weak_ptr<Model> arg_
 void KuroEngine::DrawFunc3D::DrawNonShadingModel(const std::weak_ptr<Model> arg_model, const std::vector<Matrix>& arg_matArray, Camera& arg_cam, const AlphaBlendMode& arg_blendMode, const float& arg_depth, std::shared_ptr<ModelAnimator> arg_animator)
 {
 	if (INSTANCE_MAX < arg_matArray.size())assert(0);
+	if (arg_matArray.empty())return;
 
 	static std::map<DXGI_FORMAT, std::array<std::shared_ptr<GraphicsPipeline>, AlphaBlendModeNum>>PIPELINE;
 	static std::vector<std::shared_ptr<ConstantBuffer>>TRANSFORM_BUFF;

@@ -46,13 +46,30 @@ class BasicDraw : public KuroEngine::DesignPattern::Singleton<BasicDraw>, public
 	};
 	EdgeCommonParameter m_edgeShaderParam;
 
+	//モデル通常描画カウント
 	int m_drawCount = 0;
+	//モデルインスタンシング描画カウント
+	int m_drawCountHuge = 0;
+	//使用するトゥーン情報のカウント
+	int m_individualParamCount = 0;
+
+	//共通のトゥーンシェーダー用情報
+	std::shared_ptr<KuroEngine::ConstantBuffer>m_toonCommonParamBuff;
+	//描画毎のトゥーン描画情報
+	std::vector<std::shared_ptr<KuroEngine::ConstantBuffer>>m_toonIndividualParamBuff;
 
 	//モデル描画
-	std::shared_ptr<KuroEngine::GraphicsPipeline>m_drawPipeline;
+	std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>m_drawPipeline;
 	std::vector<std::shared_ptr<KuroEngine::ConstantBuffer>>m_drawTransformBuff;
-	std::vector<std::shared_ptr<KuroEngine::ConstantBuffer>>m_toonIndividualParamBuff;
-	std::shared_ptr<KuroEngine::ConstantBuffer>m_toonCommonParamBuff;
+
+	//インスタンシグ描画で一度に描画できるインスタンス最大数
+	static const int s_instanceMax = 1024;
+	//インスタンシング描画でデプスステンシルに深度を描画するかのタブ
+	enum INSTANCING_DRAW_MODE { WRITE_DEPTH, NOT_WRITE_DEPTH };
+	//モデル描画（インスタンシング描画）
+	std::array<std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>, 2>m_instancingDrawPipeline;
+	std::vector<std::shared_ptr<KuroEngine::ConstantBuffer>>m_drawTransformBuffHuge;
+
 
 	//エッジ出力＆描画
 	std::shared_ptr<KuroEngine::GraphicsPipeline>m_edgePipeline;
@@ -63,7 +80,12 @@ class BasicDraw : public KuroEngine::DesignPattern::Singleton<BasicDraw>, public
 
 public:
 	void Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuffNum = 100);
-	void CountReset() { m_drawCount = 0; }
+	void CountReset() 
+	{
+		m_drawCount = 0;
+		m_drawCountHuge = 0;
+		m_individualParamCount = 0;
+	}
 
 	/// <summary>
 	/// 描画
@@ -79,6 +101,7 @@ public:
 		std::weak_ptr<KuroEngine::Model>arg_model,
 		KuroEngine::Transform& arg_transform, 
 		const IndividualDrawParameter& arg_toonParam, 
+		const KuroEngine::AlphaBlendMode& arg_blendMode = KuroEngine::AlphaBlendMode_None,
 		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr);
 
 	//描画（デフォルトのトゥーンパラメータを使用）
@@ -86,16 +109,42 @@ public:
 		KuroEngine::LightManager& arg_ligMgr, 
 		std::weak_ptr<KuroEngine::Model>arg_model, 
 		KuroEngine::Transform& arg_transform, 
+		const KuroEngine::AlphaBlendMode& arg_blendMode = KuroEngine::AlphaBlendMode_None,
 		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr);
-	//描画（モデルオブジェクト、トゥーンパラメータ指定）
-	void Draw(KuroEngine::Camera& arg_cam,
-		KuroEngine::LightManager& arg_ligMgr, 
-		const std::weak_ptr<KuroEngine::ModelObject>arg_modelObj,
-		const IndividualDrawParameter& arg_toonParam);
-	//描画（モデルオブジェクト、デフォルトのトゥーンパラメータを使用）
-	void Draw(KuroEngine::Camera& arg_cam,
+
+	//モデルオブジェクト描画
+	void BasicDraw::Draw(KuroEngine::Camera& arg_cam,
 		KuroEngine::LightManager& arg_ligMgr,
-		const std::weak_ptr<KuroEngine::ModelObject>arg_modelObj);
+		const std::weak_ptr<KuroEngine::ModelObject> arg_modelObj,
+		const IndividualDrawParameter& arg_toonParam,
+		const KuroEngine::AlphaBlendMode& arg_blendMode = KuroEngine::AlphaBlendMode_None);
+
+	//モデルオブジェクト描画（デフォルトのトゥーンパラメータを使用）
+	void BasicDraw::Draw(KuroEngine::Camera& arg_cam,
+		KuroEngine::LightManager& arg_ligMgr,
+		const std::weak_ptr<KuroEngine::ModelObject> arg_modelObj,
+		const KuroEngine::AlphaBlendMode& arg_blendMode = KuroEngine::AlphaBlendMode_None);
+
+	//インスタンシング描画
+	void InstancingDraw(KuroEngine::Camera& arg_cam,
+		KuroEngine::LightManager& arg_ligMgr,
+		std::weak_ptr<KuroEngine::Model>arg_model,
+		std::vector<KuroEngine::Matrix>& arg_matArray,
+		const IndividualDrawParameter& arg_toonParam,
+		bool arg_depthWriteMask,
+		const KuroEngine::AlphaBlendMode& arg_blendMode = KuroEngine::AlphaBlendMode_None, 
+		const float& arg_depth = 0.0f, 
+		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr);
+
+	//インスタンシング描画（デフォルトのトゥーンパラメータを使用）
+	void InstancingDraw(KuroEngine::Camera& arg_cam,
+		KuroEngine::LightManager& arg_ligMgr,
+		std::weak_ptr<KuroEngine::Model>arg_model,
+		std::vector<KuroEngine::Matrix>& arg_matArray,
+		bool arg_depthWriteMask,
+		const KuroEngine::AlphaBlendMode& arg_blendMode = KuroEngine::AlphaBlendMode_None,
+		const float& arg_depth = 0.0f,
+		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr);
 
 	/// <summary>
 	/// エッジ描画
