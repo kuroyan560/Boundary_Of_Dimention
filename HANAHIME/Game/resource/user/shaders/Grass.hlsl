@@ -13,6 +13,8 @@ struct VSOutput
 //ジオメトリシェーダーを通したデータ
 struct GSOutput
 {
+    float4 position : SV_POSITION;
+    float3 normal : NORMAL;
 };
 
 //ピクセルシェーダーを通したデータ（レンダーターゲットに書き込むデータ）
@@ -51,12 +53,29 @@ VSOutput VSmain(VSOutput input)
     return input;
 }
 
-[maxvertexcount(1)]
+[maxvertexcount(4)]
 void GSmain(
 	point VSOutput input[1],
 	inout TriangleStream<GSOutput> output
 )
 {
+    GSOutput element;
+        
+    //左下
+    element.position = float4(input[0].position.xyz, 1.0f);
+    output.Append(element);
+    
+    //左上
+    element.position = float4(input[0].position.xyz, 1.0f);
+    output.Append(element);
+    
+     //右下
+    element.position = float4(input[0].position.xyz, 1.0f);
+    output.Append(element);
+    
+    //右上
+    element.position = float4(input[0].position.xyz, 1.0f);
+    output.Append(element);
 }
 
 PSOutput PSmain(GSOutput input)
