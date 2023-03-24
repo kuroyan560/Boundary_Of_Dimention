@@ -149,6 +149,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="..\..\src\engine\ForUser\Object\Sprite.cpp" />
     <ClCompile Include="..\..\src\engine\ForUser\Object\Sprite_Shadow.cpp" />
     <ClCompile Include="..\..\src\engine\ForUser\PostEffect\CRTColorNoise.cpp" />
+    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\DOF.cpp" />
     <ClCompile Include="..\..\src\engine\ForUser\PostEffect\GaussianBlur.cpp" />
     <ClCompile Include="..\..\src\engine\ForUser\PostEffect\RadialBlur.cpp" />
     <ClCompile Include="..\..\src\engine\ForUser\PostEffect\ScanLine.cpp" />
@@ -163,7 +164,6 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="..\..\src\engine\KuroEngineDevice.cpp" />
     <ClCompile Include="..\..\src\engine\KuroEngine.cpp" />
     <ClCompile Include="..\..\src\engine\Render\CubeMap.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\DOF.cpp" />
     <ClCompile Include="..\..\src\engine\Render\GraphicsManager.cpp" />
     <ClCompile Include="..\..\src\engine\Render\LightBloomDevice.cpp" />
     <ClCompile Include="..\..\src\engine\Render\RenderObject\Camera.cpp" />
@@ -179,6 +179,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Graphics\BasicDraw.cpp" />
     <ClCompile Include="src\Graphics\BasicDrawParameters.cpp" />
     <ClCompile Include="src\Graphics\CanvasPostEffect.cpp" />
+    <ClCompile Include="src\Graphics\WaterPaintBlend.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\GameScene.cpp" />
     <ClCompile Include="src\OperationConfig.cpp" />
@@ -243,6 +244,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="..\..\src\engine\ForUser\Object\Sprite.h" />
     <ClInclude Include="..\..\src\engine\ForUser\Object\Sprite_Shadow.h" />
     <ClInclude Include="..\..\src\engine\ForUser\PostEffect\CRTColorNoise.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\DOF.h" />
     <ClInclude Include="..\..\src\engine\ForUser\PostEffect\GaussianBlur.h" />
     <ClInclude Include="..\..\src\engine\ForUser\PostEffect\RadialBlur.h" />
     <ClInclude Include="..\..\src\engine\ForUser\PostEffect\ScanLine.h" />
@@ -260,7 +262,6 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h" />
     <ClInclude Include="..\..\src\engine\KuroEngine.h" />
     <ClInclude Include="..\..\src\engine\Render\CubeMap.h" />
-    <ClInclude Include="..\..\src\engine\Render\DOF.h" />
     <ClInclude Include="..\..\src\engine\Render\GraphicsManager.h" />
     <ClInclude Include="..\..\src\engine\Render\LightBloomDevice.h" />
     <ClInclude Include="..\..\src\engine\Render\RenderObject\Animation.h" />
@@ -279,6 +280,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Graphics\BasicDraw.h" />
     <ClInclude Include="src\Graphics\BasicDrawParameters.h" />
     <ClInclude Include="src\Graphics\CanvasPostEffect.h" />
+    <ClInclude Include="src\Graphics\WaterPaintBlend.h" />
     <ClInclude Include="src\OperationConfig.h" />
     <ClInclude Include="src\Player\CameraController.h" />
     <ClInclude Include="src\Player\Player.h" />

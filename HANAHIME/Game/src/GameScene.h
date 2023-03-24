@@ -6,6 +6,7 @@
 #include"Graphics/CanvasPostEffect.h"
 #include"ForUser/PostEffect/Vignette.h"
 #include"Stage/Grass.h"
+#include"ForUser/PostEffect/DOF.h"
 
 class GameScene : public KuroEngine::BaseScene
 {
@@ -25,6 +26,9 @@ class GameScene : public KuroEngine::BaseScene
 
 	//キャンバスに描いた風にするポストエフェクト（Gris的な）
 	CanvasPostEffect m_canvasPostEffect;
+
+	//被写界深度ポストエフェクト
+	KuroEngine::DOF m_dof;
 
 	Grass m_grass;
 

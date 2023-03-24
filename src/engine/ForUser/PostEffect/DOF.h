@@ -1,5 +1,6 @@
 #pragma once
 #include<memory>
+#include"ForUser/Debugger.h"
 
 namespace KuroEngine
 {
@@ -20,7 +21,7 @@ namespace KuroEngine
 		float m_pintLength = 20.0f;
 	};
 
-	class DOF
+	class DOF : public Debugger
 	{
 	private:
 		static std::shared_ptr<ComputePipeline>s_pipeline;
@@ -37,9 +38,25 @@ namespace KuroEngine
 		//深度マップをもとに生成した透過ボケ画像の格納先
 		std::shared_ptr<TextureBuffer>m_processedTex;
 
+		//ブラー強さ
+		float m_blurPower = 8.0f;
+
+		void OnImguiItems()override;
+
 	public:
 		DOF();
-		void SetPintConfig(float FrontPint = 0.0f, float BackPint = 10.0f, float PintLength = 20.0f);
-		void Draw(std::weak_ptr<RenderTarget>Src, std::weak_ptr<RenderTarget>DepthMap);
+		void SetPintConfig(float NearPint = 0.0f, float FarPint = 10.0f, float PintLength = 20.0f);
+
+		//グラフィックスマネージャに登録
+		void Register(std::weak_ptr<RenderTarget>Src, std::weak_ptr<RenderTarget>DepthMap);
+
+		//結果のテクスチャ取得
+		std::shared_ptr<TextureBuffer>& GetResultTex() { return m_processedTex; }
+
+		//結果の描画
+		void Draw();
+
+		//ボケ具合設定
+		void SetBlurPower(float arg_blurPower);
 	};
 }

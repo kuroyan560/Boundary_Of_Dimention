@@ -10,6 +10,7 @@ void KuroEngine::DOF::GeneratePipeline()
 	std::vector<RootParam>rootParam =
 	{
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"DOF設定"),
+		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"元のテクスチャ"),
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"ブラーをかけたテクスチャ"),
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"深度マップ"),
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"描き込み先バッファ")
@@ -19,7 +20,16 @@ void KuroEngine::DOF::GeneratePipeline()
 	s_pipeline = D3D12App::Instance()->GenerateComputePipeline(cs, rootParam, { WrappedSampler(false, true) });
 }
 
-KuroEngine::DOF::DOF()
+void KuroEngine::DOF::OnImguiItems()
+{
+	if (CustomParamDirty())
+	{
+		m_configBuff->Mapping(&m_config);
+		m_gaussianBlur->SetBlurPower(m_blurPower);
+	}
+}
+
+KuroEngine::DOF::DOF() : Debugger("DOF")
 {
 	//パイプライン未生成なら生成
 	if (!s_pipeline)GeneratePipeline();
@@ -34,21 +44,26 @@ KuroEngine::DOF::DOF()
 	m_configBuff = D3D12App::Instance()->GenerateConstantBuffer(sizeof(DOFConfig), 1, &m_config, "DOF - Config - ConstantBuffer");
 
 	//ガウシアンブラー生成
-	m_gaussianBlur = std::make_shared<GaussianBlur>(winSize.Int(), backBuffFormat);
+	m_gaussianBlur = std::make_shared<GaussianBlur>(winSize.Int(), backBuffFormat, m_blurPower);
 
 	//深度マップをもとに生成した透過ボケ画像の格納先
 	m_processedTex = D3D12App::Instance()->GenerateTextureBuffer(winSize.Int(), backBuffFormat, "DOF - ProcessedTex");
+
+	AddCustomParameter("nearPint", { "Config","nearPint" }, PARAM_TYPE::FLOAT, &m_config.m_nearPint, "Config");
+	AddCustomParameter("farPint", { "Config","farPint" }, PARAM_TYPE::FLOAT, &m_config.m_farPint, "Config");
+	AddCustomParameter("pintLength", { "Config","pintLength" }, PARAM_TYPE::FLOAT, &m_config.m_pintLength, "Config");
+	AddCustomParameter("power", { "Config","Blur" }, PARAM_TYPE::FLOAT, &m_blurPower, "Blur");
 }
 
-void KuroEngine::DOF::SetPintConfig(float FrontPint, float BackPint, float PintLength)
+void KuroEngine::DOF::SetPintConfig(float NearPint, float FarPint, float PintLength)
 {
-	m_config.m_nearPint = FrontPint;
-	m_config.m_farPint = BackPint;
+	m_config.m_nearPint = NearPint;
+	m_config.m_farPint = FarPint;
 	m_config.m_pintLength = PintLength;
 	m_configBuff->Mapping(&m_config);
 }
 
-void KuroEngine::DOF::Draw(std::weak_ptr<RenderTarget> Src, std::weak_ptr<RenderTarget> DepthMap)
+void KuroEngine::DOF::Register(std::weak_ptr<RenderTarget> Src, std::weak_ptr<RenderTarget> DepthMap)
 {
 	m_gaussianBlur->Register(Src.lock());
 
@@ -65,10 +80,20 @@ void KuroEngine::DOF::Draw(std::weak_ptr<RenderTarget> Src, std::weak_ptr<Render
 	KuroEngine::KuroEngineDevice::Instance()->Graphics().Dispatch(threadNum,
 		{
 			{m_configBuff,CBV},
+			{Src.lock(),SRV},
 			{m_gaussianBlur->GetResultTex(),SRV},
 			{DepthMap.lock(),SRV},
 			{m_processedTex,UAV}
 		});
+}
 
+void KuroEngine::DOF::Draw()
+{
 	KuroEngine::DrawFunc2D::DrawGraph({ 0,0 }, m_processedTex);
+}
+
+void KuroEngine::DOF::SetBlurPower(float arg_blurPower)
+{
+	m_blurPower = arg_blurPower;
+	m_gaussianBlur->SetBlurPower(m_blurPower);
 }

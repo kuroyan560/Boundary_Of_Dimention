@@ -161,7 +161,8 @@ namespace KuroEngine
 		DescHandlesContainer m_handles;	//ディスクリプタハンドル
 
 		//バッファセットのタイミングで呼ばれる関数、リソースバリアを変えるなど
-		virtual void OnSetDescriptorBuffer(const ComPtr<ID3D12GraphicsCommandList>& CmdList, const DESC_HANDLE_TYPE& Type) {};
+		virtual void OnSetGraphicsDescriptorBuffer(const ComPtr<ID3D12GraphicsCommandList>& CmdList, const DESC_HANDLE_TYPE& Type) {};
+		virtual void OnSetComputeDescriptorBuffer(const ComPtr<ID3D12GraphicsCommandList>& CmdList, const DESC_HANDLE_TYPE& Type) {};
 
 	public:
 		DescriptorData(const ComPtr<ID3D12Resource>& Buff, const D3D12_RESOURCE_STATES& Barrier) :m_resource(std::make_shared<GPUResource>(Buff, Barrier)) {}
@@ -242,7 +243,11 @@ namespace KuroEngine
 		const size_t m_dataSize;	//ユーザ定義データの１要素サイズ
 		const int m_elementNum = 0;	//要素数
 
-		void OnSetDescriptorBuffer(const ComPtr<ID3D12GraphicsCommandList>& CmdList, const DESC_HANDLE_TYPE& Type)override
+		void OnSetGraphicsDescriptorBuffer(const ComPtr<ID3D12GraphicsCommandList>& CmdList, const DESC_HANDLE_TYPE& Type)override
+		{
+			m_resource->ChangeBarrier(CmdList, D3D12_RESOURCE_STATE_GENERIC_READ);
+		}
+		void OnSetComputeDescriptorBuffer(const ComPtr<ID3D12GraphicsCommandList>& CmdList, const DESC_HANDLE_TYPE& Type)override
 		{
 			m_resource->ChangeBarrier(CmdList, D3D12_RESOURCE_STATE_GENERIC_READ);
 		}
@@ -274,7 +279,11 @@ namespace KuroEngine
 		const size_t m_dataSize;	//ユーザ定義データの１要素サイズ
 		const int m_elementNum = 0;	//要素数
 
-		void OnSetDescriptorBuffer(const ComPtr<ID3D12GraphicsCommandList>& CmdList, const DESC_HANDLE_TYPE& Type)override
+		void OnSetGraphicsDescriptorBuffer(const ComPtr<ID3D12GraphicsCommandList>& CmdList, const DESC_HANDLE_TYPE& Type)override
+		{
+			m_resource->ChangeBarrier(CmdList, D3D12_RESOURCE_STATE_GENERIC_READ);
+		}
+		void OnSetComputeDescriptorBuffer(const ComPtr<ID3D12GraphicsCommandList>& CmdList, const DESC_HANDLE_TYPE& Type)override
 		{
 			m_resource->ChangeBarrier(CmdList, D3D12_RESOURCE_STATE_GENERIC_READ);
 		}
@@ -305,7 +314,11 @@ namespace KuroEngine
 		const size_t m_dataSize;	//ユーザ定義データの１要素サイズ
 		const int m_elementNum = 0;	//要素数
 
-		void OnSetDescriptorBuffer(const ComPtr<ID3D12GraphicsCommandList>& CmdList, const DESC_HANDLE_TYPE& Type)override
+		void OnSetGraphicsDescriptorBuffer(const ComPtr<ID3D12GraphicsCommandList>& CmdList, const DESC_HANDLE_TYPE& Type)override
+		{
+			m_resource->ChangeBarrier(CmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+		}
+		void OnSetComputeDescriptorBuffer(const ComPtr<ID3D12GraphicsCommandList>& CmdList, const DESC_HANDLE_TYPE& Type)override
 		{
 			m_resource->ChangeBarrier(CmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 		}
@@ -341,11 +354,22 @@ namespace KuroEngine
 	protected:
 		CD3DX12_RESOURCE_DESC m_texDesc;	//テクスチャ情報（幅、高さなど）
 
-		void OnSetDescriptorBuffer(const ComPtr<ID3D12GraphicsCommandList>& CmdList, const DESC_HANDLE_TYPE& Type)override
+		void OnSetGraphicsDescriptorBuffer(const ComPtr<ID3D12GraphicsCommandList>& CmdList, const DESC_HANDLE_TYPE& Type)override
 		{
 			if (Type == SRV)
 			{
 				m_resource->ChangeBarrier(CmdList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+			}
+			else if (Type == UAV)
+			{
+				m_resource->ChangeBarrier(CmdList, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+			}
+		}
+		void OnSetComputeDescriptorBuffer(const ComPtr<ID3D12GraphicsCommandList>& CmdList, const DESC_HANDLE_TYPE& Type)override
+		{
+			if (Type == SRV)
+			{
+				m_resource->ChangeBarrier(CmdList, D3D12_RESOURCE_STATE_COMMON);
 			}
 			else if (Type == UAV)
 			{
@@ -394,9 +418,13 @@ namespace KuroEngine
 	private:
 		float m_clearValue[4] = { 0.0f };	//クリア値
 		//ピクセルシェーダーリソースとして使われる
-		void OnSetDescriptorBuffer(const ComPtr<ID3D12GraphicsCommandList>& CmdList, const DESC_HANDLE_TYPE& Type)override
+		void OnSetGraphicsDescriptorBuffer(const ComPtr<ID3D12GraphicsCommandList>& CmdList, const DESC_HANDLE_TYPE& Type)override
 		{
 			m_resource->ChangeBarrier(CmdList, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+		}
+		void OnSetComputeDescriptorBuffer(const ComPtr<ID3D12GraphicsCommandList>& CmdList, const DESC_HANDLE_TYPE& Type)override
+		{
+			m_resource->ChangeBarrier(CmdList, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
 		}
 	public:
 		RenderTarget(const ComPtr<ID3D12Resource1>& Buff,

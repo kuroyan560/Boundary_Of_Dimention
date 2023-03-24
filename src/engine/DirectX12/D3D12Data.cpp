@@ -65,7 +65,7 @@ void KuroEngine::DescriptorData::SetGraphicsDescriptorBuffer(const ComPtr<ID3D12
 	{
 		m_resource->ChangeBarrier(CmdList, *Barrier);
 	}
-	else OnSetDescriptorBuffer(CmdList, Type);
+	else OnSetGraphicsDescriptorBuffer(CmdList, Type);
 	CmdList->SetGraphicsRootDescriptorTable(RootParam, m_handles.GetHandle(Type));
 }
 
@@ -75,7 +75,7 @@ void KuroEngine::DescriptorData::SetComputeDescriptorBuffer(const ComPtr<ID3D12G
 	{
 		m_resource->ChangeBarrier(CmdList, *Barrier);
 	}
-	else OnSetDescriptorBuffer(CmdList, Type);
+	else OnSetComputeDescriptorBuffer(CmdList, Type);
 	CmdList->SetComputeRootDescriptorTable(RootParam, m_handles.GetHandle(Type));
 }
 
