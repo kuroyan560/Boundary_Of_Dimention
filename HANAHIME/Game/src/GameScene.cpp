@@ -70,6 +70,11 @@ void GameScene::OnDraw()
 		Color(0.0f, 0.0f, 0.0f, 0.0f),
 		targetSize,
 		L"MainRenderTarget");
+	static auto hueChangedMain = D3D12App::Instance()->GenerateRenderTarget(
+		D3D12App::Instance()->GetBackBuffFormat(),
+		Color(0.0f, 0.0f, 0.0f, 0.0f),
+		targetSize,
+		L"MainRenderTarget_HueChanged");
 	static auto emissiveMap = D3D12App::Instance()->GenerateRenderTarget(
 		DXGI_FORMAT_R32G32B32A32_FLOAT,
 		Color(0.0f, 0.0f, 0.0f, 1.0f),
@@ -83,14 +88,19 @@ void GameScene::OnDraw()
 		Color(0.0f, 0.0f, 0.0f, 1.0f),
 		targetSize, L"EdgeColorMap");
 
+	//レンダーターゲットのクリア
+	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(main);
+	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(hueChangedMain);
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(emissiveMap);
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(depthMap);
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(edgeColMap);
 	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 
+	//レンダーターゲットをセット
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(
 		{ 
 			main,
+			hueChangedMain,
 			emissiveMap,
 			depthMap,
 			edgeColMap
@@ -125,7 +135,7 @@ void GameScene::OnDraw()
 
 	BasicDraw::Instance()->DrawEdge(depthMap, edgeColMap);
 
-	m_vignettePostEffect.Register(main);
+	m_vignettePostEffect.Register(hueChangedMain);
 
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(
 		{

@@ -128,9 +128,10 @@ VSOutput VSmain(Vertex input, uint instanceID : SV_InstanceID)
 struct PSOutput
 {
     float4 color : SV_Target0;
-    float4 emissive : SV_Target1;
-    float depth : SV_Target2;
-    float4 edgeColor : SV_Target3;
+    float4 hueChangedColor : SV_Target1;
+    float4 emissive : SV_Target2;
+    float depth : SV_Target3;
+    float4 edgeColor : SV_Target4;
 };
 
 PSOutput PSmain(VSOutput input) : SV_TARGET
@@ -272,6 +273,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     
     PSOutput output;
     output.color = result;
+    output.hueChangedColor = float4(ChangeHue(result.rgb, -141), result.w);
 
     output.emissive = float4(0,0,0,0);
     
