@@ -2,92 +2,106 @@
 #include"DirectX12/D3D12App.h"
 #include"FrameWork/Importer.h"
 #include"../Graphics/BasicDraw.h"
+#include"KuroEngineDevice.h"
+#include"Render/RenderObject/Camera.h"
 
 Grass::Grass()
 {
 	using namespace KuroEngine;
 
+//仮====================================
 	//仮置きの草ブロックモデル
 	m_grassBlockModel = Importer::Instance()->LoadModel("resource/user/model/", "GrassBlock.gltf");
+//=====================================
 
-	//コンピュートシェーダーのルートパラメータ
-	const std::vector<RootParam>rootParam =
+	//パイプライン生成
 	{
-		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"草シェーダーCBV"),
-		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"草シェーダーUAV"),
-	};
+		//パイプライン設定
+		PipelineInitializeOption pipelineOption(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	//コンピュートシェーダー作成
-	std::string hlslPath = "resource/user/shaders/Grass_Compute.hlsl";
+		//シェーダー情報
+		Shaders shaders;
+		shaders.m_vs = D3D12App::Instance()->CompileShader("resource/engine/Grass.hlsl", "VSmain", "vs_6_4");
+		shaders.m_gs = D3D12App::Instance()->CompileShader("resource/engine/Grass.hlsl", "GSmain", "gs_6_4");
+		shaders.m_ps = D3D12App::Instance()->CompileShader("resource/engine/Grass.hlsl", "PSmain", "ps_6_4");
 
-	//初期化用コンピュートシェーダー
-	m_initComputePipeline = D3D12App::Instance()->GenerateComputePipeline(
-		D3D12App::Instance()->CompileShader(hlslPath, "InitMain", "cs_6_4"),
-		rootParam,
-		{ WrappedSampler(false,false) }
-	);
+		//インプットレイアウト
+		std::vector<InputLayoutParam>inputLayout =
+		{
+			InputLayoutParam("POSITION",DXGI_FORMAT_R32G32B32_FLOAT),
+			InputLayoutParam("NORMAL",DXGI_FORMAT_R32G32B32_FLOAT),
+		};
 
-	//更新用コンピュートシェーダー
-	m_updateComputePipeline = D3D12App::Instance()->GenerateComputePipeline(
-		D3D12App::Instance()->CompileShader(hlslPath, "UpdateMain", "cs_6_4"),
-		rootParam,
-		{ WrappedSampler(false,false) }
-	);
+		//ルートパラメータ
+		std::vector<RootParam>rootParam =
+		{
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"カメラ情報"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"（好きなの入れてね）"),
+		};
+		//テクスチャバッファ用ルートパラメータ設定
+		for (int texIdx = 0; texIdx < s_textureNumMax; ++texIdx)
+		{
+			rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "テクスチャ情報");
+		}
 
-	//定数バッファ生成
-	m_constBuffer = D3D12App::Instance()->GenerateConstantBuffer(sizeof(m_constData), 1, &m_constData, "GrassShader - ConstantBuffer");
+		//レンダーターゲット描画先情報
+		std::vector<RenderTargetInfo>renderTargetInfo =
+		{
+			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(),AlphaBlendMode_None),
+		};
 
-	//頂点最大
-	int maxVertexNum = 1000;
-	m_uavDataArray.resize(maxVertexNum);
-	//頂点バッファ生成
-	m_uavDataBuffer = D3D12App::Instance()->GenerateVertexBuffer(
-		sizeof(UAVdata),
-		maxVertexNum,
-		m_uavDataArray.data(),
-		"GrassShader - VertexBuffer",
-		true);
+		//設定を基にパイプライン生成
+		m_pipeline = D3D12App::Instance()->GenerateGraphicsPipeline(
+			pipelineOption,
+			shaders,
+			inputLayout,
+			rootParam,
+			renderTargetInfo,
+			{ WrappedSampler(true,true) });
+	}
+
+	//頂点バッファ
+	m_vertBuffer = D3D12App::Instance()->GenerateVertexBuffer(
+		sizeof(Vertex),
+		s_vertexMax,
+		m_vertices.data(),
+		"Grass - VertexBuffer");
+
+	//行列以外のデータ用構造体
+	m_constBuffer = D3D12App::Instance()->GenerateConstantBuffer(
+		sizeof(CBVdata),
+		1,
+		nullptr,
+		"Grass - Free - ConstantBuffer");
+
+	//テクスチャ
+	m_texBuffer[0] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
+	m_texBuffer[1] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
+	m_texBuffer[2] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
+	m_texBuffer[3] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
+	m_texBuffer[4] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
 }
 
 void Grass::Init()
 {
 	using namespace KuroEngine;
 
-	//初期化用コンピュートシェーダー実行
-	D3D12App::Instance()->DispathOneShot(
-		m_initComputePipeline,
-		{ static_cast<int>(m_uavDataArray.size()) / THREAD_PER_NUM + 1,1,1 },
-		{
-			{m_constBuffer,CBV},
-			{m_uavDataBuffer->GetRWStructuredBuff().lock(),UAV},
-		});
-
 	//ワールド行列配列初期化
 	m_grassWorldMatArray.clear();
 
 	m_oldPlayerPos = { -1000,-1000,-1000 };
 	m_plantTimer.Reset(0);
+
+	for (int vertIdx = 0; vertIdx < m_deadVertexIdx; ++vertIdx)
+	{
+		m_vertices[vertIdx].m_isAlive = 0;
+	}
+	m_deadVertexIdx = 0;
 }
 
 void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_playerPos, const KuroEngine::Quaternion arg_playerRotate)
 {
 	using namespace KuroEngine;
-
-	//タイムスケールに変更があったら更新して送信
-	if (m_constData.m_timeScale != arg_timeScale)
-	{
-		m_constData.m_timeScale = arg_timeScale;
-		m_constBuffer->Mapping(&m_constData);
-	}
-
-	//更新用コンピュートシェーダー実行
-	D3D12App::Instance()->DispathOneShot(
-		m_updateComputePipeline,
-		{ static_cast<int>(m_uavDataArray.size()) / THREAD_PER_NUM + 1,1,1 },
-		{
-			{m_constBuffer,CBV},
-			{m_uavDataBuffer->GetRWStructuredBuff().lock(),UAV},
-		});
 
 	//プレイヤーが移動した
 	if (!((arg_playerPos - m_oldPlayerPos).Length() < FLT_MIN))
@@ -98,7 +112,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 			grassTransform.SetPos(arg_playerPos);
 			grassTransform.SetRotate(arg_playerRotate);
 			grassTransform.SetScale({ 1.0f,1.0f,1.0f });
-			Plant(grassTransform.GetMatWorld());
+			PlantGrassBlock(grassTransform.GetMatWorld());
 			m_plantTimer.Reset(3);
 		}
 		m_plantTimer.UpdateTimer();
@@ -109,6 +123,32 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 
 void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
+	if (s_instanceMax <= static_cast<int>(m_grassWorldMatArray.size()))
+	{
+		KuroEngine::AppearMessageBox("Grass : Draw() 失敗", "インスタンスの上限超えちゃった");
+		exit(1);
+	}
+	if (m_grassWorldMatArray.empty())return;
+
+	using namespace KuroEngine;
+
+	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_pipeline);
+
+	std::vector<RegisterDescriptorData>descData =
+	{
+			{arg_cam.GetBuff(),CBV},
+			{m_constBuffer,CBV},
+	};
+	//テクスチャ情報もセット
+	for (int texIdx = 0; texIdx < s_textureNumMax; ++texIdx)descData.emplace_back(m_texBuffer[texIdx], SRV);
+
+	KuroEngineDevice::Instance()->Graphics().ObjectRender(
+		m_vertBuffer,
+		descData,
+		0.0f,
+		false,
+		static_cast<int>(m_grassWorldMatArray.size()));
+
 	BasicDraw::Instance()->InstancingDraw(
 		arg_cam,
 		arg_ligMgr,
@@ -118,7 +158,17 @@ void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 		KuroEngine::AlphaBlendMode_Trans);
 }
 
-void Grass::Plant(KuroEngine::Matrix arg_worldMat)
+void Grass::PlantGrassBlock(KuroEngine::Matrix arg_worldMat)
 {
 	m_grassWorldMatArray.push_back(arg_worldMat);
+}
+
+void Grass::Plant(KuroEngine::Vec3<float> arg_pos, KuroEngine::Vec3<float> arg_normal)
+{
+	m_vertices[m_deadVertexIdx].m_isAlive = 1;
+	m_vertices[m_deadVertexIdx].m_pos = arg_pos;
+	m_vertices[m_deadVertexIdx].m_normal = arg_normal;
+	//とりあえず乱数でテクスチャ決定
+	m_vertices[m_deadVertexIdx].m_texIdx = KuroEngine::GetRand(s_textureNumMax - 1);
+	m_deadVertexIdx++;
 }

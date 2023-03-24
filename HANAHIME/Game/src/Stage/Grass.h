@@ -3,11 +3,13 @@
 #include"ForUser/Timer.h"
 #include<vector>
 #include<memory>
+#include<array>
 namespace KuroEngine
 {
-	class ConstantBuffer;
+	class GraphicsPipeline;
 	class VertexBuffer;
-	class ComputePipeline;
+	class ConstantBuffer;
+	class TextureBuffer;
 	class Model;
 	class Camera;
 	class LightManager;
@@ -15,28 +17,37 @@ namespace KuroEngine
 
 class Grass
 {
-	static const int THREAD_PER_NUM = 10;
+	//頂点上限
+	static const int s_vertexMax = 1024;
+	//インスタンシング描画上限
+	static const int s_instanceMax = 1024;
+	//テクスチャの数
+	static const int s_textureNumMax = 5;
 
-	//UAVデータ用構造体
-	struct UAVdata
+	//パイプライン
+	std::shared_ptr<KuroEngine::GraphicsPipeline>m_pipeline;
+
+	struct Vertex
 	{
-		KuroEngine::Vec3<float>m_pos;
+		KuroEngine::Vec3<float>m_pos = { 0,0,0 };
+		int m_texIdx = 0;
+		KuroEngine::Vec3<float>m_normal = { 0,1,0 };
+		int m_isAlive = 0;
 	};
-	std::vector<UAVdata>m_uavDataArray;
-	std::shared_ptr<KuroEngine::VertexBuffer>m_uavDataBuffer;
+	std::array<Vertex, s_vertexMax>m_vertices;
+	std::shared_ptr<KuroEngine::VertexBuffer>m_vertBuffer;
+	int m_deadVertexIdx = 0;
 
-	//CBVデータ用構造体
+	//行列以外のデータ用構造体（好きなの入れてね）
 	struct CBVdata
 	{
-		float m_timeScale = 1.0f;
 	}m_constData;
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_constBuffer;
 
-	//初期化用コンピュートパイプライン
-	std::shared_ptr<KuroEngine::ComputePipeline>m_initComputePipeline;
-	//更新用コンピュートパイプライン
-	std::shared_ptr<KuroEngine::ComputePipeline>m_updateComputePipeline;
+	//テクスチャ
+	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, s_textureNumMax>m_texBuffer;
 
+//仮のやつ======================
 	//仮置き草ブロック
 	std::shared_ptr<KuroEngine::Model>m_grassBlockModel;
 	//仮で置いた草ブロックのワールド行列配列
@@ -45,6 +56,7 @@ class Grass
 	KuroEngine::Vec3<float>m_oldPlayerPos;
 	//草ブロックを植えるスパン
 	KuroEngine::Timer m_plantTimer;
+//=============================
 
 public:
 	Grass();
@@ -53,8 +65,15 @@ public:
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
 
 	/// <summary>
-	/// 草を植える
+	/// 草を植える（仮置き草ブロック）
 	/// </summary>
 	/// <param name="arg_worldMat">植える草のワールド行列</param>
-	void Plant(KuroEngine::Matrix arg_worldMat);
+	void PlantGrassBlock(KuroEngine::Matrix arg_worldMat);
+
+	/// <summary>
+	/// 草を植える（ビルボード）
+	/// </summary>
+	/// <param name="arg_pos">座標</param>
+	/// <param name="arg_normal">法線</param>
+	void Plant(KuroEngine::Vec3<float>arg_pos, KuroEngine::Vec3<float>arg_normal);
 };
