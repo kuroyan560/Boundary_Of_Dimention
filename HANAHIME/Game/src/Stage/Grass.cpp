@@ -47,7 +47,10 @@ Grass::Grass()
 		//レンダーターゲット描画先情報
 		std::vector<RenderTargetInfo>renderTargetInfo =
 		{
-			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(),AlphaBlendMode_None),
+			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_None),	//通常描画
+			RenderTargetInfo(DXGI_FORMAT_R32G32B32A32_FLOAT, AlphaBlendMode_Trans),	//エミッシブマップ
+			RenderTargetInfo(DXGI_FORMAT_R32_FLOAT, AlphaBlendMode_None),	//深度マップ
+			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_None),	//エッジカラーマップ
 		};
 
 		//設定を基にパイプライン生成
