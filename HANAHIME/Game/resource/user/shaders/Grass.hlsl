@@ -6,6 +6,8 @@ static const int INSTANCE_MAX = 1024;
 //頂点データ
 struct VSOutput
 {
+    float3 position : POSITION;
+    float3 normal : NORMAL;
 };
 
 //ジオメトリシェーダーを通したデータ

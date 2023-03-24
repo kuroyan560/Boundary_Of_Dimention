@@ -17,13 +17,13 @@ Grass::Grass()
 	//パイプライン生成
 	{
 		//パイプライン設定
-		PipelineInitializeOption pipelineOption(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		PipelineInitializeOption pipelineOption(D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT, D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 
 		//シェーダー情報
 		Shaders shaders;
-		shaders.m_vs = D3D12App::Instance()->CompileShader("resource/engine/Grass.hlsl", "VSmain", "vs_6_4");
-		shaders.m_gs = D3D12App::Instance()->CompileShader("resource/engine/Grass.hlsl", "GSmain", "gs_6_4");
-		shaders.m_ps = D3D12App::Instance()->CompileShader("resource/engine/Grass.hlsl", "PSmain", "ps_6_4");
+		shaders.m_vs = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass.hlsl", "VSmain", "vs_6_4");
+		shaders.m_gs = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass.hlsl", "GSmain", "gs_6_4");
+		shaders.m_ps = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass.hlsl", "PSmain", "ps_6_4");
 
 		//インプットレイアウト
 		std::vector<InputLayoutParam>inputLayout =
