@@ -1,5 +1,6 @@
 #pragma once
 #include"KuroEngine.h"
+#include"../../../../src/engine/Common/Transform.h"
 #include"ForUser/Timer.h"
 #include<vector>
 #include<memory>
@@ -68,7 +69,7 @@ public:
 	/// 草を植える（仮置き草ブロック）
 	/// </summary>
 	/// <param name="arg_worldMat">植える草のワールド行列</param>
-	void PlantGrassBlock(KuroEngine::Matrix arg_worldMat);
+	void PlantGrassBlock(KuroEngine::Transform arg_transform);
 
 	/// <summary>
 	/// 草を植える（ビルボード）

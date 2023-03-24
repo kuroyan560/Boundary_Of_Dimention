@@ -7,7 +7,9 @@ static const int INSTANCE_MAX = 1024;
 struct VSOutput
 {
     float3 position : POSITION;
+    uint texID : TexID;
     float3 normal : NORMAL;
+    uint isAlive : IsAlive;
 };
 
 //ジオメトリシェーダーを通したデータ
@@ -53,34 +55,61 @@ VSOutput VSmain(VSOutput input)
     return input;
 }
 
-[maxvertexcount(4)]
+[maxvertexcount(6)]
 void GSmain(
 	point VSOutput input[1],
 	inout TriangleStream<GSOutput> output
 )
 {
     GSOutput element;
+
+    const float2 PolygonSize = float2(1,3);
         
+    matrix viewproj = mul(cam.proj, cam.view);
+
     //左下
-    element.position = float4(input[0].position.xyz, 1.0f);
+    element.position = float4(input[0].position.xyz, 1.0f) + float4(-PolygonSize.x,0,0,0);
+    element.position = mul(viewproj, element.position);
     output.Append(element);
     
     //左上
-    element.position = float4(input[0].position.xyz, 1.0f);
+    element.position = float4(input[0].position.xyz, 1.0f) + float4(-PolygonSize.x,PolygonSize.y,0,0);
+    element.position = mul(viewproj, element.position);
     output.Append(element);
     
-     //右下
-    element.position = float4(input[0].position.xyz, 1.0f);
+    //右下
+    element.position = float4(input[0].position.xyz, 1.0f) + float4(PolygonSize.x,PolygonSize.y,0,0);
+    element.position = mul(viewproj, element.position);
+    output.Append(element);
+
+    output.RestartStrip();
+    
+    //左上
+    element.position = float4(input[0].position.xyz, 1.0f) + float4(-PolygonSize.x,0,0,0);
+    element.position = mul(viewproj, element.position);
     output.Append(element);
     
     //右上
-    element.position = float4(input[0].position.xyz, 1.0f);
+    element.position = float4(input[0].position.xyz, 1.0f) + float4(PolygonSize.x,PolygonSize.y,0,0);
+    element.position = mul(viewproj, element.position);
     output.Append(element);
+    
+    //右下
+    element.position = float4(input[0].position.xyz, 1.0f) + float4(PolygonSize.x,0,0,0);
+    element.position = mul(viewproj, element.position);
+    output.Append(element);
+
+    output.RestartStrip();
 }
 
 PSOutput PSmain(GSOutput input)
 {
     PSOutput output;
+
+    output.color = float4(1,0,0,1);
+    output.emissive = float4(1,0,0,1);
+    output.depth = float4(1,0,0,1);
+    output.edgeColor = float4(1,0,0,1);
  
     return output;
 }

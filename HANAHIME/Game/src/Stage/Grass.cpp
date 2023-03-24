@@ -9,12 +9,12 @@ Grass::Grass()
 {
 	using namespace KuroEngine;
 
-//仮====================================
-	//仮置きの草ブロックモデル
+	//仮====================================
+		//仮置きの草ブロックモデル
 	m_grassBlockModel = Importer::Instance()->LoadModel("resource/user/model/", "GrassBlock.gltf");
-//=====================================
+	//=====================================
 
-	//パイプライン生成
+		//パイプライン生成
 	{
 		//パイプライン設定
 		PipelineInitializeOption pipelineOption(D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT, D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
@@ -29,7 +29,9 @@ Grass::Grass()
 		std::vector<InputLayoutParam>inputLayout =
 		{
 			InputLayoutParam("POSITION",DXGI_FORMAT_R32G32B32_FLOAT),
+			InputLayoutParam("TexID",DXGI_FORMAT_R8_UINT),
 			InputLayoutParam("NORMAL",DXGI_FORMAT_R32G32B32_FLOAT),
+			InputLayoutParam("IsAlive",DXGI_FORMAT_R8_UINT),
 		};
 
 		//ルートパラメータ
@@ -115,7 +117,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 			grassTransform.SetPos(arg_playerPos);
 			grassTransform.SetRotate(arg_playerRotate);
 			grassTransform.SetScale({ 1.0f,1.0f,1.0f });
-			PlantGrassBlock(grassTransform.GetMatWorld());
+			PlantGrassBlock(grassTransform);
 			m_plantTimer.Reset(3);
 		}
 		m_plantTimer.UpdateTimer();
@@ -152,18 +154,32 @@ void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 		false,
 		static_cast<int>(m_grassWorldMatArray.size()));
 
-	BasicDraw::Instance()->InstancingDraw(
-		arg_cam,
-		arg_ligMgr,
-		m_grassBlockModel,
-		m_grassWorldMatArray,
-		false,
-		KuroEngine::AlphaBlendMode_Trans);
+	//BasicDraw::Instance()->InstancingDraw(
+	//	arg_cam,
+	//	arg_ligMgr,
+	//	m_grassBlockModel,
+	//	m_grassWorldMatArray,
+	//	false,
+	//	KuroEngine::AlphaBlendMode_Trans);
 }
 
-void Grass::PlantGrassBlock(KuroEngine::Matrix arg_worldMat)
+void Grass::PlantGrassBlock(KuroEngine::Transform arg_transform)
 {
-	m_grassWorldMatArray.push_back(arg_worldMat);
+	//円柱草を生やす処理
+	m_grassWorldMatArray.push_back(arg_transform.GetMatWorld());
+
+
+	//板ポリを生成。
+	for (auto& index : m_vertices) {
+		//生成済みだったら処理を飛ばす。
+		if (index.m_isAlive) continue;
+
+		Plant(arg_transform.GetPos(), arg_transform.GetUp());
+
+		break;
+
+	}
+
 }
 
 void Grass::Plant(KuroEngine::Vec3<float> arg_pos, KuroEngine::Vec3<float> arg_normal)
@@ -174,4 +190,5 @@ void Grass::Plant(KuroEngine::Vec3<float> arg_pos, KuroEngine::Vec3<float> arg_n
 	//とりあえず乱数でテクスチャ決定
 	m_vertices[m_deadVertexIdx].m_texIdx = KuroEngine::GetRand(s_textureNumMax - 1);
 	m_deadVertexIdx++;
+	m_vertBuffer->Mapping(m_vertices.data());
 }
