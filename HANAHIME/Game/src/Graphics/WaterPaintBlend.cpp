@@ -15,6 +15,7 @@ void WaterPaintBlend::GeneratePipeline()
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"ブレンドする画像"),
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"マスク画像"),
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"ノイズテクスチャ"),
+		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"描き込み先バッファ"),
 	};
 
 	//シェーダーコンパイル
@@ -49,12 +50,11 @@ WaterPaintBlend::WaterPaintBlend() : Debugger("WaterPaintBlend")
 
 	auto targetSize = D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize();
 
-	//結果の描画先レンダーターゲット生成
-	m_resultTex = D3D12App::Instance()->GenerateRenderTarget(
+	//結果の描画先テクスチャ生成
+	m_resultTex = D3D12App::Instance()->GenerateTextureBuffer(
+		targetSize,
 		D3D12App::Instance()->GetBackBuffFormat(),
-		Color(0, 0, 0, 0), 
-		targetSize, 
-		L"WaterPaintBlend_Result");
+		"WaterPaintBlend - ResultTex");
 
 	//ノイズ生成
 	m_noiseTex = PerlinNoise::GenerateTex(
@@ -89,5 +89,6 @@ void WaterPaintBlend::Register(std::shared_ptr<KuroEngine::TextureBuffer> arg_ba
 			{arg_blendTex,SRV},
 			{arg_maskTex,SRV},
 			{m_noiseTex,SRV},
+			{m_resultTex,UAV}
 		});
 }
