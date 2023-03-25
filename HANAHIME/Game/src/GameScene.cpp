@@ -84,6 +84,10 @@ void GameScene::OnDraw()
 		DXGI_FORMAT_R32_FLOAT,
 		Color(FLT_MAX, 0.0f, 0.0f, 0.0f),
 		targetSize, L"DepthMap");
+	static auto maskLayer = D3D12App::Instance()->GenerateRenderTarget(
+		DXGI_FORMAT_R32_UINT,
+		Color(0,0,0,0),
+		targetSize, L"MaskLayer");
 	static auto edgeColMap = D3D12App::Instance()->GenerateRenderTarget(
 		D3D12App::Instance()->GetBackBuffFormat(),
 		Color(0.0f, 0.0f, 0.0f, 1.0f),
@@ -94,6 +98,7 @@ void GameScene::OnDraw()
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(hueChangedMain);
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(emissiveMap);
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(depthMap);
+	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(maskLayer);
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(edgeColMap);
 	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 
@@ -104,6 +109,7 @@ void GameScene::OnDraw()
 			hueChangedMain,
 			emissiveMap,
 			depthMap,
+			maskLayer,
 			edgeColMap
 		},
 		ds

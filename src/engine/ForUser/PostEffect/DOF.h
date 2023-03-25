@@ -42,6 +42,7 @@ namespace KuroEngine
 		float m_blurPower = 8.0f;
 
 		void OnImguiItems()override;
+		void OnLoadCustomParams()override;
 
 	public:
 		DOF();

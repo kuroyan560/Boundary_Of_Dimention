@@ -160,11 +160,9 @@ std::shared_ptr<KuroEngine::TextureBuffer> KuroEngine::PerlinNoise::GenerateTex(
 }
 
 #include"FrameWork/ImguiApp.h"
-bool KuroEngine::PerlinNoise::ImguiDebug(NoiseInitializer& arg_initializer)
+bool KuroEngine::PerlinNoise::ImguiDebugItem(NoiseInitializer& arg_initializer)
 {
 	bool changed = false;
-
-	ImGui::Begin(("Noise setting - " + std::to_string(arg_initializer.m_id)).c_str());
 
 	//•âŠÔ•û–@
 	std::string preview = std::string(magic_enum::enum_name(arg_initializer.m_interpolation));
@@ -196,8 +194,6 @@ bool KuroEngine::PerlinNoise::ImguiDebug(NoiseInitializer& arg_initializer)
 	if(ImGui::DragInt("Octave", &arg_initializer.m_octave))changed = true;
 	if(ImGui::DragFloat("Frequency", &arg_initializer.m_frequency))changed = true;
 	if(ImGui::DragFloat("Persistance", &arg_initializer.m_persistance))changed = true;
-
-	ImGui::End();
 
 	return changed;
 }

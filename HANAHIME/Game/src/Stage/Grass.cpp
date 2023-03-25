@@ -109,11 +109,16 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 
 void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
+	m_drawParam = IndividualDrawParameter::GetDefault();
+	//マスクレイヤーに描き込む設定にする
+	m_drawParam.m_drawMask = 1;
+
 	BasicDraw::Instance()->InstancingDraw(
 		arg_cam,
 		arg_ligMgr,
 		m_grassBlockModel,
 		m_grassWorldMatArray,
+		m_drawParam,
 		false,
 		KuroEngine::AlphaBlendMode_Trans);
 }

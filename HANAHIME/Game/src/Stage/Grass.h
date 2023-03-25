@@ -3,6 +3,7 @@
 #include"ForUser/Timer.h"
 #include<vector>
 #include<memory>
+#include"../Graphics/BasicDrawParameters.h"
 namespace KuroEngine
 {
 	class ConstantBuffer;
@@ -45,6 +46,8 @@ class Grass
 	KuroEngine::Vec3<float>m_oldPlayerPos;
 	//草ブロックを植えるスパン
 	KuroEngine::Timer m_plantTimer;
+
+	IndividualDrawParameter m_drawParam;
 
 public:
 	Grass();

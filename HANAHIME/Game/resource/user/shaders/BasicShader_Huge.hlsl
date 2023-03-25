@@ -18,6 +18,7 @@ struct ToonIndividualParameter
     float4 m_darkMulColor;
     float4 m_limBrightColor;
     float4 m_edgeColor;
+    int m_drawMask;
 };
 
 cbuffer cbuff0 : register(b0)
@@ -131,7 +132,8 @@ struct PSOutput
     float4 hueChangedColor : SV_Target1;
     float4 emissive : SV_Target2;
     float depth : SV_Target3;
-    float4 edgeColor : SV_Target4;
+    uint mask : SV_Target4;
+    float4 edgeColor : SV_Target5;
 };
 
 PSOutput PSmain(VSOutput input) : SV_TARGET
@@ -276,6 +278,8 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     output.hueChangedColor = float4(ChangeHue(result.rgb, -141), result.w);
 
     output.emissive = float4(0,0,0,0);
+    
+    output.mask = toonIndividualParam.m_drawMask;
     
     //–¾‚é‚³ŒvŽZ
     // float bright = dot(result.xyz, float3(0.2125f, 0.7154f, 0.0721f));

@@ -78,7 +78,7 @@ namespace KuroEngine
 		//パーリンノイズテクスチャ生成
 		static std::shared_ptr<TextureBuffer>GenerateTex(const std::string& Name, const Vec2<int>& Size, const NoiseInitializer& Config, const DXGI_FORMAT& Format = DXGI_FORMAT_R32_FLOAT);
 		//ノイズイニシャライザーのimguiデバッグ
-		static bool ImguiDebug(NoiseInitializer& arg_initializer);
+		static bool ImguiDebugItem(NoiseInitializer& arg_initializer);
 
 		//パーリンノイズから乱数取得
 		static float GetRand(float arg_x, float arg_y, int arg_seed = 0);

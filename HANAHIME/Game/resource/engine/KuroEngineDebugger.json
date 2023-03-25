@@ -88,7 +88,7 @@
   },
   "DOF": {
     "Config": {
-      "Blur": 0.5,
+      "Blur": 0.6000000238418579,
       "farPint": 30.0,
       "nearPint": 10.600000381469727,
       "pintLength": 30.0

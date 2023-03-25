@@ -29,6 +29,12 @@ void KuroEngine::DOF::OnImguiItems()
 	}
 }
 
+void KuroEngine::DOF::OnLoadCustomParams()
+{
+	m_configBuff->Mapping(&m_config);
+	m_gaussianBlur->SetBlurPower(m_blurPower);
+}
+
 KuroEngine::DOF::DOF() : Debugger("DOF")
 {
 	//パイプライン未生成なら生成
@@ -72,8 +78,8 @@ void KuroEngine::DOF::Register(std::weak_ptr<RenderTarget> Src, std::weak_ptr<Re
 	static const int DIV = 32;
 	Vec3<int>threadNum = 
 	{ 
-		static_cast<int>(ceil(m_processedTex->GetGraphSize().x / DIV)),
-		static_cast<int>(ceil(m_processedTex->GetGraphSize().y / DIV)),
+		static_cast<int>(ceil(m_processedTex->GetGraphSize().x / DIV) + 1),
+		static_cast<int>(ceil(m_processedTex->GetGraphSize().y / DIV) + 1),
 		1 
 	};
 

@@ -27,6 +27,10 @@ public:
 	//エッジ色
 	KuroEngine::Color m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
 	
+	//マスクレイヤーに描画するか
+	int m_drawMask = 0;
+	int pad[3];
+	
 	IndividualDrawParameter() { *this = GetDefault(); }
 	IndividualDrawParameter(
 		KuroEngine::Color arg_brightMulColor,
