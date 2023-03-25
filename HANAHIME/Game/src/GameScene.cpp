@@ -36,7 +36,7 @@ void GameScene::OnInitialize()
 	m_debugCam.Init({ 0,5,-10 });
 
 	KuroEngine::Transform playerInitTransform;
-	playerInitTransform.SetPos({ 0,1.0f,-15 });
+	playerInitTransform.SetPos({ 0,1.0f,-45 });
 	m_player.Init(playerInitTransform);
 
 	m_grass.Init();
@@ -72,11 +72,6 @@ void GameScene::OnDraw()
 		Color(0.0f, 0.0f, 0.0f, 0.0f),
 		targetSize,
 		L"MainRenderTarget");
-	static auto hueChangedMain = D3D12App::Instance()->GenerateRenderTarget(
-		D3D12App::Instance()->GetBackBuffFormat(),
-		Color(0.0f, 0.0f, 0.0f, 0.0f),
-		targetSize,
-		L"MainRenderTarget_HueChanged");
 	static auto emissiveMap = D3D12App::Instance()->GenerateRenderTarget(
 		DXGI_FORMAT_R32G32B32A32_FLOAT,
 		Color(0.0f, 0.0f, 0.0f, 1.0f),
@@ -96,7 +91,6 @@ void GameScene::OnDraw()
 
 	//レンダーターゲットのクリア
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(main);
-	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(hueChangedMain);
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(emissiveMap);
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(depthMap);
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(maskLayer);
@@ -107,7 +101,6 @@ void GameScene::OnDraw()
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(
 		{ 
 			main,
-			hueChangedMain,
 			emissiveMap,
 			depthMap,
 			maskLayer,
@@ -143,7 +136,7 @@ void GameScene::OnDraw()
 
 	BasicDraw::Instance()->DrawEdge(depthMap, edgeColMap);
 
-	m_waterPaintBlend.Register(main, hueChangedMain, maskLayer);
+	m_waterPaintBlend.Register(main, maskLayer);
 
 	m_dof.Register(m_waterPaintBlend.GetResultTex(), depthMap);
 

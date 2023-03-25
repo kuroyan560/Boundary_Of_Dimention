@@ -35,7 +35,6 @@ public:
 	//グラフィックスマネージャに登録
 	void Register(
 		std::shared_ptr<KuroEngine::TextureBuffer>arg_baseTex,
-		std::shared_ptr<KuroEngine::TextureBuffer>arg_blendTex,
 		std::shared_ptr<KuroEngine::TextureBuffer>arg_maskTex);
 
 	//結果のテクスチャ取得

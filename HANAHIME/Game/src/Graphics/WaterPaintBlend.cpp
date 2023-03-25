@@ -12,7 +12,6 @@ void WaterPaintBlend::GeneratePipeline()
 	std::vector<RootParam>rootParam =
 	{
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"元画像"),
-		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"ブレンドする画像"),
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"マスク画像"),
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"ノイズテクスチャ"),
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"描き込み先バッファ"),
@@ -61,7 +60,7 @@ WaterPaintBlend::WaterPaintBlend() : Debugger("WaterPaintBlend")
 		m_noiseInitializer);
 }
 
-void WaterPaintBlend::Register(std::shared_ptr<KuroEngine::TextureBuffer> arg_baseTex, std::shared_ptr<KuroEngine::TextureBuffer> arg_blendTex, std::shared_ptr<KuroEngine::TextureBuffer> arg_maskTex)
+void WaterPaintBlend::Register(std::shared_ptr<KuroEngine::TextureBuffer> arg_baseTex, std::shared_ptr<KuroEngine::TextureBuffer> arg_maskTex)
 {
 	using namespace KuroEngine;
 
@@ -90,7 +89,6 @@ void WaterPaintBlend::Register(std::shared_ptr<KuroEngine::TextureBuffer> arg_ba
 		threadNum,
 		{
 			{arg_baseTex,SRV},
-			{arg_blendTex,SRV},
 			{arg_maskTex,SRV},
 			{m_noiseTex,SRV},
 			{m_resultTex,UAV}
