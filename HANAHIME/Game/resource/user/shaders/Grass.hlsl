@@ -17,6 +17,7 @@ struct GSOutput
 {
     float4 position : SV_POSITION;
     float3 normal : NORMAL;
+    float2 uv : UV;
 };
 
 //ピクセルシェーダーを通したデータ（レンダーターゲットに書き込むデータ）
@@ -64,6 +65,42 @@ float4 Scale(float3 In, float Scalar){
     return float4(In.x * Scalar,In.y * Scalar,In.z * Scalar,1 * Scalar);
 }
 
+float3 ProjectOnPlane(float3 Vector, float3 PlaneNormal)
+{
+    //平面の法線を正規化する
+    PlaneNormal = normalize(PlaneNormal);
+
+    //射影平面の方程式を作成する
+    float d = dot(Vector, PlaneNormal);
+    float3 projectionPlane = Vector - d * PlaneNormal;
+
+    //射影されたベクトルを計算する
+    float3 projectedVector = Vector - projectionPlane;
+
+    return projectedVector;
+}
+float Angle(float3 From, float3 To)
+{
+    //ベクトルの大きさを計算する
+    float fromMagnitude = length(From);
+    float toMagnitude = length(To);
+
+    //ベクトルの内積を計算する
+    float dotProduct = dot(From, To);
+
+    //ベクトルのなす角度のcosineを計算する
+    float cosine = dotProduct / (fromMagnitude * toMagnitude);
+
+    //ベクトルのなす角度を計算する
+    float angle = acos(cosine);
+
+    //結果を度数法に変換する
+    angle = degrees(angle);
+
+    return angle;
+}
+
+
 [maxvertexcount(6)]
 void GSmain(
 	point VSOutput input[1],
@@ -85,12 +122,29 @@ void GSmain(
     float3 cameraVec = normalize(cameraPos - input[0].position);
 
     //右方向ベクトル
-    float3 rightVec = -normalize(cross(input[0].normal, cameraVec));
+    float3 rightVec = normalize(cross(cameraVec, input[0].normal));
+
+    //正面ベクトル
+    float3 forwardVec = normalize(cross(rightVec, input[0].normal));
+
+    //デフォルトの正面ベクトルと現在の正面ベクトルの角度を求める。
+    float3 defForwardVec = float3(0,0,1);
+    float cosTheta = dot(defForwardVec, forwardVec) / (length(defForwardVec) * length(forwardVec));
+    float angle = acos(cosTheta) * (180 / 3.14159265);
+    //2つのベクトルの位置関係によって、角度を0~360度の範囲に修正する
+    if (0 > cross(defForwardVec, forwardVec).y) {
+        angle = 360 - angle;
+    }
+    float uvOffset = angle / 360.0f;
+
+    //uvoffsetを0.1区切りにする。
+    uvOffset = floor(uvOffset * 10) / 10;
 
     //左下
     element.position = float4(input[0].position.xyz, 1.0f);
     element.position += Scale(float4(rightVec,0), -PolygonSize.x);
     element.position = mul(viewproj, element.position);
+    element.uv = float2(uvOffset,1);
     output.Append(element);
     
     //左上
@@ -98,12 +152,14 @@ void GSmain(
     element.position += Scale(float4(rightVec,0), -PolygonSize.x);
     element.position += Scale(float4(input[0].normal,0), PolygonSize.y);
     element.position = mul(viewproj, element.position);
+    element.uv = float2(uvOffset,0);
     output.Append(element);
     
     //右下
     element.position = float4(input[0].position.xyz, 1.0f);
     element.position += Scale(float4(rightVec,0), PolygonSize.x);
     element.position = mul(viewproj, element.position);
+    element.uv = float2(uvOffset + 0.1f,1);
     output.Append(element);
 
     output.RestartStrip();
@@ -113,6 +169,7 @@ void GSmain(
     element.position += Scale(float4(rightVec,0), -PolygonSize.x);
     element.position += Scale(float4(input[0].normal,0), PolygonSize.y);
     element.position = mul(viewproj, element.position);
+    element.uv = float2(uvOffset,0);
     output.Append(element);
     
     //右上
@@ -120,12 +177,14 @@ void GSmain(
     element.position += Scale(float4(rightVec,0), PolygonSize.x);
     element.position += Scale(float4(input[0].normal,0), PolygonSize.y);
     element.position = mul(viewproj, element.position);
+    element.uv = float2(uvOffset + 0.1f,0);
     output.Append(element);
     
     //右下
     element.position = float4(input[0].position.xyz, 1.0f);
     element.position += Scale(float4(rightVec,0), PolygonSize.x);
     element.position = mul(viewproj, element.position);
+    element.uv = float2(uvOffset + 0.1f,1);
     output.Append(element);
 
     output.RestartStrip();
@@ -135,10 +194,10 @@ PSOutput PSmain(GSOutput input)
 {
     PSOutput output;
 
-    output.color = float4(1,0,0,1);
-    output.emissive = float4(1,0,0,1);
-    output.depth = float4(1,0,0,1);
-    output.edgeColor = float4(1,0,0,1);
+    output.color = tex_0.Sample(smp, input.uv);
+    output.emissive = float4(0,0,0,0);
+    output.depth = float4(0,0,0,0);
+    output.edgeColor = float4(0,0,0,0);
  
     return output;
 }

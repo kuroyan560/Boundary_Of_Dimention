@@ -31,7 +31,7 @@ Grass::Grass()
 			InputLayoutParam("POSITION",DXGI_FORMAT_R32G32B32_FLOAT),
 			InputLayoutParam("TexID",DXGI_FORMAT_R8_UINT),
 			InputLayoutParam("NORMAL",DXGI_FORMAT_R32G32B32_FLOAT),
-			InputLayoutParam("IsAlive",DXGI_FORMAT_R8_UINT),
+			InputLayoutParam("IsAlive",DXGI_FORMAT_R8_UINT)
 		};
 
 		//ルートパラメータ
@@ -80,11 +80,11 @@ Grass::Grass()
 		"Grass - Free - ConstantBuffer");
 
 	//テクスチャ
-	m_texBuffer[0] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
-	m_texBuffer[1] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
-	m_texBuffer[2] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
-	m_texBuffer[3] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
-	m_texBuffer[4] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
+	m_texBuffer[0] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/ImposterTexture.png");
+	m_texBuffer[1] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/ImposterTexture.png");
+	m_texBuffer[2] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/ImposterTexture.png");
+	m_texBuffer[3] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/ImposterTexture.png");
+	m_texBuffer[4] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/ImposterTexture.png");
 }
 
 void Grass::Init()
