@@ -80,11 +80,11 @@ Grass::Grass()
 		"Grass - Free - ConstantBuffer");
 
 	//テクスチャ
-	m_texBuffer[0] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/ImposterTexture.png");
-	m_texBuffer[1] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/ImposterTexture.png");
-	m_texBuffer[2] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/ImposterTexture.png");
-	m_texBuffer[3] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/ImposterTexture.png");
-	m_texBuffer[4] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/ImposterTexture.png");
+	m_texBuffer[0] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter01.png");
+	m_texBuffer[1] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter02.png");
+	m_texBuffer[2] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter03.png");
+	m_texBuffer[3] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter01.png");
+	m_texBuffer[4] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter01.png");
 }
 
 void Grass::Init()
@@ -193,7 +193,8 @@ void Grass::Plant(KuroEngine::Vec3<float> arg_pos, KuroEngine::Vec3<float> arg_n
 	m_vertices[m_deadVertexIdx].m_pos = arg_pos;
 	m_vertices[m_deadVertexIdx].m_normal = arg_normal;
 	//とりあえず乱数でテクスチャ決定
-	m_vertices[m_deadVertexIdx].m_texIdx = KuroEngine::GetRand(s_textureNumMax - 1);
+	//m_vertices[m_deadVertexIdx].m_texIdx = KuroEngine::GetRand(s_textureNumMax - 1);
+	m_vertices[m_deadVertexIdx].m_texIdx = KuroEngine::GetRand(3 - 1);
 	m_deadVertexIdx++;
 	m_vertBuffer->Mapping(m_vertices.data());
 }

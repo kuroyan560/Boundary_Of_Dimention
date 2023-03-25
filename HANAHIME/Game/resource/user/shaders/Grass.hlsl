@@ -18,6 +18,7 @@ struct GSOutput
     float4 position : SV_POSITION;
     float3 normal : NORMAL;
     float2 uv : UV;
+    uint texID : TexID;
 };
 
 //ピクセルシェーダーを通したデータ（レンダーターゲットに書き込むデータ）
@@ -108,6 +109,7 @@ void GSmain(
 )
 {
     GSOutput element;
+    element.texID = input[0].texID;
 
     //ビルボードのサイズ
     const float2 PolygonSize = float2(0.5f,2.0f);
@@ -194,7 +196,20 @@ PSOutput PSmain(GSOutput input)
 {
     PSOutput output;
 
-    output.color = tex_0.Sample(smp, input.uv);
+    if(input.texID == 0){
+
+        output.color = tex_0.Sample(smp, input.uv);
+
+    }else if(input.texID == 1){
+        
+        output.color = tex_1.Sample(smp, input.uv);
+
+    }else{
+
+        output.color = tex_2.Sample(smp, input.uv);
+
+    }
+
     output.emissive = float4(0,0,0,0);
     output.depth = float4(0,0,0,0);
     output.edgeColor = float4(0,0,0,0);
