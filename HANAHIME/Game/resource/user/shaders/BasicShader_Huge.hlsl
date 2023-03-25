@@ -277,7 +277,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
 
     output.emissive = float4(0,0,0,0);
     
-    output.mask = toonIndividualParam.m_drawMask;
+    output.mask = toonIndividualParam.m_drawMask * result.w;
     
     //–¾‚é‚³ŒvŽZ
     // float bright = dot(result.xyz, float3(0.2125f, 0.7154f, 0.0721f));
