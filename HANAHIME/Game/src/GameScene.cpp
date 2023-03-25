@@ -56,7 +56,7 @@ void GameScene::OnUpdate()
 
 	m_player.Update(StageManager::Instance()->GetNowStage());
 
-	m_grass.Update(1.0f, m_player.GetTransform().GetPos(), m_player.GetTransform().GetRotate());
+	m_grass.Update(1.0f, m_player.GetTransform().GetPos(), m_player.GetTransform().GetRotate(), m_player.GetCamera().lock()->GetTransform());
 }
 
 void GameScene::OnDraw()

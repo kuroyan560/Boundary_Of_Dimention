@@ -37,7 +37,8 @@ cbuffer cbuff0 : register(b0)
 //定数バッファ（好きなの入れてね）
 cbuffer cbuff1 : register(b1)
 {
-    
+    float3 cameraPos;
+    uint pad;
 }
 
 //テクスチャ
@@ -55,6 +56,14 @@ VSOutput VSmain(VSOutput input)
     return input;
 }
 
+//ベクトルにスカラー値をかける。
+float4 Scale(float4 In, float Scalar){
+    return float4(In.x * Scalar,In.y * Scalar,In.z * Scalar,In.w * Scalar);
+}
+float4 Scale(float3 In, float Scalar){
+    return float4(In.x * Scalar,In.y * Scalar,In.z * Scalar,1 * Scalar);
+}
+
 [maxvertexcount(6)]
 void GSmain(
 	point VSOutput input[1],
@@ -63,39 +72,59 @@ void GSmain(
 {
     GSOutput element;
 
-    const float2 PolygonSize = float2(1,3);
-        
+    //ビルボードのサイズ
+    const float2 PolygonSize = float2(0.5f,2.0f);
+    
+    //ビュープロジェクション
     matrix viewproj = mul(cam.proj, cam.view);
 
+    //デフォルトだと少し浮いてしまっているので1だけ沈める。
+    input[0].position.xyz -= Scale(input[0].normal, 1);
+
+    //カメラ方向ベクトル
+    float3 cameraVec = normalize(cameraPos - input[0].position);
+
+    //右方向ベクトル
+    float3 rightVec = -normalize(cross(input[0].normal, cameraVec));
+
     //左下
-    element.position = float4(input[0].position.xyz, 1.0f) + float4(-PolygonSize.x,0,0,0);
+    element.position = float4(input[0].position.xyz, 1.0f);
+    element.position += Scale(float4(rightVec,0), -PolygonSize.x);
     element.position = mul(viewproj, element.position);
     output.Append(element);
     
     //左上
-    element.position = float4(input[0].position.xyz, 1.0f) + float4(-PolygonSize.x,PolygonSize.y,0,0);
+    element.position = float4(input[0].position.xyz, 1.0f);
+    element.position += Scale(float4(rightVec,0), -PolygonSize.x);
+    element.position += Scale(float4(input[0].normal,0), PolygonSize.y);
     element.position = mul(viewproj, element.position);
     output.Append(element);
     
     //右下
-    element.position = float4(input[0].position.xyz, 1.0f) + float4(PolygonSize.x,PolygonSize.y,0,0);
+    element.position = float4(input[0].position.xyz, 1.0f);
+    element.position += Scale(float4(rightVec,0), PolygonSize.x);
     element.position = mul(viewproj, element.position);
     output.Append(element);
 
     output.RestartStrip();
     
     //左上
-    element.position = float4(input[0].position.xyz, 1.0f) + float4(-PolygonSize.x,0,0,0);
+    element.position = float4(input[0].position.xyz, 1.0f);
+    element.position += Scale(float4(rightVec,0), -PolygonSize.x);
+    element.position += Scale(float4(input[0].normal,0), PolygonSize.y);
     element.position = mul(viewproj, element.position);
     output.Append(element);
     
     //右上
-    element.position = float4(input[0].position.xyz, 1.0f) + float4(PolygonSize.x,PolygonSize.y,0,0);
+    element.position = float4(input[0].position.xyz, 1.0f);
+    element.position += Scale(float4(rightVec,0), PolygonSize.x);
+    element.position += Scale(float4(input[0].normal,0), PolygonSize.y);
     element.position = mul(viewproj, element.position);
     output.Append(element);
     
     //右下
-    element.position = float4(input[0].position.xyz, 1.0f) + float4(PolygonSize.x,0,0,0);
+    element.position = float4(input[0].position.xyz, 1.0f);
+    element.position += Scale(float4(rightVec,0), PolygonSize.x);
     element.position = mul(viewproj, element.position);
     output.Append(element);
 

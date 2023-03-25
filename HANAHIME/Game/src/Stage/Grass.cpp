@@ -104,7 +104,7 @@ void Grass::Init()
 	m_deadVertexIdx = 0;
 }
 
-void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_playerPos, const KuroEngine::Quaternion arg_playerRotate)
+void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_playerPos, const KuroEngine::Quaternion arg_playerRotate, KuroEngine::Transform arg_camTransform)
 {
 	using namespace KuroEngine;
 
@@ -124,6 +124,11 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 	}
 
 	m_oldPlayerPos = arg_playerPos;
+
+	DirectX::XMMATRIX camMatWorld= arg_camTransform.GetMatWorld();
+	m_constData.m_pos = KuroEngine::Vec3<float>(camMatWorld.r[3].m128_f32[0], camMatWorld.r[3].m128_f32[1], camMatWorld.r[3].m128_f32[2]);
+	m_constBuffer->Mapping(&m_constData);
+
 }
 
 void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)

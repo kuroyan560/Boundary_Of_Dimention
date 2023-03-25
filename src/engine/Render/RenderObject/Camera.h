@@ -100,6 +100,7 @@ namespace KuroEngine
 
 		//ƒQƒbƒ^
 		Transform& GetTransform() { return m_transform; }
+		const Vec3<float>& GetEye() { return cameraInfo.eye; }
 		const Angle& GetAngleOfView() { return angleOfView; }
 		const Matrix& GetViewMat() { CameraInfoUpdate(); return cameraInfo.matView; }
 		const Matrix& GetProjectionMat() { CameraInfoUpdate(); return cameraInfo.matProjection; }
