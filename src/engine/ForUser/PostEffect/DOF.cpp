@@ -29,16 +29,16 @@ void KuroEngine::DOF::OnImguiItems()
 	}
 }
 
-void KuroEngine::DOF::OnLoadCustomParams()
-{
-	m_configBuff->Mapping(&m_config);
-	m_gaussianBlur->SetBlurPower(m_blurPower);
-}
-
 KuroEngine::DOF::DOF() : Debugger("DOF")
 {
 	//パイプライン未生成なら生成
 	if (!s_pipeline)GeneratePipeline();
+
+	AddCustomParameter("nearPint", { "Config","nearPint" }, PARAM_TYPE::FLOAT, &m_config.m_nearPint, "Config");
+	AddCustomParameter("farPint", { "Config","farPint" }, PARAM_TYPE::FLOAT, &m_config.m_farPint, "Config");
+	AddCustomParameter("pintLength", { "Config","pintLength" }, PARAM_TYPE::FLOAT, &m_config.m_pintLength, "Config");
+	AddCustomParameter("power", { "Config","Blur" }, PARAM_TYPE::FLOAT, &m_blurPower, "Blur");
+	LoadParameterLog();
 
 	//ウィンドウサイズの取得
 	const auto winSize = KuroEngine::WinApp::Instance()->GetExpandWinSize();
@@ -55,10 +55,7 @@ KuroEngine::DOF::DOF() : Debugger("DOF")
 	//深度マップをもとに生成した透過ボケ画像の格納先
 	m_processedTex = D3D12App::Instance()->GenerateTextureBuffer(winSize.Int(), backBuffFormat, "DOF - ProcessedTex");
 
-	AddCustomParameter("nearPint", { "Config","nearPint" }, PARAM_TYPE::FLOAT, &m_config.m_nearPint, "Config");
-	AddCustomParameter("farPint", { "Config","farPint" }, PARAM_TYPE::FLOAT, &m_config.m_farPint, "Config");
-	AddCustomParameter("pintLength", { "Config","pintLength" }, PARAM_TYPE::FLOAT, &m_config.m_pintLength, "Config");
-	AddCustomParameter("power", { "Config","Blur" }, PARAM_TYPE::FLOAT, &m_blurPower, "Blur");
+
 }
 
 void KuroEngine::DOF::SetPintConfig(float NearPint, float FarPint, float PintLength)
@@ -69,7 +66,7 @@ void KuroEngine::DOF::SetPintConfig(float NearPint, float FarPint, float PintLen
 	m_configBuff->Mapping(&m_config);
 }
 
-void KuroEngine::DOF::Register(std::weak_ptr<RenderTarget> Src, std::weak_ptr<RenderTarget> DepthMap)
+void KuroEngine::DOF::Register(std::weak_ptr<TextureBuffer> Src, std::weak_ptr<TextureBuffer> DepthMap)
 {
 	m_gaussianBlur->Register(Src.lock());
 

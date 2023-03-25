@@ -42,14 +42,13 @@ namespace KuroEngine
 		float m_blurPower = 8.0f;
 
 		void OnImguiItems()override;
-		void OnLoadCustomParams()override;
 
 	public:
 		DOF();
 		void SetPintConfig(float NearPint = 0.0f, float FarPint = 10.0f, float PintLength = 20.0f);
 
 		//グラフィックスマネージャに登録
-		void Register(std::weak_ptr<RenderTarget>Src, std::weak_ptr<RenderTarget>DepthMap);
+		void Register(std::weak_ptr<TextureBuffer>Src, std::weak_ptr<TextureBuffer>DepthMap);
 
 		//結果のテクスチャ取得
 		std::shared_ptr<TextureBuffer>& GetResultTex() { return m_processedTex; }

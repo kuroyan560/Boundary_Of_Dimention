@@ -25,6 +25,8 @@ class WaterPaintBlend : public KuroEngine::Debugger
 	//Œ‹‰Ê‚Ì•`‰ææ
 	std::shared_ptr<KuroEngine::TextureBuffer>m_resultTex;
 
+	bool m_isDirty = false;
+
 	void OnImguiItems()override;
 
 public:

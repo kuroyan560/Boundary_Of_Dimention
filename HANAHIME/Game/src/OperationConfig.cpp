@@ -12,6 +12,8 @@ OperationConfig::OperationConfig()
         AddCustomParameter("CameraSensitivity", { deviceName,"CameraSensitivity" },
             PARAM_TYPE::FLOAT, &m_params[i].m_camSensitivity, deviceName);
     }
+
+    LoadParameterLog();
 }
 
 void OperationConfig::OnImguiItems()

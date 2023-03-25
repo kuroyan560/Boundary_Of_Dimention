@@ -94,7 +94,7 @@
       "pintLength": 30.0
     },
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.800000011920929,
@@ -187,5 +187,28 @@
     },
     "intensity": 0.4000000059604645,
     "smoothness": 0.4000000059604645
+  },
+  "WaterPaintBlend": {
+    "Noise": {
+      "constrast": 4,
+      "frequency": 1.600000023841858,
+      "octave": 2,
+      "persistance": 1.25,
+      "split": [
+        16,
+        16
+      ]
+    },
+    "debuggerSetting": {
+      "active": true,
+      "customParamActive": true,
+      "imageColor": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "textColorFlg": false
+    }
   }
 }

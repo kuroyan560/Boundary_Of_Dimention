@@ -149,6 +149,10 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 Player::Player()
 	:KuroEngine::Debugger("Player", true, true)
 {
+	AddCustomParameter("MoveScalar", { "moveScalar" }, PARAM_TYPE::FLOAT, &m_moveScalar, "Player");
+	AddCustomParameter("Sensitivity", { "camera", "sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity, "Camera");
+	LoadParameterLog();
+
 	//モデル読み込み
 	m_model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Player.glb");
 	m_axisModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Axis.glb");
@@ -158,9 +162,6 @@ Player::Player()
 	m_cam = std::make_shared<KuroEngine::Camera>("Player's Camera");
 	//カメラのコントローラーにアタッチ
 	m_camController.AttachCamera(m_cam);
-
-	AddCustomParameter("MoveScalar", { "moveScalar" }, PARAM_TYPE::FLOAT, &m_moveScalar, "Player");
-	AddCustomParameter("Sensitivity", { "camera", "sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity, "Camera");
 
 	m_cameraRotY = 0;
 	m_cameraQ = DirectX::XMQuaternionIdentity();

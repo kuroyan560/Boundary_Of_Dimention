@@ -29,7 +29,8 @@ void GameScene::OnInitialize()
 	StageManager::Instance(),
 	BasicDraw::Instance(),
 	&m_vignettePostEffect,
-	&m_dof
+	&m_dof,
+	&m_waterPaintBlend
 	});
 
 	m_debugCam.Init({ 0,5,-10 });
@@ -142,7 +143,9 @@ void GameScene::OnDraw()
 
 	BasicDraw::Instance()->DrawEdge(depthMap, edgeColMap);
 
-	m_dof.Register(main, depthMap);
+	m_waterPaintBlend.Register(main, hueChangedMain, maskLayer);
+
+	m_dof.Register(m_waterPaintBlend.GetResultTex(), depthMap);
 
 	m_vignettePostEffect.Register(m_dof.GetResultTex());
 

@@ -136,19 +136,19 @@ void KuroEngine::Debugger::LoadParameterLog()
 		}
 		case PARAM_TYPE::INT_VEC2:
 		{
-			Vec2<int>data = { (int)jsonObj[0],(int)jsonObj[1] };
+			Vec2<int>data = { (int)jsonObj->at(0),(int)jsonObj->at(1) };
 			memcpy(param.m_dataPtr, &data, sizeof(int) * 2);
 			break;
 		}
 		case PARAM_TYPE::INT_VEC3:
 		{
-			Vec3<int>data = { (int)jsonObj[0],(int)jsonObj[1],(int)jsonObj[2] };
+			Vec3<int>data = { (int)jsonObj->at(0),(int)jsonObj->at(1),(int)jsonObj->at(2) };
 			memcpy(param.m_dataPtr, &data, sizeof(int) * 3);
 			break;
 		}
 		case PARAM_TYPE::INT_VEC4:
 		{
-			Vec4<int>data = { (int)jsonObj[0],(int)jsonObj[1],(int)jsonObj[2],(int)jsonObj[3] };
+			Vec4<int>data = { (int)jsonObj->at(0),(int)jsonObj->at(1),(int)jsonObj->at(2),(int)jsonObj->at(3) };
 			memcpy(param.m_dataPtr, &data, sizeof(int) * 4);
 			break;
 		}
@@ -204,8 +204,6 @@ void KuroEngine::Debugger::LoadParameterLog()
 			break;
 		}
 	}
-
-	OnLoadCustomParams();
 }
 
 void KuroEngine::Debugger::WriteParameterLog()

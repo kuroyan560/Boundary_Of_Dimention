@@ -7,6 +7,7 @@
 #include"ForUser/PostEffect/Vignette.h"
 #include"Stage/Grass.h"
 #include"ForUser/PostEffect/DOF.h"
+#include"Graphics/WaterPaintBlend.h"
 
 class GameScene : public KuroEngine::BaseScene
 {
@@ -30,7 +31,11 @@ class GameScene : public KuroEngine::BaseScene
 	//被写界深度ポストエフェクト
 	KuroEngine::DOF m_dof;
 
+	//草むら
 	Grass m_grass;
+
+	//水彩画風ブレンドポストエフェクト
+	WaterPaintBlend m_waterPaintBlend;
 
 	void OnInitialize()override;
 	void OnUpdate()override;

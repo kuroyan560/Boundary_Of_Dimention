@@ -29,16 +29,7 @@ void WaterPaintBlend::OnImguiItems()
 {
 	using namespace KuroEngine;
 
-	if (CustomParamDirty())
-	{
-		auto targetSize = D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize();
-
-		m_noiseTex.reset();
-		m_noiseTex = PerlinNoise::GenerateTex(
-			"WaterPaintBlend_NoiseTex",
-			targetSize,
-			m_noiseInitializer);
-	}
+	m_isDirty = CustomParamDirty();
 }
 
 WaterPaintBlend::WaterPaintBlend() : Debugger("WaterPaintBlend")
@@ -48,6 +39,13 @@ WaterPaintBlend::WaterPaintBlend() : Debugger("WaterPaintBlend")
 	//パイプライン未生成なら生成
 	if (!s_pipeline)GeneratePipeline();
 
+	AddCustomParameter("split", { "Noise","split" }, PARAM_TYPE::INT_VEC2, &m_noiseInitializer.m_split, "Noise");
+	AddCustomParameter("constrast", { "Noise","constrast" }, PARAM_TYPE::INT, &m_noiseInitializer.m_contrast, "Noise");
+	AddCustomParameter("octave", { "Noise","octave" }, PARAM_TYPE::INT, &m_noiseInitializer.m_octave, "Noise");
+	AddCustomParameter("frequency", { "Noise","frequency" }, PARAM_TYPE::FLOAT, &m_noiseInitializer.m_frequency, "Noise");
+	AddCustomParameter("persistance", { "Noise","persistance" }, PARAM_TYPE::FLOAT, &m_noiseInitializer.m_persistance, "Noise");
+	LoadParameterLog();
+
 	auto targetSize = D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize();
 
 	//結果の描画先テクスチャ生成
@@ -56,22 +54,28 @@ WaterPaintBlend::WaterPaintBlend() : Debugger("WaterPaintBlend")
 		D3D12App::Instance()->GetBackBuffFormat(),
 		"WaterPaintBlend - ResultTex");
 
-	//ノイズ生成
+	//ノイズテクスチャ生成
 	m_noiseTex = PerlinNoise::GenerateTex(
 		"WaterPaintBlend_NoiseTex",
 		targetSize,
 		m_noiseInitializer);
-
-	AddCustomParameter("split", { "Noise","split" }, PARAM_TYPE::INT_VEC2, &m_noiseInitializer.m_split, "Noise");
-	AddCustomParameter("constrast", { "Noise","constrast" }, PARAM_TYPE::INT, &m_noiseInitializer.m_contrast, "Noise");
-	AddCustomParameter("octave", { "Noise","octave" }, PARAM_TYPE::INT, &m_noiseInitializer.m_octave, "Noise");
-	AddCustomParameter("frequency", { "Noise","frequency" }, PARAM_TYPE::FLOAT, &m_noiseInitializer.m_frequency, "Noise");
-	AddCustomParameter("persistance", { "Noise","persistance" }, PARAM_TYPE::FLOAT, &m_noiseInitializer.m_persistance, "Noise");
 }
 
 void WaterPaintBlend::Register(std::shared_ptr<KuroEngine::TextureBuffer> arg_baseTex, std::shared_ptr<KuroEngine::TextureBuffer> arg_blendTex, std::shared_ptr<KuroEngine::TextureBuffer> arg_maskTex)
 {
 	using namespace KuroEngine;
+
+	if (m_isDirty)
+	{
+		auto targetSize = D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize();
+		m_noiseTex.reset();
+		m_noiseTex = PerlinNoise::GenerateTex(
+			"WaterPaintBlend_NoiseTex",
+			targetSize,
+			m_noiseInitializer);
+
+		m_isDirty = false;
+	}
 
 	KuroEngineDevice::Instance()->Graphics().SetComputePipeline(s_pipeline);
 

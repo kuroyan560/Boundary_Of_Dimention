@@ -31,6 +31,8 @@ BasicDraw::BasicDraw() :KuroEngine::Debugger("BasicDraw")
 		&defaultParam.m_limBrightColor, "DefaultDrawParam");
 	AddCustomParameter("EdgeColor", { "DefaultDrawParam","EdgeColor" }, PARAM_TYPE::COLOR,
 		&defaultParam.m_edgeColor, "DefaultDrawParam");
+
+	LoadParameterLog();
 }
 
 void BasicDraw::OnImguiItems()
