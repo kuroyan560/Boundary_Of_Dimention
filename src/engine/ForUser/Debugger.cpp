@@ -3,6 +3,7 @@
 #include"KuroEngine.h"
 
 std::vector<KuroEngine::Debugger*>KuroEngine::Debugger::s_debuggerArray;
+std::vector<KuroEngine::Debugger*>KuroEngine::Debugger::s_registeredDebuggerArray;
 int KuroEngine::Debugger::s_id = 0;
 const std::string KuroEngine::Debugger::s_jsonFileDir = "resource/engine/";
 const std::string KuroEngine::Debugger::s_jsonName = "KuroEngineDebugger";
@@ -22,7 +23,7 @@ void KuroEngine::Debugger::Draw()
 	ImGui::Begin("DebuggerMgr", nullptr, ImGuiWindowFlags_NoDocking);
 	Fps::Instance()->OnImguiItems();
 	ImGui::Separator();
-	for (auto& debugger : s_debuggerArray)
+	for (auto& debugger : s_registeredDebuggerArray)
 	{
 		bool colorWidget = false;
 		if (ImGui::ColorButton(("ColorWidget" + debugger->m_title).c_str(), debugger->m_debuggerColor))colorWidget = true;
@@ -41,7 +42,7 @@ void KuroEngine::Debugger::Draw()
 	}
 	ImGui::End();
 
-	for (auto& debugger : s_debuggerArray)
+	for (auto& debugger : s_registeredDebuggerArray)
 	{
 		if (!debugger->m_active)continue;
 

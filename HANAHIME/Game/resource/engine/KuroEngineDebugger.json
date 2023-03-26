@@ -33,7 +33,7 @@
       ]
     },
     "Edge": {
-      "DepthDifferenceThreshold": 0.800000011920929
+      "DepthDifferenceThreshold": 0.25
     },
     "Toon": {
       "BrightThreshold": {
@@ -62,7 +62,7 @@
     },
     "PosLerpRate": 0.800000011920929,
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.1879725158214569,
@@ -105,6 +105,32 @@
       "textColorFlg": false
     }
   },
+  "Fps": {
+    "debuggerSetting": {
+      "active": false,
+      "customParamActive": false,
+      "imageColor": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "textColorFlg": false
+    }
+  },
+  "LightManager": {
+    "debuggerSetting": {
+      "active": false,
+      "customParamActive": false,
+      "imageColor": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "textColorFlg": false
+    }
+  },
   "OperationConfig": {
     "CONTROLLER": {
       "CameraSensitivity": 0.05999999865889549
@@ -129,7 +155,7 @@
       "sensitivity": 1.0
     },
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.864130437374115,
@@ -200,7 +226,7 @@
       ]
     },
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.800000011920929,

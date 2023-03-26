@@ -16,6 +16,8 @@ namespace KuroEngine
 		//割り当てる識別番号
 		static int s_id;
 		//起動中のデバッガ配列
+		static std::vector<Debugger*>s_registeredDebuggerArray;
+		//生成したデバッガ配列
 		static std::vector<Debugger*>s_debuggerArray;
 
 		//※exe閉じてもパラメータを残すためのもの
@@ -59,12 +61,12 @@ namespace KuroEngine
 		//デバッガ登録
 		static void Register(std::vector<Debugger*>arg_debuggerArray)
 		{
-			s_debuggerArray = arg_debuggerArray;
+			s_registeredDebuggerArray = arg_debuggerArray;
 		}
 		//デバッガ登録解除
 		static void ClearRegister() 
 		{
-			s_debuggerArray.clear(); 
+			s_registeredDebuggerArray.clear(); 
 		}
 
 		//パラメータログをファイル読み込み
@@ -75,7 +77,7 @@ namespace KuroEngine
 		//パラメータログをファイル出力
 		static void ExportParameterLog()
 		{
-			ClearRegister();
+			for (auto debugger : s_debuggerArray)debugger->WriteParameterLog();
 			s_parameterLog.Export(s_jsonFileDir, s_jsonName, s_jsonExt, false);
 		}
 
@@ -136,6 +138,7 @@ namespace KuroEngine
 		Debugger(std::string arg_title, bool arg_active = false, bool arg_customParamActive = false, ImGuiWindowFlags arg_imguiWinFlags = 0)
 			:m_title(arg_title), m_active(arg_active), m_customParamActive(arg_customParamActive), m_id(s_id++), m_imguiWinFlags(arg_imguiWinFlags)
 		{
+			s_debuggerArray.emplace_back(this);
 		}
 
 		/// <summary>
