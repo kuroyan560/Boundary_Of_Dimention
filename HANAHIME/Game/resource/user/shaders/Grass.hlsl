@@ -10,8 +10,8 @@ struct VSOutput
     uint texID : TexID;
     float3 normal : NORMAL;
     uint isAlive : IsAlive;
-    float sineLength : SINELENGTH;
-    float appearY : APPEARY;
+    float sineLength : SINELENGTH;  //風で揺れる量
+    float appearY : APPEARY;        //出現エフェクトに使用する。 Y軸のどこまで描画するか。
 };
 
 //ジオメトリシェーダーを通したデータ
@@ -19,10 +19,10 @@ struct GSOutput
 {
     float4 position : SV_POSITION;
     float3 normal : NORMAL;
-    float2 toUV : TOUV;         //現在の角度から求められるUV
+    float2 toUV : TOUV;             //現在の角度から求められるUV
     float2 fromUV : FROMUV;         //前回使用されていたUV 補間させるために使用
     float uvLerpAmount : UVLERP;    //UVの補間量
-    uint texID : NEXTTexID;
+    uint texID : TexID;             //使用するテクスチャのID
 };
 
 //ピクセルシェーダーを通したデータ（レンダーターゲットに書き込むデータ）
@@ -43,8 +43,8 @@ cbuffer cbuff0 : register(b0)
 //定数バッファ（好きなの入れてね）
 cbuffer cbuff1 : register(b1)
 {
-    float3 cameraPos;
-    float sineWave;
+    float3 cameraPos;   //カメラ座標
+    float sineWave;     //草を揺らす際のSine量 つまり風
 }
 
 //テクスチャ
@@ -115,40 +115,55 @@ void GSmain(
     //uvOffsetの小数点第二位から補間の割合を求める。 Imposterに含まれている画像の数が20枚なので、0.05間隔で割合を求める。
     element.uvLerpAmount = abs(angle01 - toUVOffset) / textureSizeU;
 
-    //左下
-    element.position = float4(input[0].position.xyz, 1.0f);
-    element.position += float4(rightVec,0) * -PolygonSize.x;
-    element.position = mul(viewproj, element.position);
-    element.toUV = float2(toUVOffset,1);
-    element.fromUV = float2(fromUVOFfset,1);
+    //風の強さ 出現度合いを風の大きさにかけることで出現初期は揺れないようにする。
+    float windPower = input[0].sineLength * input[0].appearY;
+    float4 windPos = float4(float3(0,0,1) * (sin(sineWave) * windPower), 0.0f);
+
+    //草の高さ 出現度合いを風の高さにかけることでだんだん生えるようにする。
+    float grassHeight = input[0].appearY * PolygonSize.y;
+
+    /*-- 左下 --*/
+    //座標を求める。
+    element.position = float4(input[0].position.xyz, 1.0f);     //頂点を初期化
+    element.position += float4(rightVec,0) * -PolygonSize.x;    //左方向に移動させる。
+    element.position = mul(viewproj, element.position);         //カメラ座標へ
+    //UVを求める。
+    element.toUV = float2(toUVOffset,1);                        //補間先のUV
+    element.fromUV = float2(fromUVOFfset,1);                    //補間元のUV
     output.Append(element);
     
-    //左上
-    element.position = float4(input[0].position.xyz, 1.0f);         //頂点を初期化。
-    element.position += float4(rightVec,0) * -PolygonSize.x;        //左へ移動させる。
-    element.position += float4(input[0].normal,0) * (input[0].appearY * PolygonSize.y);  //上へ移動させる。
-    element.position += float4(float3(0,0,1) * (sin(sineWave) * input[0].sineLength), 0.0f);  //草を揺らす。
-    element.position = mul(viewproj, element.position);             //カメラ座標へ
-    element.toUV = float2(toUVOffset,(1.0f - input[0].appearY));
-    element.fromUV = float2(fromUVOFfset,(1.0f - input[0].appearY));
+    /*-- 左上 --*/
+    //座標を求める。
+    element.position = float4(input[0].position.xyz, 1.0f);             //頂点を初期化。
+    element.position += float4(rightVec,0) * -PolygonSize.x;            //左へ移動させる。
+    element.position += float4(input[0].normal,0) * grassHeight;        //上へ移動させる。
+    element.position += windPos;                                        //草を揺らす。
+    element.position = mul(viewproj, element.position);                 //カメラ座標へ
+    //UVを求める。
+    element.toUV = float2(toUVOffset,(1.0f - input[0].appearY));        //補間先のUV
+    element.fromUV = float2(fromUVOFfset,(1.0f - input[0].appearY));    //補間元のUV
     output.Append(element);
     
-    //右下
-    element.position = float4(input[0].position.xyz, 1.0f);
-    element.position += float4(rightVec,0) * PolygonSize.x;
-    element.position = mul(viewproj, element.position);
-    element.toUV = float2(toUVOffset + textureSizeU,1);
-    element.fromUV = float2(fromUVOFfset + textureSizeU,1);
+    /*-- 右下 --*/
+    //座標を求める。
+    element.position = float4(input[0].position.xyz, 1.0f);     //頂点を初期化
+    element.position += float4(rightVec,0) * PolygonSize.x;     //右へ移動させる。
+    element.position = mul(viewproj, element.position);         //カメラ座標へ
+    //UVを求める。
+    element.toUV = float2(toUVOffset + textureSizeU,1);         //補間先のUV
+    element.fromUV = float2(fromUVOFfset + textureSizeU,1);     //補間元のUV
     output.Append(element);
     
-    //右上
+    /*-- 右上 --*/
+    //座標を求める。
     element.position = float4(input[0].position.xyz, 1.0f);         //頂点を初期化。
     element.position += float4(rightVec,0) * PolygonSize.x;         //右へ移動させる。
-    element.position += float4(input[0].normal,0) * (input[0].appearY * PolygonSize.y);  //上へ移動させる。
-    element.position += float4(float3(0,0,1) * (sin(sineWave) * input[0].sineLength), 0.0f);  //草を揺らす。
+    element.position += float4(input[0].normal,0) * grassHeight;    //上へ移動させる。
+    element.position += windPos;                                    //草を揺らす。
     element.position = mul(viewproj, element.position);             //カメラ座標へ
-    element.toUV = float2(toUVOffset + textureSizeU,(1.0f - input[0].appearY));
-    element.fromUV = float2(fromUVOFfset + textureSizeU,(1.0f - input[0].appearY));
+    //UVを求める。
+    element.toUV = float2(toUVOffset + textureSizeU,(1.0f - input[0].appearY));        //補間先のUV
+    element.fromUV = float2(fromUVOFfset + textureSizeU,(1.0f - input[0].appearY));    //補間元のUV
     output.Append(element);
 }
 
