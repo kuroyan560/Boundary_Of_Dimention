@@ -1,6 +1,8 @@
 #include "WaterPaintBlend.h"
 #include"DirectX12/D3D12App.h"
 #include"KuroEngineDevice.h"
+#include"ForUser/DrawFunc/BillBoard/DrawFuncBillBoard.h"
+#include"Render/RenderObject/Camera.h"
 
 std::shared_ptr<KuroEngine::ComputePipeline>WaterPaintBlend::s_pipeline;
 
@@ -45,6 +47,13 @@ WaterPaintBlend::WaterPaintBlend() : Debugger("WaterPaintBlend")
 	AddCustomParameter("persistance", { "Noise","persistance" }, PARAM_TYPE::FLOAT, &m_noiseInitializer.m_persistance, "Noise");
 	LoadParameterLog();
 
+	//インクテクスチャ読み込み
+	D3D12App::Instance()->GenerateTextureBuffer(
+		m_inkTexArray.data(),
+		"resource/user/tex/ink.png",
+		INK_TEX_NUM,
+		Vec2<int>(INK_TEX_NUM, 1));
+
 	auto targetSize = D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize();
 
 	//結果の描画先テクスチャ生成
@@ -58,11 +67,45 @@ WaterPaintBlend::WaterPaintBlend() : Debugger("WaterPaintBlend")
 		"WaterPaintBlend_NoiseTex",
 		targetSize,
 		m_noiseInitializer);
+
+	//マスクレイヤー生成
+	m_maskLayer = D3D12App::Instance()->GenerateRenderTarget(
+		DXGI_FORMAT_R16G16B16A16_FLOAT,
+		Color(0, 0, 0, 0),
+		targetSize, L"MaskLayer");
 }
 
-void WaterPaintBlend::Register(std::shared_ptr<KuroEngine::TextureBuffer> arg_baseTex, std::shared_ptr<KuroEngine::TextureBuffer> arg_maskTex)
+void WaterPaintBlend::Init()
+{
+	m_maskInkArray.clear();
+}
+
+void WaterPaintBlend::DropMaskInk(KuroEngine::Vec3<float> arg_pos)
+{
+	m_maskInkArray.emplace_back();
+	m_maskInkArray.back().m_pos = arg_pos;
+	m_maskInkArray.back().m_texIdx = KuroEngine::GetRand(INK_TEX_NUM - 1);
+}
+
+void WaterPaintBlend::Register(std::shared_ptr<KuroEngine::TextureBuffer> arg_baseTex, KuroEngine::Camera& arg_cam, std::weak_ptr<KuroEngine::DepthStencil>arg_depthStencil)
 {
 	using namespace KuroEngine;
+
+	//マスクレイヤークリア
+	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(m_maskLayer);
+
+	//マスクレイヤーにインク描画
+	KuroEngineDevice::Instance()->Graphics().SetRenderTargets({ m_maskLayer }, arg_depthStencil);
+	const float size = 7.0;
+	for (auto& ink : m_maskInkArray)
+	{
+		DrawFuncBillBoard::Graph(
+			arg_cam,
+			ink.m_pos,
+			{ size,size },
+			m_inkTexArray[ink.m_texIdx],
+			AlphaBlendMode_Trans);
+	}
 
 	if (m_isDirty)
 	{
@@ -89,7 +132,7 @@ void WaterPaintBlend::Register(std::shared_ptr<KuroEngine::TextureBuffer> arg_ba
 		threadNum,
 		{
 			{arg_baseTex,SRV},
-			{arg_maskTex,SRV},
+			{m_maskLayer,SRV},
 			{m_noiseTex,SRV},
 			{m_resultTex,UAV}
 		});

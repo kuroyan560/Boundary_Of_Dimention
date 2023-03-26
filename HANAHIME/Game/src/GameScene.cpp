@@ -40,6 +40,8 @@ void GameScene::OnInitialize()
 	m_player.Init(playerInitTransform);
 
 	m_grass.Init();
+
+	m_waterPaintBlend.Init();
 }
 
 void GameScene::OnUpdate()
@@ -58,7 +60,13 @@ void GameScene::OnUpdate()
 
 	m_player.Update(StageManager::Instance()->GetNowStage());
 
-	m_grass.Update(1.0f, m_player.GetTransform().GetPos(), m_player.GetTransform().GetRotate());
+	m_grass.Update(1.0f, m_player.GetTransform().GetPos(), m_player.GetTransform().GetRotate(), m_waterPaintBlend);
+
+	//KuroEngine::Vec2<float>pos;
+	//pos.x = KuroEngine::GetRand(0.0f, 1280.0f);
+	//pos.y = KuroEngine::GetRand(0.0f, 720.0f);
+	//m_waterPaintBlend.DropMaskInk(pos);
+
 }
 
 void GameScene::OnDraw()
@@ -80,10 +88,6 @@ void GameScene::OnDraw()
 		DXGI_FORMAT_R32_FLOAT,
 		Color(FLT_MAX, 0.0f, 0.0f, 0.0f),
 		targetSize, L"DepthMap");
-	static auto maskLayer = D3D12App::Instance()->GenerateRenderTarget(
-		DXGI_FORMAT_R16G16B16A16_FLOAT,
-		Color(0,0,0,0),
-		targetSize, L"MaskLayer");
 	static auto edgeColMap = D3D12App::Instance()->GenerateRenderTarget(
 		D3D12App::Instance()->GetBackBuffFormat(),
 		Color(0.0f, 0.0f, 0.0f, 1.0f),
@@ -93,7 +97,6 @@ void GameScene::OnDraw()
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(main);
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(emissiveMap);
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(depthMap);
-	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(maskLayer);
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(edgeColMap);
 	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 
@@ -103,7 +106,6 @@ void GameScene::OnDraw()
 			main,
 			emissiveMap,
 			depthMap,
-			maskLayer,
 			edgeColMap
 		},
 		ds
@@ -136,7 +138,8 @@ void GameScene::OnDraw()
 
 	BasicDraw::Instance()->DrawEdge(depthMap, edgeColMap);
 
-	m_waterPaintBlend.Register(main, maskLayer);
+	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
+	m_waterPaintBlend.Register(main, *nowCamera, ds);
 
 	m_dof.Register(m_waterPaintBlend.GetResultTex(), depthMap);
 

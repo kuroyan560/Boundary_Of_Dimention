@@ -2,6 +2,7 @@
 #include"DirectX12/D3D12App.h"
 #include"FrameWork/Importer.h"
 #include"../Graphics/BasicDraw.h"
+#include"../Graphics/WaterPaintBlend.h"
 
 Grass::Grass()
 {
@@ -69,7 +70,7 @@ void Grass::Init()
 	m_plantTimer.Reset(0);
 }
 
-void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_playerPos, const KuroEngine::Quaternion arg_playerRotate)
+void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_playerPos, const KuroEngine::Quaternion arg_playerRotate, WaterPaintBlend& arg_waterPaintBlend)
 {
 	using namespace KuroEngine;
 
@@ -98,7 +99,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 			grassTransform.SetPos(arg_playerPos);
 			grassTransform.SetRotate(arg_playerRotate);
 			grassTransform.SetScale({ 1.0f,1.0f,1.0f });
-			Plant(grassTransform.GetMatWorld());
+			Plant(grassTransform.GetMatWorld(), arg_playerPos, arg_waterPaintBlend);
 			m_plantTimer.Reset(3);
 		}
 		m_plantTimer.UpdateTimer();
@@ -123,7 +124,8 @@ void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 		KuroEngine::AlphaBlendMode_Trans);
 }
 
-void Grass::Plant(KuroEngine::Matrix arg_worldMat)
+void Grass::Plant(KuroEngine::Matrix arg_worldMat, KuroEngine::Vec3<float>arg_pos, WaterPaintBlend& arg_waterPaintBlend)
 {
 	m_grassWorldMatArray.push_back(arg_worldMat);
-}
+	arg_waterPaintBlend.DropMaskInk(arg_pos + KuroEngine::Vec3<float>(0.0f, 1.0f, 0.0f));
+};

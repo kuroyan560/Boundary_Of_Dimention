@@ -1,4 +1,5 @@
 #pragma once
+#include<map>
 #include"KuroEngine.h"
 #include"DirectX12/D3D12Data.h"
 
@@ -24,11 +25,11 @@ namespace KuroEngine
 		};
 
 		//パイプライン
-		static std::array<std::shared_ptr<GraphicsPipeline>, AlphaBlendModeNum>s_pipeline;
+		static std::map<DXGI_FORMAT, std::array<std::shared_ptr<GraphicsPipeline>, AlphaBlendModeNum>>s_pipeline;
 		static std::vector<std::shared_ptr<VertexBuffer>>s_graphVertBuff;
 
 	public:
-		static void GeneratePipeline(const AlphaBlendMode& BlendMode);
+		static void GeneratePipeline(DXGI_FORMAT Format, const AlphaBlendMode& BlendMode);
 		//事前に頂点バッファを生成しておく
 		static void PrepareGraphVertBuff(int arg_num);
 

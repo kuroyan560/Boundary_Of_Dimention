@@ -14,6 +14,8 @@ namespace KuroEngine
 	class LightManager;
 }
 
+class WaterPaintBlend;
+
 class Grass
 {
 	static const int THREAD_PER_NUM = 10;
@@ -52,12 +54,14 @@ class Grass
 public:
 	Grass();
 	void Init();
-	void Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_playerPos, const KuroEngine::Quaternion arg_playerRotate);
+	void Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_playerPos, const KuroEngine::Quaternion arg_playerRotate, WaterPaintBlend& arg_waterPaintBlend);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
 
 	/// <summary>
 	/// 草を植える
 	/// </summary>
 	/// <param name="arg_worldMat">植える草のワールド行列</param>
-	void Plant(KuroEngine::Matrix arg_worldMat);
+	/// <param name="arg_pos">植える草の座標</param>
+	/// <param name="arg_waterPaintBlend">水彩画ブレンドポストエフェクトの参照</param>
+	void Plant(KuroEngine::Matrix arg_worldMat, KuroEngine::Vec3<float>arg_pos, WaterPaintBlend& arg_waterPaintBlend);
 };

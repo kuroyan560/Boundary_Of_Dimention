@@ -69,11 +69,11 @@ void KuroEngine::GetDivideStr(const std::string& Str, std::string* Dir, std::str
 
 KuroEngine::Vec2<float> KuroEngine::ConvertWorldToScreen(Vec3<float> WorldPos, const Matrix& ViewMat, const Matrix& ProjMat, const Vec2<float>& WinSize)
 {
-	XMVECTOR pos = XMLoadFloat3((XMFLOAT3*)&WorldPos);
 	//ビュー行列適応
-	pos = XMVector3Transform(pos, ViewMat);
+	auto pos = Math::TransformVec3(WorldPos, ViewMat);
 	//プロジェクション行列適応
-	pos = XMVector3TransformCoord(pos, ProjMat);
+	pos = Math::TransformVec3(pos, ProjMat);
+    pos /= pos.z;
 
 	//ビューポート行列
 	Matrix viewPortMat = XMMatrixIdentity();
@@ -82,14 +82,9 @@ KuroEngine::Vec2<float> KuroEngine::ConvertWorldToScreen(Vec3<float> WorldPos, c
 	viewPortMat.r[3].m128_f32[0] = WinSize.x / 2.0f;
 	viewPortMat.r[3].m128_f32[1] = WinSize.y / 2.0f;
 	//ビューポート行列適応
-	pos = XMVector3Transform(pos, viewPortMat);
+	pos = Math::TransformVec3(pos, viewPortMat);
 
-	Vec2<float> result;
-	result.x = pos.m128_f32[0];
-	result.y = pos.m128_f32[1];
-	//result.z = pos.m128_f32[2];
-
-	return result;
+    return Vec2<float>(pos.x, pos.y);
 }
 
 KuroEngine::Vec3<float> KuroEngine::ConvertScreenToWorld(Vec2<float> ScreenPos, float Z, const Matrix& ViewMat, const Matrix& ProjMat, const Vec2<int>& WinSize)
