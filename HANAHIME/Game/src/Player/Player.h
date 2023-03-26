@@ -40,6 +40,9 @@ class Player : public KuroEngine::Debugger
 	//カメラ感度
 	float m_camSensitivity = 1.0f;
 
+	//草を生やす際の散らし量。
+	KuroEngine::Vec2<float> m_grassPosScatter = KuroEngine::Vec2<float>(1.0f, 1.0f);
+
 	//Y軸回転量
 	float m_cameraRotY;	//カメラのY軸回転量。この角度をもとにプレイヤーの移動方向を判断する。
 	float m_playerRotY;	//プレイヤーのY軸回転量。これは見た目上移動方向に向かせるため。正面ベクトルとかに影響が出ないようにしなければならない。
@@ -82,6 +85,7 @@ public:
 	KuroEngine::Debugger* GetCameraControllerDebugger() { return &m_camController; }
 
 	KuroEngine::Transform& GetTransform() { return m_transform; }
+	KuroEngine::Vec2<float>& GetGrassPosScatter() { return m_grassPosScatter; }
 
 
 private:

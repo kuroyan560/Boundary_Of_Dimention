@@ -64,19 +64,20 @@ class Grass
 public:
 	Grass();
 	void Init();
-	void Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_playerPos, const KuroEngine::Quaternion arg_playerRotate, KuroEngine::Transform arg_camTransform);
+	void Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_playerPos, const KuroEngine::Quaternion arg_playerRotate, KuroEngine::Transform arg_camTransform, KuroEngine::Vec2<float> arg_grassPosScatter);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
 
 	/// <summary>
 	/// 草を植える（仮置き草ブロック）
 	/// </summary>
 	/// <param name="arg_worldMat">植える草のワールド行列</param>
-	void PlantGrassBlock(KuroEngine::Transform arg_transform);
+	/// <param name="arg_grassPosScatter">散らし具合</param>
+	void PlantGrassBlock(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> arg_grassPosScatter);
 
 	/// <summary>
 	/// 草を植える（ビルボード）
 	/// </summary>
-	/// <param name="arg_pos">座標</param>
-	/// <param name="arg_normal">法線</param>
-	void Plant(KuroEngine::Vec3<float>arg_pos, KuroEngine::Vec3<float>arg_normal);
+	/// <param name="arg_transform">座標</param>
+	/// <param name="arg_grassPosScatter">散らし具合</param>
+	void Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> arg_grassPosScatter);
 };
