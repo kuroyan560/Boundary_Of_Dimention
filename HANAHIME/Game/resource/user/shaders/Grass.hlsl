@@ -70,7 +70,7 @@ void GSmain(
     element.texID = input[0].texID;
 
     //ビルボードのサイズ
-    const float2 PolygonSize = float2(0.5f,2.0f);
+    const float2 PolygonSize = float2(0.75f,3.0f);
     
     //ビュープロジェクション
     matrix viewproj = mul(cam.proj, cam.view);
@@ -165,6 +165,16 @@ PSOutput PSmain(GSOutput input)
         
         toColor = tex_1.Sample(smp, input.toUV);
         fromColor = tex_1.Sample(smp, input.fromUV);
+
+    }else if(input.texID == 2){
+        
+        toColor = tex_2.Sample(smp, input.toUV);
+        fromColor = tex_2.Sample(smp, input.fromUV);
+
+    }else if(input.texID == 3){
+        
+        toColor = tex_3.Sample(smp, input.toUV);
+        fromColor = tex_3.Sample(smp, input.fromUV);
 
     }else{
 

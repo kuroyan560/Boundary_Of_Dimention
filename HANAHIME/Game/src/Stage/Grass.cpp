@@ -83,7 +83,7 @@ Grass::Grass()
 	m_texBuffer[0] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter01.png");
 	m_texBuffer[1] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter02.png");
 	m_texBuffer[2] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter03.png");
-	m_texBuffer[3] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter01.png");
+	m_texBuffer[3] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter04.png");
 	m_texBuffer[4] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter01.png");
 }
 
@@ -175,14 +175,16 @@ void Grass::PlantGrassBlock(KuroEngine::Transform arg_transform, KuroEngine::Vec
 
 
 	//板ポリを生成。
-	for (auto& index : m_vertices) {
-		//生成済みだったら処理を飛ばす。
-		if (index.m_isAlive) continue;
+	for (int count = 0; count < 3; ++count) {
+		for (auto& index : m_vertices) {
+			//生成済みだったら処理を飛ばす。
+			if (index.m_isAlive) continue;
 
-		Plant(arg_transform, arg_grassPosScatter);
+			Plant(arg_transform, arg_grassPosScatter);
 
-		break;
+			break;
 
+		}
 	}
 
 }
