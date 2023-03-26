@@ -85,9 +85,13 @@ void GameScene::OnDraw()
 		Color(0.0f, 0.0f, 0.0f, 1.0f),
 		targetSize, L"EmissiveMap");
 	static auto depthMap = D3D12App::Instance()->GenerateRenderTarget(
-		DXGI_FORMAT_R32_FLOAT,
+		DXGI_FORMAT_R16_FLOAT,
 		Color(FLT_MAX, 0.0f, 0.0f, 0.0f),
 		targetSize, L"DepthMap");
+	static auto normalMap = D3D12App::Instance()->GenerateRenderTarget(
+		DXGI_FORMAT_R16G16B16A16_FLOAT,
+		Color(0.0f, 0.0f, 0.0f, 0.0f),
+		targetSize, L"NormalMap");
 	static auto edgeColMap = D3D12App::Instance()->GenerateRenderTarget(
 		D3D12App::Instance()->GetBackBuffFormat(),
 		Color(0.0f, 0.0f, 0.0f, 1.0f),
@@ -97,6 +101,7 @@ void GameScene::OnDraw()
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(main);
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(emissiveMap);
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(depthMap);
+	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(normalMap);
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(edgeColMap);
 	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 
@@ -106,6 +111,7 @@ void GameScene::OnDraw()
 			main,
 			emissiveMap,
 			depthMap,
+			normalMap,
 			edgeColMap
 		},
 		ds
@@ -136,7 +142,7 @@ void GameScene::OnDraw()
 
 	m_canvasPostEffect.Execute();
 
-	BasicDraw::Instance()->DrawEdge(depthMap, edgeColMap);
+	BasicDraw::Instance()->DrawEdge(depthMap, normalMap, edgeColMap);
 
 	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 	m_waterPaintBlend.Register(main, *nowCamera, ds);

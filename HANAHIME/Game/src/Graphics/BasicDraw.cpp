@@ -78,7 +78,8 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		{
 			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), (AlphaBlendMode)i),	//通常描画
 			RenderTargetInfo(DXGI_FORMAT_R32G32B32A32_FLOAT, AlphaBlendMode_Trans),	//エミッシブマップ
-			RenderTargetInfo(DXGI_FORMAT_R32_FLOAT, AlphaBlendMode_None),	//深度マップ
+			RenderTargetInfo(DXGI_FORMAT_R16_FLOAT, AlphaBlendMode_None),	//深度マップ
+			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//ノーマルマップ
 			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_None),	//エッジカラーマップ
 		};
 	}
@@ -180,6 +181,7 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		{
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"平行投影行列"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"デプスマップ"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"法線マップ"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"エッジカラーマップ"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"専用のパラメータ"),
 		};
@@ -366,7 +368,7 @@ void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightMan
 		arg_boneBuff);
 }
 
-void BasicDraw::DrawEdge(std::shared_ptr<KuroEngine::TextureBuffer> arg_depthMap, std::shared_ptr<KuroEngine::TextureBuffer>arg_edgeColorMap)
+void BasicDraw::DrawEdge(std::shared_ptr<KuroEngine::TextureBuffer> arg_depthMap, std::shared_ptr<KuroEngine::TextureBuffer>arg_normalMap, std::shared_ptr<KuroEngine::TextureBuffer>arg_edgeColorMap)
 {
 	using namespace KuroEngine;
 
@@ -376,6 +378,7 @@ void BasicDraw::DrawEdge(std::shared_ptr<KuroEngine::TextureBuffer> arg_depthMap
 	{
 		{KuroEngineDevice::Instance()->GetParallelMatProjBuff(),CBV},
 		{arg_depthMap,SRV},
+		{arg_normalMap,SRV},
 		{arg_edgeColorMap,SRV},
 		{m_edgeShaderParamBuff,CBV},
 	};

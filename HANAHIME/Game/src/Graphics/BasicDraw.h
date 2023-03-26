@@ -150,6 +150,7 @@ public:
 	/// エッジ描画
 	/// </summary>
 	/// <param name="arg_depthMap">深度マップ</param>
+	/// <param name="arg_normalMap">法線マップ</param>
 	/// <param name="arg_edgeColorMap">エッジカラーマップ</param>
-	void DrawEdge(std::shared_ptr<KuroEngine::TextureBuffer>arg_depthMap, std::shared_ptr<KuroEngine::TextureBuffer>arg_edgeColorMap);
+	void DrawEdge(std::shared_ptr<KuroEngine::TextureBuffer>arg_depthMap, std::shared_ptr<KuroEngine::TextureBuffer>arg_normalMap, std::shared_ptr<KuroEngine::TextureBuffer>arg_edgeColorMap);
 };
