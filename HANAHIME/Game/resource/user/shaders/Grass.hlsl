@@ -11,6 +11,7 @@ struct VSOutput
     float3 normal : NORMAL;
     uint isAlive : IsAlive;
     float sineLength : SINELENGTH;
+    float appearY : APPEARY;
 };
 
 //ジオメトリシェーダーを通したデータ
@@ -125,11 +126,11 @@ void GSmain(
     //左上
     element.position = float4(input[0].position.xyz, 1.0f);         //頂点を初期化。
     element.position += float4(rightVec,0) * -PolygonSize.x;        //左へ移動させる。
-    element.position += float4(input[0].normal,0) * PolygonSize.y;  //上へ移動させる。
+    element.position += float4(input[0].normal,0) * (input[0].appearY * PolygonSize.y);  //上へ移動させる。
     element.position += float4(float3(0,0,1) * (sin(sineWave) * input[0].sineLength), 0.0f);  //草を揺らす。
     element.position = mul(viewproj, element.position);             //カメラ座標へ
-    element.toUV = float2(toUVOffset,0);
-    element.fromUV = float2(fromUVOFfset,0);
+    element.toUV = float2(toUVOffset,(1.0f - input[0].appearY));
+    element.fromUV = float2(fromUVOFfset,(1.0f - input[0].appearY));
     output.Append(element);
     
     //右下
@@ -143,11 +144,11 @@ void GSmain(
     //右上
     element.position = float4(input[0].position.xyz, 1.0f);         //頂点を初期化。
     element.position += float4(rightVec,0) * PolygonSize.x;         //右へ移動させる。
-    element.position += float4(input[0].normal,0) * PolygonSize.y;  //上へ移動させる。
+    element.position += float4(input[0].normal,0) * (input[0].appearY * PolygonSize.y);  //上へ移動させる。
     element.position += float4(float3(0,0,1) * (sin(sineWave) * input[0].sineLength), 0.0f);  //草を揺らす。
     element.position = mul(viewproj, element.position);             //カメラ座標へ
-    element.toUV = float2(toUVOffset + textureSizeU,0);
-    element.fromUV = float2(fromUVOFfset + textureSizeU,0);
+    element.toUV = float2(toUVOffset + textureSizeU,(1.0f - input[0].appearY));
+    element.fromUV = float2(fromUVOFfset + textureSizeU,(1.0f - input[0].appearY));
     output.Append(element);
 }
 

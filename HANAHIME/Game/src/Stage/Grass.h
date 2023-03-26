@@ -35,11 +35,15 @@ class Grass
 		KuroEngine::Vec3<float>m_normal = { 0,1,0 };
 		int m_isAlive = 0;
 		float m_sineLength;
+		float m_appearY;		//出現エフェクトに使用する変数 Y軸をどこまで表示させるか。
 	};
 	std::array<Vertex, s_vertexMax>m_vertices;
-	float m_vertexSineWave;			//草の頂点を揺らすSin波の加算量。
 	std::shared_ptr<KuroEngine::VertexBuffer>m_vertBuffer;
 	int m_deadVertexIdx = 0;
+
+	//草エフェクト用
+	float m_vertexSineWave;			//草の頂点を揺らすSin波の加算量。
+	std::array<float, s_vertexMax> m_appearYTimer;
 
 	//行列以外のデータ用構造体（好きなの入れてね）
 	struct CBVdata

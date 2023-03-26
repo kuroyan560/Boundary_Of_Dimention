@@ -32,7 +32,8 @@ Grass::Grass()
 			InputLayoutParam("TexID",DXGI_FORMAT_R8_UINT),
 			InputLayoutParam("NORMAL",DXGI_FORMAT_R32G32B32_FLOAT),
 			InputLayoutParam("IsAlive",DXGI_FORMAT_R8_UINT),
-			InputLayoutParam("SINELENGTH",DXGI_FORMAT_R32_FLOAT)
+			InputLayoutParam("SINELENGTH",DXGI_FORMAT_R32_FLOAT),
+			InputLayoutParam("APPEARY",DXGI_FORMAT_R32_FLOAT)
 		};
 
 		//ルートパラメータ
@@ -126,6 +127,23 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 
 	m_oldPlayerPos = arg_playerPos;
 
+	for (auto& index : m_vertices) {
+		if (!index.m_isAlive) continue;
+
+		//イージングタイマーを更新。
+		auto& easingTimer = m_appearYTimer[static_cast<int>(&index - &m_vertices[0])];
+		easingTimer = std::clamp(easingTimer + 0.05f, 0.0f, 1.0f);
+
+		//イージング量を求める。
+		float easingAmount = KuroEngine::Math::Ease(In, Cubic, easingTimer, 0.0f, 1.0f);
+
+		index.m_appearY = easingAmount;
+
+	}
+	
+	//頂点データを更新。
+	m_vertBuffer->Mapping(m_vertices.data());
+
 	//定数バッファ1のカメラ座標を更新。
 	DirectX::XMMATRIX camMatWorld = arg_camTransform.GetMatWorld();
 	m_constData.m_pos = KuroEngine::Vec3<float>(camMatWorld.r[3].m128_f32[0], camMatWorld.r[3].m128_f32[1], camMatWorld.r[3].m128_f32[2]);
@@ -209,13 +227,11 @@ void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> a
 	m_vertices[m_deadVertexIdx].m_pos = pos;
 	m_vertices[m_deadVertexIdx].m_normal = arg_transform.GetUp();
 	m_vertices[m_deadVertexIdx].m_sineLength = KuroEngine::GetRand(40) / 100.0f;
+	m_appearYTimer[m_deadVertexIdx] = 0;
 	//とりあえず乱数でテクスチャ決定
 	//m_vertices[m_deadVertexIdx].m_texIdx = KuroEngine::GetRand(s_textureNumMax - 1);
 	m_vertices[m_deadVertexIdx].m_texIdx = KuroEngine::GetRand(3 - 1);
 
-	//頂点データを更新。
-	m_vertBuffer->Mapping(m_vertices.data());
-	
-	
+
 	m_deadVertexIdx++;
 }
