@@ -131,7 +131,7 @@ struct PSOutput
     float4 color : SV_Target0;
     float4 emissive : SV_Target1;
     float depth : SV_Target2;
-    uint mask : SV_Target3;
+    float4 mask : SV_Target3;
     float4 edgeColor : SV_Target4;
 };
 
@@ -277,7 +277,8 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
 
     output.emissive = float4(0,0,0,0);
     
-    output.mask = toonIndividualParam.m_drawMask * result.w;
+    output.mask.x = toonIndividualParam.m_drawMask;
+    output.mask.w = result.w;
     
     //–¾‚é‚³ŒvŽZ
     // float bright = dot(result.xyz, float3(0.2125f, 0.7154f, 0.0721f));

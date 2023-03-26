@@ -81,7 +81,7 @@ void GameScene::OnDraw()
 		Color(FLT_MAX, 0.0f, 0.0f, 0.0f),
 		targetSize, L"DepthMap");
 	static auto maskLayer = D3D12App::Instance()->GenerateRenderTarget(
-		DXGI_FORMAT_R32_UINT,
+		DXGI_FORMAT_R16G16B16A16_FLOAT,
 		Color(0,0,0,0),
 		targetSize, L"MaskLayer");
 	static auto edgeColMap = D3D12App::Instance()->GenerateRenderTarget(
