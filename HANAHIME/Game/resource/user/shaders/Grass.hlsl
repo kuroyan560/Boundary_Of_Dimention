@@ -60,51 +60,7 @@ VSOutput VSmain(VSOutput input)
     return input;
 }
 
-//ベクトルにスカラー値をかける。
-float4 Scale(float4 In, float Scalar){
-    return float4(In.x * Scalar,In.y * Scalar,In.z * Scalar,In.w * Scalar);
-}
-float4 Scale(float3 In, float Scalar){
-    return float4(In.x * Scalar,In.y * Scalar,In.z * Scalar,1 * Scalar);
-}
-
-float3 ProjectOnPlane(float3 Vector, float3 PlaneNormal)
-{
-    //平面の法線を正規化する
-    PlaneNormal = normalize(PlaneNormal);
-
-    //射影平面の方程式を作成する
-    float d = dot(Vector, PlaneNormal);
-    float3 projectionPlane = Vector - d * PlaneNormal;
-
-    //射影されたベクトルを計算する
-    float3 projectedVector = Vector - projectionPlane;
-
-    return projectedVector;
-}
-float Angle(float3 From, float3 To)
-{
-    //ベクトルの大きさを計算する
-    float fromMagnitude = length(From);
-    float toMagnitude = length(To);
-
-    //ベクトルの内積を計算する
-    float dotProduct = dot(From, To);
-
-    //ベクトルのなす角度のcosineを計算する
-    float cosine = dotProduct / (fromMagnitude * toMagnitude);
-
-    //ベクトルのなす角度を計算する
-    float angle = acos(cosine);
-
-    //結果を度数法に変換する
-    angle = degrees(angle);
-
-    return angle;
-}
-
-
-[maxvertexcount(6)]
+[maxvertexcount(4)]
 void GSmain(
 	point VSOutput input[1],
 	inout TriangleStream<GSOutput> output
@@ -120,7 +76,7 @@ void GSmain(
     matrix viewproj = mul(cam.proj, cam.view);
 
     //デフォルトだと少し浮いてしまっているので1だけ沈める。
-    input[0].position.xyz -= Scale(input[0].normal, 1);
+    input[0].position.xyz -= input[0].normal;
 
     //カメラ方向ベクトル
     float3 cameraVec = normalize(cameraPos - input[0].position);
@@ -144,73 +100,52 @@ void GSmain(
     //1枚あたりのU軸サイズ
     float textureSizeU = 1.0f / 20.0f;
 
-    //uvoffsetをtextureSizeU区切りにする。
+    //補間先のUVを求める。
     float invStep = 1.0f / textureSizeU;
-    float uvOffset =  floor(angle01 * invStep) / invStep;
+    float toUVOffset =  floor(angle01 * invStep) / invStep;
 
     //補間元のUVを求める。
-    float fromUVOFfset = uvOffset - textureSizeU;
+    float fromUVOFfset = toUVOffset - textureSizeU;
     if(fromUVOFfset < 0){
         fromUVOFfset = 1.0f - textureSizeU;
     }
 
     //uvOffsetの小数点第二位から補間の割合を求める。 Imposterに含まれている画像の数が20枚なので、0.05間隔で割合を求める。
-    element.uvLerpAmount = abs(angle01 - uvOffset) / textureSizeU;
+    element.uvLerpAmount = abs(angle01 - toUVOffset) / textureSizeU;
 
     //左下
     element.position = float4(input[0].position.xyz, 1.0f);
-    element.position += Scale(float4(rightVec,0), -PolygonSize.x);
+    element.position += float4(rightVec,0) * -PolygonSize.x;
     element.position = mul(viewproj, element.position);
-    element.toUV = float2(uvOffset,1);
+    element.toUV = float2(toUVOffset,1);
     element.fromUV = float2(fromUVOFfset,1);
     output.Append(element);
     
     //左上
     element.position = float4(input[0].position.xyz, 1.0f);
-    element.position += Scale(float4(rightVec,0), -PolygonSize.x);
-    element.position += Scale(float4(input[0].normal,0), PolygonSize.y);
+    element.position += float4(rightVec,0) * -PolygonSize.x;
+    element.position += float4(input[0].normal,0) * PolygonSize.y;
     element.position = mul(viewproj, element.position);
-    element.toUV = float2(uvOffset,0);
+    element.toUV = float2(toUVOffset,0);
     element.fromUV = float2(fromUVOFfset,0);
     output.Append(element);
     
     //右下
     element.position = float4(input[0].position.xyz, 1.0f);
-    element.position += Scale(float4(rightVec,0), PolygonSize.x);
+    element.position += float4(rightVec,0) * PolygonSize.x;
     element.position = mul(viewproj, element.position);
-    element.toUV = float2(uvOffset + textureSizeU,1);
+    element.toUV = float2(toUVOffset + textureSizeU,1);
     element.fromUV = float2(fromUVOFfset + textureSizeU,1);
-    output.Append(element);
-
-    output.RestartStrip();
-    
-    //左上
-    element.position = float4(input[0].position.xyz, 1.0f);
-    element.position += Scale(float4(rightVec,0), -PolygonSize.x);
-    element.position += Scale(float4(input[0].normal,0), PolygonSize.y);
-    element.position = mul(viewproj, element.position);
-    element.toUV = float2(uvOffset,0);
-    element.fromUV = float2(fromUVOFfset,0);
     output.Append(element);
     
     //右上
     element.position = float4(input[0].position.xyz, 1.0f);
-    element.position += Scale(float4(rightVec,0), PolygonSize.x);
-    element.position += Scale(float4(input[0].normal,0), PolygonSize.y);
+    element.position += float4(rightVec,0) * PolygonSize.x;
+    element.position += float4(input[0].normal,0) * PolygonSize.y;
     element.position = mul(viewproj, element.position);
-    element.toUV = float2(uvOffset + textureSizeU,0);
+    element.toUV = float2(toUVOffset + textureSizeU,0);
     element.fromUV = float2(fromUVOFfset + textureSizeU,0);
     output.Append(element);
-    
-    //右下
-    element.position = float4(input[0].position.xyz, 1.0f);
-    element.position += Scale(float4(rightVec,0), PolygonSize.x);
-    element.position = mul(viewproj, element.position);
-    element.toUV = float2(uvOffset + textureSizeU,1);
-    element.fromUV = float2(fromUVOFfset + textureSizeU,1);
-    output.Append(element);
-
-    output.RestartStrip();
 }
 
 PSOutput PSmain(GSOutput input)
