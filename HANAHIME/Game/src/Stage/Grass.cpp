@@ -31,7 +31,8 @@ Grass::Grass()
 			InputLayoutParam("POSITION",DXGI_FORMAT_R32G32B32_FLOAT),
 			InputLayoutParam("TexID",DXGI_FORMAT_R8_UINT),
 			InputLayoutParam("NORMAL",DXGI_FORMAT_R32G32B32_FLOAT),
-			InputLayoutParam("IsAlive",DXGI_FORMAT_R8_UINT)
+			InputLayoutParam("IsAlive",DXGI_FORMAT_R8_UINT),
+			InputLayoutParam("SINELENGTH",DXGI_FORMAT_R32_FLOAT)
 		};
 
 		//ルートパラメータ
@@ -109,7 +110,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 	using namespace KuroEngine;
 
 	//プレイヤーが移動した
-	if (!((arg_playerPos - m_oldPlayerPos).Length() < FLT_MIN))
+	if (!((arg_playerPos - m_oldPlayerPos).Length() < 0.1f))
 	{
 		if (m_plantTimer.IsTimeUp())
 		{
@@ -125,8 +126,14 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 
 	m_oldPlayerPos = arg_playerPos;
 
+	//定数バッファ1のカメラ座標を更新。
 	DirectX::XMMATRIX camMatWorld = arg_camTransform.GetMatWorld();
 	m_constData.m_pos = KuroEngine::Vec3<float>(camMatWorld.r[3].m128_f32[0], camMatWorld.r[3].m128_f32[1], camMatWorld.r[3].m128_f32[2]);
+
+	//定数バッファ1の草の揺れ具合を更新。
+	m_constData.m_sineWave += 0.02f;
+
+	//定数バッファ1をGPUに転送。
 	m_constBuffer->Mapping(&m_constData);
 
 }
@@ -201,9 +208,14 @@ void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> a
 	m_vertices[m_deadVertexIdx].m_isAlive = 1;
 	m_vertices[m_deadVertexIdx].m_pos = pos;
 	m_vertices[m_deadVertexIdx].m_normal = arg_transform.GetUp();
+	m_vertices[m_deadVertexIdx].m_sineLength = KuroEngine::GetRand(40) / 100.0f;
 	//とりあえず乱数でテクスチャ決定
 	//m_vertices[m_deadVertexIdx].m_texIdx = KuroEngine::GetRand(s_textureNumMax - 1);
 	m_vertices[m_deadVertexIdx].m_texIdx = KuroEngine::GetRand(3 - 1);
-	m_deadVertexIdx++;
+
+	//頂点データを更新。
 	m_vertBuffer->Mapping(m_vertices.data());
+	
+	
+	m_deadVertexIdx++;
 }

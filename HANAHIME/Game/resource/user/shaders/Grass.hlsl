@@ -10,6 +10,7 @@ struct VSOutput
     uint texID : TexID;
     float3 normal : NORMAL;
     uint isAlive : IsAlive;
+    float sineLength : SINELENGTH;
 };
 
 //ジオメトリシェーダーを通したデータ
@@ -42,7 +43,7 @@ cbuffer cbuff0 : register(b0)
 cbuffer cbuff1 : register(b1)
 {
     float3 cameraPos;
-    uint pad;
+    float sineWave;
 }
 
 //テクスチャ
@@ -122,10 +123,11 @@ void GSmain(
     output.Append(element);
     
     //左上
-    element.position = float4(input[0].position.xyz, 1.0f);
-    element.position += float4(rightVec,0) * -PolygonSize.x;
-    element.position += float4(input[0].normal,0) * PolygonSize.y;
-    element.position = mul(viewproj, element.position);
+    element.position = float4(input[0].position.xyz, 1.0f);         //頂点を初期化。
+    element.position += float4(rightVec,0) * -PolygonSize.x;        //左へ移動させる。
+    element.position += float4(input[0].normal,0) * PolygonSize.y;  //上へ移動させる。
+    element.position += float4(float3(0,0,1) * (sin(sineWave) * input[0].sineLength), 0.0f);  //草を揺らす。
+    element.position = mul(viewproj, element.position);             //カメラ座標へ
     element.toUV = float2(toUVOffset,0);
     element.fromUV = float2(fromUVOFfset,0);
     output.Append(element);
@@ -139,10 +141,11 @@ void GSmain(
     output.Append(element);
     
     //右上
-    element.position = float4(input[0].position.xyz, 1.0f);
-    element.position += float4(rightVec,0) * PolygonSize.x;
-    element.position += float4(input[0].normal,0) * PolygonSize.y;
-    element.position = mul(viewproj, element.position);
+    element.position = float4(input[0].position.xyz, 1.0f);         //頂点を初期化。
+    element.position += float4(rightVec,0) * PolygonSize.x;         //右へ移動させる。
+    element.position += float4(input[0].normal,0) * PolygonSize.y;  //上へ移動させる。
+    element.position += float4(float3(0,0,1) * (sin(sineWave) * input[0].sineLength), 0.0f);  //草を揺らす。
+    element.position = mul(viewproj, element.position);             //カメラ座標へ
     element.toUV = float2(toUVOffset + textureSizeU,0);
     element.fromUV = float2(fromUVOFfset + textureSizeU,0);
     output.Append(element);
@@ -191,7 +194,7 @@ PSOutput PSmain(GSOutput input)
 
     output.emissive = float4(0,0,0,0);
     output.depth = float4(0,0,0,0);
-    output.edgeColor = float4(0,0,0,0);
+    output.edgeColor = float4(0.13, 0.53, 0.40,1);
  
     return output;
 }

@@ -34,8 +34,10 @@ class Grass
 		int m_texIdx = 0;
 		KuroEngine::Vec3<float>m_normal = { 0,1,0 };
 		int m_isAlive = 0;
+		float m_sineLength;
 	};
 	std::array<Vertex, s_vertexMax>m_vertices;
+	float m_vertexSineWave;			//‘‚Ì’¸“_‚ğ—h‚ç‚·Sin”g‚Ì‰ÁZ—ÊB
 	std::shared_ptr<KuroEngine::VertexBuffer>m_vertBuffer;
 	int m_deadVertexIdx = 0;
 
@@ -43,7 +45,7 @@ class Grass
 	struct CBVdata
 	{
 		KuroEngine::Vec3<float>m_pos = { 0,0,0 };
-		int m_pad;
+		float m_sineWave = 0;
 	}m_constData;
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_constBuffer;
 
