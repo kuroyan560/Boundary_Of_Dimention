@@ -210,6 +210,8 @@ PSOutput PSmain(GSOutput input)
 
     }
 
+    clip(output.color.a - 1);
+
     output.emissive = float4(0,0,0,0);
     output.depth = float4(0,0,0,0);
     output.edgeColor = float4(0,0,0,0);
