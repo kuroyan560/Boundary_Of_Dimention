@@ -17,8 +17,10 @@ struct GSOutput
 {
     float4 position : SV_POSITION;
     float3 normal : NORMAL;
-    float2 uv : UV;
-    uint texID : TexID;
+    float2 toUV : TOUV;         //現在の角度から求められるUV
+    float2 fromUV : FROMUV;         //前回使用されていたUV 補間させるために使用
+    float uvLerpAmount : UVLERP;    //UVの補間量
+    uint texID : NEXTTexID;
 };
 
 //ピクセルシェーダーを通したデータ（レンダーターゲットに書き込むデータ）
@@ -134,19 +136,33 @@ void GSmain(
     float cosTheta = dot(defForwardVec, forwardVec) / (length(defForwardVec) * length(forwardVec));
     float angle = acos(cosTheta) * (180 / 3.14159265);
     //2つのベクトルの位置関係によって、角度を0~360度の範囲に修正する
-    if (0 > cross(defForwardVec, forwardVec).y) {
+    if (cross(defForwardVec, forwardVec).y < 0) {
         angle = 360 - angle;
     }
-    float uvOffset = angle / 360.0f;
+    float angle01 = angle / 360.0f; //0~1の角度
 
-    //uvoffsetを0.1区切りにする。
-    uvOffset = floor(uvOffset * 10) / 10;
+    //1枚あたりのU軸サイズ
+    float textureSizeU = 1.0f / 20.0f;
+
+    //uvoffsetをtextureSizeU区切りにする。
+    float invStep = 1.0f / textureSizeU;
+    float uvOffset =  floor(angle01 * invStep) / invStep;
+
+    //補間元のUVを求める。
+    float fromUVOFfset = uvOffset - textureSizeU;
+    if(fromUVOFfset < 0){
+        fromUVOFfset = 1.0f - textureSizeU;
+    }
+
+    //uvOffsetの小数点第二位から補間の割合を求める。 Imposterに含まれている画像の数が20枚なので、0.05間隔で割合を求める。
+    element.uvLerpAmount = abs(angle01 - uvOffset) / textureSizeU;
 
     //左下
     element.position = float4(input[0].position.xyz, 1.0f);
     element.position += Scale(float4(rightVec,0), -PolygonSize.x);
     element.position = mul(viewproj, element.position);
-    element.uv = float2(uvOffset,1);
+    element.toUV = float2(uvOffset,1);
+    element.fromUV = float2(fromUVOFfset,1);
     output.Append(element);
     
     //左上
@@ -154,14 +170,16 @@ void GSmain(
     element.position += Scale(float4(rightVec,0), -PolygonSize.x);
     element.position += Scale(float4(input[0].normal,0), PolygonSize.y);
     element.position = mul(viewproj, element.position);
-    element.uv = float2(uvOffset,0);
+    element.toUV = float2(uvOffset,0);
+    element.fromUV = float2(fromUVOFfset,0);
     output.Append(element);
     
     //右下
     element.position = float4(input[0].position.xyz, 1.0f);
     element.position += Scale(float4(rightVec,0), PolygonSize.x);
     element.position = mul(viewproj, element.position);
-    element.uv = float2(uvOffset + 0.1f,1);
+    element.toUV = float2(uvOffset + textureSizeU,1);
+    element.fromUV = float2(fromUVOFfset + textureSizeU,1);
     output.Append(element);
 
     output.RestartStrip();
@@ -171,7 +189,8 @@ void GSmain(
     element.position += Scale(float4(rightVec,0), -PolygonSize.x);
     element.position += Scale(float4(input[0].normal,0), PolygonSize.y);
     element.position = mul(viewproj, element.position);
-    element.uv = float2(uvOffset,0);
+    element.toUV = float2(uvOffset,0);
+    element.fromUV = float2(fromUVOFfset,0);
     output.Append(element);
     
     //右上
@@ -179,14 +198,16 @@ void GSmain(
     element.position += Scale(float4(rightVec,0), PolygonSize.x);
     element.position += Scale(float4(input[0].normal,0), PolygonSize.y);
     element.position = mul(viewproj, element.position);
-    element.uv = float2(uvOffset + 0.1f,0);
+    element.toUV = float2(uvOffset + textureSizeU,0);
+    element.fromUV = float2(fromUVOFfset + textureSizeU,0);
     output.Append(element);
     
     //右下
     element.position = float4(input[0].position.xyz, 1.0f);
     element.position += Scale(float4(rightVec,0), PolygonSize.x);
     element.position = mul(viewproj, element.position);
-    element.uv = float2(uvOffset + 0.1f,1);
+    element.toUV = float2(uvOffset + textureSizeU,1);
+    element.fromUV = float2(fromUVOFfset + textureSizeU,1);
     output.Append(element);
 
     output.RestartStrip();
@@ -196,21 +217,32 @@ PSOutput PSmain(GSOutput input)
 {
     PSOutput output;
 
+    //補間元と補間先の色を取得。
+    float4 fromColor;
+    float4 toColor;
+
     if(input.texID == 0){
 
-        output.color = tex_0.Sample(smp, input.uv);
+        toColor = tex_0.Sample(smp, input.toUV);
+        fromColor = tex_0.Sample(smp, input.fromUV);
 
     }else if(input.texID == 1){
         
-        output.color = tex_1.Sample(smp, input.uv);
+        toColor = tex_1.Sample(smp, input.toUV);
+        fromColor = tex_1.Sample(smp, input.fromUV);
 
     }else{
 
-        output.color = tex_2.Sample(smp, input.uv);
+        toColor = tex_2.Sample(smp, input.toUV);
+        fromColor = tex_2.Sample(smp, input.fromUV);
 
     }
 
-    clip(output.color.a - 1);
+    //色を補間する。
+    output.color = fromColor * (1.0f - input.uvLerpAmount) + toColor * input.uvLerpAmount;
+
+    //アルファ値によってクリップ
+    clip(output.color.a - 0.9f);
 
     output.emissive = float4(0,0,0,0);
     output.depth = float4(0,0,0,0);
