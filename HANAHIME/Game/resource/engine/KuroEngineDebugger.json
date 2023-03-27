@@ -43,7 +43,7 @@
       "LimThreshold": 0.4000000059604645
     },
     "debuggerSetting": {
-      "active": false,
+      "active": true,
       "customParamActive": true,
       "imageColor": [
         0.3920130133628845,

@@ -60,13 +60,7 @@ void GameScene::OnUpdate()
 
 	m_player.Update(StageManager::Instance()->GetNowStage());
 
-	m_grass.Update(1.0f, m_player.GetTransform().GetPos(), m_player.GetTransform().GetRotate(), m_waterPaintBlend);
-
-	//KuroEngine::Vec2<float>pos;
-	//pos.x = KuroEngine::GetRand(0.0f, 1280.0f);
-	//pos.y = KuroEngine::GetRand(0.0f, 720.0f);
-	//m_waterPaintBlend.DropMaskInk(pos);
-
+	m_grass.Update(1.0f, m_player.GetTransform().GetPos(), m_player.GetTransform().GetRotate(), m_player.GetCamera().lock()->GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
 }
 
 void GameScene::OnDraw()

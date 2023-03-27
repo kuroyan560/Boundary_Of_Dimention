@@ -40,6 +40,9 @@ void Player::OnImguiItems()
 
 		ImGui::Text("OnGround : %d", m_onGround);
 
+		ImGui::DragFloat("GrassPosScatter : X", &m_grassPosScatter.x, 0.1f);
+		ImGui::DragFloat("GrassPosScatter : Y", &m_grassPosScatter.y, 0.1f);
+
 	}
 
 	//ÉJÉÅÉâ

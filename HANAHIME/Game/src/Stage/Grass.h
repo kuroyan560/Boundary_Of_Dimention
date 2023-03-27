@@ -1,14 +1,17 @@
 #pragma once
 #include"KuroEngine.h"
+#include"../../../../src/engine/Common/Transform.h"
 #include"ForUser/Timer.h"
 #include<vector>
 #include<memory>
+#include<array>
 #include"../Graphics/BasicDrawParameters.h"
 namespace KuroEngine
 {
-	class ConstantBuffer;
+	class GraphicsPipeline;
 	class VertexBuffer;
-	class ComputePipeline;
+	class ConstantBuffer;
+	class TextureBuffer;
 	class Model;
 	class Camera;
 	class LightManager;
@@ -18,28 +21,45 @@ class WaterPaintBlend;
 
 class Grass
 {
-	static const int THREAD_PER_NUM = 10;
+	//頂点上限
+	static const int s_vertexMax = 1024;
+	//インスタンシング描画上限
+	static const int s_instanceMax = 1024;
+	//テクスチャの数
+	static const int s_textureNumMax = 5;
 
-	//UAVデータ用構造体
-	struct UAVdata
+	//パイプライン
+	std::shared_ptr<KuroEngine::GraphicsPipeline>m_pipeline;
+
+	struct Vertex
 	{
-		KuroEngine::Vec3<float>m_pos;
+		KuroEngine::Vec3<float>m_pos = { 0,0,0 };
+		int m_texIdx = 0;
+		KuroEngine::Vec3<float>m_normal = { 0,1,0 };
+		int m_isAlive = 0;
+		float m_sineLength;
+		float m_appearY;		//出現エフェクトに使用する変数 Y軸をどこまで表示させるか。
 	};
-	std::vector<UAVdata>m_uavDataArray;
-	std::shared_ptr<KuroEngine::VertexBuffer>m_uavDataBuffer;
+	std::array<Vertex, s_vertexMax>m_vertices;
+	std::shared_ptr<KuroEngine::VertexBuffer>m_vertBuffer;
+	int m_deadVertexIdx = 0;
 
-	//CBVデータ用構造体
+	//草エフェクト用
+	float m_vertexSineWave;			//草の頂点を揺らすSin波の加算量。
+	std::array<float, s_vertexMax> m_appearYTimer;
+
+	//行列以外のデータ用構造体（好きなの入れてね）
 	struct CBVdata
 	{
-		float m_timeScale = 1.0f;
+		KuroEngine::Vec3<float>m_pos = { 0,0,0 };
+		float m_sineWave = 0;
 	}m_constData;
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_constBuffer;
 
-	//初期化用コンピュートパイプライン
-	std::shared_ptr<KuroEngine::ComputePipeline>m_initComputePipeline;
-	//更新用コンピュートパイプライン
-	std::shared_ptr<KuroEngine::ComputePipeline>m_updateComputePipeline;
+	//テクスチャ
+	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, s_textureNumMax>m_texBuffer;
 
+//仮のやつ======================
 	//仮置き草ブロック
 	std::shared_ptr<KuroEngine::Model>m_grassBlockModel;
 	//仮で置いた草ブロックのワールド行列配列
@@ -48,20 +68,29 @@ class Grass
 	KuroEngine::Vec3<float>m_oldPlayerPos;
 	//草ブロックを植えるスパン
 	KuroEngine::Timer m_plantTimer;
+//=============================
 
 	IndividualDrawParameter m_drawParam;
 
 public:
 	Grass();
 	void Init();
-	void Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_playerPos, const KuroEngine::Quaternion arg_playerRotate, WaterPaintBlend& arg_waterPaintBlend);
+	void Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_playerPos, const KuroEngine::Quaternion arg_playerRotate, KuroEngine::Transform arg_camTransform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
 
 	/// <summary>
-	/// 草を植える
+	/// 草を植える（仮置き草ブロック）
 	/// </summary>
 	/// <param name="arg_worldMat">植える草のワールド行列</param>
-	/// <param name="arg_pos">植える草の座標</param>
-	/// <param name="arg_waterPaintBlend">水彩画ブレンドポストエフェクトの参照</param>
-	void Plant(KuroEngine::Matrix arg_worldMat, KuroEngine::Vec3<float>arg_pos, WaterPaintBlend& arg_waterPaintBlend);
+	/// <param name="arg_grassPosScatter">散らし具合</param>
+	/// <param name="arg_waterPaintBlend">水彩画風ブレンドポストエフェクト</param>
+	void PlantGrassBlock(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
+
+	/// <summary>
+	/// 草を植える（ビルボード）
+	/// </summary>
+	/// <param name="arg_transform">座標</param>
+	/// <param name="arg_grassPosScatter">散らし具合</param>
+	/// <param name="arg_waterPaintBlend">水彩画風ブレンドポストエフェクト</param>
+	void Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
 };
