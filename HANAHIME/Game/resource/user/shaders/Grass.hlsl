@@ -23,6 +23,7 @@ struct GSOutput
     float2 fromUV : FROMUV;         //前回使用されていたUV 補間させるために使用
     float uvLerpAmount : UVLERP;    //UVの補間量
     uint texID : TexID;             //使用するテクスチャのID
+    float depthInView : CAM_Z;  //カメラまでの距離（深度）
 };
 
 //ピクセルシェーダーを通したデータ（レンダーターゲットに書き込むデータ）
@@ -76,9 +77,6 @@ void GSmain(
     //ビルボードのサイズ
     const float2 PolygonSize = float2(0.75f,3.0f);
     
-    //ビュープロジェクション
-    matrix viewproj = mul(cam.proj, cam.view);
-
     //デフォルトだと少し浮いてしまっているので1だけ沈める。
     input[0].position.xyz -= input[0].normal;
 
@@ -128,7 +126,9 @@ void GSmain(
     //座標を求める。
     element.position = float4(input[0].position.xyz, 1.0f);     //頂点を初期化
     element.position += float4(rightVec,0) * -PolygonSize.x;    //左方向に移動させる。
-    element.position = mul(viewproj, element.position);         //カメラ座標へ
+    element.position = mul(cam.view, element.position); //カメラ座標へ
+    element.depthInView = element.position.z;
+    element.position = mul(cam.proj, element.position);
     //UVを求める。
     element.toUV = float2(toUVOffset,1);                        //補間先のUV
     element.fromUV = float2(fromUVOFfset,1);                    //補間元のUV
@@ -140,7 +140,9 @@ void GSmain(
     element.position += float4(rightVec,0) * -PolygonSize.x;            //左へ移動させる。
     element.position += float4(input[0].normal,0) * grassHeight;        //上へ移動させる。
     element.position += windPos;                                        //草を揺らす。
-    element.position = mul(viewproj, element.position);                 //カメラ座標へ
+    element.position = mul(cam.view, element.position); //カメラ座標へ
+    element.depthInView = element.position.z;
+    element.position = mul(cam.proj, element.position);
     //UVを求める。
     element.toUV = float2(toUVOffset,(1.0f - input[0].appearY));        //補間先のUV
     element.fromUV = float2(fromUVOFfset,(1.0f - input[0].appearY));    //補間元のUV
@@ -150,7 +152,9 @@ void GSmain(
     //座標を求める。
     element.position = float4(input[0].position.xyz, 1.0f);     //頂点を初期化
     element.position += float4(rightVec,0) * PolygonSize.x;     //右へ移動させる。
-    element.position = mul(viewproj, element.position);         //カメラ座標へ
+    element.position = mul(cam.view, element.position); //カメラ座標へ
+    element.depthInView = element.position.z;
+    element.position = mul(cam.proj, element.position);
     //UVを求める。
     element.toUV = float2(toUVOffset + textureSizeU,1);         //補間先のUV
     element.fromUV = float2(fromUVOFfset + textureSizeU,1);     //補間元のUV
@@ -162,7 +166,9 @@ void GSmain(
     element.position += float4(rightVec,0) * PolygonSize.x;         //右へ移動させる。
     element.position += float4(input[0].normal,0) * grassHeight;    //上へ移動させる。
     element.position += windPos;                                    //草を揺らす。
-    element.position = mul(viewproj, element.position);             //カメラ座標へ
+    element.position = mul(cam.view, element.position); //カメラ座標へ
+    element.depthInView = element.position.z;
+    element.position = mul(cam.proj, element.position);
     //UVを求める。
     element.toUV = float2(toUVOffset + textureSizeU,(1.0f - input[0].appearY));        //補間先のUV
     element.fromUV = float2(fromUVOFfset + textureSizeU,(1.0f - input[0].appearY));    //補間元のUV
@@ -211,7 +217,7 @@ PSOutput PSmain(GSOutput input)
     clip(output.color.a - 0.9f);
 
     output.emissive = float4(0,0,0,0);
-    output.depth = float4(0,0,0,0);
+    output.depth = input.depthInView;
     output.normal.xyz = input.normal;
     output.edgeColor = float4(0.13, 0.53, 0.40,1);
  
