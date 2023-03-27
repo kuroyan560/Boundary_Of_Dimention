@@ -121,12 +121,34 @@ void GSmain(
 
     //草の高さ 出現度合いを風の高さにかけることでだんだん生えるようにする。
     float grassHeight = input[0].appearY * PolygonSize.y;
-
+    
+    //法線を先に求めたいのでワールド座標を事前に求める
+    float4 worldPos[4];
+    //左下
+    worldPos[0] = float4(input[0].position.xyz, 1.0f); //頂点を初期化
+    worldPos[0] += float4(rightVec, 0) * -PolygonSize.x; //左方向に移動させる。
+    //左上
+    worldPos[1] = float4(input[0].position.xyz, 1.0f); //頂点を初期化。
+    worldPos[1] += float4(rightVec, 0) * -PolygonSize.x; //左へ移動させる。
+    worldPos[1] += float4(input[0].normal, 0) * grassHeight; //上へ移動させる。
+    worldPos[1] += windPos; //草を揺らす。
+    //右下
+    worldPos[2] = float4(input[0].position.xyz, 1.0f); //頂点を初期化
+    worldPos[2] += float4(rightVec, 0) * PolygonSize.x; //右へ移動させる。
+    //右上
+    worldPos[3] = float4(input[0].position.xyz, 1.0f); //頂点を初期化。
+    worldPos[3] += float4(rightVec, 0) * PolygonSize.x; //右へ移動させる。
+    worldPos[3] += float4(input[0].normal, 0) * grassHeight; //上へ移動させる。
+    worldPos[3] += windPos; //草を揺らす。
+    
+    //法線を求める
+    float3 vecA = worldPos[1].xyz - worldPos[0].xyz;
+    float3 vecB = worldPos[2].xyz - worldPos[0].xyz;
+    element.normal.xyz = normalize(cross(vecA, vecB));
+    
     /*-- 左下 --*/
     //座標を求める。
-    element.position = float4(input[0].position.xyz, 1.0f);     //頂点を初期化
-    element.position += float4(rightVec,0) * -PolygonSize.x;    //左方向に移動させる。
-    element.position = mul(cam.view, element.position); //カメラ座標へ
+    element.position = mul(cam.view, worldPos[0]); //カメラ座標へ
     element.depthInView = element.position.z;
     element.position = mul(cam.proj, element.position);
     //UVを求める。
@@ -136,11 +158,7 @@ void GSmain(
     
     /*-- 左上 --*/
     //座標を求める。
-    element.position = float4(input[0].position.xyz, 1.0f);             //頂点を初期化。
-    element.position += float4(rightVec,0) * -PolygonSize.x;            //左へ移動させる。
-    element.position += float4(input[0].normal,0) * grassHeight;        //上へ移動させる。
-    element.position += windPos;                                        //草を揺らす。
-    element.position = mul(cam.view, element.position); //カメラ座標へ
+    element.position = mul(cam.view, worldPos[1]); //カメラ座標へ
     element.depthInView = element.position.z;
     element.position = mul(cam.proj, element.position);
     //UVを求める。
@@ -150,9 +168,7 @@ void GSmain(
     
     /*-- 右下 --*/
     //座標を求める。
-    element.position = float4(input[0].position.xyz, 1.0f);     //頂点を初期化
-    element.position += float4(rightVec,0) * PolygonSize.x;     //右へ移動させる。
-    element.position = mul(cam.view, element.position); //カメラ座標へ
+    element.position = mul(cam.view, worldPos[2]); //カメラ座標へ
     element.depthInView = element.position.z;
     element.position = mul(cam.proj, element.position);
     //UVを求める。
@@ -162,11 +178,7 @@ void GSmain(
     
     /*-- 右上 --*/
     //座標を求める。
-    element.position = float4(input[0].position.xyz, 1.0f);         //頂点を初期化。
-    element.position += float4(rightVec,0) * PolygonSize.x;         //右へ移動させる。
-    element.position += float4(input[0].normal,0) * grassHeight;    //上へ移動させる。
-    element.position += windPos;                                    //草を揺らす。
-    element.position = mul(cam.view, element.position); //カメラ座標へ
+    element.position = mul(cam.view, worldPos[3]); //カメラ座標へ
     element.depthInView = element.position.z;
     element.position = mul(cam.proj, element.position);
     //UVを求める。
