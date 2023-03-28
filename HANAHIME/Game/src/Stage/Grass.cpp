@@ -112,8 +112,10 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 {
 	using namespace KuroEngine;
 
-	//プレイヤーが移動した
-	if (!((arg_playerPos - m_oldPlayerPos).Length() < 0.1f))
+	//プレイヤーが移動した and 周りに草がない。
+	bool isMovePlayer = !((arg_playerPos - m_oldPlayerPos).Length() < 0.1f);
+	bool isGrassAround = IsGrassAround(arg_playerPos);
+	if (isMovePlayer && !isGrassAround)
 	{
 		if (m_plantTimer.IsTimeUp())
 		{
@@ -121,7 +123,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 			grassTransform.SetPos(arg_playerPos);
 			grassTransform.SetRotate(arg_playerRotate);
 			grassTransform.SetScale({ 1.0f,1.0f,1.0f });
-			PlantGrassBlock(grassTransform, arg_grassPosScatter,arg_waterPaintBlend);
+			PlantGrassBlock(grassTransform, arg_grassPosScatter, arg_waterPaintBlend);
 			m_plantTimer.Reset(3);
 		}
 		m_plantTimer.UpdateTimer();
@@ -142,7 +144,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 		index.m_appearY = easingAmount;
 
 	}
-	
+
 	//頂点データを更新。
 	m_vertBuffer->Mapping(m_vertices.data());
 
@@ -210,7 +212,7 @@ void Grass::PlantGrassBlock(KuroEngine::Transform arg_transform, KuroEngine::Vec
 			//生成済みだったら処理を飛ばす。
 			if (index.m_isAlive) continue;
 
-			Plant(arg_transform, arg_grassPosScatter,arg_waterPaintBlend);
+			Plant(arg_transform, arg_grassPosScatter, arg_waterPaintBlend);
 
 			break;
 
@@ -241,4 +243,35 @@ void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> a
 	m_deadVertexIdx++;
 
 	arg_waterPaintBlend.DropMaskInk(pos + KuroEngine::Vec3<float>(0.0f, 1.0f, 0.0f));
-};
+}
+bool Grass::IsGrassAround(const KuroEngine::Vec3<float> arg_playerPos)
+{
+
+	//t:生えている f:生えていない
+
+	bool isGrassAround = false;
+
+	for (auto& index : m_vertices) {
+
+		//未生成だったら処理を飛ばす。
+		if (!index.m_isAlive) continue;
+
+		//ある程度離れていたら飛ばす。
+		const float CLIP_OFFSET = 2.0f;
+		bool isAwayX = (index.m_pos.x < arg_playerPos.x - CLIP_OFFSET) || (arg_playerPos.x + CLIP_OFFSET < index.m_pos.x);
+		bool isAwayY = (index.m_pos.y < arg_playerPos.y - CLIP_OFFSET) || (arg_playerPos.y + CLIP_OFFSET < index.m_pos.y);
+		if (isAwayX || isAwayY) continue;
+
+		//距離をはかる。
+		const float OFFSET = 1.0f;
+		if (OFFSET < index.m_pos.Distance(arg_playerPos)) continue;
+
+		isGrassAround = true;
+
+		break;
+
+	}
+
+	return isGrassAround;
+
+}
