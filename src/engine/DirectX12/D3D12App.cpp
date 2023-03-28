@@ -557,6 +557,59 @@ std::shared_ptr<KuroEngine::RWStructuredBuffer> KuroEngine::D3D12App::GenerateRW
 	return result;
 }
 
+void KuroEngine::D3D12App::GenerateRWStructuredBuffer(std::shared_ptr<RWStructuredBuffer>* Dest, std::shared_ptr<RWStructuredBuffer>* CounterBufferDest, const size_t& DataSize, const int& ElementNum, void* InitSendData, const char* Name)
+{
+	//カウンタバッファ生成
+	int zero = 0;
+	std::string name;
+	if (Name != nullptr)name = std::string(Name) + " - ";
+	name += "CounterBuffer";
+	auto counterBuffer = GenerateRWStructuredBuffer(sizeof(unsigned int), 1, &zero, name.c_str());
+
+	D3D12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Buffer(DataSize * ElementNum);
+	desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
+
+	//リソースバリア
+	auto barrier = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+
+	//ヒーププロパティ
+	D3D12_HEAP_PROPERTIES prop{};
+	prop.CPUPageProperty = D3D12_CPU_PAGE_PROPERTY_WRITE_BACK;
+	prop.CreationNodeMask = 1;
+	prop.MemoryPoolPreference = D3D12_MEMORY_POOL_L0;
+	prop.Type = D3D12_HEAP_TYPE_CUSTOM;
+	prop.VisibleNodeMask = 1;
+
+	//定数バッファ生成
+	ComPtr<ID3D12Resource1>buff;
+	auto hr = m_device->CreateCommittedResource(
+		&prop,
+		D3D12_HEAP_FLAG_NONE,
+		&desc,
+		barrier,
+		nullptr,
+		IID_PPV_ARGS(&buff));
+
+	assert(SUCCEEDED(hr));
+
+	//名前のセット
+	if (Name != nullptr)buff->SetName(GetWideStrFromStr(Name).c_str());
+
+	//シェーダリソースビュー作成
+	m_descHeapCBV_SRV_UAV->CreateUAV(m_device, buff, DataSize, ElementNum, counterBuffer->GetResource()->GetBuff());
+
+	//ビューを作成した位置のディスクリプタハンドルを取得
+	DescHandles handles(m_descHeapCBV_SRV_UAV->GetCpuHandleTail(), m_descHeapCBV_SRV_UAV->GetGpuHandleTail());
+
+	//専用の構造化バッファクラスにまとめる
+	std::shared_ptr<RWStructuredBuffer>result;
+	result = std::make_shared<RWStructuredBuffer>(buff, barrier, handles, DataSize, ElementNum);
+	if (InitSendData)result->Mapping(InitSendData);
+
+	*Dest = result;
+	*CounterBufferDest = counterBuffer;
+}
+
 std::shared_ptr<KuroEngine::TextureBuffer> KuroEngine::D3D12App::GenerateTextureBuffer(const Color& Color, const int& Width, const DXGI_FORMAT& Format)
 {
 	//既にあるか確認
@@ -801,7 +854,7 @@ std::shared_ptr<KuroEngine::TextureBuffer> KuroEngine::D3D12App::GenerateTexture
 	DescHandles srvHandles(m_descHeapCBV_SRV_UAV->GetCpuHandleTail(), m_descHeapCBV_SRV_UAV->GetGpuHandleTail());
 
 	//アンオーダードアクセスビュー作成
-	m_descHeapCBV_SRV_UAV->CreateUAV(m_device, buff, 4, static_cast<int>(texDesc.Width * texDesc.Height), D3D12_UAV_DIMENSION_TEXTURE2D, texDesc.Format);
+	m_descHeapCBV_SRV_UAV->CreateUAV(m_device, buff, 4, static_cast<int>(texDesc.Width * texDesc.Height), nullptr, D3D12_UAV_DIMENSION_TEXTURE2D, texDesc.Format);
 	DescHandles uavHandles(m_descHeapCBV_SRV_UAV->GetCpuHandleTail(), m_descHeapCBV_SRV_UAV->GetGpuHandleTail());
 
 	//専用のシェーダーリソースクラスにまとめる

@@ -43,7 +43,7 @@
       "LimThreshold": 0.4000000059604645
     },
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.3920130133628845,
@@ -94,7 +94,7 @@
       "pintLength": 30.0
     },
     "debuggerSetting": {
-      "active": false,
+      "active": true,
       "customParamActive": true,
       "imageColor": [
         0.800000011920929,
@@ -195,9 +195,9 @@
       0.5
     ],
     "color": [
-      0.37145015597343445,
-      0.634920597076416,
-      0.327538400888443,
+      0.3015872836112976,
+      0.3015872836112976,
+      0.3015872836112976,
       0.476190447807312
     ],
     "debuggerSetting": {
@@ -215,15 +215,8 @@
     "smoothness": 0.4000000059604645
   },
   "WaterPaintBlend": {
-    "Noise": {
-      "constrast": 4,
-      "frequency": 1.600000023841858,
-      "octave": 2,
-      "persistance": 1.25,
-      "split": [
-        16,
-        16
-      ]
+    "ConstData": {
+      "posOffsetMax": 0.30000001192092896
     },
     "debuggerSetting": {
       "active": false,

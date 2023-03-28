@@ -1,49 +1,90 @@
 #pragma once
 #include<memory>
-#include"Common/PerlinNoise.h"
 #include"ForUser/Debugger.h"
+#include<vector>
+#include"Common/Vec.h"
 
 namespace KuroEngine
 {
+	class VertexBuffer;
 	class TextureBuffer;
+	class ConstantBuffer;
+	class StructuredBuffer;
+	class RWStructuredBuffer;
+
+	class GraphicsPipeline;
 	class ComputePipeline;
-	class Camera;
+
 	class DepthStencil;
+	class Camera;
 }
 
 //水彩画風に２つのテクスチャをブレンド
 class WaterPaintBlend : public KuroEngine::Debugger
 {
 	static const int THREAD_PER_NUM = 32;
+	//static const int THREAD_PER_NUM = 1;
 	
 	//インクテクスチャ枚数
 	static const int INK_TEX_NUM = 3;
 	//インクテクスチャ
 	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, INK_TEX_NUM>m_inkTexArray;
 
-	//マスクレイヤーにこぼすインク
+	//定数バッファ
+	struct ConstData
+	{
+		//座標ズレ最大
+		float m_posOffsetMax = 0.3f;
+		//インクテクスチャ数
+		int m_texMax = INK_TEX_NUM;
+	}m_constData;
+	std::shared_ptr<KuroEngine::ConstantBuffer>m_constBuffer;
+
+	//一度に生成できる最大数
+	static const int GENERATE_MAX_ONCE = 20;
+	//生成予定のインクの座標配列
+	std::vector<KuroEngine::Vec3<float>>m_appearInkPosArray;
+	//生成予定のインクをスタックしておくバッファ
+	std::shared_ptr<KuroEngine::StructuredBuffer>m_stackInkBuffer;
+
+	//マスクレイヤーにこぼしたインク
 	struct MaskInk
 	{
 		KuroEngine::Vec3<float>m_pos;
+		float m_scale;
 		int m_texIdx;
 	};
-	std::vector<MaskInk>m_maskInkArray;
+	//生成したインクのバッファー
+	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_aliveInkBuffer;
+	//生成したインクのカウンターバッファー
+	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_aliveInkCounterBuffer;
 
-	//パイプライン
-	static std::shared_ptr<KuroEngine::ComputePipeline>s_pipeline;
+	//生成できるマスクインクの最大数
+	int m_aliveInkMax = 10000;
+	//生成したインクの数
+	int m_aliveInkCount = 0;
+
+	//マスクインク描画用の板ポリ頂点バッファ
+	static std::shared_ptr<KuroEngine::VertexBuffer>s_maskInkPolygon;
+
+	//マスクインクを初期化するパイプライン
+	static std::shared_ptr<KuroEngine::ComputePipeline>s_initInkPipeline;
+	//マスクインクを生成するパイプライン
+	static std::shared_ptr<KuroEngine::ComputePipeline>s_appearInkPipeline;
+	//マスクインクを更新するパイプライン
+	static std::shared_ptr<KuroEngine::ComputePipeline>s_updateInkPipeline;
+	//マスクインクを描画するパイプライン
+	static std::shared_ptr<KuroEngine::GraphicsPipeline>s_drawInkPipeline;
+
+	//水彩画風にするパイプライン
+	static std::shared_ptr<KuroEngine::ComputePipeline>s_waterPaintPipeline;
 	void GeneratePipeline();
 
-	//パーリンノイズの設定
-	KuroEngine::NoiseInitializer m_noiseInitializer;
-	//境界ぼかしに使うノイズテクスチャ
-	std::shared_ptr<KuroEngine::TextureBuffer>m_noiseTex;
 	//結果の描画先
 	std::shared_ptr<KuroEngine::TextureBuffer>m_resultTex;
 
 	//マスクレイヤーレンダーターゲット
 	std::shared_ptr<KuroEngine::RenderTarget>m_maskLayer;
-
-	bool m_isDirty = false;
 
 	void OnImguiItems()override;
 
