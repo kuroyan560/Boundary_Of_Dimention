@@ -3,6 +3,7 @@
 #include"ForUser/Debugger.h"
 #include<vector>
 #include"Common/Vec.h"
+#include"ForUser/Timer.h"
 
 namespace KuroEngine
 {
@@ -23,7 +24,6 @@ namespace KuroEngine
 class WaterPaintBlend : public KuroEngine::Debugger
 {
 	static const int THREAD_PER_NUM = 32;
-	//static const int THREAD_PER_NUM = 1;
 	
 	//インクテクスチャ枚数
 	static const int INK_TEX_NUM = 3;
@@ -33,6 +33,8 @@ class WaterPaintBlend : public KuroEngine::Debugger
 	//定数バッファ
 	struct ConstData
 	{
+		//マスクインクのスケール
+		float m_initScale = 2.0f;
 		//座標ズレ最大
 		float m_posOffsetMax = 0.3f;
 		//インクテクスチャ数
@@ -52,6 +54,7 @@ class WaterPaintBlend : public KuroEngine::Debugger
 	{
 		KuroEngine::Vec3<float>m_pos;
 		float m_scale;
+		KuroEngine::Vec3<float>m_posOffset;
 		int m_texIdx;
 	};
 	//生成したインクのバッファー
@@ -63,6 +66,10 @@ class WaterPaintBlend : public KuroEngine::Debugger
 	int m_aliveInkMax = 10000;
 	//生成したインクの数
 	int m_aliveInkCount = 0;
+
+	//マスクインクの更新するスパン
+	int m_updateSpan = 3;
+	KuroEngine::Timer m_updateTimer;
 
 	//マスクインク描画用の板ポリ頂点バッファ
 	static std::shared_ptr<KuroEngine::VertexBuffer>s_maskInkPolygon;

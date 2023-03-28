@@ -94,7 +94,7 @@
       "pintLength": 30.0
     },
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.800000011920929,
@@ -216,10 +216,14 @@
   },
   "WaterPaintBlend": {
     "ConstData": {
-      "posOffsetMax": 0.30000001192092896
+      "initScale": 4.550000190734863,
+      "posOffsetMax": 0.20000000298023224
+    },
+    "MaskInk": {
+      "updateSpan": 4
     },
     "debuggerSetting": {
-      "active": false,
+      "active": true,
       "customParamActive": true,
       "imageColor": [
         0.800000011920929,

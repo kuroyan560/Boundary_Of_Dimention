@@ -111,6 +111,11 @@ void WaterPaintBlend::GeneratePipeline()
 
 void WaterPaintBlend::OnImguiItems()
 {
+	if (CustomParamDirty())
+	{
+		m_constBuffer->Mapping(&m_constData);
+	}
+	ImGui::Text("AliveMaskInkNum : %d / %d", m_aliveInkCount, m_aliveInkMax);
 }
 
 WaterPaintBlend::WaterPaintBlend() : Debugger("WaterPaintBlend")
@@ -120,7 +125,9 @@ WaterPaintBlend::WaterPaintBlend() : Debugger("WaterPaintBlend")
 	//パイプライン未生成なら生成
 	if (!s_waterPaintPipeline)GeneratePipeline();
 
+	AddCustomParameter("initScale", { "ConstData","initScale" }, PARAM_TYPE::FLOAT, &m_constData.m_initScale, "ConstData");
 	AddCustomParameter("posOffsetMax", { "ConstData","posOffsetMax" }, PARAM_TYPE::FLOAT, &m_constData.m_posOffsetMax, "ConstData");
+	AddCustomParameter("updateSpan", { "MaskInk","updateSpan" }, PARAM_TYPE::INT, &m_updateSpan, "MaskInk");
 	LoadParameterLog();
 
 	//インクテクスチャ読み込み
@@ -185,7 +192,7 @@ void WaterPaintBlend::Init()
 		m_aliveInkCount = 0;
 	}
 
-	m_aliveInkCounterBuffer->Mapping(&m_aliveInkCount);
+	m_updateTimer.Reset(m_updateSpan);
 }
 
 void WaterPaintBlend::DropMaskInk(KuroEngine::Vec3<float> arg_pos)
@@ -207,12 +214,13 @@ void WaterPaintBlend::Register(std::shared_ptr<KuroEngine::TextureBuffer> arg_ba
 	};
 
 	//インクの更新
-	if (m_aliveInkCount)
+	if (m_aliveInkCount && m_updateTimer.UpdateTimer(1.0f))
 	{
 		D3D12App::Instance()->DispathOneShot(
 			s_updateInkPipeline,
 			{ m_aliveInkCount,1,1 },
 			maskInkDescData);
+		m_updateTimer.Reset(m_updateSpan);
 	}
 
 	//インクの出現

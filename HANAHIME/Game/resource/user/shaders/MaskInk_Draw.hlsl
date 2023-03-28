@@ -4,11 +4,14 @@ struct MaskInk
 {
     float3 m_pos;
     float m_scale;
+    float3 m_posOffset;
     int m_texIdx;
 };
 
 struct ConstData
 {
+    //マスクインクのスケール
+    float m_initScale;
     //座標ズレ最大
     float m_posOffsetMax;
     //インクテクスチャ数
@@ -46,7 +49,7 @@ VSOutput VSmain(float3 pos : POSITION, float2 uv : TEXCOORD, uint instanceID : S
     MaskInk info = aliveInkBuffer[instanceID];
     float4 pos4 = float4(pos * info.m_scale, 1.0f);
     pos4 = mul(cam.billBoard, pos4);
-    pos4.xyz += info.m_pos;
+    pos4.xyz += info.m_pos + info.m_posOffset;
     
     VSOutput output;
     output.svpos = mul(cam.proj, mul(cam.view, pos4));
