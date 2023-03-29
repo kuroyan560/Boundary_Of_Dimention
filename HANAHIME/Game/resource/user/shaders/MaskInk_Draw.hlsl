@@ -1,39 +1,16 @@
 #include"../../engine/Camera.hlsli"
-
-struct MaskInk
-{
-    float3 m_pos;
-    float m_scale;
-    float3 m_posOffset;
-    int m_texIdx;
-};
-
-struct ConstData
-{
-    //マスクインクのスケール
-    float m_initScale;
-    //座標ズレ最大
-    float m_posOffsetMax;
-    //インクテクスチャ数
-    int m_texMax;
-};
+#include"MaskInk.hlsli"
 
 RWStructuredBuffer<MaskInk> aliveInkBuffer : register(u0);
-StructuredBuffer<float3> stackInkPosBuffer : register(t0);
-
-Texture2D<float4> inkTex_0 : register(t1);
-Texture2D<float4> inkTex_1 : register(t2);
-Texture2D<float4> inkTex_2 : register(t3);
 
 cbuffer cbuff0 : register(b0)
 {
-    ConstData constData;
-}
-
-cbuffer cbuff1 : register(b1)
-{
     Camera cam;
 }
+
+Texture2D<float4> inkTex_0 : register(t0);
+Texture2D<float4> inkTex_1 : register(t1);
+Texture2D<float4> inkTex_2 : register(t2);
 
 SamplerState smp : register(s0);
 

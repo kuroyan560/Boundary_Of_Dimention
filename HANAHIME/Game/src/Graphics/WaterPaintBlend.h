@@ -64,8 +64,6 @@ class WaterPaintBlend : public KuroEngine::Debugger
 
 	//生成できるマスクインクの最大数
 	int m_aliveInkMax = 10000;
-	//生成したインクの数
-	int m_aliveInkCount = 0;
 
 	//マスクインクの更新するスパン
 	int m_updateSpan = 3;

@@ -38,13 +38,12 @@ void WaterPaintBlend::GeneratePipeline()
 			"WaterPaintBlend - MaskInkPolygon - VertexBuffer");
 	}
 
-	//マスクインクに関するパイプライン
+	//マスクインクに関するコンピュートパイプライン
 	{
 		//ルートパラメータ
 		std::vector<RootParam>rootParam =
 		{
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"生成したインクのバッファー(RWStructuredBuffer)"),
-			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"生成したインクのバッファーのカウンタバッファ(RWStructuredBuffer)"),
 		};
 
 		//初期化用パイプライン
@@ -53,7 +52,6 @@ void WaterPaintBlend::GeneratePipeline()
 
 		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "生成する予定のスタックしたインクバッファー(StructuredBuffer)");
 		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "更新時に使用する定数バッファ");
-		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "カメラバッファ");
 
 		//生成用パイプライン
 		auto cs_appear = D3D12App::Instance()->CompileShader("resource/user/shaders/MaskInk.hlsl", "Appear", "cs_6_4");
@@ -62,6 +60,18 @@ void WaterPaintBlend::GeneratePipeline()
 		//更新用パイプライン
 		auto cs_update = D3D12App::Instance()->CompileShader("resource/user/shaders/MaskInk.hlsl", "Update", "cs_6_4");
 		s_updateInkPipeline = D3D12App::Instance()->GenerateComputePipeline(cs_update, rootParam, { WrappedSampler(true,true) });
+	}
+	//マスクインク描画用グラフィックスパイプライン
+	{
+		std::vector<RootParam>rootParam =
+		{
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"生成したインクのバッファー(RWStructuredBuffer)"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"カメラバッファ"),
+		};
+		for (int texIdx = 0; texIdx < INK_TEX_NUM; ++texIdx)
+		{
+			rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "インク画像");
+		}
 
 		//描画用パイプライン
 		PipelineInitializeOption option(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
@@ -73,15 +83,10 @@ void WaterPaintBlend::GeneratePipeline()
 
 		std::vector<InputLayoutParam>inputLayout = { InputLayoutParam("POSITION",DXGI_FORMAT_R16G16B16A16_FLOAT) };
 
-		for (int texIdx = 0; texIdx < INK_TEX_NUM; ++texIdx)
-		{
-			rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "インク画像");
-		}
-
 		s_drawInkPipeline = D3D12App::Instance()->GenerateGraphicsPipeline(
 			option,
 			shaders,
-			{ 
+			{
 				InputLayoutParam("POSITION",DXGI_FORMAT_R32G32B32_FLOAT),
 				InputLayoutParam("TEXCOORD",DXGI_FORMAT_R32G32_FLOAT),
 			},
@@ -115,7 +120,7 @@ void WaterPaintBlend::OnImguiItems()
 	{
 		m_constBuffer->Mapping(&m_constData);
 	}
-	ImGui::Text("AliveMaskInkNum : %d / %d", m_aliveInkCount, m_aliveInkMax);
+	ImGui::Text("AliveMaskInkNum : %d / %d", *m_aliveInkCounterBuffer->GetResource()->GetBuffOnCpu<unsigned int>(), m_aliveInkMax);
 }
 
 WaterPaintBlend::WaterPaintBlend() : Debugger("WaterPaintBlend")
@@ -178,18 +183,18 @@ void WaterPaintBlend::Init()
 {
 	using namespace KuroEngine;
 
+	//カウント取得
+	auto aliveInkCount = *m_aliveInkCounterBuffer->GetResource()->GetBuffOnCpu<int>();
+
 	//マスクインクの初期化（全消し）
-	if (m_aliveInkCount)
+	if (aliveInkCount)
 	{
 		D3D12App::Instance()->DispathOneShot(
 			s_initInkPipeline,
-			{ m_aliveInkCount,1,1 },
+			{ aliveInkCount,1,1 },
 		{
 			{m_aliveInkBuffer,UAV},
 		});
-
-		//生存しているマスクインクの数初期化
-		m_aliveInkCount = 0;
 	}
 
 	m_updateTimer.Reset(m_updateSpan);
@@ -204,22 +209,24 @@ void WaterPaintBlend::Register(std::shared_ptr<KuroEngine::TextureBuffer> arg_ba
 {
 	using namespace KuroEngine;
 
-	std::vector<RegisterDescriptorData>maskInkDescData =
+	//登録するディスクリプタの情報配列
+	std::vector<RegisterDescriptorData>maskInkDescData_Compute =
 	{
 		{m_aliveInkBuffer,UAV},
-		{m_aliveInkCounterBuffer,UAV},
 		{m_stackInkBuffer,SRV},
 		{m_constBuffer,CBV},
-		{arg_cam.GetBuff(),CBV}
 	};
 
+	//カウントのポインタ取得
+	auto aliveInkCountPtr = m_aliveInkCounterBuffer->GetResource()->GetBuffOnCpu<int>();
+
 	//インクの更新
-	if (m_aliveInkCount && m_updateTimer.UpdateTimer(1.0f))
+	if (*aliveInkCountPtr && m_updateTimer.UpdateTimer(1.0f))
 	{
 		D3D12App::Instance()->DispathOneShot(
 			s_updateInkPipeline,
-			{ m_aliveInkCount,1,1 },
-			maskInkDescData);
+			{ *aliveInkCountPtr,1,1 },
+			maskInkDescData_Compute);
 		m_updateTimer.Reset(m_updateSpan);
 	}
 
@@ -233,7 +240,7 @@ void WaterPaintBlend::Register(std::shared_ptr<KuroEngine::TextureBuffer> arg_ba
 			AppearMessageBox("WaterPaintBlend : Register() 失敗", "一度に生成できるマスクインクの量を超えてるよ");
 			exit(1);
 		}
-		unsigned int test = *(m_aliveInkCounterBuffer->GetResource()->GetBuffOnCpu<unsigned int>());
+
 
 		//出現するインクの座標情報配列を送信
 		m_stackInkBuffer->Mapping(m_appearInkPosArray.data(), appearNum);
@@ -242,14 +249,10 @@ void WaterPaintBlend::Register(std::shared_ptr<KuroEngine::TextureBuffer> arg_ba
 		D3D12App::Instance()->DispathOneShot(
 			s_appearInkPipeline,
 			{ appearNum,1,1 },
-			maskInkDescData);
+			maskInkDescData_Compute);
 
-		test = *(m_aliveInkCounterBuffer->GetResource()->GetBuffOnCpu<unsigned int>());
-
-		//生存しているインクの数更新
-		m_aliveInkCount += appearNum;
 		//上限到達
-		if (m_aliveInkMax < m_aliveInkCount)
+		if (m_aliveInkMax < *aliveInkCountPtr)
 		{
 			AppearMessageBox("WaterPaintBlend : Register() 失敗", "生成できるマスクインクの量を超えてるよ");
 			exit(1);
@@ -263,18 +266,23 @@ void WaterPaintBlend::Register(std::shared_ptr<KuroEngine::TextureBuffer> arg_ba
 	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(m_maskLayer);
 
 	//マスクレイヤーにインク描画
+	std::vector<RegisterDescriptorData>maskInkDescData_Graphics =
+	{
+		{m_aliveInkBuffer,UAV},
+		{arg_cam.GetBuff(),CBV},
+	};
 	for (int texIdx = 0; texIdx < INK_TEX_NUM; ++texIdx)
 	{
-		maskInkDescData.emplace_back(m_inkTexArray[texIdx], SRV);
+		maskInkDescData_Graphics.emplace_back(m_inkTexArray[texIdx], SRV);
 	}
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets({ m_maskLayer }, arg_depthStencil);
 	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(s_drawInkPipeline);
 	KuroEngineDevice::Instance()->Graphics().ObjectRender(
 		s_maskInkPolygon,
-		maskInkDescData,
+		maskInkDescData_Graphics,
 		0.0f,
 		true,
-		m_aliveInkCount);
+		*aliveInkCountPtr);
 
 	//水彩画風加工
 	KuroEngineDevice::Instance()->Graphics().SetComputePipeline(s_waterPaintPipeline);
