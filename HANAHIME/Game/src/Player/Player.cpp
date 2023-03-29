@@ -73,6 +73,8 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	//CastRayに渡す引数
 	Player::CastRayArgument castRayArgument(onGround, isHitWall, hitResult);
 
+	m_debugTransform.clear();
+
 	//地形配列走査
 	for (auto& terrian : arg_terrianArray)
 	{
@@ -92,6 +94,18 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			castRayArgument.m_mesh = modelMesh;
 
 			//判定↓============================================
+
+
+
+			//MeshCollisionOutput output = MeshCollision(arg_newPos, -m_transform.GetUp(), castRayArgument.m_mesh, castRayArgument.m_targetTransform);
+			//if (output.m_isHit) {
+
+			//	KuroEngine::Transform buff;
+			//	buff.SetPos(output.m_pos);
+			//	buff.SetScale({ 1,1,1 });
+
+			//	m_debugTransform.emplace_back(buff);
+			//}
 
 
 			//右方向にレイを飛ばす。これは壁にくっつく用。
@@ -116,13 +130,13 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 				CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetFront(), m_transform.GetScale().x, castRayArgument, RAY_ID::CLIFF);
 
 				//後ろに進んで崖に落ちた場合。
-				CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetFront(), m_transform.GetScale().x,  castRayArgument, RAY_ID::CLIFF);
+				CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetFront(), m_transform.GetScale().x, castRayArgument, RAY_ID::CLIFF);
 
 				//右に進んで崖に落ちた場合。
-				CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetRight(), m_transform.GetScale().z,  castRayArgument, RAY_ID::CLIFF);
+				CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetRight(), m_transform.GetScale().z, castRayArgument, RAY_ID::CLIFF);
 
 				//左に進んで崖に落ちた場合。
-				CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetRight(), m_transform.GetScale().z,  castRayArgument, RAY_ID::CLIFF);
+				CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetRight(), m_transform.GetScale().z, castRayArgument, RAY_ID::CLIFF);
 
 			}
 
@@ -146,6 +160,7 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	{
 		*arg_hitInfo = hitResult;
 	}
+
 	return isHitWall;
 }
 
@@ -256,6 +271,14 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		m_model,
 		m_transform);
 
+	for (auto& index : m_debugTransform) {
+		BasicDraw::Instance()->Draw(
+			arg_cam,
+			arg_ligMgr,
+			m_model,
+			index);
+	}
+
 	/*KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_axisModel,
 		m_transform,
@@ -339,7 +362,7 @@ Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>&
 
 	/*-- ③ ポリゴンを法線情報をもとにカリングする --*/
 
-	//法線とレイの方向の内積が0より小さかった場合、そのポリゴンは背面なのでカリングする。
+	//法線とレイの方向の内積が0より大きかった場合、そのポリゴンは背面なのでカリングする。
 	for (auto& index : checkHitPolygons) {
 
 		if (index.m_p1.normal.Dot(arg_rayDir) < -0.0001f) continue;
@@ -360,7 +383,8 @@ Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>&
 		if (!index.m_isActive) continue;
 
 		//レイの開始地点から平面におろした垂線の長さを求める
-		KuroEngine::Vec3<float> planeNorm = -index.m_p0.normal;
+		//KuroEngine::Vec3<float> planeNorm = -index.m_p0.normal;
+		KuroEngine::Vec3<float> planeNorm = KuroEngine::Vec3<float>(KuroEngine::Vec3<float>(index.m_p0.pos - index.m_p2.pos).GetNormal()).Cross(KuroEngine::Vec3<float>(index.m_p0.pos - index.m_p1.pos).GetNormal());
 		float rayToOriginLength = arg_rayPos.Dot(planeNorm);
 		float planeToOriginLength = index.m_p0.pos.Dot(planeNorm);
 		//視点から平面におろした垂線の長さ
@@ -369,6 +393,8 @@ Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>&
 		//三角関数を利用して視点から衝突点までの距離を求める
 		float dist = planeNorm.Dot(arg_rayDir);
 		float impDistance = perpendicularLine / -dist;
+
+		if (std::isnan(impDistance))continue;
 
 		//衝突地点
 		KuroEngine::Vec3<float> impactPoint = arg_rayPos + arg_rayDir * impDistance;
@@ -531,6 +557,9 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 			arg_charaPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
 
 			break;
+
+		case Player::RAY_ID::DEBUG:
+			//m_debugTransform.SetPos(output.m_pos);
 
 		case Player::RAY_ID::CLIFF:
 		case Player::RAY_ID::AROUND:

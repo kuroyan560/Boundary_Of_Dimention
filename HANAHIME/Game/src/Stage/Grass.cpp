@@ -112,22 +112,22 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 {
 	using namespace KuroEngine;
 
-	//プレイヤーが移動した and 周りに草がない。
-	bool isMovePlayer = !((arg_playerPos - m_oldPlayerPos).Length() < 0.1f);
-	bool isGrassAround = IsGrassAround(arg_playerPos);
-	if (isMovePlayer && !isGrassAround)
-	{
-		if (m_plantTimer.IsTimeUp())
-		{
-			Transform grassTransform;
-			grassTransform.SetPos(arg_playerPos);
-			grassTransform.SetRotate(arg_playerRotate);
-			grassTransform.SetScale({ 1.0f,1.0f,1.0f });
-			PlantGrassBlock(grassTransform, arg_grassPosScatter, arg_waterPaintBlend);
-			m_plantTimer.Reset(3);
-		}
-		m_plantTimer.UpdateTimer();
-	}
+	////プレイヤーが移動した and 周りに草がない。
+	//bool isMovePlayer = !((arg_playerPos - m_oldPlayerPos).Length() < 0.1f);
+	//bool isGrassAround = IsGrassAround(arg_playerPos);
+	//if (isMovePlayer && !isGrassAround)
+	//{
+	//	if (m_plantTimer.IsTimeUp())
+	//	{
+	//		Transform grassTransform;
+	//		grassTransform.SetPos(arg_playerPos);
+	//		grassTransform.SetRotate(arg_playerRotate);
+	//		grassTransform.SetScale({ 1.0f,1.0f,1.0f });
+	//		PlantGrassBlock(grassTransform, arg_grassPosScatter, arg_waterPaintBlend);
+	//		m_plantTimer.Reset(3);
+	//	}
+	//	m_plantTimer.UpdateTimer();
+	//}
 
 	m_oldPlayerPos = arg_playerPos;
 
@@ -207,7 +207,8 @@ void Grass::PlantGrassBlock(KuroEngine::Transform arg_transform, KuroEngine::Vec
 	m_grassWorldMatArray.push_back(arg_transform.GetMatWorld());
 
 	//板ポリを生成。
-	for (int count = 0; count < 3; ++count) {
+	const int GENERATE_COUNT = 3;
+	for (int count = 0; count < GENERATE_COUNT; ++count) {
 		for (auto& index : m_vertices) {
 			//生成済みだったら処理を飛ばす。
 			if (index.m_isAlive) continue;

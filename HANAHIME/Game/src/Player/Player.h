@@ -58,6 +58,11 @@ class Player : public KuroEngine::Debugger
 	//Imguiデバッグ関数オーバーライド
 	void OnImguiItems()override;
 
+
+	//デバッグ
+	std::vector<KuroEngine::Transform> m_debugTransform;
+
+
 	struct HitCheckResult
 	{
 		KuroEngine::Vec3<float>m_interPos;
@@ -102,6 +107,7 @@ private:
 		GROUND,	//地上向かって飛ばすレイ。設置判定で使用する。
 		AROUND,	//周囲に向かって飛ばすレイ。壁のぼり判定で使用する。
 		CLIFF,	//崖で明日もとに向かって飛ばすレイ。崖を降りる際に使用する。
+		DEBUG,
 	};
 	/// <summary>
 	/// レイとメッシュの当たり判定
