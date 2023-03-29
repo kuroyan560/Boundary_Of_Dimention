@@ -93,4 +93,14 @@ public:
 	/// <param name="arg_grassPosScatter">散らし具合</param>
 	/// <param name="arg_waterPaintBlend">水彩画風ブレンドポストエフェクト</param>
 	void Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
+
+private:
+
+	/// <summary>
+	/// 周囲に草が生えているかをチェックする。
+	/// </summary>
+	/// <param name="arg_playerPos"> チェックする座標 </param>
+	/// <returns> t:生えている  f:生えていない </returns>
+	bool IsGrassAround(const KuroEngine::Vec3<float> arg_playerPos);
+
 };
