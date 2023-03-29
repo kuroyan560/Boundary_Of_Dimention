@@ -96,18 +96,6 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			//判定↓============================================
 
 
-
-			//MeshCollisionOutput output = MeshCollision(arg_newPos, -m_transform.GetUp(), castRayArgument.m_mesh, castRayArgument.m_targetTransform);
-			//if (output.m_isHit) {
-
-			//	KuroEngine::Transform buff;
-			//	buff.SetPos(output.m_pos);
-			//	buff.SetScale({ 1,1,1 });
-
-			//	m_debugTransform.emplace_back(buff);
-			//}
-
-
 			//右方向にレイを飛ばす。これは壁にくっつく用。
 			CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), m_transform.GetScale().x, castRayArgument, RAY_ID::AROUND);
 
@@ -126,17 +114,33 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			//空中にいるトリガーの場合は崖の処理。
 			if (!m_onGround && m_prevOnGround) {
 
-				//前に進んで崖に落ちた場合。
-				CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetFront(), m_transform.GetScale().x, castRayArgument, RAY_ID::CLIFF);
+				if (0 < m_rowMoveVec.z) {
 
-				//後ろに進んで崖に落ちた場合。
-				CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetFront(), m_transform.GetScale().x, castRayArgument, RAY_ID::CLIFF);
+					//前に進んで崖に落ちた場合。
+					CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetFront(), m_transform.GetScale().x, castRayArgument, RAY_ID::CLIFF);
 
-				//右に進んで崖に落ちた場合。
-				CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetRight(), m_transform.GetScale().z, castRayArgument, RAY_ID::CLIFF);
+				}
 
-				//左に進んで崖に落ちた場合。
-				CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetRight(), m_transform.GetScale().z, castRayArgument, RAY_ID::CLIFF);
+				if(m_rowMoveVec.z < 0){
+
+					//後ろに進んで崖に落ちた場合。
+					CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetFront(), m_transform.GetScale().x, castRayArgument, RAY_ID::CLIFF);
+
+				}
+
+				if (0 < m_rowMoveVec.x) {
+
+					//左に進んで崖に落ちた場合。
+					CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetRight(), m_transform.GetScale().z, castRayArgument, RAY_ID::CLIFF);
+
+				}
+
+				if (m_rowMoveVec.x < 0) {
+
+					//右に進んで崖に落ちた場合。
+					CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetRight(), m_transform.GetScale().z, castRayArgument, RAY_ID::CLIFF);
+
+				}
 
 			}
 
@@ -159,6 +163,15 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	if (isHitWall && arg_hitInfo)
 	{
 		*arg_hitInfo = hitResult;
+	}
+	else {
+
+		//どことも衝突していなかったら現在の上ベクトルを法線とする。(必ず回転の処理を通るようにするため)
+		hitResult.m_bottmRayTerrianNormal = m_transform.GetUp();
+		hitResult.m_terrianNormal = m_transform.GetUp();
+		*arg_hitInfo = hitResult;
+		isHitWall = true;
+
 	}
 
 	return isHitWall;
@@ -234,7 +247,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 		//法線方向を見るクォータニオン
 		auto spin = Math::GetLookAtQuaternion({ 0,1,0 }, hitResult.m_terrianNormal);
-		auto spinMat = DirectX::XMMatrixRotationQuaternion(spin);
 
 		//カメラ目線でY軸回転させるクォータニオン
 		auto ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_cameraRotY);
@@ -244,7 +256,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 		//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
 		auto playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
-		m_transform.SetRotate(DirectX::XMQuaternionMultiply(m_cameraQ, playerYSpin));
+		m_moveQ = DirectX::XMQuaternionMultiply(m_cameraQ, playerYSpin);
+		m_transform.SetRotate(m_moveQ);
 
 	}
 
@@ -298,7 +311,6 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 void Player::Finalize()
 {
 }
-
 
 Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform) {
 
