@@ -241,7 +241,6 @@ void WaterPaintBlend::Register(std::shared_ptr<KuroEngine::TextureBuffer> arg_ba
 			exit(1);
 		}
 
-
 		//出現するインクの座標情報配列を送信
 		m_stackInkBuffer->Mapping(m_appearInkPosArray.data(), appearNum);
 
