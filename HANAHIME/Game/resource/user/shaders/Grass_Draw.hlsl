@@ -80,7 +80,7 @@ void GSmain(
     float3 position = grass.m_pos;
 
     //ビルボードのサイズ
-    const float2 PolygonSize = float2(0.75f,3.0f);
+    const float2 PolygonSize = float2(0.75f, 3.0f) * float2(0.75f, 0.75f);
     
     //デフォルトだと少し浮いてしまっているので1だけ沈める。
     position -= grass.m_normal;
