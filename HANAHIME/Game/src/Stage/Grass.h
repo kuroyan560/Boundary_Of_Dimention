@@ -56,7 +56,6 @@ class Grass
 		KuroEngine::Vec3<float>m_posScatter;
 		float m_sineLength;
 		int m_texIdx;
-		int pad[3];
 	};
 	//一度に生成できる最大数
 	static const int GENERATE_MAX_ONCE = 20;
@@ -67,6 +66,10 @@ class Grass
 
 	//植えられる草の最大数
 	int m_plantGrassMax = 10000;
+
+	//一度に植える草の数
+	int m_plantOnceCountMin = 3;
+	int m_plantOnceCountMax = 6;
 
 	//コンピュートパイプライン種別
 	enum COMPUTE_PHASE { INIT, CHECK_AROUND, GENERATE, UPDATE, NUM };

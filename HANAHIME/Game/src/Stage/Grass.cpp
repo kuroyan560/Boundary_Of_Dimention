@@ -312,28 +312,29 @@ void Grass::PlantGrassBlock(KuroEngine::Transform arg_transform, KuroEngine::Vec
 	m_grassWorldMatArray.push_back(arg_transform.GetMatWorld());
 
 	//板ポリを生成。
-	for (int count = 0; count < 3; ++count) {
-			Plant(arg_transform, arg_grassPosScatter, arg_waterPaintBlend);
-	}
+	Plant(arg_transform, arg_grassPosScatter, arg_waterPaintBlend);
 }
 
 void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend)
 {
-	KuroEngine::Vec3<float> pos = arg_transform.GetPos();
+	//インクマスクを落とす
+	arg_waterPaintBlend.DropMaskInk(arg_transform.GetPos() + KuroEngine::Vec3<float>(0.0f, 1.0f, 0.0f));
 
-	//草を生やす位置をランダムで散らす。
-	KuroEngine::Vec3<float>posScatter = arg_transform.GetRight() * KuroEngine::GetRand(-arg_grassPosScatter.x, arg_grassPosScatter.x);
-	posScatter += arg_transform.GetFront() * KuroEngine::GetRand(-arg_grassPosScatter.y, arg_grassPosScatter.y);
+	int plantNum = KuroEngine::GetRand(m_plantOnceCountMin, m_plantOnceCountMax);
+	for (int count = 0; count < plantNum; ++count)
+	{
+		//草を生やす位置をランダムで散らす。
+		KuroEngine::Vec3<float>posScatter = arg_transform.GetRight() * KuroEngine::GetRand(-arg_grassPosScatter.x, arg_grassPosScatter.x);
+		posScatter += arg_transform.GetFront() * KuroEngine::GetRand(-arg_grassPosScatter.y, arg_grassPosScatter.y);
 
-	//イニシャライザのスタック
-	m_grassInitializerArray.emplace_back();
-	m_grassInitializerArray.back().m_posScatter = posScatter;
-	//とりあえず乱数でテクスチャ決定
-	//m_vertices[m_deadVertexIdx].m_texIdx = KuroEngine::GetRand(s_textureNumMax - 1);
-	m_grassInitializerArray.back().m_texIdx = KuroEngine::GetRand(3 - 1);
-	m_grassInitializerArray.back().m_sineLength = KuroEngine::GetRand(40) / 100.0f;
-
-	arg_waterPaintBlend.DropMaskInk(pos + KuroEngine::Vec3<float>(0.0f, 1.0f, 0.0f));
+		//イニシャライザのスタック
+		m_grassInitializerArray.emplace_back();
+		m_grassInitializerArray.back().m_posScatter = posScatter;
+		//とりあえず乱数でテクスチャ決定
+		//m_vertices[m_deadVertexIdx].m_texIdx = KuroEngine::GetRand(s_textureNumMax - 1);
+		m_grassInitializerArray.back().m_texIdx = KuroEngine::GetRand(3 - 1);
+		m_grassInitializerArray.back().m_sineLength = KuroEngine::GetRand(40) / 100.0f;
+	}
 }
 
 bool Grass::IsGrassAround(const KuroEngine::Vec3<float> arg_playerPos)
