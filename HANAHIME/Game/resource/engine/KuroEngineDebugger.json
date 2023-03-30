@@ -164,6 +164,17 @@
         1.0
       ],
       "textColorFlg": false
+    },
+    "grass": {
+      "posScatter": [
+        2.0,
+        2.0
+      ]
+    },
+    "move": {
+      "accel": 0.019999999552965164,
+      "brake": 0.019999999552965164,
+      "maxSpeed": 0.3499999940395355
     }
   },
   "StageManager": {
