@@ -2,3 +2,5 @@
 HANAHIME/Game/x64/
 *.pdb
 *.exe
+HANAHIME/Game/resource/user/model/Player2.glb
+x64
