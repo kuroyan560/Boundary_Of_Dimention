@@ -4,6 +4,7 @@
 //植える草の初期化値
 struct GrassInitializer
 {
+    float3 m_posScatter;
     float m_sineLength;
     int m_texIdx;
 };
@@ -49,6 +50,7 @@ void Appear(uint DTid : SV_DispatchThreadID)
     
     //イニシャライザを取得して初期化
     GrassInitializer initializer = stackGrassInitializerBuffer[DTid];
+    newGrass.m_pos += initializer.m_posScatter;
     newGrass.m_sineLength = initializer.m_sineLength;
     newGrass.m_texIdx = initializer.m_texIdx;
     newGrass.m_appearYTimer = 0;

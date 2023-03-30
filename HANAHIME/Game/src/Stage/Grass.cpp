@@ -322,11 +322,12 @@ void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> a
 	KuroEngine::Vec3<float> pos = arg_transform.GetPos();
 
 	//草を生やす位置をランダムで散らす。
-	pos += arg_transform.GetRight() * KuroEngine::GetRand(-arg_grassPosScatter.x, arg_grassPosScatter.x);
-	pos += arg_transform.GetFront() * KuroEngine::GetRand(-arg_grassPosScatter.y, arg_grassPosScatter.y);
+	KuroEngine::Vec3<float>posScatter = arg_transform.GetRight() * KuroEngine::GetRand(-arg_grassPosScatter.x, arg_grassPosScatter.x);
+	posScatter += arg_transform.GetFront() * KuroEngine::GetRand(-arg_grassPosScatter.y, arg_grassPosScatter.y);
 
 	//イニシャライザのスタック
 	m_grassInitializerArray.emplace_back();
+	m_grassInitializerArray.back().m_posScatter = posScatter;
 	//とりあえず乱数でテクスチャ決定
 	//m_vertices[m_deadVertexIdx].m_texIdx = KuroEngine::GetRand(s_textureNumMax - 1);
 	m_grassInitializerArray.back().m_texIdx = KuroEngine::GetRand(3 - 1);

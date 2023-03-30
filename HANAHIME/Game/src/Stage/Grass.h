@@ -53,9 +53,10 @@ class Grass
 	//草むらのイニシャライザ情報
 	struct GrassInitializer
 	{
+		KuroEngine::Vec3<float>m_posScatter;
 		float m_sineLength;
 		int m_texIdx;
-		int pad[2];
+		int pad[3];
 	};
 	//一度に生成できる最大数
 	static const int GENERATE_MAX_ONCE = 20;
