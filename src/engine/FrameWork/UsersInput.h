@@ -126,6 +126,7 @@ namespace KuroEngine
 
 		//デッドゾーン判定の度合い(1.0fだとデフォルト採用)
 		Vec2<float>GetLeftStickVec(const int& ControllerIdx, const Vec2<float>& DeadRate = { 1.0f,1.0f })const;
+		Vec2<float>GetLeftStickVecFuna(const int& ControllerIdx, const Vec2<float>& DeadRate = { 1.0f,1.0f })const;	//消してください。
 		Vec2<float>GetRightStickVec(const int& ControllerIdx, const Vec2<float>& DeadRate = { 1.0f,1.0f })const;
 
 		//コントローラーを振動させる（Power は 0.0f ~ 1.0f）

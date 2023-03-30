@@ -50,7 +50,11 @@ class Player : public KuroEngine::Debugger
 	XMVECTOR m_moveQ;	//プレイヤーのY軸回転量を抜いた、プレイヤーの移動方向のみを向いた場合の回転
 
 	//移動ベクトルのスカラー
-	float m_moveScalar = 0.5f;
+	KuroEngine::Vec3<float> m_moveSpeed;			//移動速度
+	float m_moveAccel = 0.05f;
+	float m_maxSpeed = 0.5f;
+	float m_brake = 0.08f;
+
 
 	//接地フラグ
 	bool m_onGround;		//接地フラグ

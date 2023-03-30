@@ -2,3 +2,6 @@
 HANAHIME/Game/x64/
 *.pdb
 *.exe
+x64/Release/dxcompiler.dll
+x64/
+HANAHIME/Game/resource/user/model/Player2.glb
