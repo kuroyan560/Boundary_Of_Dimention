@@ -29,7 +29,6 @@ void GameScene::OnInitialize()
 	StageManager::Instance(),
 	BasicDraw::Instance(),
 	&m_vignettePostEffect,
-	&m_dof,
 	&m_waterPaintBlend
 	});
 
@@ -142,9 +141,7 @@ void GameScene::OnDraw()
 	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 	m_waterPaintBlend.Register(main, *nowCamera, ds);
 
-	m_dof.Register(m_waterPaintBlend.GetResultTex(), depthMap);
-
-	m_vignettePostEffect.Register(m_dof.GetResultTex());
+	m_vignettePostEffect.Register(m_waterPaintBlend.GetResultTex());
 
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(
 		{

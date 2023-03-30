@@ -28,9 +28,6 @@ class GameScene : public KuroEngine::BaseScene
 	//キャンバスに描いた風にするポストエフェクト（Gris的な）
 	CanvasPostEffect m_canvasPostEffect;
 
-	//被写界深度ポストエフェクト
-	KuroEngine::DOF m_dof;
-
 	//草むら
 	Grass m_grass;
 
