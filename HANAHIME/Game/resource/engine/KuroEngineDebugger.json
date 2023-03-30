@@ -155,7 +155,7 @@
       "sensitivity": 1.0
     },
     "debuggerSetting": {
-      "active": false,
+      "active": true,
       "customParamActive": true,
       "imageColor": [
         0.864130437374115,
@@ -164,8 +164,7 @@
         1.0
       ],
       "textColorFlg": false
-    },
-    "moveScalar": 0.5
+    }
   },
   "StageManager": {
     "debuggerSetting": {

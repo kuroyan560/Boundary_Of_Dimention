@@ -45,6 +45,17 @@ void Player::OnImguiItems()
 
 	}
 
+	//移動
+	ImGui::SetNextItemOpen(true);
+	if (ImGui::TreeNode("Move")) {
+
+		ImGui::DragFloat("MoveAccel", &m_moveAccel, 0.01f);
+		ImGui::DragFloat("MaxSpeed", &m_maxSpeed, 0.01f);
+		ImGui::DragFloat("Brake", &m_brake, 0.01f);
+
+		ImGui::TreePop();
+	}
+
 	//カメラ
 	ImGui::SetNextItemOpen(true);
 	if (ImGui::TreeNode("Camera"))
@@ -121,7 +132,7 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 
 				}
 
-				if(m_rowMoveVec.z < 0){
+				if (m_rowMoveVec.z < 0) {
 
 					//後ろに進んで崖に落ちた場合。
 					CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetFront(), m_transform.GetScale().x, castRayArgument, RAY_ID::CLIFF);
@@ -180,7 +191,6 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 Player::Player()
 	:KuroEngine::Debugger("Player", true, true)
 {
-	AddCustomParameter("MoveScalar", { "moveScalar" }, PARAM_TYPE::FLOAT, &m_moveScalar, "Player");
 	AddCustomParameter("Sensitivity", { "camera", "sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity, "Camera");
 	LoadParameterLog();
 
@@ -196,6 +206,9 @@ Player::Player()
 
 	m_cameraRotY = 0;
 	m_cameraQ = DirectX::XMQuaternionIdentity();
+
+	m_moveSpeed = KuroEngine::Vec3<float>();
+
 }
 
 void Player::Init(KuroEngine::Transform arg_initTransform)
@@ -204,6 +217,8 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_camController.Init();
 	m_cameraRotY = 0;
 	m_cameraQ = DirectX::XMQuaternionIdentity();
+
+	m_moveSpeed = KuroEngine::Vec3<float>();
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
@@ -219,8 +234,26 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	auto rotate = m_transform.GetRotate();
 
 	//入力された移動量を取得
-	auto moveVec = OperationConfig::Instance()->GetMoveVec(rotate);
-	m_rowMoveVec = OperationConfig::Instance()->GetMoveVec(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
+	m_rowMoveVec = OperationConfig::Instance()->GetMoveVecFuna(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
+	m_moveSpeed += m_rowMoveVec * m_moveAccel;
+
+	//移動速度をクランプ。
+	m_moveSpeed.x = std::clamp(m_moveSpeed.x, -m_maxSpeed, m_maxSpeed);
+	m_moveSpeed.z = std::clamp(m_moveSpeed.z, -m_maxSpeed, m_maxSpeed);
+
+	//入力された値が無かったら移動速度を減らす。
+	if (std::fabs(m_rowMoveVec.x) < 0.001f) {
+
+		m_moveSpeed.x = std::clamp(std::fabs(m_moveSpeed.x) - m_brake, 0.0f, m_maxSpeed) * (std::signbit(m_moveSpeed.x) ? -1.0f : 1.0f);
+
+	}
+
+	if (std::fabs(m_rowMoveVec.z) < 0.001f) {
+
+		m_moveSpeed.z = std::clamp(std::fabs(m_moveSpeed.z) - m_brake, 0.0f, m_maxSpeed) * (std::signbit(m_moveSpeed.z) ? -1.0f : 1.0f);
+
+	}
+
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
 
@@ -233,7 +266,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	}
 
 	//移動量加算
-	newPos += moveVec * m_moveScalar;
+	auto moveAmount = KuroEngine::Math::TransformVec3(m_moveSpeed, rotate);
+	newPos += moveAmount;
 
 	//地面に張り付ける用の重力。
 	if (!m_onGround) {

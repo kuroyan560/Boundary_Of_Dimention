@@ -43,6 +43,7 @@ public:
 	/// <param name="arg_rotate">移動対象の回転量</param>
 	/// <returns>移動の単位ベクトル</returns>
 	KuroEngine::Vec3<float>GetMoveVec(KuroEngine::Quaternion arg_rotate);
+	KuroEngine::Vec3<float>GetMoveVecFuna(KuroEngine::Quaternion arg_rotate);
 
 	/// <summary>
 	/// 入力による視線移動量の取得
