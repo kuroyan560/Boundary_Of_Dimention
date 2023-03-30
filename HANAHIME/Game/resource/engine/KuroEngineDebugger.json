@@ -216,11 +216,11 @@
   },
   "WaterPaintBlend": {
     "ConstData": {
-      "initScale": 4.550000190734863,
+      "initScale": 6.0,
       "posOffsetMax": 0.20000000298023224
     },
     "MaskInk": {
-      "updateSpan": 4
+      "updateSpan": 5
     },
     "debuggerSetting": {
       "active": true,
