@@ -125,28 +125,28 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			//空中にいるトリガーの場合は崖の処理。
 			if (!m_onGround && m_prevOnGround) {
 
-				if (0 < m_rowMoveVec.z) {
+				if (0 < m_moveSpeed.z) {
 
 					//前に進んで崖に落ちた場合。
 					CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetFront(), m_transform.GetScale().x, castRayArgument, RAY_ID::CLIFF);
 
 				}
 
-				if (m_rowMoveVec.z < 0) {
+				if (m_moveSpeed.z < 0) {
 
 					//後ろに進んで崖に落ちた場合。
 					CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetFront(), m_transform.GetScale().x, castRayArgument, RAY_ID::CLIFF);
 
 				}
 
-				if (0 < m_rowMoveVec.x) {
+				if (0 < m_moveSpeed.x) {
 
 					//左に進んで崖に落ちた場合。
 					CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetRight(), m_transform.GetScale().z, castRayArgument, RAY_ID::CLIFF);
 
 				}
 
-				if (m_rowMoveVec.x < 0) {
+				if (m_moveSpeed.x < 0) {
 
 					//右に進んで崖に落ちた場合。
 					CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetRight(), m_transform.GetScale().z, castRayArgument, RAY_ID::CLIFF);
