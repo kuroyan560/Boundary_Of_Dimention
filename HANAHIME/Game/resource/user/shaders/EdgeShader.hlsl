@@ -13,7 +13,7 @@ struct VSOutput
     float2 m_uv : TEXCORRD;
 };
 
-#define FLT_EPSILON 1.192092896e-07f
+#define FLT_EPSILON 0.0001
 
 Texture2D<float4> g_depthMap : register(t0);
 Texture2D<float4> g_normalMap : register(t1);
