@@ -48,11 +48,13 @@
     <IncludePath>$(SolutionDir)lib\DirectXTex\inc;$(SolutionDir)lib\GLTFSDK\inc;$(SolutionDir)lib\magic_enum;$(SolutionDir)lib\dxcompiler\inc;$(SolutionDir)lib\glTF-SDK-master\GLTFSDK\Inc;$(SolutionDir)lib\imgui;$(SolutionDir)lib\nlohmann_json;$(SolutionDir)src\engine</IncludePath>
     <LibraryPath>$(SolutionDir)lib\dxcompiler\lib\x64;$(SolutionDir)lib\DirectXTex\lib\$(Configuration);$(SolutionDir)lib\GLTFSDK\lib\$(Configuration);$(LibraryPath)</LibraryPath>
     <OutDir>$(ProjectDir)</OutDir>
+    <TargetName>華姫</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>$(SolutionDir)lib\DirectXTex\inc;$(SolutionDir)lib\GLTFSDK\inc;$(SolutionDir)lib\magic_enum;$(SolutionDir)lib\dxcompiler\inc;$(SolutionDir)lib\glTF-SDK-master\GLTFSDK\Inc;$(SolutionDir)lib\imgui;$(SolutionDir)lib\nlohmann_json;$(SolutionDir)src\engine</IncludePath>
     <LibraryPath>$(SolutionDir)lib\dxcompiler\lib\x64;$(SolutionDir)lib\DirectXTex\lib\$(Configuration);$(SolutionDir)lib\GLTFSDK\lib\$(Configuration);$(LibraryPath)</LibraryPath>
+    <TargetName>華姫</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>

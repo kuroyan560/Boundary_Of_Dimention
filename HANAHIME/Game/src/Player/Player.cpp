@@ -39,31 +39,6 @@ void Player::OnImguiItems()
 		ImGui::Text("Up : %.2f ,%.2f , %.2f", up.x, up.y, up.z);
 
 		ImGui::Text("OnGround : %d", m_onGround);
-
-		ImGui::DragFloat("GrassPosScatter : X", &m_grassPosScatter.x, 0.1f);
-		ImGui::DragFloat("GrassPosScatter : Y", &m_grassPosScatter.y, 0.1f);
-
-	}
-
-	//à⁄ìÆ
-	ImGui::SetNextItemOpen(true);
-	if (ImGui::TreeNode("Move")) {
-
-		ImGui::DragFloat("MoveAccel", &m_moveAccel, 0.01f);
-		ImGui::DragFloat("MaxSpeed", &m_maxSpeed, 0.01f);
-		ImGui::DragFloat("Brake", &m_brake, 0.01f);
-
-		ImGui::TreePop();
-	}
-
-	//ÉJÉÅÉâ
-	ImGui::SetNextItemOpen(true);
-	if (ImGui::TreeNode("Camera"))
-	{
-		// ImGui::DragFloat3("Target", (float*)&target, 0.5f);
-		ImGui::DragFloat("Sensitivity", &m_camSensitivity, 0.05f);
-
-		ImGui::TreePop();
 	}
 }
 
@@ -192,6 +167,10 @@ Player::Player()
 	:KuroEngine::Debugger("Player", true, true)
 {
 	AddCustomParameter("Sensitivity", { "camera", "sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity, "Camera");
+	AddCustomParameter("Accel", { "move", "accel" }, PARAM_TYPE::FLOAT, &m_moveAccel, "Move");
+	AddCustomParameter("MaxSpeed", { "move", "maxSpeed" }, PARAM_TYPE::FLOAT, &m_maxSpeed, "Move");
+	AddCustomParameter("Brake", { "move", "brake" }, PARAM_TYPE::FLOAT, &m_brake, "Move");
+	AddCustomParameter("PosScatter", { "grass", "posScatter" }, PARAM_TYPE::FLOAT_VEC2, &m_grassPosScatter, "Grass");
 	LoadParameterLog();
 
 	//ÉÇÉfÉãì«Ç›çûÇ›
