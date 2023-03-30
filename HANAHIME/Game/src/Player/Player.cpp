@@ -102,7 +102,7 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			auto& mesh = modelMesh.mesh;
 
 			//CastRayに渡す引数を更新。
-			castRayArgument.m_mesh = modelMesh;
+			castRayArgument.m_mesh = terrian.m_collisionMesh[static_cast<int>(&modelMesh - &model->m_meshes[0])];
 
 			//判定↓============================================
 
@@ -346,70 +346,16 @@ void Player::Finalize()
 {
 }
 
-Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform) {
+Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, std::vector<Terrian::Polygon>& arg_targetMesh, KuroEngine::Transform arg_targetTransform) {
 
 
 	/*===== メッシュとレイの当たり判定 =====*/
 
-	/*-- ① モデル情報から当たり判定用のポリゴンを作り出す --*/
 
-	//当たり判定用ポリゴン
-	struct Polygon {
-		bool m_isActive;					//このポリゴンが有効化されているかのフラグ
-		KuroEngine::ModelMesh::Vertex m_p0;	//頂点0
-		KuroEngine::ModelMesh::Vertex m_p1;	//頂点1
-		KuroEngine::ModelMesh::Vertex m_p2;	//頂点2
-	};
-
-	//当たり判定用ポリゴンコンテナを作成。
-	std::vector<Polygon> checkHitPolygons;
-	checkHitPolygons.resize(arg_targetMesh.mesh->indices.size() / static_cast<size_t>(3));
-
-	//当たり判定用ポリゴンコンテナにデータを入れていく。
-	for (auto& index : checkHitPolygons) {
-
-		// 現在のIndex数。
-		int nowIndex = static_cast<int>(&index - &checkHitPolygons[0]);
-
-		// 頂点情報を保存。
-		index.m_p0 = arg_targetMesh.mesh->vertices[arg_targetMesh.mesh->indices[nowIndex * 3 + 0]];
-		index.m_p1 = arg_targetMesh.mesh->vertices[arg_targetMesh.mesh->indices[nowIndex * 3 + 1]];
-		index.m_p2 = arg_targetMesh.mesh->vertices[arg_targetMesh.mesh->indices[nowIndex * 3 + 2]];
-
-		// ポリゴンを有効化。
-		index.m_isActive = true;
-
-	}
-
-
-	/*-- ② ポリゴンをワールド変換する --*/
-
-	//ワールド行列
-	DirectX::XMMATRIX targetRotMat = DirectX::XMMatrixRotationQuaternion(arg_targetTransform.GetRotate());
-	DirectX::XMMATRIX targetWorldMat = DirectX::XMMatrixIdentity();
-	targetWorldMat *= DirectX::XMMatrixScaling(arg_targetTransform.GetScale().x, arg_targetTransform.GetScale().y, arg_targetTransform.GetScale().z);
-	targetWorldMat *= targetRotMat;
-	targetWorldMat.r[3].m128_f32[0] = arg_targetTransform.GetPos().x;
-	targetWorldMat.r[3].m128_f32[1] = arg_targetTransform.GetPos().y;
-	targetWorldMat.r[3].m128_f32[2] = arg_targetTransform.GetPos().z;
-	for (auto& index : checkHitPolygons) {
-		//頂点を変換
-		index.m_p0.pos = KuroEngine::Math::TransformVec3(index.m_p0.pos, targetWorldMat);
-		index.m_p1.pos = KuroEngine::Math::TransformVec3(index.m_p1.pos, targetWorldMat);
-		index.m_p2.pos = KuroEngine::Math::TransformVec3(index.m_p2.pos, targetWorldMat);
-		//法線を回転行列分だけ変換
-		index.m_p0.normal = KuroEngine::Math::TransformVec3(index.m_p0.normal, targetRotMat);
-		index.m_p0.normal.Normalize();
-		index.m_p1.normal = KuroEngine::Math::TransformVec3(index.m_p1.normal, targetRotMat);
-		index.m_p1.normal.Normalize();
-		index.m_p2.normal = KuroEngine::Math::TransformVec3(index.m_p2.normal, targetRotMat);
-		index.m_p2.normal.Normalize();
-	}
-
-	/*-- ③ ポリゴンを法線情報をもとにカリングする --*/
+	/*-- ① ポリゴンを法線情報をもとにカリングする --*/
 
 	//法線とレイの方向の内積が0より大きかった場合、そのポリゴンは背面なのでカリングする。
-	for (auto& index : checkHitPolygons) {
+	for (auto& index : arg_targetMesh) {
 
 		if (index.m_p1.normal.Dot(arg_rayDir) < -0.0001f) continue;
 
@@ -418,12 +364,12 @@ Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>&
 	}
 
 
-	/*-- ④ ポリゴンとレイの当たり判定を行い、各情報を記録する --*/
+	/*-- ② ポリゴンとレイの当たり判定を行い、各情報を記録する --*/
 
 	// 記録用データ
-	std::vector<std::pair<Player::MeshCollisionOutput, Polygon>> hitDataContainer;
+	std::vector<std::pair<Player::MeshCollisionOutput, Terrian::Polygon>> hitDataContainer;
 
-	for (auto& index : checkHitPolygons) {
+	for (auto& index : arg_targetMesh) {
 
 		//ポリゴンが無効化されていたら次の処理へ
 		if (!index.m_isActive) continue;
@@ -506,7 +452,7 @@ Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>&
 	}
 
 
-	/*-- ⑤ 記録した情報から最終的な衝突点を求める --*/
+	/*-- ③ 記録した情報から最終的な衝突点を求める --*/
 
 	//hitPorygonの値が1以上だったら距離が最小の要素を検索
 	if (0 < hitDataContainer.size()) {

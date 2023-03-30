@@ -1,5 +1,6 @@
 #pragma once
 #include"Common/Transform.h"
+#include"../../../../src/engine/Render/RenderObject/ModelInfo/ModelMesh.h"
 #include<vector>
 
 #include<memory>
@@ -22,6 +23,16 @@ struct Terrian
 	const KuroEngine::Transform m_initializedTransform;
 	//トランスフォーム
 	KuroEngine::Transform m_transform;
+
+	//当たり判定用ポリゴン
+	struct Polygon {
+		bool m_isActive;					//このポリゴンが有効化されているかのフラグ
+		KuroEngine::ModelMesh::Vertex m_p0;	//頂点0
+		KuroEngine::ModelMesh::Vertex m_p1;	//頂点1
+		KuroEngine::ModelMesh::Vertex m_p2;	//頂点2
+	};
+	//当たり判定用ポリゴンコンテナを
+	std::vector<std::vector<Polygon>> m_collisionMesh;
 
 	Terrian(std::string arg_name, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
 		:m_name(arg_name), m_model(arg_model), m_initializedTransform(arg_initTransform) {}
@@ -70,5 +81,11 @@ public:
 	std::weak_ptr<KuroEngine::Model>GetWoodsCylinderModel() { return m_woodsCylinderModel; }
 	//地面
 	std::weak_ptr<KuroEngine::TextureBuffer>GetGroundTex() { return m_groundTex; }
+
+
+private:
+
+	//当たり判定用メッシュを作成。
+	void BuilCollisionMesh(Terrian& arg_terrian, KuroEngine::ModelMesh& arg_mesh, int arg_meshIndex);
 
 };

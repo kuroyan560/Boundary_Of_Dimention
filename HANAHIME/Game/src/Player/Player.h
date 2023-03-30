@@ -4,6 +4,7 @@
 #include"ForUser/Debugger.h"
 #include"CameraController.h"
 #include"../../../../src/engine/Render/RenderObject/ModelInfo/ModelMesh.h"
+#include"../Stage/Stage.h"
 
 #include<memory>
 namespace KuroEngine
@@ -122,7 +123,7 @@ private:
 	/// <param name="arg_targetMesh"> 判定を行う対象のメッシュ </param>
 	/// <param name="arg_targetTransform"> 判定を行う対象のトランスフォーム </param>
 	/// <returns> 当たり判定結果 </returns>
-	MeshCollisionOutput MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform);
+	MeshCollisionOutput MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, std::vector<Terrian::Polygon>& arg_targetMesh, KuroEngine::Transform arg_targetTransform);
 
 	/// <summary>
 	/// 重心座標を求める。
@@ -131,7 +132,7 @@ private:
 
 	//CastRayに渡すデータ用構造体
 	struct CastRayArgument {
-		KuroEngine::ModelMesh m_mesh;				//判定を行う対象のメッシュ
+		std::vector<Terrian::Polygon> m_mesh;		//判定を行う対象のメッシュ
 		KuroEngine::Transform m_targetTransform;	//判定を行う対象のトランスフォーム
 		bool& m_onGround;							//接地フラグ
 		bool& m_isHitWall;							//レイが壁に当たったかどうか
