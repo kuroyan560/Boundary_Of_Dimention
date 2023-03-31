@@ -291,7 +291,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
 		auto playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
 		m_moveQ = DirectX::XMQuaternionMultiply(m_cameraQ, playerYSpin);
-		m_transform.SetRotate(m_moveQ);
+		m_transform.SetRotate(m_cameraQ);
 
 	}
 
@@ -533,7 +533,6 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 
 		//ぴったり押し戻してしまうと重力の関係でガクガクしてしまうので、微妙にめり込ませて押し戻す。
 		static const float OFFSET = 0.01f;
-
 
 		//レイの種類によって保存するデータを変える。
 		switch (arg_rayID)
