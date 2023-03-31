@@ -208,6 +208,7 @@ Player::Player()
 	m_cameraQ = DirectX::XMQuaternionIdentity();
 
 	m_moveSpeed = KuroEngine::Vec3<float>();
+	m_isFlipMoveDir = false;
 
 }
 
@@ -219,6 +220,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_cameraQ = DirectX::XMQuaternionIdentity();
 
 	m_moveSpeed = KuroEngine::Vec3<float>();
+	m_isFlipMoveDir = false;
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
@@ -254,6 +256,13 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	}
 
+	//プレイヤーがY-の壁に張り付いているかどうかでX軸の移動方向を反転させる。
+	auto moveSpeed = m_moveSpeed;
+	if (m_isFlipMoveDir) {
+		//X軸の動きを反転。Z軸の動きはカメラのクォータニオン側で反転させている。
+		moveSpeed.x *= -1.0f;
+	}
+
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
 
@@ -262,11 +271,30 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//プレイヤーの回転を保存。入力があったときは。
 	if (0 < m_rowMoveVec.Length()) {
-		m_playerRotY = atan2f(m_rowMoveVec.x, m_rowMoveVec.z);
+		//Y-平面に張り付いていたときはZ軸を逆にする。
+		if (m_isFlipMoveDir) {
+			m_playerRotY = atan2f(m_rowMoveVec.x, -m_rowMoveVec.z);
+		}
+		else {
+			m_playerRotY = atan2f(m_rowMoveVec.x, m_rowMoveVec.z);
+		}
 	}
 
+	//入力が無かったら。
+	if (m_moveSpeed.Length() < 0.001f) {
+		//GetUpのY軸に応じて移動方向を反転させるかのフラグを切り替える。
+		if (m_transform.GetUp().y < -0.9f) {
+			m_isFlipMoveDir = true;
+		}
+		else {
+			m_isFlipMoveDir = false;
+		}
+	}
+
+	//ローカル軸の移動方向をプレイヤーの回転に合わせて動かす。
+	auto moveAmount = KuroEngine::Math::TransformVec3(moveSpeed, rotate);
+
 	//移動量加算
-	auto moveAmount = KuroEngine::Math::TransformVec3(m_moveSpeed, rotate);
 	newPos += moveAmount;
 
 	//地面に張り付ける用の重力。
@@ -283,15 +311,29 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		auto spin = Math::GetLookAtQuaternion({ 0,1,0 }, hitResult.m_terrianNormal);
 
 		//カメラ目線でY軸回転させるクォータニオン
-		auto ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_cameraRotY);
+		DirectX::XMVECTOR ySpin;
+		//プレイヤーの移動方向でY軸回転させるクォータニオン
+		DirectX::XMVECTOR playerYSpin;
+		if (m_isFlipMoveDir) {
+			//プレイヤーがY-の壁に張り付いている場合はカメラの回転をY+基準からY-基準に切り替える。
+			ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, -m_cameraRotY + DirectX::XM_PI);
+
+			//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
+			playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY + DirectX::XM_PI);
+		}
+		else {
+			ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_cameraRotY);
+
+			//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
+			playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
+		}
 
 		//カメラ方向でのクォータニオンを求める。進む方向などを判断するのに使用するのはこっち。Fの一番最初にこの値を入れることでplayerYSpinの回転を打ち消す。
 		m_cameraQ = DirectX::XMQuaternionMultiply(spin, ySpin);
 
-		//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
-		auto playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
+		//プレイヤーの移動方向でY軸回転させるクォータニオンをカメラのクォータニオンにかけて、プレイヤーを移動方向に向かせる。
 		m_moveQ = DirectX::XMQuaternionMultiply(m_cameraQ, playerYSpin);
-		m_transform.SetRotate(m_cameraQ);
+		m_transform.SetRotate(m_moveQ);
 
 	}
 

@@ -977,6 +977,7 @@ KuroEngine::Quaternion KuroEngine::Math::GetLookAtQuaternion(const Vec3<float>& 
 			a = -a;
 		}
 
+		//¡“x‚±‚»–@ü‚ğ‹‚ß‚éB
 		normal = a.Cross(b);
 
 	}
