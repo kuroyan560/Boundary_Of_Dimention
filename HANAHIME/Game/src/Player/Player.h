@@ -5,6 +5,7 @@
 #include"CameraController.h"
 #include"../../../../src/engine/Render/RenderObject/ModelInfo/ModelMesh.h"
 #include"../Stage/Stage.h"
+#include"Render/RenderObject/Light.h"
 
 #include<memory>
 namespace KuroEngine
@@ -25,6 +26,9 @@ class Player : public KuroEngine::Debugger
 
 	//カメラのモデル（デバッグ用）
 	std::shared_ptr<KuroEngine::Model>m_camModel;
+
+	//点光源
+	KuroEngine::Light::Point m_ptLig;
 
 	//トランスフォーム
 	KuroEngine::Transform m_transform;
@@ -99,6 +103,9 @@ public:
 
 	KuroEngine::Transform& GetTransform() { return m_transform; }
 	KuroEngine::Vec2<float>& GetGrassPosScatter() { return m_grassPosScatter; }
+
+	//点光源ゲッタ
+	KuroEngine::Light::Point* GetPointLig() { return &m_ptLig; }
 
 
 private:

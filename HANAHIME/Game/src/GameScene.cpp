@@ -16,7 +16,8 @@ GameScene::GameScene()
 
 	KuroEngine::Vec3<float>dir = { -1.0f,-0.8f,0.7f };
 	m_dirLig.SetDir(dir.GetNormal());
-	m_ligMgr.RegisterDirLight(&m_dirLig);
+	//m_ligMgr.RegisterDirLight(&m_dirLig);
+	m_ligMgr.RegisterPointLight(m_player.GetPointLig());
 }
 
 
@@ -29,7 +30,8 @@ void GameScene::OnInitialize()
 	StageManager::Instance(),
 	BasicDraw::Instance(),
 	&m_vignettePostEffect,
-	&m_waterPaintBlend
+	&m_waterPaintBlend,
+	&m_ligMgr,
 	});
 
 	m_debugCam.Init({ 0,5,-10 });

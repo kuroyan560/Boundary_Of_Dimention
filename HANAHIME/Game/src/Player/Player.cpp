@@ -339,6 +339,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//座標変化適用
 	m_transform.SetPos(newPos);
+	m_ptLig.SetPos(newPos);
 
 	//カメラ操作
 	m_camController.Update(scopeMove, newPos);
