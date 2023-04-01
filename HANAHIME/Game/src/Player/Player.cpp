@@ -102,7 +102,7 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			auto& mesh = modelMesh.mesh;
 
 			//CastRayに渡す引数を更新。
-			castRayArgument.m_mesh = modelMesh;
+			castRayArgument.m_mesh = terrian.m_collisionMesh[static_cast<int>(&modelMesh - &model->m_meshes[0])];
 
 			//判定↓============================================
 
@@ -125,28 +125,28 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			//空中にいるトリガーの場合は崖の処理。
 			if (!m_onGround && m_prevOnGround) {
 
-				if (0 < m_rowMoveVec.z) {
+				if (0 < m_moveSpeed.z) {
 
 					//前に進んで崖に落ちた場合。
 					CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetFront(), m_transform.GetScale().x, castRayArgument, RAY_ID::CLIFF);
 
 				}
 
-				if (m_rowMoveVec.z < 0) {
+				if (m_moveSpeed.z < 0) {
 
 					//後ろに進んで崖に落ちた場合。
 					CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetFront(), m_transform.GetScale().x, castRayArgument, RAY_ID::CLIFF);
 
 				}
 
-				if (0 < m_rowMoveVec.x) {
+				if (0 < m_moveSpeed.x) {
 
 					//左に進んで崖に落ちた場合。
 					CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, -m_transform.GetRight(), m_transform.GetScale().z, castRayArgument, RAY_ID::CLIFF);
 
 				}
 
-				if (m_rowMoveVec.x < 0) {
+				if (m_moveSpeed.x < 0) {
 
 					//右に進んで崖に落ちた場合。
 					CastRay(arg_newPos, arg_from - m_transform.GetUp() * m_transform.GetScale().y, m_transform.GetRight(), m_transform.GetScale().z, castRayArgument, RAY_ID::CLIFF);
@@ -208,6 +208,7 @@ Player::Player()
 	m_cameraQ = DirectX::XMQuaternionIdentity();
 
 	m_moveSpeed = KuroEngine::Vec3<float>();
+	m_isFlipMoveDir = false;
 
 }
 
@@ -219,6 +220,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_cameraQ = DirectX::XMQuaternionIdentity();
 
 	m_moveSpeed = KuroEngine::Vec3<float>();
+	m_isFlipMoveDir = false;
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
@@ -254,6 +256,13 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	}
 
+	//プレイヤーがY-の壁に張り付いているかどうかでX軸の移動方向を反転させる。
+	auto moveSpeed = m_moveSpeed;
+	if (m_isFlipMoveDir) {
+		//X軸の動きを反転。Z軸の動きはカメラのクォータニオン側で反転させている。
+		moveSpeed.x *= -1.0f;
+	}
+
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
 
@@ -262,11 +271,30 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//プレイヤーの回転を保存。入力があったときは。
 	if (0 < m_rowMoveVec.Length()) {
-		m_playerRotY = atan2f(m_rowMoveVec.x, m_rowMoveVec.z);
+		//Y-平面に張り付いていたときはZ軸を逆にする。
+		if (m_isFlipMoveDir) {
+			m_playerRotY = atan2f(m_rowMoveVec.x, -m_rowMoveVec.z);
+		}
+		else {
+			m_playerRotY = atan2f(m_rowMoveVec.x, m_rowMoveVec.z);
+		}
 	}
 
+	//入力が無かったら。
+	if (m_moveSpeed.Length() < 0.001f) {
+		//GetUpのY軸に応じて移動方向を反転させるかのフラグを切り替える。
+		if (m_transform.GetUp().y < -0.9f) {
+			m_isFlipMoveDir = true;
+		}
+		else {
+			m_isFlipMoveDir = false;
+		}
+	}
+
+	//ローカル軸の移動方向をプレイヤーの回転に合わせて動かす。
+	auto moveAmount = KuroEngine::Math::TransformVec3(moveSpeed, rotate);
+
 	//移動量加算
-	auto moveAmount = KuroEngine::Math::TransformVec3(m_moveSpeed, rotate);
 	newPos += moveAmount;
 
 	//地面に張り付ける用の重力。
@@ -283,13 +311,27 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		auto spin = Math::GetLookAtQuaternion({ 0,1,0 }, hitResult.m_terrianNormal);
 
 		//カメラ目線でY軸回転させるクォータニオン
-		auto ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_cameraRotY);
+		DirectX::XMVECTOR ySpin;
+		//プレイヤーの移動方向でY軸回転させるクォータニオン
+		DirectX::XMVECTOR playerYSpin;
+		if (m_isFlipMoveDir) {
+			//プレイヤーがY-の壁に張り付いている場合はカメラの回転をY+基準からY-基準に切り替える。
+			ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, -m_cameraRotY + DirectX::XM_PI);
+
+			//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
+			playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY + DirectX::XM_PI);
+		}
+		else {
+			ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_cameraRotY);
+
+			//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
+			playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
+		}
 
 		//カメラ方向でのクォータニオンを求める。進む方向などを判断するのに使用するのはこっち。Fの一番最初にこの値を入れることでplayerYSpinの回転を打ち消す。
 		m_cameraQ = DirectX::XMQuaternionMultiply(spin, ySpin);
 
-		//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
-		auto playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
+		//プレイヤーの移動方向でY軸回転させるクォータニオンをカメラのクォータニオンにかけて、プレイヤーを移動方向に向かせる。
 		m_moveQ = DirectX::XMQuaternionMultiply(m_cameraQ, playerYSpin);
 		m_transform.SetRotate(m_moveQ);
 
@@ -346,70 +388,16 @@ void Player::Finalize()
 {
 }
 
-Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, KuroEngine::ModelMesh arg_targetMesh, KuroEngine::Transform arg_targetTransform) {
+Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, std::vector<Terrian::Polygon>& arg_targetMesh, KuroEngine::Transform arg_targetTransform) {
 
 
 	/*===== メッシュとレイの当たり判定 =====*/
 
-	/*-- ① モデル情報から当たり判定用のポリゴンを作り出す --*/
 
-	//当たり判定用ポリゴン
-	struct Polygon {
-		bool m_isActive;					//このポリゴンが有効化されているかのフラグ
-		KuroEngine::ModelMesh::Vertex m_p0;	//頂点0
-		KuroEngine::ModelMesh::Vertex m_p1;	//頂点1
-		KuroEngine::ModelMesh::Vertex m_p2;	//頂点2
-	};
-
-	//当たり判定用ポリゴンコンテナを作成。
-	std::vector<Polygon> checkHitPolygons;
-	checkHitPolygons.resize(arg_targetMesh.mesh->indices.size() / static_cast<size_t>(3));
-
-	//当たり判定用ポリゴンコンテナにデータを入れていく。
-	for (auto& index : checkHitPolygons) {
-
-		// 現在のIndex数。
-		int nowIndex = static_cast<int>(&index - &checkHitPolygons[0]);
-
-		// 頂点情報を保存。
-		index.m_p0 = arg_targetMesh.mesh->vertices[arg_targetMesh.mesh->indices[nowIndex * 3 + 0]];
-		index.m_p1 = arg_targetMesh.mesh->vertices[arg_targetMesh.mesh->indices[nowIndex * 3 + 1]];
-		index.m_p2 = arg_targetMesh.mesh->vertices[arg_targetMesh.mesh->indices[nowIndex * 3 + 2]];
-
-		// ポリゴンを有効化。
-		index.m_isActive = true;
-
-	}
-
-
-	/*-- ② ポリゴンをワールド変換する --*/
-
-	//ワールド行列
-	DirectX::XMMATRIX targetRotMat = DirectX::XMMatrixRotationQuaternion(arg_targetTransform.GetRotate());
-	DirectX::XMMATRIX targetWorldMat = DirectX::XMMatrixIdentity();
-	targetWorldMat *= DirectX::XMMatrixScaling(arg_targetTransform.GetScale().x, arg_targetTransform.GetScale().y, arg_targetTransform.GetScale().z);
-	targetWorldMat *= targetRotMat;
-	targetWorldMat.r[3].m128_f32[0] = arg_targetTransform.GetPos().x;
-	targetWorldMat.r[3].m128_f32[1] = arg_targetTransform.GetPos().y;
-	targetWorldMat.r[3].m128_f32[2] = arg_targetTransform.GetPos().z;
-	for (auto& index : checkHitPolygons) {
-		//頂点を変換
-		index.m_p0.pos = KuroEngine::Math::TransformVec3(index.m_p0.pos, targetWorldMat);
-		index.m_p1.pos = KuroEngine::Math::TransformVec3(index.m_p1.pos, targetWorldMat);
-		index.m_p2.pos = KuroEngine::Math::TransformVec3(index.m_p2.pos, targetWorldMat);
-		//法線を回転行列分だけ変換
-		index.m_p0.normal = KuroEngine::Math::TransformVec3(index.m_p0.normal, targetRotMat);
-		index.m_p0.normal.Normalize();
-		index.m_p1.normal = KuroEngine::Math::TransformVec3(index.m_p1.normal, targetRotMat);
-		index.m_p1.normal.Normalize();
-		index.m_p2.normal = KuroEngine::Math::TransformVec3(index.m_p2.normal, targetRotMat);
-		index.m_p2.normal.Normalize();
-	}
-
-	/*-- ③ ポリゴンを法線情報をもとにカリングする --*/
+	/*-- ① ポリゴンを法線情報をもとにカリングする --*/
 
 	//法線とレイの方向の内積が0より大きかった場合、そのポリゴンは背面なのでカリングする。
-	for (auto& index : checkHitPolygons) {
+	for (auto& index : arg_targetMesh) {
 
 		if (index.m_p1.normal.Dot(arg_rayDir) < -0.0001f) continue;
 
@@ -418,12 +406,12 @@ Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>&
 	}
 
 
-	/*-- ④ ポリゴンとレイの当たり判定を行い、各情報を記録する --*/
+	/*-- ② ポリゴンとレイの当たり判定を行い、各情報を記録する --*/
 
 	// 記録用データ
-	std::vector<std::pair<Player::MeshCollisionOutput, Polygon>> hitDataContainer;
+	std::vector<std::pair<Player::MeshCollisionOutput, Terrian::Polygon>> hitDataContainer;
 
-	for (auto& index : checkHitPolygons) {
+	for (auto& index : arg_targetMesh) {
 
 		//ポリゴンが無効化されていたら次の処理へ
 		if (!index.m_isActive) continue;
@@ -506,7 +494,7 @@ Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>&
 	}
 
 
-	/*-- ⑤ 記録した情報から最終的な衝突点を求める --*/
+	/*-- ③ 記録した情報から最終的な衝突点を求める --*/
 
 	//hitPorygonの値が1以上だったら距離が最小の要素を検索
 	if (0 < hitDataContainer.size()) {
@@ -587,7 +575,6 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 
 		//ぴったり押し戻してしまうと重力の関係でガクガクしてしまうので、微妙にめり込ませて押し戻す。
 		static const float OFFSET = 0.01f;
-
 
 		//レイの種類によって保存するデータを変える。
 		switch (arg_rayID)
