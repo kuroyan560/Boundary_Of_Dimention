@@ -155,7 +155,7 @@
       "sensitivity": 1.0
     },
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.864130437374115,
@@ -168,7 +168,7 @@
   },
   "StageManager": {
     "debuggerSetting": {
-      "active": false,
+      "active": true,
       "customParamActive": true,
       "imageColor": [
         0.3099597990512848,
@@ -181,7 +181,7 @@
     "scaling": {
       "ground": 311.3999938964844,
       "skydome": 500.54998779296875,
-      "terrian": 2.3499999046325684,
+      "terrian": 5.0,
       "woods": {
         "height": 186.0,
         "radius": 309.0
@@ -222,7 +222,7 @@
       "updateSpan": 5
     },
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.800000011920929,

@@ -16,7 +16,7 @@ StageManager::StageManager()
 
 	//テスト用ステージ生成
 	m_testStage = std::make_shared<Stage>();
-	m_testStage->Load("resource/user/level/", "Debug_2.json");
+	m_testStage->Load("resource/user/level/", "Debug_Stage_1.json");
 	m_testStage->TerrianInit(m_terrianScaling);
 
 	//現在のステージ指定（デフォルトはテスト用ステージ）
@@ -49,10 +49,10 @@ void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 	transform.SetPos({ 0.0f,-0.1f,0.0f });
 	transform.SetScale({ m_groundScaling,m_groundScaling,1.0f });
 	transform.SetRotate({ 1.0f,0.0f,0.0f }, Angle(90));
-	DrawFunc3D::DrawNonShadingPlane(
-		m_nowStage->GetGroundTex(),
-		transform,
-		arg_cam);
+	//DrawFunc3D::DrawNonShadingPlane(
+	//	m_nowStage->GetGroundTex(),
+	//	transform,
+	//	arg_cam);
 
 	//森林円柱
 	transform.SetPos({ 0.0f,0.5f * m_woodsHeight,0.0f });
