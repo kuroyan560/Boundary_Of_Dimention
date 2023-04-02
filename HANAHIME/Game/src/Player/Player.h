@@ -124,6 +124,11 @@ private:
 		AROUND,	//周囲に向かって飛ばすレイ。壁のぼり判定で使用する。
 		CLIFF,	//崖で明日もとに向かって飛ばすレイ。崖を降りる際に使用する。
 		DEBUG,
+
+		CLIFF_FORWARD,
+		CLIFF_BEHIND,
+		CLIFF_RIGHT,
+		CLIFF_LEFT,
 	};
 	/// <summary>
 	/// レイとメッシュの当たり判定
@@ -142,12 +147,14 @@ private:
 
 	//CastRayに渡すデータ用構造体
 	struct CastRayArgument {
+		KuroEngine::Vec3<float> m_fromPos;			//移動前の座標
 		std::vector<Terrian::Polygon> m_mesh;		//判定を行う対象のメッシュ
 		KuroEngine::Transform m_targetTransform;	//判定を行う対象のトランスフォーム
 		bool& m_onGround;							//接地フラグ
 		bool& m_isHitWall;							//レイが壁に当たったかどうか
+		bool& m_isHitCliffRay;						//崖際のレイが当たったかどうか
 		HitCheckResult& m_hitResult;				//当たり判定結果データ
-		CastRayArgument(bool& arg_onGround, bool& arg_isHitWall, HitCheckResult& arg_hitResult) : m_onGround(arg_onGround), m_isHitWall(arg_isHitWall), m_hitResult(arg_hitResult) {};
+		CastRayArgument(bool& arg_onGround, bool& arg_isHitWall, bool& arg_isHitCliffRay, HitCheckResult& arg_hitResult) : m_onGround(arg_onGround), m_isHitWall(arg_isHitWall), m_hitResult(arg_hitResult), m_isHitCliffRay(arg_isHitCliffRay) {};
 	};
 
 	/// <summary>
@@ -160,6 +167,17 @@ private:
 	/// <param name="arg_collisionData"> 引数をまとめた構造体 </param>
 	/// <param name="arg_rayID"> レイの種類 </param>
 	void CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument arg_collisionData, RAY_ID arg_rayID);
+
+	/// <summary>
+	/// 崖へレイを発射し、その後の一連の処理をまとめた関数
+	/// </summary>
+	/// <param name="arg_rayCastPos"> キャラクターの座標 </param>
+	/// <param name="arg_rayCastPos"> レイの射出地点 </param>
+	/// <param name="arg_rayDir"> レイの射出方向 </param>
+	/// <param name="arg_rayLength"> レイの長さ </param>
+	/// <param name="arg_collisionData"> 引数をまとめた構造体 </param>
+	/// <param name="arg_rayID"> レイの種類 </param>
+	void CastCliffRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument arg_collisionData, RAY_ID arg_rayID);
 
 };
 
