@@ -117,32 +117,16 @@ class Grass
 	//テクスチャ
 	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, s_textureNumMax>m_texBuffer;
 
-//仮のやつ======================
-	//仮置き草ブロック
-	std::shared_ptr<KuroEngine::Model>m_grassBlockModel;
-	//仮で置いた草ブロックのワールド行列配列
-	std::vector<KuroEngine::Matrix>m_grassWorldMatArray;
 	//１フレーム前のプレイヤーの位置
 	KuroEngine::Vec3<float>m_oldPlayerPos;
-	//草ブロックを植えるスパン
+	//草を植えるスパン
 	KuroEngine::Timer m_plantTimer;
-//=============================
-
-	IndividualDrawParameter m_drawParam;
 
 public:
 	Grass();
 	void Init();
 	void Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_playerPos, const KuroEngine::Quaternion arg_playerRotate, KuroEngine::Transform arg_camTransform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
-
-	/// <summary>
-	/// 草を植える（仮置き草ブロック）
-	/// </summary>
-	/// <param name="arg_worldMat">植える草のワールド行列</param>
-	/// <param name="arg_grassPosScatter">散らし具合</param>
-	/// <param name="arg_waterPaintBlend">水彩画風ブレンドポストエフェクト</param>
-	void PlantGrassBlock(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
 
 	/// <summary>
 	/// 草を植える（ビルボード）
