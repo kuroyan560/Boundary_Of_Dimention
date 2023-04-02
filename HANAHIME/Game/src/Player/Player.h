@@ -61,7 +61,8 @@ class Player : public KuroEngine::Debugger
 	float m_brake = 0.07f;
 
 	//移動反転フラグ。GetUP()のY軸が-なときに移動方向を反転させる。
-	bool m_isFlipMoveDir;
+	bool m_isFlipMove;
+	bool m_isFlipXinput;
 
 	//接地フラグ
 	bool m_onGround;		//接地フラグ
