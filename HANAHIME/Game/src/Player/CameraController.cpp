@@ -71,7 +71,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	{
 		case ANGLE:
 			m_nowParam.m_xAxisAngle -= arg_scopeMove.y * 0.3f;
-			if (m_nowParam.m_xAxisAngle <= m_xAxisAngleMin)m_verticalControl = DIST;
+			//if (m_nowParam.m_xAxisAngle <= m_xAxisAngleMin)m_verticalControl = DIST;
 			break;
 
 		case DIST:

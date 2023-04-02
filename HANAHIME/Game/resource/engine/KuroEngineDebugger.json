@@ -36,7 +36,7 @@
       }
     },
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.3920130133628845,
@@ -55,7 +55,7 @@
     },
     "PosLerpRate": 0.800000011920929,
     "debuggerSetting": {
-      "active": false,
+      "active": true,
       "customParamActive": true,
       "imageColor": [
         0.1879725158214569,
@@ -76,7 +76,7 @@
     },
     "xAxisAngle": {
       "max": 0.5989999771118164,
-      "min": 0.1745329201221466
+      "min": -0.5989999771118164
     }
   },
   "DOF": {
