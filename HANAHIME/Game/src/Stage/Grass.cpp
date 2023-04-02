@@ -10,11 +10,6 @@ Grass::Grass()
 {
 	using namespace KuroEngine;
 
-	//仮====================================
-		//仮置きの草ブロックモデル
-	m_grassBlockModel = Importer::Instance()->LoadModel("resource/user/model/", "GrassBlock.gltf");
-	//=====================================
-
 	//コンピュートパイプライン生成
 	{
 		//ルートパラメータ
@@ -163,9 +158,6 @@ void Grass::Init()
 			});
 	}
 
-	//ワールド行列配列初期化
-	m_grassWorldMatArray.clear();
-
 	m_oldPlayerPos = { -1000,-1000,-1000 };
 	m_plantTimer.Reset(0);
 }
@@ -193,7 +185,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 	{
 		if (m_plantTimer.IsTimeUp())
 		{
-			PlantGrassBlock(grassTransform, arg_grassPosScatter, arg_waterPaintBlend);
+			Plant(grassTransform, arg_grassPosScatter, arg_waterPaintBlend);
 			m_plantTimer.Reset(3);
 		}
 		m_plantTimer.UpdateTimer();
@@ -262,13 +254,6 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 
 void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
-	if (s_instanceMax <= static_cast<int>(m_grassWorldMatArray.size()))
-	{
-		KuroEngine::AppearMessageBox("Grass : Draw() 失敗", "インスタンスの上限超えちゃった");
-		exit(1);
-	}
-	if (m_grassWorldMatArray.empty())return;
-
 	using namespace KuroEngine;
 
 	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_pipeline);
@@ -291,28 +276,6 @@ void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 		0.0f,
 		true,
 		plantGrassCount);
-
-	m_drawParam = IndividualDrawParameter::GetDefault();
-	//マスクレイヤーに描き込む設定にする
-	m_drawParam.m_drawMask = 1;
-
-	//BasicDraw::Instance()->InstancingDraw(
-	//	arg_cam,
-	//	arg_ligMgr,
-	//	m_grassBlockModel,
-	//	m_grassWorldMatArray,
-	//	m_drawParam,
-	//	false,
-	//	AlphaBlendMode_Trans);
-}
-
-void Grass::PlantGrassBlock(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend)
-{
-	//円柱草を生やす処理
-	m_grassWorldMatArray.push_back(arg_transform.GetMatWorld());
-
-	//板ポリを生成。
-	Plant(arg_transform, arg_grassPosScatter, arg_waterPaintBlend);
 }
 
 void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend)
