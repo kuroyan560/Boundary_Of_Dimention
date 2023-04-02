@@ -14,9 +14,9 @@ GameScene::GameScene()
 	m_ddsTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.dds");
 	m_pngTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
 
-	KuroEngine::Vec3<float>dir = { -1.0f,-0.8f,0.7f };
+	KuroEngine::Vec3<float>dir = { 0.0f,-1.0f,0.0f };
 	m_dirLig.SetDir(dir.GetNormal());
-	//m_ligMgr.RegisterDirLight(&m_dirLig);
+	m_ligMgr.RegisterDirLight(&m_dirLig);
 	m_ligMgr.RegisterPointLight(m_player.GetPointLig());
 }
 
@@ -63,6 +63,8 @@ void GameScene::OnUpdate()
 
 	m_grass.Update(1.0f, m_player.GetTransform().GetPos(), m_player.GetTransform().GetRotate(), m_player.GetCamera().lock()->GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
 	//m_grass.Plant(m_player.GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
+
+	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld());
 }
 
 void GameScene::OnDraw()
@@ -136,14 +138,15 @@ void GameScene::OnDraw()
 
 	m_grass.Draw(*nowCamera, m_ligMgr);
 
-	m_canvasPostEffect.Execute();
+	//m_canvasPostEffect.Execute();
 
 	BasicDraw::Instance()->DrawEdge(depthMap, normalMap, edgeColMap);
 
-	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
-	m_waterPaintBlend.Register(main, *nowCamera, ds);
+	//KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
+	//m_waterPaintBlend.Register(main, *nowCamera, ds);
+	//m_vignettePostEffect.Register(m_waterPaintBlend.GetResultTex());
 
-	m_vignettePostEffect.Register(m_waterPaintBlend.GetResultTex());
+	m_vignettePostEffect.Register(main);
 
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(
 		{

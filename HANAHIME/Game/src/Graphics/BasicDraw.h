@@ -30,8 +30,6 @@ class BasicDraw : public KuroEngine::DesignPattern::Singleton<BasicDraw>, public
 		//明るさのしきい値（範囲を持たせている）
 		float m_brightThresholdLow = 0.66f;
 		float m_brightThresholdRange = 0.03f;
-		//リムライトの影響部分をそのままの色で出力する際のしきい値
-		float m_limThreshold = 0.4f;
 	};
 	ToonCommonParameter m_toonCommonParam;
 
@@ -45,6 +43,9 @@ class BasicDraw : public KuroEngine::DesignPattern::Singleton<BasicDraw>, public
 		std::array<KuroEngine::Vec2<float>, 8>m_uvOffset;
 	};
 	EdgeCommonParameter m_edgeShaderParam;
+
+	//プレイヤーの座標を送るための定数バッファ
+	std::shared_ptr<KuroEngine::ConstantBuffer>m_playerPosBuffer;
 
 	//モデル通常描画カウント
 	int m_drawCount = 0;
@@ -86,6 +87,8 @@ public:
 		m_drawCountHuge = 0;
 		m_individualParamCount = 0;
 	}
+
+	void Update(KuroEngine::Vec3<float>arg_playerPos);
 
 	/// <summary>
 	/// 描画

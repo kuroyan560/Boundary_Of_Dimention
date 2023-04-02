@@ -13,7 +13,7 @@ struct VSOutput
     float2 m_uv : TEXCORRD;
 };
 
-#define FLT_EPSILON 0.0001
+#define FLT_EPSILON 0.001
 
 Texture2D<float4> g_depthMap : register(t0);
 Texture2D<float4> g_normalMap : register(t1);
@@ -69,11 +69,11 @@ float4 PSmain(VSOutput input) : SV_TARGET
     //一番近いピクセルの法線取得
     float3 nearestNormal = g_normalMap.Sample(g_sampler, nearestUv).xyz;
     //法線が一緒か
-    bool sameNormal = (abs(normal - nearestNormal) < FLT_EPSILON);
+    bool sameNormal = (length(normal - nearestNormal) < FLT_EPSILON);
     
     // 自身の深度値と近傍8テクセルの深度値の差を調べる
     // 法線が異なる　かつ　深度値が結構違う場合はエッジ出力
-    if (!sameNormal && m_edgeParam.m_depthThreshold <= depthDiffer)
+    if (!sameNormal || m_edgeParam.m_depthThreshold <= depthDiffer)
     {
         //一番手前側のエッジカラーを採用する
         return g_edgeColorMap.Sample(g_sampler, nearestUv);

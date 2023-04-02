@@ -24,26 +24,19 @@
         0.13659539818763733,
         0.13659539818763733,
         0.0
-      ],
-      "LimBrightColor": [
-        0.0,
-        1.0,
-        0.9171268939971924,
-        0.0
       ]
     },
     "Edge": {
-      "DepthDifferenceThreshold": 0.25
+      "DepthDifferenceThreshold": 3.0
     },
     "Toon": {
       "BrightThreshold": {
         "Low": 0.6600000262260437,
         "Range": 0.029999999329447746
-      },
-      "LimThreshold": 0.4000000059604645
+      }
     },
     "debuggerSetting": {
-      "active": false,
+      "active": true,
       "customParamActive": true,
       "imageColor": [
         0.3920130133628845,
@@ -168,7 +161,7 @@
   },
   "StageManager": {
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.3099597990512848,

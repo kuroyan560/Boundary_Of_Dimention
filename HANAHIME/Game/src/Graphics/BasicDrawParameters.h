@@ -21,9 +21,6 @@ public:
 	KuroEngine::Color m_brightMulColor = KuroEngine::Color(1.0f, 1.0f, 1.0f, 1.0f);
 	//暗い部分に乗算する色
 	KuroEngine::Color m_darkMulColor = KuroEngine::Color(0.3f, 0.3f, 0.3f, 1.0f);
-	//リムライト部分の補正色（アルファ：補正率）
-	//【補正率】 0 ：本来の色、1 : 補正色
-	KuroEngine::Color m_limBrightColor = KuroEngine::Color(1.0f, 1.0f, 1.0f, 0.0f);
 	//エッジ色
 	KuroEngine::Color m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
 	

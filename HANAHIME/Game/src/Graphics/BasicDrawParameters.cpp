@@ -31,13 +31,6 @@ void IndividualDrawParameter::ImguiDebugItem()
 			ImGui::TreePop();
 		}
 
-		//リムライト部分の補正色
-		if (ImGui::TreeNode("LimBright"))
-		{
-			ImGui::ColorPicker4("LimBrightColor", (float*)&m_limBrightColor, ImGuiColorEditFlags_AlphaBar);
-			ImGui::TreePop();
-		}
-
 		//エッジカラー
 		if (ImGui::TreeNode("Edge"))
 		{

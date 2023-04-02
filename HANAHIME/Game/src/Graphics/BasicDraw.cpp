@@ -14,8 +14,6 @@ BasicDraw::BasicDraw() :KuroEngine::Debugger("BasicDraw")
 		&m_toonCommonParam.m_brightThresholdLow, "Toon", true, 0.0f, 1.0f);
 	AddCustomParameter("BrightThresholdRange", { "Toon","BrightThreshold","Range" }, PARAM_TYPE::FLOAT,
 		&m_toonCommonParam.m_brightThresholdRange, "Toon");
-	AddCustomParameter("LimThreshold", { "Toon","LimThreshold" }, PARAM_TYPE::FLOAT,
-		&m_toonCommonParam.m_limThreshold, "Toon");
 
 	AddCustomParameter("DepthDifferenceThreshold", { "Edge","DepthDifferenceThreshold" }, PARAM_TYPE::FLOAT,
 		&m_edgeShaderParam.m_depthThreshold, "Edge");
@@ -27,8 +25,6 @@ BasicDraw::BasicDraw() :KuroEngine::Debugger("BasicDraw")
 		&defaultParam.m_brightMulColor, "DefaultDrawParam");
 	AddCustomParameter("DarkMulColor", { "DefaultDrawParam","DarkMulColor" }, PARAM_TYPE::COLOR,
 		&defaultParam.m_darkMulColor, "DefaultDrawParam");
-	AddCustomParameter("LimBrightColor", { "DefaultDrawParam","LimBrightColor" }, PARAM_TYPE::COLOR,
-		&defaultParam.m_limBrightColor, "DefaultDrawParam");
 	AddCustomParameter("EdgeColor", { "DefaultDrawParam","EdgeColor" }, PARAM_TYPE::COLOR,
 		&defaultParam.m_edgeColor, "DefaultDrawParam");
 
@@ -68,6 +64,7 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"マテリアル基本情報バッファ"),
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"トゥーンの共通パラメータ"),
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"トゥーンの個別パラメータ"),
+		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"プレイヤーの座標情報"),
 	};
 
 	//レンダーターゲット描画先情報
@@ -221,6 +218,26 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		1, 
 		&m_edgeShaderParam, 
 		"BasicDraw - EdgeCommonParameter");
+
+	//プレイヤーの座標を送るための定数バッファ用意
+	KuroEngine::Vec3<float>initSendPos = { FLT_MAX,FLT_MAX,FLT_MAX };
+	m_playerPosBuffer = D3D12App::Instance()->GenerateConstantBuffer(
+		sizeof(Vec3<float>),
+		1,
+		&initSendPos,
+		"BasicDraw - PlayerPos");
+
+}
+
+void BasicDraw::Update(KuroEngine::Vec3<float> arg_playerPos)
+{
+	using namespace KuroEngine;
+
+	//プレイヤーの座標に変化があったらデータ送信
+	if (FLT_EPSILON < m_playerPosBuffer->GetResource()->GetBuffOnCpu<Vec3<float>>()->Distance(arg_playerPos))
+	{
+		m_playerPosBuffer->Mapping(&arg_playerPos);
+	}
 }
 
 void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform& arg_transform, const IndividualDrawParameter& arg_toonParam, const KuroEngine::AlphaBlendMode& arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff)
@@ -264,6 +281,7 @@ void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_
 				{mesh.material->buff,CBV},
 				{m_toonCommonParamBuff,CBV},
 				{m_toonIndividualParamBuff[m_individualParamCount],CBV},
+				{m_playerPosBuffer,CBV},
 			},
 			arg_transform.GetPos().z,
 			arg_blendMode == AlphaBlendMode_Trans);
@@ -345,6 +363,7 @@ void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightMan
 				{mesh.material->buff,CBV},
 				{m_toonCommonParamBuff,CBV},
 				{m_toonIndividualParamBuff[m_individualParamCount],CBV},
+				{m_playerPosBuffer,CBV},
 			},
 			arg_depth,
 			arg_blendMode == AlphaBlendMode_Trans,
