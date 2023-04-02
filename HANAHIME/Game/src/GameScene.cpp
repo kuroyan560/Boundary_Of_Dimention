@@ -73,47 +73,8 @@ void GameScene::OnDraw()
 	static auto targetSize = D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize();
 	static auto ds = D3D12App::Instance()->GenerateDepthStencil(targetSize);
 
-	static auto main = D3D12App::Instance()->GenerateRenderTarget(
-		D3D12App::Instance()->GetBackBuffFormat(),
-		Color(0.0f, 0.0f, 0.0f, 0.0f),
-		targetSize,
-		L"MainRenderTarget");
-	static auto emissiveMap = D3D12App::Instance()->GenerateRenderTarget(
-		DXGI_FORMAT_R32G32B32A32_FLOAT,
-		Color(0.0f, 0.0f, 0.0f, 1.0f),
-		targetSize, L"EmissiveMap");
-	static auto depthMap = D3D12App::Instance()->GenerateRenderTarget(
-		DXGI_FORMAT_R16_FLOAT,
-		Color(FLT_MAX, 0.0f, 0.0f, 0.0f),
-		targetSize, L"DepthMap");
-	static auto normalMap = D3D12App::Instance()->GenerateRenderTarget(
-		DXGI_FORMAT_R16G16B16A16_FLOAT,
-		Color(0.0f, 0.0f, 0.0f, 0.0f),
-		targetSize, L"NormalMap");
-	static auto edgeColMap = D3D12App::Instance()->GenerateRenderTarget(
-		D3D12App::Instance()->GetBackBuffFormat(),
-		Color(0.0f, 0.0f, 0.0f, 1.0f),
-		targetSize, L"EdgeColorMap");
-
-	//レンダーターゲットのクリア
-	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(main);
-	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(emissiveMap);
-	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(depthMap);
-	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(normalMap);
-	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(edgeColMap);
-	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
-
-	//レンダーターゲットをセット
-	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(
-		{ 
-			main,
-			emissiveMap,
-			depthMap,
-			normalMap,
-			edgeColMap
-		},
-		ds
-	);
+	//レンダーターゲットのクリアとセット
+	BasicDraw::Instance()->RenderTargetsClearAndSet(ds);
 
 	auto nowCamera = m_player.GetCamera().lock();
 	if (DebugController::Instance()->IsActive())nowCamera = m_debugCam;
@@ -140,13 +101,13 @@ void GameScene::OnDraw()
 
 	//m_canvasPostEffect.Execute();
 
-	BasicDraw::Instance()->DrawEdge(depthMap, normalMap, edgeColMap);
+	BasicDraw::Instance()->DrawEdge();
 
 	//KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 	//m_waterPaintBlend.Register(main, *nowCamera, ds);
 	//m_vignettePostEffect.Register(m_waterPaintBlend.GetResultTex());
 
-	m_vignettePostEffect.Register(main);
+	m_vignettePostEffect.Register(BasicDraw::Instance()->GetMainTarget());
 
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(
 		{

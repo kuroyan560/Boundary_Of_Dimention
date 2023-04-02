@@ -135,6 +135,7 @@ struct PSOutput
     float depth : SV_Target2;
     float4 normal : SV_Target3;
     float4 edgeColor : SV_Target4;
+    uint4 grass : SV_Target5;
 };
 
 PSOutput PSmain(VSOutput input) : SV_TARGET
