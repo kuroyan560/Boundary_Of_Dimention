@@ -270,6 +270,8 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     int isBright = step(0.45f, bright);
     result.xyz *= lerp(0.5f, 1.0f, isBright);
     
+    result.xyz = result.xyz * isBright + Monochrome(result.xyz) * (1 - isBright);
+    
     PSOutput output;
     output.color = result;
 
