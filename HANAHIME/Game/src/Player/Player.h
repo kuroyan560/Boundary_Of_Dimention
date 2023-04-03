@@ -124,6 +124,11 @@ private:
 		AROUND,	//周囲に向かって飛ばすレイ。壁のぼり判定で使用する。
 		CLIFF,	//崖で明日もとに向かって飛ばすレイ。崖を降りる際に使用する。
 		DEBUG,
+
+		CLIFF_FORWARD,
+		CLIFF_BEHIND,
+		CLIFF_RIGHT,
+		CLIFF_LEFT,
 	};
 	/// <summary>
 	/// レイとメッシュの当たり判定
@@ -161,6 +166,17 @@ private:
 	/// <param name="arg_collisionData"> 引数をまとめた構造体 </param>
 	/// <param name="arg_rayID"> レイの種類 </param>
 	void CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument arg_collisionData, RAY_ID arg_rayID);
+
+	/// <summary>
+	/// レイを発射し、その後の一連の処理をまとめた関数
+	/// </summary>
+	/// <param name="arg_rayCastPos"> キャラクターの座標 </param>
+	/// <param name="arg_rayCastPos"> レイの射出地点 </param>
+	/// <param name="arg_rayDir"> レイの射出方向 </param>
+	/// <param name="arg_rayLength"> レイの長さ </param>
+	/// <param name="arg_collisionData"> 引数をまとめた構造体 </param>
+	/// <param name="arg_rayID"> レイの種類 </param>
+	void CastCliffRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument arg_collisionData, RAY_ID arg_rayID);
 
 };
 
