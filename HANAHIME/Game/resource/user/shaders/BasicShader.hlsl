@@ -17,6 +17,7 @@ struct ToonIndividualParameter
     float4 m_darkMulColor;
     float4 m_edgeColor;
     int m_drawMask;
+    int m_isPlayer;
 };
 
 cbuffer cbuff0 : register(b0)
@@ -268,6 +269,8 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     bright *= affect;
     //bright = smoothstep(0.45f, 0.47f, bright);
     int isBright = step(0.45f, bright);
+    if (toonIndividualParam.m_isPlayer)
+        isBright = 1;
     result.xyz *= lerp(0.5f, 1.0f, isBright);
     
     result.xyz = result.xyz * isBright + Monochrome(result.xyz) * (1 - isBright);

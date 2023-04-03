@@ -5,6 +5,7 @@
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"../Graphics/BasicDraw.h"
 #include"../Stage/Stage.h"
+#include"../Graphics/BasicDrawParameters.h"
 
 void Player::OnImguiItems()
 {
@@ -209,7 +210,6 @@ Player::Player()
 
 	m_moveSpeed = KuroEngine::Vec3<float>();
 	m_isFlipMove = false;
-
 }
 
 void Player::Init(KuroEngine::Transform arg_initTransform)
@@ -397,11 +397,15 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		arg_cam);
 	*/
 
+	static IndividualDrawParameter drawParam = IndividualDrawParameter::GetDefault();
+	drawParam.m_isPlayer = 1;
+
 	BasicDraw::Instance()->Draw(
 		arg_cam,
 		arg_ligMgr,
 		m_model,
-		m_transform);
+		m_transform,
+		drawParam);
 
 	for (auto& index : m_debugTransform) {
 		BasicDraw::Instance()->Draw(
