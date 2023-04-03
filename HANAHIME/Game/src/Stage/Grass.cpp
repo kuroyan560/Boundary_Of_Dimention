@@ -166,26 +166,24 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 {
 	using namespace KuroEngine;
 
-	//トランスフォームに流し込む
-	Transform grassTransform;
-	grassTransform.SetPos(arg_playerPos);
-	grassTransform.SetRotate(arg_playerRotate);
-	grassTransform.SetScale({ 1.0f,1.0f,1.0f });
-
 	//トランスフォーム情報をGPUに送信
 	TransformCBVData transformData;
-	transformData.m_playerPos = arg_playerPos;
-	transformData.m_playerUp = grassTransform.GetUp();
 	transformData.m_camPos = { arg_camTransform.GetMatWorld().r[3].m128_f32[0],arg_camTransform.GetMatWorld().r[3].m128_f32[1],arg_camTransform.GetMatWorld().r[3].m128_f32[2] };
 	m_otherTransformConstBuffer->Mapping(&transformData);
 
 	//プレイヤーが移動した and 周りに草がない。
 	bool isMovePlayer = !((arg_playerPos - m_oldPlayerPos).Length() < 0.1f);
-	if (isMovePlayer && !IsGrassAround(arg_playerPos))
+	if (isMovePlayer)
 	{
 		if (m_plantTimer.IsTimeUp())
 		{
-			Plant(grassTransform, arg_grassPosScatter, arg_waterPaintBlend);
+			//トランスフォームに流し込む
+			Transform grassTransform;
+			grassTransform.SetPos(arg_playerPos);
+			grassTransform.SetRotate(arg_playerRotate);
+			grassTransform.SetScale({ 1.0f,1.0f,1.0f });
+
+			//Plant(grassTransform, arg_grassPosScatter, arg_waterPaintBlend);
 			m_plantTimer.Reset(3);
 		}
 		m_plantTimer.UpdateTimer();
@@ -280,6 +278,9 @@ void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 
 void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend)
 {
+	//周囲に既に草が生えてるか判定
+	if (IsGrassAround(arg_transform.GetPos()))return;
+
 	//インクマスクを落とす
 	arg_waterPaintBlend.DropMaskInk(arg_transform.GetPos() + KuroEngine::Vec3<float>(0.0f, 1.0f, 0.0f));
 
@@ -292,7 +293,8 @@ void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> a
 
 		//イニシャライザのスタック
 		m_grassInitializerArray.emplace_back();
-		m_grassInitializerArray.back().m_posScatter = posScatter;
+		m_grassInitializerArray.back().m_pos = arg_transform.GetPos() + posScatter;
+		m_grassInitializerArray.back().m_up = arg_transform.GetUp();
 		//とりあえず乱数でテクスチャ決定
 		//m_vertices[m_deadVertexIdx].m_texIdx = KuroEngine::GetRand(s_textureNumMax - 1);
 		m_grassInitializerArray.back().m_texIdx = KuroEngine::GetRand(3 - 1);
@@ -300,7 +302,7 @@ void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> a
 	}
 }
 
-bool Grass::IsGrassAround(const KuroEngine::Vec3<float> arg_playerPos)
+bool Grass::IsGrassAround(const KuroEngine::Vec3<float> arg_checkPos)
 {
 	using namespace KuroEngine;
 
@@ -313,9 +315,11 @@ bool Grass::IsGrassAround(const KuroEngine::Vec3<float> arg_playerPos)
 	auto checkResultPtr = m_checkResultBuffer->GetResource()->GetBuffOnCpu<CheckResult>();
 
 	//判定結果の初期化
-	auto initializer = *checkResultPtr;
-	initializer.m_aroundGrassCount = 0;
-	m_checkResultBuffer->Mapping(&initializer);
+	checkResultPtr->m_aroundGrassCount = 0;
+
+	//チェックする座標情報を送信
+	auto transformCBVPtr = m_otherTransformConstBuffer->GetResource()->GetBuffOnCpu<TransformCBVData>();
+	transformCBVPtr->m_checkPlantPos = arg_checkPos;
 
 	//判定用コンピュートパイプライン実行
 	//登録するディスクリプタの情報配列

@@ -25,7 +25,6 @@ struct CommonGrassInfo
 //草むら以外の外部オブジェクトのトランスフォーム情報
 struct TransformData
 {
-    float3 m_playerPos;
-    float3 m_playerUp;
     float3 m_camPos;
+    float3 m_checkPlantPos;
 };
