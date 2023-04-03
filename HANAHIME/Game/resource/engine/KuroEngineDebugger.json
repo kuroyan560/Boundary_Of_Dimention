@@ -14,9 +14,9 @@
         0.4364640712738037
       ],
       "EdgeColor": [
-        0.1260034739971161,
-        0.530386745929718,
-        0.4030395448207855,
+        0.2808261215686798,
+        0.9378530979156494,
+        0.5480912327766418,
         1.0
       ],
       "FillColor": [
@@ -36,7 +36,7 @@
       }
     },
     "debuggerSetting": {
-      "active": false,
+      "active": true,
       "customParamActive": true,
       "imageColor": [
         0.3920130133628845,
@@ -55,7 +55,7 @@
     },
     "PosLerpRate": 0.800000011920929,
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.1879725158214569,

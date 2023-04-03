@@ -286,7 +286,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     
     output.normal.xyz = input.normal;
 
-    output.edgeColor = toonIndividualParam.m_edgeColor;
+    output.edgeColor = toonIndividualParam.m_edgeColor * lerp(0.2f, 1.0f, isBright);
     
     output.bright.x = isBright;
     
