@@ -98,7 +98,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>dxcompiler.lib;DirectXTex.lib;GLTFSDK.lib;</AdditionalDependencies>
-      <TreatLinkerWarningAsErrors>true</TreatLinkerWarningAsErrors>
+      <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "$(SolutionDir)dxcompiler.dll" $(TargetDir) /Y
