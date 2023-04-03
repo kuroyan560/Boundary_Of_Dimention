@@ -22,6 +22,12 @@ namespace KuroEngine
 
 class BasicDraw : public KuroEngine::DesignPattern::Singleton<BasicDraw>, public KuroEngine::Debugger
 {
+public:
+	//レンダーターゲット
+	enum RENDER_TARGET_TYPE { MAIN, EMISSIVE, DEPTH, NORMAL, EDGE_COLOR, BRIGHT, NUM };
+
+private:
+
 	friend class KuroEngine::DesignPattern::Singleton<BasicDraw>;
 	BasicDraw();
 
@@ -77,8 +83,6 @@ class BasicDraw : public KuroEngine::DesignPattern::Singleton<BasicDraw>, public
 	std::unique_ptr<KuroEngine::SpriteMesh>m_spriteMesh;
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_edgeShaderParamBuff;
 
-	//レンダーターゲット
-	enum RENDER_TARGET_TYPE { MAIN, EMISSIVE, DEPTH, NORMAL, EDGE_COLOR, GRASS, NUM };
 	std::array<std::shared_ptr<KuroEngine::RenderTarget>, RENDER_TARGET_TYPE::NUM>m_renderTargetArray;
 	
 	void OnImguiItems()override;
@@ -159,5 +163,5 @@ public:
 	void DrawEdge();
 
 	//メインのレンダーターゲットゲッタ
-	std::shared_ptr<KuroEngine::RenderTarget>& GetMainTarget() { return m_renderTargetArray[MAIN]; }
+	std::shared_ptr<KuroEngine::RenderTarget>& GetRenderTarget(RENDER_TARGET_TYPE arg_type) { return m_renderTargetArray[arg_type]; }
 };

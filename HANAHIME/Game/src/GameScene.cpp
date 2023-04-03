@@ -57,7 +57,12 @@ void GameScene::OnUpdate()
 	//デバッグモード更新
 	DebugController::Instance()->Update();
 
-	if (DebugController::Instance()->IsActive())m_debugCam.Move();
+	m_nowCam = m_player.GetCamera().lock();
+	if (DebugController::Instance()->IsActive())
+	{
+		m_debugCam.Move();
+		m_nowCam = m_debugCam;
+	}
 
 	m_player.Update(StageManager::Instance()->GetNowStage());
 
@@ -76,28 +81,25 @@ void GameScene::OnDraw()
 	//レンダーターゲットのクリアとセット
 	BasicDraw::Instance()->RenderTargetsClearAndSet(ds);
 
-	auto nowCamera = m_player.GetCamera().lock();
-	if (DebugController::Instance()->IsActive())nowCamera = m_debugCam;
-
 	//ステージ描画
-	StageManager::Instance()->Draw(*nowCamera, m_ligMgr);
+	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
 	
 	Transform transform;
 	transform.SetPos({ -0.5f,0,0 });
 	DrawFunc3D::DrawNonShadingPlane(
 		m_ddsTex,
 		transform,
-		*nowCamera);
+		*m_nowCam);
 
 	transform.SetPos({ 0.5f,0,0 });
 	DrawFunc3D::DrawNonShadingPlane(
 		m_pngTex,
 		transform,
-		*nowCamera);
+		*m_nowCam);
 
-	m_player.Draw(*nowCamera, m_ligMgr, DebugController::Instance()->IsActive());
+	m_player.Draw(*m_nowCam, m_ligMgr, DebugController::Instance()->IsActive());
 
-	m_grass.Draw(*nowCamera, m_ligMgr);
+	m_grass.Draw(*m_nowCam, m_ligMgr);
 
 	//m_canvasPostEffect.Execute();
 
@@ -107,7 +109,7 @@ void GameScene::OnDraw()
 	//m_waterPaintBlend.Register(main, *nowCamera, ds);
 	//m_vignettePostEffect.Register(m_waterPaintBlend.GetResultTex());
 
-	m_vignettePostEffect.Register(BasicDraw::Instance()->GetMainTarget());
+	m_vignettePostEffect.Register(BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN));
 
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(
 		{

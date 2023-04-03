@@ -257,10 +257,10 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		Color(0.0f, 0.0f, 0.0f, 1.0f),
 		targetSize, L"BasicDraw - EdgeColorMap");
 
-	m_renderTargetArray[GRASS] = D3D12App::Instance()->GenerateRenderTarget(
-		RENDER_TARGET_INFO[0][GRASS].m_format,
+	m_renderTargetArray[BRIGHT] = D3D12App::Instance()->GenerateRenderTarget(
+		RENDER_TARGET_INFO[0][BRIGHT].m_format,
 		Color(0, 0, 0, 0),
-		targetSize, L"BasicDraw - GrassMap");
+		targetSize, L"BasicDraw - BrightMap");
 }
 
 void BasicDraw::Update(KuroEngine::Vec3<float> arg_playerPos)
@@ -282,7 +282,6 @@ void BasicDraw::RenderTargetsClearAndSet(std::weak_ptr<KuroEngine::DepthStencil>
 	for (int targetIdx = 0; targetIdx < RENDER_TARGET_TYPE::NUM; ++targetIdx)
 	{
 		rts.emplace_back(m_renderTargetArray[targetIdx]);
-		if (targetIdx == RENDER_TARGET_TYPE::GRASS)continue;
 		KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(m_renderTargetArray[targetIdx]);
 	}
 	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(arg_ds);
