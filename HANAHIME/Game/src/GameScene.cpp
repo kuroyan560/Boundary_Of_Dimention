@@ -18,6 +18,7 @@ GameScene::GameScene()
 	m_dirLig.SetDir(dir.GetNormal());
 	m_ligMgr.RegisterDirLight(&m_dirLig);
 	m_ligMgr.RegisterPointLight(m_player.GetPointLig());
+
 }
 
 
@@ -63,6 +64,12 @@ void GameScene::OnUpdate()
 
 	m_grass.Update(1.0f, m_player.GetTransform().GetPos(), m_player.GetTransform().GetRotate(), m_player.GetCamera().lock()->GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
 	//m_grass.Plant(m_player.GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
+
+
+	//ステージ選択
+	stageSelect.Update();
+
+
 
 	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld());
 }
@@ -137,6 +144,8 @@ void GameScene::OnDraw()
 	m_player.Draw(*nowCamera, m_ligMgr, DebugController::Instance()->IsActive());
 
 	m_grass.Draw(*nowCamera, m_ligMgr);
+
+	stageSelect.Draw(*nowCamera, m_ligMgr);
 
 	//m_canvasPostEffect.Execute();
 

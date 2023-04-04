@@ -8,6 +8,7 @@
 #include"Stage/Grass.h"
 #include"ForUser/PostEffect/DOF.h"
 #include"Graphics/WaterPaintBlend.h"
+#include"Stage/StageSelect.h"
 
 class GameScene : public KuroEngine::BaseScene
 {
@@ -33,6 +34,9 @@ class GameScene : public KuroEngine::BaseScene
 
 	//水彩画風ブレンドポストエフェクト
 	WaterPaintBlend m_waterPaintBlend;
+
+	//ステージ選択画面
+	StageSelect stageSelect;
 
 	void OnInitialize()override;
 	void OnUpdate()override;

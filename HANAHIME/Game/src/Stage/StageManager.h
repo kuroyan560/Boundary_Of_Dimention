@@ -31,6 +31,7 @@ class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>,p
 
 	//デバッグ用テストステージ
 	std::shared_ptr<Stage>m_testStage;
+	std::shared_ptr<Stage>m_homeStage;
 
 	//現在のステージ
 	std::shared_ptr<Stage>m_nowStage;

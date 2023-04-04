@@ -19,8 +19,14 @@ StageManager::StageManager()
 	m_testStage->Load("resource/user/level/", "Debug_Stage_1.json");
 	m_testStage->TerrianInit(m_terrianScaling);
 
-	//現在のステージ指定（デフォルトはテスト用ステージ）
-	m_nowStage = m_testStage;
+	//ホームステージ
+	m_homeStage = std::make_shared<Stage>();
+	m_homeStage->Load("resource/user/level/", "Home.json");
+	m_homeStage->TerrianInit(m_terrianScaling);
+
+
+	//現在のステージ指定（デフォルトはホーム用ステージ）
+	m_nowStage = m_homeStage;
 }
 
 void StageManager::OnImguiItems()

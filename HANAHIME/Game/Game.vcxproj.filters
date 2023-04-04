@@ -71,6 +71,9 @@
     <Filter Include="src\user\Graphics">
       <UniqueIdentifier>{ade67a3f-0cb6-47a3-9c70-5d41e5454e2e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\user\Home">
+      <UniqueIdentifier>{64b09c8f-0854-48a3-8fb1-5c9c034b61d5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\KuroEngineDevice.cpp">
@@ -306,6 +309,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\engine\ForUser\PostEffect\DOF.cpp">
       <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Stage\Gate.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Stage\StageSelect.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -600,5 +609,7 @@
     <ClInclude Include="..\..\src\engine\ForUser\PostEffect\DOF.h">
       <Filter>src\engine\ForUser\PostEffect</Filter>
     </ClInclude>
+    <ClInclude Include="src\Stage\Gate.h" />
+    <ClInclude Include="src\Stage\StageSelect.h" />
   </ItemGroup>
 </Project>
