@@ -15,7 +15,10 @@ bool Gate::IsHit(const KuroEngine::Vec3<float> &player_pos)
 	KuroEngine::Vec3<float>distance = m_transform.GetPos() - player_pos;
 	const int square1 = 0;
 	const int square2 = 1;
-	bool isHitFlag = fabs(distance.x) <= size[square1].x + size[square2].x && fabs(distance.y) <= size[square1].y + size[square2].y;
+	bool isHitFlag = 
+		fabs(distance.x) <= size[square1].x + size[square2].x &&
+		fabs(distance.y) <= size[square1].y + size[square2].y &&
+		fabs(distance.z) <= size[square1].z + size[square2].z;
 	return isHitFlag;
 }
 

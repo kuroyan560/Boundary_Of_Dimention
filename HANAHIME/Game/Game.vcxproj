@@ -182,6 +182,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Graphics\WaterPaintBlend.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\GameScene.cpp" />
+    <ClCompile Include="src\MovieCamera.cpp" />
     <ClCompile Include="src\OperationConfig.cpp" />
     <ClCompile Include="src\Player\CameraController.cpp" />
     <ClCompile Include="src\Player\Player.cpp" />
@@ -284,6 +285,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Graphics\BasicDrawParameters.h" />
     <ClInclude Include="src\Graphics\CanvasPostEffect.h" />
     <ClInclude Include="src\Graphics\WaterPaintBlend.h" />
+    <ClInclude Include="src\MovieCamera.h" />
     <ClInclude Include="src\OperationConfig.h" />
     <ClInclude Include="src\Player\CameraController.h" />
     <ClInclude Include="src\Player\Player.h" />

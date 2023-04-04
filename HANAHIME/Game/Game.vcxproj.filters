@@ -319,6 +319,9 @@
     <ClCompile Include="src\SceneChange.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\MovieCamera.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -615,5 +618,6 @@
     <ClInclude Include="src\Stage\Gate.h" />
     <ClInclude Include="src\Stage\StageSelect.h" />
     <ClInclude Include="src\SceneChange.h" />
+    <ClInclude Include="src\MovieCamera.h" />
   </ItemGroup>
 </Project>

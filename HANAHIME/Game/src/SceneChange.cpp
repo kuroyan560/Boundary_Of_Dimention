@@ -54,9 +54,9 @@ void SceneChange::Draw()
 {
 	if (!m_startFlag)
 	{
-		return;
+		//return;
 	}
-	KuroEngine::DrawFunc2D::DrawRotaGraph2D({0.0f,0.0f}, { 1.0f,1.0f }, 0.0f, m_blackTexBuff, m_alpha);
+	KuroEngine::DrawFunc2D::DrawGraph({0.0f,0.0f}, m_blackTexBuff, 1.0f);
 }
 
 void SceneChange::Start()

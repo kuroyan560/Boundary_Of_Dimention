@@ -3,6 +3,9 @@
 #include"../../../src/engine/Render/RenderObject/SpriteMesh.h"
 #include"../../../src/engine/ForUser/Timer.h"
 
+/// <summary>
+/// ”àˆÚ“®‚Ì‘JˆÚ‰‰o
+/// </summary>
 class SceneChange
 {
 public:
