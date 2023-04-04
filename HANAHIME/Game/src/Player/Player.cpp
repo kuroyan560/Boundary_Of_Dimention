@@ -80,9 +80,10 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	bool isHitWall = false;
 	bool onGround = false;
 	HitCheckResult hitResult;
+	std::array<bool, 4> isCliff = { false };
 
 	//CastRayに渡す引数
-	Player::CastRayArgument castRayArgument(onGround, isHitWall, hitResult);
+	Player::CastRayArgument castRayArgument(onGround, isHitWall, hitResult, isCliff);
 
 	m_debugTransform.clear();
 
@@ -106,6 +107,7 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 
 			//判定↓============================================
 
+			//接地のトリガー判定が欲しいのでここで一旦フラグを折る。
 			bool onGroundBuff = castRayArgument.m_onGround;
 			castRayArgument.m_onGround = false;
 
@@ -126,39 +128,40 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::GROUND);
 
 			//空中にいるトリガーの場合は崖の処理。
-			if (castRayArgument.m_onGround) {
+			//if (castRayArgument.m_onGround) {
 
 				float rayLength = m_transform.GetScale().y * 2.0f;
 				if (0 < m_moveSpeed.z) {
 
 					//前に進んで崖に落ちた場合。
-					CastCliffRay(arg_newPos, arg_from + m_transform.GetFront() * rayLength, -m_transform.GetUp(), m_transform.GetScale().x, castRayArgument, RAY_ID::CLIFF_FORWARD);
+					CastRay(arg_newPos, arg_from + m_transform.GetFront() * rayLength, -m_transform.GetUp(), rayLength, castRayArgument, RAY_ID::CHECK_CLIFF_FORWARD);
 
 				}
 
 				if (m_moveSpeed.z < 0) {
 
 					//後ろに進んで崖に落ちた場合。
-					CastCliffRay(arg_newPos, arg_from - m_transform.GetFront() * rayLength, -m_transform.GetUp(), m_transform.GetScale().x, castRayArgument, RAY_ID::CLIFF_BEHIND);
+					CastRay(arg_newPos, arg_from - m_transform.GetFront() * rayLength, -m_transform.GetUp(), rayLength, castRayArgument, RAY_ID::CHECK_CLIFF_BEHIND);
 
 				}
 
 				if (0 < m_moveSpeed.x) {
 
 					//右に進んで崖に落ちた場合。
-					CastCliffRay(arg_newPos, arg_from + m_transform.GetRight() * rayLength, -m_transform.GetUp(), m_transform.GetScale().z, castRayArgument, RAY_ID::CLIFF_RIGHT);
+					CastRay(arg_newPos, arg_from + m_transform.GetRight() * rayLength, -m_transform.GetUp(), rayLength, castRayArgument, RAY_ID::CHECK_CLIFF_RIGHT);
 
 				}
 
 				if (m_moveSpeed.x < 0) {
 
 					//左に進んで崖に落ちた場合。
-					CastCliffRay(arg_newPos, arg_from - m_transform.GetRight() * rayLength, -m_transform.GetUp(), m_transform.GetScale().z, castRayArgument, RAY_ID::CLIFF_LEFT);
+					CastRay(arg_newPos, arg_from - m_transform.GetRight() * rayLength, -m_transform.GetUp(), rayLength, castRayArgument, RAY_ID::CHECK_CLIFF_LEFT);
 
 				}
 
-			}
+			//}
 
+			//保存されている接地フラグを代入。もともとtrueだったところをfalseで上書きしないようにするための条件式付き。
 			if (!castRayArgument.m_onGround) {
 				castRayArgument.m_onGround = onGroundBuff;
 			}
@@ -166,6 +169,56 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 
 			//=================================================
 		}
+	}
+
+	//崖際押し戻し用の当たり判定
+	for (auto& terrian : arg_terrianArray)
+	{
+		//モデル情報取得
+		auto model = terrian.m_model.lock();
+		//トランスフォーム情報
+		auto& transform = terrian.m_transform;
+		castRayArgument.m_targetTransform = terrian.m_transform;
+
+		//メッシュを走査
+		for (auto& modelMesh : model->m_meshes)
+		{
+
+			//CastRayに渡す引数を更新。
+			castRayArgument.m_mesh = terrian.m_collisionMesh[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+
+			float rayLength = m_transform.GetScale().y * 2.0f;
+			auto bottom = m_transform.GetUp() * -rayLength;
+			if (0 < m_moveSpeed.z && !castRayArgument.m_isCliff[static_cast<int>(RAY_ID::CHECK_CLIFF_FORWARD)]) {
+
+				//前に進んで崖に落ちた場合。
+				CastRay(arg_newPos, arg_from + m_transform.GetFront() * rayLength + bottom, -m_transform.GetFront(), rayLength, castRayArgument, RAY_ID::CLIFF);
+
+			}
+
+			if (m_moveSpeed.z < 0 && !castRayArgument.m_isCliff[static_cast<int>(RAY_ID::CHECK_CLIFF_BEHIND)]) {
+
+				//後ろに進んで崖に落ちた場合。
+				CastRay(arg_newPos, arg_from - m_transform.GetFront() * rayLength + bottom, m_transform.GetFront(), rayLength, castRayArgument, RAY_ID::CLIFF);
+
+			}
+
+			if (0 < m_moveSpeed.x && !castRayArgument.m_isCliff[static_cast<int>(RAY_ID::CHECK_CLIFF_RIGHT)]) {
+
+				//右に進んで崖に落ちた場合。
+				CastRay(arg_newPos, arg_from + m_transform.GetRight() * rayLength + bottom, -m_transform.GetRight(), rayLength, castRayArgument, RAY_ID::CLIFF);
+
+			}
+
+			if (m_moveSpeed.x < 0 && !castRayArgument.m_isCliff[static_cast<int>(RAY_ID::CHECK_CLIFF_LEFT)]) {
+
+				//左に進んで崖に落ちた場合。
+				CastRay(arg_newPos, arg_from - m_transform.GetRight() * rayLength + bottom, m_transform.GetRight(), rayLength, castRayArgument, RAY_ID::CLIFF);
+
+			}
+
+		}
+
 	}
 
 	//周囲のレイが壁に当たっていなかったら、下方向のレイを姿勢として使用する。
@@ -383,7 +436,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 		//プレイヤーの移動方向でY軸回転させるクォータニオンをカメラのクォータニオンにかけて、プレイヤーを移動方向に向かせる。
 		m_moveQ = DirectX::XMQuaternionMultiply(m_cameraQ, playerYSpin);
-		m_transform.SetRotate(m_moveQ);
+		m_transform.SetRotate(m_cameraQ);
 
 	}
 
@@ -620,8 +673,25 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 
 	/*===== 当たり判定用のレイを撃つ =====*/
 
+
+	MeshCollisionOutput output = MeshCollision(m_transform.GetPos() , -m_transform.GetUp(), arg_collisionData.m_mesh, arg_collisionData.m_targetTransform);
+
 	//レイを飛ばす。
-	MeshCollisionOutput output = MeshCollision(arg_rayCastPos, arg_rayDir, arg_collisionData.m_mesh, arg_collisionData.m_targetTransform);
+	output = MeshCollision(arg_rayCastPos, arg_rayDir, arg_collisionData.m_mesh, arg_collisionData.m_targetTransform);
+
+
+	if (arg_rayID == RAY_ID::CLIFF) {
+		KuroEngine::Transform transform;
+		transform.SetScale(0.3f);
+		transform.SetPos(arg_rayCastPos);
+		transform.SetRotate(arg_rayDir);
+		m_debugTransform.emplace_back(transform);
+		transform.SetScale(0.1f);
+		transform.SetPos(arg_rayCastPos + arg_rayDir * arg_rayLength);
+		transform.SetRotate(arg_rayDir);
+		m_debugTransform.emplace_back(transform);
+	}
+
 
 	//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 	if (output.m_isHit && std::fabs(output.m_distance) < arg_rayLength) {
@@ -646,13 +716,36 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 
 		case Player::RAY_ID::DEBUG:
 			//m_debugTransform.SetPos(output.m_pos);
+		{
+			int a = 0;
+			arg_collisionData.m_isCliff[static_cast<int>(0)] = true;
+		}
+		break;
+
+		case RAY_ID::CHECK_CLIFF_FORWARD:
+		case RAY_ID::CHECK_CLIFF_BEHIND:
+		case RAY_ID::CHECK_CLIFF_RIGHT:
+		case RAY_ID::CHECK_CLIFF_LEFT:
+		{
+
+			//崖ではない判定にする。
+			arg_collisionData.m_isCliff[static_cast<int>(arg_rayID)] = true;
+			KuroEngine::Transform transform;
+			transform.SetScale(0.3f);
+			transform.SetPos(output.m_pos);
+			transform.SetRotate(arg_rayDir);
+			m_debugTransform.emplace_back(transform);
+
+			break;
+
+		}
 
 		case Player::RAY_ID::CLIFF:
 
 		{
 
 			//崖際に見えない壁があるとしたときの衝突点
-			KuroEngine::Vec3<float> virtualHitPos = output.m_pos + m_transform.GetUp();
+			KuroEngine::Vec3<float> virtualHitPos = output.m_pos + m_transform.GetUp() * 2.0f;
 			KuroEngine::Vec3<float> virtualNormal = -output.m_normal;
 			float pushBackAmount = KuroEngine::Vec3<float>(virtualHitPos - arg_charaPos).Length();
 
@@ -662,7 +755,7 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 			arg_collisionData.m_hitResult.m_terrianNormal = m_transform.GetUp();
 
 			//レイの衝突地点から法線方向に伸ばした位置に移動させる。
-			arg_charaPos = virtualHitPos + virtualNormal * (m_transform.GetScale().x - OFFSET);
+			arg_charaPos = virtualHitPos + virtualNormal * (m_transform.GetScale().x * 2.0f - OFFSET);
 
 		}
 
@@ -684,84 +777,14 @@ void Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 			break;
 		}
 	}
+	else {
+		if (arg_rayID == RAY_ID::CLIFF) {
 
-}
+			if (output.m_isHit) {
+				int a = 0;
+			}
 
-void Player::CastCliffRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument arg_collisionData, RAY_ID arg_rayID)
-{
-
-	/*===== 当たり判定用のレイを撃つ =====*/
-
-	//レイを飛ばす。
-	MeshCollisionOutput output = MeshCollision(arg_rayCastPos, arg_rayDir, arg_collisionData.m_mesh, arg_collisionData.m_targetTransform);
-
-	//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
-	if (output.m_isHit && std::fabs(output.m_distance) < arg_rayLength) {
-
-		KuroEngine::Transform debug;
-		debug.SetScale(0.5f);
-		debug.SetPos(output.m_pos);
-
-		m_debugTransform.emplace_back(debug);
-
-		return;
-
-	}
-
-	//次は崖にレイを飛ばす。
-
-	KuroEngine::Vec3<float> rayCastPos = arg_rayCastPos - m_transform.GetUp() * (m_transform.GetScale().y * 2.0f);
-	KuroEngine::Vec3<float> rayDir;
-	switch (arg_rayID)
-	{
-	case Player::RAY_ID::CLIFF_FORWARD:
-		rayDir = -m_transform.GetFront();
-		break;
-	case Player::RAY_ID::CLIFF_BEHIND:
-		rayDir = m_transform.GetFront();
-		break;
-	case Player::RAY_ID::CLIFF_RIGHT:
-		rayDir = -m_transform.GetRight();
-		break;
-	case Player::RAY_ID::CLIFF_LEFT:
-		rayDir = m_transform.GetRight();
-		break;
-	default:
-		break;
-	}
-
-	output = MeshCollision(rayCastPos, rayDir, arg_collisionData.m_mesh, arg_collisionData.m_targetTransform);
-
-	KuroEngine::Transform debug;
-	debug.SetScale(0.2f);
-	debug.SetPos(rayCastPos);
-
-	m_debugTransform.emplace_back(debug);
-	debug;
-	debug.SetScale(0.1f);
-	debug.SetPos(rayCastPos + rayDir * 2);
-
-	m_debugTransform.emplace_back(debug);
-
-	if (output.m_isHit && std::fabs(output.m_distance) < 2) {
-
-
-		//ぴったり押し戻してしまうと重力の関係でガクガクしてしまうので、微妙にめり込ませて押し戻す。
-		static const float OFFSET = 0.01f;
-
-		//崖際に見えない壁があるとしたときの衝突点
-		KuroEngine::Vec3<float> virtualHitPos = output.m_pos + (m_transform.GetUp() * 2.0f);
-		KuroEngine::Vec3<float> virtualNormal = -output.m_normal;
-		float pushBackAmount = KuroEngine::Vec3<float>(virtualHitPos - arg_charaPos).Length();
-
-		//外部に渡す用のデータを保存。
-		arg_collisionData.m_isHitWall = true;
-		arg_collisionData.m_hitResult.m_interPos = virtualHitPos;
-		arg_collisionData.m_hitResult.m_terrianNormal = m_transform.GetUp();
-
-		//レイの衝突地点から法線方向に伸ばした位置に移動させる。
-		arg_charaPos = virtualHitPos + virtualNormal * (m_transform.GetScale().x - OFFSET);
-
+		}
 	}
 
 }
