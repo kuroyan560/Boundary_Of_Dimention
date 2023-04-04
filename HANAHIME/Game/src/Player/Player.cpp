@@ -86,8 +86,6 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	//CastRayに渡す引数
 	Player::CastRayArgument castRayArgument(onGround, isHitWall, hitResult, isCliff, isAround);
 
-	m_debugTransform.clear();
-
 	//地形配列走査
 	for (auto& terrian : arg_terrianArray)
 	{
@@ -448,14 +446,6 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		m_model,
 		m_transform);
 
-	for (auto& index : m_debugTransform) {
-		BasicDraw::Instance()->Draw(
-			arg_cam,
-			arg_ligMgr,
-			m_model,
-			index);
-	}
-
 	/*KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_axisModel,
 		m_transform,
@@ -663,20 +653,6 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 	//レイを飛ばす。
 	output = MeshCollision(arg_rayCastPos, arg_rayDir, arg_collisionData.m_mesh, arg_collisionData.m_targetTransform);
 
-
-	if (arg_rayID == RAY_ID::CLIFF) {
-		KuroEngine::Transform transform;
-		transform.SetScale(0.3f);
-		transform.SetPos(arg_rayCastPos);
-		transform.SetRotate(arg_rayDir);
-		m_debugTransform.emplace_back(transform);
-		transform.SetScale(0.1f);
-		transform.SetPos(arg_rayCastPos + arg_rayDir * arg_rayLength);
-		transform.SetRotate(arg_rayDir);
-		m_debugTransform.emplace_back(transform);
-	}
-
-
 	//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 	if (output.m_isHit && std::fabs(output.m_distance) < arg_rayLength) {
 
@@ -703,11 +679,6 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 
 			//崖ではない判定にする。
 			arg_collisionData.m_isCliff[static_cast<int>(arg_rayDirID)] = true;
-			KuroEngine::Transform transform;
-			transform.SetScale(0.3f);
-			transform.SetPos(output.m_pos);
-			transform.SetRotate(arg_rayDir);
-			m_debugTransform.emplace_back(transform);
 
 			break;
 

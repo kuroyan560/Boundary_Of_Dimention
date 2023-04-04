@@ -72,10 +72,6 @@ class Player : public KuroEngine::Debugger
 	void OnImguiItems()override;
 
 
-	//デバッグ
-	std::vector<KuroEngine::Transform> m_debugTransform;
-
-
 	struct HitCheckResult
 	{
 		KuroEngine::Vec3<float>m_interPos;
