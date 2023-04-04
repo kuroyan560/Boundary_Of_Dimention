@@ -144,7 +144,7 @@ namespace KuroEngine
 			MatReset();
 		}
 		void SetRotate(const Angle& X, const Angle& Y, const Angle& Z) {
-			SetRotate(XMQuaternionRotationRollPitchYaw(Y, Z, -X));
+			SetRotate(XMQuaternionRotationRollPitchYaw(X, Y, -Z));
 		}
 		void SetRotate(const Matrix& RotateMat) {
 			SetRotate(XMQuaternionRotationMatrix(RotateMat));
