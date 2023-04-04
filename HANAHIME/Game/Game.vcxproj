@@ -185,6 +185,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\OperationConfig.cpp" />
     <ClCompile Include="src\Player\CameraController.cpp" />
     <ClCompile Include="src\Player\Player.cpp" />
+    <ClCompile Include="src\SceneChange.cpp" />
     <ClCompile Include="src\Stage\Gate.cpp" />
     <ClCompile Include="src\Stage\Grass.cpp" />
     <ClCompile Include="src\Stage\Stage.cpp" />
@@ -286,6 +287,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\OperationConfig.h" />
     <ClInclude Include="src\Player\CameraController.h" />
     <ClInclude Include="src\Player\Player.h" />
+    <ClInclude Include="src\SceneChange.h" />
     <ClInclude Include="src\Stage\Gate.h" />
     <ClInclude Include="src\Stage\Grass.h" />
     <ClInclude Include="src\Stage\Stage.h" />

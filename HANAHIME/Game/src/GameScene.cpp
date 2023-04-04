@@ -69,18 +69,26 @@ void GameScene::OnUpdate()
 	//ホームでの処理----------------------------------------
 
 	//ステージ選択
-	int stageNum = stageSelect.GetStageNumber(m_player.GetTransform().GetPos());
+	int stageNum = m_stageSelect.GetStageNumber(m_player.GetTransform().GetPos());
 	//ステージ移動時の初期化
 	if (stageNum != -1)
 	{
-		StageManager::Instance()->SetStage(stageNum);
+		m_stageNum = stageNum;
+		m_gateSceneChange.Start();
+	}
+
+	if (m_gateSceneChange.IsHide())
+	{
+		StageManager::Instance()->SetStage(m_stageNum);
 		KuroEngine::Transform playerInitTransform;
 		playerInitTransform.SetPos({ 30.0f,50.0f,-45 });
 		m_player.Init(playerInitTransform);
 	}
-	stageSelect.Update();
 
+	m_stageSelect.Update();
 	//ホームでの処理----------------------------------------
+
+	m_gateSceneChange.Update();
 
 
 
@@ -158,10 +166,11 @@ void GameScene::OnDraw()
 
 	m_grass.Draw(*nowCamera, m_ligMgr);
 
-	stageSelect.Draw(*nowCamera, m_ligMgr);
+	m_stageSelect.Draw(*nowCamera, m_ligMgr);
+
+	m_gateSceneChange.Draw();
 
 	//m_canvasPostEffect.Execute();
-
 	BasicDraw::Instance()->DrawEdge(depthMap, normalMap, edgeColMap);
 
 	//KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
