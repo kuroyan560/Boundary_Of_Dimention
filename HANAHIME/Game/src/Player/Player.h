@@ -121,15 +121,19 @@ private:
 	//発射するレイのID
 	enum class RAY_ID {
 
-		CHECK_CLIFF_FORWARD = 0,	//崖かどうかをチェックする用
-		CHECK_CLIFF_BEHIND = 1,		//崖かどうかをチェックする用
-		CHECK_CLIFF_RIGHT = 2,		//崖かどうかをチェックする用
-		CHECK_CLIFF_LEFT = 3,		//崖かどうかをチェックする用
-
+		CHECK_CLIFF,	//崖かどうかをチェックする用
 		GROUND,	//地上向かって飛ばすレイ。設置判定で使用する。
 		AROUND,	//周囲に向かって飛ばすレイ。壁のぼり判定で使用する。
 		CLIFF,	//崖で明日もとに向かって飛ばすレイ。崖を降りる際に使用する。
 		DEBUG,
+	};
+	//発射するレイの方向
+	enum class RAY_DIR {
+		FORWARD = 0,
+		BEHIND = 1,
+		RIGHT = 2,
+		LEFT = 3,
+		NONE,
 	};
 	/// <summary>
 	/// レイとメッシュの当たり判定
@@ -152,10 +156,11 @@ private:
 		std::vector<Terrian::Polygon> m_mesh;		//判定を行う対象のメッシュ
 		KuroEngine::Transform m_targetTransform;	//判定を行う対象のトランスフォーム
 		std::array<bool, 4>& m_isCliff;				//崖際にいるかをチェックする用。
+		std::array<bool, 4>& m_isAround;			//周囲のレイが壁際に当たったかをチェックする用。
 		bool& m_onGround;							//接地フラグ
 		bool& m_isHitWall;							//レイが壁に当たったかどうか
 		HitCheckResult& m_hitResult;				//当たり判定結果データ
-		CastRayArgument(bool& arg_onGround, bool& arg_isHitWall, HitCheckResult& arg_hitResult, std::array<bool,4>& arg_isCliff) : m_onGround(arg_onGround), m_isHitWall(arg_isHitWall), m_hitResult(arg_hitResult), m_isCliff(arg_isCliff) {};
+		CastRayArgument(bool& arg_onGround, bool& arg_isHitWall, HitCheckResult& arg_hitResult, std::array<bool,4>& arg_isCliff, std::array<bool, 4>& arg_isAround) : m_onGround(arg_onGround), m_isHitWall(arg_isHitWall), m_hitResult(arg_hitResult), m_isCliff(arg_isCliff), m_isAround(arg_isAround) {};
 	};
 
 	/// <summary>
@@ -167,6 +172,6 @@ private:
 	/// <param name="arg_rayLength"> レイの長さ </param>
 	/// <param name="arg_collisionData"> 引数をまとめた構造体 </param>
 	/// <param name="arg_rayID"> レイの種類 </param>
-	void CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument arg_collisionData, RAY_ID arg_rayID);
+	bool CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument arg_collisionData, RAY_ID arg_rayID, RAY_DIR arg_rayDirID);
 };
 
