@@ -93,16 +93,9 @@ void Stage::Load(std::string arg_dir, std::string arg_fileName)
 		auto transformObj = obj["transform"];
 
 		//平行移動
-		//Vec3<float>translation = { (float)transformObj["translation"][1],(float)transformObj["translation"][2],-(float)transformObj["translation"][0] };
 		Vec3<float>translation = { (float)transformObj["translation"][0],(float)transformObj["translation"][2],(float)transformObj["translation"][1] };
 
 		//回転
-		//XMVECTOR quaternion = { (float)transformObj["rotation"][1],(float)transformObj["rotation"][2], -(float)transformObj["rotation"][0],(float)transformObj["rotation"][3] };
-		
-		//XMVECTOR quaternion = { (float)transformObj["rotation"][0],(float)transformObj["rotation"][1], -(float)transformObj["rotation"][2],(float)transformObj["rotation"][3] };
-		//quaternion = quaternion * XMQuaternionRotationAxis(XMVectorSet(1, 0, 0, 1), -Angle::PI() / 2.0f);
-		//quaternion = XMQuaternionNormalize(quaternion);
-
 		XMVECTOR quaternion = { (float)transformObj["rotation"][0],(float)transformObj["rotation"][2], -(float)transformObj["rotation"][1],(float)transformObj["rotation"][3] };
 
 		//スケーリング
