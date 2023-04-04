@@ -128,38 +128,37 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::GROUND);
 
 			//空中にいるトリガーの場合は崖の処理。
-			//if (castRayArgument.m_onGround) {
+			if (castRayArgument.m_onGround) {
 
-				float rayLength = m_transform.GetScale().y * 2.0f;
 				if (0 < m_moveSpeed.z) {
 
 					//前に進んで崖に落ちた場合。
-					CastRay(arg_newPos, arg_from + m_transform.GetFront() * rayLength, -m_transform.GetUp(), rayLength, castRayArgument, RAY_ID::CHECK_CLIFF_FORWARD);
+					CastRay(arg_newPos, arg_from + m_transform.GetFront(), -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::CHECK_CLIFF_FORWARD);
 
 				}
 
 				if (m_moveSpeed.z < 0) {
 
 					//後ろに進んで崖に落ちた場合。
-					CastRay(arg_newPos, arg_from - m_transform.GetFront() * rayLength, -m_transform.GetUp(), rayLength, castRayArgument, RAY_ID::CHECK_CLIFF_BEHIND);
+					CastRay(arg_newPos, arg_from - m_transform.GetFront(), -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::CHECK_CLIFF_BEHIND);
 
 				}
 
 				if (0 < m_moveSpeed.x) {
 
 					//右に進んで崖に落ちた場合。
-					CastRay(arg_newPos, arg_from + m_transform.GetRight() * rayLength, -m_transform.GetUp(), rayLength, castRayArgument, RAY_ID::CHECK_CLIFF_RIGHT);
+					CastRay(arg_newPos, arg_from + m_transform.GetRight(), -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::CHECK_CLIFF_RIGHT);
 
 				}
 
 				if (m_moveSpeed.x < 0) {
 
 					//左に進んで崖に落ちた場合。
-					CastRay(arg_newPos, arg_from - m_transform.GetRight() * rayLength, -m_transform.GetUp(), rayLength, castRayArgument, RAY_ID::CHECK_CLIFF_LEFT);
+					CastRay(arg_newPos, arg_from - m_transform.GetRight(), -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::CHECK_CLIFF_LEFT);
 
 				}
 
-			//}
+			}
 
 			//保存されている接地フラグを代入。もともとtrueだったところをfalseで上書きしないようにするための条件式付き。
 			if (!castRayArgument.m_onGround) {
@@ -187,7 +186,7 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			//CastRayに渡す引数を更新。
 			castRayArgument.m_mesh = terrian.m_collisionMesh[static_cast<int>(&modelMesh - &model->m_meshes[0])];
 
-			float rayLength = m_transform.GetScale().y * 2.0f;
+			float rayLength = m_transform.GetScale().y;
 			auto bottom = m_transform.GetUp() * -rayLength;
 			if (0 < m_moveSpeed.z && !castRayArgument.m_isCliff[static_cast<int>(RAY_ID::CHECK_CLIFF_FORWARD)]) {
 
