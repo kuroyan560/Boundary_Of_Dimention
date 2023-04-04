@@ -45,7 +45,7 @@ public:
 			auto transformObj = obj["transform"];
 
 			//平行移動
-			KuroEngine::Vec3<float>translation = { -(float)transformObj["translation"][0] * terrian_Scale,(float)transformObj["translation"][2] * terrian_Scale,-(float)transformObj["translation"][1] * terrian_Scale };
+			KuroEngine::Vec3<float>translation = { -(float)transformObj["translation"][0] * terrian_Scale,(float)transformObj["translation"][2] * terrian_Scale + 25.0f,-(float)transformObj["translation"][1] * terrian_Scale };
 
 			//回転
 			KuroEngine::Vec3<float>rotate = { -(float)transformObj["rotation"][1],-(float)transformObj["rotation"][2], (float)transformObj["rotation"][0] };
@@ -82,7 +82,16 @@ public:
 	/// <param name="stage_num">移動するステージ番号</param>
 	Gate(const KuroEngine::Transform &transform, int stage_num);
 	void Update();
+
+	/// <summary>
+	/// 扉との判定
+	/// </summary>
+	/// <param name="player_pos">プレイヤーの座標</param>
+	/// <returns>true...扉と接触,false...接触していない</returns>
 	bool IsHit(const KuroEngine::Vec3<float> &player_pos);
+
+	int GetStageNum() { return m_stageNum; };
+
 	KuroEngine::Vec3<float>ForceVel();
 
 	/// <summary>

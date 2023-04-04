@@ -28,3 +28,15 @@ void StageSelect::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &ar
 	}
 #endif
 }
+
+int StageSelect::GetStageNumber(const KuroEngine::Vec3<float> &player_pos)
+{
+	for (auto &obj : m_gateArray)
+	{
+		if (obj->IsHit(player_pos))
+		{
+			return obj->GetStageNum();
+		}
+	}
+	return -1;
+}

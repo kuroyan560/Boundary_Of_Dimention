@@ -33,12 +33,12 @@ void GameScene::OnInitialize()
 	&m_vignettePostEffect,
 	&m_waterPaintBlend,
 	&m_ligMgr,
-	});
+		});
 
 	m_debugCam.Init({ 0,5,-10 });
 
 	KuroEngine::Transform playerInitTransform;
-	playerInitTransform.SetPos({ 0,1.0f,-45 });
+	playerInitTransform.SetPos({ 30.0f,50.0f,-45 });
 	m_player.Init(playerInitTransform);
 
 	m_grass.Init();
@@ -66,8 +66,21 @@ void GameScene::OnUpdate()
 	//m_grass.Plant(m_player.GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
 
 
+	//ホームでの処理----------------------------------------
+
 	//ステージ選択
+	int stageNum = stageSelect.GetStageNumber(m_player.GetTransform().GetPos());
+	//ステージ移動時の初期化
+	if (stageNum != -1)
+	{
+		StageManager::Instance()->SetStage(stageNum);
+		KuroEngine::Transform playerInitTransform;
+		playerInitTransform.SetPos({ 30.0f,50.0f,-45 });
+		m_player.Init(playerInitTransform);
+	}
 	stageSelect.Update();
+
+	//ホームでの処理----------------------------------------
 
 
 
@@ -112,7 +125,7 @@ void GameScene::OnDraw()
 
 	//レンダーターゲットをセット
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(
-		{ 
+		{
 			main,
 			emissiveMap,
 			depthMap,
@@ -127,7 +140,7 @@ void GameScene::OnDraw()
 
 	//ステージ描画
 	StageManager::Instance()->Draw(*nowCamera, m_ligMgr);
-	
+
 	Transform transform;
 	transform.SetPos({ -0.5f,0,0 });
 	DrawFunc3D::DrawNonShadingPlane(
