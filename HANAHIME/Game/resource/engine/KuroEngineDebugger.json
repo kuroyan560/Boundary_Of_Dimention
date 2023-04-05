@@ -33,10 +33,11 @@
       "BrightThreshold": {
         "Low": 0.6600000262260437,
         "Range": 0.029999999329447746
-      }
+      },
+      "MonochromeRate": 0.800000011920929
     },
     "debuggerSetting": {
-      "active": false,
+      "active": true,
       "customParamActive": true,
       "imageColor": [
         0.3920130133628845,
@@ -118,7 +119,7 @@
     },
     "Config": {
       "distMax": 35.75,
-      "distMin": 0.25,
+      "distMin": 0.30000001192092896,
       "intensity": 1.0,
       "opacityMax": 0.800000011920929
     },

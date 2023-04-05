@@ -37,6 +37,7 @@ private:
 		//–¾‚é‚³‚Ì‚µ‚«‚¢’li”ÍˆÍ‚ğ‚½‚¹‚Ä‚¢‚éj
 		float m_brightThresholdLow = 0.66f;
 		float m_brightThresholdRange = 0.03f;
+		float m_monochromeRate = 0.3f;
 	};
 	ToonCommonParameter m_toonCommonParam;
 

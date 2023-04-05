@@ -15,6 +15,8 @@ BasicDraw::BasicDraw() :KuroEngine::Debugger("BasicDraw")
 		&m_toonCommonParam.m_brightThresholdLow, "Toon", true, 0.0f, 1.0f);
 	AddCustomParameter("BrightThresholdRange", { "Toon","BrightThreshold","Range" }, PARAM_TYPE::FLOAT,
 		&m_toonCommonParam.m_brightThresholdRange, "Toon");
+	AddCustomParameter("MonochromeRate", { "Toon","MonochromeRate" }, PARAM_TYPE::FLOAT,
+		&m_toonCommonParam.m_monochromeRate, "Toon", true, 0.0f, 1.0f);
 
 	AddCustomParameter("DepthDifferenceThreshold", { "Edge","DepthDifferenceThreshold" }, PARAM_TYPE::FLOAT,
 		&m_edgeShaderParam.m_depthThreshold, "Edge");

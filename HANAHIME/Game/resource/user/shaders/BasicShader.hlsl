@@ -8,6 +8,7 @@ struct ToonCommonParameter
 {
     float m_brightThresholdLow;
     float m_brightThresholdRange;
+    float m_monochromeRate;
 };
 
 struct ToonIndividualParameter
@@ -274,7 +275,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     result.xyz *= lerp(0.5f, 1.0f, isBright);
     
     //åıÇ™ìñÇΩÇ¡ÇƒÇ¢Ç»Ç¢Ç»ÇÁÉÇÉmÉNÉçâª
-    result.xyz = result.xyz * isBright + Monochrome(result.xyz) * (1 - isBright);
+    result.xyz = lerp(lerp(result.xyz, Monochrome(result.xyz), toonCommonParam.m_monochromeRate), result.xyz, isBright);
     
     PSOutput output;
     output.color = result;
