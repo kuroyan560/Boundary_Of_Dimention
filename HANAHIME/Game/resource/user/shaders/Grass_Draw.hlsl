@@ -257,8 +257,19 @@ PSOutput PSmain(GSOutput input)
     //プレイヤーと描画する座標のベクトル
     float3 playerDir = normalize(input.worldPosition.xyz - commonInfo.m_playerPos);
     
+    //距離を求める。
+    float distance = length(input.worldPosition.xyz - commonInfo.m_playerPos);
+    
+    //距離によって明るさの割合を変える。
+    const float DISTANCE = 10.0f;
+    float distanceRate = step(distance, DISTANCE);
+    
+    //明るさのオフセット
+    const float OFFSET_LUMI = 0.4f;
+    distanceRate = clamp(distanceRate + OFFSET_LUMI, 0.0f, 1.0f);
+    
     //明るさを求める。
-    float lumi = dot(playerDir, normal);
+    float lumi = dot(playerDir, normal) * distanceRate;
 
     //色を保存する。
     color.xyz *= lumi;
