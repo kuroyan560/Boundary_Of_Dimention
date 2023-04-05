@@ -273,6 +273,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
         isBright = 1;
     result.xyz *= lerp(0.5f, 1.0f, isBright);
     
+    //Œõ‚ª“–‚½‚Á‚Ä‚¢‚È‚¢‚È‚çƒ‚ƒmƒNƒ‰»
     result.xyz = result.xyz * isBright + Monochrome(result.xyz) * (1 - isBright);
     
     PSOutput output;
