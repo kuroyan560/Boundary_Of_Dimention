@@ -255,21 +255,27 @@ PSOutput PSmain(GSOutput input)
     float3 normal = normalColor.xyz * 2.0f - float3(1.0f, 1.0f, 1.0f);
     
     //プレイヤーと描画する座標のベクトル
-    float3 playerDir = normalize(input.worldPosition.xyz - commonInfo.m_playerPos);
+    //float3 playerDir = normalize(input.worldPosition.xyz - commonInfo.m_playerPos);
+    float3 lightDir = normalize(commonInfo.m_playerPos - cam.eyePos);
     
     //距離を求める。
     float distance = length(input.worldPosition.xyz - commonInfo.m_playerPos);
     
     //距離によって明るさの割合を変える。
-    const float DISTANCE = 10.0f;
-    float distanceRate = step(distance, DISTANCE);
-    
-    //明るさのオフセット
-    const float OFFSET_LUMI = 0.4f;
-    distanceRate = clamp(distanceRate + OFFSET_LUMI, 0.0f, 1.0f);
+    const float DISTANCE = 8.0f;
+    const float OFFSET_DISTANCE_LUMI = 0.2f; //距離が遠く離れていてもある程度明るさを出すためのオフセット。
+    float distanceRate = clamp(step(distance, DISTANCE), OFFSET_DISTANCE_LUMI, 1.0f);
     
     //明るさを求める。
-    float lumi = dot(playerDir, normal) * distanceRate;
+    float lumi = dot(normal, lightDir) * distanceRate;
+    
+    //明るさのオフセット
+    const float OFFSET_LUMI = 0.3f;
+    lumi = clamp(lumi + OFFSET_LUMI, OFFSET_LUMI, 1.0f);
+    
+    //距離によって最終的な明るさをクランプする。
+    const float IN_CIRCLE_LUMI = 0.5f;
+    lumi = clamp(lumi, step(distance, DISTANCE) * IN_CIRCLE_LUMI, 1.0f);
 
     //色を保存する。
     color.xyz *= lumi;

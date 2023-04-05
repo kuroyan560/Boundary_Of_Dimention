@@ -103,6 +103,7 @@ public:
 
 	//点光源ゲッタ
 	KuroEngine::Light::Point* GetPointLig() { return &m_ptLig; }
+	bool GetOnGround() { return m_onGround; }
 
 
 private:
@@ -156,7 +157,7 @@ private:
 		bool& m_onGround;							//接地フラグ
 		bool& m_isHitWall;							//レイが壁に当たったかどうか
 		HitCheckResult& m_hitResult;				//当たり判定結果データ
-		CastRayArgument(bool& arg_onGround, bool& arg_isHitWall, HitCheckResult& arg_hitResult, std::array<bool,4>& arg_isCliff, std::array<bool, 4>& arg_isAround) : m_onGround(arg_onGround), m_isHitWall(arg_isHitWall), m_hitResult(arg_hitResult), m_isCliff(arg_isCliff), m_isAround(arg_isAround) {};
+		CastRayArgument(bool& arg_onGround, bool& arg_isHitWall, HitCheckResult& arg_hitResult, std::array<bool, 4>& arg_isCliff, std::array<bool, 4>& arg_isAround) : m_onGround(arg_onGround), m_isHitWall(arg_isHitWall), m_hitResult(arg_hitResult), m_isCliff(arg_isCliff), m_isAround(arg_isAround) {};
 	};
 
 	/// <summary>

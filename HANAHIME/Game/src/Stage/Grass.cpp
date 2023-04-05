@@ -169,7 +169,7 @@ void Grass::Init()
 	m_plantTimer.Reset(0);
 }
 
-void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_playerPos, const KuroEngine::Quaternion arg_playerRotate, KuroEngine::Transform arg_camTransform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend)
+void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, bool arg_playerOnGround, KuroEngine::Transform arg_camTransform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend)
 {
 	using namespace KuroEngine;
 
@@ -179,15 +179,15 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 	m_otherTransformConstBuffer->Mapping(&transformData);
 
 	//プレイヤーが移動した and 周りに草がない。
-	bool isMovePlayer = !((arg_playerPos - m_oldPlayerPos).Length() < 0.1f);
-	if (isMovePlayer)
+	bool isMovePlayer = !((arg_playerTransform.GetPos() - m_oldPlayerPos).Length() < 0.1f);
+	if (isMovePlayer && arg_playerOnGround)
 	{
 		if (m_plantTimer.IsTimeUp())
 		{
 			//トランスフォームに流し込む
 			Transform grassTransform;
-			grassTransform.SetPos(arg_playerPos);
-			grassTransform.SetRotate(arg_playerRotate);
+			grassTransform.SetPos(arg_playerTransform.GetPos());
+			grassTransform.SetRotate(arg_playerTransform.GetRotate());
 			grassTransform.SetScale({ 1.0f,1.0f,1.0f });
 
 			Plant(grassTransform, arg_grassPosScatter, arg_waterPaintBlend);
@@ -196,7 +196,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 		m_plantTimer.UpdateTimer();
 	}
 
-	m_oldPlayerPos = arg_playerPos;
+	m_oldPlayerPos = arg_playerTransform.GetPos();
 
 	//登録するディスクリプタの情報配列
 	std::vector<RegisterDescriptorData>descData =
@@ -253,7 +253,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 	//定数バッファ1の草の揺れ具合を更新。
 	m_constData.m_sineWave += 0.02f;
 	//座標を保存。
-	m_constData.m_playerPos = arg_playerPos;
+	m_constData.m_playerPos = arg_playerTransform.GetPos() + arg_playerTransform.GetUp() * arg_playerTransform.GetScale().y;
 	//定数バッファ1をGPUに転送。
 	m_constBuffer->Mapping(&m_constData);
 
