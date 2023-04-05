@@ -20,6 +20,8 @@ struct CommonGrassInfo
     float m_appearEaseSpeed;
     //草を揺らす際のSine量 つまり風
     float m_sineWave;
+    //プレイヤーの座標
+    float3 m_playerPos;
 };
 
 //草むら以外の外部オブジェクトのトランスフォーム情報

@@ -20,7 +20,7 @@ Grass::Grass()
 
 		//初期化用パイプライン
 		auto cs_init = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass.hlsl", "Init", "cs_6_4");
-		m_cPipeline[INIT] = D3D12App::Instance()->GenerateComputePipeline(cs_init, rootParam, {WrappedSampler(true,true)});
+		m_cPipeline[INIT] = D3D12App::Instance()->GenerateComputePipeline(cs_init, rootParam, { WrappedSampler(true,true) });
 
 		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "生成する予定のスタックしたイニシャライザ配列バッファー(StructuredBuffer)");
 		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "草むら以外のトランスフォームデータ");
@@ -28,11 +28,11 @@ Grass::Grass()
 
 		//生成用パイプライン
 		auto cs_appear = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass.hlsl", "Appear", "cs_6_4");
-		m_cPipeline[GENERATE] = D3D12App::Instance()->GenerateComputePipeline(cs_appear, rootParam, {WrappedSampler(true,true)});
+		m_cPipeline[GENERATE] = D3D12App::Instance()->GenerateComputePipeline(cs_appear, rootParam, { WrappedSampler(true,true) });
 
 		//更新用パイプライン
 		auto cs_update = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass.hlsl", "Update", "cs_6_4");
-		m_cPipeline[UPDATE] = D3D12App::Instance()->GenerateComputePipeline(cs_update, rootParam, {WrappedSampler(true,true)});
+		m_cPipeline[UPDATE] = D3D12App::Instance()->GenerateComputePipeline(cs_update, rootParam, { WrappedSampler(true,true) });
 
 		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, "判定の結果を格納するバッファ(RWStructuredBuffer)");
 		//判定用パイプライン
@@ -59,8 +59,8 @@ Grass::Grass()
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"全草むらで共通する定数バッファ"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "草むら以外のトランスフォームデータ"),
 		};
-		//テクスチャバッファ用ルートパラメータ設定
-		for (int texIdx = 0; texIdx < s_textureNumMax; ++texIdx)
+		//テクスチャバッファ用ルートパラメータ設定 + 法線テクスチャ
+		for (int texIdx = 0; texIdx < s_textureNumMax * 2.0f; ++texIdx)
 		{
 			rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "テクスチャ情報");
 		}
@@ -133,11 +133,18 @@ Grass::Grass()
 		"Grass - CheckResult - RWStructuredBuffer");
 
 	//テクスチャ
-	m_texBuffer[0] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter01.png");
+	m_texBuffer[0] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter02.png");
 	m_texBuffer[1] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter02.png");
 	m_texBuffer[2] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter03.png");
-	m_texBuffer[3] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter04.png");
-	m_texBuffer[4] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter01.png");
+	m_texBuffer[3] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter02.png");
+	m_texBuffer[4] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter02.png");
+
+	//法線テクスチャ
+	m_normalTexBuffer[0] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter02_normal.png");
+	m_normalTexBuffer[1] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter02_normal.png");
+	m_normalTexBuffer[2] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter03_normal.png");
+	m_normalTexBuffer[3] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter02_normal.png");
+	m_normalTexBuffer[4] = D3D12App::Instance()->GenerateTextureBuffer("resource/user/imposter/Imposter02_normal.png");
 }
 
 void Grass::Init()
@@ -183,7 +190,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 			grassTransform.SetRotate(arg_playerRotate);
 			grassTransform.SetScale({ 1.0f,1.0f,1.0f });
 
-			//Plant(grassTransform, arg_grassPosScatter, arg_waterPaintBlend);
+			Plant(grassTransform, arg_grassPosScatter, arg_waterPaintBlend);
 			m_plantTimer.Reset(3);
 		}
 		m_plantTimer.UpdateTimer();
@@ -245,6 +252,8 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_
 
 	//定数バッファ1の草の揺れ具合を更新。
 	m_constData.m_sineWave += 0.02f;
+	//座標を保存。
+	m_constData.m_playerPos = arg_playerPos;
 	//定数バッファ1をGPUに転送。
 	m_constBuffer->Mapping(&m_constData);
 
@@ -265,6 +274,7 @@ void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 	};
 	//テクスチャ情報もセット
 	for (int texIdx = 0; texIdx < s_textureNumMax; ++texIdx)descData.emplace_back(m_texBuffer[texIdx], SRV);
+	for (int texIdx = 0; texIdx < s_textureNumMax; ++texIdx)descData.emplace_back(m_normalTexBuffer[texIdx], SRV);
 
 	//植えた草むらのカウント取得
 	int plantGrassCount = *m_plantGrassCounterBuffer->GetResource()->GetBuffOnCpu<int>();

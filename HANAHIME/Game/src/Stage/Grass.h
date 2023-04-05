@@ -102,6 +102,8 @@ class Grass
 		float m_appearEaseSpeed = 0.05f;
 		//草を揺らす際のSine量 つまり風
 		float m_sineWave = 0;
+		//プレイヤーの座標
+		KuroEngine::Vec3<float> m_playerPos;
 	}m_constData;
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_constBuffer;
 
@@ -115,6 +117,7 @@ class Grass
 
 	//テクスチャ
 	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, s_textureNumMax>m_texBuffer;
+	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, s_textureNumMax>m_normalTexBuffer;
 
 	//１フレーム前のプレイヤーの位置
 	KuroEngine::Vec3<float>m_oldPlayerPos;
