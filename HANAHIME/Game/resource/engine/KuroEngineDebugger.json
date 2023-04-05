@@ -98,6 +98,42 @@
       "textColorFlg": false
     }
   },
+  "Fog": {
+    "Color": {
+      "fogColor": {
+        "far": [
+          0.15314602851867676,
+          0.4736841917037964,
+          0.40861254930496216,
+          1.0
+        ],
+        "near": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "useTex": 0
+    },
+    "Config": {
+      "distMax": 35.75,
+      "distMin": 0.25,
+      "intensity": 1.0,
+      "opacityMax": 0.800000011920929
+    },
+    "debuggerSetting": {
+      "active": true,
+      "customParamActive": true,
+      "imageColor": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "textColorFlg": false
+    }
+  },
   "Fps": {
     "debuggerSetting": {
       "active": false,

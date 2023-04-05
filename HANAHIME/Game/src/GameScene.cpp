@@ -18,6 +18,9 @@ GameScene::GameScene()
 	m_dirLig.SetDir(dir.GetNormal());
 	m_ligMgr.RegisterDirLight(&m_dirLig);
 	m_ligMgr.RegisterPointLight(m_player.GetPointLig());
+
+	auto backBuffTarget = KuroEngine::D3D12App::Instance()->GetBackBuffRenderTarget();
+	m_fogPostEffect = std::make_shared<KuroEngine::Fog>(backBuffTarget->GetGraphSize(), backBuffTarget->GetDesc().Format);
 }
 
 
@@ -32,6 +35,7 @@ void GameScene::OnInitialize()
 	&m_vignettePostEffect,
 	&m_waterPaintBlend,
 	&m_ligMgr,
+	m_fogPostEffect.get(),
 	});
 
 	m_debugCam.Init({ 0,5,-10 });
@@ -109,7 +113,12 @@ void GameScene::OnDraw()
 	//m_waterPaintBlend.Register(main, *nowCamera, ds);
 	//m_vignettePostEffect.Register(m_waterPaintBlend.GetResultTex());
 
-	m_vignettePostEffect.Register(BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN));
+	m_fogPostEffect->Register(
+		BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN), 
+		BasicDraw::Instance()->GetRenderTarget(BasicDraw::DEPTH),
+		BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT));
+
+	m_vignettePostEffect.Register(m_fogPostEffect->GetResultTex());
 
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(
 		{
