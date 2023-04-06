@@ -112,7 +112,7 @@ void GameScene::OnUpdate()
 		cameraTransform.SetPos(cameraPos);
 		cameraTransform.SetRotate(matB);
 
-		m_movieCamera.m_directCameraTransform = cameraTransform;
+		m_movieCamera.m_directCameraTransform.SetParent(&m_player.GetCamera().lock()->GetTransform());
 		//cameraTransform.SetFront(m_player.GetCamera().lock()->GetTransform().GetFront());
 
 

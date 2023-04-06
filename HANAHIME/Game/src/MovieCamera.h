@@ -9,6 +9,7 @@ struct MovieCameraData
 {
 	KuroEngine::Vec3<float>pos;			//次の場所に向かう座標
 	KuroEngine::Vec3<float>rotation;
+	KuroEngine::Transform transform;
 	bool skipInterpolationFlag;			//座標と角度の補間をスキップするかどうか
 	int interpolationTimer;				//(秒数)
 	int stopTimer;						//カメラが定位置についてどれくらい止まるか(秒数)

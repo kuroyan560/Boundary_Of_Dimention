@@ -1,4 +1,5 @@
 #include "MovieCamera.h"
+#include<array>
 
 MovieCamera::MovieCamera() :m_startFlag(false), m_stopFlag(false), m_stopTimer(0)
 {
@@ -15,6 +16,7 @@ void MovieCamera::Update()
 		return;
 	}
 
+
 	KuroEngine::Vec3<float> pos(
 		KuroEngine::Math::Ease(
 			KuroEngine::In,
@@ -30,11 +32,14 @@ void MovieCamera::Update()
 		pos
 	);
 
-	//角度の補間
-	KuroEngine::Vec3<float> startRotate = m_moveDataArray[m_moveDataIndex].rotation;
-	KuroEngine::Vec3<float> endRotate = m_moveDataArray[m_moveDataIndex + 1].rotation;
+	KuroEngine::Transform matTransform = m_directCameraTransform;
 
-	m_nowTransform.SetRotate(
+	//角度の補間
+	KuroEngine::Vec3<float> startRotate = { matTransform.GetRotate().m128_f32[0],matTransform.GetRotate().m128_f32[1],matTransform.GetRotate().m128_f32[2] };
+	KuroEngine::Quaternion defaultQ = startRotate;
+	KuroEngine::Vec3<float> endRotate = { defaultQ.m128_f32[0],defaultQ.m128_f32[1],defaultQ.m128_f32[2] };
+
+	KuroEngine::Quaternion result(
 		KuroEngine::Math::Ease(
 			KuroEngine::In,
 			KuroEngine::Cubic,
@@ -43,9 +48,11 @@ void MovieCamera::Update()
 			endRotate
 		)
 	);
+	matTransform.SetRotate(defaultQ);
+
 
 	//現在はプレイヤーカメラの情報をそのまま代入してカメラの位置が取れているか確認している
-	m_nowTransform = m_directCameraTransform;
+	m_nowTransform = matTransform;
 
 	m_timerArray[m_moveDataIndex].UpdateTimer();
 

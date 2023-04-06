@@ -21,7 +21,7 @@ StageManager::StageManager()
 
 	//ホームステージ
 	m_stageArray[1] = std::make_shared<Stage>();
-	m_stageArray[1]->Load("resource/user/level/", "Home.json");
+	m_stageArray[1]->Load("resource/user/level/", "New_Home.json");
 	m_stageArray[1]->TerrianInit(m_terrianScaling);
 
 
