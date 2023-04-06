@@ -404,6 +404,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		}
 		else {
 
+			//カメラのY軸回転でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
 			ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_cameraRotY);
 
 			//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
