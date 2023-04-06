@@ -62,7 +62,7 @@ class Player : public KuroEngine::Debugger
 	float m_brake = 0.07f;
 
 	//壁移動の距離
-	const float WALL_JUMP_LENGTH = 3.0f;
+	const float WALL_JUMP_LENGTH = 6.0f;
 
 	//接地フラグ
 	bool m_isFirstOnGround;	//開始時に空中から始まるので、着地済みだということを判断する用変数。
@@ -71,6 +71,24 @@ class Player : public KuroEngine::Debugger
 
 	//Imguiデバッグ関数オーバーライド
 	void OnImguiItems()override;
+
+	//プレイヤーの動きのステータス
+	enum class PLAYER_MOVE_STATUS {
+		NONE,
+		MOVE,	//通常移動中
+		JUMP,	//ジャンプ中(補間中)
+	}m_playerMoveStatus;
+
+	//プレイヤーのジャンプに関する変数
+	KuroEngine::Vec3<float> m_jumpStartPos;
+	KuroEngine::Vec3<float> m_jumpEndPos;
+	XMVECTOR m_jumpStartQ;
+	XMVECTOR m_jumpEndQ;
+	float m_jumpTimer;
+	const float JUMP_TIMER = 0.1f;
+
+	std::vector<KuroEngine::Vec3<float>> m_lineStart;
+	std::vector<KuroEngine::Vec3<float>> m_lineEnd;
 
 
 	struct HitCheckResult
@@ -163,5 +181,12 @@ private:
 	/// <param name="arg_collisionData"> 引数をまとめた構造体 </param>
 	/// <param name="arg_rayID"> レイの種類 </param>
 	bool CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument& arg_collisionData, RAY_ID arg_rayID);
+
+	//移動させる。
+	void Move(KuroEngine::Vec3<float>& arg_newPos);
+
+	//当たり判定
+	void CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<float>& arg_nowpos, const std::weak_ptr<Stage>arg_nowStage);
+
 };
 
