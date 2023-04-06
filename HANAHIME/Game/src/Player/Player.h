@@ -50,6 +50,7 @@ class Player : public KuroEngine::Debugger
 
 	//Y軸回転量
 	float m_cameraRotY;	//カメラのY軸回転量。この角度をもとにプレイヤーの移動方向を判断する。
+	float m_cameraRotYStorage;	//カメラのY軸回転量。
 	float m_playerRotY;	//プレイヤーのY軸回転量。これは見た目上移動方向に向かせるため。正面ベクトルとかに影響が出ないようにしなければならない。
 	XMVECTOR m_cameraQ;	//プレイヤーのY軸回転量を抜いた、カメラ方向のみを向いた場合の回転
 	XMVECTOR m_moveQ;	//プレイヤーのY軸回転量を抜いた、プレイヤーの移動方向のみを向いた場合の回転
@@ -70,10 +71,6 @@ class Player : public KuroEngine::Debugger
 
 	//Imguiデバッグ関数オーバーライド
 	void OnImguiItems()override;
-
-
-	//デバッグ
-	std::vector<KuroEngine::Transform> m_debugTransform;
 
 
 	struct HitCheckResult
@@ -108,6 +105,7 @@ public:
 
 	//点光源ゲッタ
 	KuroEngine::Light::Point* GetPointLig() { return &m_ptLig; }
+	bool GetOnGround() { return m_onGround; }
 
 
 private:
@@ -121,10 +119,20 @@ private:
 	};
 	//発射するレイのID
 	enum class RAY_ID {
+
+		CHECK_CLIFF,	//崖かどうかをチェックする用
 		GROUND,	//地上向かって飛ばすレイ。設置判定で使用する。
 		AROUND,	//周囲に向かって飛ばすレイ。壁のぼり判定で使用する。
 		CLIFF,	//崖で明日もとに向かって飛ばすレイ。崖を降りる際に使用する。
 		DEBUG,
+	};
+	//発射するレイの方向
+	enum class RAY_DIR {
+		FORWARD = 0,
+		BEHIND = 1,
+		RIGHT = 2,
+		LEFT = 3,
+		NONE,
 	};
 	/// <summary>
 	/// レイとメッシュの当たり判定
@@ -143,12 +151,15 @@ private:
 
 	//CastRayに渡すデータ用構造体
 	struct CastRayArgument {
+		KuroEngine::Vec3<float> m_fromPos;			//移動前の座標
 		std::vector<Terrian::Polygon> m_mesh;		//判定を行う対象のメッシュ
 		KuroEngine::Transform m_targetTransform;	//判定を行う対象のトランスフォーム
+		std::array<bool, 4>& m_isCliff;				//崖際にいるかをチェックする用。
+		std::array<bool, 4>& m_isAround;			//周囲のレイが壁際に当たったかをチェックする用。
 		bool& m_onGround;							//接地フラグ
 		bool& m_isHitWall;							//レイが壁に当たったかどうか
 		HitCheckResult& m_hitResult;				//当たり判定結果データ
-		CastRayArgument(bool& arg_onGround, bool& arg_isHitWall, HitCheckResult& arg_hitResult) : m_onGround(arg_onGround), m_isHitWall(arg_isHitWall), m_hitResult(arg_hitResult) {};
+		CastRayArgument(bool& arg_onGround, bool& arg_isHitWall, HitCheckResult& arg_hitResult, std::array<bool, 4>& arg_isCliff, std::array<bool, 4>& arg_isAround) : m_onGround(arg_onGround), m_isHitWall(arg_isHitWall), m_hitResult(arg_hitResult), m_isCliff(arg_isCliff), m_isAround(arg_isAround) {};
 	};
 
 	/// <summary>
@@ -160,7 +171,6 @@ private:
 	/// <param name="arg_rayLength"> レイの長さ </param>
 	/// <param name="arg_collisionData"> 引数をまとめた構造体 </param>
 	/// <param name="arg_rayID"> レイの種類 </param>
-	void CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument arg_collisionData, RAY_ID arg_rayID);
-
+	bool CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument arg_collisionData, RAY_ID arg_rayID, RAY_DIR arg_rayDirID);
 };
 

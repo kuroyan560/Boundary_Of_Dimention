@@ -17,10 +17,17 @@ namespace KuroEngine
 	class CubeMap;
 	class GraphicsPipeline;
 	class ConstantBuffer;
+	class RenderTarget;
 };
 
 class BasicDraw : public KuroEngine::DesignPattern::Singleton<BasicDraw>, public KuroEngine::Debugger
 {
+public:
+	//レンダーターゲット
+	enum RENDER_TARGET_TYPE { MAIN, EMISSIVE, DEPTH, NORMAL, EDGE_COLOR, BRIGHT, NUM };
+
+private:
+
 	friend class KuroEngine::DesignPattern::Singleton<BasicDraw>;
 	BasicDraw();
 
@@ -30,6 +37,7 @@ class BasicDraw : public KuroEngine::DesignPattern::Singleton<BasicDraw>, public
 		//明るさのしきい値（範囲を持たせている）
 		float m_brightThresholdLow = 0.66f;
 		float m_brightThresholdRange = 0.03f;
+		float m_monochromeRate = 0.3f;
 	};
 	ToonCommonParameter m_toonCommonParam;
 
@@ -71,12 +79,13 @@ class BasicDraw : public KuroEngine::DesignPattern::Singleton<BasicDraw>, public
 	std::array<std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>, 2>m_instancingDrawPipeline;
 	std::vector<std::shared_ptr<KuroEngine::ConstantBuffer>>m_drawTransformBuffHuge;
 
-
 	//エッジ出力＆描画
 	std::shared_ptr<KuroEngine::GraphicsPipeline>m_edgePipeline;
 	std::unique_ptr<KuroEngine::SpriteMesh>m_spriteMesh;
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_edgeShaderParamBuff;
 
+	std::array<std::shared_ptr<KuroEngine::RenderTarget>, RENDER_TARGET_TYPE::NUM>m_renderTargetArray;
+	
 	void OnImguiItems()override;
 
 public:
@@ -89,6 +98,8 @@ public:
 	}
 
 	void Update(KuroEngine::Vec3<float>arg_playerPos);
+
+	void RenderTargetsClearAndSet(std::weak_ptr<KuroEngine::DepthStencil>arg_ds);
 
 	/// <summary>
 	/// 描画
@@ -149,11 +160,9 @@ public:
 		const float& arg_depth = 0.0f,
 		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr);
 
-	/// <summary>
-	/// エッジ描画
-	/// </summary>
-	/// <param name="arg_depthMap">深度マップ</param>
-	/// <param name="arg_normalMap">法線マップ</param>
-	/// <param name="arg_edgeColorMap">エッジカラーマップ</param>
-	void DrawEdge(std::shared_ptr<KuroEngine::TextureBuffer>arg_depthMap, std::shared_ptr<KuroEngine::TextureBuffer>arg_normalMap, std::shared_ptr<KuroEngine::TextureBuffer>arg_edgeColorMap);
+	//エッジ描画
+	void DrawEdge();
+
+	//メインのレンダーターゲットゲッタ
+	std::shared_ptr<KuroEngine::RenderTarget>& GetRenderTarget(RENDER_TARGET_TYPE arg_type) { return m_renderTargetArray[arg_type]; }
 };

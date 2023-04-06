@@ -8,6 +8,7 @@ struct ToonCommonParameter
 {
     float m_brightThresholdLow;
     float m_brightThresholdRange;
+    float m_monochromeRate;
 };
 
 struct ToonIndividualParameter
@@ -17,6 +18,7 @@ struct ToonIndividualParameter
     float4 m_darkMulColor;
     float4 m_edgeColor;
     int m_drawMask;
+    int m_isPlayer;
 };
 
 cbuffer cbuff0 : register(b0)
@@ -135,6 +137,7 @@ struct PSOutput
     float depth : SV_Target2;
     float4 normal : SV_Target3;
     float4 edgeColor : SV_Target4;
+    uint4 bright : SV_Target5;
 };
 
 PSOutput PSmain(VSOutput input) : SV_TARGET
@@ -266,8 +269,13 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
         affect = 0.0f;
     bright *= affect;
     //bright = smoothstep(0.45f, 0.47f, bright);
-    bright = step(0.45f, bright);
-    result.xyz *= lerp(0.5f, 1.0f, bright);
+    int isBright = step(0.45f, bright);
+    if (toonIndividualParam.m_isPlayer)
+        isBright = 1;
+    result.xyz *= lerp(0.5f, 1.0f, isBright);
+    
+    //åıÇ™ìñÇΩÇ¡ÇƒÇ¢Ç»Ç¢Ç»ÇÁÉÇÉmÉNÉçâª
+    result.xyz = lerp(lerp(result.xyz, Monochrome(result.xyz), toonCommonParam.m_monochromeRate), result.xyz, isBright);
     
     PSOutput output;
     output.color = result;
@@ -283,7 +291,9 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     
     output.normal.xyz = input.normal;
 
-    output.edgeColor = toonIndividualParam.m_edgeColor;
+    output.edgeColor = toonIndividualParam.m_edgeColor * lerp(0.2f, 1.0f, isBright);
+    
+    output.bright.x = isBright;
     
     return output;
 }

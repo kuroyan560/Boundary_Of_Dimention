@@ -53,12 +53,13 @@ class Grass
 	//草むらのイニシャライザ情報
 	struct GrassInitializer
 	{
-		KuroEngine::Vec3<float>m_posScatter;
+		KuroEngine::Vec3<float>m_pos;
+		KuroEngine::Vec3<float>m_up;
 		float m_sineLength;
 		int m_texIdx;
 	};
 	//一度に生成できる最大数
-	static const int GENERATE_MAX_ONCE = 20;
+	static const int GENERATE_MAX_ONCE = 2000;
 	//生成予定の草むらイニシャライザの配列
 	std::vector<GrassInitializer>m_grassInitializerArray;
 	//生成予定の草むらイニシャライザ配列バッファ
@@ -84,11 +85,9 @@ class Grass
 	//専用の定数バッファに送るプレイヤーのトランスフォーム情報
 	struct TransformCBVData
 	{
-		KuroEngine::Vec3<float>m_playerPos;
-		int pad0;
-		KuroEngine::Vec3<float>m_playerUp;
-		int pad1;
 		KuroEngine::Vec3<float>m_camPos;
+		float pad;
+		KuroEngine::Vec3<float>m_checkPlantPos;
 	};
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_otherTransformConstBuffer;
 
@@ -103,6 +102,8 @@ class Grass
 		float m_appearEaseSpeed = 0.05f;
 		//草を揺らす際のSine量 つまり風
 		float m_sineWave = 0;
+		//プレイヤーの座標
+		KuroEngine::Vec3<float> m_playerPos;
 	}m_constData;
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_constBuffer;
 
@@ -116,6 +117,7 @@ class Grass
 
 	//テクスチャ
 	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, s_textureNumMax>m_texBuffer;
+	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, s_textureNumMax>m_normalTexBuffer;
 
 	//１フレーム前のプレイヤーの位置
 	KuroEngine::Vec3<float>m_oldPlayerPos;
@@ -125,7 +127,7 @@ class Grass
 public:
 	Grass();
 	void Init();
-	void Update(const float arg_timeScale, const KuroEngine::Vec3<float> arg_playerPos, const KuroEngine::Quaternion arg_playerRotate, KuroEngine::Transform arg_camTransform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
+	void Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, bool arg_playerOnGround, KuroEngine::Transform arg_camTransform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
 
 	/// <summary>
@@ -141,8 +143,8 @@ private:
 	/// <summary>
 	/// 周囲に草が生えているかをチェックする。
 	/// </summary>
-	/// <param name="arg_playerPos"> チェックする座標 </param>
+	/// <param name="arg_checkPos"> チェックする座標 </param>
 	/// <returns> t:生えている  f:生えていない </returns>
-	bool IsGrassAround(const KuroEngine::Vec3<float> arg_playerPos);
+	bool IsGrassAround(const KuroEngine::Vec3<float> arg_checkPos);
 
 };

@@ -4,7 +4,8 @@
 //植える草の初期化値
 struct GrassInitializer
 {
-    float3 m_posScatter;
+    float3 m_pos;
+    float3 m_up;
     float m_sineLength;
     int m_texIdx;
 };
@@ -44,13 +45,10 @@ void Appear(uint DTid : SV_DispatchThreadID)
 {
     PlantGrass newGrass;
     
-    //プレイヤートランスフォームに合わせて植える
-    newGrass.m_pos = otherTransformData.m_playerPos;
-    newGrass.m_normal = otherTransformData.m_playerUp;
-    
     //イニシャライザを取得して初期化
     GrassInitializer initializer = stackGrassInitializerBuffer[DTid];
-    newGrass.m_pos += initializer.m_posScatter;
+    newGrass.m_pos = initializer.m_pos;
+    newGrass.m_normal = initializer.m_up;
     newGrass.m_sineLength = initializer.m_sineLength;
     newGrass.m_texIdx = initializer.m_texIdx;
     newGrass.m_appearYTimer = 0;
@@ -79,7 +77,7 @@ void Update(uint DTid : SV_DispatchThreadID)
 void Check(uint DTid : SV_DispatchThreadID)
 {
     //草むらを生やす予定の位置(プレイヤーの位置)取得
-    float3 appearPos = otherTransformData.m_playerPos;
+    float3 appearPos = otherTransformData.m_checkPlantPos;
     
     //データ取得
     PlantGrass grass = aliveGrassBuffer[DTid];

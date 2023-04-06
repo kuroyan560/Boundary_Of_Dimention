@@ -6,8 +6,8 @@
 #include"Graphics/CanvasPostEffect.h"
 #include"ForUser/PostEffect/Vignette.h"
 #include"Stage/Grass.h"
-#include"ForUser/PostEffect/DOF.h"
 #include"Graphics/WaterPaintBlend.h"
+#include"ForUser/PostEffect/Fog.h"
 #include"Stage/StageSelect.h"
 #include"SceneChange.h"
 #include"MovieCamera.h"
@@ -24,6 +24,9 @@ class GameScene : public KuroEngine::BaseScene
 	KuroEngine::LightManager m_ligMgr;
 	//ディレクションライト
 	KuroEngine::Light::Direction m_dirLig;
+
+	//フォグポストエフェクト
+	std::shared_ptr<KuroEngine::Fog>m_fogPostEffect;
 
 	//ヴィネットポストエフェクト
 	KuroEngine::Vignette m_vignettePostEffect;
@@ -44,6 +47,8 @@ class GameScene : public KuroEngine::BaseScene
 	SceneChange m_gateSceneChange;
 
 	MovieCamera m_movieCamera;
+
+	std::shared_ptr<KuroEngine::Camera>m_nowCam;
 
 	void OnInitialize()override;
 	void OnUpdate()override;

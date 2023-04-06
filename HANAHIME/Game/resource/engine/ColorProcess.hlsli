@@ -148,3 +148,10 @@ float3 ChangeHue(float3 color, float param)
  
     return ConvertToRGB(hsv);
 }
+
+//ÉÇÉmÉNÉçâª
+float3 Monochrome(float3 color)
+{
+    float gray = color.r * 0.298912f + color.g * 0.586611f + color.b * 0.114478f;
+    return float3(gray, gray, gray);
+}
