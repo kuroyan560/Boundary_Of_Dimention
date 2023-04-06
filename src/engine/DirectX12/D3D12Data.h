@@ -137,6 +137,8 @@ namespace KuroEngine
 		const D3D12_RESOURCE_STATES& GetResourceBarrier() { return m_barrier; }
 
 		//マッピング
+		void Mapping();
+		//マッピング（初期化情報の送信）
 		void Mapping(const size_t& DataSize, const int& ElementNum, const void* SendData, const int OffsetElementNum = 0);
 		//リソースバリアの変更
 		void ChangeBarrier(const ComPtr<ID3D12GraphicsCommandList>& CmdList, const D3D12_RESOURCE_STATES& NewBarrier);

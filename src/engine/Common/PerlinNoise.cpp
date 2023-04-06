@@ -122,33 +122,23 @@ void KuroEngine::PerlinNoise::DrawToTex(std::shared_ptr<TextureBuffer> DestTex, 
 	//構造化バッファに転送
 	STRUCTURED_BUFF->Mapping(grad);
 
-	//コマンドリスト取得
-	auto cmdList = D3D12App::Instance()->GetCmdList();
 
-	//ディスクリプタヒープセット
-	D3D12App::Instance()->SetDescHeaps();
-
-	//パイプラインセット
-	PIPELINE->SetPipeline(cmdList);
-
-	//定数バッファセット
-	CONST_BUFF->SetComputeDescriptorBuffer(cmdList, CBV, 0);
-
-	//構造体バッファセット
-	STRUCTURED_BUFF->SetComputeDescriptorBuffer(cmdList, SRV, 1);
-
-	//描き込み先テクスチャバッファセット
-	DestTex->SetComputeDescriptorBuffer(cmdList, UAV, 2);
-
-
-	//実行
-	static const int THREAD_NUM = 16;
-	const Vec2<UINT>thread =
+	std::vector<RegisterDescriptorData>descData =
 	{
-		static_cast<UINT>((DestTex->GetGraphSize().x / THREAD_NUM) + 1),
-		static_cast<UINT>((DestTex->GetGraphSize().y / THREAD_NUM) + 1)
+		{CONST_BUFF,CBV},
+		{STRUCTURED_BUFF,SRV},
+		{DestTex,UAV},
 	};
-	cmdList->Dispatch(thread.x, thread.y, 1);
+
+	static const int THREAD_NUM = 16;
+	Vec3<int>threadNum =
+	{
+		static_cast<int>((DestTex->GetGraphSize().x / THREAD_NUM) + 1),
+		static_cast<int>((DestTex->GetGraphSize().y / THREAD_NUM) + 1),
+		1
+	};
+
+	D3D12App::Instance()->DispathOneShot(PIPELINE, threadNum, descData);
 }
 
 std::shared_ptr<KuroEngine::TextureBuffer> KuroEngine::PerlinNoise::GenerateTex(const std::string& Name, const Vec2<int>& Size, const NoiseInitializer& Config, const DXGI_FORMAT& Format)

@@ -1,10 +1,7 @@
 #include"DirectX12/D3D12Data.h"
 
-void KuroEngine::GPUResource::Mapping(const size_t& DataSize, const int& ElementNum, const void* SendData, const int OffsetElementNum)
+void KuroEngine::GPUResource::Mapping()
 {
-	//送るデータがnull
-	assert(SendData);
-
 	//まだマッピングしていなければマッピング
 	if (!m_mapped)
 	{
@@ -13,6 +10,14 @@ void KuroEngine::GPUResource::Mapping(const size_t& DataSize, const int& Element
 		assert(SUCCEEDED(hr));
 		m_mapped = true;
 	}
+}
+
+void KuroEngine::GPUResource::Mapping(const size_t& DataSize, const int& ElementNum, const void* SendData, const int OffsetElementNum)
+{
+	//送るデータがnull
+	assert(SendData);
+
+	Mapping();
 
 	char* dest = (char*)m_buffOnCPU + DataSize * OffsetElementNum;
 	memcpy((void*)dest, SendData, DataSize * ElementNum);

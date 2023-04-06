@@ -125,7 +125,7 @@ void KuroEngine::Debugger::LoadParameterLog()
 			jsonObj = &jsonObj->at(key);
 		}
 
-		if (noKey)break;
+		if (noKey)continue;
 
 		switch (param.m_type)
 		{

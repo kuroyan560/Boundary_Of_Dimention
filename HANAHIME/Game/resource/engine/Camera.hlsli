@@ -5,4 +5,6 @@ struct Camera
     matrix billBoard;
     matrix billBoardY;
     float3 eyePos;
+    float nearClip;
+    float farClip;
 };

@@ -307,6 +307,9 @@
     <ClCompile Include="..\..\src\engine\ForUser\PostEffect\DOF.cpp">
       <Filter>src\engine\ForUser\PostEffect</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\Fog.cpp">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -598,6 +601,9 @@
       <Filter>src\user\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\engine\ForUser\PostEffect\DOF.h">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\Fog.h">
       <Filter>src\engine\ForUser\PostEffect</Filter>
     </ClInclude>
   </ItemGroup>
