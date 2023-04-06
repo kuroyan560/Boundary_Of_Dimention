@@ -162,6 +162,7 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::JUMP;
 		m_jumpTimer = 0;
 		m_jumpStartPos = arg_newPos;
+		m_bezierCurveControlPos = m_jumpStartPos + m_transform.GetUp() * WALL_JUMP_LENGTH;
 		m_jumpEndPos = castRayArgument.m_impactPoint[minIndex].m_impactPos + castRayArgument.m_impactPoint[minIndex].m_normal * m_transform.GetScale().x;
 		m_jumpEndPos += m_transform.GetUp() * WALL_JUMP_LENGTH;
 
@@ -259,11 +260,13 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		//タイマーを更新。
 		m_jumpTimer = std::clamp(m_jumpTimer + JUMP_TIMER, 0.0f, 1.0f);
 
+		float easeAmount = KuroEngine::Math::Ease(Out, Sine, m_jumpTimer, 0.0f, 1.0f);
+
 		//座標を補間する。
-		newPos = m_jumpStartPos + (m_jumpEndPos - m_jumpStartPos) * m_jumpTimer;
+		newPos = CalculateBezierPoint(easeAmount, m_jumpStartPos, m_jumpEndPos, m_bezierCurveControlPos);
 
 		//回転を補完する。
-		m_transform.SetRotate(XMQuaternionSlerp(m_jumpStartQ, m_jumpEndQ, m_jumpTimer));
+		m_transform.SetRotate(XMQuaternionSlerp(m_jumpStartQ, m_jumpEndQ, easeAmount));
 
 		//上限に達していたらジャンプを終える。
 		if (1.0f <= m_jumpTimer) {
@@ -639,5 +642,19 @@ void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<flo
 		m_transform.SetRotate(m_moveQ);
 
 	}
+
+}
+
+KuroEngine::Vec3<float> Player::CalculateBezierPoint(float arg_time, KuroEngine::Vec3<float> arg_startPoint, KuroEngine::Vec3<float> arg_endPoint, KuroEngine::Vec3<float> arg_controlPoint) {
+
+	float oneMinusT = 1.0f - arg_time;
+	float oneMinusTSquared = oneMinusT * oneMinusT;
+	float tSquared = arg_time * arg_time;
+
+	float x = oneMinusTSquared * arg_startPoint.x + 2 * oneMinusT * arg_time * arg_controlPoint.x + tSquared * arg_endPoint.x;
+	float y = oneMinusTSquared * arg_startPoint.y + 2 * oneMinusT * arg_time * arg_controlPoint.y + tSquared * arg_endPoint.y;
+	float z = oneMinusTSquared * arg_startPoint.z + 2 * oneMinusT * arg_time * arg_controlPoint.z + tSquared * arg_endPoint.z;
+
+	return KuroEngine::Vec3<float>(x, y, z);
 
 }

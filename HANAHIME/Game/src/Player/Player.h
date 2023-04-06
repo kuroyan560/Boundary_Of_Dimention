@@ -82,10 +82,11 @@ class Player : public KuroEngine::Debugger
 	//プレイヤーのジャンプに関する変数
 	KuroEngine::Vec3<float> m_jumpStartPos;
 	KuroEngine::Vec3<float> m_jumpEndPos;
+	KuroEngine::Vec3<float> m_bezierCurveControlPos;
 	XMVECTOR m_jumpStartQ;
 	XMVECTOR m_jumpEndQ;
 	float m_jumpTimer;
-	const float JUMP_TIMER = 0.1f;
+	const float JUMP_TIMER = 0.07f;
 
 	std::vector<KuroEngine::Vec3<float>> m_lineStart;
 	std::vector<KuroEngine::Vec3<float>> m_lineEnd;
@@ -187,6 +188,9 @@ private:
 
 	//当たり判定
 	void CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<float>& arg_nowpos, const std::weak_ptr<Stage>arg_nowStage);
+
+	//ベジエ曲線を求める。
+	KuroEngine::Vec3<float> CalculateBezierPoint(float arg_time, KuroEngine::Vec3<float> arg_startPoint, KuroEngine::Vec3<float> arg_endPoint, KuroEngine::Vec3<float> arg_controlPoint);
 
 };
 
