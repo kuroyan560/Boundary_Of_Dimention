@@ -62,7 +62,7 @@ class Player : public KuroEngine::Debugger
 	float m_brake = 0.07f;
 
 	//壁移動の距離
-	const float WALL_JUMP_LENGTH = 6.0f;
+	const float WALL_JUMP_LENGTH = 8.0f;
 
 	//接地フラグ
 	bool m_isFirstOnGround;	//開始時に空中から始まるので、着地済みだということを判断する用変数。
