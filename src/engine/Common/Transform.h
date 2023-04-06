@@ -177,6 +177,16 @@ namespace KuroEngine
 			SetRotate(XMQuaternionMultiply(Math::GetLookAtQuaternion(GetUp(), Up), m_rotate));
 		}
 
+		//実験で用意している
+		void SetWorldMat(const Matrix &mat)
+		{
+			m_worldMat = mat;
+		};
+		//Vec3で設定した情報からMatrixを計算し直さない行列を返す
+		const Matrix &GetMatWorldWithOutDirty()
+		{
+			return m_worldMat;
+		}
 
 		//ローカル行列ゲッタ
 		const Matrix& GetMatLocal();
