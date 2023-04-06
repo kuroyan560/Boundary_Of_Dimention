@@ -37,7 +37,7 @@
       "MonochromeRate": 0.800000011920929
     },
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.3920130133628845,
@@ -49,14 +49,12 @@
     }
   },
   "CameraController": {
-    "FollowLerpRate": 0.800000011920929,
     "InitializedParameter": {
       "posOffsetZ": -18.0,
       "xAxisAngle": 0.44999998807907104
     },
-    "PosLerpRate": 0.800000011920929,
     "debuggerSetting": {
-      "active": false,
+      "active": true,
       "customParamActive": true,
       "imageColor": [
         0.1879725158214569,
@@ -124,7 +122,7 @@
       "opacityMax": 0.800000011920929
     },
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.800000011920929,

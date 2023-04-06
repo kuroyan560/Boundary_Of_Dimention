@@ -15,6 +15,11 @@ void CameraController::OnImguiItems()
 	//現在のパラメータ表示
 	if (ImGui::BeginChild("NowParam"))
 	{
+		auto pos = m_controllerTransform.GetPosWorld();
+		ImGui::Text("pos : { %.2f , %.2f , %.2f }", pos.x, pos.y, pos.z);
+		auto up = m_controllerTransform.GetUpWorld();
+		ImGui::Text("up : { %.2f , %.2f , %.2f }", up.x, up.y, up.z);
+
 		ImGui::Text("posOffsetZ : %.2f", m_nowParam.m_posOffsetZ);
 		float degree = static_cast<float>(KuroEngine::Angle::ConvertToDegree(m_nowParam.m_xAxisAngle));
 		ImGui::Text("xAxisAngle : %.2f", degree);
@@ -36,8 +41,6 @@ CameraController::CameraController()
 	AddCustomParameter("posOffsetDepthMax", { "posOffsetDepth","max"}, PARAM_TYPE::FLOAT, &m_posOffsetDepthMax, "UpdateParameter");
 	AddCustomParameter("xAxisAngleMin", { "xAxisAngle","min"}, PARAM_TYPE::FLOAT, &m_xAxisAngleMin, "UpdateParameter");
 	AddCustomParameter("xAxisAngleMax", { "xAxisAngle","max"}, PARAM_TYPE::FLOAT, &m_xAxisAngleMax, "UpdateParameter");
-	AddCustomParameter("camFowardPosLerpRate", { "PosLerpRate" }, PARAM_TYPE::FLOAT, &m_camForwardPosLerpRate, "UpdateParameter");
-	AddCustomParameter("camFollowLerpRate", { "FollowLerpRate" }, PARAM_TYPE::FLOAT, &m_camFollowLerpRate, "UpdateParameter");
 
 	LoadParameterLog();
 }
@@ -46,17 +49,21 @@ void CameraController::AttachCamera(std::shared_ptr<KuroEngine::Camera> arg_cam)
 {
 	//操作対象となるカメラのポインタを保持
 	m_attachedCam = arg_cam;
-	//コントローラーのトランスフォームを親として設定
-	arg_cam->GetTransform().SetParent(&m_camParentTransform);
+	m_attachedCam.lock()->GetTransform().SetParent(&m_controllerTransform);
+	m_controllerTransform.SetParent(&m_copyPlayerTransform);
 }
 
-void CameraController::Init()
+void CameraController::Init(const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Quaternion& arg_playerRotate)
 {
 	m_nowParam = m_initializedParam;
 	m_verticalControl = ANGLE;
+
+	//プレイヤーのトランスフォームを補間なしでそのままコピー
+	m_copyPlayerTransform.SetPos(arg_playerPos);
+	m_copyPlayerTransform.SetRotate(arg_playerRotate);
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Vec3<float>arg_targetPos)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Quaternion& arg_playerRotate)
 {
 	using namespace KuroEngine;
 	
@@ -84,15 +91,16 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	m_nowParam.m_posOffsetZ = std::clamp(m_nowParam.m_posOffsetZ, m_posOffsetDepthMin, m_posOffsetDepthMax);
 	m_nowParam.m_xAxisAngle = std::clamp(m_nowParam.m_xAxisAngle, m_xAxisAngleMin, m_xAxisAngleMax);
 
+	//プレイヤーのトランスフォームを補間しながらコピー
+	m_copyPlayerTransform.SetPos(Math::Lerp(m_copyPlayerTransform.GetPos(), arg_playerPos, m_playerPosLerpRate));
+	m_copyPlayerTransform.SetRotate(XMQuaternionSlerp(m_copyPlayerTransform.GetRotate(), arg_playerRotate, m_playerQuaternionLerpRate));
+
 	//操作するカメラのトランスフォーム（前後移動）更新
 	auto& transform = m_attachedCam.lock()->GetTransform();
 	Vec3<float> localPos = { 0,0,0 };
 	localPos.z = m_nowParam.m_posOffsetZ;
 	localPos.y = m_gazePointOffset.y + tan(-m_nowParam.m_xAxisAngle) * m_nowParam.m_posOffsetZ;
-	transform.SetPos(Math::Lerp(transform.GetPos(), localPos, m_camForwardPosLerpRate));
-	transform.SetRotate(Vec3<float>::GetXAxis(), m_nowParam.m_xAxisAngle);
-
-	//コントローラーのトランスフォーム（対象の周囲、左右移動）更新
-	m_camParentTransform.SetRotate(Vec3<float>::GetYAxis(), m_nowParam.m_yAxisAngle);
-	m_camParentTransform.SetPos(Math::Lerp(m_camParentTransform.GetPos(), arg_targetPos, m_camFollowLerpRate));
+	localPos = Math::TransformVec3(localPos, { 0.0f,1.0f,0.0f }, m_nowParam.m_yAxisAngle);
+	m_controllerTransform.SetPos(localPos);
+	m_controllerTransform.SetRotate(m_nowParam.m_xAxisAngle, m_nowParam.m_yAxisAngle,0.0f );
 }
