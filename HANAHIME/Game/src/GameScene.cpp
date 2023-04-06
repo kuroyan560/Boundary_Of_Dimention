@@ -108,22 +108,11 @@ void GameScene::OnUpdate()
 			matA.r[3].m128_f32[2]
 		);
 	
-		KuroEngine::Transform cameraTransform;
-		cameraTransform.SetPos(cameraPos);
-		cameraTransform.SetRotate(matB);
-
-		m_movieCamera.m_directCameraTransform.SetParent(&m_player.GetCamera().lock()->GetTransform());
-		//cameraTransform.SetFront(m_player.GetCamera().lock()->GetTransform().GetFront());
-
-
 		MovieCameraData data;
 		{
 			//上向きに見ている
 			KuroEngine::Transform upVec;
 			upVec.SetPos({ 3.7f,36.0f,-29.0f });
-
-			data.pos = upVec.GetPos();
-			data.rotation = { 0.0f,20.0f,0.0f };
 			data.stopTimer = 1;
 			data.interpolationTimer = 2;
 			moveDataArray.emplace_back(data);
@@ -133,9 +122,6 @@ void GameScene::OnUpdate()
 			//下向きに見る
 			KuroEngine::Transform downVec;
 			downVec.SetPos({ 3.7f,36.0f,-29.0f });
-
-			data.pos = downVec.GetPos();
-			data.rotation = { 0.0f,-20.0f,0.0f };
 			data.stopTimer = 2;
 			data.interpolationTimer = 1;
 			moveDataArray.emplace_back(data);
@@ -143,16 +129,13 @@ void GameScene::OnUpdate()
 
 		{
 			//プレイヤーの位置に戻る
-			data.pos = cameraPos;
-			data.rotation = {};
 			data.stopTimer = 2;
 			data.interpolationTimer = 3;
 			moveDataArray.emplace_back(data);
 		}
 
 		m_movieCamera.StartMovie(
-			cameraPos,
-			m_player.GetCamera().lock()->GetTransform().GetFrontWorld(),
+			m_player.GetCamera().lock()->GetTransform(),
 			moveDataArray
 		);
 	}

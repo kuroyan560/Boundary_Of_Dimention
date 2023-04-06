@@ -17,43 +17,15 @@ void MovieCamera::Update()
 	}
 
 
-	KuroEngine::Vec3<float> pos(
-		KuroEngine::Math::Ease(
-			KuroEngine::In,
-			KuroEngine::Cubic,
-			m_timerArray[m_moveDataIndex].GetTimeRate(),
-			m_moveDataArray[m_moveDataIndex].pos,
-			m_moveDataArray[m_moveDataIndex + 1].pos
-		));
-
-
-	//座標の補間
-	m_nowTransform.SetPos(
-		pos
-	);
-
-	KuroEngine::Transform matTransform = m_directCameraTransform;
-
-	//角度の補間
-	KuroEngine::Vec3<float> startRotate = { matTransform.GetRotate().m128_f32[0],matTransform.GetRotate().m128_f32[1],matTransform.GetRotate().m128_f32[2] };
-	KuroEngine::Quaternion defaultQ = startRotate;
-	KuroEngine::Vec3<float> endRotate = { defaultQ.m128_f32[0],defaultQ.m128_f32[1],defaultQ.m128_f32[2] };
-
-	KuroEngine::Quaternion result(
-		KuroEngine::Math::Ease(
-			KuroEngine::In,
-			KuroEngine::Cubic,
-			m_timerArray[m_moveDataIndex].GetTimeRate(),
-			startRotate,
-			endRotate
-		)
-	);
-	matTransform.SetRotate(defaultQ);
+	//制御点の開始地点
+	KuroEngine::Matrix matA = m_moveDataArray[m_moveDataIndex].transform.GetMatWorldWithOutDirty();
+	//制御点の終了地点
+	KuroEngine::Matrix matB = m_moveDataArray[m_moveDataIndex + 1].transform.GetMatWorldWithOutDirty();
+	//行列の補間
+	m_nowTransform.SetWorldMat(Ease(matA, matB, m_timerArray[m_moveDataIndex].GetTimeRate(), m_moveDataArray[m_moveDataIndex].easeData));
 
 
 	//現在はプレイヤーカメラの情報をそのまま代入してカメラの位置が取れているか確認している
-	m_nowTransform = matTransform;
-
 	m_timerArray[m_moveDataIndex].UpdateTimer();
 
 
@@ -85,11 +57,11 @@ void MovieCamera::Update()
 	}
 
 	auto &copy = m_cam->GetTransform();
-	copy = m_nowTransform;
+	copy.SetParent(&m_nowTransform);
 
 }
 
-void MovieCamera::StartMovie(KuroEngine::Vec3<float> camera_pos, KuroEngine::Vec3<float> front_vec, std::vector<MovieCameraData> move_data)
+void MovieCamera::StartMovie(KuroEngine::Transform transform, std::vector<MovieCameraData> move_data)
 {
 	//データが二個未満は機能しない
 	if (move_data.size() < 2)
@@ -106,6 +78,8 @@ void MovieCamera::StartMovie(KuroEngine::Vec3<float> camera_pos, KuroEngine::Vec
 	{
 		m_timerArray.emplace_back(static_cast<float>(m_moveDataArray[i].interpolationTimer * 60));
 	}
+
+	m_directCameraTransform.SetWorldMat(transform.GetMatWorld());
 }
 
 bool MovieCamera::IsStart()
