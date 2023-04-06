@@ -260,6 +260,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_transform = arg_initTransform;
 	m_camController.Init();
 	m_cameraRotY = 0;
+	m_cameraRotYStorage = 0;
 	m_cameraQ = DirectX::XMQuaternionIdentity();
 
 	m_moveSpeed = KuroEngine::Vec3<float>();
@@ -322,7 +323,10 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
 
 	//カメラの回転を保存。
-	m_cameraRotY += scopeMove.x;
+	m_cameraRotYStorage += scopeMove.x;
+	if (m_rowMoveVec.Length() <= 0) {
+		m_cameraRotY = m_cameraRotYStorage;
+	}
 
 	//プレイヤーの回転を保存。入力があったときは。
 	if (0 < m_rowMoveVec.Length()) {
