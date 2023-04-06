@@ -34,6 +34,8 @@ class GameScene : public KuroEngine::BaseScene
 	//水彩画風ブレンドポストエフェクト
 	WaterPaintBlend m_waterPaintBlend;
 
+	std::shared_ptr<KuroEngine::Camera>m_nowCam;
+
 	void OnInitialize()override;
 	void OnUpdate()override;
 	void OnDraw()override;

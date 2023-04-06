@@ -48,6 +48,8 @@ void KuroEngine::Camera::CameraInfoUpdate()
 		{
 			cameraInfo.matProjection = DirectX::XMMatrixOrthographicLH(width, height, nearZ, farZ);
 		}
+		cameraInfo.nearClip = nearZ;
+		cameraInfo.farClip = farZ;
 
 		buff->Mapping(&cameraInfo);
 
