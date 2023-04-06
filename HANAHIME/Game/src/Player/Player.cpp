@@ -614,6 +614,11 @@ void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<flo
 	HitCheckResult hitResult;
 	if (!HitCheckAndPushBack(arg_frompos, arg_nowpos, arg_nowStage.lock()->GetTerrianArray(), &hitResult))return;
 
+	//地形の法線が真下を向いているときに誤差できれいに0,-1,0になってくれないせいでうまくいかないので苦肉の策。
+	if (hitResult.m_terrianNormal.y < -0.9f) {
+		hitResult.m_terrianNormal = { 0,-1,0 };
+	}
+
 	//法線方向を見るクォータニオン
 	auto spin = KuroEngine::Math::GetLookAtQuaternion({ 0,1,0 }, hitResult.m_terrianNormal);
 
