@@ -28,6 +28,7 @@ private:
 
 	//テクスチャ関連の情報----------------------------------------
 	float m_alpha;
+	KuroEngine::Vec2<float>m_size;
 	std::shared_ptr<KuroEngine::TextureBuffer> m_blackTexBuff;
 	//テクスチャ関連の情報----------------------------------------
 

@@ -8,6 +8,7 @@
 
 #include"ForUser/JsonData.h"
 #include"Graphics/BasicDraw.h"
+#include"../../../src/engine/FrameWork/UsersInput.h"
 
 GameScene::GameScene()
 {
@@ -38,7 +39,7 @@ void GameScene::OnInitialize()
 	m_debugCam.Init({ 0,5,-10 });
 
 	KuroEngine::Transform playerInitTransform;
-	playerInitTransform.SetPos({ 30.0f,50.0f,-45 });
+	playerInitTransform.SetPos({ 3.7f,26.0f,-39.0f });
 	m_player.Init(playerInitTransform);
 
 	m_grass.Init();
@@ -89,6 +90,76 @@ void GameScene::OnUpdate()
 	//ホームでの処理----------------------------------------
 
 	m_gateSceneChange.Update();
+
+
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_O))
+	{
+		std::vector<MovieCameraData>moveDataArray;
+
+		//プレイヤーカメラの親子関係を考慮したワールド行列
+		auto matA = m_player.GetCamera().lock()->GetTransform().GetMatWorld();
+		//プレイヤーカメラの親子関係を考慮した回転行列
+		auto matB = XMMatrixRotationQuaternion(m_player.GetCamera().lock()->GetTransform().GetRotateWorld());
+
+
+		KuroEngine::Vec3<float> cameraPos(
+			matA.r[3].m128_f32[0],
+			matA.r[3].m128_f32[1],
+			matA.r[3].m128_f32[2]
+		);
+	
+		KuroEngine::Transform cameraTransform;
+		cameraTransform.SetPos(cameraPos);
+		cameraTransform.SetRotate(matB);
+
+		m_movieCamera.m_directCameraTransform = cameraTransform;
+		//cameraTransform.SetFront(m_player.GetCamera().lock()->GetTransform().GetFront());
+
+
+		MovieCameraData data;
+		{
+			//上向きに見ている
+			KuroEngine::Transform upVec;
+			upVec.SetPos({ 3.7f,36.0f,-29.0f });
+
+			data.pos = upVec.GetPos();
+			data.rotation = { 0.0f,20.0f,0.0f };
+			data.stopTimer = 1;
+			data.interpolationTimer = 2;
+			moveDataArray.emplace_back(data);
+		}
+
+		{
+			//下向きに見る
+			KuroEngine::Transform downVec;
+			downVec.SetPos({ 3.7f,36.0f,-29.0f });
+
+			data.pos = downVec.GetPos();
+			data.rotation = { 0.0f,-20.0f,0.0f };
+			data.stopTimer = 2;
+			data.interpolationTimer = 1;
+			moveDataArray.emplace_back(data);
+		}
+
+		{
+			//プレイヤーの位置に戻る
+			data.pos = cameraPos;
+			data.rotation = {};
+			data.stopTimer = 2;
+			data.interpolationTimer = 3;
+			moveDataArray.emplace_back(data);
+		}
+
+		m_movieCamera.StartMovie(
+			cameraPos,
+			m_player.GetCamera().lock()->GetTransform().GetFrontWorld(),
+			moveDataArray
+		);
+	}
+
+	
+	m_movieCamera.Update();
+
 
 
 
@@ -143,7 +214,13 @@ void GameScene::OnDraw()
 		ds
 	);
 
+
 	auto nowCamera = m_player.GetCamera().lock();
+	if (m_movieCamera.IsStart())
+	{
+		nowCamera = m_movieCamera.GetCamera().lock();
+	}
+
 	if (DebugController::Instance()->IsActive())nowCamera = m_debugCam;
 
 	//ステージ描画
@@ -168,10 +245,13 @@ void GameScene::OnDraw()
 
 	m_stageSelect.Draw(*nowCamera, m_ligMgr);
 
-	m_gateSceneChange.Draw();
+	m_movieCamera.DebugDraw(*nowCamera, m_ligMgr);
 
 	//m_canvasPostEffect.Execute();
 	BasicDraw::Instance()->DrawEdge(depthMap, normalMap, edgeColMap);
+
+
+	m_gateSceneChange.Draw();
 
 	//KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 	//m_waterPaintBlend.Register(main, *nowCamera, ds);

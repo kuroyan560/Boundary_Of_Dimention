@@ -45,7 +45,7 @@ public:
 			auto transformObj = obj["transform"];
 
 			//ïΩçsà⁄ìÆ
-			KuroEngine::Vec3<float>translation = { -(float)transformObj["translation"][0] * terrian_Scale,(float)transformObj["translation"][2] * terrian_Scale + 25.0f,-(float)transformObj["translation"][1] * terrian_Scale };
+			KuroEngine::Vec3<float>translation = { (float)transformObj["translation"][0] * terrian_Scale+25.0f,(float)transformObj["translation"][2] * terrian_Scale + 25.0f,(float)transformObj["translation"][1] * terrian_Scale };
 
 			//âÒì]
 			KuroEngine::Vec3<float>rotate = { -(float)transformObj["rotation"][1],-(float)transformObj["rotation"][2], (float)transformObj["rotation"][0] };

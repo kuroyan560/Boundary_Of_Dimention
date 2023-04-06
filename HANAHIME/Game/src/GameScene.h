@@ -10,6 +10,7 @@
 #include"Graphics/WaterPaintBlend.h"
 #include"Stage/StageSelect.h"
 #include"SceneChange.h"
+#include"MovieCamera.h"
 
 class GameScene : public KuroEngine::BaseScene
 {
@@ -41,6 +42,8 @@ class GameScene : public KuroEngine::BaseScene
 
 	int m_stageNum;
 	SceneChange m_gateSceneChange;
+
+	MovieCamera m_movieCamera;
 
 	void OnInitialize()override;
 	void OnUpdate()override;

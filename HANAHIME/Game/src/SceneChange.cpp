@@ -1,13 +1,15 @@
 #include "SceneChange.h"
 #include"../../../src/engine/ForUser/DrawFunc/2D/DrawFunc2D.h"
 #include"../../../src/engine/DirectX12/D3D12App.h"
+#include"../../../src/engine/FrameWork/WinApp.h"
 
 SceneChange::SceneChange() :
 	m_time(60),
 	m_startFlag(false), m_blackOutFlag(false),
 	m_countTimeUpNum(0),
-	m_blackTexBuff(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(KuroEngine::Color(255, 255, 255, 255))),
-	m_alpha(0.0f)
+	m_blackTexBuff(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(KuroEngine::Color(0, 0, 0, 255))),
+	m_alpha(0.0f),
+	m_size(KuroEngine::WinApp::Instance()->GetWinSize().Float())
 {
 }
 
@@ -21,14 +23,14 @@ void SceneChange::Update()
 	//ˆÃ“]’†
 	if (m_countTimeUpNum == 0)
 	{
-		m_alpha = 255.0f * m_time.GetTimeRate();
+		m_alpha = m_time.GetTimeRate();
 		m_blackOutFlag = m_time.IsTimeUp();
 	}
 	//–¾“]’†
 	else
 	{
 		m_blackOutFlag = false;
-		m_alpha = 255.0f * m_time.GetInverseTimeRate();
+		m_alpha = m_time.GetInverseTimeRate();
 	}
 	m_alpha = std::clamp(m_alpha, 0.0f, 255.0f);
 
@@ -54,9 +56,9 @@ void SceneChange::Draw()
 {
 	if (!m_startFlag)
 	{
-		//return;
+		return;
 	}
-	KuroEngine::DrawFunc2D::DrawGraph({0.0f,0.0f}, m_blackTexBuff, 1.0f);
+	KuroEngine::DrawFunc2D::DrawRotaGraph2D({ m_size.x / 2.0f,m_size.y / 2.0f }, m_size, 0.0f, m_blackTexBuff, m_alpha);
 }
 
 void SceneChange::Start()

@@ -64,4 +64,8 @@ public:
 	const KuroEngine::Quaternion& GetPosRotate() {
 		return m_camParentTransform.GetRotate();
 	}
+
+	KuroEngine::Transform &GetParentTransform() {
+		return m_camParentTransform;
+	}
 };
