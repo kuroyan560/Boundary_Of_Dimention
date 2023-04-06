@@ -12,12 +12,13 @@ struct VSOutput
 struct GSOutput
 {
     float4 position : SV_POSITION;
+    float4 worldPosition : WORLD_POSITION;
     float3 normal : NORMAL;
-    float2 toUV : TOUV;             //現在の角度から求められるUV
-    float2 fromUV : FROMUV;         //前回使用されていたUV 補間させるために使用
-    float uvLerpAmount : UVLERP;    //UVの補間量
-    uint texID : TexID;             //使用するテクスチャのID
-    float depthInView : CAM_Z;  //カメラまでの距離（深度）
+    float2 toUV : TOUV; //現在の角度から求められるUV
+    float2 fromUV : FROMUV; //前回使用されていたUV 補間させるために使用
+    float uvLerpAmount : UVLERP; //UVの補間量
+    uint texID : TexID; //使用するテクスチャのID
+    float depthInView : CAM_Z; //カメラまでの距離（深度）
 };
 
 //ピクセルシェーダーを通したデータ（レンダーターゲットに書き込むデータ）
@@ -55,6 +56,11 @@ Texture2D<float4> tex_1 : register(t1);
 Texture2D<float4> tex_2 : register(t2);
 Texture2D<float4> tex_3 : register(t3);
 Texture2D<float4> tex_4 : register(t4);
+Texture2D<float4> normalTex_0 : register(t5);
+Texture2D<float4> normalTex_1 : register(t6);
+Texture2D<float4> normalTex_2 : register(t7);
+Texture2D<float4> normalTex_3 : register(t8);
+Texture2D<float4> normalTex_4 : register(t9);
 
 //サンプラー
 SamplerState smp : register(s0);
@@ -80,10 +86,10 @@ void GSmain(
     float3 position = grass.m_pos;
 
     //ビルボードのサイズ
-    const float2 PolygonSize = float2(0.75f, 3.0f) * float2(0.75f, 0.75f);
+    const float2 PolygonSize = float2(0.75f, 3.0f);
     
-    //デフォルトだと少し浮いてしまっているので1だけ沈める。
-    position -= grass.m_normal;
+    //デフォルトだと少し浮いてしまっているので1.5だけ沈める。
+    position -= grass.m_normal * 1.5f;
 
     //カメラ方向ベクトル
     float3 cameraVec = normalize(otherTransformData.m_camPos - position);
@@ -95,11 +101,12 @@ void GSmain(
     float3 forwardVec = normalize(cross(rightVec, grass.m_normal));
 
     //デフォルトの正面ベクトルと現在の正面ベクトルの角度を求める。
-    float3 defForwardVec = float3(0,0,1);
+    float3 defForwardVec = float3(0, 0, 1);
     float cosTheta = dot(defForwardVec, forwardVec) / (length(defForwardVec) * length(forwardVec));
     float angle = acos(cosTheta) * (180 / 3.14159265);
     //2つのベクトルの位置関係によって、角度を0~360度の範囲に修正する
-    if (cross(defForwardVec, forwardVec).y < 0) {
+    if (cross(defForwardVec, forwardVec).y < 0)
+    {
         angle = 360 - angle;
     }
     float angle01 = angle / 360.0f; //0~1の角度
@@ -109,11 +116,12 @@ void GSmain(
 
     //補間先のUVを求める。
     float invStep = 1.0f / textureSizeU;
-    float toUVOffset =  floor(angle01 * invStep) / invStep;
+    float toUVOffset = floor(angle01 * invStep) / invStep;
 
     //補間元のUVを求める。
     float fromUVOFfset = toUVOffset - textureSizeU;
-    if(fromUVOFfset < 0){
+    if (fromUVOFfset < 0)
+    {
         fromUVOFfset = 1.0f - textureSizeU;
     }
 
@@ -122,7 +130,7 @@ void GSmain(
 
     //風の強さ 出現度合いを風の大きさにかけることで出現初期は揺れないようにする。
     float windPower = grass.m_sineLength * grass.m_appearY;
-    float4 windPos = float4(float3(0,0,1) * (sin(commonInfo.m_sineWave) * windPower), 0.0f);
+    float4 windPos = float4(float3(0, 0, 1) * (sin(commonInfo.m_sineWave) * windPower), 0.0f);
 
     //草の高さ 出現度合いを風の高さにかけることでだんだん生えるようにする。
     float grassHeight = grass.m_appearY * PolygonSize.y;
@@ -153,42 +161,46 @@ void GSmain(
     
     /*-- 左下 --*/
     //座標を求める。
+    element.worldPosition = worldPos[0];
     element.position = mul(cam.view, worldPos[0]); //カメラ座標へ
     element.depthInView = element.position.z;
     element.position = mul(cam.proj, element.position);
     //UVを求める。
-    element.toUV = float2(toUVOffset,1);                        //補間先のUV
-    element.fromUV = float2(fromUVOFfset,1);                    //補間元のUV
+    element.toUV = float2(toUVOffset, 1); //補間先のUV
+    element.fromUV = float2(fromUVOFfset, 1); //補間元のUV
     output.Append(element);
     
     /*-- 左上 --*/
     //座標を求める。
+    element.worldPosition = worldPos[1];
     element.position = mul(cam.view, worldPos[1]); //カメラ座標へ
     element.depthInView = element.position.z;
     element.position = mul(cam.proj, element.position);
     //UVを求める。
-    element.toUV = float2(toUVOffset,(1.0f - grass.m_appearY));        //補間先のUV
-    element.fromUV = float2(fromUVOFfset,(1.0f - grass.m_appearY));    //補間元のUV
+    element.toUV = float2(toUVOffset, (1.0f - grass.m_appearY)); //補間先のUV
+    element.fromUV = float2(fromUVOFfset, (1.0f - grass.m_appearY)); //補間元のUV
     output.Append(element);
     
     /*-- 右下 --*/
     //座標を求める。
+    element.worldPosition = worldPos[2];
     element.position = mul(cam.view, worldPos[2]); //カメラ座標へ
     element.depthInView = element.position.z;
     element.position = mul(cam.proj, element.position);
     //UVを求める。
-    element.toUV = float2(toUVOffset + textureSizeU,1);         //補間先のUV
-    element.fromUV = float2(fromUVOFfset + textureSizeU,1);     //補間元のUV
+    element.toUV = float2(toUVOffset + textureSizeU, 1); //補間先のUV
+    element.fromUV = float2(fromUVOFfset + textureSizeU, 1); //補間元のUV
     output.Append(element);
     
     /*-- 右上 --*/
     //座標を求める。
+    element.worldPosition = worldPos[3];
     element.position = mul(cam.view, worldPos[3]); //カメラ座標へ
     element.depthInView = element.position.z;
     element.position = mul(cam.proj, element.position);
     //UVを求める。
-    element.toUV = float2(toUVOffset + textureSizeU,(1.0f - grass.m_appearY));        //補間先のUV
-    element.fromUV = float2(fromUVOFfset + textureSizeU,(1.0f - grass.m_appearY));    //補間元のUV
+    element.toUV = float2(toUVOffset + textureSizeU, (1.0f - grass.m_appearY)); //補間先のUV
+    element.fromUV = float2(fromUVOFfset + textureSizeU, (1.0f - grass.m_appearY)); //補間元のUV
     output.Append(element);
 }
 
@@ -196,47 +208,83 @@ PSOutput PSmain(GSOutput input)
 {
     PSOutput output;
 
-    //補間元と補間先の色を取得。
-    float4 fromColor;
-    float4 toColor;
+    //色を取得。
+    float4 color;
+    float4 normalColor;
 
-    if(input.texID == 0){
+    if (input.texID == 0)
+    {
 
-        toColor = tex_0.Sample(smp, input.toUV);
-        fromColor = tex_0.Sample(smp, input.fromUV);
+        color = tex_0.Sample(smp, input.toUV);
+        normalColor = normalTex_0.Sample(smp, input.toUV);
 
-    }else if(input.texID == 1){
+    }
+    else if (input.texID == 1)
+    {
         
-        toColor = tex_1.Sample(smp, input.toUV);
-        fromColor = tex_1.Sample(smp, input.fromUV);
+        color = tex_1.Sample(smp, input.toUV);
+        normalColor = normalTex_1.Sample(smp, input.toUV);
 
-    }else if(input.texID == 2){
+    }
+    else if (input.texID == 2)
+    {
         
-        toColor = tex_2.Sample(smp, input.toUV);
-        fromColor = tex_2.Sample(smp, input.fromUV);
+        color = tex_2.Sample(smp, input.toUV);
+        normalColor = normalTex_2.Sample(smp, input.toUV);
 
-    }else if(input.texID == 3){
+    }
+    else if (input.texID == 3)
+    {
         
-        toColor = tex_3.Sample(smp, input.toUV);
-        fromColor = tex_3.Sample(smp, input.fromUV);
+        color = tex_3.Sample(smp, input.toUV);
+        normalColor = normalTex_3.Sample(smp, input.toUV);
 
-    }else{
+    }
+    else
+    {
 
-        toColor = tex_2.Sample(smp, input.toUV);
-        fromColor = tex_2.Sample(smp, input.fromUV);
+        color = tex_2.Sample(smp, input.toUV);
+        normalColor = normalTex_2.Sample(smp, input.toUV);
 
     }
 
-    //色を補間する。
-    output.color = fromColor * (1.0f - input.uvLerpAmount) + toColor * input.uvLerpAmount;
-
     //アルファ値によってクリップ
-    clip(output.color.a - 0.9f);
+    clip(color.a - 0.9f);
+    
+    //法線を取得する。
+    float3 normal = normalColor.xyz * 2.0f - float3(1.0f, 1.0f, 1.0f);
+    
+    //プレイヤーと描画する座標のベクトル
+    //float3 playerDir = normalize(input.worldPosition.xyz - commonInfo.m_playerPos);
+    float3 lightDir = normalize(commonInfo.m_playerPos - cam.eyePos);
+    
+    //距離を求める。
+    float distance = length(input.worldPosition.xyz - commonInfo.m_playerPos);
+    
+    //距離によって明るさの割合を変える。
+    const float DISTANCE = 8.0f;
+    const float OFFSET_DISTANCE_LUMI = 0.2f; //距離が遠く離れていてもある程度明るさを出すためのオフセット。
+    float distanceRate = clamp(step(distance, DISTANCE), OFFSET_DISTANCE_LUMI, 1.0f);
+    
+    //明るさを求める。
+    float lumi = dot(normal, lightDir) * distanceRate;
+    
+    //明るさのオフセット
+    const float OFFSET_LUMI = 0.3f;
+    lumi = clamp(lumi + OFFSET_LUMI, OFFSET_LUMI, 1.0f);
+    
+    //距離によって最終的な明るさをクランプする。
+    const float IN_CIRCLE_LUMI = 0.5f;
+    lumi = clamp(lumi, step(distance, DISTANCE) * IN_CIRCLE_LUMI, 1.0f);
 
-    output.emissive = float4(0,0,0,0);
+    //色を保存する。
+    color.xyz *= lumi;
+    output.color = color;
+
+    output.emissive = float4(0, 0, 0, 0);
     output.depth = input.depthInView;
     output.normal.xyz = input.normal;
-    output.edgeColor = float4(0.13, 0.53, 0.40,1);
+    output.edgeColor = float4(0.13, 0.53, 0.40, 1);
  
     return output;
 }
