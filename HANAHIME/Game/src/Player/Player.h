@@ -88,9 +88,6 @@ class Player : public KuroEngine::Debugger
 	float m_jumpTimer;
 	const float JUMP_TIMER = 0.07f;
 
-	std::vector<KuroEngine::Vec3<float>> m_lineStart;
-	std::vector<KuroEngine::Vec3<float>> m_lineEnd;
-
 
 	struct HitCheckResult
 	{

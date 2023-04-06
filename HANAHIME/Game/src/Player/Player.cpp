@@ -218,9 +218,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
 
-	m_lineStart.clear();
-	m_lineEnd.clear();
-
 	//位置情報関係
 	auto beforePos = m_transform.GetPos();
 	auto newPos = beforePos;
@@ -306,10 +303,6 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		m_model,
 		m_transform,
 		drawParam);
-
-	for (int index = 0; index < m_lineStart.size(); ++index) {
-		KuroEngine::DrawFunc3D::DrawLine(arg_cam, m_lineStart[index], m_lineEnd[index], KuroEngine::Color(255, 255, 255, 255), 0.1f);
-	}
 
 	/*
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
@@ -513,9 +506,6 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 {
 
 	/*===== 当たり判定用のレイを撃つ =====*/
-
-	m_lineStart.emplace_back(arg_rayCastPos);
-	m_lineEnd.emplace_back(arg_rayCastPos + arg_rayDir * arg_rayLength);
 
 	//レイを飛ばす。
 	MeshCollisionOutput output = MeshCollision(arg_rayCastPos, arg_rayDir, arg_collisionData.m_mesh, arg_collisionData.m_targetTransform);
