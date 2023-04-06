@@ -257,7 +257,7 @@ Player::Player()
 void Player::Init(KuroEngine::Transform arg_initTransform)
 {
 	m_transform = arg_initTransform;
-	m_camController.Init();
+	m_camController.Init(&m_transform);
 	m_cameraRotY = 0;
 	m_cameraRotYStorage = 0;
 	m_cameraQ = DirectX::XMQuaternionIdentity();
@@ -351,8 +351,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_ptLig.SetPos(newPos);
 
 	//ÉJÉÅÉâëÄçÏ
-	m_camController.Update(scopeMove, newPos);
-
+	m_camController.Update(scopeMove);
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
@@ -374,10 +373,12 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		m_transform,
 		drawParam);
 
-	/*KuroEngine::DrawFunc3D::DrawNonShadingModel(
+	/*
+	KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_axisModel,
 		m_transform,
-		arg_cam);*/
+		arg_cam);
+	*/
 
 	if (arg_cameraDraw)
 	{

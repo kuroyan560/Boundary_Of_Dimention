@@ -41,7 +41,8 @@ class CameraController : public KuroEngine::Debugger
 	//操作するカメラのポインタ
 	std::weak_ptr<KuroEngine::Camera>m_attachedCam;
 
-	KuroEngine::Transform m_camParentTransform;
+	//カメラコントローラーのトランスフォーム（プレイヤーのトランスフォームが親）
+	KuroEngine::Transform m_controllerTransform;
 
 	//カメラの前方向座標移動のLerp値
 	float m_camForwardPosLerpRate = 0.8f;
@@ -58,10 +59,10 @@ public:
 
 	void AttachCamera(std::shared_ptr<KuroEngine::Camera>arg_cam);
 
-	void Init();
-	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Vec3<float>arg_targetPos);
+	void Init(KuroEngine::Transform* arg_parent);
+	void Update(KuroEngine::Vec3<float>arg_scopeMove);
 
 	const KuroEngine::Quaternion& GetPosRotate() {
-		return m_camParentTransform.GetRotate();
+		return m_controllerTransform.GetRotate();
 	}
 };

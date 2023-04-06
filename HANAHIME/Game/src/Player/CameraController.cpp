@@ -15,6 +15,11 @@ void CameraController::OnImguiItems()
 	//現在のパラメータ表示
 	if (ImGui::BeginChild("NowParam"))
 	{
+		auto pos = m_controllerTransform.GetPosWorld();
+		ImGui::Text("pos : { %.2f , %.2f , %.2f }", pos.x, pos.y, pos.z);
+		auto up = m_controllerTransform.GetUpWorld();
+		ImGui::Text("up : { %.2f , %.2f , %.2f }", up.x, up.y, up.z);
+
 		ImGui::Text("posOffsetZ : %.2f", m_nowParam.m_posOffsetZ);
 		float degree = static_cast<float>(KuroEngine::Angle::ConvertToDegree(m_nowParam.m_xAxisAngle));
 		ImGui::Text("xAxisAngle : %.2f", degree);
@@ -46,17 +51,17 @@ void CameraController::AttachCamera(std::shared_ptr<KuroEngine::Camera> arg_cam)
 {
 	//操作対象となるカメラのポインタを保持
 	m_attachedCam = arg_cam;
-	//コントローラーのトランスフォームを親として設定
-	arg_cam->GetTransform().SetParent(&m_camParentTransform);
+	m_attachedCam.lock()->GetTransform().SetParent(&m_controllerTransform);
 }
 
-void CameraController::Init()
+void CameraController::Init(KuroEngine::Transform* arg_parent)
 {
 	m_nowParam = m_initializedParam;
 	m_verticalControl = ANGLE;
+	m_controllerTransform.SetParent(arg_parent);
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Vec3<float>arg_targetPos)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove)
 {
 	using namespace KuroEngine;
 	
@@ -89,10 +94,8 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	Vec3<float> localPos = { 0,0,0 };
 	localPos.z = m_nowParam.m_posOffsetZ;
 	localPos.y = m_gazePointOffset.y + tan(-m_nowParam.m_xAxisAngle) * m_nowParam.m_posOffsetZ;
-	transform.SetPos(Math::Lerp(transform.GetPos(), localPos, m_camForwardPosLerpRate));
-	transform.SetRotate(Vec3<float>::GetXAxis(), m_nowParam.m_xAxisAngle);
+	localPos = Math::TransformVec3(localPos, { 0.0f,1.0f,0.0f }, m_nowParam.m_yAxisAngle);
+	m_controllerTransform.SetPos(localPos);
+	m_controllerTransform.SetRotate(m_nowParam.m_xAxisAngle, m_nowParam.m_yAxisAngle,0.0f );
 
-	//コントローラーのトランスフォーム（対象の周囲、左右移動）更新
-	m_camParentTransform.SetRotate(Vec3<float>::GetYAxis(), m_nowParam.m_yAxisAngle);
-	m_camParentTransform.SetPos(Math::Lerp(m_camParentTransform.GetPos(), arg_targetPos, m_camFollowLerpRate));
 }
