@@ -118,29 +118,6 @@
         },
         {
             "type": "MESH",
-            "name": "Bridge_1",
-            "transform": {
-                "translation": [
-                    -33.112152099609375,
-                    0.0,
-                    2.0514016151428223
-                ],
-                "rotation": [
-                    0.0,
-                    0.0,
-                    0.0,
-                    1.0
-                ],
-                "scaling": [
-                    10.0,
-                    4.0,
-                    1.5
-                ]
-            },
-            "file_name": "Bridge"
-        },
-        {
-            "type": "MESH",
             "name": "Block_0",
             "transform": {
                 "translation": [
@@ -253,6 +230,29 @@
                 ]
             },
             "file_name": "Gate"
+        },
+        {
+            "type": "MESH",
+            "name": "Bridge_1",
+            "transform": {
+                "translation": [
+                    -31.16510009765625,
+                    1.024920948111685e-07,
+                    2.399082660675049
+                ],
+                "rotation": [
+                    0.0,
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "scaling": [
+                    4.0,
+                    4.0,
+                    4.0
+                ]
+            },
+            "file_name": "Bridge"
         }
     ]
 }
