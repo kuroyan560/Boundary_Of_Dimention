@@ -627,7 +627,15 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 			arg_collisionData.m_hitResult.m_terrianNormal = m_transform.GetUp();
 
 			//レイの衝突地点から法線方向に伸ばした位置に移動させる。
-			arg_charaPos = virtualHitPos + virtualNormal * (m_transform.GetScale().x - OFFSET);
+			auto pushBackPos = virtualHitPos + virtualNormal * (m_transform.GetScale().x - OFFSET);
+
+			output = MeshCollision(arg_charaPos, (pushBackPos - arg_charaPos).GetNormal(), arg_collisionData.m_mesh, arg_collisionData.m_targetTransform);
+
+			if (!(output.m_isHit && std::fabs(output.m_distance) < arg_rayLength)) {
+
+				arg_charaPos = pushBackPos;
+
+			}
 
 		}
 
