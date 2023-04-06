@@ -257,7 +257,7 @@ Player::Player()
 void Player::Init(KuroEngine::Transform arg_initTransform)
 {
 	m_transform = arg_initTransform;
-	m_camController.Init(&m_transform);
+	m_camController.Init(m_transform.GetPosWorld(), m_transform.GetRotateWorld());
 	m_cameraRotY = 0;
 	m_cameraRotYStorage = 0;
 	m_cameraQ = DirectX::XMQuaternionIdentity();
@@ -267,7 +267,6 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
-
 	using namespace KuroEngine;
 
 	//プレイヤーの回転をカメラ基準にする。(移動方向の基準がカメラの角度なため)
@@ -327,7 +326,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	HitCheckResult hitResult;
 	if (HitCheckAndPushBack(beforePos, newPos, arg_nowStage.lock()->GetTerrianArray(), &hitResult))
 	{
-
 		//法線方向を見るクォータニオン
 		auto spin = Math::GetLookAtQuaternion({ 0,1,0 }, hitResult.m_terrianNormal);
 
@@ -351,7 +349,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_ptLig.SetPos(newPos);
 
 	//カメラ操作
-	m_camController.Update(scopeMove);
+	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_transform.GetRotateWorld());
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
