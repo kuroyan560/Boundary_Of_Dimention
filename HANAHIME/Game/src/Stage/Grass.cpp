@@ -169,7 +169,7 @@ void Grass::Init()
 	m_plantTimer.Reset(0);
 }
 
-void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, bool arg_playerOnGround, KuroEngine::Transform arg_camTransform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend)
+void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, bool arg_isPlayerReadyToPlant, KuroEngine::Transform arg_camTransform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend)
 {
 	using namespace KuroEngine;
 
@@ -180,7 +180,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 
 	//プレイヤーが移動した and 周りに草がない。
 	bool isMovePlayer = !((arg_playerTransform.GetPos() - m_oldPlayerPos).Length() < 0.1f);
-	if (isMovePlayer && arg_playerOnGround)
+	if (isMovePlayer && arg_isPlayerReadyToPlant)
 	{
 		if (m_plantTimer.IsTimeUp())
 		{

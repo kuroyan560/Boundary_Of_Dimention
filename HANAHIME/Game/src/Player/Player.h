@@ -121,7 +121,7 @@ public:
 	//点光源ゲッタ
 	KuroEngine::Light::Point* GetPointLig() { return &m_ptLig; }
 	bool GetOnGround() { return m_onGround; }
-
+	bool GetIsStatusMove() { return m_playerMoveStatus == PLAYER_MOVE_STATUS::MOVE; }
 
 private:
 	//レイとメッシュの当たり判定出力用構造体
