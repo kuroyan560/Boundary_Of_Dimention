@@ -61,7 +61,11 @@ class Player : public KuroEngine::Debugger
 	float m_maxSpeed = 0.5f;
 	float m_brake = 0.07f;
 
+	//壁移動の距離
+	const float WALL_JUMP_LENGTH = 3.0f;
+
 	//接地フラグ
+	bool m_isFirstOnGround;	//開始時に空中から始まるので、着地済みだということを判断する用変数。
 	bool m_onGround;		//接地フラグ
 	bool m_prevOnGround;	//1F前の接地フラグ
 
@@ -71,9 +75,7 @@ class Player : public KuroEngine::Debugger
 
 	struct HitCheckResult
 	{
-		KuroEngine::Vec3<float>m_interPos;
 		KuroEngine::Vec3<float>m_terrianNormal;
-		KuroEngine::Vec3<float>m_bottmRayTerrianNormal;
 	};
 	bool HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, const std::vector<Terrian>& arg_terrianArray, HitCheckResult* arg_hitInfo = nullptr);
 
@@ -118,16 +120,7 @@ private:
 		CHECK_CLIFF,	//崖かどうかをチェックする用
 		GROUND,	//地上向かって飛ばすレイ。設置判定で使用する。
 		AROUND,	//周囲に向かって飛ばすレイ。壁のぼり判定で使用する。
-		CLIFF,	//崖で明日もとに向かって飛ばすレイ。崖を降りる際に使用する。
-		DEBUG,
-	};
-	//発射するレイの方向
-	enum class RAY_DIR {
-		FORWARD = 0,
-		BEHIND = 1,
-		RIGHT = 2,
-		LEFT = 3,
-		NONE,
+
 	};
 	/// <summary>
 	/// レイとメッシュの当たり判定
@@ -144,17 +137,20 @@ private:
 	/// </summary>
 	KuroEngine::Vec3<float> CalBary(const KuroEngine::Vec3<float>& PosA, const KuroEngine::Vec3<float>& PosB, const KuroEngine::Vec3<float>& PosC, const KuroEngine::Vec3<float>& TargetPos);
 
+	//衝突点用構造体
+	struct ImpactPointData {
+		KuroEngine::Vec3<float> m_impactPos;
+		KuroEngine::Vec3<float> m_normal;
+		ImpactPointData(KuroEngine::Vec3<float> arg_impactPos, KuroEngine::Vec3<float> arg_normal) : m_impactPos(arg_impactPos), m_normal(arg_normal) {};
+	};
+
 	//CastRayに渡すデータ用構造体
 	struct CastRayArgument {
-		KuroEngine::Vec3<float> m_fromPos;			//移動前の座標
 		std::vector<Terrian::Polygon> m_mesh;		//判定を行う対象のメッシュ
 		KuroEngine::Transform m_targetTransform;	//判定を行う対象のトランスフォーム
-		std::array<bool, 4>& m_isCliff;				//崖際にいるかをチェックする用。
-		std::array<bool, 4>& m_isAround;			//周囲のレイが壁際に当たったかをチェックする用。
-		bool& m_onGround;							//接地フラグ
-		bool& m_isHitWall;							//レイが壁に当たったかどうか
-		HitCheckResult& m_hitResult;				//当たり判定結果データ
-		CastRayArgument(bool& arg_onGround, bool& arg_isHitWall, HitCheckResult& arg_hitResult, std::array<bool, 4>& arg_isCliff, std::array<bool, 4>& arg_isAround) : m_onGround(arg_onGround), m_isHitWall(arg_isHitWall), m_hitResult(arg_hitResult), m_isCliff(arg_isCliff), m_isAround(arg_isAround) {};
+		std::vector<ImpactPointData> m_impactPoint;	//前後左右のレイの当たった地点。
+		bool m_onGround;							//接地フラグ
+		KuroEngine::Vec3<float> m_bottomTerrianNormal;
 	};
 
 	/// <summary>
@@ -166,6 +162,6 @@ private:
 	/// <param name="arg_rayLength"> レイの長さ </param>
 	/// <param name="arg_collisionData"> 引数をまとめた構造体 </param>
 	/// <param name="arg_rayID"> レイの種類 </param>
-	bool CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument arg_collisionData, RAY_ID arg_rayID, RAY_DIR arg_rayDirID);
+	bool CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument& arg_collisionData, RAY_ID arg_rayID);
 };
 
