@@ -78,8 +78,6 @@ void MovieCamera::StartMovie(KuroEngine::Transform transform, std::vector<MovieC
 		m_timerArray.emplace_back(static_cast<float>(m_moveDataArray[i].interpolationTimer * 60));
 	}
 
-	m_directCameraTransform.SetWorldMat(transform.GetMatWorld());
-
 
 	m_splinePosArray.clear();
 	m_splinePosArray.shrink_to_fit();

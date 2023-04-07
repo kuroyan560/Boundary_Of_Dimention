@@ -51,19 +51,17 @@ public:
 			return;
 		}
 
-		KuroEngine::Transform transform = m_directCameraTransform;
-		transform.SetScale({ 5.0f,5.0f,5.0f });
 		BasicDraw::Instance()->Draw(
 			arg_cam,
 			arg_ligMgr,
 			m_model,
-			transform);
+			m_moveDataArray[m_moveDataIndex].transform);
 
 		BasicDraw::Instance()->Draw(
 			arg_cam,
 			arg_ligMgr,
 			m_model,
-			KuroEngine::Transform());
+			m_moveDataArray[m_moveDataIndex + 1].transform);
 
 		BasicDraw::Instance()->Draw(
 			arg_cam,
@@ -72,7 +70,6 @@ public:
 			m_nowTransform);
 #endif // _DEBUG
 	};
-	KuroEngine::Transform m_directCameraTransform;
 private:
 	bool m_startFlag, m_finishFlag;
 	bool m_stopFlag;
@@ -131,7 +128,7 @@ private:
 			//通常の補間
 			if (ease_rota_data.easeChangeType == KuroEngine::EASE_CHANGE_TYPE_NUM || ease_rota_data.easeType == KuroEngine::EASING_TYPE_NUM)
 			{
-				result[i] = 
+				result[i] =
 					Interpolation(
 						matA[i],
 						matB[i],
@@ -170,7 +167,7 @@ private:
 		//親子関係を考慮した座標を入手
 		KuroEngine::Vec3<float> pos = SplinePosition(
 			m_splinePosArray,
-			m_moveDataIndex,
+			m_moveDataIndex + 1,
 			easeRate,
 			false
 		);
@@ -181,7 +178,7 @@ private:
 	};
 
 
-	KuroEngine::XMVECTOR Interpolation(const KuroEngine::Vec4<float> &pos_a, KuroEngine::Vec4<float>pos_b,float rate)
+	KuroEngine::XMVECTOR Interpolation(const KuroEngine::Vec4<float> &pos_a, KuroEngine::Vec4<float>pos_b, float rate)
 	{
 		KuroEngine::Vec4<float> posA = pos_a;
 		return ConvertVec4toXMVECTOR(posA + (pos_b - pos_a) * rate);

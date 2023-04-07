@@ -118,17 +118,21 @@ void GameScene::OnUpdate()
 		float radius = 100.0f;
 		for (int i = 0; i < limitPosMaxNum; ++i)
 		{
-			float radian = KuroEngine::Angle((360 / limitPosMaxNum) * i);
+			int angle = (360 / limitPosMaxNum) * i;
+			float radian = KuroEngine::Angle(angle);
 			
 			data.transform.SetPos(KuroEngine::Vec3<float>(cosf(radian) * radius, 50.0f, sinf(radian) * radius));
-			data.transform.SetLookAtRotate(KuroEngine::Transform().GetPos());
+			data.transform.SetRotate(KuroEngine::Angle(20), KuroEngine::Angle(-90 - angle), KuroEngine::Angle(0));
 			data.stopTimer = 0;
 			data.interpolationTimer = 2;
 			moveDataArray.emplace_back(data);
+
+			KuroEngine::Matrix mat = moveDataArray[i].transform.GetMatWorld();
+			mat = moveDataArray[i].transform.GetMatWorld();
 		}
 		float radian = KuroEngine::Angle((360 / limitPosMaxNum) * 0);
 		data.transform.SetPos(KuroEngine::Vec3<float>(cosf(radian) * radius, 50.0f, sinf(radian) * radius));
-		data.transform.SetLookAtRotate(KuroEngine::Transform().GetPos());
+		data.transform.SetRotate(KuroEngine::Angle(20), KuroEngine::Angle(-90), KuroEngine::Angle(0));
 		data.stopTimer = 0;
 		data.interpolationTimer = 2;
 		moveDataArray.emplace_back(data);
