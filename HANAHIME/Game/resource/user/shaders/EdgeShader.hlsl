@@ -42,7 +42,7 @@ VSOutput VSmain(float4 pos : POSITION, float2 uv : TEXCOORD)
 float4 PSmain(VSOutput input) : SV_TARGET
 {
     //このピクセルに光が当たっているか
-    int myBright = g_brightMap.Sample(g_sampler, input.m_uv).x;
+    float myBright = g_brightMap.Sample(g_sampler, input.m_uv).x;
     
     // このピクセルの深度値を取得
     float depth = g_depthMap.Sample(g_sampler, input.m_uv).x;
@@ -50,22 +50,39 @@ float4 PSmain(VSOutput input) : SV_TARGET
     //一番近い（深度値が低い）ピクセルを記録
     float nearest = depth;
     float2 nearestUv = input.m_uv;
+
+    //エッジの太さ
+    float edgeThickness = 0.002f;
+    float2 edgeOffsetUV[8];
+    edgeOffsetUV[0] = float2(edgeThickness, 0.0f);
+    edgeOffsetUV[1] = float2(-edgeThickness, 0.0f);
+    edgeOffsetUV[2] = float2(0.0f, edgeThickness);
+    edgeOffsetUV[3] = float2(0.0f, -edgeThickness);
+    edgeOffsetUV[4] = float2(edgeThickness, edgeThickness);
+    edgeOffsetUV[5] = float2(-edgeThickness, edgeThickness);
+    edgeOffsetUV[6] = float2(edgeThickness, -edgeThickness);
+    edgeOffsetUV[7] = float2(-edgeThickness, -edgeThickness);
     
     // 近傍8テクセルの深度値の差の平均値を計算する
     float depthDiffer = 0.0f;
     for( int i = 0; i < 8; i++)
     {
-        //UV系計算
-        float2 pickUv = input.m_uv + m_edgeParam.m_uvOffset[i];
+
+        //暗いところだったら
+        if(myBright == 0){
         
-        //明るさ取得
-        int pickBright = g_brightMap.Sample(g_sampler, pickUv).x;
-        if(pickBright != myBright)
-        {
-            return g_edgeColorMap.Sample(g_sampler, nearestUv);
+            //明るさ取得
+            float2 brihgtPickUv = input.m_uv + edgeOffsetUV[i];
+            float pickBright = g_brightMap.Sample(g_sampler, brihgtPickUv).x;
+            if(pickBright != myBright)
+            {
+                return g_edgeColorMap.Sample(g_sampler, brihgtPickUv);
+            }
+
         }
         
         //深度取得
+        float2 pickUv = input.m_uv + m_edgeParam.m_uvOffset[i];
         float pickDepth = g_depthMap.Sample(g_sampler, pickUv).x;
         depthDiffer += abs(depth - pickDepth);
         
