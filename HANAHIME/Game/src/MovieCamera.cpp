@@ -1,12 +1,11 @@
 #include "MovieCamera.h"
 #include<array>
 
-MovieCamera::MovieCamera() :m_startFlag(false), m_stopFlag(false), m_stopTimer(0)
+MovieCamera::MovieCamera() :m_startFlag(false), m_stopFlag(false), m_preStopTimer(0)
 {
 	std::string cameraName = "MovieCamera";
 	m_cam = std::make_shared<KuroEngine::Camera>(cameraName);
-
-	m_model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Player.glb");
+	m_cam->SetFarZ(10000.0f);
 }
 
 void MovieCamera::Update()
@@ -23,9 +22,16 @@ void MovieCamera::Update()
 	//行列の補間
 	m_nowTransform.SetWorldMat(Ease(matA, matB, m_timerArray[m_moveDataIndex].GetTimeRate(), m_moveDataArray[m_moveDataIndex].easePosData, m_moveDataArray[m_moveDataIndex].easeRotaData));
 
+	//始めに止まる時間
+	if (m_moveDataArray[m_moveDataIndex].preStopTimer * 60 <= m_preStopTimer)
+	{
+		m_timerArray[m_moveDataIndex].UpdateTimer();
+	}
+	else
+	{
+		++m_preStopTimer;
+	}
 
-	//現在はプレイヤーカメラの情報をそのまま代入してカメラの位置が取れているか確認している
-	m_timerArray[m_moveDataIndex].UpdateTimer();
 
 
 	//カメラが動いてから止まっている時間----------------------------------------
@@ -37,30 +43,40 @@ void MovieCamera::Update()
 	//停止中
 	if (m_stopFlag)
 	{
-		++m_stopTimer;
+		++m_afterStopTimer;
 	}
 	//一定時間止まった後
-	if (m_stopFlag && m_moveDataArray[m_moveDataIndex].stopTimer * 60 <= m_stopTimer)
+	if (m_stopFlag && m_moveDataArray[m_moveDataIndex].afterStopTimer * 60 <= m_afterStopTimer)
 	{
 		++m_moveDataIndex;
 
-		m_stopTimer = 0;
+		m_preStopTimer = 0;
+		m_afterStopTimer = 0;
 		m_stopFlag = false;
 	}
 	//カメラが動いてから止まっている時間----------------------------------------
 
 	//一個先の情報も参照しているので、最大10個なら8個目の参照が終了した時点で終了する
-	if (m_moveDataArray.size() - 1 <= m_moveDataIndex)
+	bool finishFlag = m_moveDataArray.size() - 1 <= m_moveDataIndex;
+	if (finishFlag && m_isLoopFlag)
+	{
+		m_moveDataIndex = 0;
+		for (int i = 0; i < m_timerArray.size(); ++i)
+		{
+			m_timerArray[i].Reset();
+		}
+	}
+	else if (finishFlag)
 	{
 		m_startFlag = false;
+		m_finishFlag = true;
 	}
 
 	auto &copy = m_cam->GetTransform();
 	copy.SetParent(&m_nowTransform);
-
 }
 
-void MovieCamera::StartMovie(KuroEngine::Transform transform, std::vector<MovieCameraData> move_data)
+void MovieCamera::StartMovie(std::vector<MovieCameraData> &move_data,bool loop_flag)
 {
 	//データが二個未満は機能しない
 	if (move_data.size() < 2)
@@ -87,6 +103,8 @@ void MovieCamera::StartMovie(KuroEngine::Transform transform, std::vector<MovieC
 		m_splinePosArray.emplace_back(move_data[i].transform.GetPosWorld());
 	}
 	m_splinePosArray.emplace_back(move_data[move_data.size() - 1].transform.GetPosWorld());
+
+	m_isLoopFlag = loop_flag;
 }
 
 bool MovieCamera::IsStart()

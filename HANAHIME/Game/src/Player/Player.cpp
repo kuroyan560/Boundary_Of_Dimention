@@ -251,7 +251,7 @@ Player::Player()
 	m_cameraRotY = 0;
 	m_cameraQ = DirectX::XMQuaternionIdentity();
 
-	m_moveSpeed = KuroEngine::Vec3<float>();
+	m_moveSpeed = KuroEngine::Vec3<float>(); 
 	m_isFlipMove = false;
 }
 
@@ -267,7 +267,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_isFlipMove = false;
 }
 
-void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
+void Player::Update(const std::weak_ptr<Stage>arg_nowStage, bool enable_to_move_flag)
 {
 
 	using namespace KuroEngine;
@@ -281,6 +281,11 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//入力された移動量を取得
 	m_rowMoveVec = OperationConfig::Instance()->GetMoveVecFuna(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
+	if (!enable_to_move_flag)
+	{
+		m_rowMoveVec = {};
+	}
+
 
 	//落下中は入力を無効化。
 	if (!m_onGround) {
@@ -320,7 +325,12 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	}
 
 	//入力された視線移動角度量を取得
+
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
+	if (!enable_to_move_flag)
+	{
+		scopeMove = {};
+	}
 
 	//カメラの回転を保存。
 	m_cameraRotYStorage += scopeMove.x;

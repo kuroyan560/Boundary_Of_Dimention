@@ -22,6 +22,8 @@ GameScene::GameScene()
 
 	auto backBuffTarget = KuroEngine::D3D12App::Instance()->GetBackBuffRenderTarget();
 	m_fogPostEffect = std::make_shared<KuroEngine::Fog>(backBuffTarget->GetGraphSize(), backBuffTarget->GetDesc().Format);
+
+	m_playerResponePos.SetPos({ -0.49f, 25.9f ,-81.2f });
 }
 
 
@@ -41,9 +43,7 @@ void GameScene::OnInitialize()
 
 	m_debugCam.Init({ 0,5,-10 });
 
-	KuroEngine::Transform playerInitTransform;
-	playerInitTransform.SetPos({ 3.7f,26.0f,-39.0f });
-	m_player.Init(playerInitTransform);
+	m_player.Init(m_playerResponePos);
 
 	m_grass.Init();
 
@@ -63,6 +63,12 @@ void GameScene::OnUpdate()
 	DebugController::Instance()->Update();
 
 	m_nowCam = m_player.GetCamera().lock();
+	//タイトル画面モード
+	if (!title.IsFinish())
+	{
+		m_nowCam = title.GetCamera().lock();
+	}
+	//ホームでの演出
 	if (m_movieCamera.IsStart())
 	{
 		m_nowCam = m_movieCamera.GetCamera().lock();
@@ -73,11 +79,12 @@ void GameScene::OnUpdate()
 		m_nowCam = m_debugCam;
 	}
 
-	m_player.Update(StageManager::Instance()->GetNowStage());
+	m_player.Update(StageManager::Instance()->GetNowStage(), title.IsFinish());
+
 
 	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetOnGround(), m_player.GetCamera().lock()->GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
 	//m_grass.Plant(m_player.GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
-
+	title.Update(&m_player.GetCamera().lock()->GetTransform());
 
 	//ホームでの処理----------------------------------------
 
@@ -93,9 +100,7 @@ void GameScene::OnUpdate()
 	if (m_gateSceneChange.IsHide())
 	{
 		StageManager::Instance()->SetStage(m_stageNum);
-		KuroEngine::Transform playerInitTransform;
-		playerInitTransform.SetPos({ 30.0f,50.0f,-45 });
-		m_player.Init(playerInitTransform);
+		m_player.Init(m_playerResponePos);
 	}
 
 	m_stageSelect.Update();
@@ -104,44 +109,6 @@ void GameScene::OnUpdate()
 	m_gateSceneChange.Update();
 
 
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_O))
-	{
-		std::vector<MovieCameraData>moveDataArray;
-
-		MovieCameraData data;
-		data.easePosData.easeType = KuroEngine::EASING_TYPE_NUM;
-		data.easePosData.easeChangeType = KuroEngine::EASE_CHANGE_TYPE_NUM;
-		data.easeRotaData.easeType = KuroEngine::EASING_TYPE_NUM;
-		data.easeRotaData.easeChangeType = KuroEngine::EASE_CHANGE_TYPE_NUM;
-
-		const int limitPosMaxNum = 10;
-		float radius = 100.0f;
-		for (int i = 0; i < limitPosMaxNum; ++i)
-		{
-			int angle = (360 / limitPosMaxNum) * i;
-			float radian = KuroEngine::Angle(angle);
-			
-			data.transform.SetPos(KuroEngine::Vec3<float>(cosf(radian) * radius, 50.0f, sinf(radian) * radius));
-			data.transform.SetRotate(KuroEngine::Angle(20), KuroEngine::Angle(-90 - angle), KuroEngine::Angle(0));
-			data.stopTimer = 0;
-			data.interpolationTimer = 2;
-			moveDataArray.emplace_back(data);
-
-			KuroEngine::Matrix mat = moveDataArray[i].transform.GetMatWorld();
-			mat = moveDataArray[i].transform.GetMatWorld();
-		}
-		float radian = KuroEngine::Angle((360 / limitPosMaxNum) * 0);
-		data.transform.SetPos(KuroEngine::Vec3<float>(cosf(radian) * radius, 50.0f, sinf(radian) * radius));
-		data.transform.SetRotate(KuroEngine::Angle(20), KuroEngine::Angle(-90), KuroEngine::Angle(0));
-		data.stopTimer = 0;
-		data.interpolationTimer = 2;
-		moveDataArray.emplace_back(data);
-
-		m_movieCamera.StartMovie(
-			m_player.GetCamera().lock()->GetTransform(),
-			moveDataArray
-		);
-	}
 
 
 	m_movieCamera.Update();
@@ -183,7 +150,8 @@ void GameScene::OnDraw()
 
 	m_stageSelect.Draw(*m_nowCam, m_ligMgr);
 
-	m_movieCamera.DebugDraw(*m_nowCam, m_ligMgr);
+
+	//m_movieCamera.DebugDraw(*m_nowCam, m_ligMgr);
 
 	//m_canvasPostEffect.Execute();
 	BasicDraw::Instance()->DrawEdge();
@@ -203,7 +171,10 @@ void GameScene::OnDraw()
 	m_vignettePostEffect.Register(m_fogPostEffect->GetResultTex());
 
 
+	title.Draw();
+
 	m_gateSceneChange.Draw();
+
 
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(
 		{

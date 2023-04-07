@@ -20,9 +20,13 @@ struct MovieCameraData
 	KuroEngine::Transform transform;	//制御点の位置
 	bool skipInterpolationFlag;			//座標と角度の補間をスキップするかどうか
 	int interpolationTimer;				//次の制御点に向かうまでの秒数
-	int stopTimer;						//カメラが定位置についてどれくらいの秒数止まるか
+	int preStopTimer;					//カメラが定位置につく前にどれくらいの秒数止まるか
+	int afterStopTimer;					//カメラが定位置についてどれくらいの秒数止まるか
 	MovieCameraEaseData easePosData;	//カメラ座標の補間の仕方
 	MovieCameraEaseData easeRotaData;	//カメラ角度の補間の仕方
+
+	MovieCameraData() : preStopTimer(0),afterStopTimer(0)
+	{};
 };
 
 class MovieCamera
@@ -30,7 +34,7 @@ class MovieCamera
 public:
 	MovieCamera();
 	void Update();
-	void StartMovie(KuroEngine::Transform transform, std::vector<MovieCameraData>move_data);
+	void StartMovie(std::vector<MovieCameraData> &move_data, bool loop_flag);
 
 	std::weak_ptr<KuroEngine::Camera>GetCamera()
 	{
@@ -40,53 +44,27 @@ public:
 	bool IsStart();
 	bool IsFinish();
 
-	/// <summary>
-	/// 当たり判定可視化
-	/// </summary>
-	void DebugDraw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
-	{
-#ifdef _DEBUG
-		if (!m_startFlag)
-		{
-			return;
-		}
-
-		BasicDraw::Instance()->Draw(
-			arg_cam,
-			arg_ligMgr,
-			m_model,
-			m_moveDataArray[m_moveDataIndex].transform);
-
-		BasicDraw::Instance()->Draw(
-			arg_cam,
-			arg_ligMgr,
-			m_model,
-			m_moveDataArray[m_moveDataIndex + 1].transform);
-
-		BasicDraw::Instance()->Draw(
-			arg_cam,
-			arg_ligMgr,
-			m_model,
-			m_nowTransform);
-#endif // _DEBUG
-	};
 private:
 	bool m_startFlag, m_finishFlag;
+
+	//カメラ関連----------------------------------------
+	//停止関連
 	bool m_stopFlag;
-	int m_stopTimer;
-	std::shared_ptr<KuroEngine::Camera>m_cam;
+	int m_preStopTimer, m_afterStopTimer;
 
-
+	//スプライン曲線
 	std::vector<KuroEngine::Vec3<float>>m_splinePosArray;
+	bool m_isLoopFlag;
 
 	//カメラ補間関連の情報
 	int m_moveDataIndex;
 	std::vector<MovieCameraData>m_moveDataArray;
 	KuroEngine::Transform m_nowTransform;
-
 	std::vector<KuroEngine::Timer> m_timerArray;
 
-	std::shared_ptr<KuroEngine::Model>m_model;
+	std::shared_ptr<KuroEngine::Camera>m_cam;
+	//カメラ関連----------------------------------------
+
 
 
 	KuroEngine::Vec4<float> ConvertXMVECTORtoVec4(XMVECTOR vec)
@@ -169,7 +147,7 @@ private:
 			m_splinePosArray,
 			m_moveDataIndex + 1,
 			easeRate,
-			false
+			m_isLoopFlag
 		);
 
 		mat.r[3] = { pos.x,pos.y,pos.z,1.0f };
