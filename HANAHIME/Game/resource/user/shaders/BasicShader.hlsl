@@ -261,14 +261,9 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     float bright = dot(-normalize(ligRay), input.normal);
     //-1 ~ 1 ‚©‚ç 0 ~ 1‚Ì”ÍˆÍ‚Éû‚ß‚é
     bright = saturate(bright);
-	//‰e‹¿—¦‚Í‹——£‚É”ä—á‚µ‚Ä¬‚³‚­‚È‚Á‚Ä‚¢‚­
-    float range = 40.0f;
-    float affect = saturate(1.0f - 1.0f / range * length(ligRay));
-    //Œ¸Š‚³‚¹‚é
-    bright *= affect;
     //ƒ‰ƒCƒg‚É‚ ‚½‚Á‚Ä‚¢‚é‚©‚Ç‚¤‚©‚ğ‹——£‚Å”»’f
-    float brighRange = 8.0f;
-    int isBright = 1.0f - step(brighRange, length(ligRay));
+    float brightRange = 8.0f;
+    int isBright = 1.0f - step(brightRange, length(ligRay) * int(bright == 0 ? brightRange : 1));
     if (toonIndividualParam.m_isPlayer)
         isBright = 1;
     result.xyz *= lerp(0.5f, 1.0f, isBright);
