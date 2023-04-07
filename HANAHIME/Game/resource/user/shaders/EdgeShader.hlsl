@@ -17,7 +17,8 @@ struct VSOutput
 
 Texture2D<float4> g_depthMap : register(t0);
 Texture2D<float4> g_normalMap : register(t1);
-Texture2D<float4> g_edgeColorMap : register(t2);
+Texture2D<float4> g_brightMap : register(t2);
+Texture2D<float4> g_edgeColorMap : register(t3);
 SamplerState g_sampler : register(s0);
 cbuffer cbuff0 : register(b0)
 {
@@ -40,6 +41,9 @@ VSOutput VSmain(float4 pos : POSITION, float2 uv : TEXCOORD)
 
 float4 PSmain(VSOutput input) : SV_TARGET
 {
+    //このピクセルに光が当たっているか
+    int myBright = g_brightMap.Sample(g_sampler, input.m_uv).x;
+    
     // このピクセルの深度値を取得
     float depth = g_depthMap.Sample(g_sampler, input.m_uv).x;
 
@@ -51,7 +55,17 @@ float4 PSmain(VSOutput input) : SV_TARGET
     float depthDiffer = 0.0f;
     for( int i = 0; i < 8; i++)
     {
+        //UV系計算
         float2 pickUv = input.m_uv + m_edgeParam.m_uvOffset[i];
+        
+        //明るさ取得
+        int pickBright = g_brightMap.Sample(g_sampler, pickUv).x;
+        if(pickBright != myBright)
+        {
+            return g_edgeColorMap.Sample(g_sampler, nearestUv);
+        }
+        
+        //深度取得
         float pickDepth = g_depthMap.Sample(g_sampler, pickUv).x;
         depthDiffer += abs(depth - pickDepth);
         
