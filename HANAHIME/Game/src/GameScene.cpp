@@ -37,7 +37,7 @@ void GameScene::OnInitialize()
 	&m_waterPaintBlend,
 	&m_ligMgr,
 	m_fogPostEffect.get(),
-	});
+		});
 
 	m_debugCam.Init({ 0,5,-10 });
 
@@ -63,6 +63,10 @@ void GameScene::OnUpdate()
 	DebugController::Instance()->Update();
 
 	m_nowCam = m_player.GetCamera().lock();
+	if (m_movieCamera.IsStart())
+	{
+		m_nowCam = m_movieCamera.GetCamera().lock();
+	}
 	if (DebugController::Instance()->IsActive())
 	{
 		m_debugCam.Move();
@@ -104,43 +108,30 @@ void GameScene::OnUpdate()
 	{
 		std::vector<MovieCameraData>moveDataArray;
 
-		//プレイヤーカメラの親子関係を考慮したワールド行列
-		auto matA = m_player.GetCamera().lock()->GetTransform().GetMatWorld();
-		//プレイヤーカメラの親子関係を考慮した回転行列
-		auto matB = XMMatrixRotationQuaternion(m_player.GetCamera().lock()->GetTransform().GetRotateWorld());
-
-
-		KuroEngine::Vec3<float> cameraPos(
-			matA.r[3].m128_f32[0],
-			matA.r[3].m128_f32[1],
-			matA.r[3].m128_f32[2]
-		);
-	
 		MovieCameraData data;
+		data.easePosData.easeType = KuroEngine::EASING_TYPE_NUM;
+		data.easePosData.easeChangeType = KuroEngine::EASE_CHANGE_TYPE_NUM;
+		data.easeRotaData.easeType = KuroEngine::EASING_TYPE_NUM;
+		data.easeRotaData.easeChangeType = KuroEngine::EASE_CHANGE_TYPE_NUM;
+
+		const int limitPosMaxNum = 10;
+		float radius = 100.0f;
+		for (int i = 0; i < limitPosMaxNum; ++i)
 		{
-			//上向きに見ている
-			KuroEngine::Transform upVec;
-			upVec.SetPos({ 3.7f,36.0f,-29.0f });
-			data.stopTimer = 1;
+			float radian = KuroEngine::Angle((360 / limitPosMaxNum) * i);
+			
+			data.transform.SetPos(KuroEngine::Vec3<float>(cosf(radian) * radius, 50.0f, sinf(radian) * radius));
+			data.transform.SetLookAtRotate(KuroEngine::Transform().GetPos());
+			data.stopTimer = 0;
 			data.interpolationTimer = 2;
 			moveDataArray.emplace_back(data);
 		}
-
-		{
-			//下向きに見る
-			KuroEngine::Transform downVec;
-			downVec.SetPos({ 3.7f,36.0f,-29.0f });
-			data.stopTimer = 2;
-			data.interpolationTimer = 1;
-			moveDataArray.emplace_back(data);
-		}
-
-		{
-			//プレイヤーの位置に戻る
-			data.stopTimer = 2;
-			data.interpolationTimer = 3;
-			moveDataArray.emplace_back(data);
-		}
+		float radian = KuroEngine::Angle((360 / limitPosMaxNum) * 0);
+		data.transform.SetPos(KuroEngine::Vec3<float>(cosf(radian) * radius, 50.0f, sinf(radian) * radius));
+		data.transform.SetLookAtRotate(KuroEngine::Transform().GetPos());
+		data.stopTimer = 0;
+		data.interpolationTimer = 2;
+		moveDataArray.emplace_back(data);
 
 		m_movieCamera.StartMovie(
 			m_player.GetCamera().lock()->GetTransform(),
@@ -148,7 +139,7 @@ void GameScene::OnUpdate()
 		);
 	}
 
-	
+
 	m_movieCamera.Update();
 
 
@@ -168,7 +159,7 @@ void GameScene::OnDraw()
 
 	//ステージ描画
 	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
-	
+
 	Transform transform;
 	transform.SetPos({ -0.5f,0,0 });
 	DrawFunc3D::DrawNonShadingPlane(
@@ -200,9 +191,10 @@ void GameScene::OnDraw()
 	//m_vignettePostEffect.Register(m_waterPaintBlend.GetResultTex());
 
 	m_fogPostEffect->Register(
-		BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN), 
+		BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN),
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::DEPTH),
-		BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT));
+		BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT)
+	);
 
 	m_vignettePostEffect.Register(m_fogPostEffect->GetResultTex());
 

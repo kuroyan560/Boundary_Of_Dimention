@@ -16,13 +16,12 @@ void MovieCamera::Update()
 		return;
 	}
 
-
 	//制御点の開始地点
-	KuroEngine::Matrix matA = m_moveDataArray[m_moveDataIndex].transform.GetMatWorldWithOutDirty();
+	KuroEngine::Matrix matA = m_moveDataArray[m_moveDataIndex].transform.GetMatWorld();
 	//制御点の終了地点
-	KuroEngine::Matrix matB = m_moveDataArray[m_moveDataIndex + 1].transform.GetMatWorldWithOutDirty();
+	KuroEngine::Matrix matB = m_moveDataArray[m_moveDataIndex + 1].transform.GetMatWorld();
 	//行列の補間
-	m_nowTransform.SetWorldMat(Ease(matA, matB, m_timerArray[m_moveDataIndex].GetTimeRate(), m_moveDataArray[m_moveDataIndex].easeData));
+	m_nowTransform.SetWorldMat(Ease(matA, matB, m_timerArray[m_moveDataIndex].GetTimeRate(), m_moveDataArray[m_moveDataIndex].easePosData, m_moveDataArray[m_moveDataIndex].easeRotaData));
 
 
 	//現在はプレイヤーカメラの情報をそのまま代入してカメラの位置が取れているか確認している
@@ -41,7 +40,7 @@ void MovieCamera::Update()
 		++m_stopTimer;
 	}
 	//一定時間止まった後
-	if (m_moveDataArray[m_moveDataIndex].stopTimer * 60 <= m_stopTimer)
+	if (m_stopFlag && m_moveDataArray[m_moveDataIndex].stopTimer * 60 <= m_stopTimer)
 	{
 		++m_moveDataIndex;
 
@@ -50,7 +49,7 @@ void MovieCamera::Update()
 	}
 	//カメラが動いてから止まっている時間----------------------------------------
 
-
+	//一個先の情報も参照しているので、最大10個なら8個目の参照が終了した時点で終了する
 	if (m_moveDataArray.size() - 1 <= m_moveDataIndex)
 	{
 		m_startFlag = false;
@@ -80,6 +79,16 @@ void MovieCamera::StartMovie(KuroEngine::Transform transform, std::vector<MovieC
 	}
 
 	m_directCameraTransform.SetWorldMat(transform.GetMatWorld());
+
+
+	m_splinePosArray.clear();
+	m_splinePosArray.shrink_to_fit();
+	m_splinePosArray.emplace_back(move_data[0].transform.GetPosWorld());
+	for (int i = 0; i < move_data.size(); ++i)
+	{
+		m_splinePosArray.emplace_back(move_data[i].transform.GetPosWorld());
+	}
+	m_splinePosArray.emplace_back(move_data[move_data.size() - 1].transform.GetPosWorld());
 }
 
 bool MovieCamera::IsStart()

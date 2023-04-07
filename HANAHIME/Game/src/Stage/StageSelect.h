@@ -1,6 +1,10 @@
 #pragma once
 #include"Gate.h"
+#include"../MovieCamera.h"
 
+/// <summary>
+/// ƒz[ƒ€‰æ–Ê
+/// </summary>
 class StageSelect
 {
 public:
@@ -17,5 +21,7 @@ public:
 private:
 	std::vector<std::unique_ptr<Gate>>m_gateArray;
 	std::vector<GateData>m_gateDataArray;
+
+	MovieCameraData titleCameraData;
 };
 
