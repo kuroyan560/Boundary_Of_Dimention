@@ -7,6 +7,7 @@
 #include"Render/RenderObject/Camera.h"
 #include"Render/RenderObject/LightManager.h"
 #include"Render/RenderObject/SpriteMesh.h"
+#include"KuroEngineDevice.h"
 
 BasicDraw::BasicDraw() :KuroEngine::Debugger("BasicDraw")
 {
@@ -14,8 +15,8 @@ BasicDraw::BasicDraw() :KuroEngine::Debugger("BasicDraw")
 		&m_toonCommonParam.m_brightThresholdLow, "Toon", true, 0.0f, 1.0f);
 	AddCustomParameter("BrightThresholdRange", { "Toon","BrightThreshold","Range" }, PARAM_TYPE::FLOAT,
 		&m_toonCommonParam.m_brightThresholdRange, "Toon");
-	AddCustomParameter("LimThreshold", { "Toon","LimThreshold" }, PARAM_TYPE::FLOAT,
-		&m_toonCommonParam.m_limThreshold, "Toon");
+	AddCustomParameter("MonochromeRate", { "Toon","MonochromeRate" }, PARAM_TYPE::FLOAT,
+		&m_toonCommonParam.m_monochromeRate, "Toon", true, 0.0f, 1.0f);
 
 	AddCustomParameter("DepthDifferenceThreshold", { "Edge","DepthDifferenceThreshold" }, PARAM_TYPE::FLOAT,
 		&m_edgeShaderParam.m_depthThreshold, "Edge");
@@ -27,10 +28,10 @@ BasicDraw::BasicDraw() :KuroEngine::Debugger("BasicDraw")
 		&defaultParam.m_brightMulColor, "DefaultDrawParam");
 	AddCustomParameter("DarkMulColor", { "DefaultDrawParam","DarkMulColor" }, PARAM_TYPE::COLOR,
 		&defaultParam.m_darkMulColor, "DefaultDrawParam");
-	AddCustomParameter("LimBrightColor", { "DefaultDrawParam","LimBrightColor" }, PARAM_TYPE::COLOR,
-		&defaultParam.m_limBrightColor, "DefaultDrawParam");
 	AddCustomParameter("EdgeColor", { "DefaultDrawParam","EdgeColor" }, PARAM_TYPE::COLOR,
 		&defaultParam.m_edgeColor, "DefaultDrawParam");
+
+	LoadParameterLog();
 }
 
 void BasicDraw::OnImguiItems()
@@ -66,18 +67,21 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"マテリアル基本情報バッファ"),
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"トゥーンの共通パラメータ"),
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"トゥーンの個別パラメータ"),
+		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"プレイヤーの座標情報"),
 	};
 
 	//レンダーターゲット描画先情報
-	std::array<std::vector<RenderTargetInfo>, AlphaBlendModeNum>RENDER_TARGET_INFO;
+	std::array<std::vector<RenderTargetInfo>, RENDER_TARGET_TYPE::NUM>RENDER_TARGET_INFO;
 	for (int i = 0; i < AlphaBlendModeNum; ++i)
 	{
 		RENDER_TARGET_INFO[i] =
 		{
 			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), (AlphaBlendMode)i),	//通常描画
 			RenderTargetInfo(DXGI_FORMAT_R32G32B32A32_FLOAT, AlphaBlendMode_Trans),	//エミッシブマップ
-			RenderTargetInfo(DXGI_FORMAT_R32_FLOAT, AlphaBlendMode_None),	//深度マップ
+			RenderTargetInfo(DXGI_FORMAT_R16_FLOAT, AlphaBlendMode_None),	//深度マップ
+			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//ノーマルマップ
 			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_None),	//エッジカラーマップ
+			RenderTargetInfo(DXGI_FORMAT_R8G8B8A8_UINT, AlphaBlendMode_None),	//草むらマップ
 		};
 	}
 
@@ -178,6 +182,7 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		{
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"平行投影行列"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"デプスマップ"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"法線マップ"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"エッジカラーマップ"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"専用のパラメータ"),
 		};
@@ -217,6 +222,73 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		1, 
 		&m_edgeShaderParam, 
 		"BasicDraw - EdgeCommonParameter");
+
+	//プレイヤーの座標を送るための定数バッファ用意
+	KuroEngine::Vec3<float>initSendPos = { FLT_MAX,FLT_MAX,FLT_MAX };
+	m_playerPosBuffer = D3D12App::Instance()->GenerateConstantBuffer(
+		sizeof(Vec3<float>),
+		1,
+		&initSendPos,
+		"BasicDraw - PlayerPos");
+
+	//レンダーターゲット生成
+	static auto targetSize = D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize();
+	m_renderTargetArray[MAIN] = D3D12App::Instance()->GenerateRenderTarget(
+		RENDER_TARGET_INFO[0][MAIN].m_format,
+		Color(0.0f, 0.0f, 0.0f, 0.0f),
+		targetSize,
+		L"BasicDraw - MainRenderTarget");
+
+	m_renderTargetArray[EMISSIVE] = D3D12App::Instance()->GenerateRenderTarget(
+		RENDER_TARGET_INFO[0][EMISSIVE].m_format,
+		Color(0.0f, 0.0f, 0.0f, 1.0f),
+		targetSize, L"BasicDraw - EmissiveMap");
+
+	m_renderTargetArray[DEPTH] = D3D12App::Instance()->GenerateRenderTarget(
+		RENDER_TARGET_INFO[0][DEPTH].m_format,
+		Color(FLT_MAX, 0.0f, 0.0f, 0.0f),
+		targetSize, L"BasicDraw - DepthMap");
+
+	m_renderTargetArray[NORMAL] = D3D12App::Instance()->GenerateRenderTarget(
+		RENDER_TARGET_INFO[0][NORMAL].m_format,
+		Color(0.0f, 0.0f, 0.0f, 0.0f),
+		targetSize, L"BasicDraw - NormalMap");
+
+	m_renderTargetArray[EDGE_COLOR] = D3D12App::Instance()->GenerateRenderTarget(
+		RENDER_TARGET_INFO[0][EDGE_COLOR].m_format,
+		Color(0.0f, 0.0f, 0.0f, 1.0f),
+		targetSize, L"BasicDraw - EdgeColorMap");
+
+	m_renderTargetArray[BRIGHT] = D3D12App::Instance()->GenerateRenderTarget(
+		RENDER_TARGET_INFO[0][BRIGHT].m_format,
+		Color(0, 0, 0, 0),
+		targetSize, L"BasicDraw - BrightMap");
+}
+
+void BasicDraw::Update(KuroEngine::Vec3<float> arg_playerPos)
+{
+	using namespace KuroEngine;
+
+	//プレイヤーの座標に変化があったらデータ送信
+	if (FLT_EPSILON < m_playerPosBuffer->GetResource()->GetBuffOnCpu<Vec3<float>>()->Distance(arg_playerPos))
+	{
+		m_playerPosBuffer->Mapping(&arg_playerPos);
+	}
+}
+
+void BasicDraw::RenderTargetsClearAndSet(std::weak_ptr<KuroEngine::DepthStencil>arg_ds)
+{
+	using namespace KuroEngine;
+
+	std::vector<std::weak_ptr<RenderTarget>>rts;
+	for (int targetIdx = 0; targetIdx < RENDER_TARGET_TYPE::NUM; ++targetIdx)
+	{
+		rts.emplace_back(m_renderTargetArray[targetIdx]);
+		KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(m_renderTargetArray[targetIdx]);
+	}
+	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(arg_ds);
+
+	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(rts, arg_ds.lock());
 }
 
 void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform& arg_transform, const IndividualDrawParameter& arg_toonParam, const KuroEngine::AlphaBlendMode& arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff)
@@ -260,6 +332,7 @@ void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_
 				{mesh.material->buff,CBV},
 				{m_toonCommonParamBuff,CBV},
 				{m_toonIndividualParamBuff[m_individualParamCount],CBV},
+				{m_playerPosBuffer,CBV},
 			},
 			arg_transform.GetPos().z,
 			arg_blendMode == AlphaBlendMode_Trans);
@@ -341,6 +414,7 @@ void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightMan
 				{mesh.material->buff,CBV},
 				{m_toonCommonParamBuff,CBV},
 				{m_toonIndividualParamBuff[m_individualParamCount],CBV},
+				{m_playerPosBuffer,CBV},
 			},
 			arg_depth,
 			arg_blendMode == AlphaBlendMode_Trans,
@@ -364,7 +438,7 @@ void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightMan
 		arg_boneBuff);
 }
 
-void BasicDraw::DrawEdge(std::shared_ptr<KuroEngine::TextureBuffer> arg_depthMap, std::shared_ptr<KuroEngine::TextureBuffer>arg_edgeColorMap)
+void BasicDraw::DrawEdge()
 {
 	using namespace KuroEngine;
 
@@ -373,8 +447,9 @@ void BasicDraw::DrawEdge(std::shared_ptr<KuroEngine::TextureBuffer> arg_depthMap
 	std::vector<RegisterDescriptorData>descDatas =
 	{
 		{KuroEngineDevice::Instance()->GetParallelMatProjBuff(),CBV},
-		{arg_depthMap,SRV},
-		{arg_edgeColorMap,SRV},
+		{m_renderTargetArray[DEPTH],SRV},
+		{m_renderTargetArray[NORMAL],SRV},
+		{m_renderTargetArray[EDGE_COLOR],SRV},
 		{m_edgeShaderParamBuff,CBV},
 	};
 	m_spriteMesh->Render(descDatas);

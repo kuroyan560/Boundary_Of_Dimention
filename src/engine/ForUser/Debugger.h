@@ -16,6 +16,8 @@ namespace KuroEngine
 		//割り当てる識別番号
 		static int s_id;
 		//起動中のデバッガ配列
+		static std::vector<Debugger*>s_registeredDebuggerArray;
+		//生成したデバッガ配列
 		static std::vector<Debugger*>s_debuggerArray;
 
 		//※exe閉じてもパラメータを残すためのもの
@@ -53,20 +55,18 @@ namespace KuroEngine
 		};
 
 	public:
-		virtual ~Debugger() {  }
+		virtual ~Debugger() { WriteParameterLog(); }
 		//デバッグ機構表示
 		static void Draw();
 		//デバッガ登録
 		static void Register(std::vector<Debugger*>arg_debuggerArray)
 		{
-			s_debuggerArray = arg_debuggerArray;
-			for (auto& debugger : s_debuggerArray)debugger->LoadParameterLog();
+			s_registeredDebuggerArray = arg_debuggerArray;
 		}
 		//デバッガ登録解除
 		static void ClearRegister() 
 		{
-			for (auto& debugger : s_debuggerArray)debugger->WriteParameterLog();
-			s_debuggerArray.clear(); 
+			s_registeredDebuggerArray.clear(); 
 		}
 
 		//パラメータログをファイル読み込み
@@ -77,7 +77,7 @@ namespace KuroEngine
 		//パラメータログをファイル出力
 		static void ExportParameterLog()
 		{
-			ClearRegister();
+			for (auto debugger : s_debuggerArray)debugger->WriteParameterLog();
 			s_parameterLog.Export(s_jsonFileDir, s_jsonName, s_jsonExt, false);
 		}
 
@@ -88,11 +88,6 @@ namespace KuroEngine
 		bool m_active = false;
 		//imguiWindowフラグ
 		ImGuiWindowFlags m_imguiWinFlags;
-
-		//パラメータログからカスタムパラメータ読込
-		void LoadParameterLog();
-		//パラメータログにカスタムパラメータを記録
-		void WriteParameterLog();
 
 		//カスタムパラメータ（exe閉じても調整した値を残す）
 		struct CustomParameter
@@ -143,17 +138,13 @@ namespace KuroEngine
 		Debugger(std::string arg_title, bool arg_active = false, bool arg_customParamActive = false, ImGuiWindowFlags arg_imguiWinFlags = 0)
 			:m_title(arg_title), m_active(arg_active), m_customParamActive(arg_customParamActive), m_id(s_id++), m_imguiWinFlags(arg_imguiWinFlags)
 		{
+			s_debuggerArray.emplace_back(this);
 		}
 
 		/// <summary>
 		/// カスタムパラメータ以外のImgui処理を自由に定義（Begin ~ End の間で呼ばれる）
 		/// </summary>
 		virtual void OnImguiItems() {};
-
-		/// <summary>
-		/// カスタムパラメータを読み込んだあとに呼び出す処理
-		/// </summary>
-		virtual void OnLoadCustomParams() {};
 
 		/// <summary>
 		/// カスタムパラメータの追加
@@ -172,6 +163,11 @@ namespace KuroEngine
 			m_customParamList.emplace_back(arg_label, arg_key, arg_type, arg_destPtr, arg_isMinMax, arg_min, arg_max);
 			m_customParamGroup[arg_imguiTreeName].push_back(&m_customParamList.back());
 		}
+
+		//パラメータログからカスタムパラメータ読込
+		void LoadParameterLog();
+		//パラメータログにカスタムパラメータを記録
+		void WriteParameterLog();
 
 		//カスタムパラメータが変化したか
 		const bool& CustomParamDirty()const { return m_customParamDirty; }

@@ -18,6 +18,7 @@ struct ToonIndividualParameter
     float4 m_darkMulColor;
     float4 m_limBrightColor;
     float4 m_edgeColor;
+    int m_drawMask;
 };
 
 cbuffer cbuff0 : register(b0)
@@ -130,7 +131,9 @@ struct PSOutput
     float4 color : SV_Target0;
     float4 emissive : SV_Target1;
     float depth : SV_Target2;
-    float4 edgeColor : SV_Target3;
+    float4 normal : SV_Target3;
+    float4 edgeColor : SV_Target4;
+    uint4 grass : SV_Target5;
 };
 
 PSOutput PSmain(VSOutput input) : SV_TARGET
@@ -281,6 +284,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     //    output.emissive += result;
     // output.emissive.w = result.w;
     //output.depth = input.depthInView;
+    output.normal.xyz = input.normal;
         
     output.edgeColor = toonIndividualParam.m_edgeColor;
     

@@ -7,13 +7,13 @@ int KuroEngine::DrawFuncBillBoard::s_drawBoxCount = 0;
 //DrawGraph
 int KuroEngine::DrawFuncBillBoard::s_drawGraphCount = 0;
 
-std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>KuroEngine::DrawFuncBillBoard::s_pipeline;
+std::map<DXGI_FORMAT, std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>>KuroEngine::DrawFuncBillBoard::s_pipeline;
 std::vector<std::shared_ptr<KuroEngine::VertexBuffer>>KuroEngine::DrawFuncBillBoard::s_graphVertBuff;
 
-void KuroEngine::DrawFuncBillBoard::GeneratePipeline(const AlphaBlendMode& BlendMode)
+void KuroEngine::DrawFuncBillBoard::GeneratePipeline(DXGI_FORMAT Format,const AlphaBlendMode& BlendMode)
 {
 	//パイプライン生成済
-	if (s_pipeline[BlendMode])return;
+	if (s_pipeline.find(Format) != s_pipeline.end() && s_pipeline[Format][BlendMode])return;
 
 	//パイプライン設定
 	static PipelineInitializeOption s_pipelineOption(D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT, D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
@@ -42,9 +42,9 @@ void KuroEngine::DrawFuncBillBoard::GeneratePipeline(const AlphaBlendMode& Blend
 	};
 
 	//レンダーターゲット描画先情報
-	std::vector<RenderTargetInfo>s_renderTargetInfo = { RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), BlendMode) };
+	std::vector<RenderTargetInfo>s_renderTargetInfo = { RenderTargetInfo(Format, BlendMode) };
 	//パイプライン生成
-	s_pipeline[BlendMode] = D3D12App::Instance()->GenerateGraphicsPipeline(s_pipelineOption, s_shaders, s_inputLayOut, s_rootParams, s_renderTargetInfo, { WrappedSampler(false, false) });
+	s_pipeline[Format][BlendMode] = D3D12App::Instance()->GenerateGraphicsPipeline(s_pipelineOption, s_shaders, s_inputLayOut, s_rootParams, s_renderTargetInfo, { WrappedSampler(false, false) });
 }
 
 void KuroEngine::DrawFuncBillBoard::PrepareGraphVertBuff(int arg_num)
@@ -60,9 +60,10 @@ void KuroEngine::DrawFuncBillBoard::Box(Camera& Cam, const Vec3<float>& Pos, con
 	static std::vector<std::shared_ptr<VertexBuffer>>s_boxVertBuff;
 	static std::shared_ptr<TextureBuffer>s_defaultTex = D3D12App::Instance()->GenerateTextureBuffer(Color());
 
-	if (!s_pipeline[BlendMode])GeneratePipeline(BlendMode);
+	const auto targetFormat = KuroEngine::KuroEngineDevice::Instance()->Graphics().GetRecentRenderTargetFormat(0);
+	GeneratePipeline(targetFormat, BlendMode);
 
-	KuroEngine::KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(s_pipeline[BlendMode]);
+	KuroEngine::KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(s_pipeline[targetFormat][BlendMode]);
 
 	if (s_boxVertBuff.size() < (s_drawBoxCount + 1))
 	{
@@ -86,9 +87,10 @@ void KuroEngine::DrawFuncBillBoard::Box(Camera& Cam, const Vec3<float>& Pos, con
 
 void KuroEngine::DrawFuncBillBoard::Graph(Camera& Cam, const Vec3<float>& Pos, const Vec2<float>& Size, std::shared_ptr<TextureBuffer> Tex, const AlphaBlendMode& BlendMode)
 {
-	if (!s_pipeline[BlendMode])GeneratePipeline(BlendMode);
+	const auto targetFormat = KuroEngine::KuroEngineDevice::Instance()->Graphics().GetRecentRenderTargetFormat(0);
+	GeneratePipeline(targetFormat, BlendMode);
 
-	KuroEngine::KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(s_pipeline[BlendMode]);
+	KuroEngine::KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(s_pipeline[targetFormat][BlendMode]);
 
 	if (s_graphVertBuff.size() < (s_drawGraphCount + 1))
 	{

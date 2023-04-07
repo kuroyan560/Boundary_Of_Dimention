@@ -14,9 +14,13 @@ GameScene::GameScene()
 	m_ddsTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.dds");
 	m_pngTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
 
-	KuroEngine::Vec3<float>dir = { -1.0f,-0.8f,0.7f };
+	KuroEngine::Vec3<float>dir = { 0.0f,-1.0f,0.0f };
 	m_dirLig.SetDir(dir.GetNormal());
 	m_ligMgr.RegisterDirLight(&m_dirLig);
+	m_ligMgr.RegisterPointLight(m_player.GetPointLig());
+
+	auto backBuffTarget = KuroEngine::D3D12App::Instance()->GetBackBuffRenderTarget();
+	m_fogPostEffect = std::make_shared<KuroEngine::Fog>(backBuffTarget->GetGraphSize(), backBuffTarget->GetDesc().Format);
 }
 
 
@@ -29,15 +33,20 @@ void GameScene::OnInitialize()
 	StageManager::Instance(),
 	BasicDraw::Instance(),
 	&m_vignettePostEffect,
+	&m_waterPaintBlend,
+	&m_ligMgr,
+	m_fogPostEffect.get(),
 	});
 
 	m_debugCam.Init({ 0,5,-10 });
 
 	KuroEngine::Transform playerInitTransform;
-	playerInitTransform.SetPos({ 0,1.0f,-15 });
+	playerInitTransform.SetPos({ 0,1.0f,-45 });
 	m_player.Init(playerInitTransform);
 
 	m_grass.Init();
+
+	m_waterPaintBlend.Init();
 }
 
 void GameScene::OnUpdate()
@@ -52,11 +61,19 @@ void GameScene::OnUpdate()
 	//デバッグモード更新
 	DebugController::Instance()->Update();
 
-	if (DebugController::Instance()->IsActive())m_debugCam.Move();
+	m_nowCam = m_player.GetCamera().lock();
+	if (DebugController::Instance()->IsActive())
+	{
+		m_debugCam.Move();
+		m_nowCam = m_debugCam;
+	}
 
 	m_player.Update(StageManager::Instance()->GetNowStage());
 
-	m_grass.Update(1.0f, m_player.GetTransform().GetPos(), m_player.GetTransform().GetRotate(), m_player.GetCamera().lock()->GetTransform(), m_player.GetGrassPosScatter());
+	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetOnGround() && m_player.GetIsStatusMove(), m_player.GetCamera().lock()->GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
+	//m_grass.Plant(m_player.GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
+
+	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld());
 }
 
 void GameScene::OnDraw()
@@ -65,67 +82,43 @@ void GameScene::OnDraw()
 	static auto targetSize = D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize();
 	static auto ds = D3D12App::Instance()->GenerateDepthStencil(targetSize);
 
-	static auto main = D3D12App::Instance()->GenerateRenderTarget(
-		D3D12App::Instance()->GetBackBuffFormat(),
-		Color(0.0f, 0.0f, 0.0f, 0.0f),
-		targetSize,
-		L"MainRenderTarget");
-	static auto emissiveMap = D3D12App::Instance()->GenerateRenderTarget(
-		DXGI_FORMAT_R32G32B32A32_FLOAT,
-		Color(0.0f, 0.0f, 0.0f, 1.0f),
-		targetSize, L"EmissiveMap");
-	static auto depthMap = D3D12App::Instance()->GenerateRenderTarget(
-		DXGI_FORMAT_R32_FLOAT,
-		Color(FLT_MAX, 0.0f, 0.0f, 0.0f),
-		targetSize, L"DepthMap");
-	static auto edgeColMap = D3D12App::Instance()->GenerateRenderTarget(
-		D3D12App::Instance()->GetBackBuffFormat(),
-		Color(0.0f, 0.0f, 0.0f, 1.0f),
-		targetSize, L"EdgeColorMap");
-
-	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(emissiveMap);
-	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(depthMap);
-	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(edgeColMap);
-	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
-
-	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(
-		{ 
-			main,
-			emissiveMap,
-			depthMap,
-			edgeColMap
-		},
-		ds
-	);
-
-	auto nowCamera = m_player.GetCamera().lock();
-	if (DebugController::Instance()->IsActive())nowCamera = m_debugCam;
+	//レンダーターゲットのクリアとセット
+	BasicDraw::Instance()->RenderTargetsClearAndSet(ds);
 
 	//ステージ描画
-	StageManager::Instance()->Draw(*nowCamera, m_ligMgr);
+	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
 	
 	Transform transform;
 	transform.SetPos({ -0.5f,0,0 });
 	DrawFunc3D::DrawNonShadingPlane(
 		m_ddsTex,
 		transform,
-		*nowCamera);
+		*m_nowCam);
 
 	transform.SetPos({ 0.5f,0,0 });
 	DrawFunc3D::DrawNonShadingPlane(
 		m_pngTex,
 		transform,
-		*nowCamera);
+		*m_nowCam);
 
-	m_player.Draw(*nowCamera, m_ligMgr, DebugController::Instance()->IsActive());
+	m_player.Draw(*m_nowCam, m_ligMgr, DebugController::Instance()->IsActive());
 
-	m_grass.Draw(*nowCamera, m_ligMgr);
+	m_grass.Draw(*m_nowCam, m_ligMgr);
 
-	m_canvasPostEffect.Execute();
+	//m_canvasPostEffect.Execute();
 
-	BasicDraw::Instance()->DrawEdge(depthMap, edgeColMap);
+	BasicDraw::Instance()->DrawEdge();
 
-	m_vignettePostEffect.Register(main);
+	//KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
+	//m_waterPaintBlend.Register(main, *nowCamera, ds);
+	//m_vignettePostEffect.Register(m_waterPaintBlend.GetResultTex());
+
+	m_fogPostEffect->Register(
+		BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN), 
+		BasicDraw::Instance()->GetRenderTarget(BasicDraw::DEPTH),
+		BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT));
+
+	m_vignettePostEffect.Register(m_fogPostEffect->GetResultTex());
 
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(
 		{

@@ -32,31 +32,6 @@ VSOutput VSmain(float4 pos : POSITION, float2 uv : TEXCOORD)
     return output;
 }
 
-//3x3のガウシアンフィルタをかけてサンプリング
-float4 GaussianSample(float2 uv, float2 dx, float2 dy, float weight)
-{
-    float4 col = float4(0, 0, 0, 0);
-    //左上
-    col += tex.Sample(smp, uv - dx - dy) * (weight / pow(2, 4)) / weight;
-    //左
-    col += tex.Sample(smp, uv - dx) * (weight / pow(2, 3)) / weight;
-    //左下
-    col += tex.Sample(smp, uv - dx + dy) * (weight / pow(2, 4)) / weight;
-    //上
-    col += tex.Sample(smp, uv - dy) * (weight / pow(2, 3)) / weight;
-    //真ん中
-    col += tex.Sample(smp, uv) * (weight / pow(2, 2)) / weight;
-    //下
-    col += tex.Sample(smp, uv + dy) * (weight / pow(2, 3)) / weight;
-    //右上
-    col += tex.Sample(smp, uv + dx - dy) * (weight / pow(2, 4)) / weight;
-    //右
-    col += tex.Sample(smp, uv + dx) * (weight / pow(2, 3)) / weight;
-    //右下
-    col += tex.Sample(smp, uv + dx + dy) * (weight / pow(2, 4)) / weight;
-    return col;
-}
-
 float4 PSmain(VSOutput input) : SV_TARGET
 {
     // - ~ + 範囲に

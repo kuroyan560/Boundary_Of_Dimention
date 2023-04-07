@@ -8,7 +8,7 @@ struct ToonCommonParameter
 {
     float m_brightThresholdLow;
     float m_brightThresholdRange;
-    float m_limThreshold;
+    float m_monochromeRate;
 };
 
 struct ToonIndividualParameter
@@ -16,8 +16,9 @@ struct ToonIndividualParameter
     float4 m_fillColor;
     float4 m_brightMulColor;
     float4 m_darkMulColor;
-    float4 m_limBrightColor;
     float4 m_edgeColor;
+    int m_drawMask;
+    int m_isPlayer;
 };
 
 cbuffer cbuff0 : register(b0)
@@ -49,19 +50,24 @@ cbuffer cbuff3 : register(b3)
 Texture2D<float4> baseTex : register(t4);
 SamplerState smp : register(s0);
 
-cbuffer cbuff3 : register(b4)
+cbuffer cbuff4 : register(b4)
 {
     Material material;
 }
 
-cbuffer cbuff4 : register(b5)
+cbuffer cbuff5 : register(b5)
 {
     ToonCommonParameter toonCommonParam;
 }
 
-cbuffer cbuff5 : register(b6)
+cbuffer cbuff6 : register(b6)
 {
     ToonIndividualParameter toonIndividualParam;
+}
+
+cbuffer cbuff7 : register(b7)
+{
+    float3 playerPos;
 }
 
 struct VSOutput
@@ -129,7 +135,9 @@ struct PSOutput
     float4 color : SV_Target0;
     float4 emissive : SV_Target1;
     float depth : SV_Target2;
-    float4 edgeColor : SV_Target3;
+    float4 normal : SV_Target3;
+    float4 edgeColor : SV_Target4;
+    uint4 bright : SV_Target5;
 };
 
 PSOutput PSmain(VSOutput input) : SV_TARGET
@@ -139,8 +147,6 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     
     //ライトの影響
     float3 diffuseEf = { 0, 0, 0 };
-    float3 specularEf = { 0, 0, 0 };
-    float3 limEf = { 0, 0, 0 };
     
     //ディレクションライト
     for (int i = 0; i < ligNum.dirLigNum; ++i)
@@ -150,8 +156,6 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
         float3 dir = dirLight[i].direction;
         float3 ligCol = dirLight[i].color.xyz * dirLight[i].color.w;
         diffuseEf += CalcLambertDiffuse(dir, ligCol, normal) * (material.diffuse * material.diffuseFactor);
-        specularEf += CalcPhongSpecular(dir, ligCol, normal, input.worldpos, cam.eyePos) * (material.specular * material.specularFactor);
-        limEf += CalcLimLight(dir, ligCol, normal, vnormal);
     }
     //ポイントライト
     for (int i = 0; i < ligNum.ptLigNum; ++i)
@@ -164,7 +168,6 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
         
         //減衰なし状態
         float3 diffPoint = CalcLambertDiffuse(dir, ligCol, normal);
-        float3 specPoint = CalcPhongSpecular(dir, ligCol, normal, input.worldpos, cam.eyePos);
         
         //距離による減衰
         float3 distance = length(input.worldpos - pointLight[i].pos);
@@ -176,11 +179,8 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
 		//影響を指数関数的にする
         affect = pow(affect, 3.0f);
         diffPoint *= affect;
-        specPoint *= affect;
         
         diffuseEf += diffPoint * (material.diffuse * material.diffuseFactor);
-        specularEf += specPoint * (material.specular * material.specularFactor);
-        limEf += CalcLimLight(dir, ligCol, normal, vnormal);
     }
     //スポットライト
     for (int i = 0; i < ligNum.spotLigNum; ++i)
@@ -193,7 +193,6 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
         
         //減衰なし状態
         float3 diffSpotLight = CalcLambertDiffuse(ligDir, ligCol, normal);
-        float3 specSpotLight = CalcPhongSpecular(ligDir, ligCol, normal, input.worldpos, cam.eyePos);
         
         //スポットライトとの距離を計算
         float3 distance = length(input.worldpos - spotLight[i].pos);
@@ -205,7 +204,6 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     //影響を指数関数的にする
         affect = pow(affect, 3.0f);
         diffSpotLight *= affect;
-        specSpotLight *= affect;
     
         float3 spotlim = CalcLimLight(ligDir, ligCol, normal, vnormal) * affect;
         
@@ -218,8 +216,6 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
         affect = pow(affect, 0.5f);
         
         diffuseEf += diffSpotLight * affect * (material.diffuse * material.diffuseFactor);
-        specularEf += specSpotLight * affect * (material.specular * material.specularFactor);
-        limEf += spotlim * affect;
     }
     //天球
     for (int i = 0; i < ligNum.hemiSphereNum; ++i)
@@ -232,7 +228,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
         diffuseEf += hemiLight;
     }
     
-    float3 ligEffect = diffuseEf + specularEf + limEf;
+    float3 ligEffect = diffuseEf;
     
     float4 texCol = baseTex.Sample(smp, input.uv);
     texCol.xyz += material.baseColor.xyz;
@@ -257,17 +253,29 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
 
     //=========================================================================
 
-    //リムライト強調
-    float limEfBright = GetColorBright(limEf.rgb);
-    float limThresholdResult = step(toonCommonParam.m_limThreshold, limEfBright);
-    
-    //リムライト部分の補正色適用
-    float3 limBrightCol = toonIndividualParam.m_limBrightColor.xyz * toonIndividualParam.m_limBrightColor.w
-    + ligEffCol.xyz * (1.0f - toonIndividualParam.m_limBrightColor.w);
-    result.xyz = limThresholdResult * limBrightCol.xyz + (1.0f - limThresholdResult) * result.xyz;
-
     //塗りつぶし
     result.xyz = toonIndividualParam.m_fillColor.xyz * toonIndividualParam.m_fillColor.w + result.xyz * (1.0f - toonIndividualParam.m_fillColor.w);
+    
+    //プレイヤーを光源とした場合の光の当たり具合を求める
+    float3 ligRay = input.worldpos - playerPos;
+    float bright = dot(-normalize(ligRay), input.normal);
+    //-1 ~ 1 から 0 ~ 1の範囲に収める
+    bright = (bright + 1.0f) / 2.0f;
+	//影響率は距離に比例して小さくなっていく
+    float range = 40.0f;
+    float affect = 1.0f - 1.0f / range * length(ligRay);
+	//影響力がマイナスにならないように補正をかける
+    if (affect < 0.0f)
+        affect = 0.0f;
+    bright *= affect;
+    //bright = smoothstep(0.45f, 0.47f, bright);
+    int isBright = step(0.45f, bright);
+    if (toonIndividualParam.m_isPlayer)
+        isBright = 1;
+    result.xyz *= lerp(0.5f, 1.0f, isBright);
+    
+    //光が当たっていないならモノクロ化
+    result.xyz = lerp(lerp(result.xyz, Monochrome(result.xyz), toonCommonParam.m_monochromeRate), result.xyz, isBright);
     
     PSOutput output;
     output.color = result;
@@ -280,13 +288,12 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     //    output.emissive += result;
     // output.emissive.w = result.w;
     output.depth = input.depthInView;
+    
+    output.normal.xyz = input.normal;
 
-    output.edgeColor = toonIndividualParam.m_edgeColor;
+    output.edgeColor = toonIndividualParam.m_edgeColor * lerp(0.2f, 1.0f, isBright);
+    
+    output.bright.x = isBright;
     
     return output;
-}
-
-float4 main( float4 pos : POSITION ) : SV_POSITION
-{
-	return pos;
 }

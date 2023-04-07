@@ -2,45 +2,39 @@
   "BasicDraw": {
     "DefaultDrawParam": {
       "BrightMulColor": [
-        0.3025548458099365,
-        0.9281768202781677,
-        0.3993360698223114,
+        0.28791213035583496,
+        0.9265536665916443,
+        0.6342940330505371,
         0.8563535809516907
       ],
       "DarkMulColor": [
-        0.39501893520355225,
-        0.6850829124450684,
-        0.31793901324272156,
+        0.26869675517082214,
+        0.3898305296897888,
+        0.33029019832611084,
         0.4364640712738037
       ],
       "EdgeColor": [
-        0.1260034739971161,
-        0.530386745929718,
-        0.4030395448207855,
+        0.2808261215686798,
+        0.9378530979156494,
+        0.5480912327766418,
         1.0
       ],
       "FillColor": [
-        0.988950252532959,
-        0.13659539818763733,
-        0.13659539818763733,
-        0.0
-      ],
-      "LimBrightColor": [
-        0.0,
         1.0,
-        0.9171268939971924,
+        1.0,
+        1.0,
         0.0
       ]
     },
     "Edge": {
-      "DepthDifferenceThreshold": 0.800000011920929
+      "DepthDifferenceThreshold": 3.0
     },
     "Toon": {
       "BrightThreshold": {
         "Low": 0.6600000262260437,
         "Range": 0.029999999329447746
       },
-      "LimThreshold": 0.4000000059604645
+      "MonochromeRate": 0.800000011920929
     },
     "debuggerSetting": {
       "active": false,
@@ -55,12 +49,10 @@
     }
   },
   "CameraController": {
-    "FollowLerpRate": 0.800000011920929,
     "InitializedParameter": {
       "posOffsetZ": -18.0,
       "xAxisAngle": 0.44999998807907104
     },
-    "PosLerpRate": 0.800000011920929,
     "debuggerSetting": {
       "active": true,
       "customParamActive": true,
@@ -83,7 +75,88 @@
     },
     "xAxisAngle": {
       "max": 0.5989999771118164,
-      "min": 0.1745329201221466
+      "min": -0.5989999771118164
+    }
+  },
+  "DOF": {
+    "Config": {
+      "Blur": 0.6000000238418579,
+      "farPint": 30.0,
+      "nearPint": 10.600000381469727,
+      "pintLength": 30.0
+    },
+    "debuggerSetting": {
+      "active": false,
+      "customParamActive": true,
+      "imageColor": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "textColorFlg": false
+    }
+  },
+  "Fog": {
+    "Color": {
+      "fogColor": {
+        "far": [
+          0.15314602851867676,
+          0.4736841917037964,
+          0.40861254930496216,
+          1.0
+        ],
+        "near": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      },
+      "useTex": 0
+    },
+    "Config": {
+      "distMax": 35.75,
+      "distMin": 0.30000001192092896,
+      "intensity": 1.0,
+      "opacityMax": 0.800000011920929
+    },
+    "debuggerSetting": {
+      "active": false,
+      "customParamActive": true,
+      "imageColor": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "textColorFlg": false
+    }
+  },
+  "Fps": {
+    "debuggerSetting": {
+      "active": false,
+      "customParamActive": false,
+      "imageColor": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "textColorFlg": false
+    }
+  },
+  "LightManager": {
+    "debuggerSetting": {
+      "active": false,
+      "customParamActive": false,
+      "imageColor": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "textColorFlg": false
     }
   },
   "OperationConfig": {
@@ -110,7 +183,7 @@
       "sensitivity": 1.0
     },
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.864130437374115,
@@ -119,8 +192,7 @@
         1.0
       ],
       "textColorFlg": false
-    },
-    "moveScalar": 0.5
+    }
   },
   "StageManager": {
     "debuggerSetting": {
@@ -137,7 +209,7 @@
     "scaling": {
       "ground": 311.3999938964844,
       "skydome": 500.54998779296875,
-      "terrian": 2.3499999046325684,
+      "terrian": 5.0,
       "woods": {
         "height": 186.0,
         "radius": 309.0
@@ -150,10 +222,10 @@
       0.5
     ],
     "color": [
-      0.37145015597343445,
-      0.634920597076416,
-      0.327538400888443,
-      0.476190447807312
+      0.1349206566810608,
+      0.1349206566810608,
+      0.1349206566810608,
+      0.9254902005195618
     ],
     "debuggerSetting": {
       "active": false,
@@ -168,5 +240,25 @@
     },
     "intensity": 0.4000000059604645,
     "smoothness": 0.4000000059604645
+  },
+  "WaterPaintBlend": {
+    "ConstData": {
+      "initScale": 6.0,
+      "posOffsetMax": 0.20000000298023224
+    },
+    "MaskInk": {
+      "updateSpan": 5
+    },
+    "debuggerSetting": {
+      "active": false,
+      "customParamActive": true,
+      "imageColor": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "textColorFlg": false
+    }
   }
 }

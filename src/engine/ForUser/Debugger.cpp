@@ -3,6 +3,7 @@
 #include"KuroEngine.h"
 
 std::vector<KuroEngine::Debugger*>KuroEngine::Debugger::s_debuggerArray;
+std::vector<KuroEngine::Debugger*>KuroEngine::Debugger::s_registeredDebuggerArray;
 int KuroEngine::Debugger::s_id = 0;
 const std::string KuroEngine::Debugger::s_jsonFileDir = "resource/engine/";
 const std::string KuroEngine::Debugger::s_jsonName = "KuroEngineDebugger";
@@ -22,7 +23,7 @@ void KuroEngine::Debugger::Draw()
 	ImGui::Begin("DebuggerMgr", nullptr, ImGuiWindowFlags_NoDocking);
 	Fps::Instance()->OnImguiItems();
 	ImGui::Separator();
-	for (auto& debugger : s_debuggerArray)
+	for (auto& debugger : s_registeredDebuggerArray)
 	{
 		bool colorWidget = false;
 		if (ImGui::ColorButton(("ColorWidget" + debugger->m_title).c_str(), debugger->m_debuggerColor))colorWidget = true;
@@ -41,7 +42,7 @@ void KuroEngine::Debugger::Draw()
 	}
 	ImGui::End();
 
-	for (auto& debugger : s_debuggerArray)
+	for (auto& debugger : s_registeredDebuggerArray)
 	{
 		if (!debugger->m_active)continue;
 
@@ -124,7 +125,7 @@ void KuroEngine::Debugger::LoadParameterLog()
 			jsonObj = &jsonObj->at(key);
 		}
 
-		if (noKey)break;
+		if (noKey)continue;
 
 		switch (param.m_type)
 		{
@@ -136,19 +137,19 @@ void KuroEngine::Debugger::LoadParameterLog()
 		}
 		case PARAM_TYPE::INT_VEC2:
 		{
-			Vec2<int>data = { (int)jsonObj[0],(int)jsonObj[1] };
+			Vec2<int>data = { (int)jsonObj->at(0),(int)jsonObj->at(1) };
 			memcpy(param.m_dataPtr, &data, sizeof(int) * 2);
 			break;
 		}
 		case PARAM_TYPE::INT_VEC3:
 		{
-			Vec3<int>data = { (int)jsonObj[0],(int)jsonObj[1],(int)jsonObj[2] };
+			Vec3<int>data = { (int)jsonObj->at(0),(int)jsonObj->at(1),(int)jsonObj->at(2) };
 			memcpy(param.m_dataPtr, &data, sizeof(int) * 3);
 			break;
 		}
 		case PARAM_TYPE::INT_VEC4:
 		{
-			Vec4<int>data = { (int)jsonObj[0],(int)jsonObj[1],(int)jsonObj[2],(int)jsonObj[3] };
+			Vec4<int>data = { (int)jsonObj->at(0),(int)jsonObj->at(1),(int)jsonObj->at(2),(int)jsonObj->at(3) };
 			memcpy(param.m_dataPtr, &data, sizeof(int) * 4);
 			break;
 		}
@@ -204,8 +205,6 @@ void KuroEngine::Debugger::LoadParameterLog()
 			break;
 		}
 	}
-
-	OnLoadCustomParams();
 }
 
 void KuroEngine::Debugger::WriteParameterLog()

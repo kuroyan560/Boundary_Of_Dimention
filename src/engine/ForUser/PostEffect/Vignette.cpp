@@ -13,24 +13,19 @@ void KuroEngine::Vignette::OnImguiItems()
 	}
 }
 
-void KuroEngine::Vignette::OnLoadCustomParams()
-{
-	m_vignetteInfoBuff->Mapping(&m_vignetteInfo);
-}
-
 KuroEngine::Vignette::Vignette() : Debugger("Vignette")
 {
+	AddCustomParameter("intensity", { "intensity" }, PARAM_TYPE::FLOAT, &m_vignetteInfo.m_intensity, "Info");
+	AddCustomParameter("smoothness", { "smoothness" }, PARAM_TYPE::FLOAT, &m_vignetteInfo.m_smoothness, "Info");
+	AddCustomParameter("center", { "center" }, PARAM_TYPE::FLOAT_VEC2, &m_vignetteInfo.m_center, "Info", true, 0.0f, 1.0f);
+	AddCustomParameter("color", { "color" }, PARAM_TYPE::COLOR, &m_vignetteInfo.m_color, "Info");
+	LoadParameterLog();
+
 	m_resultTex = D3D12App::Instance()->GenerateRenderTarget(D3D12App::Instance()->GetBackBuffFormat(),
 		Color(0, 0, 0, 0), D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize(), L"Vignette_Result");
 	m_vignetteInfoBuff = D3D12App::Instance()->GenerateConstantBuffer(sizeof(Info), 1, &m_vignetteInfo, "Vignette - Info");
 	m_spriteMesh = std::make_shared<SpriteMesh>("Vignette - Mesh");
 	m_spriteMesh->SetSize(KuroEngine::WinApp::Instance()->GetExpandWinSize());
-
-
-	AddCustomParameter("intensity", { "intensity" }, PARAM_TYPE::FLOAT, &m_vignetteInfo.m_intensity, "Info");
-	AddCustomParameter("smoothness", { "smoothness" }, PARAM_TYPE::FLOAT, &m_vignetteInfo.m_smoothness, "Info");
-	AddCustomParameter("center", { "center" }, PARAM_TYPE::FLOAT_VEC2, &m_vignetteInfo.m_center, "Info", true, 0.0f, 1.0f);
-	AddCustomParameter("color", { "color" }, PARAM_TYPE::COLOR, &m_vignetteInfo.m_color, "Info");
 }
 
 void KuroEngine::Vignette::Register(const std::shared_ptr<TextureBuffer>& arg_srcTex)

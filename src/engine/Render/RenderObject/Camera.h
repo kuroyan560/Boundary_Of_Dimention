@@ -24,6 +24,8 @@ namespace KuroEngine
 			Matrix billboardMat = XMMatrixIdentity();
 			Matrix billboardMatY = XMMatrixIdentity();
 			Vec3<float> eye = { 0,0,0 }; // カメラ座標（ワールド座標）
+			float nearClip = 0.1f;
+			float farClip = 3000.0f;
 		}cameraInfo;
 		std::shared_ptr<ConstantBuffer>buff;
 

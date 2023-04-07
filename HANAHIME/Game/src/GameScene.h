@@ -6,6 +6,8 @@
 #include"Graphics/CanvasPostEffect.h"
 #include"ForUser/PostEffect/Vignette.h"
 #include"Stage/Grass.h"
+#include"Graphics/WaterPaintBlend.h"
+#include"ForUser/PostEffect/Fog.h"
 
 class GameScene : public KuroEngine::BaseScene
 {
@@ -20,13 +22,22 @@ class GameScene : public KuroEngine::BaseScene
 	//ディレクションライト
 	KuroEngine::Light::Direction m_dirLig;
 
+	//フォグポストエフェクト
+	std::shared_ptr<KuroEngine::Fog>m_fogPostEffect;
+
 	//ヴィネットポストエフェクト
 	KuroEngine::Vignette m_vignettePostEffect;
 
 	//キャンバスに描いた風にするポストエフェクト（Gris的な）
 	CanvasPostEffect m_canvasPostEffect;
 
+	//草むら
 	Grass m_grass;
+
+	//水彩画風ブレンドポストエフェクト
+	WaterPaintBlend m_waterPaintBlend;
+
+	std::shared_ptr<KuroEngine::Camera>m_nowCam;
 
 	void OnInitialize()override;
 	void OnUpdate()override;

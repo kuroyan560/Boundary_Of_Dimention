@@ -12,6 +12,8 @@ OperationConfig::OperationConfig()
         AddCustomParameter("CameraSensitivity", { deviceName,"CameraSensitivity" },
             PARAM_TYPE::FLOAT, &m_params[i].m_camSensitivity, deviceName);
     }
+
+    LoadParameterLog();
 }
 
 void OperationConfig::OnImguiItems()
@@ -49,6 +51,29 @@ KuroEngine::Vec3<float> OperationConfig::GetMoveVec(KuroEngine::Quaternion arg_r
 
     //左スティックの入力を変換
     auto input = UsersInput::Instance()->GetLeftStickVec(0);
+    if (!input.IsZero())RegisterLatestDevice(INPUT_DEVICE::CONTROLLER);
+    result = Vec3<float>(input.x, 0.0f, -input.y);
+    return KuroEngine::Math::TransformVec3(result.GetNormal(), arg_rotate);
+}
+
+KuroEngine::Vec3<float> OperationConfig::GetMoveVecFuna(KuroEngine::Quaternion arg_rotate)
+{
+    using namespace KuroEngine;
+
+    Vec3<float>result;
+
+    if (UsersInput::Instance()->KeyInput(DIK_W))result.z += 1.0f;
+    if (UsersInput::Instance()->KeyInput(DIK_S))result.z -= 1.0f;
+    if (UsersInput::Instance()->KeyInput(DIK_D))result.x += 1.0f;
+    if (UsersInput::Instance()->KeyInput(DIK_A))result.x -= 1.0f;
+    if (!result.IsZero())
+    {
+        RegisterLatestDevice(INPUT_DEVICE::KEY_BOARD_MOUSE);
+        return KuroEngine::Math::TransformVec3(result.GetNormal(), arg_rotate);
+    }
+
+    //左スティックの入力を変換
+    auto input = UsersInput::Instance()->GetLeftStickVecFuna(0);
     if (!input.IsZero())RegisterLatestDevice(INPUT_DEVICE::CONTROLLER);
     result = Vec3<float>(input.x, 0.0f, -input.y);
     return KuroEngine::Math::TransformVec3(result.GetNormal(), arg_rotate);

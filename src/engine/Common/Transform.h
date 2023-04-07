@@ -77,6 +77,13 @@ namespace KuroEngine
 			XMVECTOR parent = m_parent ? m_parent->GetRotateWorld() : XMQuaternionIdentity();
 			return XMQuaternionMultiply(parent, m_rotate);
 		}
+		//親のトランスフォームも考慮した座標
+		Vec3<float>GetPosWorld()
+		{
+			const auto& worldMat = GetMatWorld();
+			return { worldMat.r[3].m128_f32[0],worldMat.r[3].m128_f32[1],worldMat.r[3].m128_f32[2] };
+
+		}
 
 		//オイラー角で回転量取得
 		Vec3<Angle> GetRotateAsEuler()const {
@@ -137,7 +144,7 @@ namespace KuroEngine
 			MatReset();
 		}
 		void SetRotate(const Angle& X, const Angle& Y, const Angle& Z) {
-			SetRotate(XMQuaternionRotationRollPitchYaw(Y, Z, -X));
+			SetRotate(XMQuaternionRotationRollPitchYaw(X, Y, -Z));
 		}
 		void SetRotate(const Matrix& RotateMat) {
 			SetRotate(XMQuaternionRotationMatrix(RotateMat));

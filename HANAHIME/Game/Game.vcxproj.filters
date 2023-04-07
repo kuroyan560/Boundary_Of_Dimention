@@ -244,9 +244,6 @@
     <ClCompile Include="..\..\src\engine\Render\CubeMap.cpp">
       <Filter>src\engine\Render</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\engine\Render\DOF.cpp">
-      <Filter>src\engine\Render</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\engine\Render\GraphicsManager.cpp">
       <Filter>src\engine\Render</Filter>
     </ClCompile>
@@ -303,6 +300,15 @@
     </ClCompile>
     <ClCompile Include="src\Graphics\CanvasPostEffect.cpp">
       <Filter>src\user\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\WaterPaintBlend.cpp">
+      <Filter>src\user\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\DOF.cpp">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\Fog.cpp">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -534,9 +540,6 @@
     <ClInclude Include="..\..\src\engine\Render\CubeMap.h">
       <Filter>src\engine\Render</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\engine\Render\DOF.h">
-      <Filter>src\engine\Render</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\engine\Render\GraphicsManager.h">
       <Filter>src\engine\Render</Filter>
     </ClInclude>
@@ -593,6 +596,15 @@
     </ClInclude>
     <ClInclude Include="src\Graphics\CanvasPostEffect.h">
       <Filter>src\user\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\WaterPaintBlend.h">
+      <Filter>src\user\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\DOF.h">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\Fog.h">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
