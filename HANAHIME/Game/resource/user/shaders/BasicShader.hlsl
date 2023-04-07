@@ -260,16 +260,15 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     float3 ligRay = input.worldpos - playerPos;
     float bright = dot(-normalize(ligRay), input.normal);
     //-1 ~ 1 から 0 ~ 1の範囲に収める
-    bright = (bright + 1.0f) / 2.0f;
+    bright = saturate(bright);
 	//影響率は距離に比例して小さくなっていく
     float range = 40.0f;
-    float affect = 1.0f - 1.0f / range * length(ligRay);
-	//影響力がマイナスにならないように補正をかける
-    if (affect < 0.0f)
-        affect = 0.0f;
+    float affect = saturate(1.0f - 1.0f / range * length(ligRay));
+    //減衰させる
     bright *= affect;
-    //bright = smoothstep(0.45f, 0.47f, bright);
-    int isBright = step(0.45f, bright);
+    //ライトにあたっているかどうかを距離で判断
+    float brighRange = 8.0f;
+    int isBright = 1.0f - step(brighRange, length(ligRay));
     if (toonIndividualParam.m_isPlayer)
         isBright = 1;
     result.xyz *= lerp(0.5f, 1.0f, isBright);
