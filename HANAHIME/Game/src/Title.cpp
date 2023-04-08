@@ -131,14 +131,6 @@ void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligM
 	if (!m_startGameFlag)
 	{
 		//ƒ^ƒCƒgƒ‹ƒƒS•`‰æ
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_titlePos.Float(), m_titleLogoSize.Float(), 0.0f, m_blackTexBuff);
+		//KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_titlePos.Float(), m_titleLogoSize.Float(), 0.0f, m_blackTexBuff);
 	}
-	static IndividualDrawParameter drawParam = IndividualDrawParameter::GetDefault();
-	drawParam.m_isPlayer = 1;
-	BasicDraw::Instance()->Draw(
-		arg_cam,
-		arg_ligMgr,
-		m_model,
-		m_transform,
-		drawParam);
 }

@@ -171,7 +171,7 @@ void GameScene::OnDraw()
 	m_vignettePostEffect.Register(m_fogPostEffect->GetResultTex());
 
 
-	title.Draw();
+	title.Draw(*m_nowCam, m_ligMgr);
 
 	m_gateSceneChange.Draw();
 

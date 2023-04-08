@@ -18,14 +18,13 @@ struct MovieCameraEaseData
 struct MovieCameraData
 {
 	KuroEngine::Transform transform;	//制御点の位置
-	bool skipInterpolationFlag;			//座標と角度の補間をスキップするかどうか
 	int interpolationTimer;				//次の制御点に向かうまでの秒数
 	int preStopTimer;					//カメラが定位置につく前にどれくらいの秒数止まるか
 	int afterStopTimer;					//カメラが定位置についてどれくらいの秒数止まるか
 	MovieCameraEaseData easePosData;	//カメラ座標の補間の仕方
 	MovieCameraEaseData easeRotaData;	//カメラ角度の補間の仕方
 
-	MovieCameraData() : preStopTimer(0),afterStopTimer(0)
+	MovieCameraData() : interpolationTimer(0), preStopTimer(0), afterStopTimer(0)
 	{};
 };
 
