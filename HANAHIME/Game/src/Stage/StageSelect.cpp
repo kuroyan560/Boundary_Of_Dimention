@@ -11,6 +11,10 @@ StageSelect::StageSelect()
 	//ステージ選択用のゲート生成----------------------------------------
 }
 
+void StageSelect::Init()
+{
+}
+
 void StageSelect::Update()
 {
 	for (auto &obj : m_gateArray)

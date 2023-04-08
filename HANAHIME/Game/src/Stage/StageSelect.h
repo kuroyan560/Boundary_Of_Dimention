@@ -10,6 +10,7 @@ class StageSelect
 {
 public:
 	StageSelect();
+	void Init();
 	void Update();
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr);
 

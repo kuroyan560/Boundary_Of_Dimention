@@ -9,6 +9,7 @@ class Title
 {
 public:
 	Title();
+	void Init();
 	void Update(KuroEngine::Transform *player_camera);
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr);
 
@@ -23,8 +24,6 @@ public:
 private:
 	//カメラの移動情報
 	std::vector<MovieCameraData>titleCameraMoveDataArray;
-	std::vector<MovieCameraData>moveToTreeDataArray;
-
 	//ゲーム開始フラグ
 	bool m_startGameFlag;
 	//OPフラグ
@@ -37,15 +36,10 @@ private:
 	MovieCamera m_camera;
 
 	//タイトルロゴ
-	KuroEngine::Vec2<int> m_titlePos, m_titleLogoSize;
+	KuroEngine::Vec2<float> m_titlePos, m_titleLogoSize;
 	std::shared_ptr<KuroEngine::TextureBuffer> m_blackTexBuff;
+	KuroEngine::Timer m_alphaRate;
 
-
-	//卵
-	KuroEngine::Vec3<float>m_pos, m_rota;
-	KuroEngine::Transform m_transform;
-	std::shared_ptr<KuroEngine::Model>m_model;
-	
 
 };
 
