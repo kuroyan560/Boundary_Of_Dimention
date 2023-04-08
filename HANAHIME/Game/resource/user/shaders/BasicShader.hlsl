@@ -21,6 +21,12 @@ struct ToonIndividualParameter
     int m_isPlayer;
 };
 
+struct PlayerInfo
+{
+    float3 m_worldPos;
+    float2 m_screenPos;
+};
+
 cbuffer cbuff0 : register(b0)
 {
     Camera cam;
@@ -67,7 +73,7 @@ cbuffer cbuff6 : register(b6)
 
 cbuffer cbuff7 : register(b7)
 {
-    float3 playerPos;
+    PlayerInfo player;
 }
 
 struct VSOutput
@@ -258,7 +264,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     result.xyz = toonIndividualParam.m_fillColor.xyz * toonIndividualParam.m_fillColor.w + result.xyz * (1.0f - toonIndividualParam.m_fillColor.w);
     
     //プレイヤーを光源とした場合の光の当たり具合を求める
-    float3 ligRay = input.worldpos - playerPos;
+    float3 ligRay = input.worldpos - player.m_worldPos;
     float bright = dot(-normalize(ligRay), input.normal);
     //-1 ~ 1 から 0 ~ 1の範囲に収める
     bright = (bright + 1.0f) / 2.0f;
@@ -283,7 +289,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
 
     //プレイヤーより向こう側
     output.farThanPlayerColor = result;
-    float playerDepth = mul(cam.view, float4(playerPos, 1)).z - 2.0f;
+    float playerDepth = mul(cam.view, float4(player.m_worldPos, 1)).z - 2.0f;
     output.farThanPlayerColor.w = step(playerDepth, input.depthInView);
     
         //明るさ計算

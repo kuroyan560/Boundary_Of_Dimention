@@ -227,12 +227,14 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		"BasicDraw - EdgeCommonParameter");
 
 	//プレイヤーの座標を送るための定数バッファ用意
-	KuroEngine::Vec3<float>initSendPos = { FLT_MAX,FLT_MAX,FLT_MAX };
-	m_playerPosBuffer = D3D12App::Instance()->GenerateConstantBuffer(
-		sizeof(Vec3<float>),
+	PlayerInfo initSendPlayerInfo;
+	initSendPlayerInfo.m_worldPos = { FLT_MAX,FLT_MAX,FLT_MAX };
+	initSendPlayerInfo.m_screenPos = { 0,0 };
+	m_playerInfoBuffer = D3D12App::Instance()->GenerateConstantBuffer(
+		sizeof(PlayerInfo),
 		1,
-		&initSendPos,
-		"BasicDraw - PlayerPos");
+		&initSendPlayerInfo,
+		"BasicDraw - PlayerInfo");
 
 	//レンダーターゲット生成
 	std::array<std::string, RENDER_TARGET_TYPE::NUM>targetNames =
@@ -250,14 +252,17 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 	}
 }
 
-void BasicDraw::Update(KuroEngine::Vec3<float> arg_playerPos)
+void BasicDraw::Update(KuroEngine::Vec3<float> arg_playerPos, KuroEngine::Camera& arg_cam)
 {
 	using namespace KuroEngine;
 
 	//プレイヤーの座標に変化があったらデータ送信
-	if (FLT_EPSILON < m_playerPosBuffer->GetResource()->GetBuffOnCpu<Vec3<float>>()->Distance(arg_playerPos))
+	if (FLT_EPSILON < m_playerInfoBuffer->GetResource()->GetBuffOnCpu<PlayerInfo>()->m_worldPos.Distance(arg_playerPos))
 	{
-		m_playerPosBuffer->Mapping(&arg_playerPos);
+		PlayerInfo sendInfo;
+		sendInfo.m_worldPos = arg_playerPos;
+		sendInfo.m_screenPos = ConvertWorldToScreen(arg_playerPos, arg_cam.GetViewMat(), arg_cam.GetProjectionMat(), m_renderTargetArray[MAIN]->GetGraphSize().Float());
+		m_playerInfoBuffer->Mapping(&sendInfo);
 	}
 }
 
@@ -317,7 +322,7 @@ void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_
 				{mesh.material->buff,CBV},
 				{m_toonCommonParamBuff,CBV},
 				{m_toonIndividualParamBuff[m_individualParamCount],CBV},
-				{m_playerPosBuffer,CBV},
+				{m_playerInfoBuffer,CBV},
 			},
 			arg_transform.GetPos().z,
 			arg_blendMode == AlphaBlendMode_Trans);
@@ -399,7 +404,7 @@ void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightMan
 				{mesh.material->buff,CBV},
 				{m_toonCommonParamBuff,CBV},
 				{m_toonIndividualParamBuff[m_individualParamCount],CBV},
-				{m_playerPosBuffer,CBV},
+				{m_playerInfoBuffer,CBV},
 			},
 			arg_depth,
 			arg_blendMode == AlphaBlendMode_Trans,

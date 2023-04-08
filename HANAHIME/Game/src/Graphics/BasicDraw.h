@@ -52,8 +52,13 @@ private:
 	};
 	EdgeCommonParameter m_edgeShaderParam;
 
-	//プレイヤーの座標を送るための定数バッファ
-	std::shared_ptr<KuroEngine::ConstantBuffer>m_playerPosBuffer;
+	//プレイヤーに関する情報の定数バッファ
+	struct PlayerInfo
+	{
+		KuroEngine::Vec3<float>m_worldPos;
+		KuroEngine::Vec2<float>m_screenPos;
+	};
+	std::shared_ptr<KuroEngine::ConstantBuffer>m_playerInfoBuffer;
 
 	//モデル通常描画カウント
 	int m_drawCount = 0;
@@ -88,6 +93,7 @@ private:
 
 	//プレイヤーより手前のオブジェクトを透過させる際のテクスチャ
 	std::shared_ptr<KuroEngine::TextureBuffer>m_playerMaskTex;
+	//プレイヤーより手前のオブジェクトを透過させるコンピュートシェーダー
 	
 	void OnImguiItems()override;
 
@@ -100,7 +106,7 @@ public:
 		m_individualParamCount = 0;
 	}
 
-	void Update(KuroEngine::Vec3<float>arg_playerPos);
+	void Update(KuroEngine::Vec3<float>arg_playerPos, KuroEngine::Camera& arg_cam);
 
 	void RenderTargetsClearAndSet(std::weak_ptr<KuroEngine::DepthStencil>arg_ds);
 
