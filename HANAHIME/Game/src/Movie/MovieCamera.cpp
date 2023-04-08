@@ -72,6 +72,8 @@ void MovieCamera::Update()
 		m_finishFlag = true;
 	}
 
+	
+	m_nowTransform.CalucuratePosRotaBasedOnWorldMatrix();
 	auto &copy = m_cam->GetTransform();
 	copy.SetParent(&m_nowTransform);
 }

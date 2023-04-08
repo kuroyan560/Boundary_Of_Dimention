@@ -85,7 +85,6 @@ void GameScene::OnUpdate()
 	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetOnGround(), m_player.GetCamera().lock()->GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
 	//m_grass.Plant(m_player.GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
 	title.Update(&m_player.GetCamera().lock()->GetTransform());
-
 	//ホームでの処理----------------------------------------
 
 	//ステージ選択
