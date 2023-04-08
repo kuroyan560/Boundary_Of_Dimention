@@ -1,194 +1,610 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\..\lib\imgui\imgui_demo.cpp" />
-    <ClCompile Include="..\..\lib\imgui\imgui_draw.cpp" />
-    <ClCompile Include="..\..\lib\imgui\imgui_impl_dx12.cpp" />
-    <ClCompile Include="..\..\lib\imgui\imgui.cpp" />
-    <ClCompile Include="..\..\lib\imgui\imgui_impl_win32.cpp" />
-    <ClCompile Include="..\..\lib\imgui\imgui_spectrum.cpp" />
-    <ClCompile Include="..\..\lib\imgui\imgui_tables.cpp" />
-    <ClCompile Include="..\..\lib\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="..\..\src\engine\Common\PerlinNoise.cpp" />
-    <ClCompile Include="..\..\src\engine\Common\Primitive.cpp" />
-    <ClCompile Include="..\..\src\engine\Common\Subject.cpp" />
-    <ClCompile Include="..\..\src\engine\Common\Transform.cpp" />
-    <ClCompile Include="..\..\src\engine\Common\Transform2D.cpp" />
-    <ClCompile Include="..\..\src\engine\DirectX12\D3D12App.cpp" />
-    <ClCompile Include="..\..\src\engine\DirectX12\D3D12Data.cpp" />
-    <ClCompile Include="..\..\src\engine\DirectX12\DescriptorHeap.cpp" />
-    <ClCompile Include="..\..\src\engine\DirectX12\Swapchain.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\Collision\Collider.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\Collision\Collision.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\Collision\CollisionManager.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\DebugCamera.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\Debugger.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Color.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_FillTex.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Mask.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Shadow.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\3D\DrawFunc3D.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\BillBoard\DrawFuncBillBoard.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\HandShake.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\ImguiDebugInterface.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\ImpactShake.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\JsonData.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\MotionWork.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\Object\Model.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\Object\Object.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\Object\Sprite.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\Object\Sprite_Shadow.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\CRTColorNoise.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\DOF.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\Fog.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\GaussianBlur.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\RadialBlur.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\ScanLine.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\Vignette.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\RandBox2D.cpp" />
-    <ClCompile Include="..\..\src\engine\FrameWork\AudioApp.cpp" />
-    <ClCompile Include="..\..\src\engine\FrameWork\Fps.cpp" />
-    <ClCompile Include="..\..\src\engine\FrameWork\ImguiApp.cpp" />
-    <ClCompile Include="..\..\src\engine\FrameWork\Importer.cpp" />
-    <ClCompile Include="..\..\src\engine\FrameWork\UsersInput.cpp" />
-    <ClCompile Include="..\..\src\engine\FrameWork\WinApp.cpp" />
-    <ClCompile Include="..\..\src\engine\KuroEngineDevice.cpp" />
-    <ClCompile Include="..\..\src\engine\KuroEngine.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\CubeMap.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\GraphicsManager.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\LightBloomDevice.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\RenderObject\Camera.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\RenderObject\Light.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\RenderObject\LightManager.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\RenderObject\ModelInfo\Material.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\RenderObject\ModelInfo\ModelAnimator.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\RenderObject\ModelInfo\ModelMesh.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\RenderObject\ModelInfo\Skeleton.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\RenderObject\SpriteMesh.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\ShadowMapDevice.cpp" />
-    <ClCompile Include="src\DebugController.cpp" />
-    <ClCompile Include="src\Graphics\BasicDraw.cpp" />
-    <ClCompile Include="src\Graphics\BasicDrawParameters.cpp" />
-    <ClCompile Include="src\Graphics\CanvasPostEffect.cpp" />
-    <ClCompile Include="src\Graphics\WaterPaintBlend.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\GameScene.cpp" />
-    <ClCompile Include="src\MovieCamera.cpp" />
-    <ClCompile Include="src\OperationConfig.cpp" />
-    <ClCompile Include="src\Player\CameraController.cpp" />
-    <ClCompile Include="src\Player\Player.cpp" />
-    <ClCompile Include="src\SceneChange.cpp" />
-    <ClCompile Include="src\Stage\Gate.cpp" />
-    <ClCompile Include="src\Stage\Grass.cpp" />
-    <ClCompile Include="src\Stage\Stage.cpp" />
-    <ClCompile Include="src\Stage\StageManager.cpp" />
-    <ClCompile Include="src\Stage\StageSelect.cpp" />
-    <ClCompile Include="src\Title.cpp" />
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="src\engine">
+      <UniqueIdentifier>{c84cff0a-59e8-439f-9d34-222becdf7dbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\user">
+      <UniqueIdentifier>{ac3a9ea1-874d-4c83-bf0d-3781a960ac96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\DirectX12">
+      <UniqueIdentifier>{4dc47835-09dc-4c90-8c2b-97b0e58409e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{8dc21eff-3c37-4119-a7aa-a07727421c2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\Common">
+      <UniqueIdentifier>{a66f41a3-d42e-4a16-a425-39d39e8adf59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="magic_enum">
+      <UniqueIdentifier>{d1bfd7f6-cf1e-46ca-93cb-22664d23c726}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dxcompiler">
+      <UniqueIdentifier>{a8455d30-a8a2-4533-b4e7-d426564b0614}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\ForUser">
+      <UniqueIdentifier>{d5941fa1-02c3-4396-8935-0181850814db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\ForUser\Collision">
+      <UniqueIdentifier>{226ed961-4357-402e-b741-74cace9cdbe6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\ForUser\Object">
+      <UniqueIdentifier>{63bc4656-e658-44ac-b8ed-c7a462ff2777}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\FrameWork">
+      <UniqueIdentifier>{90d4922c-e31e-4dee-85e0-5aceeb1b6122}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\ForUser\PostEffect">
+      <UniqueIdentifier>{1bb4082e-ad0a-447d-b3bd-a8f00378aba8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\ForUser\DrawFunc">
+      <UniqueIdentifier>{24e31f9a-3841-4dc4-8c6f-2b15cb19272d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\ForUser\DrawFunc\2D">
+      <UniqueIdentifier>{ca1d5c1d-9c33-475a-a207-5e66075379b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\ForUser\DrawFunc\3D">
+      <UniqueIdentifier>{bddd62d1-87a7-45ad-8b69-4b236fb1e99e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\ForUser\DrawFunc\BillBoard">
+      <UniqueIdentifier>{fb5340b6-4544-4095-861b-872acfba3b96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\Render">
+      <UniqueIdentifier>{e46dec56-12ef-4ed4-b051-0270c6e7dea5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\Render\RenderObject">
+      <UniqueIdentifier>{11ddb2fc-a5de-4366-85ad-a8e3cd32d25f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\Render\RenderObject\ModelInfo">
+      <UniqueIdentifier>{ced67440-38b0-45dc-9875-27b908e6ea87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\user\Player">
+      <UniqueIdentifier>{db5b29a9-a60e-49a4-84b7-0ad077a3eb25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\user\Stage">
+      <UniqueIdentifier>{6fcfac86-026f-48bd-a5db-8c79a5b3de54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\user\Graphics">
+      <UniqueIdentifier>{ade67a3f-0cb6-47a3-9c70-5d41e5454e2e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\lib\dxcompiler\inc\d3d12shader.h" />
-    <ClInclude Include="..\..\lib\dxcompiler\inc\dxcapi.h" />
-    <ClInclude Include="..\..\lib\imgui\imconfig.h" />
-    <ClInclude Include="..\..\lib\imgui\imgui.h" />
-    <ClInclude Include="..\..\lib\imgui\imgui_impl_dx12.h" />
-    <ClInclude Include="..\..\lib\imgui\imgui_impl_win32.h" />
-    <ClInclude Include="..\..\lib\imgui\imgui_internal.h" />
-    <ClInclude Include="..\..\lib\imgui\imgui_spectrum.h" />
-    <ClInclude Include="..\..\lib\imgui\imstb_rectpack.h" />
-    <ClInclude Include="..\..\lib\imgui\imstb_textedit.h" />
-    <ClInclude Include="..\..\lib\imgui\imstb_truetype.h" />
-    <ClInclude Include="..\..\lib\magic_enum\magic_enum.h" />
-    <ClInclude Include="..\..\src\engine\Common\Angle.h" />
-    <ClInclude Include="..\..\src\engine\Common\Color.h" />
-    <ClInclude Include="..\..\src\engine\Common\Command.h" />
-    <ClInclude Include="..\..\src\engine\Common\ImportHeader.h" />
-    <ClInclude Include="..\..\src\engine\Common\Observer.h" />
-    <ClInclude Include="..\..\src\engine\Common\PerlinNoise.h" />
-    <ClInclude Include="..\..\src\engine\Common\Primitive.h" />
-    <ClInclude Include="..\..\src\engine\Common\Singleton.h" />
-    <ClInclude Include="..\..\src\engine\Common\Subject.h" />
-    <ClInclude Include="..\..\src\engine\Common\Transform.h" />
-    <ClInclude Include="..\..\src\engine\Common\Transform2D.h" />
-    <ClInclude Include="..\..\src\engine\Common\ValueMinMax.h" />
-    <ClInclude Include="..\..\src\engine\Common\Vec.h" />
-    <ClInclude Include="..\..\src\engine\DirectX12\D3D12App.h" />
-    <ClInclude Include="..\..\src\engine\DirectX12\D3D12Data.h" />
-    <ClInclude Include="..\..\src\engine\DirectX12\DescriptorHeap.h" />
-    <ClInclude Include="..\..\src\engine\DirectX12\Swapchain.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\Collision\Collider.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\Collision\ColliderParentObject.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\Collision\Collision.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\Collision\CollisionCallBack.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\Collision\CollisionManager.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\Collision\CollisionResultInfo.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\DebugCamera.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\Debugger.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\JsonData.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Color.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_FillTex.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Mask.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Shadow.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\3D\DrawFunc3D.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\BillBoard\DrawFuncBillBoard.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\HandShake.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\ImguiDebugInterface.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\ImpactShake.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\MotionWork.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\Object\Model.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\Object\Object.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\Object\Sprite.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\Object\Sprite_Shadow.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\CRTColorNoise.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\DOF.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\Fog.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\GaussianBlur.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\RadialBlur.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\ScanLine.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\Vignette.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\RandBox2D.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\Timer.h" />
-    <ClInclude Include="..\..\src\engine\ForUser\TimeScale.h" />
-    <ClInclude Include="..\..\src\engine\FrameWork\AudioApp.h" />
-    <ClInclude Include="..\..\src\engine\FrameWork\Fps.h" />
-    <ClInclude Include="..\..\src\engine\FrameWork\ImguiApp.h" />
-    <ClInclude Include="..\..\src\engine\FrameWork\Importer.h" />
-    <ClInclude Include="..\..\src\engine\FrameWork\StreamReader.h" />
-    <ClInclude Include="..\..\src\engine\FrameWork\UsersInput.h" />
-    <ClInclude Include="..\..\src\engine\FrameWork\WinApp.h" />
-    <ClInclude Include="..\..\src\engine\KuroEngineDevice.h" />
-    <ClInclude Include="..\..\src\engine\KuroEngine.h" />
-    <ClInclude Include="..\..\src\engine\Render\CubeMap.h" />
-    <ClInclude Include="..\..\src\engine\Render\GraphicsManager.h" />
-    <ClInclude Include="..\..\src\engine\Render\LightBloomDevice.h" />
-    <ClInclude Include="..\..\src\engine\Render\RenderObject\Animation.h" />
-    <ClInclude Include="..\..\src\engine\Render\RenderObject\Camera.h" />
-    <ClInclude Include="..\..\src\engine\Render\RenderObject\Light.h" />
-    <ClInclude Include="..\..\src\engine\Render\RenderObject\LightManager.h" />
-    <ClInclude Include="..\..\src\engine\Render\RenderObject\Mesh.h" />
-    <ClInclude Include="..\..\src\engine\Render\RenderObject\ModelInfo\Material.h" />
-    <ClInclude Include="..\..\src\engine\Render\RenderObject\ModelInfo\ModelAnimator.h" />
-    <ClInclude Include="..\..\src\engine\Render\RenderObject\ModelInfo\ModelMesh.h" />
-    <ClInclude Include="..\..\src\engine\Render\RenderObject\ModelInfo\Skeleton.h" />
-    <ClInclude Include="..\..\src\engine\Render\RenderObject\SpriteMesh.h" />
-    <ClInclude Include="..\..\src\engine\Render\ShadowMapDevice.h" />
-    <ClInclude Include="src\DebugController.h" />
-    <ClInclude Include="src\GameScene.h" />
-    <ClInclude Include="src\Graphics\BasicDraw.h" />
-    <ClInclude Include="src\Graphics\BasicDrawParameters.h" />
-    <ClInclude Include="src\Graphics\CanvasPostEffect.h" />
-    <ClInclude Include="src\Graphics\WaterPaintBlend.h" />
-    <ClInclude Include="src\MovieCamera.h" />
-    <ClInclude Include="src\OperationConfig.h" />
-    <ClInclude Include="src\Player\CameraController.h" />
-    <ClInclude Include="src\Player\Player.h" />
-    <ClInclude Include="src\SceneChange.h" />
-    <ClInclude Include="src\Stage\Gate.h" />
-    <ClInclude Include="src\Stage\Grass.h" />
-    <ClInclude Include="src\Stage\Stage.h" />
-    <ClInclude Include="src\Stage\StageManager.h" />
-    <ClInclude Include="src\Stage\StageSelect.h" />
-    <ClInclude Include="src\Title.h" />
+    <ClCompile Include="..\..\src\engine\KuroEngineDevice.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\imgui\imgui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\imgui\imgui_demo.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\imgui\imgui_draw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\imgui\imgui_impl_dx12.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\imgui\imgui_impl_win32.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\imgui\imgui_tables.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\imgui\imgui_widgets.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Common\Primitive.cpp">
+      <Filter>src\engine\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Common\Subject.cpp">
+      <Filter>src\engine\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Common\Transform.cpp">
+      <Filter>src\engine\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Common\Transform2D.cpp">
+      <Filter>src\engine\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\lib\imgui\imgui_spectrum.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Common\PerlinNoise.cpp">
+      <Filter>src\engine\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\DirectX12\D3D12App.cpp">
+      <Filter>src\engine\DirectX12</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\DirectX12\D3D12Data.cpp">
+      <Filter>src\engine\DirectX12</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\DirectX12\DescriptorHeap.cpp">
+      <Filter>src\engine\DirectX12</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\DirectX12\Swapchain.cpp">
+      <Filter>src\engine\DirectX12</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\FrameWork\AudioApp.cpp">
+      <Filter>src\engine\FrameWork</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\FrameWork\Fps.cpp">
+      <Filter>src\engine\FrameWork</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\FrameWork\ImguiApp.cpp">
+      <Filter>src\engine\FrameWork</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\FrameWork\Importer.cpp">
+      <Filter>src\engine\FrameWork</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\FrameWork\UsersInput.cpp">
+      <Filter>src\engine\FrameWork</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\FrameWork\WinApp.cpp">
+      <Filter>src\engine\FrameWork</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\Collision\Collider.cpp">
+      <Filter>src\engine\ForUser\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\Collision\Collision.cpp">
+      <Filter>src\engine\ForUser\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\Collision\CollisionManager.cpp">
+      <Filter>src\engine\ForUser\Collision</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\Object\Model.cpp">
+      <Filter>src\engine\ForUser\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\Object\Object.cpp">
+      <Filter>src\engine\ForUser\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\Object\Sprite.cpp">
+      <Filter>src\engine\ForUser\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\Object\Sprite_Shadow.cpp">
+      <Filter>src\engine\ForUser\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\CRTColorNoise.cpp">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\GaussianBlur.cpp">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\ScanLine.cpp">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\Vignette.cpp">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\BillBoard\DrawFuncBillBoard.cpp">
+      <Filter>src\engine\ForUser\DrawFunc\BillBoard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\3D\DrawFunc3D.cpp">
+      <Filter>src\engine\ForUser\DrawFunc\3D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D.cpp">
+      <Filter>src\engine\ForUser\DrawFunc\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Color.cpp">
+      <Filter>src\engine\ForUser\DrawFunc\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_FillTex.cpp">
+      <Filter>src\engine\ForUser\DrawFunc\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Mask.cpp">
+      <Filter>src\engine\ForUser\DrawFunc\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Shadow.cpp">
+      <Filter>src\engine\ForUser\DrawFunc\2D</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\DebugCamera.cpp">
+      <Filter>src\engine\ForUser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\Debugger.cpp">
+      <Filter>src\engine\ForUser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\HandShake.cpp">
+      <Filter>src\engine\ForUser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\ImguiDebugInterface.cpp">
+      <Filter>src\engine\ForUser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\ImpactShake.cpp">
+      <Filter>src\engine\ForUser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\MotionWork.cpp">
+      <Filter>src\engine\ForUser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Render\RenderObject\ModelInfo\Material.cpp">
+      <Filter>src\engine\Render\RenderObject\ModelInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Render\RenderObject\ModelInfo\ModelAnimator.cpp">
+      <Filter>src\engine\Render\RenderObject\ModelInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Render\RenderObject\ModelInfo\ModelMesh.cpp">
+      <Filter>src\engine\Render\RenderObject\ModelInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Render\RenderObject\ModelInfo\Skeleton.cpp">
+      <Filter>src\engine\Render\RenderObject\ModelInfo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Render\RenderObject\Camera.cpp">
+      <Filter>src\engine\Render\RenderObject</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Render\RenderObject\Light.cpp">
+      <Filter>src\engine\Render\RenderObject</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Render\RenderObject\LightManager.cpp">
+      <Filter>src\engine\Render\RenderObject</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Render\RenderObject\SpriteMesh.cpp">
+      <Filter>src\engine\Render\RenderObject</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Render\CubeMap.cpp">
+      <Filter>src\engine\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Render\GraphicsManager.cpp">
+      <Filter>src\engine\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Render\LightBloomDevice.cpp">
+      <Filter>src\engine\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\Render\ShadowMapDevice.cpp">
+      <Filter>src\engine\Render</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\RadialBlur.cpp">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\RandBox2D.cpp">
+      <Filter>src\engine\ForUser</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\KuroEngine.cpp">
+      <Filter>src\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GameScene.cpp">
+      <Filter>src\user</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Player\Player.cpp">
+      <Filter>src\user\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OperationConfig.cpp">
+      <Filter>src\user</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DebugController.cpp">
+      <Filter>src\user</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Stage\StageManager.cpp">
+      <Filter>src\user\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Stage\Stage.cpp">
+      <Filter>src\user\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\JsonData.cpp">
+      <Filter>src\engine\ForUser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Player\CameraController.cpp">
+      <Filter>src\user\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\BasicDrawParameters.cpp">
+      <Filter>src\user\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\BasicDraw.cpp">
+      <Filter>src\user\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Stage\Grass.cpp">
+      <Filter>src\user\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\CanvasPostEffect.cpp">
+      <Filter>src\user\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Graphics\WaterPaintBlend.cpp">
+      <Filter>src\user\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\DOF.cpp">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\Fog.cpp">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\imgui\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\imgui\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\imgui\imgui_impl_dx12.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\imgui\imgui_impl_win32.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\imgui\imgui_internal.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\imgui\imstb_rectpack.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\imgui\imstb_textedit.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\imgui\imstb_truetype.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Common\Angle.h">
+      <Filter>src\engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Common\Color.h">
+      <Filter>src\engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Common\Command.h">
+      <Filter>src\engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Common\Observer.h">
+      <Filter>src\engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Common\Primitive.h">
+      <Filter>src\engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Common\Singleton.h">
+      <Filter>src\engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Common\Subject.h">
+      <Filter>src\engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Common\Transform.h">
+      <Filter>src\engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Common\Transform2D.h">
+      <Filter>src\engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Common\Vec.h">
+      <Filter>src\engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Common\ValueMinMax.h">
+      <Filter>src\engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\magic_enum\magic_enum.h">
+      <Filter>magic_enum</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\dxcompiler\inc\d3d12shader.h">
+      <Filter>dxcompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\dxcompiler\inc\dxcapi.h">
+      <Filter>dxcompiler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\lib\imgui\imgui_spectrum.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Common\PerlinNoise.h">
+      <Filter>src\engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Common\ImportHeader.h">
+      <Filter>src\engine\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\DirectX12\D3D12App.h">
+      <Filter>src\engine\DirectX12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\DirectX12\D3D12Data.h">
+      <Filter>src\engine\DirectX12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\DirectX12\DescriptorHeap.h">
+      <Filter>src\engine\DirectX12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\DirectX12\Swapchain.h">
+      <Filter>src\engine\DirectX12</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\FrameWork\AudioApp.h">
+      <Filter>src\engine\FrameWork</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\FrameWork\Fps.h">
+      <Filter>src\engine\FrameWork</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\FrameWork\ImguiApp.h">
+      <Filter>src\engine\FrameWork</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\FrameWork\Importer.h">
+      <Filter>src\engine\FrameWork</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\FrameWork\StreamReader.h">
+      <Filter>src\engine\FrameWork</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\FrameWork\UsersInput.h">
+      <Filter>src\engine\FrameWork</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\FrameWork\WinApp.h">
+      <Filter>src\engine\FrameWork</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\Collision\Collider.h">
+      <Filter>src\engine\ForUser\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\Collision\ColliderParentObject.h">
+      <Filter>src\engine\ForUser\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\Collision\Collision.h">
+      <Filter>src\engine\ForUser\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\Collision\CollisionCallBack.h">
+      <Filter>src\engine\ForUser\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\Collision\CollisionManager.h">
+      <Filter>src\engine\ForUser\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\Collision\CollisionResultInfo.h">
+      <Filter>src\engine\ForUser\Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\Object\Model.h">
+      <Filter>src\engine\ForUser\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\Object\Object.h">
+      <Filter>src\engine\ForUser\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\Object\Sprite.h">
+      <Filter>src\engine\ForUser\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\Object\Sprite_Shadow.h">
+      <Filter>src\engine\ForUser\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\CRTColorNoise.h">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\GaussianBlur.h">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\ScanLine.h">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\Vignette.h">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\BillBoard\DrawFuncBillBoard.h">
+      <Filter>src\engine\ForUser\DrawFunc\BillBoard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\3D\DrawFunc3D.h">
+      <Filter>src\engine\ForUser\DrawFunc\3D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D.h">
+      <Filter>src\engine\ForUser\DrawFunc\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Color.h">
+      <Filter>src\engine\ForUser\DrawFunc\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_FillTex.h">
+      <Filter>src\engine\ForUser\DrawFunc\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Mask.h">
+      <Filter>src\engine\ForUser\DrawFunc\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Shadow.h">
+      <Filter>src\engine\ForUser\DrawFunc\2D</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\DebugCamera.h">
+      <Filter>src\engine\ForUser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\Debugger.h">
+      <Filter>src\engine\ForUser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\HandShake.h">
+      <Filter>src\engine\ForUser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\ImguiDebugInterface.h">
+      <Filter>src\engine\ForUser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\ImpactShake.h">
+      <Filter>src\engine\ForUser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\MotionWork.h">
+      <Filter>src\engine\ForUser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\Timer.h">
+      <Filter>src\engine\ForUser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\ModelInfo\Material.h">
+      <Filter>src\engine\Render\RenderObject\ModelInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\ModelInfo\ModelAnimator.h">
+      <Filter>src\engine\Render\RenderObject\ModelInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\ModelInfo\ModelMesh.h">
+      <Filter>src\engine\Render\RenderObject\ModelInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\ModelInfo\Skeleton.h">
+      <Filter>src\engine\Render\RenderObject\ModelInfo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\Animation.h">
+      <Filter>src\engine\Render\RenderObject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\Camera.h">
+      <Filter>src\engine\Render\RenderObject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\Light.h">
+      <Filter>src\engine\Render\RenderObject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\LightManager.h">
+      <Filter>src\engine\Render\RenderObject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\Mesh.h">
+      <Filter>src\engine\Render\RenderObject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Render\RenderObject\SpriteMesh.h">
+      <Filter>src\engine\Render\RenderObject</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Render\CubeMap.h">
+      <Filter>src\engine\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Render\GraphicsManager.h">
+      <Filter>src\engine\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Render\LightBloomDevice.h">
+      <Filter>src\engine\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\Render\ShadowMapDevice.h">
+      <Filter>src\engine\Render</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\RadialBlur.h">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\RandBox2D.h">
+      <Filter>src\engine\ForUser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\TimeScale.h">
+      <Filter>src\engine\ForUser</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\KuroEngine.h">
+      <Filter>src\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GameScene.h">
+      <Filter>src\user</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Player\Player.h">
+      <Filter>src\user\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OperationConfig.h">
+      <Filter>src\user</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DebugController.h">
+      <Filter>src\user</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\StageManager.h">
+      <Filter>src\user\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\Stage.h">
+      <Filter>src\user\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\JsonData.h">
+      <Filter>src\engine\ForUser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Player\CameraController.h">
+      <Filter>src\user\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\BasicDraw.h">
+      <Filter>src\user\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\BasicDrawParameters.h">
+      <Filter>src\user\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\Grass.h">
+      <Filter>src\user\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\CanvasPostEffect.h">
+      <Filter>src\user\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Graphics\WaterPaintBlend.h">
+      <Filter>src\user\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\DOF.h">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\Fog.h">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
