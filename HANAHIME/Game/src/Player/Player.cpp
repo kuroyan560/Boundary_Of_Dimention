@@ -225,6 +225,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
 
+	//カメラの回転を保存。
+	m_cameraRotYStorage += scopeMove.x;
+
 	//移動ステータスによって処理を変える。
 	switch (m_playerMoveStatus)
 	{
@@ -241,7 +244,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		Move(newPos);
 
 		//カメラの回転を保存。
-		m_cameraRotYStorage += scopeMove.x;
 		if (m_rowMoveVec.Length() <= 0) {
 			m_cameraRotY = m_cameraRotYStorage;
 		}
@@ -282,7 +284,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_ptLig.SetPos(newPos);
 
 	//カメラ操作
-	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_transform.GetRotateWorld());
+	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_normalSpinQ);
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
@@ -610,7 +612,7 @@ void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<flo
 	}
 
 	//法線方向を見るクォータニオン
-	auto spin = KuroEngine::Math::GetLookAtQuaternion({ 0,1,0 }, hitResult.m_terrianNormal);
+	m_normalSpinQ = KuroEngine::Math::GetLookAtQuaternion({ 0,1,0 }, hitResult.m_terrianNormal);
 
 	//カメラの回転でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
 	DirectX::XMVECTOR ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_cameraRotY);
@@ -619,7 +621,7 @@ void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<flo
 	DirectX::XMVECTOR playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
 
 	//カメラ方向でのクォータニオンを求める。進む方向などを判断するのに使用するのはこっち。Fの一番最初にこの値を入れることでplayerYSpinの回転を打ち消す。
-	m_cameraQ = DirectX::XMQuaternionMultiply(spin, ySpin);
+	m_cameraQ = DirectX::XMQuaternionMultiply(m_normalSpinQ, ySpin);
 
 	//プレイヤーの移動方向でY軸回転させるクォータニオンをカメラのクォータニオンにかけて、プレイヤーを移動方向に向かせる。
 	m_moveQ = DirectX::XMQuaternionMultiply(m_cameraQ, playerYSpin);
@@ -627,14 +629,17 @@ void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<flo
 	//ジャンプ状態だったら
 	if (m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP) {
 
+		//ジャンプ後に回転するようにする。
+
 		//クォータニオンを保存。
-		m_jumpEndQ = m_moveQ;
+		m_jumpEndQ = m_cameraQ;
 		m_jumpStartQ = m_transform.GetRotate();
 
 	}
 	else {
 
-		m_transform.SetRotate(m_moveQ);
+		//当たった面基準の回転にする。
+		m_transform.SetRotate(m_cameraQ);
 
 	}
 
