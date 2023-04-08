@@ -83,7 +83,6 @@ void Title::Update(KuroEngine::Transform *player_camera)
 
 	}
 
-	m_camera.Update();
 
 	//急速接近が終わったらOP開始
 	if (m_startGameFlag && m_camera.IsFinish())
@@ -91,10 +90,12 @@ void Title::Update(KuroEngine::Transform *player_camera)
 		m_startOPFlag = true;
 	}
 
+	//OPのカメラ挙動
 	if (m_startOPFlag && !m_generateCameraMoveDataFlag)
 	{
 		std::vector<MovieCameraData> lookDownDataArray;
 
+		//プレイヤーを基準に座標を動かして気を見ている
 		MovieCameraData data1;
 		data1.transform.SetParent(player_camera);
 		data1.transform.SetPos(KuroEngine::Vec3<float>(0.0f, 20.0f, -10.0f));
@@ -105,6 +106,7 @@ void Title::Update(KuroEngine::Transform *player_camera)
 		data1.easePosData.easeType = KuroEngine::Circ;
 		lookDownDataArray.emplace_back(data1);
 
+		//プレイヤーに戻る
 		MovieCameraData data2;
 		data2.transform.SetParent(player_camera);
 		data2.transform.SetPos(KuroEngine::Vec3<float>(0.0f,0.0f,0.0f));
@@ -124,6 +126,9 @@ void Title::Update(KuroEngine::Transform *player_camera)
 	{
 		m_isFinishFlag = true;
 	}
+
+
+	m_camera.Update();
 }
 
 void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
