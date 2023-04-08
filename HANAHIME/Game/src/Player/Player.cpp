@@ -218,6 +218,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
 
+	//カメラに補間をかけるかどうかを決める変数を初期化
+	m_isNoLerpCamera = false;
+
 	//位置情報関係
 	auto beforePos = m_transform.GetPos();
 	auto newPos = beforePos;
@@ -284,7 +287,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_ptLig.SetPos(newPos);
 
 	//カメラ操作
-	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_normalSpinQ, m_cameraRotYStorage);
+	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_normalSpinQ, m_cameraRotYStorage, m_isNoLerpCamera);
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
@@ -765,5 +768,27 @@ void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const Ku
 		}
 
 	}
+
+	//プレイヤーが上側の壁にいる場合
+	if (arg_nowUp.y <= -0.9f) {
+
+		//右側の壁に移動したら
+		if (arg_nextUp.x <= -0.9f) {
+
+			m_cameraRotY -= DirectX::XM_PI;
+			m_cameraRotYStorage -= DirectX::XM_PI;
+
+		}
+		//左側の壁に移動したら
+		if (0.9f <= arg_nextUp.x) {
+
+			m_cameraRotY += DirectX::XM_PI;
+			m_cameraRotYStorage += DirectX::XM_PI;
+
+		}
+
+	}
+
+	m_isNoLerpCamera = true;
 
 }

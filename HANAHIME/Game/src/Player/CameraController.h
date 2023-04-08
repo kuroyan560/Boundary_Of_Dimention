@@ -61,7 +61,7 @@ public:
 	void AttachCamera(std::shared_ptr<KuroEngine::Camera>arg_cam);
 
 	void Init(const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Quaternion& arg_playerRotate);
-	void Update(KuroEngine::Vec3<float>arg_scopeMove, const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Quaternion& arg_playerRotate, float arg_cameraY);
+	void Update(KuroEngine::Vec3<float>arg_scopeMove, const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Quaternion& arg_playerRotate, float arg_cameraY, bool arg_isNoLerp);
 
 	const KuroEngine::Quaternion& GetPosRotate() {
 		return m_controllerTransform.GetRotate();
