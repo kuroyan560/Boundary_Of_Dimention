@@ -55,7 +55,6 @@ class Player : public KuroEngine::Debugger
 	XMVECTOR m_cameraQ;	//プレイヤーのY軸回転量を抜いた、カメラ方向のみを向いた場合の回転
 	XMVECTOR m_moveQ;	//プレイヤーのY軸回転量を抜いた、プレイヤーの移動方向のみを向いた場合の回転
 	XMVECTOR m_normalSpinQ;	//デフォルトの上ベクトルと現在いる地形の回転量をあらわしたクォータニオン
-	bool m_isNoLerpCamera;	//カメラを補間するかどうか
 
 	//移動ベクトルのスカラー
 	KuroEngine::Vec3<float> m_moveSpeed;			//移動速度

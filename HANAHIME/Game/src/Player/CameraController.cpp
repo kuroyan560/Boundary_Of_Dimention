@@ -37,10 +37,10 @@ CameraController::CameraController()
 	AddCustomParameter("xAxisAngle", { "InitializedParameter","xAxisAngle" }, PARAM_TYPE::FLOAT, &m_initializedParam.m_xAxisAngle, "InitializedParameter");
 
 	AddCustomParameter("gazePointOffset", { "gazePointOffset" }, PARAM_TYPE::FLOAT_VEC3, &m_gazePointOffset, "UpdateParameter");
-	AddCustomParameter("posOffsetDepthMin", { "posOffsetDepth","min" }, PARAM_TYPE::FLOAT, &m_posOffsetDepthMin, "UpdateParameter");
-	AddCustomParameter("posOffsetDepthMax", { "posOffsetDepth","max" }, PARAM_TYPE::FLOAT, &m_posOffsetDepthMax, "UpdateParameter");
-	AddCustomParameter("xAxisAngleMin", { "xAxisAngle","min" }, PARAM_TYPE::FLOAT, &m_xAxisAngleMin, "UpdateParameter");
-	AddCustomParameter("xAxisAngleMax", { "xAxisAngle","max" }, PARAM_TYPE::FLOAT, &m_xAxisAngleMax, "UpdateParameter");
+	AddCustomParameter("posOffsetDepthMin", { "posOffsetDepth","min"}, PARAM_TYPE::FLOAT, &m_posOffsetDepthMin, "UpdateParameter");
+	AddCustomParameter("posOffsetDepthMax", { "posOffsetDepth","max"}, PARAM_TYPE::FLOAT, &m_posOffsetDepthMax, "UpdateParameter");
+	AddCustomParameter("xAxisAngleMin", { "xAxisAngle","min"}, PARAM_TYPE::FLOAT, &m_xAxisAngleMin, "UpdateParameter");
+	AddCustomParameter("xAxisAngleMax", { "xAxisAngle","max"}, PARAM_TYPE::FLOAT, &m_xAxisAngleMax, "UpdateParameter");
 
 	LoadParameterLog();
 }
@@ -63,10 +63,10 @@ void CameraController::Init(const KuroEngine::Vec3<float>& arg_playerPos, const 
 	m_copyPlayerTransform.SetRotate(arg_playerRotate);
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Quaternion& arg_playerRotate, float arg_cameraY, bool arg_isNoLerp)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Quaternion& arg_playerRotate, float arg_cameraY)
 {
 	using namespace KuroEngine;
-
+	
 	//カメラがアタッチされていない
 	if (m_attachedCam.expired())return;
 
@@ -76,15 +76,15 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, const KuroEn
 	//上下カメラ操作
 	switch (m_verticalControl)
 	{
-	case ANGLE:
-		m_nowParam.m_xAxisAngle -= arg_scopeMove.y * 0.3f;
-		//if (m_nowParam.m_xAxisAngle <= m_xAxisAngleMin)m_verticalControl = DIST;
-		break;
+		case ANGLE:
+			m_nowParam.m_xAxisAngle -= arg_scopeMove.y * 0.3f;
+			//if (m_nowParam.m_xAxisAngle <= m_xAxisAngleMin)m_verticalControl = DIST;
+			break;
 
-	case DIST:
-		m_nowParam.m_posOffsetZ += arg_scopeMove.y * 6.0f;
-		if (m_nowParam.m_posOffsetZ <= m_posOffsetDepthMin)m_verticalControl = ANGLE;
-		break;
+		case DIST:
+			m_nowParam.m_posOffsetZ += arg_scopeMove.y * 6.0f;
+			if (m_nowParam.m_posOffsetZ <= m_posOffsetDepthMin)m_verticalControl = ANGLE;
+			break;
 	}
 
 	//上限値超えないようにする
@@ -102,5 +102,5 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, const KuroEn
 	localPos.y = m_gazePointOffset.y + tan(-m_nowParam.m_xAxisAngle) * m_nowParam.m_posOffsetZ;
 	localPos = Math::TransformVec3(localPos, { 0.0f,1.0f,0.0f }, m_nowParam.m_yAxisAngle);
 	m_controllerTransform.SetPos(localPos);
-	m_controllerTransform.SetRotate(m_nowParam.m_xAxisAngle, m_nowParam.m_yAxisAngle, 0.0f);
+	m_controllerTransform.SetRotate(m_nowParam.m_xAxisAngle, m_nowParam.m_yAxisAngle,0.0f );
 }

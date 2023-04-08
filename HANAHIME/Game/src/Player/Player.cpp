@@ -42,9 +42,6 @@ void Player::OnImguiItems()
 
 		ImGui::Text("OnGround : %d", m_onGround);
 
-		ImGui::DragFloat("GrassPosScatter : X", &m_grassPosScatter.x, 0.1f);
-		ImGui::DragFloat("GrassPosScatter : Y", &m_grassPosScatter.y, 0.1f);
-
 	}
 
 	//ˆÚ“®
@@ -218,9 +215,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
 
-	//ƒJƒƒ‰‚É•âŠÔ‚ğ‚©‚¯‚é‚©‚Ç‚¤‚©‚ğŒˆ‚ß‚é•Ï”‚ğ‰Šú‰»
-	m_isNoLerpCamera = false;
-
 	//ˆÊ’uî•ñŠÖŒW
 	auto beforePos = m_transform.GetPos();
 	auto newPos = beforePos;
@@ -287,7 +281,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_ptLig.SetPos(newPos);
 
 	//ƒJƒƒ‰‘€ì
-	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_normalSpinQ, m_cameraRotYStorage, m_isNoLerpCamera);
+	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_normalSpinQ, m_cameraRotYStorage);
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
@@ -788,7 +782,5 @@ void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const Ku
 		}
 
 	}
-
-	m_isNoLerpCamera = true;
 
 }
