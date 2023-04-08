@@ -77,6 +77,9 @@
     <Filter Include="src\user\Player">
       <UniqueIdentifier>{db5b29a9-a60e-49a4-84b7-0ad077a3eb25}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\user\GPUParticle">
+      <UniqueIdentifier>{3075240e-ae8f-4db1-b327-d4914c69f95b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\KuroEngineDevice.cpp">
@@ -333,6 +336,12 @@
     </ClCompile>
     <ClCompile Include="src\Stage\StageSelect.cpp">
       <Filter>src\user\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GPUParticle\GPUParticleRender.cpp">
+      <Filter>src\user\GPUParticle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GPUParticle\ResouceBufferHelper.cpp">
+      <Filter>src\user\GPUParticle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -650,6 +659,15 @@
     </ClInclude>
     <ClInclude Include="src\Stage\StageSelect.h">
       <Filter>src\user\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GPUParticle\GPUParticleRender.h">
+      <Filter>src\user\GPUParticle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GPUParticle\ResouceBufferHelper.h">
+      <Filter>src\user\GPUParticle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GPUParticle\GPUParticleData.h">
+      <Filter>src\user\GPUParticle</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
