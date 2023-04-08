@@ -139,8 +139,6 @@ void Title::Update(KuroEngine::Transform *player_camera)
 
 void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
-
 	//É^ÉCÉgÉãÉçÉSï`âÊ
 	KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_titlePos, m_titleLogoSize.Float(), 0.0f, m_blackTexBuff, 1.0f - m_alphaRate.GetTimeRate());
-
 }
