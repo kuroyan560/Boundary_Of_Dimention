@@ -1,90 +1,76 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\..\lib\imgui\imgui_demo.cpp" />
-    <ClCompile Include="..\..\lib\imgui\imgui_draw.cpp" />
-    <ClCompile Include="..\..\lib\imgui\imgui_impl_dx12.cpp" />
-    <ClCompile Include="..\..\lib\imgui\imgui.cpp" />
-    <ClCompile Include="..\..\lib\imgui\imgui_impl_win32.cpp" />
-    <ClCompile Include="..\..\lib\imgui\imgui_spectrum.cpp" />
-    <ClCompile Include="..\..\lib\imgui\imgui_tables.cpp" />
-    <ClCompile Include="..\..\lib\imgui\imgui_widgets.cpp" />
-    <ClCompile Include="..\..\src\engine\Common\PerlinNoise.cpp" />
-    <ClCompile Include="..\..\src\engine\Common\Primitive.cpp" />
-    <ClCompile Include="..\..\src\engine\Common\Subject.cpp" />
-    <ClCompile Include="..\..\src\engine\Common\Transform.cpp" />
-    <ClCompile Include="..\..\src\engine\Common\Transform2D.cpp" />
-    <ClCompile Include="..\..\src\engine\DirectX12\D3D12App.cpp" />
-    <ClCompile Include="..\..\src\engine\DirectX12\D3D12Data.cpp" />
-    <ClCompile Include="..\..\src\engine\DirectX12\DescriptorHeap.cpp" />
-    <ClCompile Include="..\..\src\engine\DirectX12\Swapchain.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\Collision\Collider.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\Collision\Collision.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\Collision\CollisionManager.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\DebugCamera.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\Debugger.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Color.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_FillTex.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Mask.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\2D\DrawFunc2D_Shadow.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\3D\DrawFunc3D.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\DrawFunc\BillBoard\DrawFuncBillBoard.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\HandShake.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\ImguiDebugInterface.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\ImpactShake.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\JsonData.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\MotionWork.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\Object\Model.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\Object\Object.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\Object\Sprite.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\Object\Sprite_Shadow.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\CRTColorNoise.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\DOF.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\Fog.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\GaussianBlur.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\RadialBlur.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\ScanLine.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\Vignette.cpp" />
-    <ClCompile Include="..\..\src\engine\ForUser\RandBox2D.cpp" />
-    <ClCompile Include="..\..\src\engine\FrameWork\AudioApp.cpp" />
-    <ClCompile Include="..\..\src\engine\FrameWork\Fps.cpp" />
-    <ClCompile Include="..\..\src\engine\FrameWork\ImguiApp.cpp" />
-    <ClCompile Include="..\..\src\engine\FrameWork\Importer.cpp" />
-    <ClCompile Include="..\..\src\engine\FrameWork\UsersInput.cpp" />
-    <ClCompile Include="..\..\src\engine\FrameWork\WinApp.cpp" />
-    <ClCompile Include="..\..\src\engine\KuroEngineDevice.cpp" />
-    <ClCompile Include="..\..\src\engine\KuroEngine.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\CubeMap.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\GraphicsManager.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\LightBloomDevice.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\RenderObject\Camera.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\RenderObject\Light.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\RenderObject\LightManager.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\RenderObject\ModelInfo\Material.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\RenderObject\ModelInfo\ModelAnimator.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\RenderObject\ModelInfo\ModelMesh.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\RenderObject\ModelInfo\Skeleton.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\RenderObject\SpriteMesh.cpp" />
-    <ClCompile Include="..\..\src\engine\Render\ShadowMapDevice.cpp" />
-    <ClCompile Include="src\DebugController.cpp" />
-    <ClCompile Include="src\Graphics\BasicDraw.cpp" />
-    <ClCompile Include="src\Graphics\BasicDrawParameters.cpp" />
-    <ClCompile Include="src\Graphics\CanvasPostEffect.cpp" />
-    <ClCompile Include="src\Graphics\WaterPaintBlend.cpp" />
-    <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\GameScene.cpp" />
-    <ClCompile Include="src\MovieCamera.cpp" />
-    <ClCompile Include="src\OperationConfig.cpp" />
-    <ClCompile Include="src\Player\CameraController.cpp" />
-    <ClCompile Include="src\Player\Player.cpp" />
-    <ClCompile Include="src\SceneChange.cpp" />
-    <ClCompile Include="src\Stage\Gate.cpp" />
-    <ClCompile Include="src\Stage\Grass.cpp" />
-    <ClCompile Include="src\Stage\Stage.cpp" />
-    <ClCompile Include="src\Stage\StageManager.cpp" />
-    <ClCompile Include="src\Stage\StageSelect.cpp" />
-    <ClCompile Include="src\Title.cpp" />
+    <Filter Include="src">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="src\engine">
+      <UniqueIdentifier>{c84cff0a-59e8-439f-9d34-222becdf7dbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\user">
+      <UniqueIdentifier>{ac3a9ea1-874d-4c83-bf0d-3781a960ac96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\DirectX12">
+      <UniqueIdentifier>{4dc47835-09dc-4c90-8c2b-97b0e58409e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{8dc21eff-3c37-4119-a7aa-a07727421c2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\Common">
+      <UniqueIdentifier>{a66f41a3-d42e-4a16-a425-39d39e8adf59}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="magic_enum">
+      <UniqueIdentifier>{d1bfd7f6-cf1e-46ca-93cb-22664d23c726}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dxcompiler">
+      <UniqueIdentifier>{a8455d30-a8a2-4533-b4e7-d426564b0614}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\ForUser">
+      <UniqueIdentifier>{d5941fa1-02c3-4396-8935-0181850814db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\ForUser\Collision">
+      <UniqueIdentifier>{226ed961-4357-402e-b741-74cace9cdbe6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\ForUser\Object">
+      <UniqueIdentifier>{63bc4656-e658-44ac-b8ed-c7a462ff2777}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\FrameWork">
+      <UniqueIdentifier>{90d4922c-e31e-4dee-85e0-5aceeb1b6122}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\ForUser\PostEffect">
+      <UniqueIdentifier>{1bb4082e-ad0a-447d-b3bd-a8f00378aba8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\ForUser\DrawFunc">
+      <UniqueIdentifier>{24e31f9a-3841-4dc4-8c6f-2b15cb19272d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\ForUser\DrawFunc\2D">
+      <UniqueIdentifier>{ca1d5c1d-9c33-475a-a207-5e66075379b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\ForUser\DrawFunc\3D">
+      <UniqueIdentifier>{bddd62d1-87a7-45ad-8b69-4b236fb1e99e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\ForUser\DrawFunc\BillBoard">
+      <UniqueIdentifier>{fb5340b6-4544-4095-861b-872acfba3b96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\Render">
+      <UniqueIdentifier>{e46dec56-12ef-4ed4-b051-0270c6e7dea5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\Render\RenderObject">
+      <UniqueIdentifier>{11ddb2fc-a5de-4366-85ad-a8e3cd32d25f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\engine\Render\RenderObject\ModelInfo">
+      <UniqueIdentifier>{ced67440-38b0-45dc-9875-27b908e6ea87}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\user\Player">
+      <UniqueIdentifier>{db5b29a9-a60e-49a4-84b7-0ad077a3eb25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\user\Stage">
+      <UniqueIdentifier>{6fcfac86-026f-48bd-a5db-8c79a5b3de54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\user\Graphics">
+      <UniqueIdentifier>{ade67a3f-0cb6-47a3-9c70-5d41e5454e2e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\KuroEngineDevice.cpp">
@@ -338,6 +324,9 @@
     </ClCompile>
     <ClCompile Include="src\Title.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\Fog.cpp">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -643,5 +632,8 @@
       <Filter>src\engine\ForUser\PostEffect</Filter>
     </ClInclude>
     <ClInclude Include="src\Title.h" />
+    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\Fog.h">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
