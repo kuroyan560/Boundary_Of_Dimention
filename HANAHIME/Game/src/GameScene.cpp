@@ -22,6 +22,8 @@ GameScene::GameScene()
 
 	auto backBuffTarget = KuroEngine::D3D12App::Instance()->GetBackBuffRenderTarget();
 	m_fogPostEffect = std::make_shared<KuroEngine::Fog>(backBuffTarget->GetGraphSize(), backBuffTarget->GetDesc().Format);
+
+	m_playerResponePos.SetPos({ -0.49f, 25.9f ,-81.2f });
 }
 
 
@@ -37,13 +39,11 @@ void GameScene::OnInitialize()
 	&m_waterPaintBlend,
 	&m_ligMgr,
 	m_fogPostEffect.get(),
-	});
+		});
 
 	m_debugCam.Init({ 0,5,-10 });
 
-	KuroEngine::Transform playerInitTransform;
-	playerInitTransform.SetPos({ 3.7f,26.0f,-39.0f });
-	m_player.Init(playerInitTransform);
+	m_player.Init(m_playerResponePos);
 
 	m_grass.Init();
 
@@ -63,17 +63,28 @@ void GameScene::OnUpdate()
 	DebugController::Instance()->Update();
 
 	m_nowCam = m_player.GetCamera().lock();
+	//タイトル画面モード
+	if (!title.IsFinish())
+	{
+		m_nowCam = title.GetCamera().lock();
+	}
+	//ホームでの演出
+	if (m_movieCamera.IsStart())
+	{
+		m_nowCam = m_movieCamera.GetCamera().lock();
+	}
 	if (DebugController::Instance()->IsActive())
 	{
 		m_debugCam.Move();
 		m_nowCam = m_debugCam;
 	}
 
-	m_player.Update(StageManager::Instance()->GetNowStage());
+	m_player.Update(StageManager::Instance()->GetNowStage(), title.IsFinish());
+
 
 	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetOnGround(), m_player.GetCamera().lock()->GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
 	//m_grass.Plant(m_player.GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
-
+	title.Update(&m_player.GetCamera().lock()->GetTransform());
 
 	//ホームでの処理----------------------------------------
 
@@ -89,9 +100,7 @@ void GameScene::OnUpdate()
 	if (m_gateSceneChange.IsHide())
 	{
 		StageManager::Instance()->SetStage(m_stageNum);
-		KuroEngine::Transform playerInitTransform;
-		playerInitTransform.SetPos({ 30.0f,50.0f,-45 });
-		m_player.Init(playerInitTransform);
+		m_player.Init(m_playerResponePos);
 	}
 
 	m_stageSelect.Update();
@@ -100,55 +109,8 @@ void GameScene::OnUpdate()
 	m_gateSceneChange.Update();
 
 
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_O))
-	{
-		std::vector<MovieCameraData>moveDataArray;
-
-		//プレイヤーカメラの親子関係を考慮したワールド行列
-		auto matA = m_player.GetCamera().lock()->GetTransform().GetMatWorld();
-		//プレイヤーカメラの親子関係を考慮した回転行列
-		auto matB = XMMatrixRotationQuaternion(m_player.GetCamera().lock()->GetTransform().GetRotateWorld());
 
 
-		KuroEngine::Vec3<float> cameraPos(
-			matA.r[3].m128_f32[0],
-			matA.r[3].m128_f32[1],
-			matA.r[3].m128_f32[2]
-		);
-	
-		MovieCameraData data;
-		{
-			//上向きに見ている
-			KuroEngine::Transform upVec;
-			upVec.SetPos({ 3.7f,36.0f,-29.0f });
-			data.stopTimer = 1;
-			data.interpolationTimer = 2;
-			moveDataArray.emplace_back(data);
-		}
-
-		{
-			//下向きに見る
-			KuroEngine::Transform downVec;
-			downVec.SetPos({ 3.7f,36.0f,-29.0f });
-			data.stopTimer = 2;
-			data.interpolationTimer = 1;
-			moveDataArray.emplace_back(data);
-		}
-
-		{
-			//プレイヤーの位置に戻る
-			data.stopTimer = 2;
-			data.interpolationTimer = 3;
-			moveDataArray.emplace_back(data);
-		}
-
-		m_movieCamera.StartMovie(
-			m_player.GetCamera().lock()->GetTransform(),
-			moveDataArray
-		);
-	}
-
-	
 	m_movieCamera.Update();
 
 
@@ -168,7 +130,7 @@ void GameScene::OnDraw()
 
 	//ステージ描画
 	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
-	
+
 	Transform transform;
 	transform.SetPos({ -0.5f,0,0 });
 	DrawFunc3D::DrawNonShadingPlane(
@@ -188,7 +150,8 @@ void GameScene::OnDraw()
 
 	m_stageSelect.Draw(*m_nowCam, m_ligMgr);
 
-	m_movieCamera.DebugDraw(*m_nowCam, m_ligMgr);
+
+	//m_movieCamera.DebugDraw(*m_nowCam, m_ligMgr);
 
 	//m_canvasPostEffect.Execute();
 	BasicDraw::Instance()->DrawEdge();
@@ -200,14 +163,18 @@ void GameScene::OnDraw()
 	//m_vignettePostEffect.Register(m_waterPaintBlend.GetResultTex());
 
 	m_fogPostEffect->Register(
-		BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN), 
+		BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN),
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::DEPTH),
-		BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT));
+		BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT)
+	);
 
 	m_vignettePostEffect.Register(m_fogPostEffect->GetResultTex());
 
 
+	title.Draw(*m_nowCam, m_ligMgr);
+
 	m_gateSceneChange.Draw();
+
 
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(
 		{

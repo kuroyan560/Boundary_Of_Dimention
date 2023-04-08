@@ -90,7 +90,7 @@ class Player : public KuroEngine::Debugger
 public:
 	Player();
 	void Init(KuroEngine::Transform arg_initTransform);
-	void Update(const std::weak_ptr<Stage>arg_nowStage);
+	void Update(const std::weak_ptr<Stage>arg_nowStage, bool enable_to_move_flag);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw = false);
 	void Finalize();
 

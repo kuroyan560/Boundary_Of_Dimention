@@ -177,7 +177,6 @@ namespace KuroEngine
 			SetRotate(XMQuaternionMultiply(Math::GetLookAtQuaternion(GetUp(), Up), m_rotate));
 		}
 
-		//実験で用意している
 		void SetWorldMat(const Matrix &mat)
 		{
 			m_worldMat = mat;
@@ -187,6 +186,16 @@ namespace KuroEngine
 		{
 			return m_worldMat;
 		}
+		//回転行列のみコピー
+		void SetRotaMatrix(const Matrix src_matrix)
+		{
+			KuroEngine::Vec3<float>pos = GetPosWorld();
+			m_worldMat = src_matrix;
+			m_worldMat.r[3].m128_f32[0] = pos.x;
+			m_worldMat.r[3].m128_f32[1] = pos.y;
+			m_worldMat.r[3].m128_f32[2] = pos.z;
+		}
+
 
 		//ローカル行列ゲッタ
 		const Matrix& GetMatLocal();

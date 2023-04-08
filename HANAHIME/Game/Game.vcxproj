@@ -193,6 +193,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Stage\Stage.cpp" />
     <ClCompile Include="src\Stage\StageManager.cpp" />
     <ClCompile Include="src\Stage\StageSelect.cpp" />
+    <ClCompile Include="src\Title.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\lib\dxcompiler\inc\d3d12shader.h" />
@@ -297,6 +298,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Stage\Stage.h" />
     <ClInclude Include="src\Stage\StageManager.h" />
     <ClInclude Include="src\Stage\StageSelect.h" />
+    <ClInclude Include="src\Title.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
