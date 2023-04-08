@@ -284,7 +284,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_ptLig.SetPos(newPos);
 
 	//カメラ操作
-	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_normalSpinQ);
+	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_normalSpinQ, m_cameraRotYStorage);
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
@@ -610,6 +610,9 @@ void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<flo
 	if (hitResult.m_terrianNormal.y < -0.9f) {
 		hitResult.m_terrianNormal = { 0,-1,0 };
 	}
+	
+	//カメラを矯正する。
+	AdjustCaneraRotY(m_transform.GetUp(), hitResult.m_terrianNormal);
 
 	//法線方向を見るクォータニオン
 	m_normalSpinQ = KuroEngine::Math::GetLookAtQuaternion({ 0,1,0 }, hitResult.m_terrianNormal);
@@ -656,5 +659,111 @@ KuroEngine::Vec3<float> Player::CalculateBezierPoint(float arg_time, KuroEngine:
 	float z = oneMinusTSquared * arg_startPoint.z + 2 * oneMinusT * arg_time * arg_controlPoint.z + tSquared * arg_endPoint.z;
 
 	return KuroEngine::Vec3<float>(x, y, z);
+
+}
+
+
+void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const KuroEngine::Vec3<float>& arg_nextUp) {
+
+	// 移動方向を矯正するための苦肉の策
+
+	// メモ:この関数で書いてある方向は初期位置(法線(0,1,0)で(0,0,1)を向いている状態)でのものです。
+
+	//角度が変わってなかったら飛ばす。
+	if (0.9f <= arg_nowUp.Dot(arg_nextUp)) return;
+
+	//プレイヤーが右側の壁にいる場合
+	if (arg_nowUp.x <= -0.9f) {
+
+		//上の壁に移動したら
+		if (arg_nextUp.y <= -0.9f) {
+
+			m_cameraRotY += DirectX::XM_PI;
+			m_cameraRotYStorage += DirectX::XM_PI;
+
+		}
+		//正面の壁に移動したら
+		if (arg_nextUp.z <= -0.9f) {
+
+			m_cameraRotY -= DirectX::XM_PIDIV2;
+			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+
+		}
+		//後ろの壁に移動したら
+		if (0.9f <= arg_nextUp.z) {
+
+			m_cameraRotY += DirectX::XM_PIDIV2;
+			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+
+		}
+
+	}
+
+	//プレイヤーが左側の壁にいる場合
+	if (0.9f <= arg_nowUp.x) {
+
+		//上の壁に移動したら
+		if (arg_nextUp.y <= -0.9f) {
+
+			m_cameraRotY -= DirectX::XM_PI;
+			m_cameraRotYStorage -= DirectX::XM_PI;
+
+		}
+		//正面の壁に移動したら
+		if (arg_nextUp.z <= -0.9f) {
+
+			m_cameraRotY += DirectX::XM_PIDIV2;
+			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+
+		}
+		//後ろの壁に移動したら
+		if (0.9f <= arg_nextUp.z) {
+
+			m_cameraRotY -= DirectX::XM_PIDIV2;
+			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+
+		}
+
+	}
+
+	//プレイヤーが正面の壁にいる場合
+	if (arg_nowUp.z <= -0.9f) {
+
+		//右側の壁に移動したら
+		if (arg_nextUp.x <= -0.9f) {
+
+			m_cameraRotY += DirectX::XM_PIDIV2;
+			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+
+		}
+		//左側の壁に移動したら
+		if (0.9f <= arg_nextUp.x) {
+
+			m_cameraRotY -= DirectX::XM_PIDIV2;
+			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+
+		}
+
+	}
+
+	//プレイヤーが後ろ側の壁にいる場合
+	if (0.9f <= arg_nowUp.z) {
+
+		//右側の壁に移動したら
+		if (arg_nextUp.x <= -0.9f) {
+
+			m_cameraRotY -= DirectX::XM_PIDIV2;
+			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+
+		}
+		//左側の壁に移動したら
+		if (0.9f <= arg_nextUp.x) {
+
+			m_cameraRotY += DirectX::XM_PIDIV2;
+			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+
+		}
+
+	}
 
 }

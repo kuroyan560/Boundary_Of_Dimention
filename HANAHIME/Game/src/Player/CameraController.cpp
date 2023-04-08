@@ -63,7 +63,7 @@ void CameraController::Init(const KuroEngine::Vec3<float>& arg_playerPos, const 
 	m_copyPlayerTransform.SetRotate(arg_playerRotate);
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Quaternion& arg_playerRotate)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Quaternion& arg_playerRotate, float arg_cameraY)
 {
 	using namespace KuroEngine;
 	
@@ -71,7 +71,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, const KuroEn
 	if (m_attachedCam.expired())return;
 
 	//¶‰EƒJƒƒ‰‘€ì
-	m_nowParam.m_yAxisAngle += arg_scopeMove.x;
+	m_nowParam.m_yAxisAngle = arg_cameraY;
 
 	//ã‰ºƒJƒƒ‰‘€ì
 	switch (m_verticalControl)
