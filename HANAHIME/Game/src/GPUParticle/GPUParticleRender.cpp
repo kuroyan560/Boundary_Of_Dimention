@@ -1,5 +1,4 @@
 #include "GPUParticleRender.h"
-#include"../KazLibrary/RenderTarget/RenderTargetStatus.h"
 
 GPUParticleRender::GPUParticleRender(int MAXNUM)
 {
@@ -39,8 +38,8 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 	KazRenderHelper::InitVerticesPos(&lVerticesArray[0].pos, &lVerticesArray[1].pos, &lVerticesArray[2].pos, &lVerticesArray[3].pos, { 0.5f,0.5f });
 	KazRenderHelper::InitUvPos(&lVerticesArray[0].uv, &lVerticesArray[1].uv, &lVerticesArray[2].uv, &lVerticesArray[3].uv);
 
-	BUFFER_SIZE lVertBuffSize = KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lVerticesArray.size(), sizeof(Vertex));
-	BUFFER_SIZE lIndexBuffSize = KazBufferHelper::GetBufferSize<BUFFER_SIZE>(lIndicesArray.size(), sizeof(UINT));
+	KazGPUParticle::BUFFER_SIZE lVertBuffSize = KazBufferHelper::GetBufferSize<KazGPUParticle::BUFFER_SIZE>(lVerticesArray.size(), sizeof(Vertex));
+	KazGPUParticle::BUFFER_SIZE lIndexBuffSize = KazBufferHelper::GetBufferSize<KazGPUParticle::BUFFER_SIZE>(lIndicesArray.size(), sizeof(UINT));
 
 
 	vertexBuffer = std::make_unique<KazRenderHelper::ID3D12ResourceWrapper>();

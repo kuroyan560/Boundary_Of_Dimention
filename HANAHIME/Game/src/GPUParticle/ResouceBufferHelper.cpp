@@ -1,7 +1,4 @@
 #include "ResouceBufferHelper.h"
-#include"../KazLibrary/Buffer/DescriptorHeapMgr.h"
-#include"../KazLibrary/Buffer/UavViewHandleMgr.h"
-#include"../KazLibrary/RenderTarget/RenderTargetStatus.h"
 
 const int ResouceBufferHelper::SWAPCHAIN_NUM = 1;
 
@@ -18,10 +15,10 @@ ResouceBufferHelper::ResouceBufferHelper() :counterBufferData(
 	//counterBufferData = KazBufferHelper::SetRWStructuredBuffer(sizeof(UINT), "CounterBuffer");
 }
 
-RESOURCE_HANDLE ResouceBufferHelper::CreateBuffer(UINT STRUCTURE_BYTE_STRIDE, GraphicsRangeType RANGE, GraphicsRootParamType ROOTPARAM, UINT ELEMENT_NUM, bool GENERATE_COUNTER_BUFFER_FLAG)
+KazGPUParticle::RESOURCE_HANDLE  ResouceBufferHelper::CreateBuffer(UINT STRUCTURE_BYTE_STRIDE, GraphicsRangeType RANGE, GraphicsRootParamType ROOTPARAM, UINT ELEMENT_NUM, bool GENERATE_COUNTER_BUFFER_FLAG)
 {
-	RESOURCE_HANDLE lHandle = handle.GetHandle();
-	RESOURCE_HANDLE lViewHandle = 0;
+	KazGPUParticle::RESOURCE_HANDLE  lHandle = handle.GetHandle();
+	KazGPUParticle::RESOURCE_HANDLE  lViewHandle = 0;
 	UINT lBufferSize = STRUCTURE_BYTE_STRIDE * ELEMENT_NUM;
 
 	bufferArrayData.emplace_back(ResouceBufferHelper::BufferData());
@@ -42,7 +39,7 @@ RESOURCE_HANDLE ResouceBufferHelper::CreateBuffer(UINT STRUCTURE_BYTE_STRIDE, Gr
 		bufferArrayData[lHandle].bufferWrapper.CreateBuffer(KazBufferHelper::SetRWStructuredBuffer(lBufferSize));
 
 
-		std::vector<RESOURCE_HANDLE>lViewHandleArray;
+		std::vector<KazGPUParticle::RESOURCE_HANDLE >lViewHandleArray;
 		for (int i = 0; i < SWAPCHAIN_NUM; ++i)
 		{
 			lViewHandleArray.emplace_back(UavViewHandleMgr::Instance()->GetHandle());
@@ -75,9 +72,9 @@ RESOURCE_HANDLE ResouceBufferHelper::CreateBuffer(UINT STRUCTURE_BYTE_STRIDE, Gr
 	return lHandle;
 }
 
-RESOURCE_HANDLE ResouceBufferHelper::CreateBuffer(const KazBufferHelper::BufferResourceData &BUFFER_OPTION_DATA, GraphicsRangeType RANGE, GraphicsRootParamType ROOTPARAM, UINT STRUCTURE_BYTE_STRIDE, UINT ELEMENT_NUM, bool GENERATE_COUNTER_BUFFER_FLAG)
+KazGPUParticle::RESOURCE_HANDLE  ResouceBufferHelper::CreateBuffer(const KazBufferHelper::BufferResourceData &BUFFER_OPTION_DATA, GraphicsRangeType RANGE, GraphicsRootParamType ROOTPARAM, UINT STRUCTURE_BYTE_STRIDE, UINT ELEMENT_NUM, bool GENERATE_COUNTER_BUFFER_FLAG)
 {
-	RESOURCE_HANDLE lHandle = handle.GetHandle();
+	KazGPUParticle::RESOURCE_HANDLE  lHandle = handle.GetHandle();
 
 	bufferArrayData.push_back(ResouceBufferHelper::BufferData());
 	bufferArrayData[lHandle].rangeType = RANGE;
@@ -88,7 +85,7 @@ RESOURCE_HANDLE ResouceBufferHelper::CreateBuffer(const KazBufferHelper::BufferR
 	switch (RANGE)
 	{
 	case GRAPHICS_RANGE_TYPE_UAV_DESC:
-		std::vector<RESOURCE_HANDLE>lViewHandleArray;
+		std::vector<KazGPUParticle::RESOURCE_HANDLE >lViewHandleArray;
 		for (int i = 0; i < SWAPCHAIN_NUM; ++i)
 		{
 			lViewHandleArray.emplace_back(UavViewHandleMgr::Instance()->GetHandle());
@@ -125,7 +122,7 @@ ResouceBufferHelper::BufferData ResouceBufferHelper::CreateAndGetBuffer(UINT STR
 {
 	ResouceBufferHelper::BufferData lBufferData;
 
-	RESOURCE_HANDLE lViewHandle = -1;
+	KazGPUParticle::RESOURCE_HANDLE  lViewHandle = -1;
 	UINT lBufferSize = STRUCTURE_BYTE_STRIDE * ELEMENT_NUM;
 
 	lBufferData.rangeType = RANGE;
@@ -144,7 +141,7 @@ ResouceBufferHelper::BufferData ResouceBufferHelper::CreateAndGetBuffer(UINT STR
 	case GRAPHICS_RANGE_TYPE_UAV_DESC:
 		lBufferData.bufferWrapper.CreateBuffer(KazBufferHelper::SetRWStructuredBuffer(lBufferSize));
 
-		std::vector<RESOURCE_HANDLE>lViewHandleArray;
+		std::vector<KazGPUParticle::RESOURCE_HANDLE >lViewHandleArray;
 		for (int i = 0; i < SWAPCHAIN_NUM; ++i)
 		{
 			lViewHandleArray.emplace_back(UavViewHandleMgr::Instance()->GetHandle());
@@ -180,7 +177,7 @@ ResouceBufferHelper::BufferData ResouceBufferHelper::CreateAndGetBuffer(UINT STR
 
 ResouceBufferHelper::BufferData ResouceBufferHelper::CreateAndGetBuffer(const KazBufferHelper::BufferResourceData &BUFFER_OPTION_DATA, GraphicsRangeType RANGE, GraphicsRootParamType ROOTPARAM, UINT STRUCTURE_BYTE_STRIDE, UINT ELEMENT_NUM, bool GENERATE_COUNTER_BUFFER_FLAG)
 {
-	RESOURCE_HANDLE lViewHandle = 0;
+	KazGPUParticle::RESOURCE_HANDLE  lViewHandle = 0;
 	UINT lBufferSize = STRUCTURE_BYTE_STRIDE * ELEMENT_NUM;
 
 	ResouceBufferHelper::BufferData lBufferData;
@@ -200,7 +197,7 @@ ResouceBufferHelper::BufferData ResouceBufferHelper::CreateAndGetBuffer(const Ka
 	case GRAPHICS_RANGE_TYPE_UAV_DESC:
 		lBufferData.bufferWrapper.CreateBuffer(KazBufferHelper::SetRWStructuredBuffer(lBufferSize));
 
-		std::vector<RESOURCE_HANDLE>lViewHandleArray;
+		std::vector<KazGPUParticle::RESOURCE_HANDLE >lViewHandleArray;
 		for (int i = 0; i < SWAPCHAIN_NUM; ++i)
 		{
 			lViewHandleArray.emplace_back(UavViewHandleMgr::Instance()->GetHandle());
@@ -233,9 +230,9 @@ ResouceBufferHelper::BufferData ResouceBufferHelper::CreateAndGetBuffer(const Ka
 	return lBufferData;
 }
 
-RESOURCE_HANDLE ResouceBufferHelper::SetBuffer(const ResouceBufferHelper::BufferData &DATA, GraphicsRootParamType ROOTPARAM)
+KazGPUParticle::RESOURCE_HANDLE  ResouceBufferHelper::SetBuffer(const ResouceBufferHelper::BufferData &DATA, GraphicsRootParamType ROOTPARAM)
 {
-	RESOURCE_HANDLE lHandle = handle.GetHandle();
+	KazGPUParticle::RESOURCE_HANDLE  lHandle = handle.GetHandle();
 	if (lHandle <= bufferArrayData.size())
 	{
 		bufferArrayData.push_back(DATA);
@@ -248,7 +245,7 @@ RESOURCE_HANDLE ResouceBufferHelper::SetBuffer(const ResouceBufferHelper::Buffer
 	return lHandle;
 }
 
-void ResouceBufferHelper::TransData(RESOURCE_HANDLE HANDLE, void *TRANS_DATA, UINT TRANSMISSION_DATA_SIZE)
+void ResouceBufferHelper::TransData(KazGPUParticle::RESOURCE_HANDLE  HANDLE, void *TRANS_DATA, UINT TRANSMISSION_DATA_SIZE)
 {
 	bufferArrayData[HANDLE].bufferWrapper.TransData(TRANS_DATA, TRANSMISSION_DATA_SIZE);
 }
@@ -327,12 +324,12 @@ void ResouceBufferHelper::InitCounterBuffer(const Microsoft::WRL::ComPtr<ID3D12R
 	}
 }
 
-const ResouceBufferHelper::BufferData &ResouceBufferHelper::GetBufferData(RESOURCE_HANDLE HANDLE)const
+const ResouceBufferHelper::BufferData &ResouceBufferHelper::GetBufferData(KazGPUParticle::RESOURCE_HANDLE  HANDLE)const
 {
 	return bufferArrayData[HANDLE];
 }
 
-void ResouceBufferHelper::SetRootParam(RESOURCE_HANDLE HANDLE, GraphicsRootParamType ROOT_PARAM)
+void ResouceBufferHelper::SetRootParam(KazGPUParticle::RESOURCE_HANDLE  HANDLE, GraphicsRootParamType ROOT_PARAM)
 {
 	bufferArrayData[HANDLE].rootParamType = ROOT_PARAM;
 }
