@@ -138,6 +138,7 @@ struct PSOutput
     float4 normal : SV_Target3;
     float4 edgeColor : SV_Target4;
     uint4 bright : SV_Target5;
+    float4 farThanPlayerColor : SV_Target6;
 };
 
 PSOutput PSmain(VSOutput input) : SV_TARGET
@@ -280,13 +281,18 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     PSOutput output;
     output.color = result;
 
-    output.emissive = float4(0,0,0,0);
+    //プレイヤーより向こう側
+    output.farThanPlayerColor = result;
+    float playerDepth = mul(cam.view, float4(playerPos, 1)).z - 2.0f;
+    output.farThanPlayerColor.w = step(playerDepth, input.depthInView);
     
-    //明るさ計算
+        //明るさ計算
     // float bright = dot(result.xyz, float3(0.2125f, 0.7154f, 0.0721f));
     // if (1.0f < bright)
     //    output.emissive += result;
     // output.emissive.w = result.w;
+    output.emissive = float4(0,0,0,0);
+    
     output.depth = input.depthInView;
     
     output.normal.xyz = input.normal;

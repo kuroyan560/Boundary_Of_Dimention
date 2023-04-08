@@ -24,7 +24,7 @@ class BasicDraw : public KuroEngine::DesignPattern::Singleton<BasicDraw>, public
 {
 public:
 	//レンダーターゲット
-	enum RENDER_TARGET_TYPE { MAIN, EMISSIVE, DEPTH, NORMAL, EDGE_COLOR, BRIGHT, NUM };
+	enum RENDER_TARGET_TYPE { MAIN, EMISSIVE, DEPTH, NORMAL, EDGE_COLOR, BRIGHT, FAR_THAN_PLAYER, NUM };
 
 private:
 
@@ -85,6 +85,9 @@ private:
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_edgeShaderParamBuff;
 
 	std::array<std::shared_ptr<KuroEngine::RenderTarget>, RENDER_TARGET_TYPE::NUM>m_renderTargetArray;
+
+	//プレイヤーより手前のオブジェクトを透過させる際のテクスチャ
+	std::shared_ptr<KuroEngine::TextureBuffer>m_playerMaskTex;
 	
 	void OnImguiItems()override;
 

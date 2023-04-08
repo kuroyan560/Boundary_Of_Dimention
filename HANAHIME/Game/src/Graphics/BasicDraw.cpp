@@ -32,6 +32,8 @@ BasicDraw::BasicDraw() :KuroEngine::Debugger("BasicDraw")
 		&defaultParam.m_edgeColor, "DefaultDrawParam");
 
 	LoadParameterLog();
+
+	m_playerMaskTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/playerMaskTex.png");
 }
 
 void BasicDraw::OnImguiItems()
@@ -82,6 +84,7 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//ノーマルマップ
 			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_None),	//エッジカラーマップ
 			RenderTargetInfo(DXGI_FORMAT_R8G8B8A8_UINT, AlphaBlendMode_None),	//草むらマップ
+			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_Trans),	//プレイヤーより向こう側を描画（透過用）
 		};
 	}
 
@@ -232,37 +235,19 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		"BasicDraw - PlayerPos");
 
 	//レンダーターゲット生成
-	static auto targetSize = D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize();
-	m_renderTargetArray[MAIN] = D3D12App::Instance()->GenerateRenderTarget(
-		RENDER_TARGET_INFO[0][MAIN].m_format,
-		Color(0.0f, 0.0f, 0.0f, 0.0f),
-		targetSize,
-		L"BasicDraw - MainRenderTarget");
-
-	m_renderTargetArray[EMISSIVE] = D3D12App::Instance()->GenerateRenderTarget(
-		RENDER_TARGET_INFO[0][EMISSIVE].m_format,
-		Color(0.0f, 0.0f, 0.0f, 1.0f),
-		targetSize, L"BasicDraw - EmissiveMap");
-
-	m_renderTargetArray[DEPTH] = D3D12App::Instance()->GenerateRenderTarget(
-		RENDER_TARGET_INFO[0][DEPTH].m_format,
-		Color(FLT_MAX, 0.0f, 0.0f, 0.0f),
-		targetSize, L"BasicDraw - DepthMap");
-
-	m_renderTargetArray[NORMAL] = D3D12App::Instance()->GenerateRenderTarget(
-		RENDER_TARGET_INFO[0][NORMAL].m_format,
-		Color(0.0f, 0.0f, 0.0f, 0.0f),
-		targetSize, L"BasicDraw - NormalMap");
-
-	m_renderTargetArray[EDGE_COLOR] = D3D12App::Instance()->GenerateRenderTarget(
-		RENDER_TARGET_INFO[0][EDGE_COLOR].m_format,
-		Color(0.0f, 0.0f, 0.0f, 1.0f),
-		targetSize, L"BasicDraw - EdgeColorMap");
-
-	m_renderTargetArray[BRIGHT] = D3D12App::Instance()->GenerateRenderTarget(
-		RENDER_TARGET_INFO[0][BRIGHT].m_format,
-		Color(0, 0, 0, 0),
-		targetSize, L"BasicDraw - BrightMap");
+	std::array<std::string, RENDER_TARGET_TYPE::NUM>targetNames =
+	{
+		"MainRenderTarget","EmissiveMap","DepthMap","NormalMap","EdgeColorMap","BrightMap","FarThanPlayer"
+	};
+	auto targetSize = D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize();
+	for (int targetIdx = 0; targetIdx < RENDER_TARGET_TYPE::NUM; ++targetIdx)
+	{
+		m_renderTargetArray[targetIdx] = D3D12App::Instance()->GenerateRenderTarget(
+			RENDER_TARGET_INFO[0][targetIdx].m_format,
+			Color(0.0f, 0.0f, 0.0f, 0.0f),
+			targetSize,
+			GetWideStrFromStr(("BasicDraw - " + targetNames[targetIdx])).c_str());
+	}
 }
 
 void BasicDraw::Update(KuroEngine::Vec3<float> arg_playerPos)

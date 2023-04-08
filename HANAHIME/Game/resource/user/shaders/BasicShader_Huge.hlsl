@@ -8,7 +8,7 @@ struct ToonCommonParameter
 {
     float m_brightThresholdLow;
     float m_brightThresholdRange;
-    float m_limThreshold;
+    float m_monochromeRate;
 };
 
 struct ToonIndividualParameter
@@ -16,9 +16,9 @@ struct ToonIndividualParameter
     float4 m_fillColor;
     float4 m_brightMulColor;
     float4 m_darkMulColor;
-    float4 m_limBrightColor;
     float4 m_edgeColor;
     int m_drawMask;
+    int m_isPlayer;
 };
 
 cbuffer cbuff0 : register(b0)
@@ -64,6 +64,11 @@ cbuffer cbuff4 : register(b5)
 cbuffer cbuff5 : register(b6)
 {
     ToonIndividualParameter toonIndividualParam;
+}
+
+cbuffer cbuff7 : register(b7)
+{
+    float3 playerPos;
 }
 
 struct VSOutput
@@ -133,7 +138,8 @@ struct PSOutput
     float depth : SV_Target2;
     float4 normal : SV_Target3;
     float4 edgeColor : SV_Target4;
-    uint4 grass : SV_Target5;
+    uint4 bright : SV_Target5;
+    float4 farThanPlayerColor : SV_Target6;
 };
 
 PSOutput PSmain(VSOutput input) : SV_TARGET
@@ -261,32 +267,53 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
 
     //=========================================================================
 
-    //リムライト強調
-    float limEfBright = GetColorBright(limEf.rgb);
-    float limThresholdResult = step(toonCommonParam.m_limThreshold, limEfBright);
-    
-    //リムライト部分の補正色適用
-    float3 limBrightCol = toonIndividualParam.m_limBrightColor.xyz * toonIndividualParam.m_limBrightColor.w
-    + ligEffCol.xyz * (1.0f - toonIndividualParam.m_limBrightColor.w);
-    result.xyz = limThresholdResult * limBrightCol.xyz + (1.0f - limThresholdResult) * result.xyz;
-
     //塗りつぶし
     result.xyz = toonIndividualParam.m_fillColor.xyz * toonIndividualParam.m_fillColor.w + result.xyz * (1.0f - toonIndividualParam.m_fillColor.w);
+    
+     //プレイヤーを光源とした場合の光の当たり具合を求める
+    float3 ligRay = input.worldpos - playerPos;
+    float bright = dot(-normalize(ligRay), input.normal);
+    //-1 ~ 1 から 0 ~ 1の範囲に収める
+    bright = (bright + 1.0f) / 2.0f;
+	//影響率は距離に比例して小さくなっていく
+    float range = 40.0f;
+    float affect = 1.0f - 1.0f / range * length(ligRay);
+	//影響力がマイナスにならないように補正をかける
+    if (affect < 0.0f)
+        affect = 0.0f;
+    bright *= affect;
+    //bright = smoothstep(0.45f, 0.47f, bright);
+    int isBright = step(0.45f, bright);
+    if (toonIndividualParam.m_isPlayer)
+        isBright = 1;
+    result.xyz *= lerp(0.5f, 1.0f, isBright);
+    
+    //光が当たっていないならモノクロ化
+    result.xyz = lerp(lerp(result.xyz, Monochrome(result.xyz), toonCommonParam.m_monochromeRate), result.xyz, isBright);
     
     PSOutput output;
     output.color = result;
 
-    output.emissive = float4(0,0,0,0);
+    //プレイヤーより向こう側
+    if (mul(cam.view, float4(playerPos, 1)).z - 2.0f < input.depthInView)
+    {
+        output.farThanPlayerColor = result;
+    }
     
     //明るさ計算
     // float bright = dot(result.xyz, float3(0.2125f, 0.7154f, 0.0721f));
     // if (1.0f < bright)
     //    output.emissive += result;
     // output.emissive.w = result.w;
+    output.emissive = float4(0,0,0,0);
+    
     //output.depth = input.depthInView;
+
     output.normal.xyz = input.normal;
         
     output.edgeColor = toonIndividualParam.m_edgeColor;
+    
+    output.bright.x = isBright;
     
     return output;
 }
