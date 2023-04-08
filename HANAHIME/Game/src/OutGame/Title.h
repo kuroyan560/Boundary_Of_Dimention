@@ -1,6 +1,6 @@
 #pragma once
-#include"MovieCamera.h"
-#include"../../../src/engine/ForUser/DrawFunc/2D/DrawFunc2D.h"
+#include"../Movie/MovieCamera.h"
+#include"ForUser/DrawFunc/2D/DrawFunc2D.h"
 
 /// <summary>
 /// ƒ^ƒCƒgƒ‹‰æ–ÊŒü‚¯‚Ìˆ—

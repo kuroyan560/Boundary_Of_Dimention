@@ -1,8 +1,8 @@
 #pragma once
 #include"Common/Transform.h"
 #include"Render/RenderObject/Camera.h"
-#include"../../../src/engine/ForUser/Timer.h"
-#include"../src/Graphics/BasicDraw.h"
+#include"ForUser/Timer.h"
+#include"../Graphics/BasicDraw.h"
 #include"FrameWork/Importer.h"
 //#include"../../../src/engine/KuroEngine.h"
 

@@ -1,6 +1,7 @@
 #pragma once
 #include"Gate.h"
-#include"../MovieCamera.h"
+#include"../Movie/StageChange.h"
+#include"../Movie/MovieCamera.h"
 
 /// <summary>
 /// ƒz[ƒ€‰æ–Ê
