@@ -16,7 +16,7 @@ Grass::Grass()
 		std::vector<RootParam>rootParam =
 		{
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"生成した草のバッファ(RWStructuredBuffer)"),
-			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"デプスマップ"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"ワールド座標"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"法線マップ"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"光が当たっている範囲のマップ"),
 		};
@@ -175,32 +175,27 @@ void Grass::Init()
 	m_plantTimer.Reset(0);
 }
 
-void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, bool arg_isPlayerReadyToPlant, std::weak_ptr<KuroEngine::Camera> arg_cam, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend)
+void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend)
 {
 	using namespace KuroEngine;
 
 	//トランスフォーム情報をGPUに送信
 	TransformCBVData transformData;
-	transformData.m_camPos = { arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[0],arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[1],arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[2]};
+	transformData.m_camPos = { arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[0],arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[1],arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[2] };
 	m_otherTransformConstBuffer->Mapping(&transformData);
 
-	//プレイヤーが移動した and 周りに草がない。
-	bool isMovePlayer = !((arg_playerTransform.GetPos() - m_oldPlayerPos).Length() < 0.1f);
-	if (isMovePlayer && arg_isPlayerReadyToPlant)
+	if (m_plantTimer.IsTimeUp())
 	{
-		if (m_plantTimer.IsTimeUp())
-		{
-			//トランスフォームに流し込む
-			Transform grassTransform;
-			grassTransform.SetPos(arg_playerTransform.GetPos());
-			grassTransform.SetRotate(arg_playerTransform.GetRotate());
-			grassTransform.SetScale({ 1.0f,1.0f,1.0f });
+		//トランスフォームに流し込む
+		Transform grassTransform;
+		grassTransform.SetPos(arg_playerTransform.GetPos());
+		grassTransform.SetRotate(arg_playerTransform.GetRotate());
+		grassTransform.SetScale({ 1.0f,1.0f,1.0f });
 
-			Plant(grassTransform, arg_grassPosScatter, arg_waterPaintBlend, arg_cam);
-			m_plantTimer.Reset(3);
-		}
-		m_plantTimer.UpdateTimer();
+		Plant(grassTransform, arg_grassPosScatter, arg_waterPaintBlend, arg_cam);
+		m_plantTimer.Reset(3);
 	}
+	m_plantTimer.UpdateTimer();
 
 	m_oldPlayerPos = arg_playerTransform.GetPos();
 
@@ -305,13 +300,9 @@ void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> a
 		//草をはやす場所を取得。
 		KuroEngine::Vec3<float> plantPos = SearchPlantPos(arg_cam);
 
-		//草を生やす位置をランダムで散らす。
-		KuroEngine::Vec3<float>posScatter = arg_transform.GetRight() * KuroEngine::GetRand(-arg_grassPosScatter.x, arg_grassPosScatter.x);
-		posScatter += arg_transform.GetFront() * KuroEngine::GetRand(-arg_grassPosScatter.y, arg_grassPosScatter.y);
-
 		//イニシャライザのスタック
 		m_grassInitializerArray.emplace_back();
-		m_grassInitializerArray.back().m_pos = arg_transform.GetPos() + posScatter;
+		m_grassInitializerArray.back().m_pos = plantPos;
 		m_grassInitializerArray.back().m_up = arg_transform.GetUp();
 		//とりあえず乱数でテクスチャ決定
 		//m_vertices[m_deadVertexIdx].m_texIdx = KuroEngine::GetRand(s_textureNumMax - 1);
@@ -337,10 +328,7 @@ KuroEngine::Vec3<float> Grass::SearchPlantPos(std::weak_ptr<KuroEngine::Camera> 
 
 	//必要なデータを送信
 	auto transformCBVPtr = m_otherTransformConstBuffer->GetResource()->GetBuffOnCpu<TransformCBVData>();
-	transformCBVPtr->m_camPos = { arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[0],arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[1],arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[2] };
-	transformCBVPtr->m_invProjection = DirectX::XMMatrixInverse(nullptr, arg_cam.lock()->GetProjectionMat());
-	transformCBVPtr->m_invView = DirectX::XMMatrixInverse(nullptr, arg_cam.lock()->GetViewMat());
-	transformCBVPtr->m_seed = KuroEngine::GetRand(0.0f, 1000.0f);
+	transformCBVPtr->m_seed = KuroEngine::GetRand(0, 1000);
 	transformCBVPtr->m_grassCount = plantGrassCount;
 
 	//判定用コンピュートパイプライン実行
@@ -348,7 +336,7 @@ KuroEngine::Vec3<float> Grass::SearchPlantPos(std::weak_ptr<KuroEngine::Camera> 
 	std::vector<RegisterDescriptorData>descData =
 	{
 		{m_plantGrassBuffer,UAV},
-		{BasicDraw::Instance()->GetRenderTarget(BasicDraw::DEPTH),SRV},
+		{BasicDraw::Instance()->GetRenderTarget(BasicDraw::WORLD_POS),SRV},
 		{BasicDraw::Instance()->GetRenderTarget(BasicDraw::NORMAL),SRV},
 		{BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT),SRV},
 		{m_stackGrassInitializerBuffer,SRV},
@@ -360,7 +348,7 @@ KuroEngine::Vec3<float> Grass::SearchPlantPos(std::weak_ptr<KuroEngine::Camera> 
 	//生成してある草むらの数を取得
 	D3D12App::Instance()->DispathOneShot(
 		m_cPipeline[SEARCH_PLANT_POS],
-		{ plantGrassCount ,1,1 },
+		{ 1 ,1,1 },
 		descData);
 
 	//判定結果の取得

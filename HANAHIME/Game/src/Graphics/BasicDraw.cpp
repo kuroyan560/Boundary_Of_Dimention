@@ -85,6 +85,7 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_None),	//エッジカラーマップ
 			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//草むらマップ
 			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_Trans),	//プレイヤーより向こう側を描画（透過用）
+			RenderTargetInfo(DXGI_FORMAT_R32G32B32A32_FLOAT, AlphaBlendMode_Trans),	//ワールド座標保存用
 		};
 	}
 
@@ -240,7 +241,7 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 	//レンダーターゲット生成
 	std::array<std::string, RENDER_TARGET_TYPE::NUM>targetNames =
 	{
-		"MainRenderTarget","EmissiveMap","DepthMap","NormalMap","EdgeColorMap","BrightMap","FarThanPlayer"
+		"MainRenderTarget","EmissiveMap","DepthMap","NormalMap","EdgeColorMap","BrightMap","FarThanPlayer", "WorldPos"
 	};
 	auto targetSize = D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize();
 	for (int targetIdx = 0; targetIdx < RENDER_TARGET_TYPE::NUM; ++targetIdx)

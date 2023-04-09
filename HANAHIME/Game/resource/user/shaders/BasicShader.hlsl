@@ -145,6 +145,7 @@ struct PSOutput
     float4 edgeColor : SV_Target4;
     float4 bright : SV_Target5;
     float4 farThanPlayerColor : SV_Target6;
+    float4 worldPos : SV_Target7;
 };
 
 PSOutput PSmain(VSOutput input) : SV_TARGET
@@ -300,6 +301,8 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     output.edgeColor = toonIndividualParam.m_edgeColor * lerp(0.2f, 1.0f, isBright);
     
     output.bright.x = isBright;
+    
+    output.worldPos = float4(input.worldpos, 1.0f);
     
     return output;
 }

@@ -24,7 +24,7 @@ AppendStructuredBuffer<PlantGrass> appendAliveGrassBuffer : register(u0);
 
 RWStructuredBuffer<CheckResult> checkResultBuffer : register(u1);
 
-Texture2D<float4> g_depthMap : register(t0);
+Texture2D<float4> g_worldMap : register(t0);
 Texture2D<float4> g_normalMap : register(t1);
 Texture2D<float4> g_brightMap : register(t2);
 
@@ -83,13 +83,12 @@ void Update(uint DTid : SV_DispatchThreadID)
 void SearchPlantPos(uint DTid : SV_DispatchThreadID)
 {
     
-    //ビュープロジェクションの逆行列を求める。
-    matrix invViewProj = mul(otherTransformData.m_invProjection, otherTransformData.m_invView);
+    //スクリーン座標からワールド座標へ変換。
+    CheckResult result = checkResultBuffer[0];
     
     //探す回数。
     int searchCount = 50;
     uint2 screenPos = uint2(0, 0);
-    CheckResult result = checkResultBuffer[DTid];
     result.m_isSuccess = false;
     for (int index = 0; index < searchCount; ++index)
     {
@@ -98,7 +97,7 @@ void SearchPlantPos(uint DTid : SV_DispatchThreadID)
         int seed = otherTransformData.m_seed + (index * 2.0f);
     
         //サンプリングするスクリーン座標を求める。
-        screenPos = uint2(RandomIntInRange(0, 1240, seed), RandomIntInRange(0, 720, seed * 2.0f));
+        screenPos = uint2(RandomIntInRange(0, 1280, seed), RandomIntInRange(0, 720, seed * 2.0f));
         
         //サンプリングした座標がライトに当たっている位置かどうかを判断。
         result.m_isSuccess = 0.9f <= g_brightMap[screenPos].x;
@@ -106,9 +105,9 @@ void SearchPlantPos(uint DTid : SV_DispatchThreadID)
         //サンプリングに失敗したら次へ。
         if (!result.m_isSuccess)
             continue;
-    
-        //スクリーン座標からワールド座標へ変換。
-        result.m_plantPos = ScreenToWorld(screenPos, g_depthMap[screenPos].x, invViewProj).xyz;
+        
+        //サンプリングに成功したらワールド座標を求める。
+        result.m_plantPos = g_worldMap[screenPos].xyz;
         
         //草が近くにあるかを検索。
         bool isNearGrass = false;
