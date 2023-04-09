@@ -28,5 +28,7 @@ struct CommonGrassInfo
 struct TransformData
 {
     float3 m_camPos;
-    float3 m_checkPlantPos;
+    matrix m_invView;
+    matrix m_invProjection;
+    float m_seed;
 };

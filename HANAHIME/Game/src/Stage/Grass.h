@@ -73,7 +73,7 @@ class Grass
 	int m_plantOnceCountMax = 6;
 
 	//コンピュートパイプライン種別
-	enum COMPUTE_PHASE { INIT, CHECK_AROUND, GENERATE, UPDATE, NUM };
+	enum COMPUTE_PHASE { INIT, SEARCH_PLANT_POS, GENERATE, UPDATE, NUM };
 	//コンピュートパイプライン
 	std::array<std::shared_ptr<KuroEngine::ComputePipeline>, COMPUTE_PHASE::NUM>m_cPipeline;
 	//描画用グラフィックスパイプライン
@@ -86,8 +86,9 @@ class Grass
 	struct TransformCBVData
 	{
 		KuroEngine::Vec3<float>m_camPos;
-		float pad;
-		KuroEngine::Vec3<float>m_checkPlantPos;
+		DirectX::XMMATRIX m_invView;
+		DirectX::XMMATRIX m_invProjection;
+		float m_seed;
 	};
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_otherTransformConstBuffer;
 
@@ -110,7 +111,8 @@ class Grass
 	//判定結果の格納データ
 	struct CheckResult
 	{
-		int m_aroundGrassCount = 0;
+		//int m_aroundGrassCount = 0;
+		KuroEngine::Vec3<float> m_plantPos;
 	};
 	//周辺に草むらがあるか確認した結果を格納するバッファ
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_checkResultBuffer;
@@ -127,7 +129,7 @@ class Grass
 public:
 	Grass();
 	void Init();
-	void Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, bool arg_isPlayerReadyToPlant, KuroEngine::Transform arg_camTransform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
+	void Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, bool arg_isPlayerReadyToPlant, std::weak_ptr<KuroEngine::Camera> arg_cam, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
 
 	/// <summary>
@@ -136,15 +138,14 @@ public:
 	/// <param name="arg_transform">座標</param>
 	/// <param name="arg_grassPosScatter">散らし具合</param>
 	/// <param name="arg_waterPaintBlend">水彩画風ブレンドポストエフェクト</param>
-	void Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
+	void Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend, std::weak_ptr<KuroEngine::Camera> arg_cam);
 
 private:
 
 	/// <summary>
-	/// 周囲に草が生えているかをチェックする。
+	/// 草をはやす場所を取得する。
 	/// </summary>
-	/// <param name="arg_checkPos"> チェックする座標 </param>
 	/// <returns> t:生えている  f:生えていない </returns>
-	bool IsGrassAround(const KuroEngine::Vec3<float> arg_checkPos);
+	KuroEngine::Vec3<float> SearchPlantPos(std::weak_ptr<KuroEngine::Camera> arg_cam);
 
 };

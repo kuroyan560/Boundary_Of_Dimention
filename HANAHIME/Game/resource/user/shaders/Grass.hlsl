@@ -13,7 +13,8 @@ struct GrassInitializer
 //判定結果
 struct CheckResult
 {
-    int m_aroundGrassCount;
+    //int m_aroundGrassCount;
+    float3 m_plantPos;
 };
 
 RWStructuredBuffer<PlantGrass> aliveGrassBuffer : register(u0);
@@ -22,7 +23,11 @@ AppendStructuredBuffer<PlantGrass> appendAliveGrassBuffer : register(u0);
 
 RWStructuredBuffer<CheckResult> checkResultBuffer : register(u1);
 
-StructuredBuffer<GrassInitializer> stackGrassInitializerBuffer : register(t0);
+Texture2D<float4> g_depthMap : register(t0);
+Texture2D<float4> g_normalMap : register(t1);
+Texture2D<float4> g_brightMap : register(t2);
+
+StructuredBuffer<GrassInitializer> stackGrassInitializerBuffer : register(t3);
 
 cbuffer cbuff0 : register(b0)
 {
@@ -74,7 +79,7 @@ void Update(uint DTid : SV_DispatchThreadID)
 };
 
 [numthreads(1,1,1)]
-void Check(uint DTid : SV_DispatchThreadID)
+void SearchPlantPos(uint DTid : SV_DispatchThreadID)
 {
     //草むらを生やす予定の位置(プレイヤーの位置)取得
     float3 appearPos = otherTransformData.m_checkPlantPos;
