@@ -1,8 +1,5 @@
 #include "DrawExcuteIndirect.h"
-#include"../KazLibrary/DirectXCommon/DirectX12Device.h"
-#include"../KazLibrary/DirectXCommon/DirectX12CmdList.h"
-#include"../KazLibrary/Pipeline/GraphicsRootSignature.h"
-#include"../KazLibrary/RenderTarget/RenderTargetStatus.h"
+#include"DirectX12/D3D12App.h"
 
 DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawIndexedExcuteIndirect &INIT_DATA) :initData(INIT_DATA)
 {
@@ -15,7 +12,11 @@ DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawIndexedExcuteIndirect &INIT
 	desc.ByteStride = sizeof(DrawIndexedIndirectCommand);
 
 	HRESULT lResult =
-		DirectX12Device::Instance()->dev->CreateCommandSignature(&desc, GraphicsRootSignature::Instance()->GetRootSignature(INIT_DATA.rootsignatureName).Get(), IID_PPV_ARGS(&commandSig));
+		KuroEngine::D3D12App::Instance()->GetDevice()->CreateCommandSignature(
+			&desc,
+			INIT_DATA.rootsignature.Get(),
+			IID_PPV_ARGS(&commandSig)
+		);
 	//コマンドシグネチャ---------------------------
 	if (lResult != S_OK)
 	{
@@ -23,7 +24,7 @@ DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawIndexedExcuteIndirect &INIT
 	}
 
 	//Indirect用のバッファ生成
-	drawCommandHandle = buffers.CreateBuffer(KazBufferHelper::SetRWStructuredBuffer(sizeof(DrawIndexedIndirectCommand)));
+	m_cmdBuffer = KuroEngine::D3D12App::Instance()->GenerateRWStructuredBuffer(sizeof(DrawIndexedIndirectCommand), 1);
 
 	DrawIndexedIndirectCommand command;
 	command.drawArguments.IndexCountPerInstance = INIT_DATA.indexNum;
@@ -32,7 +33,7 @@ DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawIndexedExcuteIndirect &INIT
 	command.drawArguments.StartInstanceLocation = 0;
 	command.drawArguments.BaseVertexLocation = 0;
 	command.view = INIT_DATA.updateView;
-	buffers.TransData(drawCommandHandle, &command, sizeof(DrawIndexedIndirectCommand));
+	m_cmdBuffer->Mapping(&command);
 }
 
 DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawExcuteIndirect &INIT_DATA)
@@ -46,7 +47,11 @@ DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawExcuteIndirect &INIT_DATA)
 	desc.ByteStride = sizeof(DrawIndirectCommand);
 
 	HRESULT lResult =
-		DirectX12Device::Instance()->dev->CreateCommandSignature(&desc, GraphicsRootSignature::Instance()->GetRootSignature(INIT_DATA.rootsignatureName).Get(), IID_PPV_ARGS(&commandSig));
+		KuroEngine::D3D12App::Instance()->GetDevice()->CreateCommandSignature(
+			&desc,
+			INIT_DATA.rootsignature.Get(),
+			IID_PPV_ARGS(&commandSig)
+		);
 	//コマンドシグネチャ---------------------------
 	if (lResult != S_OK)
 	{
@@ -55,7 +60,8 @@ DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawExcuteIndirect &INIT_DATA)
 
 
 	//Indirect用のバッファ生成
-	drawCommandHandle = buffers.CreateBuffer(KazBufferHelper::SetRWStructuredBuffer(sizeof(DrawIndirectCommand)));
+
+	m_cmdBuffer = KuroEngine::D3D12App::Instance()->GenerateRWStructuredBuffer(sizeof(DrawIndirectCommand), 1);
 
 	DrawIndirectCommand command;
 	command.drawArguments.VertexCountPerInstance = INIT_DATA.vertNum;
@@ -63,47 +69,52 @@ DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawExcuteIndirect &INIT_DATA)
 	command.drawArguments.StartVertexLocation = 0;
 	command.drawArguments.StartInstanceLocation = 0;
 	command.view = INIT_DATA.updateView;
-	buffers.TransData(drawCommandHandle, &command, sizeof(DrawIndirectCommand));
+	m_cmdBuffer->Mapping(&command);
 }
 
-void DrawExcuteIndirect::Draw(PipeLineNames PIPELINE_NAME,const Microsoft::WRL::ComPtr<ID3D12Resource> &COUNTER_BUFFER)
+void DrawExcuteIndirect::Draw(KuroEngine::GraphicsPipeline &pipeline,const Microsoft::WRL::ComPtr<ID3D12Resource> &COUNTER_BUFFER)
 {
-	GraphicsPipeLineMgr::Instance()->SetPipeLineAndRootSignature(PIPELINE_NAME);
-	DirectX12CmdList::Instance()->cmdList->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	pipeline.SetPipeline(KuroEngine::D3D12App::Instance()->GetCmdList());
+	KuroEngine::D3D12App::Instance()->GetCmdList()->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
 	//描画情報
 	switch (drawType)
 	{
 	case D3D12_INDIRECT_ARGUMENT_TYPE_DRAW:
-		DirectX12CmdList::Instance()->cmdList->IASetVertexBuffers(0, 1, &initData.vertexBufferView);
+		initData.particleVertex->SetView(KuroEngine::D3D12App::Instance()->GetCmdList());
 		break;
 	case D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED:
-		DirectX12CmdList::Instance()->cmdList->IASetVertexBuffers(0, 1, &initData.vertexBufferView);
-		DirectX12CmdList::Instance()->cmdList->IASetIndexBuffer(&initData.indexBufferView);
+		initData.particleVertex->SetView(KuroEngine::D3D12App::Instance()->GetCmdList());
+		initData.particleIndex->SetView(KuroEngine::D3D12App::Instance()->GetCmdList());
 		break;
 	default:
 		break;
 	}
 
-	RenderTargetStatus::Instance()->ChangeBarrier(
-		buffers.GetBufferData(drawCommandHandle).Get(),
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-		D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT
-	);
+	D3D12_RESOURCE_BARRIER barrier1 =
+		CD3DX12_RESOURCE_BARRIER::Transition(
+			m_cmdBuffer->GetResource()->GetBuff().Get(),
+			D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+			D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT
+		);
+	KuroEngine::D3D12App::Instance()->GetCmdList()->ResourceBarrier(1, &barrier1);
 
-	DirectX12CmdList::Instance()->cmdList->ExecuteIndirect
+	KuroEngine::D3D12App::Instance()->GetCmdList()->ExecuteIndirect
 	(
 		commandSig.Get(),
 		1,
-		buffers.GetBufferData(drawCommandHandle).Get(),
+		m_cmdBuffer->GetResource()->GetBuff().Get(),
 		0,
 		COUNTER_BUFFER.Get(),
 		0
 	);
 
-	RenderTargetStatus::Instance()->ChangeBarrier(
-		buffers.GetBufferData(drawCommandHandle).Get(),
-		D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT,
-		D3D12_RESOURCE_STATE_UNORDERED_ACCESS
-	);
+	D3D12_RESOURCE_BARRIER barrier2 =
+		CD3DX12_RESOURCE_BARRIER::Transition(
+			m_cmdBuffer->GetResource()->GetBuff().Get(),
+			D3D12_RESOURCE_STATE_INDIRECT_ARGUMENT,
+			D3D12_RESOURCE_STATE_UNORDERED_ACCESS
+		);
+	KuroEngine::D3D12App::Instance()->GetCmdList()->ResourceBarrier(1, &barrier2);
 
 }

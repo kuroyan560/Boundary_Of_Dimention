@@ -12,6 +12,7 @@
 #include"Movie/StageChange.h"
 #include"Movie/MovieCamera.h"
 #include"OutGame/Title.h"
+#include"GPUParticle/GPUParticleRender.h"
 
 class GameScene : public KuroEngine::BaseScene
 {
@@ -54,6 +55,9 @@ class GameScene : public KuroEngine::BaseScene
 	std::shared_ptr<KuroEngine::Camera>m_nowCam;
 
 	Title title;
+
+	//GPUパーティクルの描画
+	GPUParticleRender particleRender;
 
 	void OnInitialize()override;
 	void OnUpdate()override;

@@ -114,7 +114,6 @@ void GameScene::OnUpdate()
 
 
 
-
 	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld());
 }
 
@@ -149,6 +148,7 @@ void GameScene::OnDraw()
 
 	m_stageSelect.Draw(*m_nowCam, m_ligMgr);
 
+	particleRender.Draw(*m_nowCam);
 
 	//m_movieCamera.DebugDraw(*m_nowCam, m_ligMgr);
 

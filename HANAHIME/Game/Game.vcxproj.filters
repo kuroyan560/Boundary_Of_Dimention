@@ -343,6 +343,12 @@
     <ClCompile Include="src\GPUParticle\ResouceBufferHelper.cpp">
       <Filter>src\user\GPUParticle</Filter>
     </ClCompile>
+    <ClCompile Include="src\GPUParticle\DrawExcuteIndirect.cpp">
+      <Filter>src\user\GPUParticle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GPUParticle\HandleMaker.cpp">
+      <Filter>src\user\GPUParticle</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -667,6 +673,12 @@
       <Filter>src\user\GPUParticle</Filter>
     </ClInclude>
     <ClInclude Include="src\GPUParticle\GPUParticleData.h">
+      <Filter>src\user\GPUParticle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GPUParticle\DrawExcuteIndirect.h">
+      <Filter>src\user\GPUParticle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GPUParticle\HandleMaker.h">
       <Filter>src\user\GPUParticle</Filter>
     </ClInclude>
   </ItemGroup>
