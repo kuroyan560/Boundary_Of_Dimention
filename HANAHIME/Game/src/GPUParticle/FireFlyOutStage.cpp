@@ -7,16 +7,44 @@ FireFlyOutStage::FireFlyOutStage(std::shared_ptr<KuroEngine::RWStructuredBuffer>
 		KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"蛍パーティクルの情報(RWStructuredBuffer)"),
 	};
 	auto cs_init = KuroEngine::D3D12App::Instance()->CompileShader("resource/user/shaders/FireFlyOutStage.hlsl", "InitMain", "cs_6_4");
-	m_cPipeline = KuroEngine::D3D12App::Instance()->GenerateComputePipeline(cs_init, rootParam, { KuroEngine::WrappedSampler(true,true) });
+	m_initPipeline = KuroEngine::D3D12App::Instance()->GenerateComputePipeline(cs_init, rootParam, { KuroEngine::WrappedSampler(true,true) });
 
-	Compute();
+
+
+	KuroEngine::D3D12App::Instance()->GenerateRWStructuredBuffer(
+		&m_fireFlyParticleData, &m_fireFlyParticleCounterData,
+		sizeof(FireFlyData),
+		FIRE_FLY_MAX,
+		nullptr,
+		"FireFlyParticleData - RWStructuredBuffer");
+
+	std::vector<KuroEngine::RootParam> updateRootParam =
+	{
+		KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"蛍パーティクルの情報(RWStructuredBuffer)"),
+		KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"パーティクル情報(RWStructuredBuffer)"),
+	};
+	auto cs_update = KuroEngine::D3D12App::Instance()->CompileShader("resource/user/shaders/FireFlyOutStage.hlsl", "UpdateMain", "cs_6_4");
+	m_updatePipeline = KuroEngine::D3D12App::Instance()->GenerateComputePipeline(cs_update, updateRootParam, { KuroEngine::WrappedSampler(true,true) });
+
+
+	ComputeInit();
 }
 
-void FireFlyOutStage::Compute()
+void FireFlyOutStage::ComputeInit()
 {
 	std::vector<KuroEngine::RegisterDescriptorData>descData =
 	{
-		{m_particleData,KuroEngine::UAV},
+		{m_fireFlyParticleData,KuroEngine::UAV},
 	};
-	KuroEngine::D3D12App::Instance()->DispathOneShot(m_cPipeline, { 1,1,1 }, descData);
+	KuroEngine::D3D12App::Instance()->DispathOneShot(m_initPipeline, { 1,1,1 }, descData);
+}
+
+void FireFlyOutStage::ComputeUpdate()
+{
+	std::vector<KuroEngine::RegisterDescriptorData>descData =
+	{
+		{m_fireFlyParticleData,KuroEngine::UAV},
+		{m_particleData,KuroEngine::UAV}
+	};
+	KuroEngine::D3D12App::Instance()->DispathOneShot(m_updatePipeline, { 1,1,1 }, descData);
 }

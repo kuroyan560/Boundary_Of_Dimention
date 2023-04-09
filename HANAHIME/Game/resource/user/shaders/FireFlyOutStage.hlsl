@@ -1,6 +1,15 @@
 #include"GPUParticle.hlsli"
 
-AppendStructuredBuffer<ParticleData> particleData : register(u0);
+struct FireFlyParticleData
+{
+    float3 pos;
+    float4 color;
+    //x..timer,y...revFlag
+    uint2 flashTimer;
+};
+
+RWStructuredBuffer<FireFlyParticleData> fireFlyDataBuffer : register(u0);
+AppendStructuredBuffer<ParticleData> particleData : register(u1);
 
 //蛍パーティクル初期化
 [numthreads(1024, 1, 1)]
@@ -27,10 +36,11 @@ void InitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 
     //初期値生成----------------------------------------
 
     //出力--------------------------------------------
-    ParticleData outputMat;
+    FireFlyParticleData outputMat;
     outputMat.pos = pos;
     outputMat.color = color;
-    particleData.Append(outputMat);
+    outputMat.flashTimer = uint2(0,0);
+    fireFlyDataBuffer[index] = outputMat;
     //出力--------------------------------------------
 }
 
@@ -47,13 +57,12 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
         return;
     }
 
-    float3 pos = float3(0,index,0);
-    float4 color = float4(1,1,1,1);
+    FireFlyParticleData fireFlyData = fireFlyDataBuffer[index];
 
     //出力--------------------------------------------
     ParticleData outputMat;
-    outputMat.pos = pos;
-    outputMat.color = color;
+    outputMat.pos = fireFlyData.pos;
+    outputMat.color = fireFlyData.color;
     particleData.Append(outputMat);
     //出力--------------------------------------------
 }

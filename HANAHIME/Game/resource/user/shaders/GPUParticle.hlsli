@@ -64,34 +64,3 @@ float AngleToRadian(float ANGLE)
 	float radian = ANGLE * (3.14f / 180.0f);
 	return radian;
 }
-
-
-struct pcg32_random_t
-{
-    uint state;
-    uint inc;
-} ;
-uint pcg32_random_r(pcg32_random_t rng)
-{
-    uint oldstate = rng.state;
-    // Advance internal state
-    rng.state = oldstate * 6364136223846793005 + (rng.inc | 1);
-    // Calculate output function (XSH RR), uses old state for max ILP
-    uint xorshifted = ((oldstate >> 18) ^ oldstate) >> 27;
-    uint rot = oldstate >> 59;
-    return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
-}
-
-uint XorShit()
-{
-    uint x = 123456789;
-    uint y = 362436069;
-    uint z = 521288629;
-    uint w = 88675123; 
-    uint t = 0;
-
-    t = x ^ (x << 11);
-    x = y; y = z; z = w;
-    uint result = (w ^ (w >> 19)) ^ (t ^ (t >> 8));
-    return result;
-}

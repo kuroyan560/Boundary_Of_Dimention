@@ -56,12 +56,12 @@ class GameScene : public KuroEngine::BaseScene
 
 	std::shared_ptr<KuroEngine::Camera>m_nowCam;
 
-	Title title;
+	Title m_title;
 
 	//GPUパーティクルの描画
-	GPUParticleRender particleRender;
+	GPUParticleRender m_particleRender;
 	//ステージ外の蛍描画
-	FireFlyOutStage fireFlyStage;
+	FireFlyOutStage m_fireFlyStage;
 
 	void OnInitialize()override;
 	void OnUpdate()override;

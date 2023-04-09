@@ -10,7 +10,7 @@
 #include"Graphics/BasicDraw.h"
 #include"FrameWork/UsersInput.h"
 
-GameScene::GameScene() :fireFlyStage(particleRender.GetStackBuffer())
+GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer())
 {
 	m_ddsTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.dds");
 	m_pngTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
@@ -52,7 +52,7 @@ void GameScene::OnInitialize()
 
 void GameScene::OnUpdate()
 {
-	particleRender.InitCount();
+	m_particleRender.InitCount();
 
 	//デバッグ用
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_I))
@@ -66,9 +66,9 @@ void GameScene::OnUpdate()
 
 	m_nowCam = m_player.GetCamera().lock();
 	//タイトル画面モード
-	if (!title.IsFinish())
+	if (!m_title.IsFinish())
 	{
-		m_nowCam = title.GetCamera().lock();
+		m_nowCam = m_title.GetCamera().lock();
 	}
 	//ホームでの演出
 	if (m_movieCamera.IsStart())
@@ -81,12 +81,12 @@ void GameScene::OnUpdate()
 		m_nowCam = m_debugCam;
 	}
 
-	m_player.Update(StageManager::Instance()->GetNowStage(), title.IsFinish());
+	m_player.Update(StageManager::Instance()->GetNowStage(), m_title.IsFinish());
 
 
 	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetOnGround(), m_player.GetCamera().lock()->GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
 	//m_grass.Plant(m_player.GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
-	title.Update(&m_player.GetCamera().lock()->GetTransform());
+	m_title.Update(&m_player.GetCamera().lock()->GetTransform());
 	//ホームでの処理----------------------------------------
 
 	//ステージ選択
@@ -111,9 +111,7 @@ void GameScene::OnUpdate()
 
 	m_movieCamera.Update();
 
-
-
-	fireFlyStage.Compute();
+	m_fireFlyStage.ComputeUpdate();
 
 
 	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld());
@@ -128,7 +126,10 @@ void GameScene::OnDraw()
 	//レンダーターゲットのクリアとセット
 	BasicDraw::Instance()->RenderTargetsClearAndSet(ds);
 
-	particleRender.Draw(*m_nowCam);
+	if (m_title.IsStartOP())
+	{
+		m_particleRender.Draw(*m_nowCam);
+	}
 
 	//ステージ描画
 	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
@@ -173,7 +174,7 @@ void GameScene::OnDraw()
 	m_vignettePostEffect.Register(m_fogPostEffect->GetResultTex());
 
 
-	title.Draw(*m_nowCam, m_ligMgr);
+	m_title.Draw(*m_nowCam, m_ligMgr);
 
 
 

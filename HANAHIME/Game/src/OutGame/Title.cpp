@@ -125,7 +125,6 @@ void Title::Update(KuroEngine::Transform *player_camera)
 
 		m_camera.StartMovie(lookDownDataArray, false);
 		m_generateCameraMoveDataFlag = true;
-		m_startOPFlag = false;
 	}
 	//OPèIóπ
 	else if (m_generateCameraMoveDataFlag && !m_camera.IsStart() && m_camera.IsFinish())

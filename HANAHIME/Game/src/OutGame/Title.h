@@ -13,6 +13,10 @@ public:
 	void Update(KuroEngine::Transform *player_camera);
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr);
 
+	bool IsStartOP()
+	{
+		return m_startOPFlag;
+	}
 	bool IsFinish()
 	{
 		return m_isFinishFlag;
