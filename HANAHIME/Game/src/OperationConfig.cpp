@@ -37,6 +37,8 @@ KuroEngine::Vec3<float> OperationConfig::GetMoveVec(KuroEngine::Quaternion arg_r
 {
     using namespace KuroEngine;
 
+    if (!m_isActive)return { 0,0,0 };
+
     Vec3<float>result;
 
     if (UsersInput::Instance()->KeyInput(DIK_W))result.z += 1.0f;
@@ -60,6 +62,8 @@ KuroEngine::Vec3<float> OperationConfig::GetMoveVecFuna(KuroEngine::Quaternion a
 {
     using namespace KuroEngine;
 
+    if (!m_isActive)return { 0,0,0 };
+
     Vec3<float>result;
 
     if (UsersInput::Instance()->KeyInput(DIK_W))result.z += 1.0f;
@@ -82,6 +86,8 @@ KuroEngine::Vec3<float> OperationConfig::GetMoveVecFuna(KuroEngine::Quaternion a
 KuroEngine::Vec3<float> OperationConfig::GetScopeMove()
 {
     using namespace KuroEngine;
+
+    if (!m_isActive)return { 0,0,0 };
 
     float sensitivity = m_params[m_nowInputDevice].m_camSensitivity;
     Vec3<float>result;

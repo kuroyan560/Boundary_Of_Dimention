@@ -28,6 +28,8 @@ class OperationConfig : public KuroEngine::DesignPattern::Singleton<OperationCon
 		Parameter(0.1f),
 	};
 
+	bool m_isActive = false;
+
 	void OnImguiItems()override;
 
 	//最後に使った入力デバイスを記録
@@ -37,6 +39,8 @@ class OperationConfig : public KuroEngine::DesignPattern::Singleton<OperationCon
 	}
 
 public:
+	void SetActive(bool arg_active) { m_isActive = arg_active; }
+
 	/// <summary>
 	/// 入力によるXZ平面移動方向（方向指定）
 	/// </summary>

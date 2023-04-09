@@ -1,6 +1,7 @@
 #include "Title.h"
 #include"../../../src/engine/FrameWork/UsersInput.h"
 #include"../../../src/engine/FrameWork/WinApp.h"
+#include"../OperationConfig.h"
 
 Title::Title()
 	:m_startGameFlag(false), m_isFinishFlag(false), m_startOPFlag(false), m_generateCameraMoveDataFlag(false), m_blackTexBuff(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(KuroEngine::Color(0, 0, 0, 255))),
@@ -55,6 +56,7 @@ void Title::Init()
 	m_startOPFlag = false;
 	m_generateCameraMoveDataFlag = false;
 	m_alphaRate.Reset();
+	OperationConfig::Instance()->SetActive(false);
 }
 
 void Title::Update(KuroEngine::Transform *player_camera)
@@ -131,6 +133,7 @@ void Title::Update(KuroEngine::Transform *player_camera)
 	else if (m_generateCameraMoveDataFlag && !m_camera.IsStart() && m_camera.IsFinish())
 	{
 		m_isFinishFlag = true;
+		OperationConfig::Instance()->SetActive(true);
 	}
 
 

@@ -79,7 +79,7 @@ void GameScene::OnUpdate()
 		m_nowCam = m_debugCam;
 	}
 
-	m_player.Update(StageManager::Instance()->GetNowStage(), title.IsFinish());
+	m_player.Update(StageManager::Instance()->GetNowStage());
 
 
 	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetOnGround() && m_player.GetIsStatusMove(), m_player.GetCamera().lock()->GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);

@@ -211,7 +211,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 }
 
-void Player::Update(const std::weak_ptr<Stage>arg_nowStage, bool enable_to_move_flag)
+void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
 
@@ -220,12 +220,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage, bool enable_to_move_
 	auto newPos = beforePos;
 
 	//“ü—Í‚³‚ê‚½‹üˆÚ“®Šp“x—Ê‚ğæ“¾
-
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
-	if (!enable_to_move_flag)
-	{
-		scopeMove = {};
-	}
 
 	//ƒJƒƒ‰‚Ì‰ñ“]‚ğ•Û‘¶B
 	m_cameraRotYStorage += scopeMove.x;
