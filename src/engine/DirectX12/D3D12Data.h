@@ -794,6 +794,7 @@ namespace KuroEngine
 		void SetPipeline(const ComPtr<ID3D12GraphicsCommandList>& CmdList);
 
 		const int& GetPipelineHandle() { return m_handle; }
+
 	};
 
 	//コンピュートパイプライン

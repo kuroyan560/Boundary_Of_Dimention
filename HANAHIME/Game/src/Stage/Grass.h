@@ -6,6 +6,7 @@
 #include<memory>
 #include<array>
 #include"../Graphics/BasicDrawParameters.h"
+
 namespace KuroEngine
 {
 	class VertexBuffer;

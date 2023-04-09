@@ -93,7 +93,6 @@ namespace KuroEngine
 		std::shared_ptr<ComputePipeline>m_splitImgPipeline;
 
 		void Initialize(const HWND& Hwnd, const Vec2<int>& ScreenSize, const bool& UseHDR, const Color& ClearValue, const bool& IsFullScreen);
-		ComPtr<ID3D12RootSignature>GenerateRootSignature(const std::vector<RootParam>& RootParams, std::vector<D3D12_STATIC_SAMPLER_DESC>& Samplers);
 
 	public:
 		D3D12App(const HWND& Hwnd, const Vec2<int>& ScreenSize, const bool& UseHDR, const Color& ClearValue, const bool& IsFullScreen = false)
@@ -202,5 +201,10 @@ namespace KuroEngine
 
 		//ワンショットコマンドアロケーターを利用してコンピュートパイプラインを直ちに実行
 		void DispathOneShot(std::weak_ptr<ComputePipeline>Pipeline, Vec3<int>ThreadNum, std::vector<RegisterDescriptorData> DescDatas);
+
+
+		//ルートシグネチャーの生成を行いたいためpublicに置かせてもらいました
+		ComPtr<ID3D12RootSignature>GenerateRootSignature(const std::vector<RootParam> &RootParams, std::vector<D3D12_STATIC_SAMPLER_DESC> &Samplers);
+
 	};
 }
