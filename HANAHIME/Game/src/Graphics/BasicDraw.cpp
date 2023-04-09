@@ -81,7 +81,7 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 			RenderTargetInfo(DXGI_FORMAT_R16_FLOAT, AlphaBlendMode_None),	//深度マップ
 			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//ノーマルマップ
 			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_None),	//エッジカラーマップ
-			RenderTargetInfo(DXGI_FORMAT_R8G8B8A8_UINT, AlphaBlendMode_None),	//草むらマップ
+			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//草むらマップ
 		};
 	}
 
@@ -183,6 +183,7 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"平行投影行列"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"デプスマップ"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"法線マップ"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"光が当たっている範囲のマップ"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"エッジカラーマップ"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"専用のパラメータ"),
 		};
@@ -449,6 +450,7 @@ void BasicDraw::DrawEdge()
 		{KuroEngineDevice::Instance()->GetParallelMatProjBuff(),CBV},
 		{m_renderTargetArray[DEPTH],SRV},
 		{m_renderTargetArray[NORMAL],SRV},
+		{m_renderTargetArray[BRIGHT],SRV},
 		{m_renderTargetArray[EDGE_COLOR],SRV},
 		{m_edgeShaderParamBuff,CBV},
 	};

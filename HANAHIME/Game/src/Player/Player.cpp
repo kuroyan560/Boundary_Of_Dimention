@@ -6,6 +6,7 @@
 #include"../Graphics/BasicDraw.h"
 #include"../Stage/Stage.h"
 #include"../Graphics/BasicDrawParameters.h"
+#include"../../../../src/engine/ForUser/DrawFunc/3D/DrawFunc3D.h"
 
 void Player::OnImguiItems()
 {
@@ -41,9 +42,6 @@ void Player::OnImguiItems()
 
 		ImGui::Text("OnGround : %d", m_onGround);
 
-		ImGui::DragFloat("GrassPosScatter : X", &m_grassPosScatter.x, 0.1f);
-		ImGui::DragFloat("GrassPosScatter : Y", &m_grassPosScatter.y, 0.1f);
-
 	}
 
 	//移動
@@ -77,15 +75,9 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	arg_terrianNormal … 当たった地形のメッシュの法線、格納先
 	*/
 
-	//当たり判定結果
-	bool isHitWall = false;
-	bool onGround = false;
-	HitCheckResult hitResult;
-	std::array<bool, 4> isCliff = { false };
-	std::array<bool, 4> isAround = { false };
-
 	//CastRayに渡す引数
-	Player::CastRayArgument castRayArgument(onGround, isHitWall, hitResult, isCliff, isAround);
+	Player::CastRayArgument castRayArgument;
+	castRayArgument.m_onGround = false;
 
 	//地形配列走査
 	for (auto& terrian : arg_terrianArray)
@@ -108,128 +100,78 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			//判定↓============================================
 
 			//右方向にレイを飛ばす。これは壁にくっつく用。
-			CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), m_transform.GetScale().x, castRayArgument, RAY_ID::AROUND, RAY_DIR::RIGHT);
+			if (0 < m_rowMoveVec.x)CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//左方向にレイを飛ばす。これは壁にくっつく用。
-			CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), m_transform.GetScale().x, castRayArgument, RAY_ID::AROUND, RAY_DIR::LEFT);
+			if (m_rowMoveVec.x < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
-			CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), m_transform.GetScale().z, castRayArgument, RAY_ID::AROUND, RAY_DIR::BEHIND);
+			if (m_rowMoveVec.z < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//正面方向にレイを飛ばす。これは壁にくっつく用。
-			CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), m_transform.GetScale().z, castRayArgument, RAY_ID::AROUND, RAY_DIR::FORWARD);
+			if (0 < m_rowMoveVec.z)CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//下方向にレイを飛ばす。これは地面との押し戻し用。
-			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::GROUND, RAY_DIR::NONE);
-
-			if (0 < m_moveSpeed.z) {
-
-				//前に進んで崖に落ちた場合。
-				CastRay(arg_newPos, arg_newPos + m_transform.GetFront(), -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::CHECK_CLIFF, RAY_DIR::FORWARD);
-
-			}
-
-			if (m_moveSpeed.z < 0) {
-
-				//後ろに進んで崖に落ちた場合。
-				CastRay(arg_newPos, arg_newPos - m_transform.GetFront(), -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::CHECK_CLIFF, RAY_DIR::BEHIND);
-
-			}
-
-			if (0 < m_moveSpeed.x) {
-
-				//右に進んで崖に落ちた場合。
-				CastRay(arg_newPos, arg_newPos + m_transform.GetRight(), -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::CHECK_CLIFF, RAY_DIR::RIGHT);
-
-			}
-
-			if (m_moveSpeed.x < 0) {
-
-				//左に進んで崖に落ちた場合。
-				CastRay(arg_newPos, arg_newPos - m_transform.GetRight(), -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::CHECK_CLIFF, RAY_DIR::LEFT);
-
-			}
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::GROUND);
 
 			//=================================================
 		}
 	}
 
-	//崖際押し戻し用の当たり判定
-	for (auto& terrian : arg_terrianArray)
-	{
-		//モデル情報取得
-		auto model = terrian.m_model.lock();
-		//トランスフォーム情報
-		auto& transform = terrian.m_transform;
-		castRayArgument.m_targetTransform = terrian.m_transform;
+	//接地フラグを保存
+	m_prevOnGround = m_onGround;
+	m_onGround = castRayArgument.m_onGround;
 
-		//メッシュを走査
-		for (auto& modelMesh : model->m_meshes)
-		{
+	//まだ着地していなかったら着地にする。
+	if (!m_isFirstOnGround && m_onGround) {
+		m_isFirstOnGround = true;
+	}
 
-			//CastRayに渡す引数を更新。
-			castRayArgument.m_mesh = terrian.m_collisionMesh[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+	//接地していなかったら移動前の位置に戻す。
+	if (m_isFirstOnGround && !m_onGround) {
+		arg_newPos = arg_from;
+		arg_hitInfo->m_terrianNormal = m_transform.GetUp();
+		return true;
+	}
 
-			float rayLength = m_transform.GetScale().y;
-			auto bottom = m_transform.GetUp() * -rayLength;
-			if (0 < m_moveSpeed.z && !castRayArgument.m_isCliff[static_cast<int>(RAY_DIR::FORWARD)] && !castRayArgument.m_isAround[static_cast<int>(RAY_DIR::FORWARD)]) {
+	//周囲の衝突点があったら、それの最短距離を求めてジャンプ先を決める。
+	int impactPointSize = static_cast<int>(castRayArgument.m_impactPoint.size());
+	if (0 < impactPointSize) {
 
-				//前に進んで崖に落ちた場合。
-				CastRay(arg_newPos, arg_newPos + m_transform.GetFront() * rayLength + bottom, -m_transform.GetFront(), rayLength, castRayArgument, RAY_ID::CLIFF, RAY_DIR::NONE);
+		float minDistance = std::numeric_limits<float>().max();
+		int minIndex = 0;
 
-			}
+		//全衝突点の中から最短の位置にあるものを検索する。
+		for (auto& index : castRayArgument.m_impactPoint) {
 
-			if (m_moveSpeed.z < 0 && !castRayArgument.m_isCliff[static_cast<int>(RAY_DIR::BEHIND)] && !castRayArgument.m_isAround[static_cast<int>(RAY_DIR::BEHIND)]) {
+			float distance = (arg_newPos - index.m_impactPos).Length();
+			if (minDistance < distance) continue;
 
-				//後ろに進んで崖に落ちた場合。
-				CastRay(arg_newPos, arg_newPos - m_transform.GetFront() * rayLength + bottom, m_transform.GetFront(), rayLength, castRayArgument, RAY_ID::CLIFF, RAY_DIR::NONE);
-
-			}
-
-			if (0 < m_moveSpeed.x && !castRayArgument.m_isCliff[static_cast<int>(RAY_DIR::RIGHT)] && !castRayArgument.m_isAround[static_cast<int>(RAY_DIR::RIGHT)]) {
-
-				//右に進んで崖に落ちた場合。
-				CastRay(arg_newPos, arg_newPos + m_transform.GetRight() * rayLength + bottom, -m_transform.GetRight(), rayLength, castRayArgument, RAY_ID::CLIFF, RAY_DIR::NONE);
-
-			}
-
-			if (m_moveSpeed.x < 0 && !castRayArgument.m_isCliff[static_cast<int>(RAY_DIR::LEFT)] && !castRayArgument.m_isAround[static_cast<int>(RAY_DIR::LEFT)]) {
-
-				//左に進んで崖に落ちた場合。
-				CastRay(arg_newPos, arg_newPos - m_transform.GetRight() * rayLength + bottom, m_transform.GetRight(), rayLength, castRayArgument, RAY_ID::CLIFF, RAY_DIR::NONE);
-
-			}
+			minDistance = distance;
+			minIndex = static_cast<int>(&index - &castRayArgument.m_impactPoint[0]);
 
 		}
 
-	}
+		//最短の衝突点を求めたら、それをジャンプ先にする。
+		arg_hitInfo->m_terrianNormal = castRayArgument.m_impactPoint[minIndex].m_normal;
 
-	//周囲のレイが壁に当たっていなかったら、下方向のレイを姿勢として使用する。
-	if (!isHitWall && onGround) {
-		hitResult.m_terrianNormal = hitResult.m_bottmRayTerrianNormal;
-		isHitWall = true;
-	}
+		//ジャンプのパラメーターも決める。
+		m_playerMoveStatus = PLAYER_MOVE_STATUS::JUMP;
+		m_jumpTimer = 0;
+		m_jumpStartPos = arg_newPos;
+		m_bezierCurveControlPos = m_jumpStartPos + m_transform.GetUp() * WALL_JUMP_LENGTH;
+		m_jumpEndPos = castRayArgument.m_impactPoint[minIndex].m_impactPos + castRayArgument.m_impactPoint[minIndex].m_normal * m_transform.GetScale().x;
+		m_jumpEndPos += m_transform.GetUp() * WALL_JUMP_LENGTH;
 
-	//接地フラグを保存
-	m_prevOnGround = m_onGround;
-	m_onGround = onGround;
-
-	//当たり判定がtrueなら当たった地形の法線を格納
-	if (isHitWall && arg_hitInfo)
-	{
-		*arg_hitInfo = hitResult;
 	}
 	else {
 
-		//どことも衝突していなかったら現在の上ベクトルを法線とする。(必ず回転の処理を通るようにするため)
-		hitResult.m_bottmRayTerrianNormal = m_transform.GetUp();
-		hitResult.m_terrianNormal = m_transform.GetUp();
-		*arg_hitInfo = hitResult;
-		isHitWall = true;
+		//どことも当たっていなかったら現在の上ベクトルを地形の上ベクトルとしてみる。
+		arg_hitInfo->m_terrianNormal = m_transform.GetUp();
 
 	}
 
-	return isHitWall;
+	return true;
 }
 
 Player::Player()
@@ -251,78 +193,31 @@ Player::Player()
 	m_cameraRotY = 0;
 	m_cameraQ = DirectX::XMQuaternionIdentity();
 
-	m_moveSpeed = KuroEngine::Vec3<float>(); 
-	m_isFlipMove = false;
+	m_moveSpeed = KuroEngine::Vec3<float>();
+	m_isFirstOnGround = false;
+
 }
 
 void Player::Init(KuroEngine::Transform arg_initTransform)
 {
 	m_transform = arg_initTransform;
-	m_camController.Init();
+	m_camController.Init(m_transform.GetPosWorld(), m_transform.GetRotateWorld());
 	m_cameraRotY = 0;
 	m_cameraRotYStorage = 0;
 	m_cameraQ = DirectX::XMQuaternionIdentity();
 
 	m_moveSpeed = KuroEngine::Vec3<float>();
-	m_isFlipMove = false;
+	m_isFirstOnGround = false;
+	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage, bool enable_to_move_flag)
 {
-
 	using namespace KuroEngine;
 
-	//プレイヤーの回転をカメラ基準にする。(移動方向の基準がカメラの角度なため)
-	m_transform.SetRotate(m_cameraQ);
-
+	//位置情報関係
 	auto beforePos = m_transform.GetPos();
 	auto newPos = beforePos;
-	auto rotate = m_transform.GetRotate();
-
-	//入力された移動量を取得
-	m_rowMoveVec = OperationConfig::Instance()->GetMoveVecFuna(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
-	if (!enable_to_move_flag)
-	{
-		m_rowMoveVec = {};
-	}
-
-
-	//落下中は入力を無効化。
-	if (!m_onGround) {
-		m_rowMoveVec = KuroEngine::Vec3<float>();
-	}
-	m_moveSpeed += m_rowMoveVec * m_moveAccel;
-
-	//移動速度をクランプ。
-	m_moveSpeed.x = std::clamp(m_moveSpeed.x, -m_maxSpeed, m_maxSpeed);
-	m_moveSpeed.z = std::clamp(m_moveSpeed.z, -m_maxSpeed, m_maxSpeed);
-
-	//入力された値が無かったら移動速度を減らす。
-	if (std::fabs(m_rowMoveVec.x) < 0.001f) {
-
-		m_moveSpeed.x = std::clamp(std::fabs(m_moveSpeed.x) - m_brake, 0.0f, m_maxSpeed) * (std::signbit(m_moveSpeed.x) ? -1.0f : 1.0f);
-
-	}
-
-	if (std::fabs(m_rowMoveVec.z) < 0.001f) {
-
-		m_moveSpeed.z = std::clamp(std::fabs(m_moveSpeed.z) - m_brake, 0.0f, m_maxSpeed) * (std::signbit(m_moveSpeed.z) ? -1.0f : 1.0f);
-
-	}
-
-	//プレイヤーがY-の壁に張り付いているかどうかでX軸の移動方向を反転させる。
-	auto moveSpeed = m_moveSpeed;
-	if (m_transform.GetUp().y < -0.9f && m_isFlipXinput) {
-		moveSpeed.x *= -1.0f;
-		moveSpeed.z *= -1.0f;
-	}
-	else if (-0.9f < m_transform.GetUp().y && m_isFlipXinput) {
-		moveSpeed.z *= -1.0f;
-	}
-	else if (m_isFlipMove) {
-		//X軸の動きを反転。Z軸の動きはカメラのクォータニオン側で反転させている。
-		moveSpeed.x *= -1.0f;
-	}
 
 	//入力された視線移動角度量を取得
 
@@ -334,115 +229,64 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage, bool enable_to_move_
 
 	//カメラの回転を保存。
 	m_cameraRotYStorage += scopeMove.x;
-	if (m_rowMoveVec.Length() <= 0) {
-		m_cameraRotY = m_cameraRotYStorage;
-	}
 
-	//プレイヤーの回転を保存。入力があったときは。
-	if (0 < m_rowMoveVec.Length()) {
-		//Y-平面に張り付いていたときはZ軸を逆にする。
-		if (m_isFlipMove) {
-			m_playerRotY = atan2f(m_rowMoveVec.x, m_rowMoveVec.z);
-		}
-		else {
-			m_playerRotY = atan2f(m_rowMoveVec.x, m_rowMoveVec.z);
-		}
-	}
-
-	//入力が無かったら。
-	if (m_moveSpeed.Length() < 0.001f) {
-		//GetUpのY軸に応じて移動方向を反転させるかのフラグを切り替える。
-		if (m_transform.GetUp().y < -0.9f) {
-			m_isFlipMove = true;
-		}
-		else {
-			m_isFlipMove = false;
-		}
-		m_isFlipXinput = false;
-	}
-
-	//ローカル軸の移動方向をプレイヤーの回転に合わせて動かす。
-	auto moveAmount = KuroEngine::Math::TransformVec3(moveSpeed, rotate);
-
-	//移動量加算
-	newPos += moveAmount;
-
-	//地面に張り付ける用の重力。
-	if (!m_onGround) {
-		newPos -= m_transform.GetUp() * (m_transform.GetScale().y / 2.0f);
-	}
-
-	//当たり判定
-	HitCheckResult hitResult;
-	if (HitCheckAndPushBack(beforePos, newPos, arg_nowStage.lock()->GetTerrianArray(), &hitResult))
+	//移動ステータスによって処理を変える。
+	switch (m_playerMoveStatus)
+	{
+	case Player::PLAYER_MOVE_STATUS::MOVE:
 	{
 
-		//法線方向を見るクォータニオン
-		auto spin = Math::GetLookAtQuaternion({ 0,1,0 }, hitResult.m_terrianNormal);
-
-		//カメラ目線でY軸回転させるクォータニオン
-		DirectX::XMVECTOR ySpin;
-		//プレイヤーの移動方向でY軸回転させるクォータニオン
-		DirectX::XMVECTOR playerYSpin;
-
-		if (m_isFlipMove && -0.9f <= hitResult.m_terrianNormal.y) {
-
-			//プレイヤーがY-の壁に張り付いている場合はカメラの回転をY+基準からY-基準に切り替える。
-			ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_cameraRotY + DirectX::XM_PI);
-
-			//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
-			playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY + DirectX::XM_PI);
-
-		}
-		else if (m_isFlipMove) {
-
-			//プレイヤーがY-の壁に張り付いている場合はカメラの回転をY+基準からY-基準に切り替える。
-			ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, -m_cameraRotY + DirectX::XM_PI);
-
-			//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
-			playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY + DirectX::XM_PI);
-
-		}
-		else if (hitResult.m_terrianNormal.y < -0.9f) {
-
-			//プレイヤーがY-の壁に張り付いている場合はカメラの回転をY+基準からY-基準に切り替える。
-			ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, -m_cameraRotY);
-
-			//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
-			playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
-
-		}
-		else {
-
-			ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_cameraRotY);
-
-			//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
-			playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
-		}
-
-		bool isPlayerCeil = m_transform.GetUp().y < -0.9f;
-		bool isFlipNormalToCeil = 0 != m_rowMoveVec.x && !m_isFlipMove && hitResult.m_terrianNormal.y < -0.9f && !isPlayerCeil;
-		bool isFlipCeilToNormal = 0 != m_rowMoveVec.x && m_isFlipMove && -0.9f <= hitResult.m_terrianNormal.y && isPlayerCeil;
-		if (isFlipNormalToCeil || isFlipCeilToNormal) {
-			m_isFlipXinput = true;
-		}
-
-		//カメラ方向でのクォータニオンを求める。進む方向などを判断するのに使用するのはこっち。Fの一番最初にこの値を入れることでplayerYSpinの回転を打ち消す。
-		m_cameraQ = DirectX::XMQuaternionMultiply(spin, ySpin);
-
-		//プレイヤーの移動方向でY軸回転させるクォータニオンをカメラのクォータニオンにかけて、プレイヤーを移動方向に向かせる。
-		m_moveQ = DirectX::XMQuaternionMultiply(m_cameraQ, playerYSpin);
+		//プレイヤーの回転をカメラ基準にする。(移動方向の基準がカメラの角度なため)
 		m_transform.SetRotate(m_cameraQ);
 
+		//入力された移動量を取得
+		m_rowMoveVec = OperationConfig::Instance()->GetMoveVecFuna(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
+
+		//移動させる。
+		Move(newPos);
+
+		//カメラの回転を保存。
+		if (m_rowMoveVec.Length() <= 0) {
+			m_cameraRotY = m_cameraRotYStorage;
+		}
+
+		//当たり判定
+		CheckHit(beforePos, newPos, arg_nowStage);
+
 	}
+	break;
+	case Player::PLAYER_MOVE_STATUS::JUMP:
+	{
+
+		//タイマーを更新。
+		m_jumpTimer = std::clamp(m_jumpTimer + JUMP_TIMER, 0.0f, 1.0f);
+
+		float easeAmount = KuroEngine::Math::Ease(Out, Sine, m_jumpTimer, 0.0f, 1.0f);
+
+		//座標を補間する。
+		newPos = CalculateBezierPoint(easeAmount, m_jumpStartPos, m_jumpEndPos, m_bezierCurveControlPos);
+
+		//回転を補完する。
+		m_transform.SetRotate(XMQuaternionSlerp(m_jumpStartQ, m_jumpEndQ, easeAmount));
+
+		//上限に達していたらジャンプを終える。
+		if (1.0f <= m_jumpTimer) {
+			m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
+		}
+
+	}
+	break;
+	default:
+		break;
+	}
+
 
 	//座標変化適用
 	m_transform.SetPos(newPos);
 	m_ptLig.SetPos(newPos);
 
 	//カメラ操作
-	m_camController.Update(scopeMove, newPos);
-
+	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_normalSpinQ, m_cameraRotYStorage);
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
@@ -464,10 +308,12 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		m_transform,
 		drawParam);
 
-	/*KuroEngine::DrawFunc3D::DrawNonShadingModel(
+	/*
+	KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_axisModel,
 		m_transform,
-		arg_cam);*/
+		arg_cam);
+	*/
 
 	if (arg_cameraDraw)
 	{
@@ -660,16 +506,13 @@ KuroEngine::Vec3<float> Player::CalBary(const KuroEngine::Vec3<float>& PosA, con
 
 }
 
-bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument arg_collisionData, RAY_ID arg_rayID, RAY_DIR arg_rayDirID)
+bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument& arg_collisionData, RAY_ID arg_rayID)
 {
 
 	/*===== 当たり判定用のレイを撃つ =====*/
 
-
-	MeshCollisionOutput output = MeshCollision(m_transform.GetPos(), -m_transform.GetUp(), arg_collisionData.m_mesh, arg_collisionData.m_targetTransform);
-
 	//レイを飛ばす。
-	output = MeshCollision(arg_rayCastPos, arg_rayDir, arg_collisionData.m_mesh, arg_collisionData.m_targetTransform);
+	MeshCollisionOutput output = MeshCollision(arg_rayCastPos, arg_rayDir, arg_collisionData.m_mesh, arg_collisionData.m_targetTransform);
 
 	//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 	if (output.m_isHit && std::fabs(output.m_distance) < arg_rayLength) {
@@ -683,8 +526,7 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 		case Player::RAY_ID::GROUND:
 
 			//外部に渡す用のデータを保存
-			arg_collisionData.m_hitResult.m_interPos = output.m_pos;
-			arg_collisionData.m_hitResult.m_bottmRayTerrianNormal = output.m_normal;
+			arg_collisionData.m_bottomTerrianNormal = output.m_normal;
 			arg_collisionData.m_onGround = true;
 
 			//押し戻す。
@@ -695,46 +537,15 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 		case RAY_ID::CHECK_CLIFF:
 		{
 
-			//崖ではない判定にする。
-			arg_collisionData.m_isCliff[static_cast<int>(arg_rayDirID)] = true;
-
 			break;
 
 		}
 
-		case Player::RAY_ID::CLIFF:
-
-		{
-
-			//崖際に見えない壁があるとしたときの衝突点
-			KuroEngine::Vec3<float> virtualHitPos = output.m_pos + m_transform.GetUp();
-			KuroEngine::Vec3<float> virtualNormal = -output.m_normal;
-			float pushBackAmount = KuroEngine::Vec3<float>(virtualHitPos - KuroEngine::Vec3<float>(arg_rayCastPos + m_transform.GetUp())).Length();
-
-			//外部に渡す用のデータを保存。
-			arg_collisionData.m_isHitWall = true;
-			arg_collisionData.m_hitResult.m_interPos = virtualHitPos;
-			arg_collisionData.m_hitResult.m_terrianNormal = m_transform.GetUp();
-
-			//レイの衝突地点から法線方向に伸ばした位置に移動させる。
-			arg_charaPos = virtualHitPos + virtualNormal * (m_transform.GetScale().x - OFFSET);
-
-		}
-
-
-		break;
 
 		case Player::RAY_ID::AROUND:
 
-			//外部に渡す用のデータを保存。
-			arg_collisionData.m_isHitWall = true;
-			arg_collisionData.m_hitResult.m_interPos = output.m_pos;
-			arg_collisionData.m_hitResult.m_terrianNormal = output.m_normal;
-
-			//レイの衝突地点から法線方向に伸ばした位置に移動させる。
-			arg_charaPos = output.m_pos + output.m_normal * (arg_rayLength - OFFSET);
-
-			arg_collisionData.m_isAround[static_cast<int>(arg_rayDirID)] = true;
+			//レイの衝突地点を保存。
+			arg_collisionData.m_impactPoint.emplace_back(ImpactPointData(output.m_pos, output.m_normal));
 
 			break;
 		default:
@@ -749,6 +560,231 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 
 		//当たらなかった
 		return false;
+
+	}
+
+}
+
+void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
+
+	//落下中は入力を無効化。
+	if (!m_onGround) {
+		m_rowMoveVec = KuroEngine::Vec3<float>();
+	}
+	m_moveSpeed += m_rowMoveVec * m_moveAccel;
+
+	//移動速度をクランプ。
+	m_moveSpeed.x = std::clamp(m_moveSpeed.x, -m_maxSpeed, m_maxSpeed);
+	m_moveSpeed.z = std::clamp(m_moveSpeed.z, -m_maxSpeed, m_maxSpeed);
+
+	//入力された値が無かったら移動速度を減らす。
+	if (std::fabs(m_rowMoveVec.x) < 0.001f) {
+
+		m_moveSpeed.x = std::clamp(std::fabs(m_moveSpeed.x) - m_brake, 0.0f, m_maxSpeed) * (std::signbit(m_moveSpeed.x) ? -1.0f : 1.0f);
+
+	}
+
+	if (std::fabs(m_rowMoveVec.z) < 0.001f) {
+
+		m_moveSpeed.z = std::clamp(std::fabs(m_moveSpeed.z) - m_brake, 0.0f, m_maxSpeed) * (std::signbit(m_moveSpeed.z) ? -1.0f : 1.0f);
+
+	}
+
+	//ローカル軸の移動方向をプレイヤーの回転に合わせて動かす。
+	auto moveAmount = KuroEngine::Math::TransformVec3(m_moveSpeed, m_transform.GetRotate());
+
+	//移動量加算
+	arg_newPos += moveAmount;
+
+	//地面に張り付ける用の重力。
+	if (!m_onGround) {
+		arg_newPos -= m_transform.GetUp() * (m_transform.GetScale().y / 2.0f);
+	}
+
+}
+
+void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<float>& arg_nowpos, const std::weak_ptr<Stage>arg_nowStage) {
+
+	HitCheckResult hitResult;
+	if (!HitCheckAndPushBack(arg_frompos, arg_nowpos, arg_nowStage.lock()->GetTerrianArray(), &hitResult))return;
+
+	//地形の法線が真下を向いているときに誤差できれいに0,-1,0になってくれないせいでうまくいかないので苦肉の策。
+	if (hitResult.m_terrianNormal.y < -0.9f) {
+		hitResult.m_terrianNormal = { 0,-1,0 };
+	}
+	
+	//カメラを矯正する。
+	AdjustCaneraRotY(m_transform.GetUp(), hitResult.m_terrianNormal);
+
+	//法線方向を見るクォータニオン
+	m_normalSpinQ = KuroEngine::Math::GetLookAtQuaternion({ 0,1,0 }, hitResult.m_terrianNormal);
+
+	//カメラの回転でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
+	DirectX::XMVECTOR ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_cameraRotY);
+
+	//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
+	DirectX::XMVECTOR playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
+
+	//カメラ方向でのクォータニオンを求める。進む方向などを判断するのに使用するのはこっち。Fの一番最初にこの値を入れることでplayerYSpinの回転を打ち消す。
+	m_cameraQ = DirectX::XMQuaternionMultiply(m_normalSpinQ, ySpin);
+
+	//プレイヤーの移動方向でY軸回転させるクォータニオンをカメラのクォータニオンにかけて、プレイヤーを移動方向に向かせる。
+	m_moveQ = DirectX::XMQuaternionMultiply(m_cameraQ, playerYSpin);
+
+	//ジャンプ状態だったら
+	if (m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP) {
+
+		//ジャンプ後に回転するようにする。
+
+		//クォータニオンを保存。
+		m_jumpEndQ = m_cameraQ;
+		m_jumpStartQ = m_transform.GetRotate();
+
+	}
+	else {
+
+		//当たった面基準の回転にする。
+		m_transform.SetRotate(m_cameraQ);
+
+	}
+
+}
+
+KuroEngine::Vec3<float> Player::CalculateBezierPoint(float arg_time, KuroEngine::Vec3<float> arg_startPoint, KuroEngine::Vec3<float> arg_endPoint, KuroEngine::Vec3<float> arg_controlPoint) {
+
+	float oneMinusT = 1.0f - arg_time;
+	float oneMinusTSquared = oneMinusT * oneMinusT;
+	float tSquared = arg_time * arg_time;
+
+	float x = oneMinusTSquared * arg_startPoint.x + 2 * oneMinusT * arg_time * arg_controlPoint.x + tSquared * arg_endPoint.x;
+	float y = oneMinusTSquared * arg_startPoint.y + 2 * oneMinusT * arg_time * arg_controlPoint.y + tSquared * arg_endPoint.y;
+	float z = oneMinusTSquared * arg_startPoint.z + 2 * oneMinusT * arg_time * arg_controlPoint.z + tSquared * arg_endPoint.z;
+
+	return KuroEngine::Vec3<float>(x, y, z);
+
+}
+
+
+void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const KuroEngine::Vec3<float>& arg_nextUp) {
+
+	// 移動方向を矯正するための苦肉の策
+
+	// メモ:この関数で書いてある方向は初期位置(法線(0,1,0)で(0,0,1)を向いている状態)でのものです。
+
+	//角度が変わってなかったら飛ばす。
+	if (0.9f <= arg_nowUp.Dot(arg_nextUp)) return;
+
+	//プレイヤーが右側の壁にいる場合
+	if (arg_nowUp.x <= -0.9f) {
+
+		//上の壁に移動したら
+		if (arg_nextUp.y <= -0.9f) {
+
+			m_cameraRotY += DirectX::XM_PI;
+			m_cameraRotYStorage += DirectX::XM_PI;
+
+		}
+		//正面の壁に移動したら
+		if (arg_nextUp.z <= -0.9f) {
+
+			m_cameraRotY -= DirectX::XM_PIDIV2;
+			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+
+		}
+		//後ろの壁に移動したら
+		if (0.9f <= arg_nextUp.z) {
+
+			m_cameraRotY += DirectX::XM_PIDIV2;
+			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+
+		}
+
+	}
+
+	//プレイヤーが左側の壁にいる場合
+	if (0.9f <= arg_nowUp.x) {
+
+		//上の壁に移動したら
+		if (arg_nextUp.y <= -0.9f) {
+
+			m_cameraRotY -= DirectX::XM_PI;
+			m_cameraRotYStorage -= DirectX::XM_PI;
+
+		}
+		//正面の壁に移動したら
+		if (arg_nextUp.z <= -0.9f) {
+
+			m_cameraRotY += DirectX::XM_PIDIV2;
+			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+
+		}
+		//後ろの壁に移動したら
+		if (0.9f <= arg_nextUp.z) {
+
+			m_cameraRotY -= DirectX::XM_PIDIV2;
+			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+
+		}
+
+	}
+
+	//プレイヤーが正面の壁にいる場合
+	if (arg_nowUp.z <= -0.9f) {
+
+		//右側の壁に移動したら
+		if (arg_nextUp.x <= -0.9f) {
+
+			m_cameraRotY += DirectX::XM_PIDIV2;
+			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+
+		}
+		//左側の壁に移動したら
+		if (0.9f <= arg_nextUp.x) {
+
+			m_cameraRotY -= DirectX::XM_PIDIV2;
+			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+
+		}
+
+	}
+
+	//プレイヤーが後ろ側の壁にいる場合
+	if (0.9f <= arg_nowUp.z) {
+
+		//右側の壁に移動したら
+		if (arg_nextUp.x <= -0.9f) {
+
+			m_cameraRotY -= DirectX::XM_PIDIV2;
+			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+
+		}
+		//左側の壁に移動したら
+		if (0.9f <= arg_nextUp.x) {
+
+			m_cameraRotY += DirectX::XM_PIDIV2;
+			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+
+		}
+
+	}
+
+	//プレイヤーが上側の壁にいる場合
+	if (arg_nowUp.y <= -0.9f) {
+
+		//右側の壁に移動したら
+		if (arg_nextUp.x <= -0.9f) {
+
+			m_cameraRotY -= DirectX::XM_PI;
+			m_cameraRotYStorage -= DirectX::XM_PI;
+
+		}
+		//左側の壁に移動したら
+		if (0.9f <= arg_nextUp.x) {
+
+			m_cameraRotY += DirectX::XM_PI;
+			m_cameraRotYStorage += DirectX::XM_PI;
+
+		}
 
 	}
 

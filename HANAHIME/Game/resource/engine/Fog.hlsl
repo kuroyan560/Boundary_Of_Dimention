@@ -36,7 +36,7 @@ cbuffer cbuff1 : register(b1)
 Texture2D<float4> gradation : register(t0);
 Texture2D<float4> mainTex : register(t1);
 Texture2D<float> depthMap : register(t2);
-Texture2D<uint4> maskTex : register(t3);
+Texture2D<float4> maskTex : register(t3);
 
 RWTexture2D<float4> resultTex : register(u0);
 
