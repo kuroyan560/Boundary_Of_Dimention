@@ -106,7 +106,7 @@ void SearchPlantPos(uint DTid : SV_DispatchThreadID)
 {
     
     //スクリーン座標からワールド座標へ変換。
-    CheckResult result = checkResultBuffer[0];
+    CheckResult result = checkResultBuffer[DTid];
     
     //探す回数。
     int searchCount = 5;

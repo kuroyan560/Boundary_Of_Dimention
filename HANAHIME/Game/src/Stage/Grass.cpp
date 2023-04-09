@@ -131,7 +131,7 @@ Grass::Grass()
 	CheckResult checkResultInit;
 	m_checkResultBuffer = D3D12App::Instance()->GenerateRWStructuredBuffer(
 		sizeof(CheckResult),
-		1,
+		PLANT_ONCE_COUNT,
 		&checkResultInit,
 		"Grass - CheckResult - RWStructuredBuffer");
 
@@ -193,7 +193,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 		grassTransform.SetScale({ 1.0f,1.0f,1.0f });
 
 		Plant(grassTransform, arg_playerTransform, arg_grassPosScatter, arg_waterPaintBlend);
-		m_plantTimer.Reset(1);
+		m_plantTimer.Reset(0);
 	}
 	m_plantTimer.UpdateTimer();
 
@@ -297,19 +297,18 @@ void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Transform arg_playerTransform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend)
 {
 
+	//草をはやす場所を取得。
+	std::array<CheckResult, PLANT_ONCE_COUNT> plantData = SearchPlantPos(arg_playerTransform);
 
 	for (int count = 0; count < PLANT_ONCE_COUNT; ++count)
 	{
 
-		//草をはやす場所を取得。
-		Grass::CheckResult plantData = SearchPlantPos(arg_playerTransform);
-
-		if (!plantData.m_isSuccess) continue;
+		if (!plantData[count].m_isSuccess) continue;
 
 		//イニシャライザのスタック
 		m_grassInitializerArray.emplace_back();
-		m_grassInitializerArray.back().m_pos = plantData.m_plantPos;
-		m_grassInitializerArray.back().m_up = plantData.m_plantNormal;
+		m_grassInitializerArray.back().m_pos = plantData[count].m_plantPos;
+		m_grassInitializerArray.back().m_up = plantData[count].m_plantNormal;
 		//とりあえず乱数でテクスチャ決定
 		//m_vertices[m_deadVertexIdx].m_texIdx = KuroEngine::GetRand(s_textureNumMax - 1);
 		m_grassInitializerArray.back().m_texIdx = KuroEngine::GetRand(3 - 1);
@@ -321,7 +320,7 @@ void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Transform arg
 	//arg_waterPaintBlend.DropMaskInk(arg_transform.GetPos() + KuroEngine::Vec3<float>(0.0f, 1.0f, 0.0f));
 }
 
-Grass::CheckResult Grass::SearchPlantPos(KuroEngine::Transform arg_playerTransform)
+std::array<Grass::CheckResult, Grass::PLANT_ONCE_COUNT> Grass::SearchPlantPos(KuroEngine::Transform arg_playerTransform)
 {
 	using namespace KuroEngine;
 
@@ -359,11 +358,15 @@ Grass::CheckResult Grass::SearchPlantPos(KuroEngine::Transform arg_playerTransfo
 		descData);
 
 	//判定結果の取得
-	Grass::CheckResult result;
+	std::array<Grass::CheckResult, Grass::PLANT_ONCE_COUNT> result;
 
-	result.m_isSuccess = checkResultPtr->m_isSuccess;
-	result.m_plantNormal = checkResultPtr->m_plantNormal;
-	result.m_plantPos = checkResultPtr->m_plantPos + checkResultPtr->m_plantNormal;	//埋まってしまうので法線方向に少しだけ動かす。
+	for (int index = 0; index < PLANT_ONCE_COUNT; ++index) {
+
+		result[index].m_isSuccess = checkResultPtr[index].m_isSuccess;
+		result[index].m_plantNormal = checkResultPtr[index].m_plantNormal;
+		result[index].m_plantPos = checkResultPtr[index].m_plantPos + checkResultPtr[index].m_plantNormal;	//埋まってしまうので法線方向に少しだけ動かす。
+
+	}
 
 	return result;
 

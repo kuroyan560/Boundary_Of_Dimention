@@ -70,7 +70,7 @@ class Grass
 	int m_plantGrassMax = 10000;
 
 	//一度に植える草の数
-	static const int PLANT_ONCE_COUNT = 5;
+	static const int PLANT_ONCE_COUNT = 10;
 
 	//コンピュートパイプライン種別
 	enum COMPUTE_PHASE { INIT, SEARCH_PLANT_POS, GENERATE, UPDATE, NUM };
@@ -100,9 +100,9 @@ class Grass
 		//判定を飛ばす距離
 		float m_checkClipOffset = 2.0f;
 		//周辺に既に草が生えているか確認する際の範囲
-		float m_checkRange = 1.0f;
+		float m_checkRange = 0.5f;
 		//草むら登場時のイージング速度
-		float m_appearEaseSpeed = 0.1f;
+		float m_appearEaseSpeed = 0.2f;
 		//草むら死亡時のイージング速度
 		float m_deadEaseSpeed = 0.03f;
 		//草を揺らす際のSine量 つまり風
@@ -152,6 +152,6 @@ private:
 	/// 草をはやす場所を取得する。
 	/// </summary>
 	/// <returns> t:生えている  f:生えていない </returns>
-	CheckResult SearchPlantPos(KuroEngine::Transform arg_playerTransform);
+	std::array<CheckResult, PLANT_ONCE_COUNT> SearchPlantPos(KuroEngine::Transform arg_playerTransform);
 
 };
