@@ -128,6 +128,7 @@ void GameScene::OnDraw()
 	//レンダーターゲットのクリアとセット
 	BasicDraw::Instance()->RenderTargetsClearAndSet(ds);
 
+	particleRender.Draw(*m_nowCam);
 	//ステージ描画
 	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
 
@@ -152,7 +153,6 @@ void GameScene::OnDraw()
 
 	//m_movieCamera.DebugDraw(*m_nowCam, m_ligMgr);
 
-	particleRender.Draw(*m_nowCam);
 
 	//m_canvasPostEffect.Execute();
 	BasicDraw::Instance()->DrawEdge();

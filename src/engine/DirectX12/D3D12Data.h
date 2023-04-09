@@ -879,12 +879,17 @@ namespace KuroEngine
 		void ResetCounterBuffer();
 
 		//ƒQƒbƒ^
-		const EXCUTE_INDIRECT_TYPE& IndirectType() { return m_indirectType; }
+		const EXCUTE_INDIRECT_TYPE& IndirectType() {
+			return m_indirectType;
+		}
 		const std::shared_ptr<DescriptorData>& GetBuff()
 		{
 			return m_buff;
 		}
-		const size_t& GetCommandSize() { return m_commandSize; }
+		const size_t& GetCommandSize()
+		{
+			return m_commandSize;
+		}
 	};
 
 

@@ -83,6 +83,7 @@ DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawExcuteIndirect &INIT_DATA)
 
 void DrawExcuteIndirect::Draw(std::shared_ptr<KuroEngine::GraphicsPipeline> pipeline,const Microsoft::WRL::ComPtr<ID3D12Resource> &COUNTER_BUFFER)
 {
+	KuroEngine::KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(pipeline);
 	KuroEngine::KuroEngineDevice::Instance()->Graphics().ExecuteIndirectDrawIndexed(
 		initData.particleVertex, initData.particleIndex, m_indirectCmdBuffer, m_indirectDevice
 	);
