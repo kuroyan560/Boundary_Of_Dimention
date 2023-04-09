@@ -8,6 +8,7 @@ struct GrassInitializer
     float3 m_up;
     float m_sineLength;
     int m_texIdx;
+    int m_isAlive;
 };
 
 //判定結果
@@ -60,6 +61,7 @@ void Appear(uint DTid : SV_DispatchThreadID)
     newGrass.m_texIdx = initializer.m_texIdx;
     newGrass.m_appearYTimer = 0;
     newGrass.m_appearY = 0;
+    newGrass.m_isAlive = 1;
     
     appendAliveGrassBuffer.Append(newGrass);
 };
@@ -70,11 +72,30 @@ void Update(uint DTid : SV_DispatchThreadID)
     //データ取得
     PlantGrass grass = aliveGrassBuffer[DTid];
   
-    //イージングタイマー更新
-    grass.m_appearYTimer = min(grass.m_appearYTimer + commonInfo.m_appearEaseSpeed, 1.0f);
+    //距離が一定以下だったらイージングタイマーを更新し、一定以上だったらイージングタイマーを減らして草を枯らす。
+    if (length(grass.m_pos - commonInfo.m_playerPos) <= commonInfo.m_deathDistance)
+    {
+    
+        //イージングタイマー更新
+        grass.m_appearYTimer = min(grass.m_appearYTimer + commonInfo.m_appearEaseSpeed, 1.0f);
+        
+    }
+    else
+    {
+        
+        //イージングタイマー更新
+        grass.m_appearYTimer = max(grass.m_appearYTimer - commonInfo.m_deadEaseSpeed, 0.0f);
+        
+        //0以下になったらフラグを折る。
+        if (grass.m_appearYTimer <= 0)
+        {
+            grass.m_isAlive = false;
+        }
+        
+    }
     
     //イージング量を求める
-    grass.m_appearY = Easing_Cubic_In(grass.m_appearYTimer, 1.0f, 0.0f, 1.0f);
+    grass.m_appearY = grass.m_appearYTimer;
     
     //更新されたデータを適用
     aliveGrassBuffer[DTid] = grass;
@@ -88,14 +109,14 @@ void SearchPlantPos(uint DTid : SV_DispatchThreadID)
     CheckResult result = checkResultBuffer[0];
     
     //探す回数。
-    int searchCount = 50;
+    int searchCount = 5;
     uint2 screenPos = uint2(0, 0);
     result.m_isSuccess = false;
     for (int index = 0; index < searchCount; ++index)
     {
         
         //乱数の種
-        int seed = otherTransformData.m_seed + (index * 2.0f);
+        int seed = otherTransformData.m_seed + (index * 2.0f) + DTid * 103.0f;
     
         //サンプリングするスクリーン座標を求める。
         screenPos = uint2(RandomIntInRange(0, 1280, seed), RandomIntInRange(0, 720, seed * 2.0f));
@@ -123,6 +144,26 @@ void SearchPlantPos(uint DTid : SV_DispatchThreadID)
     
             //既定の距離より離れていたら問題ないので飛ばす。
             if (commonInfo.m_checkRange < distance(grassData.m_pos, result.m_plantPos))
+                continue;
+ 
+            //草が近くにある。
+            isNearGrass = true;
+            break;
+            
+        }
+        
+        //このFで生成された草も検索する。
+        for (int grassIndex = 0; grassIndex < otherTransformData.m_plantOnceCount; ++grassIndex)
+        {
+            
+            if (grassIndex == DTid)
+                continue;
+            
+            //データ取得
+            CheckResult grassData = checkResultBuffer[grassIndex];
+    
+            //既定の距離より離れていたら問題ないので飛ばす。
+            if (commonInfo.m_checkRange < distance(grassData.m_plantPos, result.m_plantPos))
                 continue;
  
             //草が近くにある。

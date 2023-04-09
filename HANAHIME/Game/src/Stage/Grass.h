@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 #include"KuroEngine.h"
 #include"../../../../src/engine/Common/Transform.h"
 #include"ForUser/Timer.h"
@@ -43,7 +44,7 @@ class Grass
 		float m_sineLength;
 		float m_appearY;		//出現エフェクトに使用する変数 Y軸をどこまで表示させるか。
 		float m_appearYTimer;
-		int pad[2];
+		int m_isAlive;
 	};
 	//植えた草の情報配列バッファ
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_plantGrassBuffer;
@@ -69,8 +70,7 @@ class Grass
 	int m_plantGrassMax = 10000;
 
 	//一度に植える草の数
-	int m_plantOnceCountMin = 3;
-	int m_plantOnceCountMax = 6;
+	static const int PLANT_ONCE_COUNT = 5;
 
 	//コンピュートパイプライン種別
 	enum COMPUTE_PHASE { INIT, SEARCH_PLANT_POS, GENERATE, UPDATE, NUM };
@@ -88,22 +88,27 @@ class Grass
 		KuroEngine::Vec3<float>m_camPos;
 		int m_seed;
 		int m_grassCount;
+		int m_plantOnceCount;
 	};
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_otherTransformConstBuffer;
 
 	//行列以外のデータ用構造体（好きなの入れてね）
 	struct CBVdata
 	{
+		//プレイヤーの座標
+		KuroEngine::Vec3<float> m_playerPos;
 		//判定を飛ばす距離
 		float m_checkClipOffset = 2.0f;
 		//周辺に既に草が生えているか確認する際の範囲
 		float m_checkRange = 1.0f;
 		//草むら登場時のイージング速度
-		float m_appearEaseSpeed = 0.05f;
+		float m_appearEaseSpeed = 0.1f;
+		//草むら死亡時のイージング速度
+		float m_deadEaseSpeed = 0.03f;
 		//草を揺らす際のSine量 つまり風
 		float m_sineWave = 0;
-		//プレイヤーの座標
-		KuroEngine::Vec3<float> m_playerPos;
+		//草を枯らす距離
+		float m_deathDistance = 8.0f;
 	}m_constData;
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_constBuffer;
 
@@ -139,7 +144,7 @@ public:
 	/// <param name="arg_transform">座標</param>
 	/// <param name="arg_grassPosScatter">散らし具合</param>
 	/// <param name="arg_waterPaintBlend">水彩画風ブレンドポストエフェクト</param>
-	void Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend, std::weak_ptr<KuroEngine::Camera> arg_cam);
+	void Plant(KuroEngine::Transform arg_transform, KuroEngine::Transform arg_playerTransform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
 
 private:
 
@@ -147,6 +152,6 @@ private:
 	/// 草をはやす場所を取得する。
 	/// </summary>
 	/// <returns> t:生えている  f:生えていない </returns>
-	CheckResult SearchPlantPos(std::weak_ptr<KuroEngine::Camera> arg_cam);
+	CheckResult SearchPlantPos(KuroEngine::Transform arg_playerTransform);
 
 };

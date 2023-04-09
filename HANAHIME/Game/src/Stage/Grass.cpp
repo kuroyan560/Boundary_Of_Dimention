@@ -192,12 +192,23 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 		grassTransform.SetRotate(arg_playerTransform.GetRotate());
 		grassTransform.SetScale({ 1.0f,1.0f,1.0f });
 
-		Plant(grassTransform, arg_grassPosScatter, arg_waterPaintBlend, arg_cam);
-		m_plantTimer.Reset(3);
+		Plant(grassTransform, arg_playerTransform, arg_grassPosScatter, arg_waterPaintBlend);
+		m_plantTimer.Reset(1);
 	}
 	m_plantTimer.UpdateTimer();
 
 	m_oldPlayerPos = arg_playerTransform.GetPos();
+
+	//定数バッファ1の草の揺れ具合を更新。
+	m_constData.m_sineWave += 0.02f;
+	//座標を保存。
+	m_constData.m_playerPos = arg_playerTransform.GetPos() + arg_playerTransform.GetUp() * arg_playerTransform.GetScale().y;
+	//登場速度を設定。
+	m_constData.m_appearEaseSpeed = 0.1f;
+	//プレイヤーの座標を取得。
+	m_constData.m_playerPos = arg_playerTransform.GetPos();
+	//定数バッファ1をGPUに転送。
+	m_constBuffer->Mapping(&m_constData);
 
 	//登録するディスクリプタの情報配列
 	std::vector<RegisterDescriptorData>descData =
@@ -254,13 +265,6 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 		m_grassInitializerArray.clear();
 	}
 
-	//定数バッファ1の草の揺れ具合を更新。
-	m_constData.m_sineWave += 0.02f;
-	//座標を保存。
-	m_constData.m_playerPos = arg_playerTransform.GetPos() + arg_playerTransform.GetUp() * arg_playerTransform.GetScale().y;
-	//定数バッファ1をGPUに転送。
-	m_constBuffer->Mapping(&m_constData);
-
 }
 
 void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
@@ -290,15 +294,17 @@ void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 		plantGrassCount);
 }
 
-void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend, std::weak_ptr<KuroEngine::Camera> arg_cam)
+void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Transform arg_playerTransform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend)
 {
 
-	int plantNum = KuroEngine::GetRand(m_plantOnceCountMin, m_plantOnceCountMax);
-	for (int count = 0; count < plantNum; ++count)
+
+	for (int count = 0; count < PLANT_ONCE_COUNT; ++count)
 	{
 
 		//草をはやす場所を取得。
-		CheckResult plantData = SearchPlantPos(arg_cam);
+		Grass::CheckResult plantData = SearchPlantPos(arg_playerTransform);
+
+		if (!plantData.m_isSuccess) continue;
 
 		//イニシャライザのスタック
 		m_grassInitializerArray.emplace_back();
@@ -315,7 +321,7 @@ void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> a
 	//arg_waterPaintBlend.DropMaskInk(arg_transform.GetPos() + KuroEngine::Vec3<float>(0.0f, 1.0f, 0.0f));
 }
 
-Grass::CheckResult Grass::SearchPlantPos(std::weak_ptr<KuroEngine::Camera> arg_cam)
+Grass::CheckResult Grass::SearchPlantPos(KuroEngine::Transform arg_playerTransform)
 {
 	using namespace KuroEngine;
 
@@ -330,6 +336,7 @@ Grass::CheckResult Grass::SearchPlantPos(std::weak_ptr<KuroEngine::Camera> arg_c
 	auto transformCBVPtr = m_otherTransformConstBuffer->GetResource()->GetBuffOnCpu<TransformCBVData>();
 	transformCBVPtr->m_seed = KuroEngine::GetRand(0, 1000);
 	transformCBVPtr->m_grassCount = plantGrassCount;
+	transformCBVPtr->m_plantOnceCount = PLANT_ONCE_COUNT;
 
 	//判定用コンピュートパイプライン実行
 	//登録するディスクリプタの情報配列
@@ -352,10 +359,12 @@ Grass::CheckResult Grass::SearchPlantPos(std::weak_ptr<KuroEngine::Camera> arg_c
 		descData);
 
 	//判定結果の取得
-	CheckResult result;
+	Grass::CheckResult result;
+
 	result.m_isSuccess = checkResultPtr->m_isSuccess;
-	result.m_plantPos = checkResultPtr->m_plantPos;
 	result.m_plantNormal = checkResultPtr->m_plantNormal;
+	result.m_plantPos = checkResultPtr->m_plantPos + checkResultPtr->m_plantNormal;	//埋まってしまうので法線方向に少しだけ動かす。
+
 	return result;
 
 }

@@ -302,7 +302,10 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     
     output.bright.x = isBright;
     
-    output.worldPos = float4(input.worldpos, 1.0f);
+    if (!toonIndividualParam.m_isPlayer)
+    {
+        output.worldPos = float4(input.worldpos, 1.0f);
+    }
     
     return output;
 }
