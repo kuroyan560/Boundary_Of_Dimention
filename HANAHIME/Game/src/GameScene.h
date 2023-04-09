@@ -13,6 +13,8 @@
 #include"Movie/MovieCamera.h"
 #include"OutGame/Title.h"
 #include"GPUParticle/GPUParticleRender.h"
+#include"GPUParticle/FireFlyOutStage.h"
+
 
 class GameScene : public KuroEngine::BaseScene
 {
@@ -58,6 +60,8 @@ class GameScene : public KuroEngine::BaseScene
 
 	//GPUパーティクルの描画
 	GPUParticleRender particleRender;
+	//ステージ外の蛍描画
+	FireFlyOutStage fireFlyStage;
 
 	void OnInitialize()override;
 	void OnUpdate()override;

@@ -148,6 +148,7 @@ namespace KuroEngine
 			UINT m_argBufferOffset = 0;
 			std::weak_ptr<VertexBuffer>m_vertBuff;
 			std::weak_ptr<IndexBuffer>m_idxBuff;
+
 		public:
 			ExcuteIndirectCommand(const std::weak_ptr<IndirectCommandBuffer>& CmdBuff, const std::weak_ptr<IndirectDevice>& IndirectDevice, const UINT& ArgBufferOffset,
 				const std::weak_ptr<VertexBuffer>& VertBuff = std::weak_ptr<VertexBuffer>(), const std::weak_ptr<IndexBuffer>& IdxBuff = std::weak_ptr<IndexBuffer>())

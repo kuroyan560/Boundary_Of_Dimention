@@ -8,9 +8,9 @@
 
 #include"ForUser/JsonData.h"
 #include"Graphics/BasicDraw.h"
-#include"../../../src/engine/FrameWork/UsersInput.h"
+#include"FrameWork/UsersInput.h"
 
-GameScene::GameScene()
+GameScene::GameScene() :fireFlyStage(particleRender.GetStackBuffer())
 {
 	m_ddsTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.dds");
 	m_pngTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
@@ -52,6 +52,8 @@ void GameScene::OnInitialize()
 
 void GameScene::OnUpdate()
 {
+	particleRender.InitCount();
+
 	//デバッグ用
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_I))
 	{
@@ -107,11 +109,11 @@ void GameScene::OnUpdate()
 
 	m_gateSceneChange.Update();
 
-
-
-
 	m_movieCamera.Update();
 
+
+
+	fireFlyStage.Compute();
 
 
 	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld());
@@ -148,9 +150,9 @@ void GameScene::OnDraw()
 
 	m_stageSelect.Draw(*m_nowCam, m_ligMgr);
 
-	particleRender.Draw(*m_nowCam);
-
 	//m_movieCamera.DebugDraw(*m_nowCam, m_ligMgr);
+
+	particleRender.Draw(*m_nowCam);
 
 	//m_canvasPostEffect.Execute();
 	BasicDraw::Instance()->DrawEdge();

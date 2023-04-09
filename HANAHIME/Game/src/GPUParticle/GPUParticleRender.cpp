@@ -3,12 +3,10 @@
 #include"DirectX12/D3D12Data.h"
 #include<Render/RenderObject/SpriteMesh.h>
 #include"Render/GraphicsManager.h"
+#include"../Graphics/BasicDraw.h"
 
 GPUParticleRender::GPUParticleRender(int MAXNUM)
 {
-
-	particleMaxNum = MAXNUM;
-
 	//worldMatHandle = computeCovertWorldMatToDrawMat.CreateBuffer(
 	//	KazBufferHelper::SetOnlyReadStructuredBuffer(sizeof(InputData) * particleMaxNum),
 	//	GRAPHICS_RANGE_TYPE_UAV_DESC,
@@ -111,7 +109,7 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 
 	//ビュープロジェクション行列
 	m_viewPorjBuffer = KuroEngine::D3D12App::Instance()->GenerateConstantBuffer(
-		sizeof(DirectX::XMMATRIX),
+		sizeof(ViewProjMatData),
 		1,
 		nullptr,
 		"viewProjBuffer - ConstBuffer");
@@ -129,7 +127,8 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 
 	//パイプラインの生成----------------------------------------
 	KuroEngine::PipelineInitializeOption PIPELINE_OPTION(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
-	PIPELINE_OPTION.m_depthTest = false;
+	PIPELINE_OPTION.m_depthTest = true;
+	PIPELINE_OPTION.m_calling = D3D12_CULL_MODE_NONE;
 
 	std::vector<KuroEngine::RootParam> graphicRootParam =
 	{
@@ -142,7 +141,9 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 	SHADERS.m_vs = KuroEngine::D3D12App::Instance()->CompileShader("resource/user/shaders/DrawInstancing.hlsl", "VSmain", "vs_6_4");
 	SHADERS.m_ps = KuroEngine::D3D12App::Instance()->CompileShader("resource/user/shaders/DrawInstancing.hlsl", "PSmain", "ps_6_4");
 
-	std::vector<KuroEngine::RenderTargetInfo>RENDER_TARGET_INFO = { KuroEngine::RenderTargetInfo(KuroEngine::D3D12App::Instance()->GetBackBuffFormat(), KuroEngine::AlphaBlendMode_None) };
+	DXGI_FORMAT renderTargetFormat = BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN)->GetDesc().Format;
+	std::vector<KuroEngine::RenderTargetInfo>RENDER_TARGET_INFO;
+	RENDER_TARGET_INFO.emplace_back(renderTargetFormat, KuroEngine::AlphaBlendMode_None);
 
 	m_gPipeline = KuroEngine::D3D12App::Instance()->GenerateGraphicsPipeline
 	(
@@ -193,6 +194,9 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 
 void GPUParticleRender::InitCount()
 {
+	int num = 0;
+	m_fireFlyCounterBuffer->Mapping(&num);
+	m_fireFlyDrawCounterBuffer->Mapping(&num);
 }
 
 void GPUParticleRender::Draw(KuroEngine::Camera &camera)
@@ -206,17 +210,20 @@ void GPUParticleRender::Draw(KuroEngine::Camera &camera)
 
 
 	//ここまではエラーなし----------------------------------------
-	DirectX::XMMATRIX viewProjMat = camera.GetViewMat() * camera.GetProjectionMat();
-	m_viewPorjBuffer->Mapping(&viewProjMat);
+	ViewProjMatData mat;
+	mat.viewprojMat = camera.GetViewMat() * camera.GetProjectionMat();
+	mat.scaleRotateBillboardMat = DirectX::XMMatrixScaling(10.0f, 10.0f, 10.0f);
+	m_viewPorjBuffer->Mapping(&mat);
+
 	std::vector<KuroEngine::RegisterDescriptorData>descData =
 	{
 		{m_fireFlyArrayBuffer,KuroEngine::UAV},
 		{m_fireFlyDrawBuffer,KuroEngine::UAV},
 		{m_viewPorjBuffer,KuroEngine::CBV},
 	};
-	KuroEngine::D3D12App::Instance()->DispathOneShot(m_cPipeline, { 1000,1,1 }, descData);
+	KuroEngine::D3D12App::Instance()->DispathOneShot(m_cPipeline, { 1,1,1 }, descData);
 
-	excuteIndirect->Draw(*m_gPipeline, nullptr);
+	excuteIndirect->Draw(m_gPipeline, nullptr);
 
 }
 

@@ -3,6 +3,7 @@
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"GPUParticleData.h"
 #include"DrawExcuteIndirect.h"
+#include"Render/GraphicsManager.h"
 
 //演出で使われている全てのパーティクルの情報をスタックして一気に描画するクラスです
 class GPUParticleRender
@@ -29,7 +30,7 @@ private:
 	};
 
 
-	int particleMaxNum = 3000000;
+	int particleMaxNum = 1024;
 	/*ResouceBufferHelper computeCovertWorldMatToDrawMat;
 	KazGPUParticle::RESOURCE_HANDLE  worldMatHandle, outputHandle, viewProjMatHandle;
 
@@ -74,11 +75,15 @@ private:
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_fireFlyDrawBuffer;
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_fireFlyDrawCounterBuffer;
 
+	struct ViewProjMatData
+	{
+		DirectX::XMMATRIX scaleRotateBillboardMat;
+		DirectX::XMMATRIX viewprojMat;
+	};
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_viewPorjBuffer;
 
 
 	std::unique_ptr<DrawExcuteIndirect>excuteIndirect;
-
 	void InitVerticesPos(DirectX::XMFLOAT3 *LEFTUP_POS, DirectX::XMFLOAT3 *LEFTDOWN_POS, DirectX::XMFLOAT3 *RIGHTUP_POS, DirectX::XMFLOAT3 *RIGHTDOWN_POS, const DirectX::XMFLOAT2 &ANCHOR_POINT)
 	{
 		*LEFTUP_POS = { (0.0f - ANCHOR_POINT.x), (0.0f - ANCHOR_POINT.y),0.0f };

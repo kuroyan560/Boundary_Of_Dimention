@@ -178,6 +178,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="..\..\src\engine\Render\ShadowMapDevice.cpp" />
     <ClCompile Include="src\DebugController.cpp" />
     <ClCompile Include="src\GPUParticle\DrawExcuteIndirect.cpp" />
+    <ClCompile Include="src\GPUParticle\FireFlyOutStage.cpp" />
     <ClCompile Include="src\GPUParticle\GPUParticleRender.cpp" />
     <ClCompile Include="src\GPUParticle\HandleMaker.cpp" />
     <ClCompile Include="src\GPUParticle\ResouceBufferHelper.cpp" />
@@ -289,6 +290,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\DebugController.h" />
     <ClInclude Include="src\GameScene.h" />
     <ClInclude Include="src\GPUParticle\DrawExcuteIndirect.h" />
+    <ClInclude Include="src\GPUParticle\FireFlyOutStage.h" />
     <ClInclude Include="src\GPUParticle\GPUParticleData.h" />
     <ClInclude Include="src\GPUParticle\GPUParticleRender.h" />
     <ClInclude Include="src\GPUParticle\HandleMaker.h" />

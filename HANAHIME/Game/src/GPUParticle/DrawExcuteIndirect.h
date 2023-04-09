@@ -1,5 +1,6 @@
 #pragma once
 #include"DirectX12/D3D12Data.h"
+#include"KuroEngineDevice.h"
 
 struct InitDrawIndexedExcuteIndirect
 {
@@ -30,7 +31,7 @@ class DrawExcuteIndirect
 public:
 	DrawExcuteIndirect(const InitDrawIndexedExcuteIndirect &INIT_DATA);
 	DrawExcuteIndirect(const InitDrawExcuteIndirect &INIT_DATA);
-	void Draw(KuroEngine::GraphicsPipeline &pipeline, const Microsoft::WRL::ComPtr<ID3D12Resource> &COUNTER_BUFFER);
+	void Draw(std::shared_ptr<KuroEngine::GraphicsPipeline> pipeline, const Microsoft::WRL::ComPtr<ID3D12Resource> &COUNTER_BUFFER);
 
 private:
 
@@ -46,10 +47,13 @@ private:
 	};
 
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_cmdBuffer;
-
+	std::shared_ptr<KuroEngine::IndirectCommandBuffer>m_indirectCmdBuffer;
+	std::shared_ptr<KuroEngine::IndirectDevice> m_indirectDevice;
 
 	Microsoft::WRL::ComPtr<ID3D12CommandSignature> commandSig;
 	InitDrawIndexedExcuteIndirect initData;
 	D3D12_INDIRECT_ARGUMENT_TYPE drawType;
+
+
 };
 
