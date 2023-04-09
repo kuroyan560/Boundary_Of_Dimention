@@ -21,6 +21,12 @@ struct ToonIndividualParameter
     int m_isPlayer;
 };
 
+struct PlayerInfo
+{
+    float3 m_worldPos;
+    float2 m_screenPos;
+};
+
 cbuffer cbuff0 : register(b0)
 {
     Camera cam;
@@ -67,7 +73,7 @@ cbuffer cbuff6 : register(b6)
 
 cbuffer cbuff7 : register(b7)
 {
-    float3 playerPos;
+    PlayerInfo player;
 }
 
 struct VSOutput
@@ -137,7 +143,8 @@ struct PSOutput
     float depth : SV_Target2;
     float4 normal : SV_Target3;
     float4 edgeColor : SV_Target4;
-    uint4 bright : SV_Target5;
+    float4 bright : SV_Target5;
+    float4 farThanPlayerColor : SV_Target6;
 };
 
 PSOutput PSmain(VSOutput input) : SV_TARGET
@@ -257,19 +264,13 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     result.xyz = toonIndividualParam.m_fillColor.xyz * toonIndividualParam.m_fillColor.w + result.xyz * (1.0f - toonIndividualParam.m_fillColor.w);
     
     //プレイヤーを光源とした場合の光の当たり具合を求める
-    float3 ligRay = input.worldpos - playerPos;
+    float3 ligRay = input.worldpos - player.m_worldPos;
     float bright = dot(-normalize(ligRay), input.normal);
     //-1 ~ 1 から 0 ~ 1の範囲に収める
-    bright = (bright + 1.0f) / 2.0f;
-	//影響率は距離に比例して小さくなっていく
-    float range = 40.0f;
-    float affect = 1.0f - 1.0f / range * length(ligRay);
-	//影響力がマイナスにならないように補正をかける
-    if (affect < 0.0f)
-        affect = 0.0f;
-    bright *= affect;
-    //bright = smoothstep(0.45f, 0.47f, bright);
-    int isBright = step(0.45f, bright);
+    bright = saturate(bright);
+    //ライトにあたっているかどうかを距離で判断
+    float brightRange = 8.0f;
+    int isBright = 1.0f - step(brightRange, length(ligRay) * int(bright == 0 ? brightRange : 1));
     if (toonIndividualParam.m_isPlayer)
         isBright = 1;
     result.xyz *= lerp(0.5f, 1.0f, isBright);
@@ -280,13 +281,18 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     PSOutput output;
     output.color = result;
 
-    output.emissive = float4(0,0,0,0);
+    //プレイヤーより向こう側
+    output.farThanPlayerColor = result;
+    float playerDepth = mul(cam.view, float4(player.m_worldPos, 1)).z - 2.0f;
+    output.farThanPlayerColor.w = step(playerDepth, input.depthInView);
     
-    //明るさ計算
+        //明るさ計算
     // float bright = dot(result.xyz, float3(0.2125f, 0.7154f, 0.0721f));
     // if (1.0f < bright)
     //    output.emissive += result;
     // output.emissive.w = result.w;
+    output.emissive = float4(0,0,0,0);
+    
     output.depth = input.depthInView;
     
     output.normal.xyz = input.normal;

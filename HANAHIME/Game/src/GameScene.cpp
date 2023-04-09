@@ -23,7 +23,7 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer())
 	auto backBuffTarget = KuroEngine::D3D12App::Instance()->GetBackBuffRenderTarget();
 	m_fogPostEffect = std::make_shared<KuroEngine::Fog>(backBuffTarget->GetGraphSize(), backBuffTarget->GetDesc().Format);
 
-	m_playerResponePos.SetPos({ -0.49f, 25.9f ,-81.2f });
+	m_playerResponePos.SetPos({ -0.49f, 25.9f ,-60.2f });
 }
 
 
@@ -84,7 +84,7 @@ void GameScene::OnUpdate()
 	m_player.Update(StageManager::Instance()->GetNowStage(), m_title.IsFinish());
 
 
-	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetOnGround(), m_player.GetCamera().lock()->GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
+	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetOnGround() && m_player.GetIsStatusMove(), m_player.GetCamera().lock()->GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
 	//m_grass.Plant(m_player.GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
 	m_title.Update(&m_player.GetCamera().lock()->GetTransform());
 	//ƒz[ƒ€‚Å‚Ìˆ—----------------------------------------
@@ -114,7 +114,8 @@ void GameScene::OnUpdate()
 	m_fireFlyStage.ComputeUpdate();
 
 
-	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld());
+
+	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld(), *m_nowCam);
 }
 
 void GameScene::OnDraw()
