@@ -340,7 +340,8 @@ KuroEngine::Vec3<float> Grass::SearchPlantPos(std::weak_ptr<KuroEngine::Camera> 
 	transformCBVPtr->m_camPos = { arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[0],arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[1],arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[2] };
 	transformCBVPtr->m_invProjection = DirectX::XMMatrixInverse(nullptr, arg_cam.lock()->GetProjectionMat());
 	transformCBVPtr->m_invView = DirectX::XMMatrixInverse(nullptr, arg_cam.lock()->GetViewMat());
-	transformCBVPtr->m_seed = KuroEngine::GetRand(0.0f, 1000.0f) / 100.0f;
+	transformCBVPtr->m_seed = KuroEngine::GetRand(0.0f, 1000.0f);
+	transformCBVPtr->m_grassCount = plantGrassCount;
 
 	//判定用コンピュートパイプライン実行
 	//登録するディスクリプタの情報配列

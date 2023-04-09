@@ -88,7 +88,8 @@ class Grass
 		KuroEngine::Vec3<float>m_camPos;
 		DirectX::XMMATRIX m_invView;
 		DirectX::XMMATRIX m_invProjection;
-		float m_seed;
+		int m_seed;
+		int m_grassCount;
 	};
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_otherTransformConstBuffer;
 
@@ -113,6 +114,7 @@ class Grass
 	{
 		//int m_aroundGrassCount = 0;
 		KuroEngine::Vec3<float> m_plantPos;
+		int m_isSuccess;
 	};
 	//周辺に草むらがあるか確認した結果を格納するバッファ
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_checkResultBuffer;

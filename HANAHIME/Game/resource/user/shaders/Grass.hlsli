@@ -30,5 +30,24 @@ struct TransformData
     float3 m_camPos;
     matrix m_invView;
     matrix m_invProjection;
-    float m_seed;
+    int m_seed;
+    int m_grassCount;
 };
+
+//ランダム
+int RandomIntInRange(int arg_minVal, int arg_maxVal, int arg_seed)
+{
+    return frac(sin(dot(float2(arg_seed, arg_seed + 1), float2(12.9898, 78.233))) * 43758.5453) * (arg_maxVal - arg_minVal + 1) + arg_minVal;
+}
+//スクリーンからワールドへ
+float4 ScreenToWorld(float2 arg_screenPos, float arg_depth, matrix arg_viewProjectionInverse)
+{
+    // スクリーン座標系からクリップ座標系に変換
+    float4 clipPos = float4(arg_screenPos.x * 2.0f - 1.0f, -(arg_screenPos.y * 2.0f - 1.0f), arg_depth, 1.0f);
+
+    // クリップ座標系からワールド座標系に変換
+    float4 worldPos = mul(clipPos, arg_viewProjectionInverse);
+    worldPos /= worldPos.w;
+
+    return worldPos;
+}

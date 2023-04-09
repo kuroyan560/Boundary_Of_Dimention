@@ -15,6 +15,7 @@ struct CheckResult
 {
     //int m_aroundGrassCount;
     float3 m_plantPos;
+    int m_isSuccess;
 };
 
 RWStructuredBuffer<PlantGrass> aliveGrassBuffer : register(u0);
@@ -78,26 +79,70 @@ void Update(uint DTid : SV_DispatchThreadID)
     aliveGrassBuffer[DTid] = grass;
 };
 
-[numthreads(1,1,1)]
+[numthreads(1, 1, 1)]
 void SearchPlantPos(uint DTid : SV_DispatchThreadID)
 {
-    //草むらを生やす予定の位置(プレイヤーの位置)取得
-    float3 appearPos = otherTransformData.m_checkPlantPos;
     
-    //データ取得
-    PlantGrass grass = aliveGrassBuffer[DTid];
+    //ビュープロジェクションの逆行列を求める。
+    matrix invViewProj = mul(otherTransformData.m_invProjection, otherTransformData.m_invView);
     
-    //ある程度離れていたら飛ばす。
-    bool isAwayX = (grass.m_pos.x < appearPos.x - commonInfo.m_checkClipOffset || appearPos.x + commonInfo.m_checkClipOffset < grass.m_pos.x);
-    bool isAwayY = (grass.m_pos.y < appearPos.y - commonInfo.m_checkClipOffset || appearPos.y + commonInfo.m_checkClipOffset < grass.m_pos.y);
-    if (isAwayX || isAwayY)
-        return;
-
-    if (commonInfo.m_checkRange < distance(grass.m_pos, appearPos))
-        return;
+    //探す回数。
+    int searchCount = 50;
+    uint2 screenPos = uint2(0, 0);
+    CheckResult result = checkResultBuffer[DTid];
+    result.m_isSuccess = false;
+    for (int index = 0; index < searchCount; ++index)
+    {
+        
+        //乱数の種
+        int seed = otherTransformData.m_seed + (index * 2.0f);
+    
+        //サンプリングするスクリーン座標を求める。
+        screenPos = uint2(RandomIntInRange(0, 1240, seed), RandomIntInRange(0, 720, seed * 2.0f));
+        
+        //サンプリングした座標がライトに当たっている位置かどうかを判断。
+        result.m_isSuccess = 0.9f <= g_brightMap[screenPos].x;
+        
+        //サンプリングに失敗したら次へ。
+        if (!result.m_isSuccess)
+            continue;
+    
+        //スクリーン座標からワールド座標へ変換。
+        result.m_plantPos = ScreenToWorld(screenPos, g_depthMap[screenPos].x, invViewProj).xyz;
+        
+        //草が近くにあるかを検索。
+        bool isNearGrass = false;
+        for (int grass = 0; grass < otherTransformData.m_grassCount; ++grass)
+        {
+            
+            //データ取得
+            PlantGrass grassData = aliveGrassBuffer[grass];
+    
+            //既定の距離より離れていたら問題ないので飛ばす。
+            if (commonInfo.m_checkRange < distance(grassData.m_pos, result.m_plantPos))
+                continue;
  
-    //近くにあった数をインクリメント
-    CheckResult result = checkResultBuffer[0];
-    result.m_aroundGrassCount++;
-    checkResultBuffer[0] = result;
+            //草が近くにある。
+            isNearGrass = true;
+            break;
+            
+        }
+        
+        //草が近くにあったら次。なかったらこの値を返す。
+        if (isNearGrass)
+        {
+            continue;
+        }
+        else
+        {
+            checkResultBuffer[DTid] = result;
+            return;
+        }
+        
+    }
+    
+    //ここまでくるということはサンプリングに失敗しているので草をはやさない。
+    checkResultBuffer[DTid].m_isSuccess = false;
+    return;
+    
 }
