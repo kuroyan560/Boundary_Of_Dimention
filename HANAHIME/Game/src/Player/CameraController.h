@@ -48,6 +48,9 @@ class CameraController : public KuroEngine::Debugger
 	//プレイヤークォータニオンコピーのlerp率
 	float m_playerQuaternionLerpRate = 0.2f;
 
+	//カメラ座標の補間先
+	KuroEngine::Vec3<float> m_cameraLarpTarget;
+
 	//カメラコントローラーのトランスフォーム
 	KuroEngine::Transform m_controllerTransform;
 
@@ -61,7 +64,7 @@ public:
 	void AttachCamera(std::shared_ptr<KuroEngine::Camera>arg_cam);
 
 	void Init(const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Quaternion& arg_playerRotate);
-	void Update(KuroEngine::Vec3<float>arg_scopeMove, const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Quaternion& arg_playerRotate);
+	void Update(KuroEngine::Vec3<float>arg_scopeMove, const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Quaternion& arg_playerRotate, float arg_cameraY);
 
 	const KuroEngine::Quaternion& GetPosRotate() {
 		return m_controllerTransform.GetRotate();

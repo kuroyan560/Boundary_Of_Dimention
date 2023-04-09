@@ -93,7 +93,6 @@ private:
 
 	//プレイヤーより手前のオブジェクトを透過させる際のテクスチャ
 	std::shared_ptr<KuroEngine::TextureBuffer>m_playerMaskTex;
-	//プレイヤーより手前のオブジェクトを透過させるコンピュートシェーダー
 	
 	void OnImguiItems()override;
 

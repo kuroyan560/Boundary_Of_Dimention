@@ -42,9 +42,6 @@ void Player::OnImguiItems()
 
 		ImGui::Text("OnGround : %d", m_onGround);
 
-		ImGui::DragFloat("GrassPosScatter : X", &m_grassPosScatter.x, 0.1f);
-		ImGui::DragFloat("GrassPosScatter : Y", &m_grassPosScatter.y, 0.1f);
-
 	}
 
 	//移動
@@ -225,6 +222,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
 
+	//カメラの回転を保存。
+	m_cameraRotYStorage += scopeMove.x;
+
 	//移動ステータスによって処理を変える。
 	switch (m_playerMoveStatus)
 	{
@@ -241,7 +241,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		Move(newPos);
 
 		//カメラの回転を保存。
-		m_cameraRotYStorage += scopeMove.x;
 		if (m_rowMoveVec.Length() <= 0) {
 			m_cameraRotY = m_cameraRotYStorage;
 		}
@@ -282,7 +281,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_ptLig.SetPos(newPos);
 
 	//カメラ操作
-	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_transform.GetRotateWorld());
+	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_normalSpinQ, m_cameraRotYStorage);
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
@@ -608,9 +607,12 @@ void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<flo
 	if (hitResult.m_terrianNormal.y < -0.9f) {
 		hitResult.m_terrianNormal = { 0,-1,0 };
 	}
+	
+	//カメラを矯正する。
+	AdjustCaneraRotY(m_transform.GetUp(), hitResult.m_terrianNormal);
 
 	//法線方向を見るクォータニオン
-	auto spin = KuroEngine::Math::GetLookAtQuaternion({ 0,1,0 }, hitResult.m_terrianNormal);
+	m_normalSpinQ = KuroEngine::Math::GetLookAtQuaternion({ 0,1,0 }, hitResult.m_terrianNormal);
 
 	//カメラの回転でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
 	DirectX::XMVECTOR ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_cameraRotY);
@@ -619,7 +621,7 @@ void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<flo
 	DirectX::XMVECTOR playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
 
 	//カメラ方向でのクォータニオンを求める。進む方向などを判断するのに使用するのはこっち。Fの一番最初にこの値を入れることでplayerYSpinの回転を打ち消す。
-	m_cameraQ = DirectX::XMQuaternionMultiply(spin, ySpin);
+	m_cameraQ = DirectX::XMQuaternionMultiply(m_normalSpinQ, ySpin);
 
 	//プレイヤーの移動方向でY軸回転させるクォータニオンをカメラのクォータニオンにかけて、プレイヤーを移動方向に向かせる。
 	m_moveQ = DirectX::XMQuaternionMultiply(m_cameraQ, playerYSpin);
@@ -627,14 +629,17 @@ void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<flo
 	//ジャンプ状態だったら
 	if (m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP) {
 
+		//ジャンプ後に回転するようにする。
+
 		//クォータニオンを保存。
-		m_jumpEndQ = m_moveQ;
+		m_jumpEndQ = m_cameraQ;
 		m_jumpStartQ = m_transform.GetRotate();
 
 	}
 	else {
 
-		m_transform.SetRotate(m_moveQ);
+		//当たった面基準の回転にする。
+		m_transform.SetRotate(m_cameraQ);
 
 	}
 
@@ -651,5 +656,131 @@ KuroEngine::Vec3<float> Player::CalculateBezierPoint(float arg_time, KuroEngine:
 	float z = oneMinusTSquared * arg_startPoint.z + 2 * oneMinusT * arg_time * arg_controlPoint.z + tSquared * arg_endPoint.z;
 
 	return KuroEngine::Vec3<float>(x, y, z);
+
+}
+
+
+void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const KuroEngine::Vec3<float>& arg_nextUp) {
+
+	// 移動方向を矯正するための苦肉の策
+
+	// メモ:この関数で書いてある方向は初期位置(法線(0,1,0)で(0,0,1)を向いている状態)でのものです。
+
+	//角度が変わってなかったら飛ばす。
+	if (0.9f <= arg_nowUp.Dot(arg_nextUp)) return;
+
+	//プレイヤーが右側の壁にいる場合
+	if (arg_nowUp.x <= -0.9f) {
+
+		//上の壁に移動したら
+		if (arg_nextUp.y <= -0.9f) {
+
+			m_cameraRotY += DirectX::XM_PI;
+			m_cameraRotYStorage += DirectX::XM_PI;
+
+		}
+		//正面の壁に移動したら
+		if (arg_nextUp.z <= -0.9f) {
+
+			m_cameraRotY -= DirectX::XM_PIDIV2;
+			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+
+		}
+		//後ろの壁に移動したら
+		if (0.9f <= arg_nextUp.z) {
+
+			m_cameraRotY += DirectX::XM_PIDIV2;
+			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+
+		}
+
+	}
+
+	//プレイヤーが左側の壁にいる場合
+	if (0.9f <= arg_nowUp.x) {
+
+		//上の壁に移動したら
+		if (arg_nextUp.y <= -0.9f) {
+
+			m_cameraRotY -= DirectX::XM_PI;
+			m_cameraRotYStorage -= DirectX::XM_PI;
+
+		}
+		//正面の壁に移動したら
+		if (arg_nextUp.z <= -0.9f) {
+
+			m_cameraRotY += DirectX::XM_PIDIV2;
+			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+
+		}
+		//後ろの壁に移動したら
+		if (0.9f <= arg_nextUp.z) {
+
+			m_cameraRotY -= DirectX::XM_PIDIV2;
+			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+
+		}
+
+	}
+
+	//プレイヤーが正面の壁にいる場合
+	if (arg_nowUp.z <= -0.9f) {
+
+		//右側の壁に移動したら
+		if (arg_nextUp.x <= -0.9f) {
+
+			m_cameraRotY += DirectX::XM_PIDIV2;
+			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+
+		}
+		//左側の壁に移動したら
+		if (0.9f <= arg_nextUp.x) {
+
+			m_cameraRotY -= DirectX::XM_PIDIV2;
+			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+
+		}
+
+	}
+
+	//プレイヤーが後ろ側の壁にいる場合
+	if (0.9f <= arg_nowUp.z) {
+
+		//右側の壁に移動したら
+		if (arg_nextUp.x <= -0.9f) {
+
+			m_cameraRotY -= DirectX::XM_PIDIV2;
+			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+
+		}
+		//左側の壁に移動したら
+		if (0.9f <= arg_nextUp.x) {
+
+			m_cameraRotY += DirectX::XM_PIDIV2;
+			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+
+		}
+
+	}
+
+	//プレイヤーが上側の壁にいる場合
+	if (arg_nowUp.y <= -0.9f) {
+
+		//右側の壁に移動したら
+		if (arg_nextUp.x <= -0.9f) {
+
+			m_cameraRotY -= DirectX::XM_PI;
+			m_cameraRotYStorage -= DirectX::XM_PI;
+
+		}
+		//左側の壁に移動したら
+		if (0.9f <= arg_nextUp.x) {
+
+			m_cameraRotY += DirectX::XM_PI;
+			m_cameraRotYStorage += DirectX::XM_PI;
+
+		}
+
+	}
 
 }
