@@ -7,12 +7,10 @@ struct ParticleData
 AppendStructuredBuffer<ParticleData> particleData : register(u0);
 
 [numthreads(1024, 1, 1)]
-void CSmain(uint3 groupId : SV_GroupID)
+void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 groupThreadID : SV_GroupThreadID)
 {
-    uint index = (groupId.y * 1024) + groupId.x + groupId.z;
+    uint index = (groupThreadID.y * 1204) + groupThreadID.x + groupThreadID.z;
     index += 1024 * groupId.x;
-
-    index = groupId.x;
 
     const int PARTICLE_NUM_MAX = 10000;
     if(PARTICLE_NUM_MAX <= index)
@@ -20,7 +18,7 @@ void CSmain(uint3 groupId : SV_GroupID)
         return;
     }
 
-    float3 pos = float3(0,0,0);
+    float3 pos = float3(0,index,0);
     float4 color = float4(1,1,1,1);
 
     //o—Í--------------------------------------------
