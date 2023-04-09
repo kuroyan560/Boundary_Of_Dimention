@@ -71,6 +71,8 @@ cbuffer cbuff7 : register(b7)
     float3 playerPos;
 }
 
+Texture2D<float4> cloneDepthMap : register(t4);
+
 struct VSOutput
 {
     float4 svpos : SV_POSITION;
@@ -139,7 +141,6 @@ struct PSOutput
     float4 normal : SV_Target3;
     float4 edgeColor : SV_Target4;
     float4 bright : SV_Target5;
-    float4 farThanPlayerColor : SV_Target6;
 };
 
 PSOutput PSmain(VSOutput input) : SV_TARGET
@@ -297,7 +298,6 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     //プレイヤーより向こう側
     if (mul(cam.view, float4(playerPos, 1)).z - 2.0f < input.depthInView)
     {
-        output.farThanPlayerColor = result;
     }
     
     //明るさ計算

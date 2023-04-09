@@ -56,6 +56,7 @@ private:
 	struct PlayerInfo
 	{
 		KuroEngine::Vec3<float>m_worldPos;
+		float m_depthInView;
 		KuroEngine::Vec2<float>m_screenPos;
 	};
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_playerInfoBuffer;
@@ -91,6 +92,8 @@ private:
 
 	std::array<std::shared_ptr<KuroEngine::RenderTarget>, RENDER_TARGET_TYPE::NUM>m_renderTargetArray;
 
+	//深度テクスチャをレンダーターゲットとSRVとして同時に使用するためのコピーテクスチャ
+	std::shared_ptr<KuroEngine::TextureBuffer>m_cloneDepthMapTex;
 	//プレイヤーより手前のオブジェクトを透過させる際のテクスチャ
 	std::shared_ptr<KuroEngine::TextureBuffer>m_playerMaskTex;
 	

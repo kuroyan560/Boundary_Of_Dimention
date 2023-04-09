@@ -1,4 +1,6 @@
 static const float PI = 3.14159265359f;
+static const float FLT_EPSILON = 1.192092896e-07f;
+
 
 //イージング
 float Easing_Quad_In(float t, float totaltime, float min, float max)

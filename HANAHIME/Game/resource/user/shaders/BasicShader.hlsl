@@ -24,6 +24,7 @@ struct ToonIndividualParameter
 struct PlayerInfo
 {
     float3 m_worldPos;
+    float m_depthInView;
     float2 m_screenPos;
 };
 
@@ -75,6 +76,8 @@ cbuffer cbuff7 : register(b7)
 {
     PlayerInfo player;
 }
+
+Texture2D<float> cloneDepthMap : register(t5);
 
 struct VSOutput
 {
@@ -144,11 +147,10 @@ struct PSOutput
     float4 normal : SV_Target3;
     float4 edgeColor : SV_Target4;
     float4 bright : SV_Target5;
-    float4 farThanPlayerColor : SV_Target6;
 };
 
-PSOutput PSmain(VSOutput input) : SV_TARGET
-{
+void PSmain(VSOutput input, out PSOutput output) : SV_TARGET
+{    
     float3 normal = input.normal;
     float3 vnormal = normalize(mul(cam.view, normal));
     
@@ -277,21 +279,32 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     
     //光が当たっていないならモノクロ化
     result.xyz = lerp(lerp(result.xyz, Monochrome(result.xyz), toonCommonParam.m_monochromeRate), result.xyz, isBright);
-    
-    PSOutput output;
-    output.color = result;
 
-    //プレイヤーより向こう側
-    output.farThanPlayerColor = result;
-    float playerDepth = mul(cam.view, float4(player.m_worldPos, 1)).z - 2.0f;
-    output.farThanPlayerColor.w = step(playerDepth, input.depthInView);
+    //既に描画されているピクセルの深度取得
+    float2 texCoord = input.svpos.xy / float2(1280.0f, 720.0f);
+    float recentDepth = cloneDepthMap.Sample(smp, texCoord).r;
     
-        //明るさ計算
-    // float bright = dot(result.xyz, float3(0.2125f, 0.7154f, 0.0721f));
-    // if (1.0f < bright)
-    //    output.emissive += result;
-    // output.emissive.w = result.w;
-    output.emissive = float4(0,0,0,0);
+    //スクリーン座標上でプレイヤーの座標を中心とした円より内側
+    if (!toonIndividualParam.m_isPlayer 
+        && length(input.svpos.xy - player.m_screenPos) < 128.0f 
+        && input.depthInView < recentDepth 
+        && input.depthInView < player.m_depthInView)
+    {
+        discard;
+    }
+    
+ //   if (toonIndividualParam.m_isPlayer || )
+ //   {
+ //   }
+    
+    output.color = result;
+    
+    //明るさ計算
+// float bright = dot(result.xyz, float3(0.2125f, 0.7154f, 0.0721f));
+// if (1.0f < bright)
+//    output.emissive += result;
+// output.emissive.w = result.w;
+    output.emissive = float4(0, 0, 0, 0);
     
     output.depth = input.depthInView;
     
@@ -300,6 +313,4 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     output.edgeColor = toonIndividualParam.m_edgeColor * lerp(0.2f, 1.0f, isBright);
     
     output.bright.x = isBright;
-    
-    return output;
 }

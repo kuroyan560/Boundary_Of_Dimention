@@ -70,6 +70,7 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"トゥーンの共通パラメータ"),
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"トゥーンの個別パラメータ"),
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"プレイヤーの座標情報"),
+		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"深度マップのクローン"),
 	};
 
 	//レンダーターゲット描画先情報
@@ -237,20 +238,27 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		&initSendPlayerInfo,
 		"BasicDraw - PlayerInfo");
 
+	//バックバッファのサイズ取得
+	auto targetSize = D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize();
+
+	//深度テクスチャをレンダーターゲットとSRVとして同時に使用するためのコピーテクスチャ
+	m_cloneDepthMapTex = D3D12App::Instance()->GenerateTextureBuffer(targetSize, RENDER_TARGET_INFO[0][DEPTH].m_format, "BasicDraw - CloneDepthMap - TextureBuffer");
+
 	//レンダーターゲット生成
 	std::array<std::string, RENDER_TARGET_TYPE::NUM>targetNames =
 	{
 		"MainRenderTarget","EmissiveMap","DepthMap","NormalMap","EdgeColorMap","BrightMap","FarThanPlayer"
 	};
-	auto targetSize = D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize();
 	for (int targetIdx = 0; targetIdx < RENDER_TARGET_TYPE::NUM; ++targetIdx)
 	{
+		Color clearValue = Color(0, 0, 0, 0);
 		m_renderTargetArray[targetIdx] = D3D12App::Instance()->GenerateRenderTarget(
 			RENDER_TARGET_INFO[0][targetIdx].m_format,
-			Color(0.0f, 0.0f, 0.0f, 0.0f),
+			clearValue,
 			targetSize,
 			GetWideStrFromStr(("BasicDraw - " + targetNames[targetIdx])).c_str());
 	}
+
 }
 
 void BasicDraw::Update(KuroEngine::Vec3<float> arg_playerPos, KuroEngine::Camera& arg_cam)
@@ -262,6 +270,7 @@ void BasicDraw::Update(KuroEngine::Vec3<float> arg_playerPos, KuroEngine::Camera
 	{
 		PlayerInfo sendInfo;
 		sendInfo.m_worldPos = arg_playerPos;
+		sendInfo.m_depthInView = Math::TransformVec3(arg_playerPos, arg_cam.GetViewMat()).z;
 		sendInfo.m_screenPos = ConvertWorldToScreen(arg_playerPos, arg_cam.GetViewMat(), arg_cam.GetProjectionMat(), m_renderTargetArray[MAIN]->GetGraphSize().Float());
 		m_playerInfoBuffer->Mapping(&sendInfo);
 	}
@@ -286,7 +295,7 @@ void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_
 {
 	using namespace KuroEngine;
 
-	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_drawPipeline[arg_blendMode]);
+	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_drawPipeline[AlphaBlendMode_Trans]);
 
 	//トランスフォームバッファ送信
 	if (m_drawTransformBuff.size() < (m_drawCount + 1))
@@ -324,10 +333,14 @@ void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_
 				{m_toonCommonParamBuff,CBV},
 				{m_toonIndividualParamBuff[m_individualParamCount],CBV},
 				{m_playerInfoBuffer,CBV},
+				{m_cloneDepthMapTex,SRV},
 			},
 			arg_transform.GetPos().z,
 			arg_blendMode == AlphaBlendMode_Trans);
 	}
+
+	//レンダーターゲットである深度マップをクローン用のテクスチャにコピー
+	KuroEngineDevice::Instance()->Graphics().CopyTexture(m_cloneDepthMapTex, m_renderTargetArray[DEPTH], true);
 
 	m_drawCount++;
 	m_individualParamCount++;
@@ -406,11 +419,15 @@ void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightMan
 				{m_toonCommonParamBuff,CBV},
 				{m_toonIndividualParamBuff[m_individualParamCount],CBV},
 				{m_playerInfoBuffer,CBV},
+				{m_cloneDepthMapTex,SRV},
 			},
 			arg_depth,
 			arg_blendMode == AlphaBlendMode_Trans,
 			static_cast<int>(arg_matArray.size()));
 	}
+
+	//レンダーターゲットである深度マップをクローン用のテクスチャにコピー
+	KuroEngineDevice::Instance()->Graphics().CopyTexture(m_cloneDepthMapTex, m_renderTargetArray[DEPTH], true);
 
 	m_drawCountHuge++;
 	m_individualParamCount++;

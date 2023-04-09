@@ -139,8 +139,9 @@ void KuroEngine::GraphicsManager::ClearDepthStencil(std::weak_ptr<DepthStencil> 
 	m_gCommands.emplace_back(std::make_shared<ClearDSVCommand>(DepthStencil));
 }
 
-void KuroEngine::GraphicsManager::CopyTexture(std::weak_ptr<TextureBuffer> DestTex, std::weak_ptr<TextureBuffer> SrcTex)
+void KuroEngine::GraphicsManager::CopyTexture(std::weak_ptr<TextureBuffer> DestTex, std::weak_ptr<TextureBuffer> SrcTex, bool RenderCommandStack)
 {
+	if (RenderCommandStack && !m_renderCommands.empty())StackRenderCommands();	//Zバッファ＆透過するかどうかでソートしてグラフィックスコマンドリストに一括スタック
 	m_gCommands.emplace_back(std::make_shared<CopyTex>(DestTex, SrcTex));
 }
 

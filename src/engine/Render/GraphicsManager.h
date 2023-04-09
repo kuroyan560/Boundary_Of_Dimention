@@ -207,7 +207,7 @@ namespace KuroEngine
 		void ClearDepthStencil(std::weak_ptr<DepthStencil> DepthStencil);
 
 		//テクスチャコピーコマンド積み上げ
-		void CopyTexture(std::weak_ptr<TextureBuffer> DestTex, std::weak_ptr<TextureBuffer> SrcTex);
+		void CopyTexture(std::weak_ptr<TextureBuffer> DestTex, std::weak_ptr<TextureBuffer> SrcTex, bool RenderCommandStack = false);
 
 		//オブジェクトのレンダリングコマンド積み上げ（インデックスなし）
 		void ObjectRender(std::weak_ptr<VertexBuffer> VertexBuff,
