@@ -15,6 +15,7 @@ struct CheckResult
 {
     //int m_aroundGrassCount;
     float3 m_plantPos;
+    float3 m_plantNormal;
     int m_isSuccess;
 };
 
@@ -108,6 +109,9 @@ void SearchPlantPos(uint DTid : SV_DispatchThreadID)
         
         //サンプリングに成功したらワールド座標を求める。
         result.m_plantPos = g_worldMap[screenPos].xyz;
+        
+        //法線も求める。
+        result.m_plantNormal = g_normalMap[screenPos].xyz;
         
         //草が近くにあるかを検索。
         bool isNearGrass = false;

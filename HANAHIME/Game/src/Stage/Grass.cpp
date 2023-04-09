@@ -298,12 +298,12 @@ void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> a
 	{
 
 		//草をはやす場所を取得。
-		KuroEngine::Vec3<float> plantPos = SearchPlantPos(arg_cam);
+		CheckResult plantData = SearchPlantPos(arg_cam);
 
 		//イニシャライザのスタック
 		m_grassInitializerArray.emplace_back();
-		m_grassInitializerArray.back().m_pos = plantPos;
-		m_grassInitializerArray.back().m_up = arg_transform.GetUp();
+		m_grassInitializerArray.back().m_pos = plantData.m_plantPos;
+		m_grassInitializerArray.back().m_up = plantData.m_plantNormal;
 		//とりあえず乱数でテクスチャ決定
 		//m_vertices[m_deadVertexIdx].m_texIdx = KuroEngine::GetRand(s_textureNumMax - 1);
 		m_grassInitializerArray.back().m_texIdx = KuroEngine::GetRand(3 - 1);
@@ -315,7 +315,7 @@ void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> a
 	//arg_waterPaintBlend.DropMaskInk(arg_transform.GetPos() + KuroEngine::Vec3<float>(0.0f, 1.0f, 0.0f));
 }
 
-KuroEngine::Vec3<float> Grass::SearchPlantPos(std::weak_ptr<KuroEngine::Camera> arg_cam)
+Grass::CheckResult Grass::SearchPlantPos(std::weak_ptr<KuroEngine::Camera> arg_cam)
 {
 	using namespace KuroEngine;
 
@@ -352,6 +352,10 @@ KuroEngine::Vec3<float> Grass::SearchPlantPos(std::weak_ptr<KuroEngine::Camera> 
 		descData);
 
 	//判定結果の取得
-	return checkResultPtr->m_plantPos;
+	CheckResult result;
+	result.m_isSuccess = checkResultPtr->m_isSuccess;
+	result.m_plantPos = checkResultPtr->m_plantPos;
+	result.m_plantNormal = checkResultPtr->m_plantNormal;
+	return result;
 
 }

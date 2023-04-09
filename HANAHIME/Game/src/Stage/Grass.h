@@ -112,6 +112,7 @@ class Grass
 	{
 		//int m_aroundGrassCount = 0;
 		KuroEngine::Vec3<float> m_plantPos;
+		KuroEngine::Vec3<float> m_plantNormal;
 		int m_isSuccess;
 	};
 	//周辺に草むらがあるか確認した結果を格納するバッファ
@@ -146,6 +147,6 @@ private:
 	/// 草をはやす場所を取得する。
 	/// </summary>
 	/// <returns> t:生えている  f:生えていない </returns>
-	KuroEngine::Vec3<float> SearchPlantPos(std::weak_ptr<KuroEngine::Camera> arg_cam);
+	CheckResult SearchPlantPos(std::weak_ptr<KuroEngine::Camera> arg_cam);
 
 };
