@@ -8,11 +8,17 @@
 #include"Stage/Grass.h"
 #include"Graphics/WaterPaintBlend.h"
 #include"ForUser/PostEffect/Fog.h"
+#include"Stage/StageSelect.h"
+#include"Movie/StageChange.h"
+#include"Movie/MovieCamera.h"
+#include"OutGame/Title.h"
 
 class GameScene : public KuroEngine::BaseScene
 {
 	std::shared_ptr<KuroEngine::TextureBuffer>m_ddsTex;
 	std::shared_ptr<KuroEngine::TextureBuffer>m_pngTex;
+
+	KuroEngine::Transform m_playerResponePos;
 	Player m_player;
 
 	KuroEngine::DebugCamera m_debugCam;
@@ -37,7 +43,17 @@ class GameScene : public KuroEngine::BaseScene
 	//水彩画風ブレンドポストエフェクト
 	WaterPaintBlend m_waterPaintBlend;
 
+	//ステージ選択画面
+	StageSelect m_stageSelect;
+
+	int m_stageNum;
+	SceneChange m_gateSceneChange;
+
+	MovieCamera m_movieCamera;
+
 	std::shared_ptr<KuroEngine::Camera>m_nowCam;
+
+	Title title;
 
 	void OnInitialize()override;
 	void OnUpdate()override;

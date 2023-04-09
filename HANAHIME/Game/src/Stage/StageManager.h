@@ -30,7 +30,7 @@ class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>,p
 	float m_oldTerrianScaling = m_terrianScaling;
 
 	//デバッグ用テストステージ
-	std::shared_ptr<Stage>m_testStage;
+	std::array<std::shared_ptr<Stage>, 2>m_stageArray;
 
 	//現在のステージ
 	std::shared_ptr<Stage>m_nowStage;
@@ -39,6 +39,8 @@ class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>,p
 	void OnImguiItems()override;
 
 public:
+
+	void SetStage(int stage_num);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
 
 	//現在のステージのゲッタ

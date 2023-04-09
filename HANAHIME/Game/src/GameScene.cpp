@@ -8,6 +8,7 @@
 
 #include"ForUser/JsonData.h"
 #include"Graphics/BasicDraw.h"
+#include"../../../src/engine/FrameWork/UsersInput.h"
 
 GameScene::GameScene()
 {
@@ -21,6 +22,8 @@ GameScene::GameScene()
 
 	auto backBuffTarget = KuroEngine::D3D12App::Instance()->GetBackBuffRenderTarget();
 	m_fogPostEffect = std::make_shared<KuroEngine::Fog>(backBuffTarget->GetGraphSize(), backBuffTarget->GetDesc().Format);
+
+	m_playerResponePos.SetPos({ -0.49f, 25.9f ,-60.2f });
 }
 
 
@@ -36,13 +39,11 @@ void GameScene::OnInitialize()
 	&m_waterPaintBlend,
 	&m_ligMgr,
 	m_fogPostEffect.get(),
-	});
+		});
 
 	m_debugCam.Init({ 0,5,-10 });
 
-	KuroEngine::Transform playerInitTransform;
-	playerInitTransform.SetPos({ 0,1.0f,-45 });
-	m_player.Init(playerInitTransform);
+	m_player.Init(m_playerResponePos);
 
 	m_grass.Init();
 
@@ -62,6 +63,16 @@ void GameScene::OnUpdate()
 	DebugController::Instance()->Update();
 
 	m_nowCam = m_player.GetCamera().lock();
+	//タイトル画面モード
+	if (!title.IsFinish())
+	{
+		m_nowCam = title.GetCamera().lock();
+	}
+	//ホームでの演出
+	if (m_movieCamera.IsStart())
+	{
+		m_nowCam = m_movieCamera.GetCamera().lock();
+	}
 	if (DebugController::Instance()->IsActive())
 	{
 		m_debugCam.Move();
@@ -72,6 +83,36 @@ void GameScene::OnUpdate()
 
 	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
 	//m_grass.Plant(m_player.GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
+	title.Update(&m_player.GetCamera().lock()->GetTransform());
+	//ホームでの処理----------------------------------------
+
+	//ステージ選択
+	int stageNum = m_stageSelect.GetStageNumber(m_player.GetTransform().GetPos());
+	//ステージ移動時の初期化
+	if (stageNum != -1)
+	{
+		m_stageNum = stageNum;
+		m_gateSceneChange.Start();
+	}
+
+	if (m_gateSceneChange.IsHide())
+	{
+		StageManager::Instance()->SetStage(m_stageNum);
+		m_player.Init(m_playerResponePos);
+	}
+
+	m_stageSelect.Update();
+	//ホームでの処理----------------------------------------
+
+	m_gateSceneChange.Update();
+
+
+
+
+	m_movieCamera.Update();
+
+
+
 
 	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld(), *m_nowCam);
 }
@@ -87,7 +128,7 @@ void GameScene::OnDraw()
 
 	//ステージ描画
 	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
-	
+
 	Transform transform;
 	transform.SetPos({ -0.5f,0,0 });
 	DrawFunc3D::DrawNonShadingPlane(
@@ -105,20 +146,33 @@ void GameScene::OnDraw()
 
 	m_grass.Draw(*m_nowCam, m_ligMgr);
 
-	//m_canvasPostEffect.Execute();
+	m_stageSelect.Draw(*m_nowCam, m_ligMgr);
 
+
+	//m_movieCamera.DebugDraw(*m_nowCam, m_ligMgr);
+
+	//m_canvasPostEffect.Execute();
 	BasicDraw::Instance()->DrawEdge();
+
+
 
 	//KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 	//m_waterPaintBlend.Register(main, *nowCamera, ds);
 	//m_vignettePostEffect.Register(m_waterPaintBlend.GetResultTex());
 
 	m_fogPostEffect->Register(
-		BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN), 
+		BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN),
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::DEPTH),
-		BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT));
+		BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT)
+	);
 
 	m_vignettePostEffect.Register(m_fogPostEffect->GetResultTex());
+
+
+	title.Draw(*m_nowCam, m_ligMgr);
+
+	m_gateSceneChange.Draw();
+
 
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(
 		{

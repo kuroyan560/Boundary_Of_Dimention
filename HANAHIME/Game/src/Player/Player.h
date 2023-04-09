@@ -113,6 +113,7 @@ public:
 
 	//カメラコントローラーのデバッガポインタ取得
 	KuroEngine::Debugger* GetCameraControllerDebugger() { return &m_camController; }
+	KuroEngine::Transform &GetCameraControllerParentTransform() { return m_camController.GetParentTransform(); }
 
 	KuroEngine::Transform& GetTransform() { return m_transform; }
 	KuroEngine::Vec2<float>& GetGrassPosScatter() { return m_grassPosScatter; }

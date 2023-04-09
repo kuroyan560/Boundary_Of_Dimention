@@ -178,6 +178,36 @@ namespace KuroEngine
 		}
 
 
+		//大石が追加した関数----------------------------------------
+		void SetWorldMat(const Matrix &mat)
+		{
+			m_worldMat = mat;
+			MatReset();
+		};
+		//Vec3で設定した情報からMatrixを計算し直さない行列を返す
+		const Matrix &GetMatWorldWithOutDirty()
+		{
+			return m_worldMat;
+		}
+		//回転行列のみコピー
+		void SetRotaMatrix(const Matrix src_matrix)
+		{
+			KuroEngine::Vec3<float>pos = GetPosWorld();
+			m_worldMat = src_matrix;
+			m_worldMat.r[3].m128_f32[0] = pos.x;
+			m_worldMat.r[3].m128_f32[1] = pos.y;
+			m_worldMat.r[3].m128_f32[2] = pos.z;
+		}
+		//行列から座標と角度を設定する
+		void CalucuratePosRotaBasedOnWorldMatrix()
+		{
+			m_pos = { m_worldMat.r[3].m128_f32[0], m_worldMat.r[3].m128_f32[1], m_worldMat.r[3].m128_f32[2] };
+			m_rotate = XMQuaternionRotationMatrix(m_worldMat);
+		}
+		//大石が追加した関数----------------------------------------
+
+
+
 		//ローカル行列ゲッタ
 		const Matrix& GetMatLocal();
 		//ワールド行列ゲッタ

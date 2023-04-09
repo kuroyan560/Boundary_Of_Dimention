@@ -15,12 +15,18 @@ StageManager::StageManager()
 	LoadParameterLog();
 
 	//テスト用ステージ生成
-	m_testStage = std::make_shared<Stage>();
-	m_testStage->Load("resource/user/level/", "Debug_Stage_1.json");
-	m_testStage->TerrianInit(m_terrianScaling);
+	m_stageArray[0] = std::make_shared<Stage>();
+	m_stageArray[0]->Load("resource/user/level/", "Debug_Stage_1.json");
+	m_stageArray[0]->TerrianInit(m_terrianScaling);
 
-	//現在のステージ指定（デフォルトはテスト用ステージ）
-	m_nowStage = m_testStage;
+	//ホームステージ
+	m_stageArray[1] = std::make_shared<Stage>();
+	m_stageArray[1]->Load("resource/user/level/", "New_Home.json");
+	m_stageArray[1]->TerrianInit(m_terrianScaling);
+
+
+	//現在のステージ指定（デフォルトはホーム用ステージ）
+	m_nowStage = m_stageArray[1];
 }
 
 void StageManager::OnImguiItems()
@@ -32,6 +38,11 @@ void StageManager::OnImguiItems()
 	m_oldTerrianScaling = m_terrianScaling;
 }
 
+void StageManager::SetStage(int stage_num)
+{
+	m_nowStage = m_stageArray[stage_num];
+}
+
 void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 	using namespace KuroEngine;
@@ -40,10 +51,14 @@ void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 
 	//スカイドーム
 	transform.SetScale(m_skydomeScaling);
-	DrawFunc3D::DrawNonShadingModel(
+	BasicDraw::Instance()->Draw(arg_cam,
+		arg_ligMgr,
 		m_nowStage->GetSkydomeModel().lock(),
-		transform,
-		arg_cam);
+		transform);
+	//DrawFunc3D::DrawNonShadingModel(
+	//	m_nowStage->GetSkydomeModel().lock(),
+	//	transform,
+	//	arg_cam);
 
 	//地面
 	transform.SetPos({ 0.0f,-0.1f,0.0f });
@@ -58,10 +73,14 @@ void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 	transform.SetPos({ 0.0f,0.5f * m_woodsHeight,0.0f });
 	transform.SetRotate(XMMatrixIdentity());
 	transform.SetScale({ m_woodsRadius,m_woodsHeight,m_woodsRadius });
-	DrawFunc3D::DrawNonShadingModel(
+	BasicDraw::Instance()->Draw(arg_cam,
+		arg_ligMgr,
 		m_nowStage->GetWoodsCylinderModel().lock(),
-		transform,
-		arg_cam);
+		transform);
+	//DrawFunc3D::DrawNonShadingModel(
+	//	m_nowStage->GetWoodsCylinderModel().lock(),
+	//	transform,
+	//	arg_cam);
 
 
 	m_nowStage->TerrianDraw(arg_cam, arg_ligMgr);
