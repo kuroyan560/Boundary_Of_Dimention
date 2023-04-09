@@ -1,8 +1,4 @@
-struct ParticleData
-{
-    float3 pos;
-    float4 color;
-};
+#include"GPUParticle.hlsli"
 
 struct OutputData
 {

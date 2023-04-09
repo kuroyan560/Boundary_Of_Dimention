@@ -60,6 +60,8 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 	SHADERS.m_ps = KuroEngine::D3D12App::Instance()->CompileShader("resource/user/shaders/DrawInstancing.hlsl", "PSmain", "ps_6_4");
 
 	DXGI_FORMAT renderTargetFormat = BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN)->GetDesc().Format;
+	//DXGI_FORMAT renderTargetFormat = KuroEngine::D3D12App::Instance()->GetBackBuffFormat();
+	
 	std::vector<KuroEngine::RenderTargetInfo>RENDER_TARGET_INFO;
 	RENDER_TARGET_INFO.emplace_back(renderTargetFormat, KuroEngine::AlphaBlendMode_None);
 
@@ -130,7 +132,7 @@ void GPUParticleRender::Draw(KuroEngine::Camera &camera)
 	//‚±‚±‚Ü‚Å‚ÍƒGƒ‰[‚È‚µ----------------------------------------
 	ViewProjMatData mat;
 	mat.viewprojMat = camera.GetViewMat() * camera.GetProjectionMat();
-	mat.scaleRotateBillboardMat = DirectX::XMMatrixScaling(10.0f, 10.0f, 10.0f);
+	mat.scaleRotateBillboardMat = DirectX::XMMatrixScaling(10.0f, 10.0f, 10.0f) * camera.GetBillBoardMat();
 	m_viewPorjBuffer->Mapping(&mat);
 
 	std::vector<KuroEngine::RegisterDescriptorData>descData =
