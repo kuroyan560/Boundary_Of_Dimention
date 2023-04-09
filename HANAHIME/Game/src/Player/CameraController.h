@@ -69,4 +69,8 @@ public:
 	const KuroEngine::Quaternion& GetPosRotate() {
 		return m_controllerTransform.GetRotate();
 	}
+
+	KuroEngine::Transform &GetParentTransform() {
+		return m_controllerTransform;
+	}
 };

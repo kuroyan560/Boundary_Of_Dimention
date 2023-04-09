@@ -62,14 +62,20 @@
     <Filter Include="src\engine\Render\RenderObject\ModelInfo">
       <UniqueIdentifier>{ced67440-38b0-45dc-9875-27b908e6ea87}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\user\Player">
-      <UniqueIdentifier>{db5b29a9-a60e-49a4-84b7-0ad077a3eb25}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\user\Stage">
       <UniqueIdentifier>{6fcfac86-026f-48bd-a5db-8c79a5b3de54}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\user\Graphics">
       <UniqueIdentifier>{ade67a3f-0cb6-47a3-9c70-5d41e5454e2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\user\Movie">
+      <UniqueIdentifier>{76b5f74a-d2a8-46a1-9eb0-2b8d2565c58e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\user\OutGame">
+      <UniqueIdentifier>{4584cf8f-209a-4bfc-8bc8-6856494b144f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\user\Player">
+      <UniqueIdentifier>{db5b29a9-a60e-49a4-84b7-0ad077a3eb25}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -265,9 +271,6 @@
     <ClCompile Include="src\GameScene.cpp">
       <Filter>src\user</Filter>
     </ClCompile>
-    <ClCompile Include="src\main.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\Player\Player.cpp">
       <Filter>src\user\Player</Filter>
     </ClCompile>
@@ -309,6 +312,27 @@
     </ClCompile>
     <ClCompile Include="..\..\src\engine\ForUser\PostEffect\Fog.cpp">
       <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\engine\ForUser\PostEffect\Fog.cpp">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Stage\Gate.cpp">
+      <Filter>src\user</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>src\user</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Movie\MovieCamera.cpp">
+      <Filter>src\user\Movie</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Movie\StageChange.cpp">
+      <Filter>src\user\Movie</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OutGame\Title.cpp">
+      <Filter>src\user\OutGame</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Stage\StageSelect.cpp">
+      <Filter>src\user\Stage</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -603,8 +627,29 @@
     <ClInclude Include="..\..\src\engine\ForUser\PostEffect\DOF.h">
       <Filter>src\engine\ForUser\PostEffect</Filter>
     </ClInclude>
+    <ClInclude Include="src\Stage\Grass.h" />
+    <ClInclude Include="src\Stage\Stage.h" />
+    <ClInclude Include="src\Stage\StageManager.h" />
     <ClInclude Include="..\..\src\engine\ForUser\PostEffect\Fog.h">
       <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\ForUser\PostEffect\Fog.h">
+      <Filter>src\engine\ForUser\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\Gate.h">
+      <Filter>src\user</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Movie\MovieCamera.h">
+      <Filter>src\user\Movie</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Movie\StageChange.h">
+      <Filter>src\user\Movie</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OutGame\Title.h">
+      <Filter>src\user\OutGame</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\StageSelect.h">
+      <Filter>src\user\Stage</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

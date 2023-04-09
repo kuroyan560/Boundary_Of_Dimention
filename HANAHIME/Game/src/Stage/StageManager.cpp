@@ -15,12 +15,18 @@ StageManager::StageManager()
 	LoadParameterLog();
 
 	//テスト用ステージ生成
-	m_testStage = std::make_shared<Stage>();
-	m_testStage->Load("resource/user/level/", "Debug_Stage_1.json");
-	m_testStage->TerrianInit(m_terrianScaling);
+	m_stageArray[0] = std::make_shared<Stage>();
+	m_stageArray[0]->Load("resource/user/level/", "Debug_Stage_1.json");
+	m_stageArray[0]->TerrianInit(m_terrianScaling);
 
-	//現在のステージ指定（デフォルトはテスト用ステージ）
-	m_nowStage = m_testStage;
+	//ホームステージ
+	m_stageArray[1] = std::make_shared<Stage>();
+	m_stageArray[1]->Load("resource/user/level/", "New_Home.json");
+	m_stageArray[1]->TerrianInit(m_terrianScaling);
+
+
+	//現在のステージ指定（デフォルトはホーム用ステージ）
+	m_nowStage = m_stageArray[1];
 }
 
 void StageManager::OnImguiItems()
@@ -30,6 +36,11 @@ void StageManager::OnImguiItems()
 		m_nowStage->TerrianInit(m_terrianScaling);
 	}
 	m_oldTerrianScaling = m_terrianScaling;
+}
+
+void StageManager::SetStage(int stage_num)
+{
+	m_nowStage = m_stageArray[stage_num];
 }
 
 void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)

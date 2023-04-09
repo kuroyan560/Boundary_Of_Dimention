@@ -93,7 +93,7 @@ void Stage::Load(std::string arg_dir, std::string arg_fileName)
 		auto transformObj = obj["transform"];
 
 		//ïΩçsà⁄ìÆ
-		Vec3<float>translation = { (float)transformObj["translation"][0],(float)transformObj["translation"][2],(float)transformObj["translation"][1] };
+		Vec3<float>translation = { -(float)transformObj["translation"][0],(float)transformObj["translation"][2],(float)transformObj["translation"][1] };
 
 		//âÒì]
 		XMVECTOR quaternion = { (float)transformObj["rotation"][0],(float)transformObj["rotation"][2], -(float)transformObj["rotation"][1],(float)transformObj["rotation"][3] };
