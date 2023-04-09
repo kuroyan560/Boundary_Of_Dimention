@@ -51,10 +51,14 @@ void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 
 	//スカイドーム
 	transform.SetScale(m_skydomeScaling);
-	DrawFunc3D::DrawNonShadingModel(
+	BasicDraw::Instance()->Draw(arg_cam,
+		arg_ligMgr,
 		m_nowStage->GetSkydomeModel().lock(),
-		transform,
-		arg_cam);
+		transform);
+	//DrawFunc3D::DrawNonShadingModel(
+	//	m_nowStage->GetSkydomeModel().lock(),
+	//	transform,
+	//	arg_cam);
 
 	//地面
 	transform.SetPos({ 0.0f,-0.1f,0.0f });
@@ -69,10 +73,14 @@ void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 	transform.SetPos({ 0.0f,0.5f * m_woodsHeight,0.0f });
 	transform.SetRotate(XMMatrixIdentity());
 	transform.SetScale({ m_woodsRadius,m_woodsHeight,m_woodsRadius });
-	DrawFunc3D::DrawNonShadingModel(
+	BasicDraw::Instance()->Draw(arg_cam,
+		arg_ligMgr,
 		m_nowStage->GetWoodsCylinderModel().lock(),
-		transform,
-		arg_cam);
+		transform);
+	//DrawFunc3D::DrawNonShadingModel(
+	//	m_nowStage->GetWoodsCylinderModel().lock(),
+	//	transform,
+	//	arg_cam);
 
 
 	m_nowStage->TerrianDraw(arg_cam, arg_ligMgr);
