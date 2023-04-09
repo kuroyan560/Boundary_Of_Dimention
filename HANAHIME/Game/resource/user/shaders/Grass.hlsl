@@ -122,7 +122,7 @@ void SearchPlantPos(uint DTid : SV_DispatchThreadID)
         screenPos = uint2(RandomIntInRange(0, 1280, seed), RandomIntInRange(0, 720, seed * 2.0f));
         
         //サンプリングした座標がライトに当たっている位置かどうかを判断。
-        result.m_isSuccess = 0.9f <= g_brightMap[screenPos].x;
+        result.m_isSuccess = step(0.9f, g_brightMap[screenPos].x);
         
         //サンプリングに失敗したら次へ。
         if (!result.m_isSuccess)
@@ -130,9 +130,6 @@ void SearchPlantPos(uint DTid : SV_DispatchThreadID)
         
         //サンプリングに成功したらワールド座標を求める。
         result.m_plantPos = g_worldMap[screenPos].xyz;
-        
-        //法線も求める。
-        result.m_plantNormal = g_normalMap[screenPos].xyz;
         
         //草が近くにあるかを検索。
         bool isNearGrass = false;
@@ -152,32 +149,11 @@ void SearchPlantPos(uint DTid : SV_DispatchThreadID)
             
         }
         
-        //このFで生成された草も検索する。
-        for (int grassIndex = 0; grassIndex < otherTransformData.m_plantOnceCount; ++grassIndex)
-        {
-            
-            if (grassIndex == DTid)
-                continue;
-            
-            //データ取得
-            CheckResult grassData = checkResultBuffer[grassIndex];
-    
-            //既定の距離より離れていたら問題ないので飛ばす。
-            if (commonInfo.m_checkRange < distance(grassData.m_plantPos, result.m_plantPos))
-                continue;
- 
-            //草が近くにある。
-            isNearGrass = true;
-            break;
-            
-        }
+        //法線も求める。
+        result.m_plantNormal = g_normalMap[screenPos].xyz;
         
         //草が近くにあったら次。なかったらこの値を返す。
-        if (isNearGrass)
-        {
-            continue;
-        }
-        else
+        if (!isNearGrass)
         {
             checkResultBuffer[DTid] = result;
             return;
