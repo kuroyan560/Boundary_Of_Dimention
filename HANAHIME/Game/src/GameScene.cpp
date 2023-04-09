@@ -126,11 +126,6 @@ void GameScene::OnDraw()
 	//レンダーターゲットのクリアとセット
 	BasicDraw::Instance()->RenderTargetsClearAndSet(ds);
 
-	if (m_title.IsStartOP())
-	{
-		m_particleRender.Draw(*m_nowCam);
-	}
-
 	//ステージ描画
 	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
 
@@ -159,11 +154,16 @@ void GameScene::OnDraw()
 	//m_canvasPostEffect.Execute();
 	BasicDraw::Instance()->DrawEdge();
 
-
-
 	//KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 	//m_waterPaintBlend.Register(main, *nowCamera, ds);
 	//m_vignettePostEffect.Register(m_waterPaintBlend.GetResultTex());
+
+	if (m_title.IsStartOP())
+	{
+		m_particleRender.Draw(*m_nowCam);
+	}
+
+
 
 	m_fogPostEffect->Register(
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN),

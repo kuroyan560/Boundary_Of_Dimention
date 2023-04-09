@@ -78,7 +78,6 @@ DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawExcuteIndirect &INIT_DATA)
 	command.drawArguments.StartInstanceLocation = 0;
 	command.view = INIT_DATA.updateView;
 	m_cmdBuffer->Mapping(&command);
-
 }
 
 void DrawExcuteIndirect::Draw(std::shared_ptr<KuroEngine::GraphicsPipeline> pipeline,const Microsoft::WRL::ComPtr<ID3D12Resource> &COUNTER_BUFFER)

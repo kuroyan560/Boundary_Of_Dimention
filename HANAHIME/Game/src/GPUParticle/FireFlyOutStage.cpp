@@ -10,7 +10,6 @@ FireFlyOutStage::FireFlyOutStage(std::shared_ptr<KuroEngine::RWStructuredBuffer>
 	m_initPipeline = KuroEngine::D3D12App::Instance()->GenerateComputePipeline(cs_init, rootParam, { KuroEngine::WrappedSampler(true,true) });
 
 
-
 	KuroEngine::D3D12App::Instance()->GenerateRWStructuredBuffer(
 		&m_fireFlyParticleData, &m_fireFlyParticleCounterData,
 		sizeof(FireFlyData),

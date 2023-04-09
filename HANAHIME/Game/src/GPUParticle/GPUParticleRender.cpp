@@ -30,7 +30,8 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 		sizeof(ViewProjMatData),
 		1,
 		nullptr,
-		"viewProjBuffer - ConstBuffer");
+		"viewProjBuffer - ConstBuffer"
+	);
 
 	std::vector<KuroEngine::RootParam>rootParam =
 	{
@@ -46,6 +47,7 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 	//パイプラインの生成----------------------------------------
 	KuroEngine::PipelineInitializeOption PIPELINE_OPTION(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 	PIPELINE_OPTION.m_depthTest = true;
+	PIPELINE_OPTION.m_depthWriteMask = false;
 	PIPELINE_OPTION.m_calling = D3D12_CULL_MODE_NONE;
 
 	std::vector<KuroEngine::RootParam> graphicRootParam =
@@ -63,7 +65,7 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 	//DXGI_FORMAT renderTargetFormat = KuroEngine::D3D12App::Instance()->GetBackBuffFormat();
 	
 	std::vector<KuroEngine::RenderTargetInfo>RENDER_TARGET_INFO;
-	RENDER_TARGET_INFO.emplace_back(renderTargetFormat, KuroEngine::AlphaBlendMode_None);
+	RENDER_TARGET_INFO.emplace_back(renderTargetFormat, KuroEngine::AlphaBlendMode_Trans);
 
 	m_gPipeline = KuroEngine::D3D12App::Instance()->GenerateGraphicsPipeline
 	(
@@ -109,7 +111,6 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 	lInitData.argument.push_back(args[1]);
 	excuteIndirect = std::make_unique<DrawExcuteIndirect>(lInitData);
 	//ExcuteIndirect----------------------------------------
-
 }
 
 void GPUParticleRender::InitCount()
@@ -121,15 +122,6 @@ void GPUParticleRender::InitCount()
 
 void GPUParticleRender::Draw(KuroEngine::Camera &camera)
 {
-	//viewProjMat = CameraMgr::Instance()->GetViewMatrix() * CameraMgr::Instance()->GetPerspectiveMatProjection();
-	//computeCovertWorldMatToDrawMat.TransData(viewProjMatHandle, &viewProjMat, sizeof(DirectX::XMMATRIX));
-
-	//computeCovertWorldMatToDrawMat.StackToCommandListAndCallDispatch(PIPELINE_COMPUTE_NAME_CONVERT_WORLDMAT_TO_DRAWMAT, { NUM.x,NUM.y,NUM.z });
-
-	//auto plantGrassCount = *m_plantGrassCounterBuffer->GetResource()->GetBuffOnCpu<int>();
-
-
-	//ここまではエラーなし----------------------------------------
 	ViewProjMatData mat;
 	mat.viewprojMat = camera.GetViewMat() * camera.GetProjectionMat();
 	mat.scaleRotateBillboardMat = DirectX::XMMatrixScaling(10.0f, 10.0f, 10.0f) * camera.GetBillBoardMat();
@@ -144,7 +136,6 @@ void GPUParticleRender::Draw(KuroEngine::Camera &camera)
 	KuroEngine::D3D12App::Instance()->DispathOneShot(m_cPipeline, { 1,1,1 }, descData);
 
 	excuteIndirect->Draw(m_gPipeline, nullptr);
-
 }
 
 std::shared_ptr<KuroEngine::RWStructuredBuffer>GPUParticleRender::GetStackBuffer()const

@@ -39,7 +39,7 @@ void InitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 
     FireFlyParticleData outputMat;
     outputMat.pos = pos;
     outputMat.color = color;
-    outputMat.flashTimer = uint2(0,0);
+    outputMat.flashTimer = uint2(Rand(index,50,0),1);
     fireFlyDataBuffer[index] = outputMat;
     //èoóÕ--------------------------------------------
 }
@@ -57,12 +57,30 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
         return;
     }
 
-    FireFlyParticleData fireFlyData = fireFlyDataBuffer[index];
+
+    if(fireFlyDataBuffer[index].flashTimer.y)
+    {
+        fireFlyDataBuffer[index].flashTimer.x += 1;
+    }
+    else
+    {
+        fireFlyDataBuffer[index].flashTimer.x -= 1;
+    }
+
+    if(60 <= fireFlyDataBuffer[index].flashTimer.x)
+    {
+        fireFlyDataBuffer[index].flashTimer.y = 0;
+    }
+    else if(fireFlyDataBuffer[index].flashTimer.x <= 0)
+    {
+        fireFlyDataBuffer[index].flashTimer.y = 1;
+    }
+    fireFlyDataBuffer[index].color.a = fireFlyDataBuffer[index].flashTimer.x / 60.0f;
 
     //èoóÕ--------------------------------------------
     ParticleData outputMat;
-    outputMat.pos = fireFlyData.pos;
-    outputMat.color = fireFlyData.color;
+    outputMat.pos = fireFlyDataBuffer[index].pos;
+    outputMat.color = fireFlyDataBuffer[index].color;
     particleData.Append(outputMat);
     //èoóÕ--------------------------------------------
 }
