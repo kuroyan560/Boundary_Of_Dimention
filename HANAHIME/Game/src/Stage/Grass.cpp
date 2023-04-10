@@ -15,10 +15,7 @@ Grass::Grass()
 		//ルートパラメータ
 		std::vector<RootParam>rootParam =
 		{
-			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"生成した草のバッファ(RWStructuredBuffer)"),
-			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"ワールド座標"),
-			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"法線マップ"),
-			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"光が当たっている範囲のマップ"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"生成した草のバッファ"),
 		};
 
 		//初期化用パイプライン
@@ -26,12 +23,25 @@ Grass::Grass()
 		m_cPipeline[INIT] = D3D12App::Instance()->GenerateComputePipeline(cs_init, rootParam, { WrappedSampler(true,true) });
 
 		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "生成する予定のスタックしたイニシャライザ配列バッファー(StructuredBuffer)");
-		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "草むら以外のトランスフォームデータ");
-		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "全草むらで共通する定数バッファ");
 
 		//生成用パイプライン
 		auto cs_appear = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass.hlsl", "Appear", "cs_6_4");
-		m_cPipeline[GENERATE] = D3D12App::Instance()->GenerateComputePipeline(cs_appear, rootParam, { WrappedSampler(true,true) });
+		m_cPipeline[APPEAR] = D3D12App::Instance()->GenerateComputePipeline(cs_appear, rootParam, { WrappedSampler(true,true) });
+
+		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, "ソートと削除で使うカウンタバッファ");
+		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "ワールド座標");
+		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "法線マップ");
+		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "光が当たっている範囲のマップ");
+		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "草むら以外のトランスフォームデータ");
+		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "全草むらで共通する定数バッファ");
+
+		//ソート用パイプライン（死んでいるものが先頭側に来るようソート）
+		auto cs_sort = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass.hlsl", "Sort", "cs_6_4");
+		m_cPipeline[SORT] = D3D12App::Instance()->GenerateComputePipeline(cs_sort, rootParam, { WrappedSampler(true,true) });
+
+		//削除用パイプライン
+		auto cs_disappear = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass.hlsl", "Disappear", "cs_6_4");
+		m_cPipeline[DISAPPEAR] = D3D12App::Instance()->GenerateComputePipeline(cs_disappear, rootParam, { WrappedSampler(true,true) });
 
 		//更新用パイプライン
 		auto cs_update = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass.hlsl", "Update", "cs_6_4");
@@ -128,6 +138,13 @@ Grass::Grass()
 		nullptr,
 		"Grass - PlantGrass - RWStructuredBuffer");
 
+	//ソートと削除処理で使うunsigned int のバッファー
+	m_sortAndDisappearNumBuffer = D3D12App::Instance()->GenerateRWStructuredBuffer(
+		sizeof(unsigned int),
+		1,
+		nullptr,
+		"Grass - SortAndDisappearNumber - RWStructuredBuffer");
+
 	//判定結果の格納用バッファ
 	CheckResult checkResultInit;
 	m_checkResultBuffer = D3D12App::Instance()->GenerateRWStructuredBuffer(
@@ -166,9 +183,6 @@ void Grass::Init()
 			{ plantGrassCount,1,1 },
 			{
 				{m_plantGrassBuffer,UAV},
-				{BasicDraw::Instance()->GetRenderTarget(BasicDraw::DEPTH),SRV},
-				{BasicDraw::Instance()->GetRenderTarget(BasicDraw::NORMAL),SRV},
-				{BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT),SRV},
 			});
 	}
 
@@ -215,25 +229,11 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 	std::vector<RegisterDescriptorData>descData =
 	{
 		{m_plantGrassBuffer,UAV},
-		{BasicDraw::Instance()->GetRenderTarget(BasicDraw::DEPTH),SRV},
-		{BasicDraw::Instance()->GetRenderTarget(BasicDraw::NORMAL),SRV},
-		{BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT),SRV},
-		{m_stackGrassInitializerBuffer,SRV},
-		{m_otherTransformConstBuffer,CBV},
-		{m_constBuffer,CBV},
+		{m_stackGrassInitializerBuffer, SRV},
 	};
 
 	//植えた草むらのカウントのポインタ取得
 	auto plantGrassCountPtr = m_plantGrassCounterBuffer->GetResource()->GetBuffOnCpu<int>();
-
-	//植えた草むらの更新
-	if (*plantGrassCountPtr)
-	{
-		D3D12App::Instance()->DispathOneShot(
-			m_cPipeline[UPDATE],
-			{ *plantGrassCountPtr,1,1 },
-			descData);
-	}
 
 	//スタックしておいた草むらを生やす
 	if (!m_grassInitializerArray.empty())
@@ -251,7 +251,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 
 		//生成
 		D3D12App::Instance()->DispathOneShot(
-			m_cPipeline[GENERATE],
+			m_cPipeline[APPEAR],
 			{ generateNum,1,1 },
 			descData);
 
@@ -266,6 +266,35 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 		m_grassInitializerArray.clear();
 	}
 
+	//植えた草むらの更新
+	if (*plantGrassCountPtr)
+	{
+		descData.emplace_back(m_sortAndDisappearNumBuffer, UAV);
+		descData.emplace_back(BasicDraw::Instance()->GetRenderTarget(BasicDraw::WORLD_POS), SRV);
+		descData.emplace_back(BasicDraw::Instance()->GetRenderTarget(BasicDraw::NORMAL), SRV);
+		descData.emplace_back(BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT), SRV);
+		descData.emplace_back(m_otherTransformConstBuffer, CBV);
+		descData.emplace_back(m_constBuffer, CBV);
+
+		D3D12App::Instance()->DispathOneShot(
+			m_cPipeline[UPDATE],
+			{ *plantGrassCountPtr,1,1 },
+			descData);
+
+		m_sortAndDisappearNumBuffer->Mapping(plantGrassCountPtr);
+
+		//死んでいるものが先頭に来るようソート
+		D3D12App::Instance()->DispathOneShot(
+			m_cPipeline[SORT],
+			{ 1,1,1 },
+			descData);
+
+		//死んでいるものを削除
+		D3D12App::Instance()->DispathOneShot(
+			m_cPipeline[DISAPPEAR],
+			{ 1,1,1 },
+			descData);
+	}
 }
 
 void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
@@ -343,10 +372,11 @@ std::array<Grass::CheckResult, Grass::PLANT_ONCE_COUNT> Grass::SearchPlantPos(Ku
 	std::vector<RegisterDescriptorData>descData =
 	{
 		{m_plantGrassBuffer,UAV},
+		{m_plantGrassCounterBuffer,UAV},
+		{m_stackGrassInitializerBuffer,SRV},
 		{BasicDraw::Instance()->GetRenderTarget(BasicDraw::WORLD_POS),SRV},
 		{BasicDraw::Instance()->GetRenderTarget(BasicDraw::NORMAL),SRV},
 		{BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT),SRV},
-		{m_stackGrassInitializerBuffer,SRV},
 		{m_otherTransformConstBuffer,CBV},
 		{m_constBuffer,CBV},
 		{m_checkResultBuffer,UAV}
