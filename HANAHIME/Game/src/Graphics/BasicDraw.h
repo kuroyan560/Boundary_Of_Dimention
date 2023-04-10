@@ -24,7 +24,7 @@ class BasicDraw : public KuroEngine::DesignPattern::Singleton<BasicDraw>, public
 {
 public:
 	//レンダーターゲット
-	enum RENDER_TARGET_TYPE { MAIN, EMISSIVE, DEPTH, NORMAL, EDGE_COLOR, BRIGHT, FAR_THAN_PLAYER, NUM };
+	enum RENDER_TARGET_TYPE { MAIN, EMISSIVE, DEPTH, NORMAL, EDGE_COLOR, BRIGHT, FAR_THAN_PLAYER, WORLD_POS, NUM };
 
 private:
 

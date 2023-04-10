@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 #include"KuroEngine.h"
 #include"../../../../src/engine/Common/Transform.h"
 #include"ForUser/Timer.h"
@@ -44,7 +45,7 @@ class Grass
 		float m_sineLength;
 		float m_appearY;		//出現エフェクトに使用する変数 Y軸をどこまで表示させるか。
 		float m_appearYTimer;
-		int pad[2];
+		int m_isAlive;
 	};
 	//植えた草の情報配列バッファ
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_plantGrassBuffer;
@@ -70,11 +71,10 @@ class Grass
 	int m_plantGrassMax = 10000;
 
 	//一度に植える草の数
-	int m_plantOnceCountMin = 3;
-	int m_plantOnceCountMax = 6;
+	static const int PLANT_ONCE_COUNT = 10;
 
 	//コンピュートパイプライン種別
-	enum COMPUTE_PHASE { INIT, CHECK_AROUND, GENERATE, UPDATE, NUM };
+	enum COMPUTE_PHASE { INIT, SEARCH_PLANT_POS, GENERATE, UPDATE, NUM };
 	//コンピュートパイプライン
 	std::array<std::shared_ptr<KuroEngine::ComputePipeline>, COMPUTE_PHASE::NUM>m_cPipeline;
 	//描画用グラフィックスパイプライン
@@ -87,31 +87,39 @@ class Grass
 	struct TransformCBVData
 	{
 		KuroEngine::Vec3<float>m_camPos;
-		float pad;
-		KuroEngine::Vec3<float>m_checkPlantPos;
+		int m_seed;
+		int m_grassCount;
+		int m_plantOnceCount;
 	};
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_otherTransformConstBuffer;
 
 	//行列以外のデータ用構造体（好きなの入れてね）
 	struct CBVdata
 	{
+		//プレイヤーの座標
+		KuroEngine::Vec3<float> m_playerPos;
 		//判定を飛ばす距離
 		float m_checkClipOffset = 2.0f;
 		//周辺に既に草が生えているか確認する際の範囲
-		float m_checkRange = 1.0f;
+		float m_checkRange = 0.5f;
 		//草むら登場時のイージング速度
-		float m_appearEaseSpeed = 0.05f;
+		float m_appearEaseSpeed = 0.2f;
+		//草むら死亡時のイージング速度
+		float m_deadEaseSpeed = 0.03f;
 		//草を揺らす際のSine量 つまり風
 		float m_sineWave = 0;
-		//プレイヤーの座標
-		KuroEngine::Vec3<float> m_playerPos;
+		//草を枯らす距離
+		float m_deathDistance = 8.0f;
 	}m_constData;
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_constBuffer;
 
 	//判定結果の格納データ
 	struct CheckResult
 	{
-		int m_aroundGrassCount = 0;
+		//int m_aroundGrassCount = 0;
+		KuroEngine::Vec3<float> m_plantPos;
+		KuroEngine::Vec3<float> m_plantNormal;
+		int m_isSuccess;
 	};
 	//周辺に草むらがあるか確認した結果を格納するバッファ
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_checkResultBuffer;
@@ -128,7 +136,7 @@ class Grass
 public:
 	Grass();
 	void Init();
-	void Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, bool arg_isPlayerReadyToPlant, KuroEngine::Transform arg_camTransform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
+	void Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
 
 	/// <summary>
@@ -137,15 +145,14 @@ public:
 	/// <param name="arg_transform">座標</param>
 	/// <param name="arg_grassPosScatter">散らし具合</param>
 	/// <param name="arg_waterPaintBlend">水彩画風ブレンドポストエフェクト</param>
-	void Plant(KuroEngine::Transform arg_transform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
+	void Plant(KuroEngine::Transform arg_transform, KuroEngine::Transform arg_playerTransform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
 
 private:
 
 	/// <summary>
-	/// 周囲に草が生えているかをチェックする。
+	/// 草をはやす場所を取得する。
 	/// </summary>
-	/// <param name="arg_checkPos"> チェックする座標 </param>
 	/// <returns> t:生えている  f:生えていない </returns>
-	bool IsGrassAround(const KuroEngine::Vec3<float> arg_checkPos);
+	std::array<CheckResult, PLANT_ONCE_COUNT> SearchPlantPos(KuroEngine::Transform arg_playerTransform);
 
 };
