@@ -68,6 +68,8 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 	std::vector<KuroEngine::RenderTargetInfo>RENDER_TARGET_INFO;
 	RENDER_TARGET_INFO.emplace_back(renderTargetFormat, KuroEngine::AlphaBlendMode_Trans);
 
+	rootsignature = KuroEngine::D3D12App::Instance()->GenerateRootSignature(graphicRootParam, sampler);
+
 	m_gPipeline = KuroEngine::D3D12App::Instance()->GenerateGraphicsPipeline
 	(
 		PIPELINE_OPTION,
@@ -77,8 +79,6 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 		RENDER_TARGET_INFO,
 		{ KuroEngine::WrappedSampler(true, false) }
 	);
-
-	rootsignature = KuroEngine::D3D12App::Instance()->GenerateRootSignature(graphicRootParam, sampler);
 	//パイプラインの生成----------------------------------------
 
 	//ExcuteIndirect----------------------------------------
