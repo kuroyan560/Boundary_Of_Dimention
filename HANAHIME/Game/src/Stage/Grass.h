@@ -73,7 +73,7 @@ class Grass
 	static const int PLANT_ONCE_COUNT = 10;
 
 	//コンピュートパイプライン種別
-	enum COMPUTE_PHASE { INIT, SEARCH_PLANT_POS, GENERATE, UPDATE, NUM };
+	enum COMPUTE_PHASE { INIT, SEARCH_PLANT_POS, APPEAR, UPDATE, SORT, DISAPPEAR, NUM };
 	//コンピュートパイプライン
 	std::array<std::shared_ptr<KuroEngine::ComputePipeline>, COMPUTE_PHASE::NUM>m_cPipeline;
 	//描画用グラフィックスパイプライン
@@ -122,6 +122,9 @@ class Grass
 	};
 	//周辺に草むらがあるか確認した結果を格納するバッファ
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_checkResultBuffer;
+
+	//ソートと削除処理で使うunsigned int のバッファー
+	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_sortAndDisappearNumBuffer;
 
 	//テクスチャ
 	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, s_textureNumMax>m_texBuffer;

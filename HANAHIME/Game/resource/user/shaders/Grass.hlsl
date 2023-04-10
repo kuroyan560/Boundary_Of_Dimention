@@ -24,19 +24,20 @@ RWStructuredBuffer<PlantGrass> aliveGrassBuffer : register(u0);
 ConsumeStructuredBuffer<PlantGrass> consumeAliveGrassBuffer : register(u0);
 AppendStructuredBuffer<PlantGrass> appendAliveGrassBuffer : register(u0);
 
-RWStructuredBuffer<CheckResult> checkResultBuffer : register(u1);
+RWStructuredBuffer<uint> sortAndDisappearNumBuffer : register(u1);
 
-Texture2D<float4> g_worldMap : register(t0);
-Texture2D<float4> g_normalMap : register(t1);
-Texture2D<float4> g_brightMap : register(t2);
+RWStructuredBuffer<CheckResult> checkResultBuffer : register(u2);
 
-StructuredBuffer<GrassInitializer> stackGrassInitializerBuffer : register(t3);
+StructuredBuffer<GrassInitializer> stackGrassInitializerBuffer : register(t0);
+Texture2D<float4> g_worldMap : register(t1);
+Texture2D<float4> g_normalMap : register(t2);
+Texture2D<float4> g_brightMap : register(t3);
+
 
 cbuffer cbuff0 : register(b0)
 {
     TransformData otherTransformData;
 }
-
 cbuffer cbuff1 : register(b1)
 {
     CommonGrassInfo commonInfo;
@@ -82,7 +83,6 @@ void Update(uint DTid : SV_DispatchThreadID)
     }
     else
     {
-        
         //イージングタイマー更新
         grass.m_appearYTimer = max(grass.m_appearYTimer - commonInfo.m_deadEaseSpeed, 0.0f);
         
@@ -101,6 +101,54 @@ void Update(uint DTid : SV_DispatchThreadID)
     aliveGrassBuffer[DTid] = grass;
 };
 
+void SwapGrass(inout PlantGrass a ,inout PlantGrass b)
+{
+    PlantGrass tmp = a;
+    a = b;
+    b = tmp;
+}
+
+[numthreads(1, 1, 1)]
+void Sort(uint DTid : SV_DispatchThreadID)
+{
+    //sortAndDisappearNumBufferには生きている草のカウントが格納されている
+    uint aliveGrassCount = sortAndDisappearNumBuffer[0];
+    uint consumeCount = 0;
+    
+    for (int i = 0; i < aliveGrassCount; ++i)
+    {
+        PlantGrass grass = aliveGrassBuffer[i];
+        
+        //既に死んでいるものだった場合
+        if(grass.m_isAlive == 0)
+        {
+            //死んでいるものが末尾に来るよう交換
+            for (int j = aliveGrassCount - 1; 0 <= j; --j)
+            {
+                if (i == j)
+                    break;
+                
+                if (aliveGrassBuffer[j].m_isAlive)
+                {
+                    SwapGrass(aliveGrassBuffer[i], aliveGrassBuffer[j]);
+                    break;
+                }
+            }
+            consumeCount++;
+        }
+    }
+    sortAndDisappearNumBuffer[0] = consumeCount;
+};
+
+[numthreads(1, 1, 1)]
+void Disappear(uint DTid : SV_DispatchThreadID)
+{
+    for (int i = 0; i < sortAndDisappearNumBuffer[0];++i)
+    {
+        consumeAliveGrassBuffer.Consume();
+    }
+};
+
 [numthreads(1, 1, 1)]
 void SearchPlantPos(uint DTid : SV_DispatchThreadID)
 {
@@ -114,7 +162,6 @@ void SearchPlantPos(uint DTid : SV_DispatchThreadID)
     result.m_isSuccess = false;
     for (int index = 0; index < searchCount; ++index)
     {
-        
         //乱数の種
         int seed = otherTransformData.m_seed + (index * 2.0f) + DTid * 103.0f;
     
