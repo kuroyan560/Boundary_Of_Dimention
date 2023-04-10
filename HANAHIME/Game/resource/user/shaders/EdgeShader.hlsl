@@ -16,9 +16,9 @@ struct VSOutput
 #define FLT_EPSILON 0.001
 
 Texture2D<float4> g_depthMap : register(t0);
-Texture2D<float4> g_normalMap : register(t1);
-Texture2D<float4> g_brightMap : register(t2);
-Texture2D<float4> g_edgeColorMap : register(t3);
+Texture2D<float4> g_brightMap : register(t1);
+Texture2D<float4> g_edgeColorMap : register(t2);
+Texture2D<float4> g_normalMap : register(t3);
 SamplerState g_sampler : register(s0);
 cbuffer cbuff0 : register(b0)
 {

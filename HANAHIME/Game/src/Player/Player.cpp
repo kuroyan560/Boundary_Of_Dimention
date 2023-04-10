@@ -296,7 +296,7 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 	static IndividualDrawParameter drawParam = IndividualDrawParameter::GetDefault();
 	drawParam.m_isPlayer = 1;
 
-	BasicDraw::Instance()->Draw(
+	BasicDraw::Instance()->Draw_Player(
 		arg_cam,
 		arg_ligMgr,
 		m_model,
