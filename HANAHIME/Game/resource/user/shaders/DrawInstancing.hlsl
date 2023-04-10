@@ -13,6 +13,9 @@ struct DrawParticleData
 
 RWStructuredBuffer<DrawParticleData> particleData : register(u0);
 
+Texture2D<float4> tex : register(t1);
+SamplerState smp : register(s0);
+
 VSOutput VSmain(float4 pos : POSITION,float2 uv:TEXCOORD, uint instanceID : SV_InstanceID)
 {  
     VSOutput output;
@@ -24,6 +27,7 @@ VSOutput VSmain(float4 pos : POSITION,float2 uv:TEXCOORD, uint instanceID : SV_I
 
 float4 PSmain(VSOutput input) : SV_TARGET
 {
-    float2 uvC = input.uv;
-    return input.color;
+    float4 texColor = float4(tex.Sample(smp, input.uv));
+    texColor.xyz = input.color.xyz;
+    return texColor;
 }

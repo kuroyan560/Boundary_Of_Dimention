@@ -53,6 +53,7 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 	std::vector<KuroEngine::RootParam> graphicRootParam =
 	{
 		KuroEngine::RootParam(KuroEngine::UAV,"蛍パーティクルの描画情報(RWStructuredBuffer)"),
+		KuroEngine::RootParam(KuroEngine::SRV,"パーティクルのテクスチャ")
 	};
 	std::vector<D3D12_STATIC_SAMPLER_DESC>sampler;
 	sampler.emplace_back(KuroEngine::WrappedSampler(true, false));
