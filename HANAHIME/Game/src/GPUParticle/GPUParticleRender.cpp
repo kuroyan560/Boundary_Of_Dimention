@@ -52,8 +52,8 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 
 	std::vector<KuroEngine::RootParam> graphicRootParam =
 	{
-		KuroEngine::RootParam(KuroEngine::UAV,"蛍パーティクルの描画情報(RWStructuredBuffer)"),
-		KuroEngine::RootParam(KuroEngine::SRV,"パーティクルのテクスチャ")
+		KuroEngine::RootParam(KuroEngine::UAV,"蛍パーティクルの描画情報(RWStructuredBuffer)")
+		//,KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"パーティクルのテクスチャ")
 	};
 	std::vector<D3D12_STATIC_SAMPLER_DESC>sampler;
 	sampler.emplace_back(KuroEngine::WrappedSampler(true, false));
@@ -68,8 +68,6 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 	std::vector<KuroEngine::RenderTargetInfo>RENDER_TARGET_INFO;
 	RENDER_TARGET_INFO.emplace_back(renderTargetFormat, KuroEngine::AlphaBlendMode_Trans);
 
-	rootsignature = KuroEngine::D3D12App::Instance()->GenerateRootSignature(graphicRootParam, sampler);
-
 	m_gPipeline = KuroEngine::D3D12App::Instance()->GenerateGraphicsPipeline
 	(
 		PIPELINE_OPTION,
@@ -80,6 +78,9 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 		{ KuroEngine::WrappedSampler(true, false) }
 	);
 	//パイプラインの生成----------------------------------------
+
+
+
 
 	//ExcuteIndirect----------------------------------------
 	std::array<Vertex, 4>verticesArray;
@@ -101,15 +102,29 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 	lInitData.indexNum = m_particleIndex->m_indexNum;
 	lInitData.elementNum = particleMaxNum;
 	lInitData.updateView = m_fireFlyDrawBuffer->GetResource()->GetBuff()->GetGPUVirtualAddress();
+
+	std::vector<KuroEngine::RootParam> commandRootsignature =
+	{
+		KuroEngine::RootParam(KuroEngine::UAV,"蛍パーティクルの描画情報(RWStructuredBuffer)"),
+		KuroEngine::RootParam(KuroEngine::SRV,"蛍パーティクルの描画情報(RWStructuredBuffer)")
+	};
+	//commandRootsignature = graphicRootParam;
+	rootsignature = KuroEngine::D3D12App::Instance()->GenerateRootSignature(commandRootsignature, sampler);
+
+
 	lInitData.rootsignature = rootsignature;
 
-	std::array<D3D12_INDIRECT_ARGUMENT_DESC, 2> args{};
+	std::array<D3D12_INDIRECT_ARGUMENT_DESC, 3> args{};
 	args[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_UNORDERED_ACCESS_VIEW;
 	args[0].UnorderedAccessView.RootParameterIndex = 0;
-	args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
+	args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
+	args[1].ShaderResourceView.RootParameterIndex = 0;
+	args[2].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
 
-	lInitData.argument.push_back(args[0]);
-	lInitData.argument.push_back(args[1]);
+	for (int i = 0; i < args.size(); ++i)
+	{
+		lInitData.argument.push_back(args[i]);
+	}
 	excuteIndirect = std::make_unique<DrawExcuteIndirect>(lInitData);
 	//ExcuteIndirect----------------------------------------
 }
