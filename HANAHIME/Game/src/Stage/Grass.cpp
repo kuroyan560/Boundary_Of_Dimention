@@ -303,7 +303,7 @@ void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Transform arg
 	for (int count = 0; count < PLANT_ONCE_COUNT; ++count)
 	{
 
-		if (!plantData[count].m_isSuccess) continue;
+		if (plantData[count].m_isSuccess != 1) continue;
 
 		//イニシャライザのスタック
 		m_grassInitializerArray.emplace_back();
