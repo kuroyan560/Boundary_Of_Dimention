@@ -1,6 +1,6 @@
-#include "StageSelect.h"
+#include "HomeStageSelect.h"
 
-StageSelect::StageSelect()
+HomeStageSelect::HomeStageSelect()
 {
 	//ステージ選択用のゲート生成----------------------------------------
 	m_gateDataArray = ConvertModelToGateData::Convert("resource/user/level/", "Home.json", 5.0f);
@@ -11,11 +11,11 @@ StageSelect::StageSelect()
 	//ステージ選択用のゲート生成----------------------------------------
 }
 
-void StageSelect::Init()
+void HomeStageSelect::Init()
 {
 }
 
-void StageSelect::Update()
+void HomeStageSelect::Update()
 {
 	for (auto &obj : m_gateArray)
 	{
@@ -23,7 +23,7 @@ void StageSelect::Update()
 	}
 }
 
-void StageSelect::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
+void HomeStageSelect::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 #ifdef _DEBUG
 	for (auto &obj : m_gateArray)
@@ -33,7 +33,7 @@ void StageSelect::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &ar
 #endif
 }
 
-int StageSelect::GetStageNumber(const KuroEngine::Vec3<float> &player_pos)
+int HomeStageSelect::GetStageNumber(const KuroEngine::Vec3<float> &player_pos)
 {
 	for (auto &obj : m_gateArray)
 	{

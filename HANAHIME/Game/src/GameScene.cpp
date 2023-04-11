@@ -48,6 +48,7 @@ void GameScene::OnInitialize()
 	m_grass.Init();
 
 	m_waterPaintBlend.Init();
+	m_title.Init();
 }
 
 void GameScene::OnUpdate()

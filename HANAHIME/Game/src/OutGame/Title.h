@@ -1,6 +1,7 @@
 #pragma once
 #include"../Movie/MovieCamera.h"
 #include"ForUser/DrawFunc/2D/DrawFunc2D.h"
+#include"PazzleStageSelect.h"
 
 /// <summary>
 /// タイトル画面向けの処理
@@ -44,6 +45,7 @@ private:
 	std::shared_ptr<KuroEngine::TextureBuffer> m_blackTexBuff;
 	KuroEngine::Timer m_alphaRate;
 
-
+	//ステージ選択画面
+	PazzleStageSelect m_stageSelect;
 };
 

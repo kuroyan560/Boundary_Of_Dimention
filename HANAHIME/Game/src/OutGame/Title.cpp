@@ -1,6 +1,6 @@
 #include "Title.h"
-#include"../../../src/engine/FrameWork/UsersInput.h"
-#include"../../../src/engine/FrameWork/WinApp.h"
+#include"FrameWork/UsersInput.h"
+#include"FrameWork/WinApp.h"
 #include"../OperationConfig.h"
 
 Title::Title()
@@ -56,6 +56,7 @@ void Title::Init()
 	m_startOPFlag = false;
 	m_generateCameraMoveDataFlag = false;
 	m_alphaRate.Reset();
+	m_stageSelect.Init();
 	OperationConfig::Instance()->SetActive(false);
 }
 
@@ -136,11 +137,13 @@ void Title::Update(KuroEngine::Transform *player_camera)
 	}
 
 
+	m_stageSelect.Update();
 	m_camera.Update();
 }
 
 void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
+	m_stageSelect.Draw();
 	//É^ÉCÉgÉãÉçÉSï`âÊ
-	KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_titlePos, m_titleLogoSize.Float(), 0.0f, m_blackTexBuff, 1.0f - m_alphaRate.GetTimeRate());
+	//KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_titlePos, m_titleLogoSize.Float(), 0.0f, m_blackTexBuff, 1.0f - m_alphaRate.GetTimeRate());
 }

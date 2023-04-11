@@ -1,7 +1,7 @@
 #include"StageChange.h"
-#include"../../../src/engine/ForUser/DrawFunc/2D/DrawFunc2D.h"
-#include"../../../src/engine/DirectX12/D3D12App.h"
-#include"../../../src/engine/FrameWork/WinApp.h"
+#include"ForUser/DrawFunc/2D/DrawFunc2D.h"
+#include"DirectX12/D3D12App.h"
+#include"FrameWork/WinApp.h"
 
 SceneChange::SceneChange() :
 	m_time(60),
