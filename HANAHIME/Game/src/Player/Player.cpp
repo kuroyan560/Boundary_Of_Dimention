@@ -211,7 +211,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 }
 
-void Player::Update(const std::weak_ptr<Stage>arg_nowStage, bool enable_to_move_flag)
+void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
 
@@ -221,10 +221,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage, bool enable_to_move_
 
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
-	if (!enable_to_move_flag)
-	{
-		scopeMove = {};
-	}
 
 
 	//カメラの回転を保存。
@@ -241,10 +237,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage, bool enable_to_move_
 
 		//入力された移動量を取得
 		m_rowMoveVec = OperationConfig::Instance()->GetMoveVecFuna(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
-		if (!enable_to_move_flag)
-		{
-			m_rowMoveVec = {};
-		}
 
 		//移動させる。
 		Move(newPos);

@@ -22,15 +22,48 @@ public:
 	{
 		return m_isFinishFlag;
 	}
+	void FinishTitle()
+	{
+		m_isFinishFlag = true;
+	}
 	std::weak_ptr<KuroEngine::Camera>GetCamera()
 	{
 		return m_camera.GetCamera();
 	}
+	int GetStageNum()
+	{
+		if (!m_startPazzleFlag)
+		{
+			return -1;
+		}
+		//連続入力を防ぐためスキップする
+		if (!m_delayInputFlag)
+		{
+			return -1;
+		}
+
+		//入力＝決定。ステージ番号を渡す
+		if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE))
+		{
+			if (m_stageSelect.IsEnableToSelect())
+			{
+				return m_stageSelect.GetNumber();
+			}
+			else
+			{
+				return -1;
+			}
+		}
+		return -1;
+	}
+
 private:
 	//カメラの移動情報
 	std::vector<MovieCameraData>titleCameraMoveDataArray;
 	//ゲーム開始フラグ
 	bool m_startGameFlag;
+	bool m_startPazzleFlag;
+	bool m_isPazzleModeFlag;
 	//OPフラグ
 	bool m_startOPFlag;
 	bool m_generateCameraMoveDataFlag;
@@ -46,6 +79,13 @@ private:
 	KuroEngine::Timer m_alphaRate;
 
 	//ステージ選択画面
+	//パズルモード入力時に決定を1Fずらす事で連続で入力されることを防ぐ
+	bool m_delayInputFlag;
+	KuroEngine::Timer m_delayTime;
+
+	KuroEngine::Vec2<float> m_pazzleModeLogoPos, m_storyModeLogoPos;
 	PazzleStageSelect m_stageSelect;
+	std::shared_ptr<KuroEngine::TextureBuffer> m_pazzleModeTexBuff;
+	std::shared_ptr<KuroEngine::TextureBuffer> m_storyModeTexBuff;
 };
 

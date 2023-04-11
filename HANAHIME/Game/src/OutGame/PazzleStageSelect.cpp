@@ -1,9 +1,26 @@
 #include"PazzleStageSelect.h"
 #include"FrameWork/WinApp.h"
+#include"../Stage/StageManager.h"
+
 
 PazzleStageSelect::PazzleStageSelect()
 {
 	m_baseStageSelectPos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() / 2.0f;
+
+	const int STAGE_MAX_NUM = StageManager::Instance()->GetAllStageNum();
+	int yNum = 0;
+	for (int y = 0; y < m_stageSelectArray.size(); ++y)
+	{
+		for (int x = 0; x < m_stageSelectArray[y].size(); ++x)
+		{
+			int stageNumber = yNum + x;
+			if (stageNumber < STAGE_MAX_NUM)
+			{
+				m_stageSelectArray[y][x].enableFlag = true;
+			}
+		}
+		yNum += static_cast<int>(m_stageSelectArray[y].size());
+	}
 
 
 	m_numTexArray.resize(10);
@@ -90,12 +107,20 @@ void PazzleStageSelect::Draw()
 		for (int x = 0; x < m_stageSelectArray[y].size(); ++x)
 		{
 			KuroEngine::Vec2<float>pos(static_cast<float>(x), static_cast<float>(y));
+			int stageNumber = 1 + yNum + x;
 			//Œ…—pˆÓ
-			std::vector<int>timeArray = CountNumber(yNum + x);
-			//ˆêŒ…
-			if (yNum + x < 10)
+			std::vector<int>timeArray = CountNumber(stageNumber);
+
+			float numberAlpha = 1.0f;
+			if (!m_stageSelectArray[y][x].enableFlag)
 			{
-				KuroEngine::DrawFunc2D::DrawGraph(m_baseStageSelectPos + pos * texSize, m_numTexArray[timeArray[1]]);
+				numberAlpha = 0.5f;
+			}
+
+			//ˆêŒ…
+			if (stageNumber < 10)
+			{
+				KuroEngine::DrawFunc2D::DrawGraph(m_baseStageSelectPos + pos * texSize, m_numTexArray[timeArray[1]], numberAlpha);
 			}
 			//“ñŒ…
 			else
@@ -103,8 +128,8 @@ void PazzleStageSelect::Draw()
 				KuroEngine::Vec2<float>basePos(pos * texSize + m_baseStageSelectPos);
 				//Œ…‚ÌŠÔ‚ğ^‚ñ’†‚É‚Á‚Ä‚¢‚­ˆ—
 				basePos -= KuroEngine::Vec2<float>(15.0f, 0.0f);
-				KuroEngine::DrawFunc2D::DrawGraph(basePos, m_numTexArray[timeArray[0]]);
-				KuroEngine::DrawFunc2D::DrawGraph(basePos + KuroEngine::Vec2<float>(30.0f, 0.0f), m_numTexArray[timeArray[1]]);
+				KuroEngine::DrawFunc2D::DrawGraph(basePos, m_numTexArray[timeArray[0]], numberAlpha);
+				KuroEngine::DrawFunc2D::DrawGraph(basePos + KuroEngine::Vec2<float>(30.0f, 0.0f), m_numTexArray[timeArray[1]], numberAlpha);
 			}
 		}
 		yNum += static_cast<int>(m_stageSelectArray[y].size());
@@ -121,5 +146,6 @@ int PazzleStageSelect::GetNumber()
 		num += m_stageSelectArray[y].size();
 	}
 	num += m_nowStageNum.x;
+
 	return static_cast<int>(num);
 }

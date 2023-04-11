@@ -5,7 +5,10 @@
 
 Title::Title()
 	:m_startGameFlag(false), m_isFinishFlag(false), m_startOPFlag(false), m_generateCameraMoveDataFlag(false), m_blackTexBuff(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(KuroEngine::Color(0, 0, 0, 255))),
-	m_alphaRate(30.0f)
+	m_alphaRate(30.0f), m_startPazzleFlag(false), m_isPazzleModeFlag(false), m_delayInputFlag(false),
+	m_pazzleModeTexBuff(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/title/Pazzle.png")),
+	m_storyModeTexBuff(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/title/Story.png")),
+	m_delayTime(10)
 {
 	const int xAngle = 20;
 	const float radius = 500.0f;
@@ -44,9 +47,12 @@ Title::Title()
 
 	m_camera.StartMovie(titleCameraMoveDataArray, true);
 
-	//下のが良いが	C4172	ローカル変数またはテンポラリのアドレスを返しますが出る為要相談
-	m_titlePos = KuroEngine::WinApp::Instance()->GetExpandWinCenter();
+	//中心から多少上にずらす
+	m_titlePos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() + KuroEngine::Vec2<float>(0.0f, -KuroEngine::WinApp::Instance()->GetExpandWinCenter().y / 2.0f);
 	m_titleLogoSize = { 400,100 };
+
+	m_pazzleModeLogoPos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() + KuroEngine::Vec2<float>(KuroEngine::WinApp::Instance()->GetExpandWinCenter().x / 2.0f, KuroEngine::WinApp::Instance()->GetExpandWinCenter().y / 2.0f);
+	m_storyModeLogoPos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() + KuroEngine::Vec2<float>(-KuroEngine::WinApp::Instance()->GetExpandWinCenter().x / 2.0f, KuroEngine::WinApp::Instance()->GetExpandWinCenter().y / 2.0f);
 }
 
 void Title::Init()
@@ -55,6 +61,9 @@ void Title::Init()
 	m_isFinishFlag = false;
 	m_startOPFlag = false;
 	m_generateCameraMoveDataFlag = false;
+	m_isPazzleModeFlag = false;
+	m_delayInputFlag = false;
+	m_delayTime.Reset();
 	m_alphaRate.Reset();
 	m_stageSelect.Init();
 	OperationConfig::Instance()->SetActive(false);
@@ -62,8 +71,18 @@ void Title::Init()
 
 void Title::Update(KuroEngine::Transform *player_camera)
 {
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_RIGHT))
+	{
+		m_isPazzleModeFlag = true;
+	}
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_LEFT))
+	{
+		m_isPazzleModeFlag = false;
+	}
+
+
 	//タイトル画面からツリー注目モードに切り替える
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) && !m_startGameFlag)
+	if (!m_isPazzleModeFlag && KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) && !m_startGameFlag && !m_startPazzleFlag)
 	{
 		m_startGameFlag = true;
 
@@ -86,6 +105,11 @@ void Title::Update(KuroEngine::Transform *player_camera)
 		moveToTreeDataArray.emplace_back(data2);
 
 		m_camera.StartMovie(moveToTreeDataArray, false);
+	}
+
+	if (m_isPazzleModeFlag && KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) && !m_startGameFlag)
+	{
+		m_startPazzleFlag = true;
 	}
 
 
@@ -136,14 +160,54 @@ void Title::Update(KuroEngine::Transform *player_camera)
 		OperationConfig::Instance()->SetActive(true);
 	}
 
+	if (m_startPazzleFlag)
+	{
+		m_stageSelect.Update();
 
-	m_stageSelect.Update();
+		if (m_delayTime.IsTimeUp())
+		{
+			m_delayInputFlag = true;
+		}
+		m_delayTime.UpdateTimer();
+	}
 	m_camera.Update();
 }
 
 void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
-	m_stageSelect.Draw();
+	if (m_isFinishFlag)
+	{
+		return;
+	}
+
 	//タイトルロゴ描画
-	//KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_titlePos, m_titleLogoSize.Float(), 0.0f, m_blackTexBuff, 1.0f - m_alphaRate.GetTimeRate());
+	if (m_startPazzleFlag)
+	{
+		m_stageSelect.Draw();
+		return;
+	}
+	KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_titlePos, m_titleLogoSize.Float(), 0.0f, m_blackTexBuff, 1.0f - m_alphaRate.GetTimeRate());
+
+
+	//ゲームが始まったら選択画面を表示しない
+	if (m_startGameFlag)
+	{
+		return;
+	}
+	float storyLogoAlpha = 1.0f;
+	float pazzleLogoAlpha = 1.0f;
+	if (m_isPazzleModeFlag)
+	{
+		storyLogoAlpha = 0.5f;
+	}
+	else
+	{
+		pazzleLogoAlpha = 0.5f;
+	}
+
+	//パズルモード選択中
+	KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_pazzleModeLogoPos, { 1.0f,1.0f }, 0.0f, m_pazzleModeTexBuff, pazzleLogoAlpha);
+	//ストーリーモード選択中
+	KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_storyModeLogoPos, { 1.0f,1.0f }, 0.0f, m_storyModeTexBuff, storyLogoAlpha);
+
 }

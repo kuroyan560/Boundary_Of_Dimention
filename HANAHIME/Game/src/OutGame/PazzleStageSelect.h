@@ -19,15 +19,20 @@ public:
 	void Draw();
 
 	int GetNumber();
+	bool IsEnableToSelect()
+	{
+		return m_stageSelectArray[m_nowStageNum.y][m_nowStageNum.x].enableFlag;
+	}
 private:
 
 	struct StageData
 	{
 		bool m_isClearFlag;
+		bool enableFlag;	//遊べるステージかどうか
 		StageData() :m_isClearFlag(false)
 		{};
 	};
-	std::array<std::array<StageData, 3>, 3>m_stageSelectArray;
+	std::array<std::array<StageData, 4>, 4>m_stageSelectArray;
 	KuroEngine::Vec2<int> m_nowStageNum;
 
 	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_numTexArray;
