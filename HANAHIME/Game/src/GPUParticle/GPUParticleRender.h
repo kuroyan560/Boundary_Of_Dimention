@@ -1,7 +1,5 @@
 #pragma once
-#include"ResouceBufferHelper.h"
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
-#include"GPUParticleData.h"
 #include"DrawExcuteIndirect.h"
 #include"Render/GraphicsManager.h"
 
