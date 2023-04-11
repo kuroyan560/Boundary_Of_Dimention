@@ -169,6 +169,13 @@ void Title::Update(KuroEngine::Transform *player_camera)
 			m_delayInputFlag = true;
 		}
 		m_delayTime.UpdateTimer();
+
+		if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_ESCAPE))
+		{
+			m_startPazzleFlag = false;
+			m_delayInputFlag = false;
+			m_delayTime.Reset();
+		}
 	}
 	m_camera.Update();
 }
