@@ -1,419 +1,421 @@
 {
-    "name": "scene",
-    "objects": [
-        {
-            "type": "MESH",
-            "name": "InWall_1",
-            "transform": {
-                "translation": [
-                    -7.5,
-                    7.5,
-                    0.0
-                ],
-                "rotation": [
-                    0.7071068286895752,
-                    0.0,
-                    0.0,
-                    0.7071067094802856
-                ],
-                "scaling": [
-                    6.5,
-                    1.0,
-                    6.5
-                ]
+    "stage": {
+        "name": "scene",
+        "objects": [
+            {
+                "type": "Terrian",
+                "name": "InWall_1",
+                "transform": {
+                    "translation": [
+                        -7.5,
+                        7.5,
+                        0.0
+                    ],
+                    "rotation": [
+                        0.7071068286895752,
+                        0.0,
+                        0.0,
+                        0.7071067094802856
+                    ],
+                    "scaling": [
+                        6.5,
+                        1.0,
+                        6.5
+                    ]
+                },
+                "file_name": "InWall"
             },
-            "file_name": "InWall"
-        },
-        {
-            "type": "MESH",
-            "name": "InWall_3",
-            "transform": {
-                "translation": [
-                    7.5,
-                    0.0,
-                    -7.0
-                ],
-                "rotation": [
-                    0.0,
-                    0.0,
-                    0.0,
-                    1.0
-                ],
-                "scaling": [
-                    6.5,
-                    1.0,
-                    6.0
-                ]
+            {
+                "type": "Terrian",
+                "name": "InWall_3",
+                "transform": {
+                    "translation": [
+                        7.5,
+                        0.0,
+                        -7.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        6.5,
+                        1.0,
+                        6.0
+                    ]
+                },
+                "file_name": "InWall"
             },
-            "file_name": "InWall"
-        },
-        {
-            "type": "MESH",
-            "name": "InWall_4",
-            "transform": {
-                "translation": [
-                    7.5,
-                    -7.5,
-                    0.0
-                ],
-                "rotation": [
-                    0.7071068286895752,
-                    0.0,
-                    0.0,
-                    0.7071067094802856
-                ],
-                "scaling": [
-                    6.5,
-                    1.0,
-                    6.5
-                ]
+            {
+                "type": "Terrian",
+                "name": "InWall_4",
+                "transform": {
+                    "translation": [
+                        7.5,
+                        -7.5,
+                        0.0
+                    ],
+                    "rotation": [
+                        0.7071068286895752,
+                        0.0,
+                        0.0,
+                        0.7071067094802856
+                    ],
+                    "scaling": [
+                        6.5,
+                        1.0,
+                        6.5
+                    ]
+                },
+                "file_name": "InWall"
             },
-            "file_name": "InWall"
-        },
-        {
-            "type": "MESH",
-            "name": "InWall_2",
-            "transform": {
-                "translation": [
-                    -7.5,
-                    0.0,
-                    -7.0
-                ],
-                "rotation": [
-                    0.0,
-                    0.0,
-                    0.0,
-                    1.0
-                ],
-                "scaling": [
-                    6.5,
-                    1.0,
-                    6.0
-                ]
+            {
+                "type": "Terrian",
+                "name": "InWall_2",
+                "transform": {
+                    "translation": [
+                        -7.5,
+                        0.0,
+                        -7.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        6.5,
+                        1.0,
+                        6.0
+                    ]
+                },
+                "file_name": "InWall"
             },
-            "file_name": "InWall"
-        },
-        {
-            "type": "MESH",
-            "name": "Wall_1",
-            "transform": {
-                "translation": [
-                    0.0,
-                    0.0,
-                    16.0
-                ],
-                "rotation": [
-                    0.5,
-                    0.5,
-                    0.5,
-                    0.5
-                ],
-                "scaling": [
-                    16.0,
-                    1.0,
-                    16.0
-                ]
+            {
+                "type": "Terrian",
+                "name": "Wall_1",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        16.0
+                    ],
+                    "rotation": [
+                        0.5,
+                        0.5,
+                        0.5,
+                        0.5
+                    ],
+                    "scaling": [
+                        16.0,
+                        1.0,
+                        16.0
+                    ]
+                },
+                "file_name": "Wall"
             },
-            "file_name": "Wall"
-        },
-        {
-            "type": "MESH",
-            "name": "Wall_2",
-            "transform": {
-                "translation": [
-                    0.0,
-                    15.0,
-                    0.0
-                ],
-                "rotation": [
-                    0.0,
-                    0.0,
-                    0.0,
-                    1.0
-                ],
-                "scaling": [
-                    16.0,
-                    1.0,
-                    15.0
-                ]
+            {
+                "type": "Terrian",
+                "name": "Wall_2",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        15.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        16.0,
+                        1.0,
+                        15.0
+                    ]
+                },
+                "file_name": "Wall"
             },
-            "file_name": "Wall"
-        },
-        {
-            "type": "MESH",
-            "name": "Wall_3",
-            "transform": {
-                "translation": [
-                    0.0,
-                    -15.0,
-                    0.0
-                ],
-                "rotation": [
-                    0.0,
-                    0.0,
-                    0.0,
-                    1.0
-                ],
-                "scaling": [
-                    16.0,
-                    1.0,
-                    15.0
-                ]
+            {
+                "type": "Terrian",
+                "name": "Wall_3",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        -15.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        16.0,
+                        1.0,
+                        15.0
+                    ]
+                },
+                "file_name": "Wall"
             },
-            "file_name": "Wall"
-        },
-        {
-            "type": "MESH",
-            "name": "Wall_4",
-            "transform": {
-                "translation": [
-                    0.0,
-                    0.0,
-                    -14.0
-                ],
-                "rotation": [
-                    0.5,
-                    0.5,
-                    0.5,
-                    0.5
-                ],
-                "scaling": [
-                    14.0,
-                    1.0,
-                    14.0
-                ]
+            {
+                "type": "Terrian",
+                "name": "Wall_4",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        -14.0
+                    ],
+                    "rotation": [
+                        0.5,
+                        0.5,
+                        0.5,
+                        0.5
+                    ],
+                    "scaling": [
+                        14.0,
+                        1.0,
+                        14.0
+                    ]
+                },
+                "file_name": "Wall"
             },
-            "file_name": "Wall"
-        },
-        {
-            "type": "MESH",
-            "name": "Wall_5",
-            "transform": {
-                "translation": [
-                    -15.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    0.0,
-                    0.0,
-                    0.7071068286895752,
-                    0.7071068286895752
-                ],
-                "scaling": [
-                    14.0,
-                    1.0,
-                    15.0
-                ]
+            {
+                "type": "Terrian",
+                "name": "Wall_5",
+                "transform": {
+                    "translation": [
+                        -15.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        14.0,
+                        1.0,
+                        15.0
+                    ]
+                },
+                "file_name": "Wall"
             },
-            "file_name": "Wall"
-        },
-        {
-            "type": "MESH",
-            "name": "Wall_6",
-            "transform": {
-                "translation": [
-                    15.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    0.0,
-                    0.0,
-                    0.7071068286895752,
-                    0.7071067094802856
-                ],
-                "scaling": [
-                    14.0,
-                    1.0,
-                    15.0
-                ]
+            {
+                "type": "Terrian",
+                "name": "Wall_6",
+                "transform": {
+                    "translation": [
+                        15.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071067094802856
+                    ],
+                    "scaling": [
+                        14.0,
+                        1.0,
+                        15.0
+                    ]
+                },
+                "file_name": "Wall"
             },
-            "file_name": "Wall"
-        },
-        {
-            "type": "MESH",
-            "name": "Pillar_1",
-            "transform": {
-                "translation": [
-                    0.0,
-                    -7.0,
-                    -7.0
-                ],
-                "rotation": [
-                    -0.5,
-                    0.5,
-                    0.5,
-                    0.5
-                ],
-                "scaling": [
-                    6.0,
-                    1.0,
-                    1.0
-                ]
+            {
+                "type": "Terrian",
+                "name": "Pillar_1",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        -7.0,
+                        -7.0
+                    ],
+                    "rotation": [
+                        -0.5,
+                        0.5,
+                        0.5,
+                        0.5
+                    ],
+                    "scaling": [
+                        6.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Pillar"
             },
-            "file_name": "Pillar"
-        },
-        {
-            "type": "MESH",
-            "name": "Pillar_2",
-            "transform": {
-                "translation": [
-                    0.0,
-                    7.0,
-                    -7.0
-                ],
-                "rotation": [
-                    -0.5,
-                    0.5,
-                    0.5,
-                    0.5
-                ],
-                "scaling": [
-                    6.0,
-                    1.0,
-                    1.0
-                ]
+            {
+                "type": "Terrian",
+                "name": "Pillar_2",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        7.0,
+                        -7.0
+                    ],
+                    "rotation": [
+                        -0.5,
+                        0.5,
+                        0.5,
+                        0.5
+                    ],
+                    "scaling": [
+                        6.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Pillar"
             },
-            "file_name": "Pillar"
-        },
-        {
-            "type": "MESH",
-            "name": "Pillar_3",
-            "transform": {
-                "translation": [
-                    0.0,
-                    -7.0,
-                    8.0
-                ],
-                "rotation": [
-                    -0.5,
-                    0.5,
-                    0.5,
-                    0.5
-                ],
-                "scaling": [
-                    7.0,
-                    1.0,
-                    1.0
-                ]
+            {
+                "type": "Terrian",
+                "name": "Pillar_3",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        -7.0,
+                        8.0
+                    ],
+                    "rotation": [
+                        -0.5,
+                        0.5,
+                        0.5,
+                        0.5
+                    ],
+                    "scaling": [
+                        7.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Pillar"
             },
-            "file_name": "Pillar"
-        },
-        {
-            "type": "MESH",
-            "name": "Pillar_4",
-            "transform": {
-                "translation": [
-                    0.0,
-                    7.0,
-                    8.0
-                ],
-                "rotation": [
-                    -0.5,
-                    0.5,
-                    0.5,
-                    0.5
-                ],
-                "scaling": [
-                    7.0,
-                    1.0,
-                    1.0
-                ]
+            {
+                "type": "Terrian",
+                "name": "Pillar_4",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        7.0,
+                        8.0
+                    ],
+                    "rotation": [
+                        -0.5,
+                        0.5,
+                        0.5,
+                        0.5
+                    ],
+                    "scaling": [
+                        7.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Pillar"
             },
-            "file_name": "Pillar"
-        },
-        {
-            "type": "MESH",
-            "name": "Pillar_5",
-            "transform": {
-                "translation": [
-                    0.0,
-                    -7.5,
-                    0.0
-                ],
-                "rotation": [
-                    0.0,
-                    0.0,
-                    0.7071068286895752,
-                    0.7071068286895752
-                ],
-                "scaling": [
-                    6.5,
-                    1.0,
-                    1.0
-                ]
+            {
+                "type": "Terrian",
+                "name": "Pillar_5",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        -7.5,
+                        0.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        6.5,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Pillar"
             },
-            "file_name": "Pillar"
-        },
-        {
-            "type": "MESH",
-            "name": "Pillar_6",
-            "transform": {
-                "translation": [
-                    0.0,
-                    7.5,
-                    0.0
-                ],
-                "rotation": [
-                    0.0,
-                    0.0,
-                    0.7071068286895752,
-                    0.7071068286895752
-                ],
-                "scaling": [
-                    6.5,
-                    1.0,
-                    1.0
-                ]
+            {
+                "type": "Terrian",
+                "name": "Pillar_6",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        7.5,
+                        0.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        6.5,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Pillar"
             },
-            "file_name": "Pillar"
-        },
-        {
-            "type": "MESH",
-            "name": "Pillar_7",
-            "transform": {
-                "translation": [
-                    0.0,
-                    0.0,
-                    0.0
-                ],
-                "rotation": [
-                    0.0,
-                    0.0,
-                    0.0,
-                    1.0
-                ],
-                "scaling": [
-                    14.0,
-                    1.0,
-                    1.0
-                ]
+            {
+                "type": "Terrian",
+                "name": "Pillar_7",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        14.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Pillar"
             },
-            "file_name": "Pillar"
-        },
-        {
-            "type": "MESH",
-            "name": "Pillar_8",
-            "transform": {
-                "translation": [
-                    0.0,
-                    0.0,
-                    -7.0
-                ],
-                "rotation": [
-                    -0.5,
-                    0.5,
-                    0.5,
-                    0.5
-                ],
-                "scaling": [
-                    6.0,
-                    1.0,
-                    1.0
-                ]
-            },
-            "file_name": "Pillar"
-        }
-    ]
+            {
+                "type": "Terrian",
+                "name": "Pillar_8",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        -7.0
+                    ],
+                    "rotation": [
+                        -0.5,
+                        0.5,
+                        0.5,
+                        0.5
+                    ],
+                    "scaling": [
+                        6.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Pillar"
+            }
+        ]
+    }
 }

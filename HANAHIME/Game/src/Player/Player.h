@@ -3,8 +3,8 @@
 #include"Common/Transform.h"
 #include"ForUser/Debugger.h"
 #include"CameraController.h"
-#include"../../../../src/engine/Render/RenderObject/ModelInfo/ModelMesh.h"
-#include"../Stage/Stage.h"
+#include"Render/RenderObject/ModelInfo/ModelMesh.h"
+#include"../Stage/StageParts.h"
 #include"Render/RenderObject/Light.h"
 
 #include<memory>
@@ -16,7 +16,6 @@ namespace KuroEngine
 }
 
 class Stage;
-struct Terrian;
 
 class Player : public KuroEngine::Debugger
 {
