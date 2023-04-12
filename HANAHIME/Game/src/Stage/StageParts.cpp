@@ -88,3 +88,12 @@ void Terrian::OnInit()
 {
 	BuilCollisionMesh();
 }
+
+KuroEngine::Transform MoveScaffold::GetTransformWithKey(const KeyTransform& arg_key)
+{
+	KuroEngine::Transform result;
+	result.SetPos(arg_key.m_translation);
+	result.SetScale(arg_key.m_scaling);
+	result.SetRotate(arg_key.m_rotate);
+	return result;
+}

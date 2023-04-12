@@ -334,7 +334,7 @@
     <ClCompile Include="src\OutGame\Title.cpp">
       <Filter>src\user\OutGame</Filter>
     </ClCompile>
-    <ClCompile Include="src\Stage\StageSelect.cpp">
+    <ClCompile Include="src\Stage\HomeStageSelect.cpp">
       <Filter>src\user\Stage</Filter>
     </ClCompile>
     <ClCompile Include="src\GPUParticle\GPUParticleRender.cpp">
@@ -350,6 +350,15 @@
       <Filter>src\user\GPUParticle</Filter>
     </ClCompile>
     <ClCompile Include="src\GPUParticle\FireFlyOutStage.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OutGame\PazzleStageSelect.cpp">
+      <Filter>src\user\OutGame</Filter>
+    </ClCompile>
+    <ClCompile Include="src\OutGame\Select.cpp">
+      <Filter>src\user\OutGame</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Stage\StageParts.cpp">
       <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -666,7 +675,7 @@
     <ClInclude Include="src\OutGame\Title.h">
       <Filter>src\user\OutGame</Filter>
     </ClInclude>
-    <ClInclude Include="src\Stage\StageSelect.h">
+    <ClInclude Include="src\Stage\HomeStageSelect.h">
       <Filter>src\user\Stage</Filter>
     </ClInclude>
     <ClInclude Include="src\GPUParticle\GPUParticleRender.h">
@@ -685,5 +694,12 @@
       <Filter>src\user\GPUParticle</Filter>
     </ClInclude>
     <ClInclude Include="src\GPUParticle\FireFlyOutStage.h" />
+    <ClInclude Include="src\OutGame\PazzleStageSelect.h">
+      <Filter>src\user\OutGame</Filter>
+    </ClInclude>
+    <ClInclude Include="src\OutGame\Select.h">
+      <Filter>src\user\OutGame</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\StageParts.h" />
   </ItemGroup>
 </Project>

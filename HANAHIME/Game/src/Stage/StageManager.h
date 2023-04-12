@@ -45,5 +45,9 @@ public:
 
 	//現在のステージのゲッタ
 	std::weak_ptr<Stage>GetNowStage() { return m_nowStage; }
+	int GetAllStageNum()
+	{
+		return static_cast<int>(m_stageArray.size());
+	}
 };
 

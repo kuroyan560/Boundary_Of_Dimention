@@ -13,7 +13,11 @@ namespace KuroEngine
 //地形情報
 class StageParts
 {
+public:
+	enum STAGE_PARTS_TYPE { TERRIAN, MOVE_SCAFFOLD, NUM, NONE };
 protected:
+	//地形情報種別
+	const STAGE_PARTS_TYPE m_type = NONE;
 	//モデルポインタ
 	std::weak_ptr<KuroEngine::Model>m_model;
 	//デフォルト（元データ）のトランスフォーム
@@ -24,12 +28,15 @@ protected:
 	virtual void OnInit() {};
 
 public:
-	StageParts(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
-		:m_model(arg_model), m_initializedTransform(arg_initTransform) {}
+	StageParts(STAGE_PARTS_TYPE arg_type, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
+		:m_type(arg_type), m_model(arg_model), m_initializedTransform(arg_initTransform) {}
 	virtual ~StageParts() {}
 
 	void Init(float arg_scaling);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
+
+	//地形情報種別ゲッタ
+	const STAGE_PARTS_TYPE& GetType()const { return m_type; }
 };
 
 //ギミックとは別の通常の地形
@@ -54,5 +61,30 @@ protected:
 
 public:
 	Terrian(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
-		:StageParts(arg_model, arg_initTransform) {}
+		:StageParts(TERRIAN, arg_model, arg_initTransform) {}
+};
+
+//動く足場
+class MoveScaffold : public StageParts
+{
+public:
+	//挙動
+	class KeyTransform
+	{
+	public:
+		KuroEngine::Quaternion m_rotate;
+		KuroEngine::Vec3<float>m_translation;
+		KuroEngine::Vec3<float>m_scaling;
+	};
+
+private:
+	//トランスフォームの配列（0からスタート、他のTerrian以外のパーツに当たるか最後まで到達したら折り返し）
+	std::vector<KeyTransform>m_transformArray;
+
+	//KeyTransformからTransformを構築
+	KuroEngine::Transform GetTransformWithKey(const KeyTransform& arg_key);
+
+public:
+	MoveScaffold(std::weak_ptr<KuroEngine::Model>arg_model, std::vector<KeyTransform>arg_transformArray)
+		:StageParts(MOVE_SCAFFOLD, arg_model, GetTransformWithKey(arg_transformArray[0])) {}
 };
