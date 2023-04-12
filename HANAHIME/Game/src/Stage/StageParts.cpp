@@ -29,7 +29,7 @@ void StageParts::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg
 		m_transform);
 }
 
-void Terrian::BuilCollisionMesh()
+void StageParts::BuilCollisionMesh()
 {
 	//当たり判定用のメッシュをモデルのメッシュに合わせる。
 	int meshNum = static_cast<int>(m_model.lock()->m_meshes.size());
@@ -97,4 +97,11 @@ void Terrian::BuilCollisionMesh()
 
 void MoveScaffold::Update(Player& arg_player)
 {
+
+	//有効化されていなかったら処理を飛ばす。
+	if (!m_isActive) return;
+
+	m_translationArray;
+	int a = 0;
+
 }

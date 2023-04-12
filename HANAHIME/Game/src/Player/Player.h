@@ -93,7 +93,7 @@ class Player : public KuroEngine::Debugger
 	{
 		KuroEngine::Vec3<float>m_terrianNormal;
 	};
-	bool HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, const std::vector<Terrian>& arg_terrianArray, HitCheckResult* arg_hitInfo = nullptr);
+	bool HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo = nullptr);
 
 	//プレイヤーの大きさ（半径）
 	float GetPlayersRadius()
@@ -134,7 +134,6 @@ private:
 	//発射するレイのID
 	enum class RAY_ID {
 
-		CHECK_CLIFF,	//崖かどうかをチェックする用
 		GROUND,	//地上向かって飛ばすレイ。設置判定で使用する。
 		AROUND,	//周囲に向かって飛ばすレイ。壁のぼり判定で使用する。
 
@@ -168,6 +167,8 @@ private:
 		std::vector<ImpactPointData> m_impactPoint;	//前後左右のレイの当たった地点。
 		bool m_onGround;							//接地フラグ
 		KuroEngine::Vec3<float> m_bottomTerrianNormal;
+		StageParts::STAGE_PARTS_TYPE m_stageType;
+		std::weak_ptr<StageParts> m_stage;			//ステージ
 	};
 
 	/// <summary>
@@ -185,7 +186,7 @@ private:
 	void Move(KuroEngine::Vec3<float>& arg_newPos);
 
 	//当たり判定
-	void CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<float>& arg_nowpos, const std::weak_ptr<Stage>arg_nowStage);
+	void CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<float>& arg_nowpos, std::weak_ptr<Stage>arg_nowStage);
 
 	//ベジエ曲線を求める。
 	KuroEngine::Vec3<float> CalculateBezierPoint(float arg_time, KuroEngine::Vec3<float> arg_startPoint, KuroEngine::Vec3<float> arg_endPoint, KuroEngine::Vec3<float> arg_controlPoint);

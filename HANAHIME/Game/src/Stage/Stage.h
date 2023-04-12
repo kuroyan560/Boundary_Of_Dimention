@@ -72,6 +72,7 @@ public:
 
 	//通常の地形の配列取得
 	const std::vector<Terrian>& GetTerrianArray()const { return m_terrianArray; }
+	std::list<std::shared_ptr<StageParts>>& GetGimmickArray(){ return m_gimmickArray; }
 
 	//プレイヤーの初期化トランスフォーム
 	KuroEngine::Transform GetPlayerSpawnTransform()const
