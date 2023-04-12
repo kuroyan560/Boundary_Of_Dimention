@@ -12,6 +12,9 @@ StageManager::StageManager()
 	AddCustomParameter("Woods_Height", { "scaling", "woods", "height" }, PARAM_TYPE::FLOAT, &m_woodsHeight, "Scaling");
 	LoadParameterLog();
 
+	//ホームのステージのインデックス
+	m_homeStageIdx = 2;
+
 	//動く足場の確認用ステージ
 	m_stageArray.emplace_back(std::make_shared<Stage>());
 	m_stageArray.back()->Load("resource/user/level/", "LoadTestStage.json", 1.0f);
@@ -25,17 +28,13 @@ StageManager::StageManager()
 	m_stageArray.back()->Load("resource/user/level/", "New_Home.json", 5.0f, true);
 
 	//現在のステージ指定（デフォルトはホーム用ステージ）
-	m_nowStage = m_stageArray[2];
+	m_nowStage = m_stageArray[m_homeStageIdx];
 }
 
 void StageManager::SetStage(int stage_num)
 {
+	if (stage_num == -1)stage_num = m_homeStageIdx;
 	m_nowStage = m_stageArray[stage_num];
-	m_nowStage->GimmickInit();
-}
-
-void StageManager::Init()
-{
 	m_nowStage->GimmickInit();
 }
 

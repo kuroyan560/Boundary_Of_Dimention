@@ -86,6 +86,7 @@ void MovieCamera::StartMovie(std::vector<MovieCameraData> &move_data,bool loop_f
 		assert(0);
 	}
 	m_startFlag = true;
+	m_finishFlag = false;
 	m_moveDataArray = move_data;
 	m_moveDataIndex = 0;
 
