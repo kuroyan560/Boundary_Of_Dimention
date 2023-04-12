@@ -99,26 +99,13 @@ public:
 //動く足場
 class MoveScaffold : public StageParts
 {
-public:
-	//挙動
-	class KeyTransform
-	{
-	public:
-		KuroEngine::Quaternion m_rotate;
-		KuroEngine::Vec3<float>m_translation;
-		KuroEngine::Vec3<float>m_scaling;
-	};
-
 private:
 	//トランスフォームの配列（0からスタート、他のTerrian以外のパーツに当たるか最後まで到達したら折り返し）
-	std::vector<KeyTransform>m_transformArray;
-
-	//KeyTransformからTransformを構築
-	KuroEngine::Transform GetTransformWithKey(const KeyTransform& arg_key);
+	std::vector<KuroEngine::Vec3<float>>m_translationArray;
 
 public:
-	MoveScaffold(std::weak_ptr<KuroEngine::Model>arg_model, std::vector<KeyTransform>arg_transformArray)
-		:StageParts(MOVE_SCAFFOLD, arg_model, GetTransformWithKey(arg_transformArray[0])) {}
+	MoveScaffold(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>arg_translationArray)
+		:StageParts(MOVE_SCAFFOLD, arg_model, arg_initTransform) {}
 
 	void Update(Player& arg_player)override;
 };

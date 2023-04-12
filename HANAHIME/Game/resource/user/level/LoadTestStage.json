@@ -92,7 +92,30 @@
                         5.0
                     ]
                 },
-                "file_name": "TestMoveScaffold"
+                "file_name": "TestMoveScaffold",
+                "translationArray": [
+                    {
+                        "translation": [
+                            -23.975643157958984,
+                            0.0,
+                            25.999483108520508
+                        ]
+                    },
+                    {
+                        "translation": [
+                            -14.2721,
+                            -16.9721,
+                            31.0277
+                        ]
+                    },
+                    {
+                        "translation": [
+                            -3.99181,
+                            0.0,
+                            25.999483108520508
+                        ]
+                    }
+                ]
             }
         ]
     }
