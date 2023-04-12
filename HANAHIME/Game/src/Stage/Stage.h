@@ -56,12 +56,13 @@ private:
 
 public:
 	Stage();
-
 	
 	/// <summary>
 	/// 地形のトランスフォーム初期化
 	/// </summary>
-	void TerrianInit();
+	void GimmickInit();
+
+	void GimmickUpdate(Player& arg_player);
 
 	//地形の描画
 	void TerrianDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);

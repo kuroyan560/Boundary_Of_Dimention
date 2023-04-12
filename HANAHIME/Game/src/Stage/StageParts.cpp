@@ -102,3 +102,7 @@ KuroEngine::Transform MoveScaffold::GetTransformWithKey(const KeyTransform& arg_
 	result.SetRotate(arg_key.m_rotate);
 	return result;
 }
+
+void MoveScaffold::Update(Player& arg_player)
+{
+}

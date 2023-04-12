@@ -84,6 +84,8 @@ void GameScene::OnUpdate()
 
 	m_player.Update(StageManager::Instance()->GetNowStage());
 
+	StageManager::Instance()->Update(m_player);
+
 	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
 	//m_grass.Plant(m_player.GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
 	m_title.Update(&m_player.GetCamera().lock()->GetTransform());

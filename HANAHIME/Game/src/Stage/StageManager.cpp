@@ -31,12 +31,17 @@ StageManager::StageManager()
 void StageManager::SetStage(int stage_num)
 {
 	m_nowStage = m_stageArray[stage_num];
-	m_nowStage->TerrianInit();
+	m_nowStage->GimmickInit();
 }
 
 void StageManager::Init()
 {
-	m_nowStage->TerrianInit();
+	m_nowStage->GimmickInit();
+}
+
+void StageManager::Update(Player& arg_player)
+{
+	m_nowStage->GimmickUpdate(arg_player);
 }
 
 void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)

@@ -134,13 +134,20 @@ Stage::Stage()
 	m_groundTex = s_defaultGroundTex;
 }
 
-void Stage::TerrianInit()
+void Stage::GimmickInit()
 {
-	for (auto& terrian : m_terrianArray)
+	for (auto& gimmick : m_gimmickArray)
 	{
-		terrian.Init();
+		gimmick->Init();
 	}
+}
 
+void Stage::GimmickUpdate(Player& arg_player)
+{
+	for (auto& gimmick : m_gimmickArray)
+	{
+		gimmick->Update(arg_player);
+	}
 }
 
 void Stage::TerrianDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
