@@ -4,7 +4,7 @@
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
-	"Terrian","Start","Goal","MoveScaffold"
+	"Terrian","Start","Goal","Appearance","MoveScaffold"
 };
 
 const std::string& StageParts::GetTypeKeyOnJson(STAGE_PARTS_TYPE arg_type)

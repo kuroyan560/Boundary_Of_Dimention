@@ -91,9 +91,15 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 	{
 		m_startPoint = std::make_shared<StartPoint>(model, transform);
 	}
+	//ゴール地点
 	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::GOAL_POINT))
 	{
 		m_goalPoint = std::make_shared<GoalPoint>(model, transform);
+	}
+	//見かけだけのオブジェクト
+	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::APPEARANCE))
+	{
+		m_gimmickArray.emplace_back(std::make_shared<Appearance>(model, transform));
 	}
 	//ギミック
 	else

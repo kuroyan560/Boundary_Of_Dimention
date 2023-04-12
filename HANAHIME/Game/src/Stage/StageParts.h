@@ -17,7 +17,7 @@ class Player;
 class StageParts
 {
 public:
-	enum STAGE_PARTS_TYPE { TERRIAN, START_POINT, GOAL_POINT, MOVE_SCAFFOLD, NUM, NONE };
+	enum STAGE_PARTS_TYPE { TERRIAN, START_POINT, GOAL_POINT, APPEARANCE, MOVE_SCAFFOLD, NUM, NONE };
 	static const std::string& GetTypeKeyOnJson(STAGE_PARTS_TYPE arg_type);
 
 private:
@@ -93,6 +93,17 @@ class GoalPoint : public StageParts
 public:
 	GoalPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
 		:StageParts(GOAL_POINT, arg_model, arg_initTransform) {}
+	void Update(Player& arg_player)override {}
+};
+
+//見かけだけのオブジェクト（描画だけで何もしない）
+class Appearance : public StageParts
+{
+public:
+	Appearance(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
+		:StageParts(APPEARANCE, arg_model, arg_initTransform)
+	{
+	}
 	void Update(Player& arg_player)override {}
 };
 
