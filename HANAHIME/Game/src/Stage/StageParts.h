@@ -36,6 +36,7 @@ protected:
 	bool m_isActive;
 
 	virtual void OnInit() {};
+	virtual void OnDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr) {};
 
 	//“–‚½‚è”»’è—pƒ|ƒŠƒSƒ“
 	struct Polygon {
@@ -133,6 +134,7 @@ public:
 	}
 
 	void OnInit()override;
+	void OnDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 
 	void Update(Player& arg_player)override;
 };

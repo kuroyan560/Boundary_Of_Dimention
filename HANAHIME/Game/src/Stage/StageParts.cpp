@@ -2,6 +2,7 @@
 #include"ForUser/Object/Model.h"
 #include"../Graphics/BasicDraw.h"
 #include"../Player/Player.h"
+#include"../../../../src/engine/ForUser/DrawFunc/3D/DrawFunc3D.h"
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
@@ -28,6 +29,8 @@ void StageParts::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg
 		arg_ligMgr,
 		m_model.lock(),
 		m_transform);
+
+	OnDraw(arg_cam, arg_ligMgr);
 }
 
 void StageParts::BuilCollisionMesh()
@@ -108,6 +111,22 @@ void MoveScaffold::OnInit()
 
 	//当たり判定を再構築。
 	BuilCollisionMesh();
+}
+
+void MoveScaffold::OnDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+{
+
+	//移動経路がなかったら飛ばす。
+	if (m_maxTranslation < 0) return;
+
+	//移動経路を描画する。
+	for (int index = 1; index <= m_maxTranslation; ++index) {
+		KuroEngine::DrawFunc3D::DrawLine(arg_cam, m_translationArray[index - 1], m_translationArray[index], KuroEngine::Color(255, 255, 255, 255), 0.1f);
+	}
+
+	//最初の場所と終点も結ぶ。
+	KuroEngine::DrawFunc3D::DrawLine(arg_cam, m_translationArray.front(), m_translationArray.back(), KuroEngine::Color(255, 255, 255, 255), 0.1f);
+
 }
 
 void MoveScaffold::Update(Player& arg_player)

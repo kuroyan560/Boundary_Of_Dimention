@@ -186,6 +186,9 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 		else {
 			arg_newPos = arg_from;
 		}
+		//前フレームでギミックの上にいたら、今もギミックにいる判定にする。(そうしないと移動のギミックの上にいるときに壁際に行くと一瞬降りた判定になり、ギミックが稼働してしまうから。)
+		if (m_prevOnGimmick) m_onGimmick = true;
+		//次に補間する上ベクトルとプレイヤーの上ベクトルにする。
 		arg_hitInfo->m_terrianNormal = m_transform.GetUp();
 		return true;
 	}
