@@ -10,6 +10,27 @@ Title::Title()
 	m_storyModeTexBuff(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/title/Story.png")),
 	m_delayTime(10)
 {
+
+
+}
+
+void Title::Init()
+{
+	m_startGameFlag = false;
+	m_isFinishFlag = false;
+	m_startOPFlag = false;
+	m_startPazzleFlag = false;
+	m_generateCameraMoveDataFlag = false;
+	m_isPazzleModeFlag = false;
+	m_delayInputFlag = false;
+	m_delayTime.Reset();
+	m_alphaRate.Reset();
+	m_stageSelect.Init();
+	OperationConfig::Instance()->SetActive(false);
+
+
+	std::vector<MovieCameraData> titleCameraMoveDataArray;
+
 	const int xAngle = 20;
 	const float radius = 500.0f;
 	const float height = 250.0f;
@@ -53,20 +74,6 @@ Title::Title()
 
 	m_pazzleModeLogoPos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() + KuroEngine::Vec2<float>(KuroEngine::WinApp::Instance()->GetExpandWinCenter().x / 2.0f, KuroEngine::WinApp::Instance()->GetExpandWinCenter().y / 2.0f);
 	m_storyModeLogoPos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() + KuroEngine::Vec2<float>(-KuroEngine::WinApp::Instance()->GetExpandWinCenter().x / 2.0f, KuroEngine::WinApp::Instance()->GetExpandWinCenter().y / 2.0f);
-}
-
-void Title::Init()
-{
-	m_startGameFlag = false;
-	m_isFinishFlag = false;
-	m_startOPFlag = false;
-	m_generateCameraMoveDataFlag = false;
-	m_isPazzleModeFlag = false;
-	m_delayInputFlag = false;
-	m_delayTime.Reset();
-	m_alphaRate.Reset();
-	m_stageSelect.Init();
-	OperationConfig::Instance()->SetActive(false);
 }
 
 void Title::Update(KuroEngine::Transform *player_camera)

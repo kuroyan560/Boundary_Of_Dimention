@@ -49,6 +49,9 @@ void GameScene::OnInitialize()
 
 	m_waterPaintBlend.Init();
 	m_title.Init();
+
+	//ƒ^ƒCƒgƒ‹‰æ–Ê‚É–ß‚é
+	StageManager::Instance()->SetStage(1);
 }
 
 void GameScene::OnUpdate()
