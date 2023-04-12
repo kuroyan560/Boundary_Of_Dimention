@@ -113,13 +113,25 @@ private:
 	//トランスフォームの配列（0からスタート、他のTerrian以外のパーツに当たるか最後まで到達したら折り返し）
 	std::vector<KuroEngine::Vec3<float>>m_translationArray;
 
+	int m_maxTranslation;		//移動する地点 - 1の数
+	int m_nowTranslationIndex;	//現在の移動する地点のIndex
+	int m_nextTranslationIndex;	//次の移動する地点のIndex
+	float m_moveLength;			//次の地点まで移動する量
+	float m_nowMoveLength;		//移動している現在量
+	KuroEngine::Vec3<float> m_moveDir;	//移動方向
+	bool m_isFinish;			//動き終わったかどうかのフラグ。乗りっぱなしで次の地点へ行かないようにするための対策。m_isActiveがfalse(プレイヤーが降りたら)の時falseになる。
+
+	const float MOVE_SPEED = 0.1f;
+
 public:
 	MoveScaffold(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>arg_translationArray)
 		:StageParts(MOVE_SCAFFOLD, arg_model, arg_initTransform), m_translationArray(arg_translationArray)
 	{
 		BuilCollisionMesh();
-		m_isActive = false;
+		m_maxTranslation = static_cast<int>(arg_translationArray.size()) - 1;
 	}
+
+	void OnInit()override;
 
 	void Update(Player& arg_player)override;
 };

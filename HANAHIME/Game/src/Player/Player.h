@@ -61,6 +61,9 @@ class Player : public KuroEngine::Debugger
 	float m_maxSpeed = 0.5f;
 	float m_brake = 0.07f;
 
+	//ギミックの移動量
+	KuroEngine::Vec3<float> m_gimmickVel;
+
 	//壁移動の距離
 	const float WALL_JUMP_LENGTH = 6.0f;
 
@@ -112,10 +115,12 @@ public:
 
 	//カメラコントローラーのデバッガポインタ取得
 	KuroEngine::Debugger* GetCameraControllerDebugger() { return &m_camController; }
-	KuroEngine::Transform &GetCameraControllerParentTransform() { return m_camController.GetParentTransform(); }
+	KuroEngine::Transform& GetCameraControllerParentTransform() { return m_camController.GetParentTransform(); }
 
 	KuroEngine::Transform& GetTransform() { return m_transform; }
 	KuroEngine::Vec2<float>& GetGrassPosScatter() { return m_grassPosScatter; }
+
+	void SetGimmickVel(const KuroEngine::Vec3<float>& arg_gimmickVel) { m_gimmickVel = arg_gimmickVel; }
 
 	//点光源ゲッタ
 	KuroEngine::Light::Point* GetPointLig() { return &m_ptLig; }

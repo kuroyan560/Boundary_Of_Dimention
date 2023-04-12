@@ -80,6 +80,9 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	castRayArgument.m_onGround = false;
 	castRayArgument.m_stageType = StageParts::TERRIAN;
 
+	//ギミックによる移動があったかどうか
+	bool isMoveGimmick = 0 < m_gimmickVel.Length();
+
 	//地形配列走査
 	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
 	{
@@ -101,16 +104,16 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			//判定↓============================================
 
 			//右方向にレイを飛ばす。これは壁にくっつく用。
-			if (0 < m_rowMoveVec.x)CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isMoveGimmick || 0 < m_rowMoveVec.x)CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//左方向にレイを飛ばす。これは壁にくっつく用。
-			if (m_rowMoveVec.x < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isMoveGimmick || m_rowMoveVec.x < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
-			if (m_rowMoveVec.z < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isMoveGimmick || m_rowMoveVec.z < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//正面方向にレイを飛ばす。これは壁にくっつく用。
-			if (0 < m_rowMoveVec.z)CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isMoveGimmick || 0 < m_rowMoveVec.z)CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//下方向にレイを飛ばす。これは地面との押し戻し用。
 			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::GROUND);
@@ -137,25 +140,33 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			//メッシュ情報取得
 			auto& mesh = modelMesh.mesh;
 
+			//レイが当たったかの変数
+			bool isHit = false;
+
 			//CastRayに渡す引数を更新。
 			castRayArgument.m_mesh = terrian->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
 			//判定↓============================================
 
 			//右方向にレイを飛ばす。これは壁にくっつく用。
-			if (0 < m_rowMoveVec.x)CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isMoveGimmick || 0 < m_rowMoveVec.x)CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//左方向にレイを飛ばす。これは壁にくっつく用。
-			if (m_rowMoveVec.x < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isMoveGimmick || m_rowMoveVec.x < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
-			if (m_rowMoveVec.z < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isMoveGimmick || m_rowMoveVec.z < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//正面方向にレイを飛ばす。これは壁にくっつく用。
-			if (0 < m_rowMoveVec.z)CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isMoveGimmick || 0 < m_rowMoveVec.z)CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//下方向にレイを飛ばす。これは地面との押し戻し用。
-			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::GROUND);
+			isHit = CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::GROUND);
+
+			//下方向のレイが当たっていなかったらこのオブジェクトを無効化する。
+			if (!isHit) {
+				terrian->Deactivate();
+			}
 
 			//=================================================
 		}
@@ -250,6 +261,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_cameraQ = DirectX::XMQuaternionIdentity();
 
 	m_moveSpeed = KuroEngine::Vec3<float>();
+	m_gimmickVel = KuroEngine::Vec3<float>();
 	m_isFirstOnGround = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 }
@@ -631,6 +643,10 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 
 	//移動量加算
 	arg_newPos += moveAmount;
+
+	//ギミックの移動量も加算。加算後は移動量を消す。
+	arg_newPos += m_gimmickVel;
+	m_gimmickVel = KuroEngine::Vec3<float>();
 
 	//地面に張り付ける用の重力。
 	if (!m_onGround) {
