@@ -10,37 +10,33 @@ StageManager::StageManager()
 	AddCustomParameter("Skydome", { "scaling", "skydome" }, PARAM_TYPE::FLOAT, &m_skydomeScaling, "Scaling");
 	AddCustomParameter("Woods_Radius", { "scaling", "woods", "radius" }, PARAM_TYPE::FLOAT, &m_woodsRadius, "Scaling");
 	AddCustomParameter("Woods_Height", { "scaling", "woods", "height" }, PARAM_TYPE::FLOAT, &m_woodsHeight, "Scaling");
-	AddCustomParameter("Ground", { "scaling", "ground" }, PARAM_TYPE::FLOAT, &m_groundScaling, "Scaling");
-	AddCustomParameter("Terrian", { "scaling", "terrian" }, PARAM_TYPE::FLOAT, &m_terrianScaling, "Scaling");
 	LoadParameterLog();
 
+	//動く足場の確認用ステージ
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load("resource/user/level/", "LoadTestStage.json", 1.0f);
+
 	//テスト用ステージ生成
-	m_stageArray[0] = std::make_shared<Stage>();
-	m_stageArray[0]->Load("resource/user/level/", "Debug_Stage_1.json");
-	m_stageArray[0]->TerrianInit(m_terrianScaling);
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load("resource/user/level/", "Debug_Stage_1.json", 5.0f);
 
 	//ホームステージ
-	m_stageArray[1] = std::make_shared<Stage>();
-	m_stageArray[1]->Load("resource/user/level/", "New_Home.json");
-	m_stageArray[1]->TerrianInit(m_terrianScaling);
-
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load("resource/user/level/", "New_Home.json", 5.0f, true);
 
 	//現在のステージ指定（デフォルトはホーム用ステージ）
-	m_nowStage = m_stageArray[1];
-}
-
-void StageManager::OnImguiItems()
-{
-	if (m_terrianScaling != m_oldTerrianScaling)
-	{
-		m_nowStage->TerrianInit(m_terrianScaling);
-	}
-	m_oldTerrianScaling = m_terrianScaling;
+	m_nowStage = m_stageArray[2];
 }
 
 void StageManager::SetStage(int stage_num)
 {
 	m_nowStage = m_stageArray[stage_num];
+	m_nowStage->TerrianInit();
+}
+
+void StageManager::Init()
+{
+	m_nowStage->TerrianInit();
 }
 
 void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
@@ -84,4 +80,9 @@ void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 
 
 	m_nowStage->TerrianDraw(arg_cam, arg_ligMgr);
+}
+
+KuroEngine::Transform StageManager::GetPlayerSpawnTransform() const
+{
+	return m_nowStage->GetPlayerSpawnTransform();
 }

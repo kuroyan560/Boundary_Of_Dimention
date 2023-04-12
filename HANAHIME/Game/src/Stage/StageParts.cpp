@@ -2,10 +2,20 @@
 #include"ForUser/Object/Model.h"
 #include"../Graphics/BasicDraw.h"
 
-void StageParts::Init(float arg_scaling)
+std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
-	m_transform.SetPos(m_initializedTransform.GetPos() * arg_scaling);
-	m_transform.SetScale(m_initializedTransform.GetScale() * arg_scaling);
+	"Terrian","Start","Goal","MoveScaffold"
+};
+
+const std::string& StageParts::GetTypeKeyOnJson(STAGE_PARTS_TYPE arg_type)
+{
+	return s_typeKeyOnJson[arg_type];
+}
+
+void StageParts::Init()
+{
+	m_transform.SetPos(m_initializedTransform.GetPos());
+	m_transform.SetScale(m_initializedTransform.GetScale());
 	m_transform.SetRotate(m_initializedTransform.GetRotate());
 	OnInit();
 }
@@ -61,13 +71,13 @@ void Terrian::BuilCollisionMesh()
 
 		/*-- ② ポリゴンをワールド変換する --*/
 		//ワールド行列
-		DirectX::XMMATRIX targetRotMat = DirectX::XMMatrixRotationQuaternion(m_transform.GetRotate());
+		DirectX::XMMATRIX targetRotMat = DirectX::XMMatrixRotationQuaternion(m_initializedTransform.GetRotate());
 		DirectX::XMMATRIX targetWorldMat = DirectX::XMMatrixIdentity();
-		targetWorldMat *= DirectX::XMMatrixScaling(m_transform.GetScale().x, m_transform.GetScale().y, m_transform.GetScale().z);
+		targetWorldMat *= DirectX::XMMatrixScaling(m_initializedTransform.GetScale().x, m_initializedTransform.GetScale().y, m_initializedTransform.GetScale().z);
 		targetWorldMat *= targetRotMat;
-		targetWorldMat.r[3].m128_f32[0] = m_transform.GetPos().x;
-		targetWorldMat.r[3].m128_f32[1] = m_transform.GetPos().y;
-		targetWorldMat.r[3].m128_f32[2] = m_transform.GetPos().z;
+		targetWorldMat.r[3].m128_f32[0] = m_initializedTransform.GetPos().x;
+		targetWorldMat.r[3].m128_f32[1] = m_initializedTransform.GetPos().y;
+		targetWorldMat.r[3].m128_f32[2] = m_initializedTransform.GetPos().z;
 		for (auto& index : m_collisionMesh[meshIdx]) {
 			//頂点を変換
 			index.m_p0.pos = KuroEngine::Math::TransformVec3(index.m_p0.pos, targetWorldMat);
@@ -82,11 +92,6 @@ void Terrian::BuilCollisionMesh()
 			index.m_p2.normal.Normalize();
 		}
 	}
-}
-
-void Terrian::OnInit()
-{
-	BuilCollisionMesh();
 }
 
 KuroEngine::Transform MoveScaffold::GetTransformWithKey(const KeyTransform& arg_key)

@@ -3,6 +3,29 @@
         "name": "scene",
         "objects": [
             {
+                "type": "Start",
+                "name": "TestStartPoint_1",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        14.276366233825684,
+                        7.912906646728516
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "TestStartPoint"
+            },
+            {
                 "type": "Terrian",
                 "name": "Bridge_2",
                 "transform": {

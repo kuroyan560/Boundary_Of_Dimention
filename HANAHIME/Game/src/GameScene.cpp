@@ -22,8 +22,6 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer())
 
 	auto backBuffTarget = KuroEngine::D3D12App::Instance()->GetBackBuffRenderTarget();
 	m_fogPostEffect = std::make_shared<KuroEngine::Fog>(backBuffTarget->GetGraphSize(), backBuffTarget->GetDesc().Format);
-
-	m_playerResponePos.SetPos({ -0.49f, 25.9f ,-60.2f });
 }
 
 
@@ -43,12 +41,14 @@ void GameScene::OnInitialize()
 
 	m_debugCam.Init({ 0,5,-10 });
 
-	m_player.Init(m_playerResponePos);
+	m_player.Init(StageManager::Instance()->GetPlayerSpawnTransform());
 
 	m_grass.Init();
 
 	m_waterPaintBlend.Init();
 	m_title.Init();
+
+	StageManager::Instance()->Init();
 }
 
 void GameScene::OnUpdate()
@@ -111,7 +111,7 @@ void GameScene::OnUpdate()
 	if (m_gateSceneChange.IsHide())
 	{
 		StageManager::Instance()->SetStage(m_stageNum);
-		m_player.Init(m_playerResponePos);
+		m_player.Init(StageManager::Instance()->GetPlayerSpawnTransform());
 		//パズル画面からシーンチェンジしたらカメラモードを切り替える
 		if (!m_title.IsFinish())
 		{

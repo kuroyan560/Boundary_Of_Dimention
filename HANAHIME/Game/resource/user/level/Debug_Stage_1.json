@@ -3,6 +3,29 @@
         "name": "scene",
         "objects": [
             {
+                "type": "Start",
+                "name": "TestStartPoint_1",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        -10.991645812988281,
+                        -10.340993881225586
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "TestStartPoint"
+            },
+            {
                 "type": "Terrian",
                 "name": "InWall_1",
                 "transform": {

@@ -21,7 +21,6 @@ class GameScene : public KuroEngine::BaseScene
 	std::shared_ptr<KuroEngine::TextureBuffer>m_ddsTex;
 	std::shared_ptr<KuroEngine::TextureBuffer>m_pngTex;
 
-	KuroEngine::Transform m_playerResponePos;
 	Player m_player;
 
 	KuroEngine::DebugCamera m_debugCam;
