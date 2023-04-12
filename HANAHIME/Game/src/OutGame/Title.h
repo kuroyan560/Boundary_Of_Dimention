@@ -58,8 +58,6 @@ public:
 	}
 
 private:
-	//カメラの移動情報
-	std::vector<MovieCameraData>titleCameraMoveDataArray;
 	//ゲーム開始フラグ
 	bool m_startGameFlag;
 	bool m_startPazzleFlag;

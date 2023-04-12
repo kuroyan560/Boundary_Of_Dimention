@@ -12,6 +12,7 @@ namespace KuroEngine
 }
 
 class Stage;
+class Player;
 
 class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>, public KuroEngine::Debugger
 {
@@ -29,14 +30,16 @@ class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>, 
 
 	//デバッグ用テストステージ
 	std::vector<std::shared_ptr<Stage>>m_stageArray;
+	//ホームステージの番号
+	int m_homeStageIdx = 0;
 
 	//現在のステージ
 	std::shared_ptr<Stage>m_nowStage;
 
 public:
-	void SetStage(int stage_num);
+	void SetStage(int stage_num = -1);
 
-	void Init();
+	void Update(Player& arg_player);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
 
 	//現在のステージのゲッタ

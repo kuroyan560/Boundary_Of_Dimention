@@ -94,11 +94,7 @@ void Terrian::BuilCollisionMesh()
 	}
 }
 
-KuroEngine::Transform MoveScaffold::GetTransformWithKey(const KeyTransform& arg_key)
+
+void MoveScaffold::Update(Player& arg_player)
 {
-	KuroEngine::Transform result;
-	result.SetPos(arg_key.m_translation);
-	result.SetScale(arg_key.m_scaling);
-	result.SetRotate(arg_key.m_rotate);
-	return result;
 }

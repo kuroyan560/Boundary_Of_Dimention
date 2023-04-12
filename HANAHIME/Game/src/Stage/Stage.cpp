@@ -21,23 +21,18 @@ bool Stage::LoadMoveScaffold(std::string arg_fileName, std::shared_ptr<StagePart
 {
 	using namespace KuroEngine;
 
-	if (!CheckJsonKeyExist(arg_fileName, arg_json, "transformArray"))return false;
+	if (!CheckJsonKeyExist(arg_fileName, arg_json, "translationArray"))return false;
 
-	std::vector<MoveScaffold::KeyTransform>transformArray;
-	for (auto& transformObj : arg_json["transformArray"])
+	std::vector<Vec3<float>>translationArray;
+	for (auto& transformObj : arg_json["translationArray"])
 	{
-		transformArray.emplace_back();
+		translationArray.emplace_back();
 		//平行移動
-		transformArray.back().m_translation = { -(float)transformObj["translation"][0],(float)transformObj["translation"][2],(float)transformObj["translation"][1] };
-		transformArray.back().m_translation *= m_terrianScaling;
-		//回転
-		transformArray.back().m_rotate = { (float)transformObj["rotation"][0],(float)transformObj["rotation"][2], -(float)transformObj["rotation"][1],(float)transformObj["rotation"][3] };
-		//スケーリング
-		transformArray.back().m_scaling = { (float)transformObj["scaling"][0],(float)transformObj["scaling"][2] ,(float)transformObj["scaling"][1] };
-		transformArray.back().m_scaling *= m_terrianScaling;
+		translationArray.back() = { -(float)transformObj["translation"][0],(float)transformObj["translation"][2],(float)transformObj["translation"][1] };
+		translationArray.back() *= m_terrianScaling;
 	}
 
-	*arg_result = std::make_shared<MoveScaffold>(arg_model, transformArray);
+	*arg_result = std::make_shared<MoveScaffold>(arg_model, arg_initTransform, translationArray);
 
 	return true;
 }
@@ -134,13 +129,20 @@ Stage::Stage()
 	m_groundTex = s_defaultGroundTex;
 }
 
-void Stage::TerrianInit()
+void Stage::GimmickInit()
 {
-	for (auto& terrian : m_terrianArray)
+	for (auto& gimmick : m_gimmickArray)
 	{
-		terrian.Init();
+		gimmick->Init();
 	}
+}
 
+void Stage::GimmickUpdate(Player& arg_player)
+{
+	for (auto& gimmick : m_gimmickArray)
+	{
+		gimmick->Update(arg_player);
+	}
 }
 
 void Stage::TerrianDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)

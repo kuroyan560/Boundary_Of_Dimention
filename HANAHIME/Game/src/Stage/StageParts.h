@@ -11,6 +11,8 @@ namespace KuroEngine
 	class LightManager;
 }
 
+class Player;
+
 //地形情報
 class StageParts
 {
@@ -20,7 +22,6 @@ public:
 
 private:
 	static std::array<std::string, STAGE_PARTS_TYPE::NUM>s_typeKeyOnJson;
-
 
 protected:
 	//地形情報種別
@@ -40,6 +41,7 @@ public:
 	virtual ~StageParts() {}
 
 	void Init();
+	virtual void Update(Player& arg_player) = 0;
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
 
 	//地形情報種別ゲッタ
@@ -73,6 +75,7 @@ public:
 	{
 		BuilCollisionMesh();
 	}
+	void Update(Player& arg_player)override {}
 };
 
 //スタート地点
@@ -81,6 +84,7 @@ class StartPoint : public StageParts
 public:
 	StartPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
 		:StageParts(START_POINT, arg_model, arg_initTransform) {}
+	void Update(Player& arg_player)override {}
 };
 
 //ゴール地点
@@ -89,29 +93,19 @@ class GoalPoint : public StageParts
 public:
 	GoalPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
 		:StageParts(GOAL_POINT, arg_model, arg_initTransform) {}
+	void Update(Player& arg_player)override {}
 };
 
 //動く足場
 class MoveScaffold : public StageParts
 {
-public:
-	//挙動
-	class KeyTransform
-	{
-	public:
-		KuroEngine::Quaternion m_rotate;
-		KuroEngine::Vec3<float>m_translation;
-		KuroEngine::Vec3<float>m_scaling;
-	};
-
 private:
 	//トランスフォームの配列（0からスタート、他のTerrian以外のパーツに当たるか最後まで到達したら折り返し）
-	std::vector<KeyTransform>m_transformArray;
-
-	//KeyTransformからTransformを構築
-	KuroEngine::Transform GetTransformWithKey(const KeyTransform& arg_key);
+	std::vector<KuroEngine::Vec3<float>>m_translationArray;
 
 public:
-	MoveScaffold(std::weak_ptr<KuroEngine::Model>arg_model, std::vector<KeyTransform>arg_transformArray)
-		:StageParts(MOVE_SCAFFOLD, arg_model, GetTransformWithKey(arg_transformArray[0])) {}
+	MoveScaffold(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>arg_translationArray)
+		:StageParts(MOVE_SCAFFOLD, arg_model, arg_initTransform) {}
+
+	void Update(Player& arg_player)override;
 };
