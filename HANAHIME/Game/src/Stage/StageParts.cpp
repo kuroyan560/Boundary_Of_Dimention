@@ -99,35 +99,35 @@ void StageParts::BuilCollisionMesh()
 void MoveScaffold::OnInit()
 {
 	m_isActive = false;
-	m_isFinish = false;
+	m_isFirstMove = false;
 	m_nowTranslationIndex = 0;
 	m_nextTranslationIndex = 0;
 	m_moveLength = 0;
 	m_nowMoveLength = 0;
 	m_moveDir = KuroEngine::Vec3<float>();
+
+	//当たり判定を再構築。
+	BuilCollisionMesh();
 }
 
 void MoveScaffold::Update(Player& arg_player)
 {
 
 	//有効化されていなかったら処理を飛ばす。
-	if (!m_isActive) {
-		//プレイヤーが乗っていなかったらisFinishをfalseにする。連続で次の地点へ行かないようにするため。
-		m_isFinish = false;
-		return;
-	}
+	if (!m_isActive) return;
 
-	//連続で次の地点へ行かないようにするため、終わっていたら処理を飛ばす。
-	if (m_isFinish) return;
+	//ルートが設定されていない。
+	assert(m_maxTranslation != 0);
 
 	//移動した量を保存。
 	m_nowMoveLength += MOVE_SPEED;
 
 	//移動した量が規定値を超えていたら、終わった判定。
 	float moveSpeed = MOVE_SPEED;
+	bool isFinish = false;
 	if (m_moveLength < m_nowMoveLength) {
 
-		m_isFinish = true;
+		isFinish = true;
 
 		//オーバーした分だけ動かす。
 		moveSpeed = m_moveLength - m_nowMoveLength;
@@ -138,15 +138,12 @@ void MoveScaffold::Update(Player& arg_player)
 	m_transform.SetPos(m_transform.GetPos() + m_moveDir * moveSpeed);
 
 	//プレイヤーも動かす。
+	//if (arg_player.GetOnGimmick()) {
 	arg_player.SetGimmickVel(m_moveDir * moveSpeed);
+	//}
 
 	//いろいろと初期化して次向かう方向を決める。
-	if (m_isFinish) {
-
-		//現在のIndexと次のIndexが同じだった場合は最初に乗っかったときなのでFinishにしない。
-		if (m_nowTranslationIndex == m_nextTranslationIndex) {
-			m_isFinish = false;
-		}
+	if (isFinish) {
 
 		//次のIndexへ
 		m_nowTranslationIndex = m_nextTranslationIndex;
@@ -160,6 +157,14 @@ void MoveScaffold::Update(Player& arg_player)
 		m_moveLength = KuroEngine::Vec3<float>(m_translationArray[m_nextTranslationIndex] - m_translationArray[m_nowTranslationIndex]).Length();
 
 		m_nowMoveLength = 0;
+
+		//最初の一回だったらIsAliveをfalseにしない。最初に乗ったときに動かなくなってしまうから。
+		if (!m_isFirstMove) {
+			m_isFirstMove = true;
+		}
+		else {
+			m_isActive = false;
+		}
 
 	}
 

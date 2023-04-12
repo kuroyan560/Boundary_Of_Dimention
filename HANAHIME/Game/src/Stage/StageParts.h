@@ -62,6 +62,7 @@ public:
 	//有効化 無効化
 	void Activate() { m_isActive = true; }
 	void Deactivate() { m_isActive = false; }
+	bool GetIsActive() { return m_isActive; }
 
 	//地形情報種別ゲッタ
 	const STAGE_PARTS_TYPE& GetType()const { return m_type; }
@@ -119,7 +120,7 @@ private:
 	float m_moveLength;			//次の地点まで移動する量
 	float m_nowMoveLength;		//移動している現在量
 	KuroEngine::Vec3<float> m_moveDir;	//移動方向
-	bool m_isFinish;			//動き終わったかどうかのフラグ。乗りっぱなしで次の地点へ行かないようにするための対策。m_isActiveがfalse(プレイヤーが降りたら)の時falseになる。
+	bool m_isFirstMove;			//最初に動くとき
 
 	const float MOVE_SPEED = 0.1f;
 

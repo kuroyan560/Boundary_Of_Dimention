@@ -65,12 +65,14 @@ class Player : public KuroEngine::Debugger
 	KuroEngine::Vec3<float> m_gimmickVel;
 
 	//壁移動の距離
-	const float WALL_JUMP_LENGTH = 6.0f;
+	const float WALL_JUMP_LENGTH = 3.0f;
 
 	//接地フラグ
 	bool m_isFirstOnGround;	//開始時に空中から始まるので、着地済みだということを判断する用変数。
 	bool m_onGround;		//接地フラグ
 	bool m_prevOnGround;	//1F前の接地フラグ
+	bool m_prevOnGimmick;	//ギミックの上にいるかどうか
+	bool m_onGimmick;		//ギミックの上にいるかどうか
 
 	//Imguiデバッグ関数オーバーライド
 	void OnImguiItems()override;
@@ -125,6 +127,7 @@ public:
 	//点光源ゲッタ
 	KuroEngine::Light::Point* GetPointLig() { return &m_ptLig; }
 	bool GetOnGround() { return m_onGround; }
+	bool GetOnGimmick() { return m_onGimmick; }
 	bool GetIsStatusMove() { return m_playerMoveStatus == PLAYER_MOVE_STATUS::MOVE; }
 
 private:

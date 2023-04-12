@@ -80,6 +80,10 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	castRayArgument.m_onGround = false;
 	castRayArgument.m_stageType = StageParts::TERRIAN;
 
+	//ギミックに当たっているかどうかの変数を初期化
+	m_prevOnGimmick = m_onGimmick;
+	m_onGimmick = false;
+
 	//ギミックによる移動があったかどうか
 	bool isMoveGimmick = 0 < m_gimmickVel.Length();
 
@@ -140,9 +144,6 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			//メッシュ情報取得
 			auto& mesh = modelMesh.mesh;
 
-			//レイが当たったかの変数
-			bool isHit = false;
-
 			//CastRayに渡す引数を更新。
 			castRayArgument.m_mesh = terrian->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
@@ -161,12 +162,7 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			if (isMoveGimmick || 0 < m_rowMoveVec.z)CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//下方向にレイを飛ばす。これは地面との押し戻し用。
-			isHit = CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::GROUND);
-
-			//下方向のレイが当たっていなかったらこのオブジェクトを無効化する。
-			if (!isHit) {
-				terrian->Deactivate();
-			}
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::GROUND);
 
 			//=================================================
 		}
@@ -183,7 +179,13 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 
 	//接地していなかったら移動前の位置に戻す。
 	if (m_isFirstOnGround && !m_onGround) {
-		arg_newPos = arg_from;
+		//ギミックの上にいたらそれも考慮した位置に戻す。
+		if (0 < m_gimmickVel.Length()) {
+			arg_newPos = arg_from + m_gimmickVel;
+		}
+		else {
+			arg_newPos = arg_from;
+		}
 		arg_hitInfo->m_terrianNormal = m_transform.GetUp();
 		return true;
 	}
@@ -249,6 +251,8 @@ Player::Player()
 
 	m_moveSpeed = KuroEngine::Vec3<float>();
 	m_isFirstOnGround = false;
+	m_onGimmick = false;
+	m_prevOnGimmick = false;
 
 }
 
@@ -263,6 +267,8 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_moveSpeed = KuroEngine::Vec3<float>();
 	m_gimmickVel = KuroEngine::Vec3<float>();
 	m_isFirstOnGround = false;
+	m_onGimmick = false;
+	m_prevOnGimmick = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 }
 
@@ -338,6 +344,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//カメラ操作
 	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_normalSpinQ, m_cameraRotYStorage);
+
+	//ギミックの移動を打ち消す。
+	m_gimmickVel = KuroEngine::Vec3<float>();
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
@@ -585,7 +594,15 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 
 			//地形が動く床だったら有効化する。
 			if (arg_collisionData.m_stageType == StageParts::MOVE_SCAFFOLD) {
-				arg_collisionData.m_stage.lock()->Activate();
+
+				//ギミックに当たっている判定
+				m_onGimmick = true;
+
+				//さらにギミックに当たったトリガーだったらギミックを有効化させる。
+				if (!m_prevOnGimmick) {
+					arg_collisionData.m_stage.lock()->Activate();
+				}
+
 			}
 
 			break;
@@ -644,9 +661,8 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 	//移動量加算
 	arg_newPos += moveAmount;
 
-	//ギミックの移動量も加算。加算後は移動量を消す。
+	//ギミックの移動量も加算。
 	arg_newPos += m_gimmickVel;
-	m_gimmickVel = KuroEngine::Vec3<float>();
 
 	//地面に張り付ける用の重力。
 	if (!m_onGround) {
