@@ -92,7 +92,24 @@
                         4.0
                     ]
                 },
-                "file_name": "MoveScaffoldStage5"
+                "file_name": "MoveScaffoldStage5",
+                "translationArray": [
+                    {
+                        "translation": [
+                            10,
+                            0.0,
+                            -1
+                        ]
+                    },
+                    {
+                        "translation": [
+                            20,
+                            0,
+                            -1
+                        ]
+                    }
+                ]
+                
             }
         ]
     }

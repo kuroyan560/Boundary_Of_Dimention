@@ -69,7 +69,23 @@
                         4.0
                     ]
                 },
-                "file_name": "MoveScaffoldStage10b"
+                "file_name": "MoveScaffoldStage10b",
+                "translationArray": [
+                    {
+                        "translation": [
+                            0,
+                            20,
+                            -1
+                        ]
+                    },
+                    {
+                        "translation": [
+                            30,
+                            20,
+                            -1
+                        ]
+                    }
+                ]
             },
             {
                 "type": "Terrian",
@@ -115,7 +131,23 @@
                         4.0
                     ]
                 },
-                "file_name": "MoveScaffoldStage10a"
+                "file_name": "MoveScaffoldStage10a",
+                "translationArray": [
+                    {
+                        "translation": [
+                            30,
+                            -10,
+                            9
+                        ]
+                    },
+                    {
+                        "translation": [
+                            0,
+                            -10,
+                            9
+                        ]
+                    }
+                ]
             }
         ]
     }
