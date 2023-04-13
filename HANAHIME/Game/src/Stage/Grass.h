@@ -90,7 +90,7 @@ class Grass
 	struct TransformCBVData
 	{
 		KuroEngine::Vec3<float>m_camPos;
-		int m_seed;
+		float m_seed;
 		KuroEngine::Vec2<float> m_pad;
 		int m_grassCount;
 		int m_plantOnceCount;

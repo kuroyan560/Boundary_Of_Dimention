@@ -363,7 +363,7 @@ std::array<Grass::CheckResult, Grass::PLANT_ONCE_COUNT> Grass::SearchPlantPos(Ku
 
 	//必要なデータを送信
 	auto transformCBVPtr = m_otherTransformConstBuffer->GetResource()->GetBuffOnCpu<TransformCBVData>();
-	transformCBVPtr->m_seed = KuroEngine::GetRand(0, 1000);
+	transformCBVPtr->m_seed = KuroEngine::GetRand(0, 100000) / 100.0f;
 	transformCBVPtr->m_grassCount = plantGrassCount;
 	transformCBVPtr->m_plantOnceCount = PLANT_ONCE_COUNT;
 

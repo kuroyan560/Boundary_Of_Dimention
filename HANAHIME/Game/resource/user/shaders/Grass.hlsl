@@ -164,7 +164,7 @@ void SearchPlantPos(uint DTid : SV_DispatchThreadID)
     result.m_isSuccess = false;
     
     //乱数の種
-    int seed = otherTransformData.m_seed + DTid * 103.0f;
+    float seed = otherTransformData.m_seed + DTid * 103.0f;
     
     //サンプリングするスクリーン座標を求める。
     screenPos = uint2(RandomIntInRange(0, 1280, seed), RandomIntInRange(0, 720, seed * 2.0f));
