@@ -49,7 +49,7 @@
                 "file_name": "Goal"
             },
             {
-                "type": "Terrian",
+                "type": "MoveScaffold",
                 "name": "MoveScaffoldStage9_0",
                 "transform": {
                     "translation": [

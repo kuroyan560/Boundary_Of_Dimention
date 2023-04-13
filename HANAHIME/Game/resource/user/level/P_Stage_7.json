@@ -72,7 +72,7 @@
                 "file_name": "Stage7"
             },
             {
-                "type": "Terrian",
+                "type": "MoveScaffold",
                 "name": "MoveScaffoldStage7_0",
                 "transform": {
                     "translation": [
