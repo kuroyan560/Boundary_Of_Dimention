@@ -28,10 +28,11 @@ class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>, 
 	//地面の大きさ
 	float m_groundScaling = 1.0f;
 
+	//ホームステージ
+	std::shared_ptr<Stage>m_homeStage;
+
 	//デバッグ用テストステージ
 	std::vector<std::shared_ptr<Stage>>m_stageArray;
-	//ホームステージの番号
-	int m_homeStageIdx = 0;
 
 	//現在のステージ
 	std::shared_ptr<Stage>m_nowStage;
