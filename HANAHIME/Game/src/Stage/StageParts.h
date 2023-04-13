@@ -32,29 +32,11 @@ protected:
 	const KuroEngine::Transform m_initializedTransform;
 	//トランスフォーム
 	KuroEngine::Transform m_transform;
+	//有効化フラグ
+	bool m_isActive;
 
 	virtual void OnInit() {};
-
-public:
-	StageParts(STAGE_PARTS_TYPE arg_type, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
-		:m_type(arg_type), m_model(arg_model), m_initializedTransform(arg_initTransform), m_transform(arg_initTransform) {}
-	virtual ~StageParts() {}
-
-	void Init();
-	virtual void Update(Player& arg_player) = 0;
-	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
-
-	//地形情報種別ゲッタ
-	const STAGE_PARTS_TYPE& GetType()const { return m_type; }
-
-	//トランスフォームゲッタ
-	const KuroEngine::Transform& GetTransform()const { return m_transform; }
-};
-
-//ギミックとは別の通常の地形
-class Terrian : public StageParts
-{
-	friend class Player;
+	virtual void OnDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr) {};
 
 	//当たり判定用ポリゴン
 	struct Polygon {
@@ -70,8 +52,38 @@ class Terrian : public StageParts
 	void BuilCollisionMesh();
 
 public:
+	StageParts(STAGE_PARTS_TYPE arg_type, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
+		:m_type(arg_type), m_model(arg_model), m_initializedTransform(arg_initTransform), m_transform(arg_initTransform) {}
+	virtual ~StageParts() {}
+
+	void Init();
+	virtual void Update(Player& arg_player) = 0;
+	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
+
+	//有効化 無効化
+	void Activate() { m_isActive = true; }
+	void Deactivate() { m_isActive = false; }
+	bool GetIsActive() { return m_isActive; }
+
+	//地形情報種別ゲッタ
+	const STAGE_PARTS_TYPE& GetType()const { return m_type; }
+
+	//トランスフォームゲッタ
+	const KuroEngine::Transform& GetTransform()const { return m_transform; }
+
+	//ステージ情報のゲッタ
+	const std::weak_ptr<KuroEngine::Model>& GetModel()const { return m_model; }
+	const std::vector<std::vector<Polygon>>& GetCollisionMesh()const { return m_collisionMesh; }
+};
+
+//ギミックとは別の通常の地形
+class Terrian : public StageParts
+{
+	friend class Player;
+
+public:
 	Terrian(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
-		:StageParts(TERRIAN, arg_model, arg_initTransform) 
+		:StageParts(TERRIAN, arg_model, arg_initTransform)
 	{
 		BuilCollisionMesh();
 	}
@@ -114,9 +126,26 @@ private:
 	//トランスフォームの配列（0からスタート、他のTerrian以外のパーツに当たるか最後まで到達したら折り返し）
 	std::vector<KuroEngine::Vec3<float>>m_translationArray;
 
+	int m_maxTranslation;		//移動する地点 - 1の数
+	int m_nowTranslationIndex;	//現在の移動する地点のIndex
+	int m_nextTranslationIndex;	//次の移動する地点のIndex
+	float m_moveLength;			//次の地点まで移動する量
+	float m_nowMoveLength;		//移動している現在量
+	KuroEngine::Vec3<float> m_moveDir;	//移動方向
+	bool m_isFirstMove;			//最初に動くとき
+
+	const float MOVE_SPEED = 0.1f;
+
 public:
 	MoveScaffold(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>arg_translationArray)
-		:StageParts(MOVE_SCAFFOLD, arg_model, arg_initTransform) {}
+		:StageParts(MOVE_SCAFFOLD, arg_model, arg_initTransform), m_translationArray(arg_translationArray)
+	{
+		BuilCollisionMesh();
+		m_maxTranslation = static_cast<int>(arg_translationArray.size()) - 1;
+	}
+
+	void OnInit()override;
+	void OnDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 
 	void Update(Player& arg_player)override;
 };

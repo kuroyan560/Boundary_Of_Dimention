@@ -24,7 +24,7 @@ class BasicDraw : public KuroEngine::DesignPattern::Singleton<BasicDraw>, public
 {
 public:
 	//レンダーターゲット
-	enum RENDER_TARGET_TYPE { MAIN, EMISSIVE, DEPTH, NORMAL, EDGE_COLOR, BRIGHT, FAR_THAN_PLAYER, WORLD_POS, NUM };
+	enum RENDER_TARGET_TYPE { MAIN, EMISSIVE, DEPTH, EDGE_COLOR, BRIGHT, NORMAL, WORLD_POS, NUM };
 
 private:
 
@@ -74,6 +74,7 @@ private:
 
 	//モデル描画
 	std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>m_drawPipeline;
+	std::shared_ptr<KuroEngine::GraphicsPipeline>m_drawPipeline_player;
 	std::vector<std::shared_ptr<KuroEngine::ConstantBuffer>>m_drawTransformBuff;
 
 	//インスタンシグ描画で一度に描画できるインスタンス最大数
@@ -123,6 +124,23 @@ public:
 		std::weak_ptr<KuroEngine::Model>arg_model,
 		KuroEngine::Transform& arg_transform, 
 		const IndividualDrawParameter& arg_toonParam, 
+		const KuroEngine::AlphaBlendMode& arg_blendMode = KuroEngine::AlphaBlendMode_None,
+		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr);
+
+	/// <summary>
+	/// 描画
+	/// </summary>
+	/// <param name="arg_cam">カメラ</param>
+	/// <param name="arg_ligMgr">ライトマネージャ</param>
+	/// <param name="arg_model">モデル</param>
+	/// <param name="arg_transform">トランスフォーム</param>
+	/// <param name="arg_toonParam">トゥーンのパラメータ</param>
+	/// <param name="arg_boneBuff">ボーンバッファ</param>
+	void Draw_Player(KuroEngine::Camera& arg_cam,
+		KuroEngine::LightManager& arg_ligMgr,
+		std::weak_ptr<KuroEngine::Model>arg_model,
+		KuroEngine::Transform& arg_transform,
+		const IndividualDrawParameter& arg_toonParam,
 		const KuroEngine::AlphaBlendMode& arg_blendMode = KuroEngine::AlphaBlendMode_None,
 		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr);
 
