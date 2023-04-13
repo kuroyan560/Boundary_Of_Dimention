@@ -146,11 +146,11 @@ Grass::Grass()
 		"Grass - SortAndDisappearNumber - RWStructuredBuffer");
 
 	//判定結果の格納用バッファ
-	CheckResult checkResultInit[PLANT_ONCE_COUNT];
+	std::array<CheckResult, PLANT_ONCE_COUNT> checkResultInit;
 	m_checkResultBuffer = D3D12App::Instance()->GenerateRWStructuredBuffer(
 		sizeof(CheckResult),
 		PLANT_ONCE_COUNT,
-		&checkResultInit,
+		checkResultInit.data(),
 		"Grass - CheckResult - RWStructuredBuffer");
 
 	//テクスチャ
@@ -280,7 +280,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 
 		descData.emplace_back(m_sortAndDisappearNumBuffer, UAV);
 		descData.emplace_back(BasicDraw::Instance()->GetRenderTarget(BasicDraw::WORLD_POS), SRV);
-		descData.emplace_back(BasicDraw::Instance()->GetRenderTarget(BasicDraw::NORMAL), SRV);
+		descData.emplace_back(BasicDraw::Instance()->GetRenderTarget(BasicDraw::NORMAL_GRASS), SRV);
 		descData.emplace_back(BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT), SRV);
 		descData.emplace_back(m_otherTransformConstBuffer, CBV);
 		descData.emplace_back(m_constBuffer, CBV);
