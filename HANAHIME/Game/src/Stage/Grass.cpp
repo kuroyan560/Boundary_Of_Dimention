@@ -280,7 +280,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 
 		descData.emplace_back(m_sortAndDisappearNumBuffer, UAV);
 		descData.emplace_back(BasicDraw::Instance()->GetRenderTarget(BasicDraw::WORLD_POS), SRV);
-		descData.emplace_back(BasicDraw::Instance()->GetRenderTarget(BasicDraw::NORMAL), SRV);
+		descData.emplace_back(BasicDraw::Instance()->GetRenderTarget(BasicDraw::NORMAL_GRASS), SRV);
 		descData.emplace_back(BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT), SRV);
 		descData.emplace_back(m_otherTransformConstBuffer, CBV);
 		descData.emplace_back(m_constBuffer, CBV);

@@ -24,7 +24,7 @@ class BasicDraw : public KuroEngine::DesignPattern::Singleton<BasicDraw>, public
 {
 public:
 	//レンダーターゲット
-	enum RENDER_TARGET_TYPE { MAIN, EMISSIVE, DEPTH, EDGE_COLOR, BRIGHT, NORMAL, WORLD_POS, NUM };
+	enum RENDER_TARGET_TYPE { MAIN, EMISSIVE, DEPTH, EDGE_COLOR, BRIGHT, NORMAL, NORMAL_GRASS, WORLD_POS, NUM };	//NORMAL_GRASSは草用。草を生やしたくないオブジェクトの法線は書き込まない。
 
 private:
 

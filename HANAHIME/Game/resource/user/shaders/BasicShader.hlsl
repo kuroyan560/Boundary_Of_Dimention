@@ -144,7 +144,8 @@ struct PSOutput
     float4 edgeColor : SV_Target3;
     float4 bright : SV_Target4;
     float4 normal : SV_Target5;
-    float4 worldPos : SV_Target6;
+    float4 normalGrass : SV_Target6;
+    float4 worldPos : SV_Target7;
 };
 
 PSOutput PSmain(VSOutput input) : SV_TARGET
@@ -302,6 +303,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     output.worldPos = float4(input.worldpos, 1.0f);
     
     output.normal.xyz = input.normal;
+    output.normalGrass.xyz = input.normal;
 
     return output;
 }
