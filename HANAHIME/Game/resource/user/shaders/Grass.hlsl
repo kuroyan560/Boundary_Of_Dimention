@@ -5,9 +5,10 @@
 struct GrassInitializer
 {
     float3 m_pos;
-    float3 m_up;
     float m_sineLength;
+    float3 m_up;
     int m_texIdx;
+    float3 m_pad;
     int m_isAlive;
 };
 
@@ -18,6 +19,7 @@ struct CheckResult
     float3 m_plantPos;
     int m_isSuccess;
     float3 m_plantNormal;
+    int m_pad;
 };
 
 RWStructuredBuffer<PlantGrass> aliveGrassBuffer : register(u0);

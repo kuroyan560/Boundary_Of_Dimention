@@ -57,9 +57,10 @@ class Grass
 	struct GrassInitializer
 	{
 		KuroEngine::Vec3<float>m_pos;
-		KuroEngine::Vec3<float>m_up;
 		float m_sineLength;
+		KuroEngine::Vec3<float>m_up;
 		int m_texIdx;
+		KuroEngine::Vec3<float>m_pad;
 		int m_isAlive;
 	};
 	//一度に生成できる最大数
@@ -90,6 +91,7 @@ class Grass
 	{
 		KuroEngine::Vec3<float>m_camPos;
 		int m_seed;
+		KuroEngine::Vec2<float> m_pad;
 		int m_grassCount;
 		int m_plantOnceCount;
 	};
@@ -112,6 +114,7 @@ class Grass
 		float m_sineWave = 0;
 		//草を枯らす距離
 		float m_deathDistance = 8.0f;
+		KuroEngine::Vec3<float> m_pad;
 	}m_constData;
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_constBuffer;
 
@@ -122,6 +125,7 @@ class Grass
 		KuroEngine::Vec3<float> m_plantPos;
 		int m_isSuccess;
 		KuroEngine::Vec3<float> m_plantNormal;
+		int m_pad;
 	};
 	//周辺に草むらがあるか確認した結果を格納するバッファ
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_checkResultBuffer;
