@@ -132,7 +132,7 @@ private:
 	float m_moveLength;			//Ÿ‚Ì’n“_‚Ü‚ÅˆÚ“®‚·‚é—Ê
 	float m_nowMoveLength;		//ˆÚ“®‚µ‚Ä‚¢‚éŒ»İ—Ê
 	KuroEngine::Vec3<float> m_moveDir;	//ˆÚ“®•ûŒü
-	bool m_isFirstMove;			//Å‰‚É“®‚­‚Æ‚«
+	bool m_isOder;				//‡”Ô‚ÉˆÚ“®
 
 	const float MOVE_SPEED = 0.1f;
 

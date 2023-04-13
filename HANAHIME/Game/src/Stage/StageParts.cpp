@@ -102,7 +102,7 @@ void StageParts::BuilCollisionMesh()
 void MoveScaffold::OnInit()
 {
 	m_isActive = false;
-	m_isFirstMove = false;
+	m_isOder = true;
 	m_nowTranslationIndex = 0;
 	m_nextTranslationIndex = 0;
 	m_moveLength = 0;
@@ -123,9 +123,6 @@ void MoveScaffold::OnDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager&
 	for (int index = 1; index <= m_maxTranslation; ++index) {
 		KuroEngine::DrawFunc3D::DrawLine(arg_cam, m_translationArray[index - 1], m_translationArray[index], KuroEngine::Color(255, 255, 255, 255), 0.1f);
 	}
-
-	//最初の場所と終点も結ぶ。
-	KuroEngine::DrawFunc3D::DrawLine(arg_cam, m_translationArray.front(), m_translationArray.back(), KuroEngine::Color(255, 255, 255, 255), 0.1f);
 
 }
 
@@ -164,26 +161,44 @@ void MoveScaffold::Update(Player& arg_player)
 	//いろいろと初期化して次向かう方向を決める。
 	if (isFinish) {
 
-		//次のIndexへ
-		m_nowTranslationIndex = m_nextTranslationIndex;
-		++m_nextTranslationIndex;
-		if (m_maxTranslation < m_nextTranslationIndex) {
-			m_nextTranslationIndex = 0;
+		//正の方向に進むフラグだったら
+		if (m_isOder) {
+
+			//次のIndexへ
+			m_nowTranslationIndex = m_nextTranslationIndex;
+			++m_nextTranslationIndex;
+			if (m_maxTranslation < m_nextTranslationIndex) {
+
+				//終わっていたら
+				m_nextTranslationIndex = m_maxTranslation;
+				m_isOder = false;
+				m_isActive = false;
+
+			}
+
+		}
+		//負の方向に進むフラグだったら
+		else {
+
+			//次のIndexへ
+			m_nowTranslationIndex = m_nextTranslationIndex;
+			--m_nextTranslationIndex;
+			if (m_nextTranslationIndex < 0) {
+
+				//終わっていたら
+				m_nextTranslationIndex = 0;
+				m_isOder = true;
+				m_isActive = false;
+
+			}
+
 		}
 
 		//移動する方向と量を求める。
 		m_moveDir = KuroEngine::Vec3<float>(m_translationArray[m_nextTranslationIndex] - m_translationArray[m_nowTranslationIndex]).GetNormal();
 		m_moveLength = KuroEngine::Vec3<float>(m_translationArray[m_nextTranslationIndex] - m_translationArray[m_nowTranslationIndex]).Length();
-
 		m_nowMoveLength = 0;
 
-		//最初の一回だったらIsAliveをfalseにしない。最初に乗ったときに動かなくなってしまうから。
-		if (!m_isFirstMove) {
-			m_isFirstMove = true;
-		}
-		else {
-			m_isActive = false;
-		}
 
 	}
 
