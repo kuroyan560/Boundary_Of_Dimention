@@ -28,7 +28,7 @@ bool Stage::LoadMoveScaffold(std::string arg_fileName, std::shared_ptr<StagePart
 	{
 		translationArray.emplace_back();
 		//平行移動
-		translationArray.back() = { -(float)transformObj["translation"][0],(float)transformObj["translation"][2],(float)transformObj["translation"][1] };
+		translationArray.back() = { -(float)transformObj["translation"][0],(float)transformObj["translation"][2],-(float)transformObj["translation"][1] };
 		translationArray.back() *= m_terrianScaling;
 	}
 
@@ -51,7 +51,7 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 	auto transformObj = obj["transform"];
 
 	//平行移動
-	Vec3<float>translation = { -(float)transformObj["translation"][0],(float)transformObj["translation"][2],(float)transformObj["translation"][1] };
+	Vec3<float>translation = { -(float)transformObj["translation"][0],(float)transformObj["translation"][2],-(float)transformObj["translation"][1] };
 
 	//回転
 	XMVECTOR quaternion = { (float)transformObj["rotation"][0],(float)transformObj["rotation"][2], -(float)transformObj["rotation"][1],(float)transformObj["rotation"][3] };
@@ -63,18 +63,18 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 	Transform transform;
 	transform.SetPos(translation * m_terrianScaling);
 	transform.SetRotate(quaternion);
-	transform.SetScale(scaling);
+	transform.SetScale(scaling * m_terrianScaling);
 
 //種別に応じて変わるパラメータ
 	//通常の地形
 	if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::TERRIAN))
 	{
-		transform.SetScale(scaling * m_terrianScaling);
 		m_terrianArray.emplace_back(model, transform);
 	}
 	//スタート地点
 	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::START_POINT))
 	{
+		transform.SetScale(1.0f);
 		m_startPoint = std::make_shared<StartPoint>(model, transform);
 	}
 	//ゴール地点
