@@ -101,7 +101,7 @@ void Update(uint DTid : SV_DispatchThreadID)
     aliveGrassBuffer[DTid] = grass;
 };
 
-void SwapGrass(inout PlantGrass a ,inout PlantGrass b)
+void SwapGrass(inout PlantGrass a, inout PlantGrass b)
 {
     PlantGrass tmp = a;
     a = b;
@@ -120,7 +120,7 @@ void Sort(uint DTid : SV_DispatchThreadID)
         PlantGrass grass = aliveGrassBuffer[i];
         
         //既に死んでいるものだった場合
-        if(grass.m_isAlive == 0)
+        if (grass.m_isAlive == 0)
         {
             //死んでいるものが末尾に来るよう交換
             for (int j = aliveGrassCount - 1; 0 <= j; --j)
@@ -143,7 +143,7 @@ void Sort(uint DTid : SV_DispatchThreadID)
 [numthreads(1, 1, 1)]
 void Disappear(uint DTid : SV_DispatchThreadID)
 {
-    for (int i = 0; i < sortAndDisappearNumBuffer[0];++i)
+    for (int i = 0; i < sortAndDisappearNumBuffer[0]; ++i)
     {
         consumeAliveGrassBuffer.Consume();
     }
@@ -157,59 +157,32 @@ void SearchPlantPos(uint DTid : SV_DispatchThreadID)
     CheckResult result = checkResultBuffer[DTid];
     
     //探す回数。
-    int searchCount = 5;
     uint2 screenPos = uint2(0, 0);
     result.m_isSuccess = false;
-    for (int index = 0; index < searchCount; ++index)
+    
+    //乱数の種
+    int seed = otherTransformData.m_seed + DTid * 103.0f;
+    
+    //サンプリングするスクリーン座標を求める。
+    screenPos = uint2(RandomIntInRange(0, 1280, seed), RandomIntInRange(0, 720, seed * 2.0f));
+        
+    //サンプリングした座標がライトに当たっている位置かどうかを判断。
+    result.m_isSuccess = step(0.9f, g_brightMap[screenPos].x);
+        
+    //サンプリングに失敗したら次へ。
+    if (!result.m_isSuccess)
     {
-        //乱数の種
-        int seed = otherTransformData.m_seed + (index * 2.0f) + DTid * 103.0f;
-    
-        //サンプリングするスクリーン座標を求める。
-        screenPos = uint2(RandomIntInRange(0, 1280, seed), RandomIntInRange(0, 720, seed * 2.0f));
-        
-        //サンプリングした座標がライトに当たっている位置かどうかを判断。
-        result.m_isSuccess = step(0.9f, g_brightMap[screenPos].x);
-        
-        //サンプリングに失敗したら次へ。
-        if (!result.m_isSuccess)
-            continue;
-        
-        //サンプリングに成功したらワールド座標を求める。
-        result.m_plantPos = g_worldMap[screenPos].xyz;
-        
-        //草が近くにあるかを検索。
-        bool isNearGrass = false;
-        for (int grass = 0; grass < otherTransformData.m_grassCount; ++grass)
-        {
-            
-            //データ取得
-            PlantGrass grassData = aliveGrassBuffer[grass];
-    
-            //既定の距離より離れていたら問題ないので飛ばす。
-            if (commonInfo.m_checkRange < distance(grassData.m_pos, result.m_plantPos))
-                continue;
- 
-            //草が近くにある。
-            isNearGrass = true;
-            break;
-            
-        }
-        
-        //法線も求める。
-        result.m_plantNormal = g_normalMap[screenPos].xyz;
-        
-        //草が近くにあったら次。なかったらこの値を返す。
-        if (!isNearGrass)
-        {
-            checkResultBuffer[DTid] = result;
-            return;
-        }
-        
+        checkResultBuffer[DTid] = result;
+        return;
     }
-    
-    //ここまでくるということはサンプリングに失敗しているので草をはやさない。
-    checkResultBuffer[DTid].m_isSuccess = false;
-    return;
+        
+    //サンプリングに成功したらワールド座標を求める。
+    result.m_plantPos = g_worldMap[screenPos].xyz;
+        
+    //法線も求める。
+    result.m_plantNormal = g_normalMap[screenPos].xyz;
+        
+    checkResultBuffer[DTid] = result;
+
     
 }
