@@ -16,8 +16,18 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer())
 	m_pngTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
 
 	KuroEngine::Vec3<float>dir = { 0.0f,-1.0f,0.0f };
-	m_dirLig.SetDir(dir.GetNormal());
-	m_ligMgr.RegisterDirLight(&m_dirLig);
+	m_dirLigArray.emplace_back();
+	m_dirLigArray.back().SetDir(dir.GetNormal());
+
+	dir = { 1.0f,-0.5f,0.0f };
+	m_dirLigArray.emplace_back();
+	m_dirLigArray.back().SetDir(dir.GetNormal());
+
+
+	for (auto& dirLig : m_dirLigArray)
+	{
+		m_ligMgr.RegisterDirLight(&dirLig);
+	}
 	m_ligMgr.RegisterPointLight(m_player.GetPointLig());
 
 	auto backBuffTarget = KuroEngine::D3D12App::Instance()->GetBackBuffRenderTarget();
@@ -88,9 +98,9 @@ void GameScene::OnUpdate()
 	m_player.Update(StageManager::Instance()->GetNowStage());
 
 	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
-	//m_grass.Plant(m_player.GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
-	m_title.Update(&m_player.GetCamera().lock()->GetTransform());
+
 	//ホームでの処理----------------------------------------
+	m_title.Update(&m_player.GetCamera().lock()->GetTransform());
 
 	//ステージ選択
 	int stageNum = -1;
