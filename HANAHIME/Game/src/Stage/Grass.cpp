@@ -146,7 +146,7 @@ Grass::Grass()
 		"Grass - SortAndDisappearNumber - RWStructuredBuffer");
 
 	//判定結果の格納用バッファ
-	CheckResult checkResultInit;
+	CheckResult checkResultInit[PLANT_ONCE_COUNT];
 	m_checkResultBuffer = D3D12App::Instance()->GenerateRWStructuredBuffer(
 		sizeof(CheckResult),
 		PLANT_ONCE_COUNT,
