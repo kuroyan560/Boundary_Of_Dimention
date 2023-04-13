@@ -154,9 +154,9 @@ void MoveScaffold::Update(Player& arg_player)
 	m_transform.SetPos(m_transform.GetPos() + m_moveDir * moveSpeed);
 
 	//プレイヤーも動かす。
-	//if (arg_player.GetOnGimmick()) {
-	arg_player.SetGimmickVel(m_moveDir * moveSpeed);
-	//}
+	if (arg_player.GetOnGimmick()) {
+		arg_player.SetGimmickVel(m_moveDir * moveSpeed);
+	}
 
 	//いろいろと初期化して次向かう方向を決める。
 	if (isFinish) {
