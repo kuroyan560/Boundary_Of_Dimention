@@ -249,18 +249,19 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     
     //アニメ風トゥーン加工========================================================
     
-    //トゥーンによる色
-    float4 toonCol = ligEffCol;
+    ////トゥーンによる色
+    //float4 toonCol = ligEffCol;
     
-    //明るさ算出（照明影響より）
-    float lightEffectBright = GetColorBright(ligEffect.xyz);
+    ////明るさ算出（照明影響より）
+    //float lightEffectBright = GetColorBright(ligEffect.xyz);
 
-    //明るさのしきい値に応じて色を決める
-    float thresholdResult = smoothstep(toonCommonParam.m_brightThresholdLow, toonCommonParam.m_brightThresholdLow + toonCommonParam.m_brightThresholdRange, lightEffectBright);
-    float4 brightCol = texCol * toonIndividualParam.m_brightMulColor * thresholdResult;
-    float4 darkCol = texCol * toonIndividualParam.m_darkMulColor * (1.0f - thresholdResult);
-    toonCol.xyz = brightCol + darkCol;
-    float4 result = toonCol;
+    ////明るさのしきい値に応じて色を決める
+    //float thresholdResult = smoothstep(toonCommonParam.m_brightThresholdLow, toonCommonParam.m_brightThresholdLow + toonCommonParam.m_brightThresholdRange, lightEffectBright);
+    //float4 brightCol = texCol * toonIndividualParam.m_brightMulColor * thresholdResult;
+    //float4 darkCol = texCol * toonIndividualParam.m_darkMulColor * (1.0f - thresholdResult);
+    //toonCol.xyz = brightCol + darkCol;
+    //float4 result = toonCol;
+    float4 result = ligEffCol;
 
     //=========================================================================
 

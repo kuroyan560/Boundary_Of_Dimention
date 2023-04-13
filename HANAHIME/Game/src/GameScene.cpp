@@ -18,17 +18,22 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer())
 	KuroEngine::Vec3<float>dir = { 0.0f,-1.0f,0.0f };
 	m_dirLigArray.emplace_back();
 	m_dirLigArray.back().SetDir(dir.GetNormal());
+	m_dirLigArray.back().SetColor(KuroEngine::Color(0.8f, 0.8f, 0.8f, 1.0f));
 
 	dir = { 1.0f,-0.5f,0.0f };
 	m_dirLigArray.emplace_back();
 	m_dirLigArray.back().SetDir(dir.GetNormal());
-
+	m_dirLigArray.back().SetColor(KuroEngine::Color(0.8f, 0.8f, 0.8f, 1.0f));
 
 	for (auto& dirLig : m_dirLigArray)
 	{
 		m_ligMgr.RegisterDirLight(&dirLig);
 	}
 	m_ligMgr.RegisterPointLight(m_player.GetPointLig());
+
+	m_hemiLig.SetSkyColor(KuroEngine::Color(107, 196, 198, 255));
+	m_hemiLig.SetGroundColor(KuroEngine::Color(0,0,0,1));
+	m_ligMgr.RegisterHemiSphereLight(&m_hemiLig);
 
 	auto backBuffTarget = KuroEngine::D3D12App::Instance()->GetBackBuffRenderTarget();
 	m_fogPostEffect = std::make_shared<KuroEngine::Fog>(backBuffTarget->GetGraphSize(), backBuffTarget->GetDesc().Format);

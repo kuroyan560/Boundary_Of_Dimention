@@ -13,19 +13,33 @@ StageManager::StageManager()
 	LoadParameterLog();
 
 	//ホームのステージのインデックス
-	m_homeStageIdx = 2;
-
-	//動く足場の確認用ステージ
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "LoadTestStage.json", 1.0f);
-
-	//テスト用ステージ生成
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "Debug_Stage_1.json", 5.0f);
+	m_homeStageIdx = 0;
 
 	//ホームステージ
 	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "New_Home.json", 5.0f, true);
+	m_stageArray.back()->Load("resource/user/level/", "New_Home.json", 5.0f, false);
+
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_1.json", 1.0f);
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_2.json", 1.0f);
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_3.json", 1.0f);
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_4.json", 1.0f);
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_5.json", 1.0f);
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_6.json", 1.0f);
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_7.json", 1.0f);
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_8.json", 1.0f);
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_9.json", 1.0f);
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_10.json", 1.0f);
+
 
 	//現在のステージ指定（デフォルトはホーム用ステージ）
 	m_nowStage = m_stageArray[m_homeStageIdx];

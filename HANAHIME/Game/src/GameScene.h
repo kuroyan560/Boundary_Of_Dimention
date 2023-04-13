@@ -29,6 +29,8 @@ class GameScene : public KuroEngine::BaseScene
 	KuroEngine::LightManager m_ligMgr;
 	//ディレクションライト
 	std::vector<KuroEngine::Light::Direction>m_dirLigArray;
+	//スカイドームライト
+	KuroEngine::Light::HemiSphere m_hemiLig;
 
 	//フォグポストエフェクト
 	std::shared_ptr<KuroEngine::Fog>m_fogPostEffect;

@@ -191,6 +191,31 @@ void KuroEngine::LightManager::OnImguiItems()
 		}
 		ImGui::TreePop();
 	}
+	if (ImGui::TreeNode("HemiSphere"))
+	{
+		if (hemiSphereLights.empty())ImGui::Text("Empty");
+		else
+		{
+			ImGui::BeginChild(ImGui::GetID((void*)0));
+
+			for (auto& hemiLig : hemiSphereLights)
+			{
+				bool active = hemiLig->constData.active == 1;
+				ImGui::Checkbox("Active", &active);
+				hemiLig->SetActive(active);
+
+				auto col = hemiLig->constData.skyColor;
+				ImGui::ColorPicker4("SkyColor", (float*)&col);
+				hemiLig->SetSkyColor(col);
+
+				col = hemiLig->constData.groundColor;
+				ImGui::ColorPicker4("GroundColor", (float*)&col);
+				hemiLig->SetGroundColor(col);
+			}
+			ImGui::EndChild();
+		}
+		ImGui::TreePop();
+	}
 }
 
 KuroEngine::LightManager::LightManager() : Debugger("LightManager")

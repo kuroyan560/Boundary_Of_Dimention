@@ -61,7 +61,7 @@ void StageParts::BuilCollisionMesh()
 		for (auto& index : m_collisionMesh[meshIdx]) {
 
 			// åªç›ÇÃIndexêîÅB
-			int nowIndex = static_cast<int>(&index - &m_collisionMesh[0][0]);
+			int nowIndex = static_cast<int>(&index - &m_collisionMesh[meshIdx][0]);
 
 			// í∏ì_èÓïÒÇï€ë∂ÅB
 			index.m_p0 = mesh->vertices[mesh->indices[nowIndex * 3 + 0]];
