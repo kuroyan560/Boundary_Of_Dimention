@@ -41,20 +41,6 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 {
 	using namespace KuroEngine;
 
-	//地形情報ロード用のラムダ関数
-	using LoadGimmickLamda = std::function<bool(std::string arg_fileName,	std::shared_ptr<StageParts>* arg_result, nlohmann::json arg_json, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)>;
-	static std::map<std::string, LoadGimmickLamda>s_loadGimmickLambdaTable;
-	static bool s_lamdaSet = false;
-	if (!s_lamdaSet)
-	{
-		s_loadGimmickLambdaTable[StageParts::GetTypeKeyOnJson(StageParts::MOVE_SCAFFOLD)]
-			= [this](std::string arg_fileName,std::shared_ptr<StageParts>* arg_result, nlohmann::json arg_json, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)->bool
-		{
-			return LoadMoveScaffold(arg_fileName, arg_result, arg_json, arg_model, arg_initTransform);
-		};
-		s_lamdaSet = true;
-	}
-
 	auto& obj = arg_json;
 
 //共通パラメータ
@@ -102,10 +88,10 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 		m_gimmickArray.emplace_back(std::make_shared<Appearance>(model, transform));
 	}
 	//ギミック
-	else
+	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::MOVE_SCAFFOLD))
 	{
 		std::shared_ptr<StageParts>gimmick;
-		if (s_loadGimmickLambdaTable[arg_typeKey](arg_fileName, &gimmick, obj, model, transform))
+		if (LoadMoveScaffold(arg_fileName, &gimmick, obj, model, transform))
 		{
 			m_gimmickArray.emplace_back(gimmick);
 		}
