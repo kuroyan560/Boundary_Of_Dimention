@@ -90,7 +90,7 @@ class Grass
 	struct TransformCBVData
 	{
 		KuroEngine::Vec3<float>m_camPos;
-		int m_seed;
+		float m_seed;
 		KuroEngine::Vec2<float> m_pad;
 		int m_grassCount;
 		int m_plantOnceCount;
@@ -114,7 +114,14 @@ class Grass
 		float m_sineWave = 0;
 		//草を枯らす距離
 		float m_deathDistance = 8.0f;
-		KuroEngine::Vec3<float> m_pad;
+		KuroEngine::Vec3<float> m_pad;		
+		KuroEngine::Matrix matView; // ビュー行列
+		KuroEngine::Matrix matProjection;	//プロジェクション行列
+		KuroEngine::Matrix billboardMat;
+		KuroEngine::Matrix billboardMatY;
+		KuroEngine::Vec3<float> eye = { 0,0,0 }; // カメラ座標（ワールド座標）
+		float nearClip = 0.1f;
+		float farClip = 3000.0f;
 	}m_constData;
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_constBuffer;
 

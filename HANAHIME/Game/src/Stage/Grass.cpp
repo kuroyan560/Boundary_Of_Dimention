@@ -222,6 +222,14 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 	m_constData.m_appearEaseSpeed = 0.1f;
 	//プレイヤーの座標を取得。
 	m_constData.m_playerPos = arg_playerTransform.GetPos();
+	//カメラの情報を入れる。
+	m_constData.matView = arg_cam.lock()->GetViewMat();
+	m_constData.matProjection = arg_cam.lock()->GetProjectionMat();
+	m_constData.billboardMat = arg_cam.lock()->GetBillBoardMat();
+	m_constData.billboardMatY = arg_cam.lock()->GetBillBoardMat();
+	m_constData.eye = arg_cam.lock()->GetEye();
+	m_constData.nearClip = arg_cam.lock()->GetNearZ();
+	m_constData.farClip = arg_cam.lock()->GetFarZ();
 	//定数バッファ1をGPUに転送。
 	m_constBuffer->Mapping(&m_constData);
 
@@ -269,6 +277,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 	//植えた草むらの更新
 	if (*plantGrassCountPtr)
 	{
+
 		descData.emplace_back(m_sortAndDisappearNumBuffer, UAV);
 		descData.emplace_back(BasicDraw::Instance()->GetRenderTarget(BasicDraw::WORLD_POS), SRV);
 		descData.emplace_back(BasicDraw::Instance()->GetRenderTarget(BasicDraw::NORMAL), SRV);
@@ -363,7 +372,7 @@ std::array<Grass::CheckResult, Grass::PLANT_ONCE_COUNT> Grass::SearchPlantPos(Ku
 
 	//必要なデータを送信
 	auto transformCBVPtr = m_otherTransformConstBuffer->GetResource()->GetBuffOnCpu<TransformCBVData>();
-	transformCBVPtr->m_seed = KuroEngine::GetRand(0, 1000);
+	transformCBVPtr->m_seed = KuroEngine::GetRand(0, 100000) / 100.0f;
 	transformCBVPtr->m_grassCount = plantGrassCount;
 	transformCBVPtr->m_plantOnceCount = PLANT_ONCE_COUNT;
 
