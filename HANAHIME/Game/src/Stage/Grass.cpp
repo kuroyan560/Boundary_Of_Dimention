@@ -394,7 +394,7 @@ std::array<Grass::CheckResult, Grass::PLANT_ONCE_COUNT> Grass::SearchPlantPos(Ku
 	for (int index = 0; index < PLANT_ONCE_COUNT; ++index) {
 
 		result[index].m_isSuccess = checkResultPtr[index].m_isSuccess;
-		result[index].m_plantNormal = checkResultPtr[index].m_plantNormal;
+		result[index].m_plantNormal = checkResultPtr[index].m_plantNormal.GetNormal();
 		result[index].m_plantPos = checkResultPtr[index].m_plantPos + checkResultPtr[index].m_plantNormal;	//–„‚Ü‚Á‚Ä‚µ‚Ü‚¤‚Ì‚Å–@ü•ûŒü‚É­‚µ‚¾‚¯“®‚©‚·B
 
 	}

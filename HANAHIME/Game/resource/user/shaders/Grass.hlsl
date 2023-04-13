@@ -16,8 +16,8 @@ struct CheckResult
 {
     //int m_aroundGrassCount;
     float3 m_plantPos;
-    float3 m_plantNormal;
     int m_isSuccess;
+    float3 m_plantNormal;
 };
 
 RWStructuredBuffer<PlantGrass> aliveGrassBuffer : register(u0);
@@ -63,6 +63,7 @@ void Appear(uint DTid : SV_DispatchThreadID)
     newGrass.m_appearYTimer = 0;
     newGrass.m_appearY = 0;
     newGrass.m_isAlive = 1;
+    newGrass.m_pad = 1;
     
     appendAliveGrassBuffer.Append(newGrass);
 };
@@ -183,6 +184,5 @@ void SearchPlantPos(uint DTid : SV_DispatchThreadID)
     result.m_plantNormal = g_normalMap[screenPos].xyz;
         
     checkResultBuffer[DTid] = result;
-
     
 }

@@ -8,6 +8,7 @@ struct PlantGrass
     float m_appearY;
     float m_appearYTimer;
     int m_isAlive;
+    int m_pad;
 };
 
 //全草むらで共通する定数バッファ用のパラメータ
