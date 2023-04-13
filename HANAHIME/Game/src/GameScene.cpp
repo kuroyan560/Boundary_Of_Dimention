@@ -22,8 +22,6 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer())
 
 	auto backBuffTarget = KuroEngine::D3D12App::Instance()->GetBackBuffRenderTarget();
 	m_fogPostEffect = std::make_shared<KuroEngine::Fog>(backBuffTarget->GetGraphSize(), backBuffTarget->GetDesc().Format);
-
-	m_playerResponePos.SetPos({ -0.49f, 25.9f ,-60.2f });
 }
 
 
@@ -43,11 +41,15 @@ void GameScene::OnInitialize()
 
 	m_debugCam.Init({ 0,5,-10 });
 
-	m_player.Init(m_playerResponePos);
+	m_player.Init(StageManager::Instance()->GetPlayerSpawnTransform());
 
 	m_grass.Init();
 
 	m_waterPaintBlend.Init();
+	m_title.Init();
+
+	//タイトル画面に戻る
+	StageManager::Instance()->SetStage();
 }
 
 void GameScene::OnUpdate()
@@ -81,7 +83,9 @@ void GameScene::OnUpdate()
 		m_nowCam = m_debugCam;
 	}
 
-	m_player.Update(StageManager::Instance()->GetNowStage(), m_title.IsFinish());
+	StageManager::Instance()->Update(m_player);
+
+	m_player.Update(StageManager::Instance()->GetNowStage());
 
 	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
 	//m_grass.Plant(m_player.GetTransform(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
@@ -89,7 +93,17 @@ void GameScene::OnUpdate()
 	//ホームでの処理----------------------------------------
 
 	//ステージ選択
-	int stageNum = m_stageSelect.GetStageNumber(m_player.GetTransform().GetPos());
+	int stageNum = -1;
+	if (m_title.IsFinish())
+	{
+		stageNum = m_stageSelect.GetStageNumber(m_player.GetTransform().GetPos());
+	}
+	else
+	{
+		stageNum = m_title.GetStageNum();
+	}
+
+
 	//ステージ移動時の初期化
 	if (stageNum != -1)
 	{
@@ -100,8 +114,15 @@ void GameScene::OnUpdate()
 	if (m_gateSceneChange.IsHide())
 	{
 		StageManager::Instance()->SetStage(m_stageNum);
-		m_player.Init(m_playerResponePos);
+		m_player.Init(StageManager::Instance()->GetPlayerSpawnTransform());
+		//パズル画面からシーンチェンジしたらカメラモードを切り替える
+		if (!m_title.IsFinish())
+		{
+			m_title.FinishTitle();
+			OperationConfig::Instance()->SetActive(true);
+		}
 	}
+	
 
 	m_stageSelect.Update();
 	//ホームでの処理----------------------------------------

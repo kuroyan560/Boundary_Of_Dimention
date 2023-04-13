@@ -1,6 +1,7 @@
 #pragma once
 #include"Common/Singleton.h"
 #include"ForUser/Debugger.h"
+#include"Common/Transform.h"
 
 #include<memory>
 namespace KuroEngine
@@ -11,8 +12,9 @@ namespace KuroEngine
 }
 
 class Stage;
+class Player;
 
-class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>,public KuroEngine::Debugger
+class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>, public KuroEngine::Debugger
 {
 	friend class KuroEngine::DesignPattern::Singleton<StageManager>;
 	StageManager();
@@ -26,24 +28,27 @@ class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>,p
 	//地面の大きさ
 	float m_groundScaling = 1.0f;
 
-	float m_terrianScaling = 1.0f;
-	float m_oldTerrianScaling = m_terrianScaling;
-
 	//デバッグ用テストステージ
-	std::array<std::shared_ptr<Stage>, 2>m_stageArray;
+	std::vector<std::shared_ptr<Stage>>m_stageArray;
+	//ホームステージの番号
+	int m_homeStageIdx = 0;
 
 	//現在のステージ
 	std::shared_ptr<Stage>m_nowStage;
 
-	//Imguiデバッグ関数オーバーライド
-	void OnImguiItems()override;
-
 public:
+	void SetStage(int stage_num = -1);
 
-	void SetStage(int stage_num);
+	void Update(Player& arg_player);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
 
 	//現在のステージのゲッタ
 	std::weak_ptr<Stage>GetNowStage() { return m_nowStage; }
-};
+	int GetAllStageNum()
+	{
+		return static_cast<int>(m_stageArray.size());
+	}
 
+	//プレイヤーの初期化トランスフォーム
+	KuroEngine::Transform GetPlayerSpawnTransform()const;
+};

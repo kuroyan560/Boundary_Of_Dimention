@@ -66,7 +66,7 @@ void Player::OnImguiItems()
 	}
 }
 
-bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, const std::vector<Terrian>& arg_terrianArray, HitCheckResult* arg_hitInfo)
+bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo)
 {
 	/*
 	arg_from … 移動前の座標
@@ -78,9 +78,17 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	//CastRayに渡す引数
 	Player::CastRayArgument castRayArgument;
 	castRayArgument.m_onGround = false;
+	castRayArgument.m_stageType = StageParts::TERRIAN;
+
+	//ギミックに当たっているかどうかの変数を初期化
+	m_prevOnGimmick = m_onGimmick;
+	m_onGimmick = false;
+
+	//ギミックによる移動があったかどうか
+	bool isMoveGimmick = 0 < m_gimmickVel.Length();
 
 	//地形配列走査
-	for (auto& terrian : arg_terrianArray)
+	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
 	{
 		//モデル情報取得
 		auto model = terrian.m_model.lock();
@@ -100,16 +108,58 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			//判定↓============================================
 
 			//右方向にレイを飛ばす。これは壁にくっつく用。
-			if (0 < m_rowMoveVec.x)CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isMoveGimmick || 0 < m_rowMoveVec.x)CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//左方向にレイを飛ばす。これは壁にくっつく用。
-			if (m_rowMoveVec.x < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isMoveGimmick || m_rowMoveVec.x < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
-			if (m_rowMoveVec.z < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isMoveGimmick || m_rowMoveVec.z < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//正面方向にレイを飛ばす。これは壁にくっつく用。
-			if (0 < m_rowMoveVec.z)CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isMoveGimmick || 0 < m_rowMoveVec.z)CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+
+			//下方向にレイを飛ばす。これは地面との押し戻し用。
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::GROUND);
+
+			//=================================================
+		}
+	}
+
+	//ギミックとの当たり判定
+	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
+	{
+		//モデル情報取得
+		auto model = terrian->GetModel();
+		//トランスフォーム情報
+		castRayArgument.m_targetTransform = terrian->GetTransform();
+		//情報を取得。
+		castRayArgument.m_stageType = terrian->GetType();
+		//ステージ情報を保存。
+		castRayArgument.m_stage = terrian;
+
+		//メッシュを走査
+		for (auto& modelMesh : model.lock()->m_meshes)
+		{
+			//メッシュ情報取得
+			auto& mesh = modelMesh.mesh;
+
+			//CastRayに渡す引数を更新。
+			castRayArgument.m_mesh = terrian->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+
+			//判定↓============================================
+
+			//右方向にレイを飛ばす。これは壁にくっつく用。
+			if (isMoveGimmick || 0 < m_rowMoveVec.x)CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+
+			//左方向にレイを飛ばす。これは壁にくっつく用。
+			if (isMoveGimmick || m_rowMoveVec.x < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+
+			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
+			if (isMoveGimmick || m_rowMoveVec.z < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+
+			//正面方向にレイを飛ばす。これは壁にくっつく用。
+			if (isMoveGimmick || 0 < m_rowMoveVec.z)CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//下方向にレイを飛ばす。これは地面との押し戻し用。
 			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::GROUND);
@@ -129,7 +179,16 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 
 	//接地していなかったら移動前の位置に戻す。
 	if (m_isFirstOnGround && !m_onGround) {
-		arg_newPos = arg_from;
+		//ギミックの上にいたらそれも考慮した位置に戻す。
+		if (0 < m_gimmickVel.Length()) {
+			arg_newPos = arg_from + m_gimmickVel;
+		}
+		else {
+			arg_newPos = arg_from;
+		}
+		//前フレームでギミックの上にいたら、今もギミックにいる判定にする。(そうしないと移動のギミックの上にいるときに壁際に行くと一瞬降りた判定になり、ギミックが稼働してしまうから。)
+		if (m_prevOnGimmick) m_onGimmick = true;
+		//次に補間する上ベクトルとプレイヤーの上ベクトルにする。
 		arg_hitInfo->m_terrianNormal = m_transform.GetUp();
 		return true;
 	}
@@ -195,6 +254,8 @@ Player::Player()
 
 	m_moveSpeed = KuroEngine::Vec3<float>();
 	m_isFirstOnGround = false;
+	m_onGimmick = false;
+	m_prevOnGimmick = false;
 
 }
 
@@ -207,11 +268,14 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_cameraQ = DirectX::XMQuaternionIdentity();
 
 	m_moveSpeed = KuroEngine::Vec3<float>();
+	m_gimmickVel = KuroEngine::Vec3<float>();
 	m_isFirstOnGround = false;
+	m_onGimmick = false;
+	m_prevOnGimmick = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 }
 
-void Player::Update(const std::weak_ptr<Stage>arg_nowStage, bool enable_to_move_flag)
+void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
 
@@ -221,10 +285,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage, bool enable_to_move_
 
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
-	if (!enable_to_move_flag)
-	{
-		scopeMove = {};
-	}
 
 
 	//カメラの回転を保存。
@@ -241,10 +301,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage, bool enable_to_move_
 
 		//入力された移動量を取得
 		m_rowMoveVec = OperationConfig::Instance()->GetMoveVecFuna(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
-		if (!enable_to_move_flag)
-		{
-			m_rowMoveVec = {};
-		}
 
 		//移動させる。
 		Move(newPos);
@@ -291,6 +347,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage, bool enable_to_move_
 
 	//カメラ操作
 	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_normalSpinQ, m_cameraRotYStorage);
+
+	//ギミックの移動を打ち消す。
+	m_gimmickVel = KuroEngine::Vec3<float>();
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
@@ -305,7 +364,7 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 	static IndividualDrawParameter drawParam = IndividualDrawParameter::GetDefault();
 	drawParam.m_isPlayer = 1;
 
-	BasicDraw::Instance()->Draw(
+	BasicDraw::Instance()->Draw_Player(
 		arg_cam,
 		arg_ligMgr,
 		m_model,
@@ -536,15 +595,20 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 			//押し戻す。
 			arg_charaPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
 
+			//地形が動く床だったら有効化する。
+			if (arg_collisionData.m_stageType == StageParts::MOVE_SCAFFOLD) {
+
+				//ギミックに当たっている判定
+				m_onGimmick = true;
+
+				//さらにギミックに当たったトリガーだったらギミックを有効化させる。
+				if (!m_prevOnGimmick) {
+					arg_collisionData.m_stage.lock()->Activate();
+				}
+
+			}
+
 			break;
-
-		case RAY_ID::CHECK_CLIFF:
-		{
-
-			break;
-
-		}
-
 
 		case Player::RAY_ID::AROUND:
 
@@ -600,6 +664,9 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 	//移動量加算
 	arg_newPos += moveAmount;
 
+	//ギミックの移動量も加算。
+	arg_newPos += m_gimmickVel;
+
 	//地面に張り付ける用の重力。
 	if (!m_onGround) {
 		arg_newPos -= m_transform.GetUp() * (m_transform.GetScale().y / 2.0f);
@@ -607,16 +674,16 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 
 }
 
-void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<float>& arg_nowpos, const std::weak_ptr<Stage>arg_nowStage) {
+void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<float>& arg_nowpos, std::weak_ptr<Stage>arg_nowStage) {
 
 	HitCheckResult hitResult;
-	if (!HitCheckAndPushBack(arg_frompos, arg_nowpos, arg_nowStage.lock()->GetTerrianArray(), &hitResult))return;
+	if (!HitCheckAndPushBack(arg_frompos, arg_nowpos, arg_nowStage, &hitResult))return;
 
 	//地形の法線が真下を向いているときに誤差できれいに0,-1,0になってくれないせいでうまくいかないので苦肉の策。
 	if (hitResult.m_terrianNormal.y < -0.9f) {
 		hitResult.m_terrianNormal = { 0,-1,0 };
 	}
-	
+
 	//カメラを矯正する。
 	AdjustCaneraRotY(m_transform.GetUp(), hitResult.m_terrianNormal);
 

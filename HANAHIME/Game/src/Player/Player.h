@@ -3,8 +3,8 @@
 #include"Common/Transform.h"
 #include"ForUser/Debugger.h"
 #include"CameraController.h"
-#include"../../../../src/engine/Render/RenderObject/ModelInfo/ModelMesh.h"
-#include"../Stage/Stage.h"
+#include"Render/RenderObject/ModelInfo/ModelMesh.h"
+#include"../Stage/StageParts.h"
 #include"Render/RenderObject/Light.h"
 
 #include<memory>
@@ -16,7 +16,6 @@ namespace KuroEngine
 }
 
 class Stage;
-struct Terrian;
 
 class Player : public KuroEngine::Debugger
 {
@@ -62,13 +61,18 @@ class Player : public KuroEngine::Debugger
 	float m_maxSpeed = 0.5f;
 	float m_brake = 0.07f;
 
+	//ギミックの移動量
+	KuroEngine::Vec3<float> m_gimmickVel;
+
 	//壁移動の距離
-	const float WALL_JUMP_LENGTH = 6.0f;
+	const float WALL_JUMP_LENGTH = 3.0f;
 
 	//接地フラグ
 	bool m_isFirstOnGround;	//開始時に空中から始まるので、着地済みだということを判断する用変数。
 	bool m_onGround;		//接地フラグ
 	bool m_prevOnGround;	//1F前の接地フラグ
+	bool m_prevOnGimmick;	//ギミックの上にいるかどうか
+	bool m_onGimmick;		//ギミックの上にいるかどうか
 
 	//Imguiデバッグ関数オーバーライド
 	void OnImguiItems()override;
@@ -94,7 +98,7 @@ class Player : public KuroEngine::Debugger
 	{
 		KuroEngine::Vec3<float>m_terrianNormal;
 	};
-	bool HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, const std::vector<Terrian>& arg_terrianArray, HitCheckResult* arg_hitInfo = nullptr);
+	bool HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo = nullptr);
 
 	//プレイヤーの大きさ（半径）
 	float GetPlayersRadius()
@@ -105,7 +109,7 @@ class Player : public KuroEngine::Debugger
 public:
 	Player();
 	void Init(KuroEngine::Transform arg_initTransform);
-	void Update(const std::weak_ptr<Stage>arg_nowStage, bool enable_to_move_flag);
+	void Update(const std::weak_ptr<Stage>arg_nowStage);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw = false);
 	void Finalize();
 
@@ -113,14 +117,17 @@ public:
 
 	//カメラコントローラーのデバッガポインタ取得
 	KuroEngine::Debugger* GetCameraControllerDebugger() { return &m_camController; }
-	KuroEngine::Transform &GetCameraControllerParentTransform() { return m_camController.GetParentTransform(); }
+	KuroEngine::Transform& GetCameraControllerParentTransform() { return m_camController.GetParentTransform(); }
 
 	KuroEngine::Transform& GetTransform() { return m_transform; }
 	KuroEngine::Vec2<float>& GetGrassPosScatter() { return m_grassPosScatter; }
 
+	void SetGimmickVel(const KuroEngine::Vec3<float>& arg_gimmickVel) { m_gimmickVel = arg_gimmickVel; }
+
 	//点光源ゲッタ
 	KuroEngine::Light::Point* GetPointLig() { return &m_ptLig; }
 	bool GetOnGround() { return m_onGround; }
+	bool GetOnGimmick() { return m_onGimmick; }
 	bool GetIsStatusMove() { return m_playerMoveStatus == PLAYER_MOVE_STATUS::MOVE; }
 
 private:
@@ -135,7 +142,6 @@ private:
 	//発射するレイのID
 	enum class RAY_ID {
 
-		CHECK_CLIFF,	//崖かどうかをチェックする用
 		GROUND,	//地上向かって飛ばすレイ。設置判定で使用する。
 		AROUND,	//周囲に向かって飛ばすレイ。壁のぼり判定で使用する。
 
@@ -169,6 +175,8 @@ private:
 		std::vector<ImpactPointData> m_impactPoint;	//前後左右のレイの当たった地点。
 		bool m_onGround;							//接地フラグ
 		KuroEngine::Vec3<float> m_bottomTerrianNormal;
+		StageParts::STAGE_PARTS_TYPE m_stageType;
+		std::weak_ptr<StageParts> m_stage;			//ステージ
 	};
 
 	/// <summary>
@@ -186,7 +194,7 @@ private:
 	void Move(KuroEngine::Vec3<float>& arg_newPos);
 
 	//当たり判定
-	void CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<float>& arg_nowpos, const std::weak_ptr<Stage>arg_nowStage);
+	void CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<float>& arg_nowpos, std::weak_ptr<Stage>arg_nowStage);
 
 	//ベジエ曲線を求める。
 	KuroEngine::Vec3<float> CalculateBezierPoint(float arg_time, KuroEngine::Vec3<float> arg_startPoint, KuroEngine::Vec3<float> arg_endPoint, KuroEngine::Vec3<float> arg_controlPoint);

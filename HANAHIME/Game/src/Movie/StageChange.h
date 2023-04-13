@@ -1,7 +1,7 @@
 #pragma once
 #include"Common/Transform.h"
-#include"../../../src/engine/Render/RenderObject/SpriteMesh.h"
-#include"../../../src/engine/ForUser/Timer.h"
+#include"Render/RenderObject/SpriteMesh.h"
+#include"ForUser/Timer.h"
 
 /// <summary>
 /// ”àˆÚ“®‚Ì‘JˆÚ‰‰o

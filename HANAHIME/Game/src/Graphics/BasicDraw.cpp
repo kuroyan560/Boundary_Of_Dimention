@@ -81,10 +81,9 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), (AlphaBlendMode)i),	//通常描画
 			RenderTargetInfo(DXGI_FORMAT_R32G32B32A32_FLOAT, AlphaBlendMode_Trans),	//エミッシブマップ
 			RenderTargetInfo(DXGI_FORMAT_R16_FLOAT, AlphaBlendMode_None),	//深度マップ
-			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//ノーマルマップ
 			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_None),	//エッジカラーマップ
 			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//草むらマップ
-			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_Trans),	//プレイヤーより向こう側を描画（透過用）
+			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//ノーマルマップ
 			RenderTargetInfo(DXGI_FORMAT_R32G32B32A32_FLOAT, AlphaBlendMode_Trans),	//ワールド座標保存用
 		};
 	}
@@ -110,6 +109,37 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 			ROOT_PARAMETER, 
 			RENDER_TARGET_INFO[i],
 			{ WrappedSampler(true, true) });
+	}
+
+	//プレイヤー用パイプライン生成
+	{
+
+		std::vector<RenderTargetInfo> playerRenderTargetInfo =
+		{
+			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), (AlphaBlendMode)0),	//通常描画
+			RenderTargetInfo(DXGI_FORMAT_R32G32B32A32_FLOAT, AlphaBlendMode_Trans),	//エミッシブマップ
+			RenderTargetInfo(DXGI_FORMAT_R16_FLOAT, AlphaBlendMode_None),	//深度マップ
+			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_None),	//エッジカラーマップ
+			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//草むらマップ
+		};
+
+		//パイプライン設定
+		static PipelineInitializeOption PIPELINE_OPTION(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		//シェーダー情報
+		static Shaders SHADERS;
+		SHADERS.m_vs = D3D12App::Instance()->CompileShader("resource/user/shaders/BasicShader_Player.hlsl", "VSmain", "vs_6_4");
+		SHADERS.m_ps = D3D12App::Instance()->CompileShader("resource/user/shaders/BasicShader_Player.hlsl", "PSmain", "ps_6_4");
+
+		//パイプライン生成
+		m_drawPipeline_player = D3D12App::Instance()->GenerateGraphicsPipeline(
+			PIPELINE_OPTION,
+			SHADERS,
+			ModelMesh::Vertex::GetInputLayout(),
+			ROOT_PARAMETER,
+			playerRenderTargetInfo,
+			{ WrappedSampler(true, true) });
+
 	}
 
 	//インスタンシング描画パイプライン生成
@@ -186,9 +216,9 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		{
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"平行投影行列"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"デプスマップ"),
-			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"法線マップ"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"光が当たっている範囲のマップ"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"エッジカラーマップ"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"法線マップ"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"専用のパラメータ"),
 		};
 
@@ -241,7 +271,7 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 	//レンダーターゲット生成
 	std::array<std::string, RENDER_TARGET_TYPE::NUM>targetNames =
 	{
-		"MainRenderTarget","EmissiveMap","DepthMap","NormalMap","EdgeColorMap","BrightMap","FarThanPlayer", "WorldPos"
+		"MainRenderTarget","EmissiveMap","DepthMap","EdgeColorMap","BrightMap", "NormalMap", "WorldPos"
 	};
 	auto targetSize = D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize();
 	for (int targetIdx = 0; targetIdx < RENDER_TARGET_TYPE::NUM; ++targetIdx)
@@ -332,6 +362,59 @@ void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_
 
 	m_drawCount++;
 	m_individualParamCount++;
+}
+
+void BasicDraw::Draw_Player(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform& arg_transform, const IndividualDrawParameter& arg_toonParam, const KuroEngine::AlphaBlendMode& arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff)
+{
+
+	using namespace KuroEngine;
+
+	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_drawPipeline_player);
+
+	//トランスフォームバッファ送信
+	if (m_drawTransformBuff.size() < (m_drawCount + 1))
+	{
+		m_drawTransformBuff.emplace_back(D3D12App::Instance()->GenerateConstantBuffer(sizeof(Matrix), 1, nullptr, ("BasicDraw - Transform -" + std::to_string(m_drawCount)).c_str()));
+	}
+	m_drawTransformBuff[m_drawCount]->Mapping(&arg_transform.GetMatWorld());
+
+	//トゥーンの個別パラメータバッファ送信
+	if (m_toonIndividualParamBuff.size() < (m_individualParamCount + 1))
+	{
+		m_toonIndividualParamBuff.emplace_back(D3D12App::Instance()->GenerateConstantBuffer(sizeof(IndividualDrawParameter), 1, nullptr, ("BasicDraw - IndividualDrawParameter -" + std::to_string(m_individualParamCount)).c_str()));
+	}
+	m_toonIndividualParamBuff[m_individualParamCount]->Mapping(&arg_toonParam);
+
+	auto model = arg_model.lock();
+
+	for (int meshIdx = 0; meshIdx < model->m_meshes.size(); ++meshIdx)
+	{
+		const auto& mesh = model->m_meshes[meshIdx];
+		KuroEngineDevice::Instance()->Graphics().ObjectRender(
+			mesh.mesh->vertBuff,
+			mesh.mesh->idxBuff,
+			{
+				{arg_cam.GetBuff(),CBV},
+				{arg_ligMgr.GetLigNumInfo(),CBV},
+				{arg_ligMgr.GetLigInfo(Light::DIRECTION),SRV},
+				{arg_ligMgr.GetLigInfo(Light::POINT),SRV},
+				{arg_ligMgr.GetLigInfo(Light::SPOT),SRV},
+				{arg_ligMgr.GetLigInfo(Light::HEMISPHERE),SRV},
+				{m_drawTransformBuff[m_drawCount],CBV},
+				{arg_boneBuff,CBV},
+				{mesh.material->texBuff[COLOR_TEX],SRV},
+				{mesh.material->buff,CBV},
+				{m_toonCommonParamBuff,CBV},
+				{m_toonIndividualParamBuff[m_individualParamCount],CBV},
+				{m_playerInfoBuffer,CBV},
+			},
+			arg_transform.GetPos().z,
+			arg_blendMode == AlphaBlendMode_Trans);
+	}
+
+	m_drawCount++;
+	m_individualParamCount++;
+
 }
 
 void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform& arg_transform, const KuroEngine::AlphaBlendMode& arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff)
@@ -440,9 +523,9 @@ void BasicDraw::DrawEdge()
 	{
 		{KuroEngineDevice::Instance()->GetParallelMatProjBuff(),CBV},
 		{m_renderTargetArray[DEPTH],SRV},
-		{m_renderTargetArray[NORMAL],SRV},
 		{m_renderTargetArray[BRIGHT],SRV},
 		{m_renderTargetArray[EDGE_COLOR],SRV},
+		{m_renderTargetArray[NORMAL],SRV},
 		{m_edgeShaderParamBuff,CBV},
 	};
 	m_spriteMesh->Render(descDatas);

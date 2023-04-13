@@ -189,6 +189,8 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Movie\MovieCamera.cpp" />
     <ClCompile Include="src\Movie\StageChange.cpp" />
     <ClCompile Include="src\OperationConfig.cpp" />
+    <ClCompile Include="src\OutGame\PazzleStageSelect.cpp" />
+    <ClCompile Include="src\OutGame\Select.cpp" />
     <ClCompile Include="src\OutGame\Title.cpp" />
     <ClCompile Include="src\Player\CameraController.cpp" />
     <ClCompile Include="src\Player\Player.cpp" />
@@ -196,7 +198,8 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Stage\Grass.cpp" />
     <ClCompile Include="src\Stage\Stage.cpp" />
     <ClCompile Include="src\Stage\StageManager.cpp" />
-    <ClCompile Include="src\Stage\StageSelect.cpp" />
+    <ClCompile Include="src\Stage\StageParts.cpp" />
+    <ClCompile Include="src\Stage\HomeStageSelect.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\lib\dxcompiler\inc\d3d12shader.h" />
@@ -297,6 +300,8 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Movie\MovieCamera.h" />
     <ClInclude Include="src\Movie\StageChange.h" />
     <ClInclude Include="src\OperationConfig.h" />
+    <ClInclude Include="src\OutGame\PazzleStageSelect.h" />
+    <ClInclude Include="src\OutGame\Select.h" />
     <ClInclude Include="src\OutGame\Title.h" />
     <ClInclude Include="src\Player\CameraController.h" />
     <ClInclude Include="src\Player\Player.h" />
@@ -304,7 +309,8 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Stage\Grass.h" />
     <ClInclude Include="src\Stage\Stage.h" />
     <ClInclude Include="src\Stage\StageManager.h" />
-    <ClInclude Include="src\Stage\StageSelect.h" />
+    <ClInclude Include="src\Stage\StageParts.h" />
+    <ClInclude Include="src\Stage\HomeStageSelect.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

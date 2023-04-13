@@ -6,10 +6,10 @@
 /// <summary>
 /// ƒz[ƒ€‰æ–Ê
 /// </summary>
-class StageSelect
+class HomeStageSelect
 {
 public:
-	StageSelect();
+	HomeStageSelect();
 	void Init();
 	void Update();
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr);
