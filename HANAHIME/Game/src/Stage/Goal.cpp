@@ -36,14 +36,20 @@ void Goal::Update(KuroEngine::Transform *transform)
 
 		{
 			MovieCameraData data;
-			data.transform.SetParent(transform);
-			data.preStopTimer = 2;
+			data.transform = m_model->m_transform;
+			data.transform.SetPos(m_model->m_transform.GetPos() + KuroEngine::Vec3<float>(0.0f, 0.0f, -12.0f));
+
+			data.interpolationTimer = 0;
+			data.afterStopTimer = 3;
 			cameraDataArray.emplace_back(data);
 		}
 
 		{
 			MovieCameraData data;
-			data.transform.SetParent(transform);
+			data.transform = m_model->m_transform;
+			data.transform.SetPos(m_model->m_transform.GetPos() + KuroEngine::Vec3<float>(0.0f, 0.0f, -12.0f));
+			//data.afterStopTimer = 2;
+
 			cameraDataArray.emplace_back(data);
 		}
 
