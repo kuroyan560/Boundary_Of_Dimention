@@ -73,7 +73,7 @@ private:
 
 	//タイトルロゴ
 	KuroEngine::Vec2<float> m_titlePos, m_titleLogoSize;
-	std::shared_ptr<KuroEngine::TextureBuffer> m_blackTexBuff;
+	std::shared_ptr<KuroEngine::TextureBuffer> m_titleTexBuff;
 	KuroEngine::Timer m_alphaRate;
 
 	//ステージ選択画面
