@@ -36,7 +36,7 @@ StageManager::StageManager()
 	m_stageArray.emplace_back(std::make_shared<Stage>());
 	m_stageArray.back()->Load("resource/user/level/", "P_Stage_8.json", 1.0f);
 	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_9.json", 1.0f);
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_9.json", 2.0f);
 	m_stageArray.emplace_back(std::make_shared<Stage>());
 	m_stageArray.back()->Load("resource/user/level/", "P_Stage_10.json", 1.0f);
 

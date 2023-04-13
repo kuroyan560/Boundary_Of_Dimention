@@ -108,6 +108,8 @@ void MoveScaffold::OnInit()
 	m_moveLength = 0;
 	m_nowMoveLength = 0;
 	m_moveDir = KuroEngine::Vec3<float>();
+	
+	m_transform.SetPos(m_translationArray[0]);
 
 	//“–‚½‚è”»’è‚ğÄ\’zB
 	BuilCollisionMesh();
