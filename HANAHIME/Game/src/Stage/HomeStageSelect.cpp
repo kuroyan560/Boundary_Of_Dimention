@@ -3,10 +3,10 @@
 HomeStageSelect::HomeStageSelect()
 {
 	//ステージ選択用のゲート生成----------------------------------------
-	m_gateDataArray = ConvertModelToGateData::Convert("resource/user/level/", "New_Home.json", 5.0f);
+	m_gateDataArray = ConvertModelToGateData::GetMeshPos("resource/user/level/", "New_Home.json", "Gate", 5.0f);
 	for (auto &obj : m_gateDataArray)
 	{
-		m_gateArray.emplace_back(std::make_unique<Gate>(obj.m_transform, obj.m_stageNum));
+		m_gateArray.emplace_back(std::make_unique<Gate>(obj,0));
 	}
 	//ステージ選択用のゲート生成----------------------------------------
 }

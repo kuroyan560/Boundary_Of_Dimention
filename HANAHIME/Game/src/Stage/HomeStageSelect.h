@@ -2,6 +2,7 @@
 #include"Gate.h"
 #include"../Movie/StageChange.h"
 #include"../Movie/MovieCamera.h"
+#include"../Stage/StageInfomation.h"
 
 /// <summary>
 /// ƒz[ƒ€‰æ–Ê
@@ -22,7 +23,7 @@ public:
 	int GetStageNumber(const KuroEngine::Vec3<float> &player_pos);
 private:
 	std::vector<std::unique_ptr<Gate>>m_gateArray;
-	std::vector<GateData>m_gateDataArray;
+	std::vector<KuroEngine::Transform>m_gateDataArray;
 
 	MovieCameraData titleCameraData;
 };

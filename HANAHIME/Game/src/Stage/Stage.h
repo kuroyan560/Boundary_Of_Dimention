@@ -81,6 +81,12 @@ public:
 		return KuroEngine::Transform();
 	}
 
+	KuroEngine::Transform GetGoalTransform()const
+	{
+		if (m_goalPoint)return m_goalPoint->GetTransform();
+		return KuroEngine::Transform();
+	};
+
 //モデルのゲッタ
 	//スカイドーム
 	std::weak_ptr<KuroEngine::Model>GetSkydomeModel() { return m_skydomeModel; }
@@ -88,6 +94,8 @@ public:
 	std::weak_ptr<KuroEngine::Model>GetWoodsCylinderModel() { return m_woodsCylinderModel; }
 	//地面
 	std::weak_ptr<KuroEngine::TextureBuffer>GetGroundTex() { return m_groundTex; }
+
+
 
 private:
 };

@@ -8,6 +8,12 @@ MovieCamera::MovieCamera() :m_startFlag(false), m_stopFlag(false), m_preStopTime
 	m_cam->SetFarZ(10000.0f);
 }
 
+void MovieCamera::Init()
+{
+	m_startFlag = false;
+	m_finishFlag = false;
+}
+
 void MovieCamera::Update()
 {
 	if (!m_startFlag)
@@ -94,7 +100,7 @@ void MovieCamera::StartMovie(std::vector<MovieCameraData> &move_data,bool loop_f
 	m_timerArray.shrink_to_fit();
 	for (int i = 0; i < move_data.size(); ++i)
 	{
-		m_timerArray.emplace_back(static_cast<float>(m_moveDataArray[i].interpolationTimer * 60));
+		m_timerArray.emplace_back(static_cast<float>(1 + m_moveDataArray[i].interpolationTimer * 60));
 	}
 
 

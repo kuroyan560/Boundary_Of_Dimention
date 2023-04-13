@@ -11,11 +11,9 @@ Title::Title()
 	m_storyModeTexBuff(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/title/Story.png")),
 	m_delayTime(10)
 {
-
-
 }
 
-void Title::Init()
+void Title::Init(TitleMode title_mode)
 {
 	m_startGameFlag = false;
 	m_isFinishFlag = false;
@@ -75,6 +73,17 @@ void Title::Init()
 
 	m_pazzleModeLogoPos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() + KuroEngine::Vec2<float>(KuroEngine::WinApp::Instance()->GetExpandWinCenter().x / 2.0f, KuroEngine::WinApp::Instance()->GetExpandWinCenter().y / 2.0f);
 	m_storyModeLogoPos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() + KuroEngine::Vec2<float>(-KuroEngine::WinApp::Instance()->GetExpandWinCenter().x / 2.0f, KuroEngine::WinApp::Instance()->GetExpandWinCenter().y / 2.0f);
+
+	switch (title_mode)
+	{
+	case TITLE_SELECT:
+		break;
+	case TITLE_PAZZLE:
+		m_startPazzleFlag = true;
+		break;
+	default:
+		break;
+	}
 }
 
 void Title::Update(KuroEngine::Transform *player_camera)

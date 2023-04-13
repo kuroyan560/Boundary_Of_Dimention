@@ -1,3 +1,4 @@
+#pragma once
 #include"Common/Vec.h"
 #include"Framework/UsersInput.h"
 #include<vector>

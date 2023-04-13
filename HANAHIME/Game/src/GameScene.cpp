@@ -25,18 +25,21 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer())
 	m_dirLigArray.back().SetDir(dir.GetNormal());
 	m_dirLigArray.back().SetColor(KuroEngine::Color(0.8f, 0.8f, 0.8f, 1.0f));
 
-	for (auto& dirLig : m_dirLigArray)
+	for (auto &dirLig : m_dirLigArray)
 	{
 		m_ligMgr.RegisterDirLight(&dirLig);
 	}
 	m_ligMgr.RegisterPointLight(m_player.GetPointLig());
 
 	m_hemiLig.SetSkyColor(KuroEngine::Color(107, 196, 198, 255));
-	m_hemiLig.SetGroundColor(KuroEngine::Color(0,0,0,1));
+	m_hemiLig.SetGroundColor(KuroEngine::Color(0, 0, 0, 1));
 	m_ligMgr.RegisterHemiSphereLight(&m_hemiLig);
 
 	auto backBuffTarget = KuroEngine::D3D12App::Instance()->GetBackBuffRenderTarget();
 	m_fogPostEffect = std::make_shared<KuroEngine::Fog>(backBuffTarget->GetGraphSize(), backBuffTarget->GetDesc().Format);
+
+	//起動時にタイトル画面を出す為に必要
+	m_eTitleMode = TITLE_SELECT;
 }
 
 
@@ -61,10 +64,13 @@ void GameScene::OnInitialize()
 	m_grass.Init();
 
 	m_waterPaintBlend.Init();
-	m_title.Init();
 
 	//タイトル画面に戻る
 	StageManager::Instance()->SetStage();
+
+	m_title.Init(m_eTitleMode);
+	//ゲーム画面からパズルモードに戻る場合にパズルモードとして初期化した後、再び選択できるようSELECTを入れる
+	m_eTitleMode = TITLE_SELECT;
 }
 
 void GameScene::OnUpdate()
@@ -92,6 +98,14 @@ void GameScene::OnUpdate()
 	{
 		m_nowCam = m_movieCamera.GetCamera().lock();
 	}
+	//ゴール時の演出
+	if (m_goal.IsHit(m_player.GetTransform().GetPos()))
+	{
+		m_nowCam = m_goal.GetCamera().lock();
+		OperationConfig::Instance()->SetActive(false);
+		m_clearFlag = true;
+	}
+
 	if (DebugController::Instance()->IsActive())
 	{
 		m_debugCam.Move();
@@ -118,6 +132,11 @@ void GameScene::OnUpdate()
 		stageNum = m_title.GetStageNum();
 	}
 
+	//ゲームクリア演出を終えたら遷移開始
+	if (m_goal.IsEnd())
+	{
+		stageNum = 1;
+	}
 
 	//ステージ移動時の初期化
 	if (stageNum != -1)
@@ -136,12 +155,24 @@ void GameScene::OnUpdate()
 			m_title.FinishTitle();
 			OperationConfig::Instance()->SetActive(true);
 		}
+
+		m_goal.Init(StageManager::Instance()->GetGoalTransform());
+
+		//ゲームクリア時に遷移する処理
+		if (m_clearFlag)
+		{
+			m_eTitleMode = TITLE_PAZZLE;
+			this->Initialize();
+			m_clearFlag = false;
+		}
 	}
-	
+
 
 	m_stageSelect.Update();
 	//ホームでの処理----------------------------------------
 
+
+	m_goal.Update(&m_player.GetCamera().lock()->GetTransform());
 	m_gateSceneChange.Update();
 
 	m_movieCamera.Update();
@@ -185,7 +216,7 @@ void GameScene::OnDraw()
 	m_stageSelect.Draw(*m_nowCam, m_ligMgr);
 
 	//m_movieCamera.DebugDraw(*m_nowCam, m_ligMgr);
-
+	m_goal.Draw(*m_nowCam);
 
 	//m_canvasPostEffect.Execute();
 	BasicDraw::Instance()->DrawEdge();

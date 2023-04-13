@@ -355,6 +355,9 @@
     <ClCompile Include="src\Stage\StageParts.cpp">
       <Filter>src\user\Stage</Filter>
     </ClCompile>
+    <ClCompile Include="src\Stage\Goal.cpp">
+      <Filter>src\user\Stage</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -689,6 +692,10 @@
       <Filter>src\user\OutGame</Filter>
     </ClInclude>
     <ClInclude Include="src\Stage\StageParts.h">
+      <Filter>src\user\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\Goal.h" />
+    <ClInclude Include="src\Stage\StageInfomation.h">
       <Filter>src\user\Stage</Filter>
     </ClInclude>
   </ItemGroup>

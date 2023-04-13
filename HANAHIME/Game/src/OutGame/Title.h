@@ -3,6 +3,12 @@
 #include"ForUser/DrawFunc/2D/DrawFunc2D.h"
 #include"PazzleStageSelect.h"
 
+enum TitleMode
+{
+	TITLE_SELECT,//選択画面に戻りたい時
+	TITLE_PAZZLE //パズル画面に戻りたい時
+};
+
 /// <summary>
 /// タイトル画面向けの処理
 /// </summary>
@@ -10,7 +16,7 @@ class Title
 {
 public:
 	Title();
-	void Init();
+	void Init(TitleMode title_mode);
 	void Update(KuroEngine::Transform *player_camera);
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr);
 

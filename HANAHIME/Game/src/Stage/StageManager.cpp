@@ -104,3 +104,8 @@ KuroEngine::Transform StageManager::GetPlayerSpawnTransform() const
 {
 	return m_nowStage->GetPlayerSpawnTransform();
 }
+
+KuroEngine::Transform StageManager::GetGoalTransform() const
+{
+	return m_nowStage->GetGoalTransform();
+}

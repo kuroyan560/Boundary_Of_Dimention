@@ -14,6 +14,7 @@
 #include"OutGame/Title.h"
 #include"GPUParticle/GPUParticleRender.h"
 #include"GPUParticle/FireFlyOutStage.h"
+#include"Stage/Goal.h"
 
 
 class GameScene : public KuroEngine::BaseScene
@@ -57,7 +58,10 @@ class GameScene : public KuroEngine::BaseScene
 
 	std::shared_ptr<KuroEngine::Camera>m_nowCam;
 
+	TitleMode m_eTitleMode;
 	Title m_title;
+	Goal m_goal;
+	bool m_clearFlag;
 
 	//GPUパーティクルの描画
 	GPUParticleRender m_particleRender;

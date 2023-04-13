@@ -51,4 +51,6 @@ public:
 
 	//プレイヤーの初期化トランスフォーム
 	KuroEngine::Transform GetPlayerSpawnTransform()const;
+
+	KuroEngine::Transform GetGoalTransform()const;
 };

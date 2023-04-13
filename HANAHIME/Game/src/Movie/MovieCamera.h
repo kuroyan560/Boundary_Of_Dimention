@@ -32,6 +32,7 @@ class MovieCamera
 {
 public:
 	MovieCamera();
+	void Init();
 	void Update();
 	void StartMovie(std::vector<MovieCameraData> &move_data, bool loop_flag);
 
