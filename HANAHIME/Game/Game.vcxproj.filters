@@ -353,7 +353,7 @@
       <Filter>src\user\OutGame</Filter>
     </ClCompile>
     <ClCompile Include="src\Stage\StageParts.cpp">
-      <Filter>src</Filter>
+      <Filter>src\user\Stage</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -688,6 +688,8 @@
     <ClInclude Include="src\OutGame\Select.h">
       <Filter>src\user\OutGame</Filter>
     </ClInclude>
-    <ClInclude Include="src\Stage\StageParts.h" />
+    <ClInclude Include="src\Stage\StageParts.h">
+      <Filter>src\user\Stage</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
