@@ -85,7 +85,24 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	m_onGimmick = false;
 
 	//ギミックによる移動があったかどうか
-	bool isMoveGimmick = 0 < m_gimmickVel.Length();
+	bool isCastGimmickRayRight = false;
+	bool isCastGimmickRayLeft = false;
+	bool isCastGimmickRayFront = false;
+	bool isCastGimmickRayBehind = false;
+
+	//ギミックにより移動していたら
+	if (0 < m_gimmickVel.Length()) {
+
+		KuroEngine::Vec3<float> rightVec = m_transform.GetRight();
+		KuroEngine::Vec3<float> frontVec = m_transform.GetFront();
+
+		//右方向にレイを飛ばすか。
+		isCastGimmickRayRight = 0 < (m_gimmickVel * (rightVec.Dot(m_gimmickVel) / rightVec.Dot(m_gimmickVel))).Length();
+		isCastGimmickRayLeft = (m_gimmickVel * (rightVec.Dot(m_gimmickVel) / rightVec.Dot(m_gimmickVel))).Length() < 0;
+		isCastGimmickRayFront = 0 < (m_gimmickVel * (frontVec.Dot(m_gimmickVel) / frontVec.Dot(m_gimmickVel))).Length();
+		isCastGimmickRayBehind = (m_gimmickVel * (frontVec.Dot(m_gimmickVel) / frontVec.Dot(m_gimmickVel))).Length() < 0;
+
+	}
 
 	//地形配列走査
 	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
@@ -108,16 +125,16 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			//判定↓============================================
 
 			//右方向にレイを飛ばす。これは壁にくっつく用。
-			if (isMoveGimmick || 0 < m_rowMoveVec.x)CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isCastGimmickRayRight || 0 < m_rowMoveVec.x)CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//左方向にレイを飛ばす。これは壁にくっつく用。
-			if (isMoveGimmick || m_rowMoveVec.x < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isCastGimmickRayLeft || m_rowMoveVec.x < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
-			if (isMoveGimmick || m_rowMoveVec.z < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isCastGimmickRayBehind || m_rowMoveVec.z < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//正面方向にレイを飛ばす。これは壁にくっつく用。
-			if (isMoveGimmick || 0 < m_rowMoveVec.z)CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isCastGimmickRayFront || 0 < m_rowMoveVec.z)CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//下方向にレイを飛ばす。これは地面との押し戻し用。
 			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::GROUND);
@@ -150,16 +167,16 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			//判定↓============================================
 
 			//右方向にレイを飛ばす。これは壁にくっつく用。
-			if (isMoveGimmick || 0 < m_rowMoveVec.x)CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isCastGimmickRayRight || 0 < m_rowMoveVec.x)CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//左方向にレイを飛ばす。これは壁にくっつく用。
-			if (isMoveGimmick || m_rowMoveVec.x < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isCastGimmickRayLeft || m_rowMoveVec.x < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
-			if (isMoveGimmick || m_rowMoveVec.z < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isCastGimmickRayBehind || m_rowMoveVec.z < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//正面方向にレイを飛ばす。これは壁にくっつく用。
-			if (isMoveGimmick || 0 < m_rowMoveVec.z)CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isCastGimmickRayFront || 0 < m_rowMoveVec.z)CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//下方向にレイを飛ばす。これは地面との押し戻し用。
 			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::GROUND);
