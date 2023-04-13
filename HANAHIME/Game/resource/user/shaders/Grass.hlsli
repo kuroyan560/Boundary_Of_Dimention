@@ -8,6 +8,7 @@ struct PlantGrass
     float m_appearY;
     float m_appearYTimer;
     int m_isAlive;
+    int m_pad;
 };
 
 //全草むらで共通する定数バッファ用のパラメータ
@@ -27,6 +28,7 @@ struct CommonGrassInfo
     float m_sineWave;
     //草を枯らす距離
     float m_deathDistance;
+    float3 m_pad;
 };
 
 //草むら以外の外部オブジェクトのトランスフォーム情報
@@ -34,6 +36,7 @@ struct TransformData
 {
     float3 m_camPos;
     int m_seed;
+    float2 m_pad;
     int m_grassCount;
     int m_plantOnceCount;
 };

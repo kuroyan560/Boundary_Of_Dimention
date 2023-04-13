@@ -199,7 +199,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 	transformData.m_camPos = { arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[0],arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[1],arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[2] };
 	m_otherTransformConstBuffer->Mapping(&transformData);
 
-	if (m_plantTimer.IsTimeUp())
+	if (m_plantTimer.IsTimeUp() && 0 < KuroEngine::Vec3<float>(m_oldPlayerPos - arg_playerTransform.GetPos()).Length())
 	{
 		//トランスフォームに流し込む
 		Transform grassTransform;
@@ -385,7 +385,7 @@ std::array<Grass::CheckResult, Grass::PLANT_ONCE_COUNT> Grass::SearchPlantPos(Ku
 	//生成してある草むらの数を取得
 	D3D12App::Instance()->DispathOneShot(
 		m_cPipeline[SEARCH_PLANT_POS],
-		{ 1 ,1,1 },
+		{ PLANT_ONCE_COUNT ,1,1 },
 		descData);
 
 	//判定結果の取得
@@ -394,7 +394,7 @@ std::array<Grass::CheckResult, Grass::PLANT_ONCE_COUNT> Grass::SearchPlantPos(Ku
 	for (int index = 0; index < PLANT_ONCE_COUNT; ++index) {
 
 		result[index].m_isSuccess = checkResultPtr[index].m_isSuccess;
-		result[index].m_plantNormal = checkResultPtr[index].m_plantNormal;
+		result[index].m_plantNormal = checkResultPtr[index].m_plantNormal.GetNormal();
 		result[index].m_plantPos = checkResultPtr[index].m_plantPos + checkResultPtr[index].m_plantNormal;	//埋まってしまうので法線方向に少しだけ動かす。
 
 	}

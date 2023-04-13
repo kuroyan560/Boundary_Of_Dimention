@@ -46,6 +46,7 @@ class Grass
 		float m_appearY;		//出現エフェクトに使用する変数 Y軸をどこまで表示させるか。
 		float m_appearYTimer;
 		int m_isAlive;
+		int m_pad;
 	};
 	//植えた草の情報配列バッファ
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_plantGrassBuffer;
@@ -56,9 +57,11 @@ class Grass
 	struct GrassInitializer
 	{
 		KuroEngine::Vec3<float>m_pos;
-		KuroEngine::Vec3<float>m_up;
 		float m_sineLength;
+		KuroEngine::Vec3<float>m_up;
 		int m_texIdx;
+		KuroEngine::Vec3<float>m_pad;
+		int m_isAlive;
 	};
 	//一度に生成できる最大数
 	static const int GENERATE_MAX_ONCE = 2000;
@@ -71,7 +74,7 @@ class Grass
 	int m_plantGrassMax = 10000;
 
 	//一度に植える草の数
-	static const int PLANT_ONCE_COUNT = 10;
+	static const int PLANT_ONCE_COUNT = 256;
 
 	//コンピュートパイプライン種別
 	enum COMPUTE_PHASE { INIT, SEARCH_PLANT_POS, APPEAR, UPDATE, SORT, DISAPPEAR, NUM };
@@ -88,6 +91,7 @@ class Grass
 	{
 		KuroEngine::Vec3<float>m_camPos;
 		int m_seed;
+		KuroEngine::Vec2<float> m_pad;
 		int m_grassCount;
 		int m_plantOnceCount;
 	};
@@ -110,6 +114,7 @@ class Grass
 		float m_sineWave = 0;
 		//草を枯らす距離
 		float m_deathDistance = 8.0f;
+		KuroEngine::Vec3<float> m_pad;
 	}m_constData;
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_constBuffer;
 
@@ -118,8 +123,9 @@ class Grass
 	{
 		//int m_aroundGrassCount = 0;
 		KuroEngine::Vec3<float> m_plantPos;
-		KuroEngine::Vec3<float> m_plantNormal;
 		int m_isSuccess;
+		KuroEngine::Vec3<float> m_plantNormal;
+		int m_pad;
 	};
 	//周辺に草むらがあるか確認した結果を格納するバッファ
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_checkResultBuffer;
