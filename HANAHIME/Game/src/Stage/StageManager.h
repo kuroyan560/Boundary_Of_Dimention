@@ -2,6 +2,7 @@
 #include"Common/Singleton.h"
 #include"ForUser/Debugger.h"
 #include"Common/Transform.h"
+#include"StageParts.h"
 
 #include<memory>
 namespace KuroEngine
@@ -54,4 +55,6 @@ public:
 	KuroEngine::Transform GetPlayerSpawnTransform()const;
 
 	KuroEngine::Transform GetGoalTransform()const;
+
+	std::shared_ptr<GoalPoint>GetGoalModel();
 };

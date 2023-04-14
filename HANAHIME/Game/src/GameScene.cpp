@@ -99,7 +99,7 @@ void GameScene::OnUpdate()
 		m_nowCam = m_movieCamera.GetCamera().lock();
 	}
 	//ゴール時の演出
-	if (m_goal.IsHit(m_player.GetTransform().GetPos()))
+	if (m_goal.IsHit(m_player.GetTransform().GetPos()) || true)
 	{
 		m_nowCam = m_goal.GetCamera().lock();
 		OperationConfig::Instance()->SetActive(false);
@@ -156,7 +156,7 @@ void GameScene::OnUpdate()
 			OperationConfig::Instance()->SetActive(true);
 		}
 
-		m_goal.Init(StageManager::Instance()->GetGoalTransform());
+		m_goal.Init(StageManager::Instance()->GetGoalTransform(), StageManager::Instance()->GetGoalModel());
 
 		//ゲームクリア時に遷移する処理
 		if (m_clearFlag)
