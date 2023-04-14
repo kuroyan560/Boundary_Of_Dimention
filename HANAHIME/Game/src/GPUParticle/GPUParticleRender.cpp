@@ -53,7 +53,7 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 	std::vector<KuroEngine::RootParam> graphicRootParam =
 	{
 		KuroEngine::RootParam(KuroEngine::UAV,"蛍パーティクルの描画情報(RWStructuredBuffer)")
-		//,KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"パーティクルのテクスチャ")
+		,KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"パーティクルのテクスチャ")
 	};
 	std::vector<D3D12_STATIC_SAMPLER_DESC>sampler;
 	sampler.emplace_back(KuroEngine::WrappedSampler(true, false));
@@ -102,24 +102,12 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 	lInitData.indexNum = m_particleIndex->m_indexNum;
 	lInitData.elementNum = particleMaxNum;
 	lInitData.updateView = m_fireFlyDrawBuffer->GetResource()->GetBuff()->GetGPUVirtualAddress();
+	lInitData.rootsignature = m_gPipeline->m_rootSignature;
 
-	std::vector<KuroEngine::RootParam> commandRootsignature =
-	{
-		KuroEngine::RootParam(KuroEngine::UAV,"蛍パーティクルの描画情報(RWStructuredBuffer)"),
-		KuroEngine::RootParam(KuroEngine::SRV,"蛍パーティクルの描画情報(RWStructuredBuffer)")
-	};
-	//commandRootsignature = graphicRootParam;
-	rootsignature = KuroEngine::D3D12App::Instance()->GenerateRootSignature(commandRootsignature, sampler);
-
-
-	lInitData.rootsignature = rootsignature;
-
-	std::array<D3D12_INDIRECT_ARGUMENT_DESC, 3> args{};
+	std::array<D3D12_INDIRECT_ARGUMENT_DESC, 2> args{};
 	args[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_UNORDERED_ACCESS_VIEW;
 	args[0].UnorderedAccessView.RootParameterIndex = 0;
-	args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_SHADER_RESOURCE_VIEW;
-	args[1].ShaderResourceView.RootParameterIndex = 0;
-	args[2].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
+	args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
 
 	for (int i = 0; i < args.size(); ++i)
 	{

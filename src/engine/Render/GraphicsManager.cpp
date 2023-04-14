@@ -249,7 +249,7 @@ void KuroEngine::GraphicsManager::ExcuteIndirectCommand::Execute(const ComPtr<ID
 	for (int i = 0; i < m_registerDescDatas.size(); ++i)
 	{
 		if (!m_registerDescDatas[i].m_descData)continue;
-		m_registerDescDatas[i].SetAsGraphics(CmdList, i);
+		m_registerDescDatas[i].SetAsGraphics(CmdList, 1);
 	}
 
 	if (auto buff = m_vertBuff.lock())buff->SetView(CmdList);
