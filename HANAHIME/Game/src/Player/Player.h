@@ -88,13 +88,14 @@ class Player : public KuroEngine::Debugger
 	}m_playerMoveStatus;
 
 	//プレイヤーのジャンプに関する変数
-	KuroEngine::Vec3<float> m_jumpStartPos;
-	KuroEngine::Vec3<float> m_jumpEndPos;
-	KuroEngine::Vec3<float> m_bezierCurveControlPos;
-	XMVECTOR m_jumpStartQ;
-	XMVECTOR m_jumpEndQ;
-	float m_jumpTimer;
+	KuroEngine::Vec3<float> m_jumpStartPos;			//ジャンプ開始位置
+	KuroEngine::Vec3<float> m_jumpEndPos;			//ジャンプ終了位置
+	KuroEngine::Vec3<float> m_bezierCurveControlPos;//ジャンプベジェ曲線の制御点	
+	XMVECTOR m_jumpStartQ;							//ジャンプ開始時のクォータニオン
+	XMVECTOR m_jumpEndQ;							//ジャンプ終了時のクオータニオン
+	float m_jumpTimer;								//ジャンプの計測時間を図るタイマー
 	const float JUMP_TIMER = 0.05f;
+	bool m_canJump;									//ジャンプができるかのフラグ
 
 
 	struct HitCheckResult

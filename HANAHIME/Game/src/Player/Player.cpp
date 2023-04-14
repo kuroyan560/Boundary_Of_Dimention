@@ -7,6 +7,7 @@
 #include"../Stage/Stage.h"
 #include"../Graphics/BasicDrawParameters.h"
 #include"../../../../src/engine/ForUser/DrawFunc/3D/DrawFunc3D.h"
+#include"FrameWork/UsersInput.h"
 
 void Player::OnImguiItems()
 {
@@ -134,10 +135,9 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			if (isCastGimmickRayBehind || m_rowMoveVec.z < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
 			//正面方向にレイを飛ばす。これは壁にくっつく用。
-			if (isCastGimmickRayFront || 0 < m_rowMoveVec.z)CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
-
-			//下方向にレイを飛ばす。これは地面との押し戻し用。
-			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::GROUND);
+			if (isCastGimmickRayFront || 0 < m_rowMoveVec.z) {
+				CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			}
 
 			//=================================================
 		}
@@ -178,6 +178,108 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			//正面方向にレイを飛ばす。これは壁にくっつく用。
 			if (isCastGimmickRayFront || 0 < m_rowMoveVec.z)CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
 
+			//=================================================
+		}
+	}
+
+	//周囲の衝突点があったら、それの最短距離を求めてジャンプ先を決める。
+	int impactPointSize = static_cast<int>(castRayArgument.m_impactPoint.size());
+	if (0 < impactPointSize) {
+
+		float minDistance = std::numeric_limits<float>().max();
+		int minIndex = 0;
+
+		//全衝突点の中から最短の位置にあるものを検索する。
+		for (auto& index : castRayArgument.m_impactPoint) {
+
+			float distance = (arg_newPos - index.m_impactPos).Length();
+			if (minDistance < distance) continue;
+
+			minDistance = distance;
+			minIndex = static_cast<int>(&index - &castRayArgument.m_impactPoint[0]);
+
+		}
+
+		//ジャンプができる状態だったらジャンプする。
+		if (m_canJump) {
+
+			//最短の衝突点を求めたら、それをジャンプ先にする。
+			arg_hitInfo->m_terrianNormal = castRayArgument.m_impactPoint[minIndex].m_normal;
+
+			//ジャンプのパラメーターも決める。
+			m_playerMoveStatus = PLAYER_MOVE_STATUS::JUMP;
+			m_jumpTimer = 0;
+			m_jumpStartPos = arg_newPos;
+			m_bezierCurveControlPos = m_jumpStartPos + m_transform.GetUp() * WALL_JUMP_LENGTH;
+			m_jumpEndPos = castRayArgument.m_impactPoint[minIndex].m_impactPos + castRayArgument.m_impactPoint[minIndex].m_normal * m_transform.GetScale().x;
+			m_jumpEndPos += m_transform.GetUp() * WALL_JUMP_LENGTH;
+
+		}
+		//ジャンプができない状態だったら押し戻す。
+		else {
+
+			arg_newPos = arg_from;
+			arg_hitInfo->m_terrianNormal = m_transform.GetUp();
+
+		}
+
+	}
+	else {
+
+		//どことも当たっていなかったら現在の上ベクトルを地形の上ベクトルとしてみる。
+		arg_hitInfo->m_terrianNormal = m_transform.GetUp();
+
+	}
+
+	//地形配列走査
+	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
+	{
+		//モデル情報取得
+		auto model = terrian.m_model.lock();
+		//トランスフォーム情報
+		auto& transform = terrian.m_transform;
+		castRayArgument.m_targetTransform = terrian.m_transform;
+
+		//メッシュを走査
+		for (auto& modelMesh : model->m_meshes)
+		{
+			//メッシュ情報取得
+			auto& mesh = modelMesh.mesh;
+
+			//CastRayに渡す引数を更新。
+			castRayArgument.m_mesh = terrian.m_collisionMesh[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+
+			//判定↓============================================
+
+			//下方向にレイを飛ばす。これは地面との押し戻し用。
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::GROUND);
+
+			//=================================================
+		}
+	}
+	//ギミックとの当たり判定
+	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
+	{
+		//モデル情報取得
+		auto model = terrian->GetModel();
+		//トランスフォーム情報
+		castRayArgument.m_targetTransform = terrian->GetTransform();
+		//情報を取得。
+		castRayArgument.m_stageType = terrian->GetType();
+		//ステージ情報を保存。
+		castRayArgument.m_stage = terrian;
+
+		//メッシュを走査
+		for (auto& modelMesh : model.lock()->m_meshes)
+		{
+			//メッシュ情報取得
+			auto& mesh = modelMesh.mesh;
+
+			//CastRayに渡す引数を更新。
+			castRayArgument.m_mesh = terrian->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+
+			//判定↓============================================
+
 			//下方向にレイを飛ばす。これは地面との押し戻し用。
 			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::GROUND);
 
@@ -208,43 +310,6 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 		//次に補間する上ベクトルとプレイヤーの上ベクトルにする。
 		arg_hitInfo->m_terrianNormal = m_transform.GetUp();
 		return true;
-	}
-
-	//周囲の衝突点があったら、それの最短距離を求めてジャンプ先を決める。
-	int impactPointSize = static_cast<int>(castRayArgument.m_impactPoint.size());
-	if (0 < impactPointSize) {
-
-		float minDistance = std::numeric_limits<float>().max();
-		int minIndex = 0;
-
-		//全衝突点の中から最短の位置にあるものを検索する。
-		for (auto& index : castRayArgument.m_impactPoint) {
-
-			float distance = (arg_newPos - index.m_impactPos).Length();
-			if (minDistance < distance) continue;
-
-			minDistance = distance;
-			minIndex = static_cast<int>(&index - &castRayArgument.m_impactPoint[0]);
-
-		}
-
-		//最短の衝突点を求めたら、それをジャンプ先にする。
-		arg_hitInfo->m_terrianNormal = castRayArgument.m_impactPoint[minIndex].m_normal;
-
-		//ジャンプのパラメーターも決める。
-		m_playerMoveStatus = PLAYER_MOVE_STATUS::JUMP;
-		m_jumpTimer = 0;
-		m_jumpStartPos = arg_newPos;
-		m_bezierCurveControlPos = m_jumpStartPos + m_transform.GetUp() * WALL_JUMP_LENGTH;
-		m_jumpEndPos = castRayArgument.m_impactPoint[minIndex].m_impactPos + castRayArgument.m_impactPoint[minIndex].m_normal * m_transform.GetScale().x;
-		m_jumpEndPos += m_transform.GetUp() * WALL_JUMP_LENGTH;
-
-	}
-	else {
-
-		//どことも当たっていなかったら現在の上ベクトルを地形の上ベクトルとしてみる。
-		arg_hitInfo->m_terrianNormal = m_transform.GetUp();
-
 	}
 
 	return true;
@@ -308,11 +373,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
 
-	//プレイヤーが天井にいたらX方向の入力を逆転させる。
-	//if (m_transform.GetUp().y < -0.9f) {
-	//	scopeMove.x *= 1.0f;
-	//}
-
+	//ジャンプができるかどうか。
+	m_canJump = UsersInput::Instance()->KeyInput(DIK_SPACE);
 
 	//移動ステータスによって処理を変える。
 	switch (m_playerMoveStatus)
@@ -328,6 +390,12 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 		//入力された移動量を取得
 		m_rowMoveVec = OperationConfig::Instance()->GetMoveVecFuna(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
+
+		//天井にいたら
+		if (m_transform.GetUp().y < -0.9f) {
+			//Xの移動方向を反転
+			m_rowMoveVec.x *= -1.0f;
+		}
 
 		//移動させる。
 		Move(newPos);
