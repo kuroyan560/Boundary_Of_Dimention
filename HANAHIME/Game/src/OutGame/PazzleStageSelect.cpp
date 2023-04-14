@@ -29,10 +29,15 @@ PazzleStageSelect::PazzleStageSelect()
 
 void PazzleStageSelect::Init()
 {
+	m_stopFlag = false;
 }
 
 void PazzleStageSelect::Update()
 {
+	if (m_stopFlag)
+	{
+		return;
+	}
 
 	//コントローラーの入力を保存。
 	KuroEngine::Vec2<float> contollerLeftStickInput = KuroEngine::UsersInput::Instance()->GetLeftStickVecFuna(0);

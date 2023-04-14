@@ -24,6 +24,10 @@ public:
 	{
 		return m_stageSelectArray[m_nowStageNum.y][m_nowStageNum.x].enableFlag;
 	}
+	void Stop()
+	{
+		m_stopFlag = true;
+	}
 private:
 
 	struct StageData
@@ -68,5 +72,5 @@ private:
 
 	//ステージ選択画面を何処に描画するか(左上座標)
 	KuroEngine::Vec2<float> m_baseStageSelectPos;
-
+	bool m_stopFlag;
 };

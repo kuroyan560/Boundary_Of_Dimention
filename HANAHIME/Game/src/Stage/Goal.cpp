@@ -48,7 +48,7 @@ void Goal::Update(KuroEngine::Transform *transform)
 		return;
 	}
 
-	if (m_isHitFlag)
+	if (m_isHitFlag && false)
 	{
 		float upEffectRate = m_upEffectEase.GetTimeRate();
 
@@ -173,7 +173,7 @@ void Goal::Draw(KuroEngine::Camera &camera)
 	{
 		return;
 	}
-#ifdef DEBUG
+#ifdef _DEBUG
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(m_model, camera);
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(m_goalCamera, camera);
 
@@ -200,7 +200,6 @@ void Goal::Draw(KuroEngine::Camera &camera)
 			KuroEngine::DrawFunc3D::DrawLine(camera, startPos, endPos, KuroEngine::Color(255, 0, 0, 255), 1.0f);
 		}
 	}
-#endif // _DEBUG
 	KuroEngine::Vec3<float> result(0, 1, 0);
 	DirectX::XMMATRIX mat = DirectX::XMMatrixRotationQuaternion(m_goalModel->GetTransform().GetRotate());
 	DirectX::XMVECTOR rota(DirectX::XMVector3Transform(result, mat));
@@ -211,6 +210,8 @@ void Goal::Draw(KuroEngine::Camera &camera)
 	KuroEngine::Vec3<float>endPos(m_goalModelBaseTransform.GetPos() + result * 5.0f);
 	KuroEngine::DrawFunc3D::DrawLine(camera, startPos, endPos, KuroEngine::Color(255, 0, 0, 255), 1.0f);
 
+#endif // _DEBUG
+	
 	KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_pos, { 1.0f,1.0f }, clearTexRadian, m_clearTex);
 	//KuroEngine::DrawFunc3D::DrawNonShadingPlane(m_ddsTex, transform, camera);
 }

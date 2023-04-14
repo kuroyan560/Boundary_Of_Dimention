@@ -53,6 +53,7 @@ public:
 		{
 			if (m_stageSelect.IsEnableToSelect())
 			{
+				m_stageSelect.Stop();
 				return m_stageSelect.GetNumber();
 			}
 			else

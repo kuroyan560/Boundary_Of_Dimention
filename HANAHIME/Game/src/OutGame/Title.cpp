@@ -29,7 +29,6 @@ void Title::Init(TitleMode title_mode)
 	m_stageSelect.Init();
 	OperationConfig::Instance()->SetActive(false);
 
-
 	std::vector<MovieCameraData> titleCameraMoveDataArray;
 
 	const int xAngle = 20;
@@ -204,6 +203,7 @@ void Title::Update(KuroEngine::Transform* player_camera)
 		{
 			m_startPazzleFlag = false;
 			m_delayInputFlag = false;
+			m_stageSelect.Stop();
 			m_delayTime.Reset();
 		}
 	}
