@@ -279,9 +279,11 @@ Player::Player()
 void Player::Init(KuroEngine::Transform arg_initTransform)
 {
 	m_transform = arg_initTransform;
-	m_camController.Init(m_transform.GetPosWorld(), m_transform.GetRotateWorld());
+	m_camController.Init();
 	m_cameraRotY = 0;
 	m_cameraRotYStorage = 0;
+	m_cameraJumpLerpAmount = 0;
+	m_cameraJumpLerpStorage = 0;
 	m_cameraQ = DirectX::XMQuaternionIdentity();
 
 	m_moveSpeed = KuroEngine::Vec3<float>();
@@ -296,6 +298,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
 
+	//トランスフォームを保存。
+	m_prevTransform = m_transform;
+
 	//位置情報関係
 	auto beforePos = m_transform.GetPos();
 	auto newPos = beforePos;
@@ -303,15 +308,20 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
 
+	//プレイヤーが天井にいたらX方向の入力を逆転させる。
+	//if (m_transform.GetUp().y < -0.9f) {
+	//	scopeMove.x *= 1.0f;
+	//}
 
-	//カメラの回転を保存。
-	m_cameraRotYStorage += scopeMove.x;
 
 	//移動ステータスによって処理を変える。
 	switch (m_playerMoveStatus)
 	{
 	case Player::PLAYER_MOVE_STATUS::MOVE:
 	{
+
+		//カメラの回転を保存。
+		m_cameraRotYStorage += scopeMove.x;
 
 		//プレイヤーの回転をカメラ基準にする。(移動方向の基準がカメラの角度なため)
 		m_transform.SetRotate(m_cameraQ);
@@ -322,9 +332,18 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		//移動させる。
 		Move(newPos);
 
-		//カメラの回転を保存。
+		//入力がなかったら
 		if (m_rowMoveVec.Length() <= 0) {
+
+			//カメラの回転を保存。
 			m_cameraRotY = m_cameraRotYStorage;
+
+		}
+		else {
+
+			//移動した方向を保存。
+			m_playerRotY = atan2f(m_rowMoveVec.x, m_rowMoveVec.z);
+
 		}
 
 		//当たり判定
@@ -340,15 +359,20 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 		float easeAmount = KuroEngine::Math::Ease(Out, Sine, m_jumpTimer, 0.0f, 1.0f);
 
+		//カメラの回転を補間する。
+		m_cameraRotYStorage = m_cameraJumpLerpStorage + easeAmount * m_cameraJumpLerpAmount;
+		m_cameraRotY = m_cameraJumpLerpStorage + easeAmount * m_cameraJumpLerpAmount;
+
 		//座標を補間する。
 		newPos = CalculateBezierPoint(easeAmount, m_jumpStartPos, m_jumpEndPos, m_bezierCurveControlPos);
 
 		//回転を補完する。
-		m_transform.SetRotate(XMQuaternionSlerp(m_jumpStartQ, m_jumpEndQ, easeAmount));
+		m_transform.SetRotate(m_jumpEndQ);
 
 		//上限に達していたらジャンプを終える。
 		if (1.0f <= m_jumpTimer) {
 			m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
+			m_cameraJumpLerpAmount = 0;
 		}
 
 	}
@@ -363,7 +387,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_ptLig.SetPos(newPos);
 
 	//カメラ操作
-	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_normalSpinQ, m_cameraRotYStorage);
+	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_cameraRotYStorage);
 
 	//ギミックの移動を打ち消す。
 	m_gimmickVel = KuroEngine::Vec3<float>();
@@ -707,8 +731,14 @@ void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<flo
 	//法線方向を見るクォータニオン
 	m_normalSpinQ = KuroEngine::Math::GetLookAtQuaternion({ 0,1,0 }, hitResult.m_terrianNormal);
 
-	//カメラの回転でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
-	DirectX::XMVECTOR ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_cameraRotY);
+	//カメラの回転でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。m_cameraJumpLerpAmountは補間後のカメラに向かって補間するため。
+	DirectX::XMVECTOR ySpin;
+	if (hitResult.m_terrianNormal.y < -0.9f) {
+		ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, -(m_cameraRotY + m_cameraJumpLerpAmount) + DirectX::XM_PI);
+	}
+	else {
+		ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_cameraRotY + m_cameraJumpLerpAmount);
+	}
 
 	//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
 	DirectX::XMVECTOR playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
@@ -725,14 +755,15 @@ void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<flo
 		//ジャンプ後に回転するようにする。
 
 		//クォータニオンを保存。
-		m_jumpEndQ = m_cameraQ;
-		m_jumpStartQ = m_transform.GetRotate();
+		m_jumpEndQ = m_moveQ;
+		m_jumpStartQ = m_prevTransform.GetRotate();
+		m_transform.SetRotate(m_prevTransform.GetRotate());
 
 	}
 	else {
 
 		//当たった面基準の回転にする。
-		m_transform.SetRotate(m_cameraQ);
+		m_transform.SetRotate(m_moveQ);
 
 	}
 
@@ -759,6 +790,9 @@ void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const Ku
 
 	// メモ:この関数で書いてある方向は初期位置(法線(0,1,0)で(0,0,1)を向いている状態)でのものです。
 
+	//回転元の値を保存。
+	m_cameraJumpLerpStorage = m_cameraRotYStorage;
+
 	//角度が変わってなかったら飛ばす。
 	if (0.9f <= arg_nowUp.Dot(arg_nextUp)) return;
 
@@ -768,22 +802,19 @@ void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const Ku
 		//上の壁に移動したら
 		if (arg_nextUp.y <= -0.9f) {
 
-			m_cameraRotY += DirectX::XM_PI;
-			m_cameraRotYStorage += DirectX::XM_PI;
+			m_cameraJumpLerpAmount += DirectX::XM_PI;
 
 		}
 		//正面の壁に移動したら
 		if (arg_nextUp.z <= -0.9f) {
 
-			m_cameraRotY -= DirectX::XM_PIDIV2;
-			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+			m_cameraJumpLerpAmount -= DirectX::XM_PIDIV2;
 
 		}
 		//後ろの壁に移動したら
 		if (0.9f <= arg_nextUp.z) {
 
-			m_cameraRotY += DirectX::XM_PIDIV2;
-			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+			m_cameraJumpLerpAmount += DirectX::XM_PIDIV2;
 
 		}
 
@@ -795,22 +826,19 @@ void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const Ku
 		//上の壁に移動したら
 		if (arg_nextUp.y <= -0.9f) {
 
-			m_cameraRotY -= DirectX::XM_PI;
-			m_cameraRotYStorage -= DirectX::XM_PI;
+			m_cameraJumpLerpAmount -= DirectX::XM_PI;
 
 		}
 		//正面の壁に移動したら
 		if (arg_nextUp.z <= -0.9f) {
 
-			m_cameraRotY += DirectX::XM_PIDIV2;
-			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+			m_cameraJumpLerpAmount += DirectX::XM_PIDIV2;
 
 		}
 		//後ろの壁に移動したら
 		if (0.9f <= arg_nextUp.z) {
 
-			m_cameraRotY -= DirectX::XM_PIDIV2;
-			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+			m_cameraJumpLerpAmount -= DirectX::XM_PIDIV2;
 
 		}
 
@@ -822,15 +850,13 @@ void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const Ku
 		//右側の壁に移動したら
 		if (arg_nextUp.x <= -0.9f) {
 
-			m_cameraRotY += DirectX::XM_PIDIV2;
-			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+			m_cameraJumpLerpAmount += DirectX::XM_PIDIV2;
 
 		}
 		//左側の壁に移動したら
 		if (0.9f <= arg_nextUp.x) {
 
-			m_cameraRotY -= DirectX::XM_PIDIV2;
-			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+			m_cameraJumpLerpAmount -= DirectX::XM_PIDIV2;
 
 		}
 
@@ -842,15 +868,13 @@ void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const Ku
 		//右側の壁に移動したら
 		if (arg_nextUp.x <= -0.9f) {
 
-			m_cameraRotY -= DirectX::XM_PIDIV2;
-			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+			m_cameraJumpLerpAmount -= DirectX::XM_PIDIV2;
 
 		}
 		//左側の壁に移動したら
 		if (0.9f <= arg_nextUp.x) {
 
-			m_cameraRotY += DirectX::XM_PIDIV2;
-			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+			m_cameraJumpLerpAmount += DirectX::XM_PIDIV2;
 
 		}
 
@@ -862,15 +886,13 @@ void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const Ku
 		//右側の壁に移動したら
 		if (arg_nextUp.x <= -0.9f) {
 
-			m_cameraRotY -= DirectX::XM_PI;
-			m_cameraRotYStorage -= DirectX::XM_PI;
+			m_cameraJumpLerpAmount -= DirectX::XM_PI;
 
 		}
 		//左側の壁に移動したら
 		if (0.9f <= arg_nextUp.x) {
 
-			m_cameraRotY += DirectX::XM_PI;
-			m_cameraRotYStorage += DirectX::XM_PI;
+			m_cameraJumpLerpAmount += DirectX::XM_PI;
 
 		}
 

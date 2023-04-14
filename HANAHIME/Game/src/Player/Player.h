@@ -30,6 +30,7 @@ class Player : public KuroEngine::Debugger
 	KuroEngine::Light::Point m_ptLig;
 
 	//トランスフォーム
+	KuroEngine::Transform m_prevTransform;
 	KuroEngine::Transform m_transform;
 
 	//移動量
@@ -50,6 +51,8 @@ class Player : public KuroEngine::Debugger
 	//Y軸回転量
 	float m_cameraRotY;	//カメラのY軸回転量。この角度をもとにプレイヤーの移動方向を判断する。
 	float m_cameraRotYStorage;	//カメラのY軸回転量。
+	float m_cameraJumpLerpStorage;	//プレイヤーがジャンプ中に回転を補間する際の補間元。
+	float m_cameraJumpLerpAmount;	//プレイヤーがジャンプ中に回転する際に補間する量。
 	float m_playerRotY;	//プレイヤーのY軸回転量。これは見た目上移動方向に向かせるため。正面ベクトルとかに影響が出ないようにしなければならない。
 	XMVECTOR m_cameraQ;	//プレイヤーのY軸回転量を抜いた、カメラ方向のみを向いた場合の回転
 	XMVECTOR m_moveQ;	//プレイヤーのY軸回転量を抜いた、プレイヤーの移動方向のみを向いた場合の回転
@@ -91,7 +94,7 @@ class Player : public KuroEngine::Debugger
 	XMVECTOR m_jumpStartQ;
 	XMVECTOR m_jumpEndQ;
 	float m_jumpTimer;
-	const float JUMP_TIMER = 0.07f;
+	const float JUMP_TIMER = 0.05f;
 
 
 	struct HitCheckResult
@@ -117,7 +120,7 @@ public:
 
 	//カメラコントローラーのデバッガポインタ取得
 	KuroEngine::Debugger* GetCameraControllerDebugger() { return &m_camController; }
-	KuroEngine::Transform& GetCameraControllerParentTransform() { return m_camController.GetParentTransform(); }
+	//KuroEngine::Transform& GetCameraControllerParentTransform() { return m_camController.GetParentTransform(); }
 
 	KuroEngine::Transform& GetTransform() { return m_transform; }
 	KuroEngine::Vec2<float>& GetGrassPosScatter() { return m_grassPosScatter; }
