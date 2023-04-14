@@ -72,6 +72,10 @@ void Goal::Draw(KuroEngine::Camera &camera)
 
 bool Goal::IsHit(const KuroEngine::Vec3<float> &player_pos)
 {
+	if (!m_initFlag)
+	{
+		return false;
+	}
 	std::array<KuroEngine::Vec3<float>, 2> size = { m_model->m_transform.GetScale(),m_model->m_transform.GetScale() };
 	KuroEngine::Vec3<float>distance = m_model->m_transform.GetPos() - player_pos;
 	const int square1 = 0;

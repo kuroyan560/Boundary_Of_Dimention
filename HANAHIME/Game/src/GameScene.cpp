@@ -80,6 +80,7 @@ void GameScene::OnUpdate()
 	//デバッグ用
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_I))
 	{
+		m_eTitleMode = TITLE_PAZZLE;
 		this->Finalize();
 		this->Initialize();
 	}
@@ -266,5 +267,7 @@ void GameScene::OnImguiDebug()
 void GameScene::OnFinalize()
 {
 	KuroEngine::Debugger::ClearRegister();
+	//ゲーム終了時はゴールを使わない
+	m_goal.Finalize();
 }
 
