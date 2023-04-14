@@ -775,7 +775,7 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 	if (!m_onGround) {
 		m_rowMoveVec = KuroEngine::Vec3<float>();
 	}
-	m_moveSpeed += m_rowMoveVec * m_moveAccel;
+	m_moveSpeed = m_rowMoveVec * m_maxSpeed;
 
 	//移動速度をクランプ。
 	m_moveSpeed.x = std::clamp(m_moveSpeed.x, -m_maxSpeed, m_maxSpeed);
