@@ -390,7 +390,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
 
 	//ジャンプができるかどうか。
-	m_canJump = UsersInput::Instance()->KeyInput(DIK_SPACE) || UsersInput::Instance()->ControllerInput(0, KuroEngine::A);
+	m_canJump = UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A);
 
 	//カメラモードを切り替える。
 	if (UsersInput::Instance()->KeyOffTrigger(DIK_RETURN) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::X)) {
