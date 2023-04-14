@@ -200,7 +200,7 @@ void Title::Update(KuroEngine::Transform* player_camera)
 		}
 		m_delayTime.UpdateTimer();
 
-		if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_ESCAPE))
+		if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_ESCAPE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::START))
 		{
 			m_startPazzleFlag = false;
 			m_delayInputFlag = false;
