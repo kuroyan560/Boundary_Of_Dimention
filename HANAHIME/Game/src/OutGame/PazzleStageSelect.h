@@ -36,6 +36,8 @@ private:
 	std::array<std::array<StageData, 4>, 4>m_stageSelectArray;
 	KuroEngine::Vec2<int> m_nowStageNum;
 
+	KuroEngine::Vec2<float> m_prevContollerLeftStick;
+
 	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_numTexArray;
 	std::vector<int> CountNumber(int TIME)
 	{

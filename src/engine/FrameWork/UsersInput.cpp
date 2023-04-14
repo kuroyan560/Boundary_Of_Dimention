@@ -358,16 +358,13 @@ KuroEngine::Vec2<float> KuroEngine::UsersInput::GetLeftStickVec(const int& Contr
 KuroEngine::Vec2<float> KuroEngine::UsersInput::GetLeftStickVecFuna(const int& ControllerIdx, const Vec2<float>& DeadRate)const
 {
 	Vec2<float>result(static_cast<float>(m_xinputState[ControllerIdx].Gamepad.sThumbLX), static_cast<float>(-m_xinputState[ControllerIdx].Gamepad.sThumbLY));
-	result.x /= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
-	result.y /= XINPUT_GAMEPAD_LEFT_THUMB_DEADZONE;
-	const float DEADLINE = 0.8f;
-	if (std::fabs(result.x) < DEADLINE) {
-		result.x = 0;
+	result.x /= 32767;
+	result.y /= 32767;
+	const float DEADLINE = 0.4f;
+	if (result.Length() <= DEADLINE) {
+		result = {};
 	}
-	if (std::fabs(result.y) < DEADLINE) {
-		result.y = 0;
-	}
-	return result.GetNormal();
+	return result;
 }
 
 KuroEngine::Vec2<float> KuroEngine::UsersInput::GetRightStickVec(const int& ControllerIdx, const Vec2<float>& DeadRate)const

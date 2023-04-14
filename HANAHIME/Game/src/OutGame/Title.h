@@ -49,7 +49,7 @@ public:
 		}
 
 		//入力＝決定。ステージ番号を渡す
-		if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE))
+		if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0,KuroEngine::A))
 		{
 			if (m_stageSelect.IsEnableToSelect())
 			{
@@ -71,6 +71,10 @@ private:
 	//OPフラグ
 	bool m_startOPFlag;
 	bool m_generateCameraMoveDataFlag;
+
+	//入力フラグ
+	bool m_isPrevInputControllerRight;
+	bool m_isPrevInputControllerLeft;
 
 	//終了フラグ
 	bool m_isFinishFlag;

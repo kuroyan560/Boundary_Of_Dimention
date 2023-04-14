@@ -160,6 +160,11 @@ void MoveScaffold::Update(Player& arg_player)
 		arg_player.SetGimmickVel(m_moveDir * moveSpeed);
 	}
 
+	//プレイヤーがジャンプ中だったら、ジャンプ地点も動かす。
+	if (arg_player.GetIsJump()) {
+		arg_player.SetJumpEndPos(arg_player.GetJumpEndPos() + m_moveDir * moveSpeed);
+	}
+
 	//いろいろと初期化して次向かう方向を決める。
 	if (isFinish) {
 

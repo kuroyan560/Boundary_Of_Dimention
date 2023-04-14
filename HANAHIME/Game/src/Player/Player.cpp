@@ -7,6 +7,7 @@
 #include"../Stage/Stage.h"
 #include"../Graphics/BasicDrawParameters.h"
 #include"../../../../src/engine/ForUser/DrawFunc/3D/DrawFunc3D.h"
+#include"FrameWork/UsersInput.h"
 
 void Player::OnImguiItems()
 {
@@ -84,6 +85,15 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	m_prevOnGimmick = m_onGimmick;
 	m_onGimmick = false;
 
+	CheckHitAround(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
+
+	CheckHitGround(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
+
+	return true;
+}
+
+void Player::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo, Player::CastRayArgument& arg_castRayArgment) {
+
 	//ギミックによる移動があったかどうか
 	bool isCastGimmickRayRight = false;
 	bool isCastGimmickRayLeft = false;
@@ -109,9 +119,11 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	{
 		//モデル情報取得
 		auto model = terrian.m_model.lock();
+		//情報を取得。
+		arg_castRayArgment.m_stageType = StageParts::TERRIAN;
 		//トランスフォーム情報
 		auto& transform = terrian.m_transform;
-		castRayArgument.m_targetTransform = terrian.m_transform;
+		arg_castRayArgment.m_targetTransform = terrian.m_transform;
 
 		//メッシュを走査
 		for (auto& modelMesh : model->m_meshes)
@@ -120,24 +132,23 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			auto& mesh = modelMesh.mesh;
 
 			//CastRayに渡す引数を更新。
-			castRayArgument.m_mesh = terrian.m_collisionMesh[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+			arg_castRayArgment.m_mesh = terrian.m_collisionMesh[static_cast<int>(&modelMesh - &model->m_meshes[0])];
 
 			//判定↓============================================
 
 			//右方向にレイを飛ばす。これは壁にくっつく用。
-			if (isCastGimmickRayRight || 0 < m_rowMoveVec.x)CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isCastGimmickRayRight || 0 < m_rowMoveVec.x)CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
 
 			//左方向にレイを飛ばす。これは壁にくっつく用。
-			if (isCastGimmickRayLeft || m_rowMoveVec.x < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isCastGimmickRayLeft || m_rowMoveVec.x < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
 
 			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
-			if (isCastGimmickRayBehind || m_rowMoveVec.z < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isCastGimmickRayBehind || m_rowMoveVec.z < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
 
 			//正面方向にレイを飛ばす。これは壁にくっつく用。
-			if (isCastGimmickRayFront || 0 < m_rowMoveVec.z)CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
-
-			//下方向にレイを飛ばす。これは地面との押し戻し用。
-			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::GROUND);
+			if (isCastGimmickRayFront || 0 < m_rowMoveVec.z) {
+				CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
+			}
 
 			//=================================================
 		}
@@ -149,11 +160,11 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 		//モデル情報取得
 		auto model = terrian->GetModel();
 		//トランスフォーム情報
-		castRayArgument.m_targetTransform = terrian->GetTransform();
+		arg_castRayArgment.m_targetTransform = terrian->GetTransform();
 		//情報を取得。
-		castRayArgument.m_stageType = terrian->GetType();
+		arg_castRayArgment.m_stageType = terrian->GetType();
 		//ステージ情報を保存。
-		castRayArgument.m_stage = terrian;
+		arg_castRayArgment.m_stage = terrian;
 
 		//メッシュを走査
 		for (auto& modelMesh : model.lock()->m_meshes)
@@ -162,24 +173,132 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 			auto& mesh = modelMesh.mesh;
 
 			//CastRayに渡す引数を更新。
-			castRayArgument.m_mesh = terrian->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+			arg_castRayArgment.m_mesh = terrian->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
 			//判定↓============================================
 
 			//右方向にレイを飛ばす。これは壁にくっつく用。
-			if (isCastGimmickRayRight || 0 < m_rowMoveVec.x)CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isCastGimmickRayRight || 0 < m_rowMoveVec.x)CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
 
 			//左方向にレイを飛ばす。これは壁にくっつく用。
-			if (isCastGimmickRayLeft || m_rowMoveVec.x < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isCastGimmickRayLeft || m_rowMoveVec.x < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
 
 			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
-			if (isCastGimmickRayBehind || m_rowMoveVec.z < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isCastGimmickRayBehind || m_rowMoveVec.z < 0)CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
 
 			//正面方向にレイを飛ばす。これは壁にくっつく用。
-			if (isCastGimmickRayFront || 0 < m_rowMoveVec.z)CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, castRayArgument, RAY_ID::AROUND);
+			if (isCastGimmickRayFront || 0 < m_rowMoveVec.z)CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
+
+			//=================================================
+		}
+	}
+
+	//周囲の衝突点があったら、それの最短距離を求めてジャンプ先を決める。
+	int impactPointSize = static_cast<int>(arg_castRayArgment.m_impactPoint.size());
+	if (0 < impactPointSize) {
+
+		float minDistance = std::numeric_limits<float>().max();
+		int minIndex = 0;
+
+		//全衝突点の中から最短の位置にあるものを検索する。
+		for (auto& index : arg_castRayArgment.m_impactPoint) {
+
+			float distance = (arg_newPos - index.m_impactPos).Length();
+			if (minDistance < distance) continue;
+
+			minDistance = distance;
+			minIndex = static_cast<int>(&index - &arg_castRayArgment.m_impactPoint[0]);
+
+		}
+
+		//ジャンプができる状態だったらジャンプする。
+		if (m_canJump) {
+
+			//最短の衝突点を求めたら、それをジャンプ先にする。
+			arg_hitInfo->m_terrianNormal = arg_castRayArgment.m_impactPoint[minIndex].m_normal;
+
+			//ジャンプのパラメーターも決める。
+			m_playerMoveStatus = PLAYER_MOVE_STATUS::JUMP;
+			m_jumpTimer = 0;
+			m_jumpStartPos = arg_newPos;
+			m_bezierCurveControlPos = m_jumpStartPos + m_transform.GetUp() * WALL_JUMP_LENGTH;
+			m_jumpEndPos = arg_castRayArgment.m_impactPoint[minIndex].m_impactPos + arg_castRayArgment.m_impactPoint[minIndex].m_normal * m_transform.GetScale().x;
+			m_jumpEndPos += m_transform.GetUp() * WALL_JUMP_LENGTH;
+
+		}
+		//ジャンプができない状態だったら押し戻す。
+		else {
+
+			arg_newPos = arg_from;
+			arg_hitInfo->m_terrianNormal = m_transform.GetUp();
+
+		}
+
+	}
+	else {
+
+		//どことも当たっていなかったら現在の上ベクトルを地形の上ベクトルとしてみる。
+		arg_hitInfo->m_terrianNormal = m_transform.GetUp();
+
+	}
+
+}
+
+void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo, Player::CastRayArgument& arg_castRayArgment) {
+
+	//地形配列走査
+	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
+	{
+		//モデル情報取得
+		auto model = terrian.m_model.lock();
+		//情報を取得。
+		arg_castRayArgment.m_stageType = StageParts::TERRIAN;
+		//トランスフォーム情報
+		auto& transform = terrian.m_transform;
+		arg_castRayArgment.m_targetTransform = terrian.m_transform;
+
+		//メッシュを走査
+		for (auto& modelMesh : model->m_meshes)
+		{
+			//メッシュ情報取得
+			auto& mesh = modelMesh.mesh;
+
+			//CastRayに渡す引数を更新。
+			arg_castRayArgment.m_mesh = terrian.m_collisionMesh[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+
+			//判定↓============================================
 
 			//下方向にレイを飛ばす。これは地面との押し戻し用。
-			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, castRayArgument, RAY_ID::GROUND);
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+
+			//=================================================
+		}
+	}
+	//ギミックとの当たり判定
+	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
+	{
+		//モデル情報取得
+		auto model = terrian->GetModel();
+		//トランスフォーム情報
+		arg_castRayArgment.m_targetTransform = terrian->GetTransform();
+		//情報を取得。
+		arg_castRayArgment.m_stageType = terrian->GetType();
+		//ステージ情報を保存。
+		arg_castRayArgment.m_stage = terrian;
+
+		//メッシュを走査
+		for (auto& modelMesh : model.lock()->m_meshes)
+		{
+			//メッシュ情報取得
+			auto& mesh = modelMesh.mesh;
+
+			//CastRayに渡す引数を更新。
+			arg_castRayArgment.m_mesh = terrian->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+
+			//判定↓============================================
+
+			//下方向にレイを飛ばす。これは地面との押し戻し用。
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
 
 			//=================================================
 		}
@@ -187,7 +306,7 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 
 	//接地フラグを保存
 	m_prevOnGround = m_onGround;
-	m_onGround = castRayArgument.m_onGround;
+	m_onGround = arg_castRayArgment.m_onGround;
 
 	//まだ着地していなかったら着地にする。
 	if (!m_isFirstOnGround && m_onGround) {
@@ -207,47 +326,8 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 		if (m_prevOnGimmick) m_onGimmick = true;
 		//次に補間する上ベクトルとプレイヤーの上ベクトルにする。
 		arg_hitInfo->m_terrianNormal = m_transform.GetUp();
-		return true;
 	}
 
-	//周囲の衝突点があったら、それの最短距離を求めてジャンプ先を決める。
-	int impactPointSize = static_cast<int>(castRayArgument.m_impactPoint.size());
-	if (0 < impactPointSize) {
-
-		float minDistance = std::numeric_limits<float>().max();
-		int minIndex = 0;
-
-		//全衝突点の中から最短の位置にあるものを検索する。
-		for (auto& index : castRayArgument.m_impactPoint) {
-
-			float distance = (arg_newPos - index.m_impactPos).Length();
-			if (minDistance < distance) continue;
-
-			minDistance = distance;
-			minIndex = static_cast<int>(&index - &castRayArgument.m_impactPoint[0]);
-
-		}
-
-		//最短の衝突点を求めたら、それをジャンプ先にする。
-		arg_hitInfo->m_terrianNormal = castRayArgument.m_impactPoint[minIndex].m_normal;
-
-		//ジャンプのパラメーターも決める。
-		m_playerMoveStatus = PLAYER_MOVE_STATUS::JUMP;
-		m_jumpTimer = 0;
-		m_jumpStartPos = arg_newPos;
-		m_bezierCurveControlPos = m_jumpStartPos + m_transform.GetUp() * WALL_JUMP_LENGTH;
-		m_jumpEndPos = castRayArgument.m_impactPoint[minIndex].m_impactPos + castRayArgument.m_impactPoint[minIndex].m_normal * m_transform.GetScale().x;
-		m_jumpEndPos += m_transform.GetUp() * WALL_JUMP_LENGTH;
-
-	}
-	else {
-
-		//どことも当たっていなかったら現在の上ベクトルを地形の上ベクトルとしてみる。
-		arg_hitInfo->m_terrianNormal = m_transform.GetUp();
-
-	}
-
-	return true;
 }
 
 Player::Player()
@@ -279,15 +359,18 @@ Player::Player()
 void Player::Init(KuroEngine::Transform arg_initTransform)
 {
 	m_transform = arg_initTransform;
-	m_camController.Init(m_transform.GetPosWorld(), m_transform.GetRotateWorld());
+	m_camController.Init();
 	m_cameraRotY = 0;
 	m_cameraRotYStorage = 0;
+	m_cameraJumpLerpAmount = 0;
+	m_cameraJumpLerpStorage = 0;
 	m_cameraQ = DirectX::XMQuaternionIdentity();
 
 	m_moveSpeed = KuroEngine::Vec3<float>();
 	m_gimmickVel = KuroEngine::Vec3<float>();
 	m_isFirstOnGround = false;
 	m_onGimmick = false;
+	m_isCameraModeFar = true;
 	m_prevOnGimmick = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 }
@@ -296,6 +379,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
 
+	//トランスフォームを保存。
+	m_prevTransform = m_transform;
+
 	//位置情報関係
 	auto beforePos = m_transform.GetPos();
 	auto newPos = beforePos;
@@ -303,9 +389,13 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
 
+	//ジャンプができるかどうか。
+	m_canJump = UsersInput::Instance()->KeyInput(DIK_SPACE) || UsersInput::Instance()->ControllerInput(0, KuroEngine::A);
 
-	//カメラの回転を保存。
-	m_cameraRotYStorage += scopeMove.x;
+	//カメラモードを切り替える。
+	if (UsersInput::Instance()->KeyOffTrigger(DIK_RETURN) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::X)) {
+		m_isCameraModeFar = m_isCameraModeFar ? false : true;
+	}
 
 	//移動ステータスによって処理を変える。
 	switch (m_playerMoveStatus)
@@ -313,18 +403,42 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	case Player::PLAYER_MOVE_STATUS::MOVE:
 	{
 
+		//カメラの回転を保存。
+		m_cameraRotYStorage += scopeMove.x;
+
 		//プレイヤーの回転をカメラ基準にする。(移動方向の基準がカメラの角度なため)
 		m_transform.SetRotate(m_cameraQ);
 
 		//入力された移動量を取得
 		m_rowMoveVec = OperationConfig::Instance()->GetMoveVecFuna(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
 
+		//入力量が一定以下だったら0にする。
+		const float DEADLINE = 0.8f;
+		if (m_rowMoveVec.Length() <= DEADLINE) {
+			m_rowMoveVec = {};
+		}
+
+		//天井にいたら
+		if (m_transform.GetUp().y < -0.9f) {
+			//Xの移動方向を反転
+			m_rowMoveVec.x *= -1.0f;
+		}
+
 		//移動させる。
 		Move(newPos);
 
-		//カメラの回転を保存。
+		//入力がなかったら
 		if (m_rowMoveVec.Length() <= 0) {
+
+			//カメラの回転を保存。
 			m_cameraRotY = m_cameraRotYStorage;
+
+		}
+		else {
+
+			//移動した方向を保存。
+			m_playerRotY = atan2f(m_rowMoveVec.x, m_rowMoveVec.z);
+
 		}
 
 		//当たり判定
@@ -340,15 +454,20 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 		float easeAmount = KuroEngine::Math::Ease(Out, Sine, m_jumpTimer, 0.0f, 1.0f);
 
+		//カメラの回転を補間する。
+		m_cameraRotYStorage = m_cameraJumpLerpStorage + easeAmount * m_cameraJumpLerpAmount;
+		m_cameraRotY = m_cameraJumpLerpStorage + easeAmount * m_cameraJumpLerpAmount;
+
 		//座標を補間する。
 		newPos = CalculateBezierPoint(easeAmount, m_jumpStartPos, m_jumpEndPos, m_bezierCurveControlPos);
 
 		//回転を補完する。
-		m_transform.SetRotate(XMQuaternionSlerp(m_jumpStartQ, m_jumpEndQ, easeAmount));
+		m_transform.SetRotate(DirectX::XMQuaternionSlerp(m_jumpStartQ, m_jumpEndQ, easeAmount));
 
 		//上限に達していたらジャンプを終える。
 		if (1.0f <= m_jumpTimer) {
 			m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
+			m_cameraJumpLerpAmount = 0;
 		}
 
 	}
@@ -363,7 +482,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_ptLig.SetPos(newPos);
 
 	//カメラ操作
-	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_normalSpinQ, m_cameraRotYStorage);
+	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_cameraRotYStorage, m_isCameraModeFar ? CAMERA_MODE_FAR : CAMERA_MODE_NEAR);
 
 	//ギミックの移動を打ち消す。
 	m_gimmickVel = KuroEngine::Vec3<float>();
@@ -656,7 +775,7 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 	if (!m_onGround) {
 		m_rowMoveVec = KuroEngine::Vec3<float>();
 	}
-	m_moveSpeed += m_rowMoveVec * m_moveAccel;
+	m_moveSpeed = m_rowMoveVec * m_maxSpeed;
 
 	//移動速度をクランプ。
 	m_moveSpeed.x = std::clamp(m_moveSpeed.x, -m_maxSpeed, m_maxSpeed);
@@ -665,13 +784,13 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 	//入力された値が無かったら移動速度を減らす。
 	if (std::fabs(m_rowMoveVec.x) < 0.001f) {
 
-		m_moveSpeed.x = std::clamp(std::fabs(m_moveSpeed.x) - m_brake, 0.0f, m_maxSpeed) * (std::signbit(m_moveSpeed.x) ? -1.0f : 1.0f);
+		m_moveSpeed.x = 0;
 
 	}
 
 	if (std::fabs(m_rowMoveVec.z) < 0.001f) {
 
-		m_moveSpeed.z = std::clamp(std::fabs(m_moveSpeed.z) - m_brake, 0.0f, m_maxSpeed) * (std::signbit(m_moveSpeed.z) ? -1.0f : 1.0f);
+		m_moveSpeed.z = 0;
 
 	}
 
@@ -707,11 +826,18 @@ void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<flo
 	//法線方向を見るクォータニオン
 	m_normalSpinQ = KuroEngine::Math::GetLookAtQuaternion({ 0,1,0 }, hitResult.m_terrianNormal);
 
-	//カメラの回転でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
-	DirectX::XMVECTOR ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_cameraRotY);
+	//カメラの回転でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。m_cameraJumpLerpAmountは補間後のカメラに向かって補間するため。
+	DirectX::XMVECTOR ySpin;
+	if (hitResult.m_terrianNormal.y < -0.9f) {
+		ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, -(m_cameraRotY + m_cameraJumpLerpAmount) + DirectX::XM_PI);
+	}
+	else {
+		ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_cameraRotY + m_cameraJumpLerpAmount);
+	}
 
 	//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
-	DirectX::XMVECTOR playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
+	DirectX::XMVECTOR playerYSpin;
+	playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
 
 	//カメラ方向でのクォータニオンを求める。進む方向などを判断するのに使用するのはこっち。Fの一番最初にこの値を入れることでplayerYSpinの回転を打ち消す。
 	m_cameraQ = DirectX::XMQuaternionMultiply(m_normalSpinQ, ySpin);
@@ -725,14 +851,15 @@ void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<flo
 		//ジャンプ後に回転するようにする。
 
 		//クォータニオンを保存。
-		m_jumpEndQ = m_cameraQ;
-		m_jumpStartQ = m_transform.GetRotate();
+		m_jumpEndQ = m_moveQ;
+		m_jumpStartQ = m_prevTransform.GetRotate();
+		m_transform.SetRotate(m_prevTransform.GetRotate());
 
 	}
 	else {
 
 		//当たった面基準の回転にする。
-		m_transform.SetRotate(m_cameraQ);
+		m_transform.SetRotate(m_moveQ);
 
 	}
 
@@ -752,12 +879,14 @@ KuroEngine::Vec3<float> Player::CalculateBezierPoint(float arg_time, KuroEngine:
 
 }
 
-
 void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const KuroEngine::Vec3<float>& arg_nextUp) {
 
 	// 移動方向を矯正するための苦肉の策
 
 	// メモ:この関数で書いてある方向は初期位置(法線(0,1,0)で(0,0,1)を向いている状態)でのものです。
+
+	//回転元の値を保存。
+	m_cameraJumpLerpStorage = m_cameraRotYStorage;
 
 	//角度が変わってなかったら飛ばす。
 	if (0.9f <= arg_nowUp.Dot(arg_nextUp)) return;
@@ -768,22 +897,19 @@ void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const Ku
 		//上の壁に移動したら
 		if (arg_nextUp.y <= -0.9f) {
 
-			m_cameraRotY += DirectX::XM_PI;
-			m_cameraRotYStorage += DirectX::XM_PI;
+			m_cameraJumpLerpAmount += DirectX::XM_PI;
 
 		}
 		//正面の壁に移動したら
 		if (arg_nextUp.z <= -0.9f) {
 
-			m_cameraRotY -= DirectX::XM_PIDIV2;
-			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+			m_cameraJumpLerpAmount -= DirectX::XM_PIDIV2;
 
 		}
 		//後ろの壁に移動したら
 		if (0.9f <= arg_nextUp.z) {
 
-			m_cameraRotY += DirectX::XM_PIDIV2;
-			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+			m_cameraJumpLerpAmount += DirectX::XM_PIDIV2;
 
 		}
 
@@ -795,22 +921,19 @@ void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const Ku
 		//上の壁に移動したら
 		if (arg_nextUp.y <= -0.9f) {
 
-			m_cameraRotY -= DirectX::XM_PI;
-			m_cameraRotYStorage -= DirectX::XM_PI;
+			m_cameraJumpLerpAmount -= DirectX::XM_PI;
 
 		}
 		//正面の壁に移動したら
 		if (arg_nextUp.z <= -0.9f) {
 
-			m_cameraRotY += DirectX::XM_PIDIV2;
-			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+			m_cameraJumpLerpAmount += DirectX::XM_PIDIV2;
 
 		}
 		//後ろの壁に移動したら
 		if (0.9f <= arg_nextUp.z) {
 
-			m_cameraRotY -= DirectX::XM_PIDIV2;
-			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+			m_cameraJumpLerpAmount -= DirectX::XM_PIDIV2;
 
 		}
 
@@ -822,15 +945,13 @@ void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const Ku
 		//右側の壁に移動したら
 		if (arg_nextUp.x <= -0.9f) {
 
-			m_cameraRotY += DirectX::XM_PIDIV2;
-			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+			m_cameraJumpLerpAmount += DirectX::XM_PIDIV2;
 
 		}
 		//左側の壁に移動したら
 		if (0.9f <= arg_nextUp.x) {
 
-			m_cameraRotY -= DirectX::XM_PIDIV2;
-			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+			m_cameraJumpLerpAmount -= DirectX::XM_PIDIV2;
 
 		}
 
@@ -842,15 +963,13 @@ void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const Ku
 		//右側の壁に移動したら
 		if (arg_nextUp.x <= -0.9f) {
 
-			m_cameraRotY -= DirectX::XM_PIDIV2;
-			m_cameraRotYStorage -= DirectX::XM_PIDIV2;
+			m_cameraJumpLerpAmount -= DirectX::XM_PIDIV2;
 
 		}
 		//左側の壁に移動したら
 		if (0.9f <= arg_nextUp.x) {
 
-			m_cameraRotY += DirectX::XM_PIDIV2;
-			m_cameraRotYStorage += DirectX::XM_PIDIV2;
+			m_cameraJumpLerpAmount += DirectX::XM_PIDIV2;
 
 		}
 
@@ -862,15 +981,13 @@ void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const Ku
 		//右側の壁に移動したら
 		if (arg_nextUp.x <= -0.9f) {
 
-			m_cameraRotY -= DirectX::XM_PI;
-			m_cameraRotYStorage -= DirectX::XM_PI;
+			m_cameraJumpLerpAmount -= DirectX::XM_PI;
 
 		}
 		//左側の壁に移動したら
 		if (0.9f <= arg_nextUp.x) {
 
-			m_cameraRotY += DirectX::XM_PI;
-			m_cameraRotYStorage += DirectX::XM_PI;
+			m_cameraJumpLerpAmount += DirectX::XM_PI;
 
 		}
 
