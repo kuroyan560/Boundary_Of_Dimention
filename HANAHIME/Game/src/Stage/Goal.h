@@ -28,8 +28,7 @@ public:
 
 	std::weak_ptr<KuroEngine::Camera>GetCamera()
 	{
-		//return m_movieCamera.GetCamera();
-		return m_camera;
+		return m_movieCamera.GetCamera();
 	}
 
 private:
@@ -45,6 +44,7 @@ private:
 
 	KuroEngine::Vec2<float>m_pos, m_basePos,m_goalPos;
 	std::shared_ptr<KuroEngine::TextureBuffer>m_clearTex;
+	float clearTexRadian;
 	KuroEngine::Timer m_clearEaseTimer;
 
 	//ƒS[ƒ‹‚Ìƒ‚ƒfƒ‹‰‰o
