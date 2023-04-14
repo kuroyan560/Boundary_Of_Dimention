@@ -12,43 +12,48 @@ StageManager::StageManager()
 	AddCustomParameter("Woods_Height", { "scaling", "woods", "height" }, PARAM_TYPE::FLOAT, &m_woodsHeight, "Scaling");
 	LoadParameterLog();
 
-	//ホームのステージのインデックス
-	m_homeStageIdx = 0;
-
 	//ホームステージ
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "New_Home.json", 5.0f, false);
+	m_homeStage = std::make_shared<Stage>();
+	m_homeStage->Load("resource/user/level/", "New_Home.json", 5.0f, false);
+
+	float terrianScaling = 1.5f;
 
 	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_1.json", 1.0f);
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_1.json", terrianScaling);
 	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_2.json", 1.0f);
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_2.json", terrianScaling);
 	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_3.json", 1.0f);
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_3.json", terrianScaling);
 	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_4.json", 1.0f);
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_4.json", terrianScaling);
 	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_5.json", 1.0f);
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_5.json", terrianScaling);
 	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_6.json", 1.0f);
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_6.json", terrianScaling);
 	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_7.json", 1.0f);
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_7.json", terrianScaling);
 	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_8.json", 1.0f);
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_8.json", terrianScaling);
 	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_9.json", 1.0f);
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_9.json", terrianScaling);
 	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_10.json", 1.0f);
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_10.json", terrianScaling);
 
 
 	//現在のステージ指定（デフォルトはホーム用ステージ）
-	m_nowStage = m_stageArray[m_homeStageIdx];
+	m_nowStage = m_homeStage;
 }
 
 void StageManager::SetStage(int stage_num)
 {
-	if (stage_num == -1)stage_num = m_homeStageIdx;
-	m_nowStage = m_stageArray[stage_num];
+	if (stage_num == -1)
+	{
+		m_nowStage = m_homeStage;
+	}
+	else
+	{
+		m_nowStage = m_stageArray[stage_num];
+	}
 	m_nowStage->GimmickInit();
 }
 

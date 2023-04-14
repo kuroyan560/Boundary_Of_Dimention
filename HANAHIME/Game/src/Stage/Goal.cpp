@@ -82,7 +82,7 @@ void Goal::Draw(KuroEngine::Camera &camera)
 		return;
 	}
 #ifdef _DEBUG
-	KuroEngine::DrawFunc3D::DrawNonShadingModel(m_model, camera);
+	//KuroEngine::DrawFunc3D::DrawNonShadingModel(m_model, camera);
 #endif // _DEBUG
 
 	//KuroEngine::DrawFunc2D::DrawGraph(m_pos, m_clearTex);
