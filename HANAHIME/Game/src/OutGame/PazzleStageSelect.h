@@ -24,6 +24,10 @@ public:
 	{
 		return m_stageSelectArray[m_nowStageNum.y][m_nowStageNum.x].enableFlag;
 	}
+	void Stop()
+	{
+		m_stopFlag = true;
+	}
 private:
 
 	struct StageData
@@ -35,6 +39,8 @@ private:
 	};
 	std::array<std::array<StageData, 4>, 4>m_stageSelectArray;
 	KuroEngine::Vec2<int> m_nowStageNum;
+
+	KuroEngine::Vec2<float> m_prevContollerLeftStick;
 
 	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_numTexArray;
 	std::vector<int> CountNumber(int TIME)
@@ -66,5 +72,5 @@ private:
 
 	//ステージ選択画面を何処に描画するか(左上座標)
 	KuroEngine::Vec2<float> m_baseStageSelectPos;
-
+	bool m_stopFlag;
 };

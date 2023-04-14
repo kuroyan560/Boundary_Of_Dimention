@@ -30,6 +30,7 @@ class Player : public KuroEngine::Debugger
 	KuroEngine::Light::Point m_ptLig;
 
 	//トランスフォーム
+	KuroEngine::Transform m_prevTransform;
 	KuroEngine::Transform m_transform;
 
 	//移動量
@@ -43,6 +44,9 @@ class Player : public KuroEngine::Debugger
 
 	//カメラ感度
 	float m_camSensitivity = 1.0f;
+	bool m_isCameraModeFar;
+	const float CAMERA_MODE_NEAR = -20.0f;
+	const float CAMERA_MODE_FAR = -50.0f;
 
 	//草を生やす際の散らし量。
 	KuroEngine::Vec2<float> m_grassPosScatter = KuroEngine::Vec2<float>(2.0f, 2.0f);
@@ -50,6 +54,8 @@ class Player : public KuroEngine::Debugger
 	//Y軸回転量
 	float m_cameraRotY;	//カメラのY軸回転量。この角度をもとにプレイヤーの移動方向を判断する。
 	float m_cameraRotYStorage;	//カメラのY軸回転量。
+	float m_cameraJumpLerpStorage;	//プレイヤーがジャンプ中に回転を補間する際の補間元。
+	float m_cameraJumpLerpAmount;	//プレイヤーがジャンプ中に回転する際に補間する量。
 	float m_playerRotY;	//プレイヤーのY軸回転量。これは見た目上移動方向に向かせるため。正面ベクトルとかに影響が出ないようにしなければならない。
 	XMVECTOR m_cameraQ;	//プレイヤーのY軸回転量を抜いた、カメラ方向のみを向いた場合の回転
 	XMVECTOR m_moveQ;	//プレイヤーのY軸回転量を抜いた、プレイヤーの移動方向のみを向いた場合の回転
@@ -85,13 +91,14 @@ class Player : public KuroEngine::Debugger
 	}m_playerMoveStatus;
 
 	//プレイヤーのジャンプに関する変数
-	KuroEngine::Vec3<float> m_jumpStartPos;
-	KuroEngine::Vec3<float> m_jumpEndPos;
-	KuroEngine::Vec3<float> m_bezierCurveControlPos;
-	XMVECTOR m_jumpStartQ;
-	XMVECTOR m_jumpEndQ;
-	float m_jumpTimer;
-	const float JUMP_TIMER = 0.07f;
+	KuroEngine::Vec3<float> m_jumpStartPos;			//ジャンプ開始位置
+	KuroEngine::Vec3<float> m_jumpEndPos;			//ジャンプ終了位置
+	KuroEngine::Vec3<float> m_bezierCurveControlPos;//ジャンプベジェ曲線の制御点	
+	XMVECTOR m_jumpStartQ;							//ジャンプ開始時のクォータニオン
+	XMVECTOR m_jumpEndQ;							//ジャンプ終了時のクオータニオン
+	float m_jumpTimer;								//ジャンプの計測時間を図るタイマー
+	const float JUMP_TIMER = 0.08f;
+	bool m_canJump;									//ジャンプができるかのフラグ
 
 
 	struct HitCheckResult
@@ -117,7 +124,7 @@ public:
 
 	//カメラコントローラーのデバッガポインタ取得
 	KuroEngine::Debugger* GetCameraControllerDebugger() { return &m_camController; }
-	KuroEngine::Transform& GetCameraControllerParentTransform() { return m_camController.GetParentTransform(); }
+	//KuroEngine::Transform& GetCameraControllerParentTransform() { return m_camController.GetParentTransform(); }
 
 	KuroEngine::Transform& GetTransform() { return m_transform; }
 	KuroEngine::Vec2<float>& GetGrassPosScatter() { return m_grassPosScatter; }
@@ -129,6 +136,11 @@ public:
 	bool GetOnGround() { return m_onGround; }
 	bool GetOnGimmick() { return m_onGimmick; }
 	bool GetIsStatusMove() { return m_playerMoveStatus == PLAYER_MOVE_STATUS::MOVE; }
+
+	//ジャンプ終了地点
+	KuroEngine::Vec3<float> GetJumpEndPos() { return m_jumpEndPos; }
+	void SetJumpEndPos(KuroEngine::Vec3<float> arg_jumpEndPos) { m_jumpEndPos = arg_jumpEndPos; }
+	bool GetIsJump() { return m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP; }
 
 private:
 	//レイとメッシュの当たり判定出力用構造体
@@ -201,6 +213,10 @@ private:
 
 	//移動方向を正しくさせるための処理
 	void AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const KuroEngine::Vec3<float>& arg_nextUp);
+
+	//周囲用の当たり判定
+	void CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo, Player::CastRayArgument& arg_castRayArgment);
+	void CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo, Player::CastRayArgument& arg_castRayArgment);
 
 };
 

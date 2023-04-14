@@ -4,7 +4,7 @@
 #include"../OperationConfig.h"
 
 Title::Title()
-	:m_startGameFlag(false), m_isFinishFlag(false), m_startOPFlag(false), m_generateCameraMoveDataFlag(false), 
+	:m_startGameFlag(false), m_isFinishFlag(false), m_startOPFlag(false), m_generateCameraMoveDataFlag(false),
 	m_titleTexBuff(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/title/logo.png")),
 	m_alphaRate(30.0f), m_startPazzleFlag(false), m_isPazzleModeFlag(false), m_delayInputFlag(false),
 	m_pazzleModeTexBuff(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/title/Pazzle.png")),
@@ -22,11 +22,12 @@ void Title::Init(TitleMode title_mode)
 	m_generateCameraMoveDataFlag = false;
 	m_isPazzleModeFlag = false;
 	m_delayInputFlag = false;
+	m_isPrevInputControllerRight = false;
+	m_isPrevInputControllerLeft = false;
 	m_delayTime.Reset();
 	m_alphaRate.Reset();
 	m_stageSelect.Init();
 	OperationConfig::Instance()->SetActive(false);
-
 
 	std::vector<MovieCameraData> titleCameraMoveDataArray;
 
@@ -86,20 +87,30 @@ void Title::Init(TitleMode title_mode)
 	}
 }
 
-void Title::Update(KuroEngine::Transform *player_camera)
+void Title::Update(KuroEngine::Transform* player_camera)
 {
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_RIGHT))
+	//コントローラーで右に入力されたか
+	bool isInputControllerRight = 0.9f < KuroEngine::UsersInput::Instance()->GetLeftStickVecFuna(0).x;
+	bool isInputTriggerRight = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_RIGHT) || (!m_isPrevInputControllerRight && isInputControllerRight);
+	if (isInputTriggerRight)
 	{
 		m_isPazzleModeFlag = true;
 	}
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_LEFT))
+	//コントローラーで左に入力されたか
+	bool isInputContollerLeft = KuroEngine::UsersInput::Instance()->GetLeftStickVecFuna(0).x < -0.9f;
+	bool isInputTriggerLeft = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_LEFT) || (!m_isPrevInputControllerLeft && isInputContollerLeft);
+	if (isInputTriggerLeft)
 	{
 		m_isPazzleModeFlag = false;
 	}
 
+	//コントローラーの入力を保存。
+	m_isPrevInputControllerRight = isInputControllerRight;
+	m_isPrevInputControllerLeft = isInputContollerLeft;
 
 	//タイトル画面からツリー注目モードに切り替える
-	if (!m_isPazzleModeFlag && KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) && !m_startGameFlag && !m_startPazzleFlag)
+	bool isInput = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A);
+	if (!m_isPazzleModeFlag && isInput && !m_startGameFlag && !m_startPazzleFlag)
 	{
 		m_startGameFlag = true;
 
@@ -124,7 +135,8 @@ void Title::Update(KuroEngine::Transform *player_camera)
 		m_camera.StartMovie(moveToTreeDataArray, false);
 	}
 
-	if (m_isPazzleModeFlag && KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) && !m_startGameFlag)
+	bool isInputSpace = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A);
+	if (m_isPazzleModeFlag && isInputSpace && !m_startGameFlag)
 	{
 		m_startPazzleFlag = true;
 	}
@@ -191,13 +203,14 @@ void Title::Update(KuroEngine::Transform *player_camera)
 		{
 			m_startPazzleFlag = false;
 			m_delayInputFlag = false;
+			m_stageSelect.Stop();
 			m_delayTime.Reset();
 		}
 	}
 	m_camera.Update();
 }
 
-void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
+void Title::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 	if (m_isFinishFlag)
 	{

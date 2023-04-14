@@ -25,7 +25,7 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer())
 	m_dirLigArray.back().SetDir(dir.GetNormal());
 	m_dirLigArray.back().SetColor(KuroEngine::Color(0.8f, 0.8f, 0.8f, 1.0f));
 
-	for (auto &dirLig : m_dirLigArray)
+	for (auto& dirLig : m_dirLigArray)
 	{
 		m_ligMgr.RegisterDirLight(&dirLig);
 	}
@@ -78,8 +78,9 @@ void GameScene::OnUpdate()
 	m_particleRender.InitCount();
 
 	//デバッグ用
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_I))
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_I) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::B))
 	{
+		m_eTitleMode = TITLE_PAZZLE;
 		this->Finalize();
 		this->Initialize();
 	}
@@ -101,7 +102,7 @@ void GameScene::OnUpdate()
 	//ゴール時の演出
 	if (m_goal.IsHit(m_player.GetTransform().GetPos()))
 	{
-		m_nowCam = m_goal.GetCamera().lock();
+		//m_nowCam = m_goal.GetCamera().lock();
 		OperationConfig::Instance()->SetActive(false);
 		m_clearFlag = true;
 	}
@@ -156,7 +157,7 @@ void GameScene::OnUpdate()
 			OperationConfig::Instance()->SetActive(true);
 		}
 
-		m_goal.Init(StageManager::Instance()->GetGoalTransform());
+		m_goal.Init(StageManager::Instance()->GetGoalTransform(), StageManager::Instance()->GetGoalModel());
 
 		//ゲームクリア時に遷移する処理
 		if (m_clearFlag)
@@ -216,7 +217,7 @@ void GameScene::OnDraw()
 	m_stageSelect.Draw(*m_nowCam, m_ligMgr);
 
 	//m_movieCamera.DebugDraw(*m_nowCam, m_ligMgr);
-	m_goal.Draw(*m_nowCam);
+
 
 	//m_canvasPostEffect.Execute();
 	BasicDraw::Instance()->DrawEdge();
@@ -231,7 +232,6 @@ void GameScene::OnDraw()
 	}
 
 
-
 	m_fogPostEffect->Register(
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN),
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::DEPTH),
@@ -243,6 +243,8 @@ void GameScene::OnDraw()
 
 	m_title.Draw(*m_nowCam, m_ligMgr);
 
+
+	m_goal.Draw(*m_nowCam);
 
 
 	m_gateSceneChange.Draw();
@@ -266,5 +268,7 @@ void GameScene::OnImguiDebug()
 void GameScene::OnFinalize()
 {
 	KuroEngine::Debugger::ClearRegister();
+	//ゲーム終了時はゴールを使わない
+	m_goal.Finalize();
 }
 

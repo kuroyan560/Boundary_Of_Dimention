@@ -116,3 +116,8 @@ KuroEngine::Transform StageManager::GetGoalTransform() const
 {
 	return m_nowStage->GetGoalTransform();
 }
+
+std::shared_ptr<GoalPoint>StageManager::GetGoalModel()
+{
+	return m_nowStage->GetGoalModel();
+}
