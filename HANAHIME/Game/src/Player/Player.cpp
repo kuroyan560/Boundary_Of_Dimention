@@ -110,6 +110,8 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	{
 		//モデル情報取得
 		auto model = terrian.m_model.lock();
+		//情報を取得。
+		castRayArgument.m_stageType = StageParts::TERRIAN;
 		//トランスフォーム情報
 		auto& transform = terrian.m_transform;
 		castRayArgument.m_targetTransform = terrian.m_transform;
@@ -236,6 +238,8 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	{
 		//モデル情報取得
 		auto model = terrian.m_model.lock();
+		//情報を取得。
+		castRayArgument.m_stageType = StageParts::TERRIAN;
 		//トランスフォーム情報
 		auto& transform = terrian.m_transform;
 		castRayArgument.m_targetTransform = terrian.m_transform;
@@ -435,7 +439,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		newPos = CalculateBezierPoint(easeAmount, m_jumpStartPos, m_jumpEndPos, m_bezierCurveControlPos);
 
 		//回転を補完する。
-		m_transform.SetRotate(m_jumpEndQ);
+		m_transform.SetRotate(DirectX::XMQuaternionSlerp(m_jumpStartQ, m_jumpEndQ, easeAmount));
 
 		//上限に達していたらジャンプを終える。
 		if (1.0f <= m_jumpTimer) {
@@ -757,13 +761,13 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 	//入力された値が無かったら移動速度を減らす。
 	if (std::fabs(m_rowMoveVec.x) < 0.001f) {
 
-		m_moveSpeed.x = std::clamp(std::fabs(m_moveSpeed.x) - m_brake, 0.0f, m_maxSpeed) * (std::signbit(m_moveSpeed.x) ? -1.0f : 1.0f);
+		m_moveSpeed.x = 0;
 
 	}
 
 	if (std::fabs(m_rowMoveVec.z) < 0.001f) {
 
-		m_moveSpeed.z = std::clamp(std::fabs(m_moveSpeed.z) - m_brake, 0.0f, m_maxSpeed) * (std::signbit(m_moveSpeed.z) ? -1.0f : 1.0f);
+		m_moveSpeed.z = 0;
 
 	}
 
@@ -809,7 +813,8 @@ void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<flo
 	}
 
 	//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
-	DirectX::XMVECTOR playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
+	DirectX::XMVECTOR playerYSpin;
+	playerYSpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_playerRotY);
 
 	//カメラ方向でのクォータニオンを求める。進む方向などを判断するのに使用するのはこっち。Fの一番最初にこの値を入れることでplayerYSpinの回転を打ち消す。
 	m_cameraQ = DirectX::XMQuaternionMultiply(m_normalSpinQ, ySpin);
