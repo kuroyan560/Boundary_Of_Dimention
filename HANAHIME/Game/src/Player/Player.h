@@ -44,6 +44,9 @@ class Player : public KuroEngine::Debugger
 
 	//ƒJƒƒ‰Š´“x
 	float m_camSensitivity = 1.0f;
+	bool m_isCameraModeFar;
+	const float CAMERA_MODE_NEAR = -20.0f;
+	const float CAMERA_MODE_FAR = -50.0f;
 
 	//‘‚ğ¶‚â‚·Û‚ÌU‚ç‚µ—ÊB
 	KuroEngine::Vec2<float> m_grassPosScatter = KuroEngine::Vec2<float>(2.0f, 2.0f);

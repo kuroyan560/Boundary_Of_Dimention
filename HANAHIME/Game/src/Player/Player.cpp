@@ -359,6 +359,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_gimmickVel = KuroEngine::Vec3<float>();
 	m_isFirstOnGround = false;
 	m_onGimmick = false;
+	m_isCameraModeFar = true;
 	m_prevOnGimmick = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 }
@@ -379,6 +380,11 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//ジャンプができるかどうか。
 	m_canJump = UsersInput::Instance()->KeyInput(DIK_SPACE) || UsersInput::Instance()->ControllerInput(0, KuroEngine::A);
+
+	//カメラモードを切り替える。
+	if (UsersInput::Instance()->KeyOffTrigger(DIK_RETURN) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::X)) {
+		m_isCameraModeFar = m_isCameraModeFar ? false : true;
+	}
 
 	//移動ステータスによって処理を変える。
 	switch (m_playerMoveStatus)
@@ -465,7 +471,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_ptLig.SetPos(newPos);
 
 	//カメラ操作
-	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_cameraRotYStorage);
+	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_cameraRotYStorage, m_isCameraModeFar ? CAMERA_MODE_FAR : CAMERA_MODE_NEAR);
 
 	//ギミックの移動を打ち消す。
 	m_gimmickVel = KuroEngine::Vec3<float>();
@@ -861,7 +867,6 @@ KuroEngine::Vec3<float> Player::CalculateBezierPoint(float arg_time, KuroEngine:
 	return KuroEngine::Vec3<float>(x, y, z);
 
 }
-
 
 void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const KuroEngine::Vec3<float>& arg_nextUp) {
 

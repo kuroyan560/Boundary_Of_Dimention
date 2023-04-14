@@ -56,7 +56,7 @@ void CameraController::Init()
 	m_verticalControl = ANGLE;
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Vec3<float>arg_targetPos, float arg_playerRotY)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Vec3<float>arg_targetPos, float arg_playerRotY, float arg_cameraZ)
 {
 	using namespace KuroEngine;
 
@@ -81,8 +81,9 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	}
 
 	//上限値超えないようにする
-	m_nowParam.m_posOffsetZ = std::clamp(m_nowParam.m_posOffsetZ, m_posOffsetDepthMin, m_posOffsetDepthMax);
+	m_nowParam.m_posOffsetZ = arg_cameraZ;
 	m_nowParam.m_xAxisAngle = std::clamp(m_nowParam.m_xAxisAngle, m_xAxisAngleMin, m_xAxisAngleMax);
+
 
 	//操作するカメラのトランスフォーム（前後移動）更新
 	auto& transform = m_attachedCam.lock()->GetTransform();
