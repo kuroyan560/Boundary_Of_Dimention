@@ -97,7 +97,7 @@ class Player : public KuroEngine::Debugger
 	XMVECTOR m_jumpStartQ;							//ジャンプ開始時のクォータニオン
 	XMVECTOR m_jumpEndQ;							//ジャンプ終了時のクオータニオン
 	float m_jumpTimer;								//ジャンプの計測時間を図るタイマー
-	const float JUMP_TIMER = 0.05f;
+	const float JUMP_TIMER = 0.08f;
 	bool m_canJump;									//ジャンプができるかのフラグ
 
 
@@ -136,6 +136,11 @@ public:
 	bool GetOnGround() { return m_onGround; }
 	bool GetOnGimmick() { return m_onGimmick; }
 	bool GetIsStatusMove() { return m_playerMoveStatus == PLAYER_MOVE_STATUS::MOVE; }
+
+	//ジャンプ終了地点
+	KuroEngine::Vec3<float> GetJumpEndPos() { return m_jumpEndPos; }
+	void SetJumpEndPos(KuroEngine::Vec3<float> arg_jumpEndPos) { m_jumpEndPos = arg_jumpEndPos; }
+	bool GetIsJump() { return m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP; }
 
 private:
 	//レイとメッシュの当たり判定出力用構造体

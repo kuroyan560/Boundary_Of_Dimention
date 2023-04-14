@@ -360,12 +360,9 @@ KuroEngine::Vec2<float> KuroEngine::UsersInput::GetLeftStickVecFuna(const int& C
 	Vec2<float>result(static_cast<float>(m_xinputState[ControllerIdx].Gamepad.sThumbLX), static_cast<float>(-m_xinputState[ControllerIdx].Gamepad.sThumbLY));
 	result.x /= 32767;
 	result.y /= 32767;
-	const float DEADLINE = 0.8f;
-	if (std::fabs(result.x) < DEADLINE) {
-		result.x = 0;
-	}
-	if (std::fabs(result.y) < DEADLINE) {
-		result.y = 0;
+	const float DEADLINE = 0.4f;
+	if (result.Length() <= DEADLINE) {
+		result = {};
 	}
 	return result;
 }
