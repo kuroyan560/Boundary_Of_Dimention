@@ -201,6 +201,15 @@ void Goal::Draw(KuroEngine::Camera &camera)
 		}
 	}
 #endif // _DEBUG
+	KuroEngine::Vec3<float> result(0, 1, 0);
+	DirectX::XMMATRIX mat = DirectX::XMMatrixRotationQuaternion(m_goalModel->GetTransform().GetRotate());
+	DirectX::XMVECTOR rota(DirectX::XMVector3Transform(result, mat));
+	result = { rota.m128_f32[0],rota.m128_f32[1],rota.m128_f32[2] };
+	result.Normalize();
+
+	KuroEngine::Vec3<float>startPos(m_goalModelBaseTransform.GetPos());
+	KuroEngine::Vec3<float>endPos(m_goalModelBaseTransform.GetPos() + result * 5.0f);
+	KuroEngine::DrawFunc3D::DrawLine(camera, startPos, endPos, KuroEngine::Color(255, 0, 0, 255), 1.0f);
 
 	KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_pos, { 1.0f,1.0f }, clearTexRadian, m_clearTex);
 	//KuroEngine::DrawFunc3D::DrawNonShadingPlane(m_ddsTex, transform, camera);
