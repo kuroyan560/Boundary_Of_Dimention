@@ -1,9 +1,15 @@
 #include"Goal.h"
 #include"../OperationConfig.h"
 
-Goal::Goal() :m_model(std::make_shared<KuroEngine::ModelObject>("resource/user/model/", "Player.glb")), m_initFlag(false)
+Goal::Goal() :m_model(std::make_shared<KuroEngine::ModelObject>("resource/user/model/", "Player.glb")), m_initFlag(false),m_clearEaseTimer(30)
 {
 	m_startGoalEffectFlag = false;
+
+	m_basePos = KuroEngine::WinApp::Instance()->GetExpandWinSize() + KuroEngine::Vec2<float>(0.0f, 100.0f);
+	m_goalPos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() - KuroEngine::WinApp::Instance()->GetExpandWinCenter() / KuroEngine::Vec2<float>(1.0f, 2.0f);
+
+
+	//m_clearTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/");
 }
 
 void Goal::Init(const KuroEngine::Transform &transform)
@@ -15,6 +21,8 @@ void Goal::Init(const KuroEngine::Transform &transform)
 	m_isHitFlag = false;
 
 	m_movieCamera.Init();
+
+	m_clearEaseTimer.Reset();
 }
 
 void Goal::Finalize()
@@ -57,6 +65,14 @@ void Goal::Update(KuroEngine::Transform *transform)
 		m_startGoalEffectFlag = true;
 	}
 	m_movieCamera.Update();
+
+
+	m_pos = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Circ, m_clearEaseTimer.GetTimeRate(), m_basePos, m_goalPos);
+
+	if (m_isHitFlag)
+	{
+		m_clearEaseTimer.UpdateTimer();
+	}
 }
 
 void Goal::Draw(KuroEngine::Camera &camera)
@@ -68,6 +84,8 @@ void Goal::Draw(KuroEngine::Camera &camera)
 #ifdef _DEBUG
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(m_model, camera);
 #endif // _DEBUG
+
+	//KuroEngine::DrawFunc2D::DrawGraph(m_pos, m_clearTex);
 }
 
 bool Goal::IsHit(const KuroEngine::Vec3<float> &player_pos)
