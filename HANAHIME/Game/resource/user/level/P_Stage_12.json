@@ -4,12 +4,12 @@
         "objects": [
             {
                 "type": "Start",
-                "name": "Start_7",
+                "name": "Start_12",
                 "transform": {
                     "translation": [
-                        -10.0,
-                        0.0,
-                        16.5
+                        10.0,
+                        20.0,
+                        6.5
                     ],
                     "rotation": [
                         0.0,
@@ -27,18 +27,18 @@
             },
             {
                 "type": "Goal",
-                "name": "Goal_7",
+                "name": "Goal_12",
                 "transform": {
                     "translation": [
                         10.0,
-                        10.0,
-                        17.0
+                        20.0,
+                        -10.0
                     ],
                     "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
+                        -0.0,
+                        -1.0,
+                        -0.0,
+                        4.371138828673793e-08
                     ],
                     "scaling": [
                         1.0,
@@ -50,7 +50,7 @@
             },
             {
                 "type": "Terrian",
-                "name": "Stage7_0",
+                "name": "Stage12_0",
                 "transform": {
                     "translation": [
                         0.0,
@@ -66,19 +66,19 @@
                     "scaling": [
                         5.0,
                         5.0,
-                        4.0
+                        5.0
                     ]
                 },
-                "file_name": "Stage7"
+                "file_name": "Stage12"
             },
             {
                 "type": "MoveScaffold",
-                "name": "MoveScaffoldStage7_0",
+                "name": "MoveScaffoldStage12_0",
                 "transform": {
                     "translation": [
                         0.0,
-                        10.0,
-                        8.0
+                        -10.0,
+                        9.0
                     ],
                     "rotation": [
                         0.0,
@@ -92,20 +92,20 @@
                         5.0
                     ]
                 },
-                "file_name": "MoveScaffoldStage7",
+                "file_name": "MoveScaffoldStage12",
                 "translationArray": [
                     {
                         "translation": [
                             0,
-                            10,
-                            8
+                            -10,
+                            9
                         ]
                     },
                     {
                         "translation": [
+                            0,
                             -10,
-                            10,
-                            8
+                            -1
                         ]
                     }
                 ]
