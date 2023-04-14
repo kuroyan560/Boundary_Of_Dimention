@@ -78,12 +78,12 @@ void GameScene::OnUpdate()
 	m_particleRender.InitCount();
 
 	//デバッグ用
-	//if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_I) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::B))
-	//{
-	//	m_eTitleMode = TITLE_PAZZLE;
-	//	this->Finalize();
-	//	this->Initialize();
-	//}
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_I) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::B))
+	{
+		m_eTitleMode = TITLE_PAZZLE;
+		this->Finalize();
+		this->Initialize();
+	}
 
 	//デバッグモード更新
 	DebugController::Instance()->Update();
