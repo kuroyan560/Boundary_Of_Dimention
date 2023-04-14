@@ -81,6 +81,7 @@ void Title::Init(TitleMode title_mode)
 		break;
 	case TITLE_PAZZLE:
 		m_startPazzleFlag = true;
+
 		break;
 	default:
 		break;
@@ -140,6 +141,7 @@ void Title::Update(KuroEngine::Transform* player_camera)
 	if (m_isPazzleModeFlag && isInputSpace && !m_startGameFlag)
 	{
 		m_startPazzleFlag = true;
+		m_stageSelect.Init();
 	}
 
 
