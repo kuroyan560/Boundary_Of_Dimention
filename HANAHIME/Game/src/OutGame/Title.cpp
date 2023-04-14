@@ -103,6 +103,7 @@ void Title::Update(KuroEngine::Transform* player_camera)
 	{
 		m_isPazzleModeFlag = false;
 	}
+	m_isPazzleModeFlag = true;
 
 	//コントローラーの入力を保存。
 	m_isPrevInputControllerRight = isInputControllerRight;
