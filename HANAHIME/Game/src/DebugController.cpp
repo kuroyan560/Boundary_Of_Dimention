@@ -11,6 +11,7 @@ DebugController::DebugController()
 void DebugController::Update()
 {
 	using namespace KuroEngine;
+	return;
 
 	//デバッグモード切り替え
 	if (UsersInput::Instance()->KeyOnTrigger(DIK_ESCAPE))
