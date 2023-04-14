@@ -378,7 +378,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
 
 	//ジャンプができるかどうか。
-	m_canJump = UsersInput::Instance()->KeyInput(DIK_SPACE);
+	m_canJump = UsersInput::Instance()->KeyInput(DIK_SPACE) || UsersInput::Instance()->ControllerInput(0, KuroEngine::A);
 
 	//移動ステータスによって処理を変える。
 	switch (m_playerMoveStatus)
@@ -394,6 +394,12 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 		//入力された移動量を取得
 		m_rowMoveVec = OperationConfig::Instance()->GetMoveVecFuna(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
+
+		//入力量が一定以下だったら0にする。
+		const float DEADLINE = 0.8f;
+		if (m_rowMoveVec.Length() <= DEADLINE) {
+			m_rowMoveVec = {};
+		}
 
 		//天井にいたら
 		if (m_transform.GetUp().y < -0.9f) {

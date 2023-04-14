@@ -33,23 +33,33 @@ void PazzleStageSelect::Init()
 
 void PazzleStageSelect::Update()
 {
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_RIGHT))
+
+	//コントローラーの入力を保存。
+	KuroEngine::Vec2<float> contollerLeftStickInput = KuroEngine::UsersInput::Instance()->GetLeftStickVecFuna(0);
+
+	bool isInputRightController = m_prevContollerLeftStick.x <= 0 && 0 < contollerLeftStickInput.x;
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_RIGHT) || isInputRightController)
 	{
 		++m_nowStageNum.x;
 	}
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_LEFT))
+	bool isInputLeftController = 0 <= m_prevContollerLeftStick.x && contollerLeftStickInput.x < 0;
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_LEFT) || isInputLeftController)
 	{
 		--m_nowStageNum.x;
 	}
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_UP))
+	bool isInputUpController = 0 <= m_prevContollerLeftStick.y && contollerLeftStickInput.y < 0;
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_UP) || isInputUpController)
 	{
 		--m_nowStageNum.y;
 	}
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_DOWN))
+	bool isInputDownController = m_prevContollerLeftStick.y <= 0 && 0 < contollerLeftStickInput.y;
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_DOWN) || isInputDownController)
 	{
 		++m_nowStageNum.y;
 	}
 
+	//コントローラーの入力を保存。
+	m_prevContollerLeftStick = contollerLeftStickInput;
 
 	int stageYMaxNum = static_cast<int>(m_stageSelectArray.size());
 	if (m_nowStageNum.y < 0)
