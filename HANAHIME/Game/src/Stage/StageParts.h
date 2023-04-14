@@ -70,6 +70,10 @@ public:
 
 	//トランスフォームゲッタ
 	const KuroEngine::Transform& GetTransform()const { return m_transform; }
+	void SetTransform(const KuroEngine::Transform &transform)
+	{
+		m_transform = transform;
+	}
 
 	//ステージ情報のゲッタ
 	const std::weak_ptr<KuroEngine::Model>& GetModel()const { return m_model; }

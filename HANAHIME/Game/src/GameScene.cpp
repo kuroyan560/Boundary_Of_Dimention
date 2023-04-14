@@ -102,7 +102,7 @@ void GameScene::OnUpdate()
 	//ƒS[ƒ‹Žž‚Ì‰‰o
 	if (m_goal.IsHit(m_player.GetTransform().GetPos()))
 	{
-		m_nowCam = m_goal.GetCamera().lock();
+		//m_nowCam = m_goal.GetCamera().lock();
 		OperationConfig::Instance()->SetActive(false);
 		m_clearFlag = true;
 	}
@@ -157,7 +157,7 @@ void GameScene::OnUpdate()
 			OperationConfig::Instance()->SetActive(true);
 		}
 
-		m_goal.Init(StageManager::Instance()->GetGoalTransform());
+		m_goal.Init(StageManager::Instance()->GetGoalTransform(), StageManager::Instance()->GetGoalModel());
 
 		//ƒQ[ƒ€ƒNƒŠƒAŽž‚É‘JˆÚ‚·‚éˆ—
 		if (m_clearFlag)
@@ -217,7 +217,7 @@ void GameScene::OnDraw()
 	m_stageSelect.Draw(*m_nowCam, m_ligMgr);
 
 	//m_movieCamera.DebugDraw(*m_nowCam, m_ligMgr);
-	m_goal.Draw(*m_nowCam);
+
 
 	//m_canvasPostEffect.Execute();
 	BasicDraw::Instance()->DrawEdge();
@@ -232,7 +232,6 @@ void GameScene::OnDraw()
 	}
 
 
-
 	m_fogPostEffect->Register(
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN),
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::DEPTH),
@@ -244,6 +243,8 @@ void GameScene::OnDraw()
 
 	m_title.Draw(*m_nowCam, m_ligMgr);
 
+
+	m_goal.Draw(*m_nowCam);
 
 
 	m_gateSceneChange.Draw();

@@ -87,6 +87,11 @@ public:
 		return KuroEngine::Transform();
 	};
 
+	std::shared_ptr<GoalPoint>GetGoalModel()
+	{
+		return m_goalPoint;
+	}
+
 //モデルのゲッタ
 	//スカイドーム
 	std::weak_ptr<KuroEngine::Model>GetSkydomeModel() { return m_skydomeModel; }
