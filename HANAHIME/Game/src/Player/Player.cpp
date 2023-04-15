@@ -365,6 +365,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_cameraJumpLerpAmount = 0;
 	m_cameraJumpLerpStorage = 0;
 	m_cameraQ = DirectX::XMQuaternionIdentity();
+	m_stopMoveTimer = 0;
 
 	m_moveSpeed = KuroEngine::Vec3<float>();
 	m_gimmickVel = KuroEngine::Vec3<float>();
@@ -468,6 +469,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		if (1.0f <= m_jumpTimer) {
 			m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 			m_cameraJumpLerpAmount = 0;
+			m_stopMoveTimer = STOP_MOVE_TIMER_WALL_CHANGE;
 		}
 
 	}
@@ -770,6 +772,12 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 }
 
 void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
+
+	//動けないタイマーがある場合は動けないようにする。
+	if (0 < m_stopMoveTimer) {
+		--m_stopMoveTimer;
+		m_rowMoveVec = KuroEngine::Vec3<float>();
+	}
 
 	//落下中は入力を無効化。
 	if (!m_onGround) {
