@@ -83,6 +83,7 @@ class Player : public KuroEngine::Debugger
 	bool m_prevOnGround;	//1F前の接地フラグ
 	bool m_prevOnGimmick;	//ギミックの上にいるかどうか
 	bool m_onGimmick;		//ギミックの上にいるかどうか
+	bool m_isDeath;			//プレイヤーが死んだかどうか 死んだらリトライされる
 
 	//Imguiデバッグ関数オーバーライド
 	void OnImguiItems()override;
@@ -146,6 +147,9 @@ public:
 	void SetJumpEndPos(KuroEngine::Vec3<float> arg_jumpEndPos) { m_jumpEndPos = arg_jumpEndPos; }
 	bool GetIsJump() { return m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP; }
 
+	//死亡フラグを取得。
+	bool GetIsDeath() { return m_isDeath; }
+
 private:
 	//レイとメッシュの当たり判定出力用構造体
 	struct MeshCollisionOutput {
@@ -160,17 +164,20 @@ private:
 
 		GROUND,	//地上向かって飛ばすレイ。設置判定で使用する。
 		AROUND,	//周囲に向かって飛ばすレイ。壁のぼり判定で使用する。
+		CHECK_DEATH_RIGHT,	//左右方向の死亡確認用
+		CHECK_DEATH_TOP,	//上下方向の死亡確認用
+		CHECK_DEATH_FRONT,	//前後方向の死亡確認用
 
 	};
+
 	/// <summary>
 	/// レイとメッシュの当たり判定
 	/// </summary>
 	/// <param name="arg_rayPos"> レイの射出地点 </param>
 	/// <param name="arg_rayDir"> レイの射出方向 </param>
 	/// <param name="arg_targetMesh"> 判定を行う対象のメッシュ </param>
-	/// <param name="arg_targetTransform"> 判定を行う対象のトランスフォーム </param>
 	/// <returns> 当たり判定結果 </returns>
-	MeshCollisionOutput MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, std::vector<Terrian::Polygon>& arg_targetMesh, KuroEngine::Transform arg_targetTransform);
+	MeshCollisionOutput MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, std::vector<Terrian::Polygon>& arg_targetMesh);
 
 	/// <summary>
 	/// 重心座標を求める。
@@ -186,13 +193,15 @@ private:
 
 	//CastRayに渡すデータ用構造体
 	struct CastRayArgument {
+		std::weak_ptr<StageParts> m_stage;			//ステージ
 		std::vector<Terrian::Polygon> m_mesh;		//判定を行う対象のメッシュ
-		KuroEngine::Transform m_targetTransform;	//判定を行う対象のトランスフォーム
 		std::vector<ImpactPointData> m_impactPoint;	//前後左右のレイの当たった地点。
-		bool m_onGround;							//接地フラグ
 		KuroEngine::Vec3<float> m_bottomTerrianNormal;
 		StageParts::STAGE_PARTS_TYPE m_stageType;
-		std::weak_ptr<StageParts> m_stage;			//ステージ
+		bool m_onGround;							//接地フラグ
+		int m_checkDeathCounterRight;				//死亡確認用レイの衝突数カウンター 左右用
+		int m_checkDeathCounterTop;					//死亡確認用レイの衝突数カウンター 左右用
+		int m_checkDeathCounterFront;				//死亡確認用レイの衝突数カウンター 左右用
 	};
 
 	/// <summary>
@@ -219,6 +228,7 @@ private:
 	void AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const KuroEngine::Vec3<float>& arg_nextUp);
 
 	//周囲用の当たり判定
+	void CheckDeath(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo, Player::CastRayArgument& arg_castRayArgment);
 	void CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo, Player::CastRayArgument& arg_castRayArgment);
 	void CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo, Player::CastRayArgument& arg_castRayArgment);
 
