@@ -289,59 +289,80 @@ void Player::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 	int impactPointSize = static_cast<int>(arg_castRayArgment.m_impactPoint.size());
 	if (0 < impactPointSize) {
 
+		//全ての衝突点について崖を超えていないかをチェックする。
+		for (auto& index : arg_castRayArgment.m_impactPoint) {
+
+			//崖チェック
+			CheckCliff(index, arg_nowStage);
+
+		}
+
+		//最小値保存用変数
 		float minDistance = std::numeric_limits<float>().max();
-		int minIndex = 0;
+		int minIndex = -1;
 
 		//全衝突点の中から最短の位置にあるものを検索する。
 		for (auto& index : arg_castRayArgment.m_impactPoint) {
 
+			//衝突点が有効化されていなかったら処理を飛ばす。
+			if (!index.m_isActive) continue;
+
+			//距離が保存されているやつより大きかったら処理を飛ばす。
 			float distance = (arg_newPos - index.m_impactPos).Length();
 			if (minDistance < distance) continue;
 
+			//距離やインデックスのデータを保存。
 			minDistance = distance;
 			minIndex = static_cast<int>(&index - &arg_castRayArgment.m_impactPoint[0]);
 
 		}
 
-		//ジャンプができる状態だったらジャンプする。
-		if (m_canJump) {
+		//地点が保存されていなかったら処理を飛ばす。
+		if (minIndex != -1) {
 
-			//最短の衝突点を求めたら、それをジャンプ先にする。
-			arg_hitInfo->m_terrianNormal = arg_castRayArgment.m_impactPoint[minIndex].m_normal;
+			//ジャンプができる状態だったらジャンプする。
+			if (m_canJump) {
 
-			//ジャンプのパラメーターも決める。
-			m_playerMoveStatus = PLAYER_MOVE_STATUS::JUMP;
-			m_jumpTimer = 0;
-			m_jumpStartPos = arg_newPos;
-			m_bezierCurveControlPos = m_jumpStartPos + m_transform.GetUp() * WALL_JUMP_LENGTH;
-			m_jumpEndPos = arg_castRayArgment.m_impactPoint[minIndex].m_impactPos + arg_castRayArgment.m_impactPoint[minIndex].m_normal * m_transform.GetScale().x;
-			m_jumpEndPos += m_transform.GetUp() * WALL_JUMP_LENGTH;
+				//最短の衝突点を求めたら、それをジャンプ先にする。
+				arg_hitInfo->m_terrianNormal = arg_castRayArgment.m_impactPoint[minIndex].m_normal;
 
-			//ジャンプしたのでタイマーを初期化
-			m_canJumpDelayTimer = 0;
+				//ジャンプのパラメーターも決める。
+				m_playerMoveStatus = PLAYER_MOVE_STATUS::JUMP;
+				m_jumpTimer = 0;
+				m_jumpStartPos = arg_newPos;
+				m_bezierCurveControlPos = m_jumpStartPos + m_transform.GetUp() * WALL_JUMP_LENGTH;
+				m_jumpEndPos = arg_castRayArgment.m_impactPoint[minIndex].m_impactPos + arg_castRayArgment.m_impactPoint[minIndex].m_normal * m_transform.GetScale().x;
+				m_jumpEndPos += m_transform.GetUp() * WALL_JUMP_LENGTH;
 
-		}
-		//ジャンプができない状態だったら押し戻す。
-		else {
+				//ジャンプしたのでタイマーを初期化
+				m_canJumpDelayTimer = 0;
 
-			arg_newPos = arg_from + m_gimmickVel;
-			arg_hitInfo->m_terrianNormal = m_transform.GetUp();
+			}
+			//ジャンプができない状態だったら押し戻す。
+			else {
 
-			//引っ掛かりのタイマーを更新 この値が一定値をこえたらジャンプできるようになる
-			++m_canJumpDelayTimer;
+				arg_newPos = arg_from + m_gimmickVel;
+				arg_hitInfo->m_terrianNormal = m_transform.GetUp();
+
+				//引っ掛かりのタイマーを更新 この値が一定値をこえたらジャンプできるようになる
+				++m_canJumpDelayTimer;
+
+			}
+
+			return;
 
 		}
 
 	}
-	else {
 
-		//どことも当たっていなかったら現在の上ベクトルを地形の上ベクトルとしてみる。
-		arg_hitInfo->m_terrianNormal = m_transform.GetUp();
 
-		//どこにも引っかかってないのでタイマーを初期化する。
-		m_canJumpDelayTimer = 0;
 
-	}
+	//どことも当たっていなかったら現在の上ベクトルを地形の上ベクトルとしてみる。
+	arg_hitInfo->m_terrianNormal = m_transform.GetUp();
+
+	//どこにも引っかかってないのでタイマーを初期化する。
+	m_canJumpDelayTimer = 0;
+
 
 }
 
@@ -423,6 +444,79 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 		//次に補間する上ベクトルとプレイヤーの上ベクトルにする。
 		arg_hitInfo->m_terrianNormal = m_transform.GetUp();
 	}
+
+}
+
+void Player::CheckCliff(Player::ImpactPointData& arg_impactPointData, std::weak_ptr<Stage> arg_nowStage)
+{
+
+	//有効化されていなかったら処理を飛ばす。
+	if (!arg_impactPointData.m_isActive) return;
+
+	//崖判定用のレイの長さ
+	const float CLIFF_RAY_LENGTH = WALL_JUMP_LENGTH + m_transform.GetScale().Length();
+
+	//地形配列走査
+	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
+	{
+		//モデル情報取得
+		auto model = terrian.m_model.lock();
+
+		//メッシュを走査
+		for (auto& modelMesh : model->m_meshes)
+		{
+
+			//判定↓============================================
+
+			//当たり判定を行うメッシュ。
+			std::vector<StageParts::Polygon> mesh = terrian.m_collisionMesh[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+
+			//下方向にレイを飛ばす。
+			MeshCollisionOutput output = MeshCollision(arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * 0.5f, -m_transform.GetUp(), mesh);
+
+			//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
+			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
+
+				//壁に当たった時点で崖ではないので処理を飛ばす。
+				return;
+
+			}
+
+			//=================================================
+		}
+	}
+
+	//ギミックとの当たり判定
+	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
+	{
+		//モデル情報取得
+		auto model = terrian->GetModel();
+
+		//メッシュを走査
+		for (auto& modelMesh : model.lock()->m_meshes) {
+
+			//判定↓============================================
+
+			//当たり判定を行うメッシュ。
+			std::vector<StageParts::Polygon> mesh = terrian->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+
+			//下方向にレイを飛ばす。
+			MeshCollisionOutput output = MeshCollision(arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * 0.5f, -m_transform.GetUp(), mesh);
+
+			//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
+			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
+
+				//壁に当たった時点で崖ではないので処理を飛ばす。
+				return;
+
+			}
+
+			//=================================================
+		}
+	}
+
+	//最後まで壁に当たってなかったら崖を超えているので無効化する。
+	arg_impactPointData.m_isActive = false;
 
 }
 
