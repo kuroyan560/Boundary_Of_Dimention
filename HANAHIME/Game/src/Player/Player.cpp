@@ -201,25 +201,6 @@ void Player::CheckDeath(const KuroEngine::Vec3<float> arg_from, KuroEngine::Vec3
 
 void Player::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo, Player::CastRayArgument& arg_castRayArgment) {
 
-	enum DIR {
-		RIGHT,
-		LEFT,
-		FRONT,
-		BEHIND,
-	};
-
-	//ギミックによる移動があったかどうか
-	std::array<bool, 4> isCastRayDir = {false};
-
-	//通常地形用の射影を確認する。
-	CheckRayDirProjection(isCastRayDir[RIGHT], isCastRayDir[LEFT], isCastRayDir[FRONT], isCastRayDir[BEHIND], m_moveSpeed);
-
-	//ギミックによる移動があったかどうか
-	std::array<bool, 4> isCastGimmickRayDir = { false };
-
-	//ギミック用の射影を確認する。
-	CheckRayDirProjection(isCastGimmickRayDir[RIGHT], isCastGimmickRayDir[LEFT], isCastGimmickRayDir[FRONT], isCastGimmickRayDir[BEHIND], m_gimmickVel);
-
 	//地形配列走査
 	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
 	{
@@ -240,16 +221,16 @@ void Player::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 			//判定↓============================================
 
 			//右方向にレイを飛ばす。これは壁にくっつく用。
-			if (isCastGimmickRayDir[RIGHT] || isCastRayDir[RIGHT])CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
+			CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
 
 			//左方向にレイを飛ばす。これは壁にくっつく用。
-			if (isCastGimmickRayDir[LEFT] || isCastRayDir[LEFT])CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
 
 			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
-			if (isCastGimmickRayDir[BEHIND] || isCastRayDir[BEHIND])CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
 
 			//正面方向にレイを飛ばす。これは壁にくっつく用。
-			if (isCastGimmickRayDir[FRONT] || isCastRayDir[FRONT])CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
+			CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
 
 			//=================================================
 		}
@@ -277,16 +258,16 @@ void Player::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 			//判定↓============================================
 
 			//右方向にレイを飛ばす。これは壁にくっつく用。
-			if (isCastGimmickRayDir[RIGHT] || isCastRayDir[RIGHT])CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
+			CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
 
 			//左方向にレイを飛ばす。これは壁にくっつく用。
-			if (isCastGimmickRayDir[LEFT] || isCastRayDir[LEFT])CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
 
 			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
-			if (isCastGimmickRayDir[BEHIND] || isCastRayDir[BEHIND])CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
 
 			//正面方向にレイを飛ばす。これは壁にくっつく用。
-			if (isCastGimmickRayDir[FRONT] || isCastRayDir[FRONT])CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
+			CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
 
 			//=================================================
 		}
@@ -424,32 +405,6 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 }
 
-void Player::CheckRayDirProjection(bool& arg_isCastRayRight, bool& arg_isCastRayLeft, bool& arg_isCastRayFront, bool& arg_isCastRayBehind, const KuroEngine::Vec3<float>& arg_moveVec)
-{
-
-	//移動していたら
-	if (0 < arg_moveVec.Length()) {
-
-		KuroEngine::Vec3<float> rightVec = m_transform.GetRight();
-		KuroEngine::Vec3<float> leftVec = -m_transform.GetRight();
-		KuroEngine::Vec3<float> frontVec = m_transform.GetFront();
-		KuroEngine::Vec3<float> behindVec = -m_transform.GetFront();
-
-		//ワールド空間ベースで動いた方向にレイを飛ばす。
-		arg_isCastRayRight = 0 < (rightVec * (arg_moveVec.Dot(rightVec) / rightVec.Dot(rightVec))).Length();
-		arg_isCastRayLeft = 0 < (leftVec * (arg_moveVec.Dot(leftVec) / leftVec.Dot(leftVec))).Length();
-		arg_isCastRayFront = 0 < (frontVec * (arg_moveVec.Dot(frontVec) / frontVec.Dot(frontVec))).Length();
-		arg_isCastRayBehind = 0 < (behindVec * (arg_moveVec.Dot(behindVec) / behindVec.Dot(behindVec))).Length();
-
-		//入力ベースで動いた方向にレイを飛ばす。
-		arg_isCastRayRight |= 0 < arg_moveVec.x;
-		arg_isCastRayLeft |= arg_moveVec.x < 0;
-		arg_isCastRayFront |= 0 < arg_moveVec.z;
-		arg_isCastRayBehind |= arg_moveVec.z < 0;
-	}
-
-}
-
 Player::Player()
 	:KuroEngine::Debugger("Player", true, true)
 {
@@ -512,7 +467,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
 
 	//ジャンプができるかどうか。
-	m_canJump = UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A);
+	//m_canJump = UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A);
+	m_canJump = true;
 
 	//カメラモードを切り替える。
 	if (UsersInput::Instance()->KeyOffTrigger(DIK_RETURN) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::X)) {
