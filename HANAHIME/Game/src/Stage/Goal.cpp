@@ -59,51 +59,24 @@ void Goal::Update(KuroEngine::Transform *transform)
 	}
 
 	//①視点ベクトル(カメラからオブジェクトまでのベクトル)を求める。
-	KuroEngine::Vec3<float>eyePos = m_goalModelBaseTransform.GetPos() + KuroEngine::Vec3<float>(-20.0f, -5.0f, 30.0f);
+	KuroEngine::Vec3<float>eyePos = m_goalModelBaseTransform.GetPos() + KuroEngine::Vec3<float>(-40.0f, -5.0f, 20.0f);
+	m_goalCamera->m_transform.SetPos(eyePos);
 	KuroEngine::Vec3<float>eyeDir = m_goalModelBaseTransform.GetPos() - eyePos;
-	frontVec = eyeDir;
 	eyeDir.Normalize();
-	frontVec.Normalize();
 
-	//②視点ベクトルと(0, 0, 1)ベクトルを外積して法線を求める。
-	KuroEngine::Vec3<float>eyeNormal = eyeDir.Cross(KuroEngine::Vec3<float>(0.0f, 0.0f, 1.0f));
-	eyeNormal.Normalize();
-	//③視点ベクトルと(0, 0, 1)ベクトルを内積して回転量を求める。
-	float eyeRota = eyeDir.Dot(KuroEngine::Vec3<float>(0.0f, 0.0f, 1.0f));
-	eyeRota = acos(eyeRota);
-	if (std::isnan(eyeRota))
-	{
-		eyeRota = 0.0f;
-	}
+	//②上ベクトルを固定し、右ベクトルを求める。
+	KuroEngine::Vec3<float> rightVec = eyeDir.Cross({ 0,-1,0 });
+	rightVec.Normalize();
 
-	//④クォータニオンの関数で②を回転軸として③回転するクォータニオンを求める。
-	KuroEngine::Quaternion quaternion = DirectX::XMQuaternionRotationNormal(eyeNormal, eyeRota);
-
-	//⑤④で求めれたクォータニオンを(0, 1, 0)ベクトルにかける。
-	KuroEngine::Vec3<float> result(0, 1, 0);
-	DirectX::XMMATRIX mat = DirectX::XMMatrixRotationQuaternion(quaternion);
-	DirectX::XMVECTOR rota(DirectX::XMVector3Transform(result, mat));
-	result = { rota.m128_f32[0],rota.m128_f32[1],rota.m128_f32[2] };
-
-	upVec = result;
+	//③視点ベクトルと右ベクトルから正しい上ベクトルを求める。
+	KuroEngine::Vec3<float> upVec = eyeDir.Cross(rightVec);
 	upVec.Normalize();
 
-	//これで上ベクトルが求められます！
-	//DirectX::XMQuaternionRotationRollPitchYawFromVector();
-
-	m_goalCamera->m_transform.SetPos(eyePos);
-
-	//m_goalCamera->m_transform.SetUp(result);
-	//m_goalCamera->m_transform.SetLookAtRotate(m_goalModelBaseTransform.GetPos());
-	//m_goalCamera->m_transform.SetRotate();
-	
-
-	KuroEngine::Vec3<float>rightDir(upVec.Cross(frontVec));
-
+	//④求められたベクトルから姿勢を出す。
 	DirectX::XMMATRIX matA = DirectX::XMMatrixIdentity();
-	matA.r[0] = { rightDir.x,rightDir.y,rightDir.z,0.0f };
+	matA.r[0] = { rightVec.x,rightVec.y,rightVec.z,0.0f };
 	matA.r[1] = { upVec.x,upVec.y,upVec.z,0.0f };
-	matA.r[2] = { frontVec.x,frontVec.y,frontVec.z,0.0f };
+	matA.r[2] = { eyeDir.x,eyeDir.y,eyeDir.z,0.0f };
 	m_goalCamera->m_transform.SetRotaMatrix(matA);
 
 
