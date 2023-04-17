@@ -205,7 +205,6 @@ private:
 		std::vector<ImpactPointData> m_impactPoint;	//前後左右のレイの当たった地点。
 		KuroEngine::Vec3<float> m_bottomTerrianNormal;
 		StageParts::STAGE_PARTS_TYPE m_stageType;
-		bool m_onGround;							//接地フラグ
 		std::array<bool, 6> m_checkDeathCounter;
 	};
 

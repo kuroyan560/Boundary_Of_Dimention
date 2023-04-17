@@ -78,7 +78,6 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 
 	//CastRayに渡す引数
 	Player::CastRayArgument castRayArgument;
-	castRayArgument.m_onGround = false;
 	castRayArgument.m_stageType = StageParts::TERRIAN;
 	for (auto& index : castRayArgument.m_checkDeathCounter) {
 		index = 0;
@@ -372,11 +371,9 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 	m_prevOnGimmick = m_onGimmick;
 	m_onGimmick = false;
 
-
-
 	//ワールド空間で移動した方向を現在の上ベクトルを軸に左右に90度回した位置から下方向にレイを飛ばし、そのどちらも床に当たっていなかったら移動を無効化する。
-	KuroEngine::Vec3<float> moveMiddlePos = arg_from + (arg_newPos - arg_from) / 2.0f;
-	KuroEngine::Vec3<float> moveVec = (arg_newPos - arg_from).GetNormal();
+	KuroEngine::Vec3<float> moveMiddlePos = arg_from + (KuroEngine::Math::TransformVec3(m_moveSpeed, m_transform.GetRotate())) / 2.0f;
+	KuroEngine::Vec3<float> moveVec = KuroEngine::Math::TransformVec3(m_moveSpeed, m_transform.GetRotate()).GetNormal();
 	//移動方向ベクトルを90度回転させる。
 	auto moveRot = XMQuaternionRotationAxis({ m_transform.GetUp().x,m_transform.GetUp().y,m_transform.GetUp().z,1.0f }, XMConvertToRadians(90.0f));
 	auto rotMoveVec = XMVector3Transform(moveVec, XMMatrixRotationQuaternion(moveRot));
@@ -385,6 +382,19 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 	//移動した距離の中間地点の左右から下にレイを伸ばした時の当たったかフラグ。
 	bool isHitMiddleRight = false;
 	bool isHitMiddleLeft = false;
+	//移動していなかったら接地している判定にする。
+	if (m_moveSpeed.Length() <= 0.01f) {
+		isHitMiddleRight = true;
+		isHitMiddleLeft = true;
+	}
+
+	//前後左右から下方向にレイを飛ばした時の接地フラグ
+	std::array<bool, 4> onGroundAround;
+	for (auto& index : onGroundAround) {
+		index = false;
+	}
+
+	const float AROUND_GROUNDRAY_LENGTH = 2.0f;
 
 	//地形配列走査
 	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
@@ -406,15 +416,28 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 			//判定↓============================================
 
 			//中間地点の右側から下方向にレイを飛ばす。
-			bool isHitRight = CastRay(arg_newPos, moveMiddlePos + moveVec, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
-			if (isHitRight) isHitMiddleRight = true;
+			if (!isHitMiddleRight) {
+				bool isHitRight = CastRay(arg_newPos, moveMiddlePos + moveVec, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
+				if (isHitRight) isHitMiddleRight = true;
+			}
 
 			//中間地点の左側から下方向にレイを飛ばす。
-			bool isHitLeft = CastRay(arg_newPos, moveMiddlePos - moveVec, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
-			if (isHitLeft) isHitMiddleLeft = true;
+			if (!isHitMiddleLeft) {
+				bool isHitLeft = CastRay(arg_newPos, moveMiddlePos - moveVec, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
+				if (isHitLeft) isHitMiddleLeft = true;
+			}
 
-			//下方向にレイを飛ばす。これは地面との押し戻し用。
-			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+			//右側から下方向にレイを飛ばす。
+			onGroundAround[static_cast<int>(RAY_DIR_ID::RIGHT)] |= CastRay(arg_newPos, arg_newPos + m_transform.GetRight() * AROUND_GROUNDRAY_LENGTH, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+
+			//左側から下方向にレイを飛ばす。
+			onGroundAround[static_cast<int>(RAY_DIR_ID::LEFT)] |= CastRay(arg_newPos, arg_newPos - m_transform.GetRight() * AROUND_GROUNDRAY_LENGTH, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+
+			//正面側から下方向にレイを飛ばす。
+			onGroundAround[static_cast<int>(RAY_DIR_ID::FRONT)] |= CastRay(arg_newPos, arg_newPos + m_transform.GetFront() * AROUND_GROUNDRAY_LENGTH, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+
+			//背面側から下方向にレイを飛ばす。
+			onGroundAround[static_cast<int>(RAY_DIR_ID::BEHIND)] |= CastRay(arg_newPos, arg_newPos - m_transform.GetFront() * AROUND_GROUNDRAY_LENGTH, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
 
 			//=================================================
 		}
@@ -441,15 +464,28 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 			//判定↓============================================
 
 			//中間地点の右側から下方向にレイを飛ばす。
-			bool isHitRight = CastRay(arg_newPos, moveMiddlePos + moveVec, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
-			if (isHitRight) isHitMiddleRight = true;
+			if (!isHitMiddleRight) {
+				bool isHitRight = CastRay(arg_newPos, moveMiddlePos + moveVec, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
+				if (isHitRight) isHitMiddleRight = true;
+			}
 
 			//中間地点の左側から下方向にレイを飛ばす。
-			bool isHitLeft = CastRay(arg_newPos, moveMiddlePos - moveVec, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
-			if (isHitLeft) isHitMiddleLeft = true;
+			if (!isHitMiddleLeft) {
+				bool isHitLeft = CastRay(arg_newPos, moveMiddlePos - moveVec, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
+				if (isHitLeft) isHitMiddleLeft = true;
+			}
 
-			//下方向にレイを飛ばす。これは地面との押し戻し用。
-			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+			//右側から下方向にレイを飛ばす。
+			onGroundAround[static_cast<int>(RAY_DIR_ID::RIGHT)] |= CastRay(arg_newPos, arg_newPos + m_transform.GetRight() * AROUND_GROUNDRAY_LENGTH, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+
+			//左側から下方向にレイを飛ばす。
+			onGroundAround[static_cast<int>(RAY_DIR_ID::LEFT)] |= CastRay(arg_newPos, arg_newPos - m_transform.GetRight() * AROUND_GROUNDRAY_LENGTH, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+
+			//正面側から下方向にレイを飛ばす。
+			onGroundAround[static_cast<int>(RAY_DIR_ID::FRONT)] |= CastRay(arg_newPos, arg_newPos + m_transform.GetFront() * AROUND_GROUNDRAY_LENGTH, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+
+			//背面側から下方向にレイを飛ばす。
+			onGroundAround[static_cast<int>(RAY_DIR_ID::BEHIND)] |= CastRay(arg_newPos, arg_newPos - m_transform.GetFront() * AROUND_GROUNDRAY_LENGTH, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
 
 			//=================================================
 		}
@@ -462,7 +498,9 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 	//接地フラグを保存
 	m_prevOnGround = m_onGround;
-	m_onGround = arg_castRayArgment.m_onGround;
+
+	//周囲の設置判定用レイのどれか一つでもfalseになっていたら接地ではない。
+	m_onGround = onGroundAround[0] && onGroundAround[1] && onGroundAround[2] && onGroundAround[3];
 
 	//まだ着地していなかったら着地にする。
 	if (!m_isFirstOnGround && m_onGround) {
@@ -951,7 +989,7 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 	if (output.m_isHit && std::fabs(output.m_distance) < arg_rayLength) {
 
 		//ぴったり押し戻してしまうと重力の関係でガクガクしてしまうので、微妙にめり込ませて押し戻す。
-		static const float OFFSET = 0.01f;
+		static const float OFFSET = 0.1f;
 
 		//レイの種類によって保存するデータを変える。
 		switch (arg_rayID)
@@ -960,7 +998,6 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 
 			//外部に渡す用のデータを保存
 			arg_collisionData.m_bottomTerrianNormal = output.m_normal;
-			arg_collisionData.m_onGround = true;
 
 			//押し戻す。
 			arg_charaPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
@@ -1115,7 +1152,7 @@ void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<flo
 		//ジャンプ後に回転するようにする。
 
 		//クォータニオンを保存。
-		m_jumpEndQ = m_cameraQ;
+		m_jumpEndQ = m_moveQ;
 		m_jumpStartQ = m_prevTransform.GetRotate();
 		m_transform.SetRotate(m_prevTransform.GetRotate());
 
@@ -1123,7 +1160,7 @@ void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<flo
 	else {
 
 		//当たった面基準の回転にする。
-		m_transform.SetRotate(m_cameraQ);
+		m_transform.SetRotate(m_moveQ);
 
 	}
 
