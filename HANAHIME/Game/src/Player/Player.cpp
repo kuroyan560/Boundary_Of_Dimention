@@ -101,6 +101,9 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	//周囲の壁との当たり判定
 	CheckHitAround(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
 
+	//ジャンプ中は地面との当たり判定を行わない(ジャンプ先の上ベクトルが今の地面の上ベクトルになってしまうため)
+	if (m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP) return true;
+
 	//地面との当たり判定
 	CheckHitGround(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
 
