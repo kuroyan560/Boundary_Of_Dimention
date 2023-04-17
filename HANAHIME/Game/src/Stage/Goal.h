@@ -28,7 +28,8 @@ public:
 
 	std::weak_ptr<KuroEngine::Camera>GetCamera()
 	{
-		return m_movieCamera.GetCamera();
+		//return m_movieCamera.GetCamera();
+		return m_camera;
 	}
 
 private:
@@ -63,6 +64,7 @@ private:
 
 	KuroEngine::Vec3<float>upVec, frontVec;
 
+	//‰ñ“]Ž²‚ª0,0,1‚ð‘O’ñ‚ÉŒvŽZ
 	KuroEngine::Vec3<float>GetFlagUpVec()
 	{
 		DirectX::XMVECTOR dir;

@@ -102,9 +102,19 @@ void GameScene::OnUpdate()
 	//ゴール時の演出
 	if (m_goal.IsHit(m_player.GetTransform().GetPos()))
 	{
-		//m_nowCam = m_goal.GetCamera().lock();
-		OperationConfig::Instance()->SetActive(false);
+		m_nowCam = m_goal.GetCamera().lock();
+		//OperationConfig::Instance()->SetActive(false);
 		m_clearFlag = true;
+	}
+
+	//臨時カメラ付け替え
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_K))
+	{
+		m_clearFlag = !m_clearFlag;
+	}
+	if (m_clearFlag)
+	{
+		m_nowCam = m_goal.GetCamera().lock();
 	}
 
 	if (DebugController::Instance()->IsActive())
