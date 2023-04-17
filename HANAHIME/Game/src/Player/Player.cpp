@@ -569,7 +569,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_gimmickVel = KuroEngine::Vec3<float>();
 	m_isFirstOnGround = false;
 	m_onGimmick = false;
-	m_isCameraModeFar = true;
+	m_cameraMode = 1;
 	m_prevOnGimmick = false;
 	m_isDeath = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
@@ -594,7 +594,10 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//カメラモードを切り替える。
 	if (UsersInput::Instance()->KeyOffTrigger(DIK_RETURN) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::X)) {
-		m_isCameraModeFar = m_isCameraModeFar ? false : true;
+		++m_cameraMode;
+		if (static_cast<int>(CAMERA_MODE.size()) <= m_cameraMode) {
+			m_cameraMode = 0;
+		}
 	}
 
 	//移動ステータスによって処理を変える。
@@ -682,7 +685,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_ptLig.SetPos(newPos);
 
 	//カメラ操作
-	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_cameraRotYStorage, m_isCameraModeFar ? CAMERA_MODE_FAR : CAMERA_MODE_NEAR);
+	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_cameraRotYStorage, CAMERA_MODE[m_cameraMode]);
 
 	//ギミックの移動を打ち消す。
 	m_gimmickVel = KuroEngine::Vec3<float>();
