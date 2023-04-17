@@ -38,6 +38,8 @@ StageManager::StageManager()
 	m_stageArray.back()->Load("resource/user/level/", "P_Stage_9.json", terrianScaling);
 	m_stageArray.emplace_back(std::make_shared<Stage>());
 	m_stageArray.back()->Load("resource/user/level/", "P_Stage_10.json", terrianScaling);
+	/*m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_10.json", terrianScaling);*/
 	m_stageArray.emplace_back(std::make_shared<Stage>());
 	m_stageArray.back()->Load("resource/user/level/", "P_Stage_12.json", terrianScaling);
 

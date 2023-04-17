@@ -70,22 +70,18 @@
                     ]
                 },
                 "file_name": "MoveScaffoldStage10b",
-                "translationArray": [
-                    {
-                        "translation": [
-                            0,
-                            20,
-                            -1
-                        ]
-                    },
-                    {
-                        "translation": [
-                            30,
-                            20,
-                            -1
-                        ]
-                    }
-                ]
+                "translationArray": {
+                    "translation_0": [
+                        0.0,
+                        20.0,
+                        -1.0
+                    ],
+                    "translation_1": [
+                        30.0,
+                        20.0,
+                        -1.0
+                    ]
+                }
             },
             {
                 "type": "Terrian",
@@ -132,22 +128,18 @@
                     ]
                 },
                 "file_name": "MoveScaffoldStage10a",
-                "translationArray": [
-                    {
-                        "translation": [
-                            30,
-                            -10,
-                            9
-                        ]
-                    },
-                    {
-                        "translation": [
-                            0,
-                            -10,
-                            9
-                        ]
-                    }
-                ]
+                "translationArray": {
+                    "translation_0": [
+                        30.0,
+                        -10.0,
+                        9.0
+                    ],
+                    "translation_1": [
+                        0.0,
+                        -10.0,
+                        9.0
+                    ]
+                }
             }
         ]
     }

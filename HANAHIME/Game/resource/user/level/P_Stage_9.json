@@ -70,22 +70,18 @@
                     ]
                 },
                 "file_name": "MoveScaffoldStage9",
-                "translationArray": [
-                    {
-                        "translation": [
-                            0,
-                            0,
-                            19
-                        ]
-                    },
-                    {
-                        "translation": [
-                            10,
-                            0,
-                            19
-                        ]
-                    }
-                ]
+                "translationArray": {
+                    "translation_0": [
+                        0.0,
+                        0.0,
+                        19.0
+                    ],
+                    "translation_1": [
+                        10.0,
+                        0.0,
+                        19.0
+                    ]
+                }
             },
             {
                 "type": "Terrian",
