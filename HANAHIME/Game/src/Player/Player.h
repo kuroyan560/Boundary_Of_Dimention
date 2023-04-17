@@ -232,5 +232,8 @@ private:
 	void CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo, Player::CastRayArgument& arg_castRayArgment);
 	void CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo, Player::CastRayArgument& arg_castRayArgment);
 
+	//任意の移動方向をプレイヤーのローカルの前後左右のベクトルに射影する。
+	void CheckRayDirProjection(bool& arg_isCastRayRight, bool& arg_isCastRayLeft, bool& arg_isCastRayFront, bool& arg_isCastRayBehind, const KuroEngine::Vec3<float>& arg_moveVec);
+
 };
 
