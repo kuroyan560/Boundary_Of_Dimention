@@ -175,16 +175,28 @@ void Player::CheckDeath(const KuroEngine::Vec3<float> arg_from, KuroEngine::Vec3
 
 			//判定↓============================================
 
-			//右方向にレイを飛ばす。これは壁にくっつく用。
+			//移動した床がプレイヤーから離れる方向に動いていたら死亡判定を飛ばす。
+			if (terrian->GetType() == StageParts::MOVE_SCAFFOLD) {
+
+				float oldPosDistance = (arg_newPos - terrian->GetOldPos()).Length();
+				float nowPosDistance = (arg_newPos - terrian->GetNowPos()).Length();
+
+				if (oldPosDistance < nowPosDistance) {
+					continue;
+				}
+
+			}
+
+			//右方向にレイを飛ばす。
 			CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH_RIGHT);
 
-			//左方向にレイを飛ばす。これは壁にくっつく用。
+			//左方向にレイを飛ばす。
 			CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH_RIGHT);
 
-			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
+			//後ろ方向にレイを飛ばす。
 			CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH_FRONT);
 
-			//正面方向にレイを飛ばす。これは壁にくっつく用。
+			//正面方向にレイを飛ばす。
 			CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH_FRONT);
 
 			//上方向にレイを飛ばす。

@@ -35,6 +35,10 @@ protected:
 	//有効化フラグ
 	bool m_isActive;
 
+	//座標関連
+	KuroEngine::Vec3<float> m_nowPos;
+	KuroEngine::Vec3<float> m_oldPos;
+
 	virtual void OnInit() {};
 	virtual void OnDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr) {};
 
@@ -70,10 +74,14 @@ public:
 
 	//トランスフォームゲッタ
 	const KuroEngine::Transform& GetTransform()const { return m_transform; }
-	void SetTransform(const KuroEngine::Transform &transform)
+	void SetTransform(const KuroEngine::Transform& transform)
 	{
 		m_transform = transform;
 	}
+
+	//移動した量
+	KuroEngine::Vec3<float> GetNowPos() { return m_nowPos; }
+	KuroEngine::Vec3<float> GetOldPos() { return m_oldPos; }
 
 	//ステージ情報のゲッタ
 	const std::weak_ptr<KuroEngine::Model>& GetModel()const { return m_model; }

@@ -108,8 +108,11 @@ void MoveScaffold::OnInit()
 	m_moveLength = 0;
 	m_nowMoveLength = 0;
 	m_moveDir = KuroEngine::Vec3<float>();
-	
+
 	m_transform.SetPos(m_translationArray[0]);
+
+	m_oldPos = m_translationArray[0];
+	m_nowPos = m_translationArray[0];
 
 	//当たり判定を再構築。
 	BuilCollisionMesh();
@@ -137,6 +140,9 @@ void MoveScaffold::Update(Player& arg_player)
 	//ルートが設定されていない。
 	assert(m_maxTranslation != 0);
 
+	//座標を保存
+	m_oldPos = m_nowPos;
+
 	//移動した量を保存。
 	m_nowMoveLength += MOVE_SPEED;
 
@@ -154,6 +160,7 @@ void MoveScaffold::Update(Player& arg_player)
 
 	//次の地点へ向かって動かす。
 	m_transform.SetPos(m_transform.GetPos() + m_moveDir * moveSpeed);
+	m_nowPos = m_transform.GetPos() + m_moveDir * moveSpeed;
 
 	//プレイヤーも動かす。
 	if (arg_player.GetOnGimmick()) {
