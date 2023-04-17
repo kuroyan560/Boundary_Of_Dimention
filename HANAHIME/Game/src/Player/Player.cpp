@@ -84,10 +84,6 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 		index = 0;
 	}
 
-	//ギミックに当たっているかどうかの変数を初期化
-	m_prevOnGimmick = m_onGimmick;
-	m_onGimmick = false;
-
 	//周囲の壁との当たり判定
 	CheckHitAround(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
 
@@ -323,7 +319,7 @@ void Player::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 		if (minIndex != -1) {
 
 			//ジャンプができる状態だったらジャンプする。
-			if (m_canJump) {
+			if (m_canJump || arg_castRayArgment.m_impactPoint[minIndex].m_isFastJump) {
 
 				//最短の衝突点を求めたら、それをジャンプ先にする。
 				arg_hitInfo->m_terrianNormal = arg_castRayArgment.m_impactPoint[minIndex].m_normal;
@@ -369,6 +365,12 @@ void Player::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 }
 
 void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo, Player::CastRayArgument& arg_castRayArgment) {
+
+
+
+	//ギミックに当たっているかどうかの変数を初期化
+	m_prevOnGimmick = m_onGimmick;
+	m_onGimmick = false;
 
 	//地形配列走査
 	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
@@ -416,14 +418,8 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 			//判定↓============================================
 
-			//プレイヤーが動いた方向にレイを飛ばす位置をずらす。
-			KuroEngine::Vec3<float> moveVec = (arg_newPos - arg_from);
-
 			//下方向にレイを飛ばす。これは地面との押し戻し用。
 			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
-
-			//ずらした分元に戻す。
-			arg_newPos - moveVec;
 
 			//=================================================
 		}
@@ -958,6 +954,14 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 			if (arg_collisionData.m_stageType == StageParts::MOVE_SCAFFOLD) {
 
 				arg_charaPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
+
+				//動く床がプレイヤーから離れるように動いていたら、すぐに飛び乗る。(数F引っ掛かる仕様だと動く床動いてガクガクしてしまうから。)
+				float oldPosDistance = (arg_charaPos - arg_collisionData.m_stage.lock()->GetOldPos()).Length();
+				float nowPosDistance = (arg_charaPos - arg_collisionData.m_stage.lock()->GetNowPos()).Length();
+
+				if (oldPosDistance < nowPosDistance) {
+					arg_collisionData.m_impactPoint.back().m_isFastJump = true;
+				}
 
 			}
 
