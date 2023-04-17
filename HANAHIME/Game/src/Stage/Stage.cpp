@@ -4,6 +4,7 @@
 #include"FrameWork/Importer.h"
 #include"ForUser/Object/Model.h"
 #include "StageParts.h"
+#include<cmath>
 
 std::string Stage::s_terrianModelDir = "resource/user/model/terrian/";
 
@@ -17,14 +18,14 @@ bool Stage::CheckJsonKeyExist(std::string arg_fileName, nlohmann::json arg_json,
 	return exist;
 }
 
-bool Stage::LoadMoveScaffold(std::string arg_fileName, std::shared_ptr<StageParts>* arg_result, nlohmann::json arg_json, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
+bool Stage::LoadMoveScaffold(std::string arg_fileName, std::shared_ptr<StageParts> *arg_result, nlohmann::json arg_json, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
 {
 	using namespace KuroEngine;
 
 	if (!CheckJsonKeyExist(arg_fileName, arg_json, "translationArray"))return false;
 
 	std::vector<Vec3<float>>translationArray;
-	for (auto& transformObj : arg_json["translationArray"])
+	for (auto &transformObj : arg_json["translationArray"])
 	{
 		translationArray.emplace_back();
 		//平行移動
@@ -41,10 +42,10 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 {
 	using namespace KuroEngine;
 
-	auto& obj = arg_json;
+	auto &obj = arg_json;
 
-//共通パラメータ
-	//モデル設定
+	//共通パラメータ
+		//モデル設定
 	auto model = Importer::Instance()->LoadModel(s_terrianModelDir, obj["file_name"].get<std::string>() + ".glb");
 
 	//トランスフォーム取得
@@ -65,8 +66,8 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 	transform.SetRotate(quaternion);
 	transform.SetScale(scaling * m_terrianScaling);
 
-//種別に応じて変わるパラメータ
-	//通常の地形
+	//種別に応じて変わるパラメータ
+		//通常の地形
 	if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::TERRIAN))
 	{
 		m_terrianArray.emplace_back(model, transform);
@@ -123,28 +124,28 @@ Stage::Stage()
 
 void Stage::GimmickInit()
 {
-	for (auto& gimmick : m_gimmickArray)
+	for (auto &gimmick : m_gimmickArray)
 	{
 		gimmick->Init();
 	}
 }
 
-void Stage::GimmickUpdate(Player& arg_player)
+void Stage::GimmickUpdate(Player &arg_player)
 {
-	for (auto& gimmick : m_gimmickArray)
+	for (auto &gimmick : m_gimmickArray)
 	{
 		gimmick->Update(arg_player);
 	}
 }
 
-void Stage::TerrianDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void Stage::TerrianDraw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
-	for (auto& terrian : m_terrianArray)
+	for (auto &terrian : m_terrianArray)
 	{
 		terrian.Draw(arg_cam, arg_ligMgr);
 	}
 
-	for (auto& gimmick : m_gimmickArray)
+	for (auto &gimmick : m_gimmickArray)
 	{
 		gimmick->Draw(arg_cam, arg_ligMgr);
 	}
@@ -172,19 +173,19 @@ void Stage::Load(std::string arg_dir, std::string arg_fileName, float arg_terria
 	JsonData jsonData(arg_dir, arg_fileName);
 
 	//ステージ情報でない
-	if (!CheckJsonKeyExist(arg_fileName,jsonData.m_jsonData, "stage"))return;
+	if (!CheckJsonKeyExist(arg_fileName, jsonData.m_jsonData, "stage"))return;
 
 	auto stageJsonData = jsonData.m_jsonData["stage"];
-	for (auto& obj : stageJsonData["objects"])
+	for (auto &obj : stageJsonData["objects"])
 	{
 		//種別のパラメータがない
-		if (!CheckJsonKeyExist(arg_fileName,obj, "type"))break;
+		if (!CheckJsonKeyExist(arg_fileName, obj, "type"))break;
 
 		//モデルの名前のパラメータがない
-		if (!CheckJsonKeyExist(arg_fileName,obj, "file_name"))break;
+		if (!CheckJsonKeyExist(arg_fileName, obj, "file_name"))break;
 
 		//トランスフォームのパラメータがない
-		if (!CheckJsonKeyExist(arg_fileName,obj, "transform"))break;
+		if (!CheckJsonKeyExist(arg_fileName, obj, "transform"))break;
 
 		LoadWithType(arg_fileName, obj["type"].get<std::string>(), obj);
 	}

@@ -101,6 +101,5 @@ public:
 	std::weak_ptr<KuroEngine::TextureBuffer>GetGroundTex() { return m_groundTex; }
 
 
-
 private:
 };

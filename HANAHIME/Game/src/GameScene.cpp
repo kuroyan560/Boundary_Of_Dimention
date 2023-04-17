@@ -25,7 +25,7 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer())
 	m_dirLigArray.back().SetDir(dir.GetNormal());
 	m_dirLigArray.back().SetColor(KuroEngine::Color(0.8f, 0.8f, 0.8f, 1.0f));
 
-	for (auto& dirLig : m_dirLigArray)
+	for (auto &dirLig : m_dirLigArray)
 	{
 		m_ligMgr.RegisterDirLight(&dirLig);
 	}
@@ -120,7 +120,10 @@ void GameScene::OnUpdate()
 	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
 
 	//ホームでの処理----------------------------------------
+
+
 	m_title.Update(&m_player.GetCamera().lock()->GetTransform());
+
 
 	//ステージ選択
 	int stageNum = -1;

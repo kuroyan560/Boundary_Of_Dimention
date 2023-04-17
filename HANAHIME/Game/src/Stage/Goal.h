@@ -36,13 +36,14 @@ private:
 	bool m_isHitFlag, m_startGoalEffectFlag;
 	bool m_startCameraFlag;
 	MovieCamera m_movieCamera;					//ƒS[ƒ‹‚ÌƒJƒƒ‰ƒ[ƒN
-	
+
 	std::shared_ptr<KuroEngine::ModelObject> m_model;
+	std::shared_ptr<KuroEngine::ModelObject> m_upVecObj;
 	KuroEngine::Transform m_cameraTransform;
 
 	//ƒS[ƒ‹‚Ì•¶š‰‰o
 
-	KuroEngine::Vec2<float>m_pos, m_basePos,m_goalPos;
+	KuroEngine::Vec2<float>m_pos, m_basePos, m_goalPos;
 	std::shared_ptr<KuroEngine::TextureBuffer>m_clearTex;
 	float clearTexRadian;
 	KuroEngine::Timer m_clearEaseTimer;
@@ -61,5 +62,63 @@ private:
 	std::shared_ptr<KuroEngine::Camera> m_camera;
 
 	KuroEngine::Vec3<float>upVec, frontVec;
+
+	KuroEngine::Vec3<float>GetFlagUpVec()
+	{
+		DirectX::XMVECTOR dir;
+		float radian = 0.0f;
+		DirectX::XMQuaternionToAxisAngle(&dir, &radian, m_goalModelBaseTransform.GetRotate());
+
+		radian += KuroEngine::Angle::ConvertToRadian(90);
+		KuroEngine::Vec3<float>basePos = m_goalModelBaseTransform.GetPos();
+		KuroEngine::Vec3<float>circleDir(basePos + KuroEngine::Vec3<float>(cosf(radian), sinf(radian), 0.0f));
+
+		KuroEngine::Vec3<float>resultDir = circleDir - m_goalModelBaseTransform.GetPos();
+		resultDir.Normalize();
+
+		return resultDir;
+	}
+
+	//‰ñ“]‚Ìˆ—----------------------------------------
+
+	struct ClearParticleData
+	{
+		KuroEngine::Vec3<float> m_emittPos;
+		KuroEngine::Timer m_timer;
+		float m_angle;
+		float m_baseAngle;
+		ClearParticleData() :m_timer(120), m_angle(0.0f), m_baseAngle(0.0f)
+		{};
+	};
+	std::array<ClearParticleData, 2>m_emitter;
+	float m_radius;
+	float m_height;
+	KuroEngine::Timer m_heightTimer;
+
+	class ParticleData
+	{
+		KuroEngine::Vec3<float> m_pos;
+		KuroEngine::Timer m_timer;
+	};
+
+	std::array<std::shared_ptr<KuroEngine::ModelObject>,2> m_emittObject;
+
+	class Particle
+	{
+	public:
+		Particle();
+		void Init(const KuroEngine::Vec3<float> &pos);
+		void Update();
+		void Draw();
+		bool IsAlive()
+		{
+			return m_initFlag;
+		}
+	private:
+		bool m_initFlag;
+		int m_timer;
+	};
+	std::array<Particle, 50>m_particleArray;
+	//‰ñ“]‚Ìˆ—----------------------------------------
 
 };
