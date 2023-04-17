@@ -23,13 +23,20 @@ bool Stage::LoadMoveScaffold(std::string arg_fileName, std::shared_ptr<StagePart
 
 	if (!CheckJsonKeyExist(arg_fileName, arg_json, "translationArray"))return false;
 
+	nlohmann::json jsonArray = arg_json["translationArray"];
+
 	std::vector<Vec3<float>>translationArray;
-	for (auto& transformObj : arg_json["translationArray"])
+	int idx = 0;
+	std::string key = "translation_" + std::to_string(idx);
+
+	while (jsonArray.contains(key))
 	{
 		translationArray.emplace_back();
 		//ïΩçsà⁄ìÆ
-		translationArray.back() = { -(float)transformObj["translation"][0],(float)transformObj["translation"][2],-(float)transformObj["translation"][1] };
+		translationArray.back() = { -(float)jsonArray[key][0],(float)jsonArray[key][2],-(float)jsonArray[key][1] };
 		translationArray.back() *= m_terrianScaling;
+
+		key = "translation_" + std::to_string(++idx);
 	}
 
 	*arg_result = std::make_shared<MoveScaffold>(arg_model, arg_initTransform, translationArray);
