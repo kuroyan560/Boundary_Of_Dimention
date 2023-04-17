@@ -73,10 +73,6 @@ class Player : public KuroEngine::Debugger
 	//壁移動の距離
 	const float WALL_JUMP_LENGTH = 3.0f;
 
-	//動けなくなるタイマー
-	int m_stopMoveTimer;
-	const int STOP_MOVE_TIMER_WALL_CHANGE = 10;
-
 	//接地フラグ
 	bool m_isFirstOnGround;	//開始時に空中から始まるので、着地済みだということを判断する用変数。
 	bool m_onGround;		//接地フラグ
@@ -104,6 +100,8 @@ class Player : public KuroEngine::Debugger
 	float m_jumpTimer;								//ジャンプの計測時間を図るタイマー
 	const float JUMP_TIMER = 0.08f;
 	bool m_canJump;									//ジャンプができるかのフラグ
+	int m_canJumpDelayTimer;						//ジャンプができるようになるまでの引っ掛かり
+	const int CAN_JUMP_DELAY = 20;
 
 
 	struct HitCheckResult

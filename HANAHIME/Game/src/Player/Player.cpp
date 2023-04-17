@@ -317,12 +317,18 @@ void Player::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 			m_jumpEndPos = arg_castRayArgment.m_impactPoint[minIndex].m_impactPos + arg_castRayArgment.m_impactPoint[minIndex].m_normal * m_transform.GetScale().x;
 			m_jumpEndPos += m_transform.GetUp() * WALL_JUMP_LENGTH;
 
+			//ジャンプしたのでタイマーを初期化
+			m_canJumpDelayTimer = 0;
+
 		}
 		//ジャンプができない状態だったら押し戻す。
 		else {
 
-			arg_newPos = arg_from;
+			arg_newPos = arg_from + m_gimmickVel;
 			arg_hitInfo->m_terrianNormal = m_transform.GetUp();
+
+			//引っ掛かりのタイマーを更新 この値が一定値をこえたらジャンプできるようになる
+			++m_canJumpDelayTimer;
 
 		}
 
@@ -331,6 +337,9 @@ void Player::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 		//どことも当たっていなかったら現在の上ベクトルを地形の上ベクトルとしてみる。
 		arg_hitInfo->m_terrianNormal = m_transform.GetUp();
+
+		//どこにも引っかかってないのでタイマーを初期化する。
+		m_canJumpDelayTimer = 0;
 
 	}
 
@@ -452,7 +461,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_cameraJumpLerpAmount = 0;
 	m_cameraJumpLerpStorage = 0;
 	m_cameraQ = DirectX::XMQuaternionIdentity();
-	m_stopMoveTimer = 0;
+	m_canJumpDelayTimer = 0;
 
 	m_moveSpeed = KuroEngine::Vec3<float>();
 	m_gimmickVel = KuroEngine::Vec3<float>();
@@ -478,9 +487,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
 
-	//ジャンプができるかどうか。
-	//m_canJump = UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A);
-	m_canJump = true;
+	//ジャンプができるかどうか。	一定時間地形に引っ掛かってたらジャンプできる。
+	m_canJump = CAN_JUMP_DELAY <= m_canJumpDelayTimer;
 
 	//カメラモードを切り替える。
 	if (UsersInput::Instance()->KeyOffTrigger(DIK_RETURN) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::X)) {
@@ -558,7 +566,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		if (1.0f <= m_jumpTimer) {
 			m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 			m_cameraJumpLerpAmount = 0;
-			m_stopMoveTimer = STOP_MOVE_TIMER_WALL_CHANGE;
 		}
 
 	}
@@ -881,12 +888,6 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 }
 
 void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
-
-	//動けないタイマーがある場合は動けないようにする。
-	if (0 < m_stopMoveTimer) {
-		--m_stopMoveTimer;
-		m_rowMoveVec = KuroEngine::Vec3<float>();
-	}
 
 	//落下中は入力を無効化。
 	if (!m_onGround) {
