@@ -162,10 +162,17 @@ private:
 
 		GROUND,	//地上向かって飛ばすレイ。設置判定で使用する。
 		AROUND,	//周囲に向かって飛ばすレイ。壁のぼり判定で使用する。
-		CHECK_DEATH_RIGHT,	//左右方向の死亡確認用
-		CHECK_DEATH_TOP,	//上下方向の死亡確認用
-		CHECK_DEATH_FRONT,	//前後方向の死亡確認用
+		CHECK_DEATH,	//死亡確認用
 
+	};
+	//レイの方向ID
+	enum class RAY_DIR_ID {
+		RIGHT,
+		LEFT,
+		FRONT,
+		BEHIND,
+		TOP,
+		BOTTOM,
 	};
 
 	/// <summary>
@@ -198,9 +205,7 @@ private:
 		KuroEngine::Vec3<float> m_bottomTerrianNormal;
 		StageParts::STAGE_PARTS_TYPE m_stageType;
 		bool m_onGround;							//接地フラグ
-		int m_checkDeathCounterRight;				//死亡確認用レイの衝突数カウンター 左右用
-		int m_checkDeathCounterTop;					//死亡確認用レイの衝突数カウンター 左右用
-		int m_checkDeathCounterFront;				//死亡確認用レイの衝突数カウンター 左右用
+		std::array<bool, 6> m_checkDeathCounter;
 	};
 
 	/// <summary>
@@ -212,7 +217,7 @@ private:
 	/// <param name="arg_rayLength"> レイの長さ </param>
 	/// <param name="arg_collisionData"> 引数をまとめた構造体 </param>
 	/// <param name="arg_rayID"> レイの種類 </param>
-	bool CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument& arg_collisionData, RAY_ID arg_rayID);
+	bool CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument& arg_collisionData, RAY_ID arg_rayID, RAY_DIR_ID arg_rayDirID = RAY_DIR_ID::RIGHT);
 
 	//移動させる。
 	void Move(KuroEngine::Vec3<float>& arg_newPos);

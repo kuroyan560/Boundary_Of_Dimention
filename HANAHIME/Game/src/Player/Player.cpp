@@ -80,9 +80,9 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	Player::CastRayArgument castRayArgument;
 	castRayArgument.m_onGround = false;
 	castRayArgument.m_stageType = StageParts::TERRIAN;
-	castRayArgument.m_checkDeathCounterTop = 0;
-	castRayArgument.m_checkDeathCounterRight = 0;
-	castRayArgument.m_checkDeathCounterFront = 0;
+	for (auto& index : castRayArgument.m_checkDeathCounter) {
+		index = 0;
+	}
 
 	//ギミックに当たっているかどうかの変数を初期化
 	m_prevOnGimmick = m_onGimmick;
@@ -101,8 +101,10 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	CheckDeath(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
 
 	//死んでいたら処理を飛ばす。
-	const int DEATH = 2;
-	m_isDeath = DEATH <= castRayArgument.m_checkDeathCounterRight || DEATH <= castRayArgument.m_checkDeathCounterTop || DEATH <= castRayArgument.m_checkDeathCounterFront;
+	m_isDeath = false;
+	m_isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::RIGHT)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::LEFT)]);
+	m_isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::TOP)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::BOTTOM)]);
+	m_isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::FRONT)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::BEHIND)]);
 	if (m_isDeath) {
 		return false;
 	}
@@ -133,22 +135,22 @@ void Player::CheckDeath(const KuroEngine::Vec3<float> arg_from, KuroEngine::Vec3
 			//判定↓============================================
 
 			//右方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH_RIGHT);
+			CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::RIGHT);
 
 			//左方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH_RIGHT);
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::LEFT);
 
 			//後ろ方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH_FRONT);
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::BEHIND);
 
 			//正面方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH_FRONT);
+			CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::FRONT);
 
 			//上方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, m_transform.GetUp(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH_TOP);
+			CastRay(arg_newPos, arg_newPos, m_transform.GetUp(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::TOP);
 
 			//下方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH_TOP);
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::BOTTOM);
 
 			//=================================================
 		}
@@ -188,22 +190,22 @@ void Player::CheckDeath(const KuroEngine::Vec3<float> arg_from, KuroEngine::Vec3
 			}
 
 			//右方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH_RIGHT);
+			CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::RIGHT);
 
 			//左方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH_RIGHT);
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::LEFT);
 
 			//後ろ方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH_FRONT);
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::BEHIND);
 
 			//正面方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH_FRONT);
+			CastRay(arg_newPos, arg_newPos, m_transform.GetFront(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::FRONT);
 
 			//上方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, m_transform.GetUp(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH_TOP);
+			CastRay(arg_newPos, arg_newPos, m_transform.GetUp(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::TOP);
 
 			//下方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH_TOP);
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::BOTTOM);
 
 			//=================================================
 		}
@@ -414,8 +416,14 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 			//判定↓============================================
 
+			//プレイヤーが動いた方向にレイを飛ばす位置をずらす。
+			KuroEngine::Vec3<float> moveVec = (arg_newPos - arg_from);
+
 			//下方向にレイを飛ばす。これは地面との押し戻し用。
 			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+
+			//ずらした分元に戻す。
+			arg_newPos - moveVec;
 
 			//=================================================
 		}
@@ -897,7 +905,7 @@ KuroEngine::Vec3<float> Player::CalBary(const KuroEngine::Vec3<float>& PosA, con
 
 }
 
-bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument& arg_collisionData, RAY_ID arg_rayID)
+bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument& arg_collisionData, RAY_ID arg_rayID, RAY_DIR_ID arg_rayDirID)
 {
 
 	/*===== 当たり判定用のレイを撃つ =====*/
@@ -943,25 +951,21 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 			//レイの衝突地点を保存。
 			arg_collisionData.m_impactPoint.emplace_back(ImpactPointData(output.m_pos, output.m_normal));
 
-			break;
+			//動く床だったらめり込んでしまうので押し戻す。
+			if (arg_collisionData.m_stageType == StageParts::MOVE_SCAFFOLD) {
 
-		case Player::RAY_ID::CHECK_DEATH_RIGHT:
+				arg_charaPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
 
-			++arg_collisionData.m_checkDeathCounterRight;
-
-			break;
-
-		case Player::RAY_ID::CHECK_DEATH_TOP:
-
-			++arg_collisionData.m_checkDeathCounterTop;
+			}
 
 			break;
 
-		case Player::RAY_ID::CHECK_DEATH_FRONT:
+		case Player::RAY_ID::CHECK_DEATH:
 
-			++arg_collisionData.m_checkDeathCounterFront;
+			arg_collisionData.m_checkDeathCounter[static_cast<int>(arg_rayDirID)] = true;
 
 			break;
+
 
 		default:
 			break;
@@ -998,6 +1002,9 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 
 		m_moveSpeed.x = 0;
 
+	}
+	else {
+		int a = 0;
 	}
 
 	if (std::fabs(m_rowMoveVec.z) < 0.001f) {
