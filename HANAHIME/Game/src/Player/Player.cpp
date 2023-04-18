@@ -89,9 +89,6 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	//周囲の壁との当たり判定
 	CheckHitAround(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
 
-	//ジャンプ中は地面との当たり判定を行わない(ジャンプ先の上ベクトルが今の地面の上ベクトルになってしまうため)
-	//if (m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP) return true;
-
 	//死んだか(挟まっているか)どうかを判定
 	CheckDeath(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
 
@@ -395,12 +392,16 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 	m_onGround = false;
 
 	//ワールド空間で移動した方向を現在の上ベクトルを軸に左右に90度回した位置から下方向にレイを飛ばし、そのどちらも床に当たっていなかったら移動を無効化する。
-	KuroEngine::Vec3<float> moveMiddlePos = arg_from + (KuroEngine::Math::TransformVec3(m_moveSpeed, m_transform.GetRotate())) / 2.0f;
+	KuroEngine::Vec3<float> moveMiddlePos = arg_from + (KuroEngine::Math::TransformVec3(-m_moveSpeed, m_transform.GetRotate())) / 2.0f;
 	KuroEngine::Vec3<float> moveVec = KuroEngine::Math::TransformVec3(m_moveSpeed, m_transform.GetRotate()).GetNormal();
 	//移動方向ベクトルを90度回転させる。
 	auto moveRot = XMQuaternionRotationAxis({ m_transform.GetUp().x,m_transform.GetUp().y,m_transform.GetUp().z,1.0f }, XMConvertToRadians(90.0f));
 	auto rotMoveVec = XMVector3Transform(moveVec, XMMatrixRotationQuaternion(moveRot));
 	moveVec = KuroEngine::Vec3<float>(rotMoveVec.m128_f32[0], rotMoveVec.m128_f32[1], rotMoveVec.m128_f32[2]);
+	//moveVec *= 2.0f;
+
+	a = moveMiddlePos + moveVec;
+	b = moveMiddlePos - moveVec;
 
 	//移動した距離の中間地点の左右から下にレイを伸ばした時の当たったかフラグ。
 	bool isHitMiddleRight = false;
@@ -434,18 +435,19 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 			//中間地点の右側から下方向にレイを飛ばす。
 			if (!isHitMiddleRight) {
-				bool isHitRight = CastRay(arg_newPos, moveMiddlePos + moveVec, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
+				bool isHitRight = CastRay(arg_newPos, moveMiddlePos + moveVec, -m_transform.GetUp(), m_transform.GetScale().y * 3.0f, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
 				if (isHitRight) isHitMiddleRight = true;
 			}
 
 			//中間地点の左側から下方向にレイを飛ばす。
 			if (!isHitMiddleLeft) {
-				bool isHitLeft = CastRay(arg_newPos, moveMiddlePos - moveVec, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
+				bool isHitLeft = CastRay(arg_newPos, moveMiddlePos - moveVec, -m_transform.GetUp(), m_transform.GetScale().y * 3.0f, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
 				if (isHitLeft) isHitMiddleLeft = true;
 			}
 
 			//下方向にレイを飛ばす。
-			m_onGround |= CastRay(arg_newPos, arg_newPos + KuroEngine::Math::TransformVec3(m_moveSpeed, m_transform.GetRotate()).GetNormal() * AROUND_GROUNDRAY_LENGTH, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+			KuroEngine::Vec3<float> castRayPos = arg_newPos + KuroEngine::Math::TransformVec3(m_moveSpeed, m_transform.GetRotate()).GetNormal() * AROUND_GROUNDRAY_LENGTH;
+			m_onGround |= CastRay(arg_newPos, castRayPos, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
 
 			//=================================================
 		}
@@ -473,18 +475,19 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 			//中間地点の右側から下方向にレイを飛ばす。
 			if (!isHitMiddleRight) {
-				bool isHitRight = CastRay(arg_newPos, moveMiddlePos + moveVec, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
+				bool isHitRight = CastRay(arg_newPos, moveMiddlePos + moveVec, -m_transform.GetUp(), m_transform.GetScale().y * 3.0f, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
 				if (isHitRight) isHitMiddleRight = true;
 			}
 
 			//中間地点の左側から下方向にレイを飛ばす。
 			if (!isHitMiddleLeft) {
-				bool isHitLeft = CastRay(arg_newPos, moveMiddlePos - moveVec, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
+				bool isHitLeft = CastRay(arg_newPos, moveMiddlePos - moveVec, -m_transform.GetUp(), m_transform.GetScale().y * 3.0f, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
 				if (isHitLeft) isHitMiddleLeft = true;
 			}
 
 			//下方向にレイを飛ばす。
-			m_onGround |= CastRay(arg_newPos, arg_newPos + KuroEngine::Math::TransformVec3(m_moveSpeed, m_transform.GetRotate()).GetNormal() * AROUND_GROUNDRAY_LENGTH, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+			KuroEngine::Vec3<float> castRayPos = arg_newPos + KuroEngine::Math::TransformVec3(m_moveSpeed, m_transform.GetRotate()).GetNormal() * AROUND_GROUNDRAY_LENGTH;
+			m_onGround |= CastRay(arg_newPos, castRayPos, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
 
 			//ギミックを起動するためのレイ
 			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND, RAY_DIR_ID::BOTTOM);
@@ -493,9 +496,23 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 		}
 	}
 
+	if (!isHitMiddleRight) {
+		isHitA = true;
+	}
+	else {
+		isHitA = false;
+	}
+	if (!isHitMiddleLeft) {
+		isHitB = true;
+	}
+	else {
+		isHitB = false;
+	}
+
 	//左右に飛ばしたレイのどちらも当たっていなかったらそこは崖際の角を抜けているので処理を飛ばす。
-	if (m_isFirstOnGround && !isHitMiddleRight && !isHitMiddleLeft) {
+	if (m_isFirstOnGround && (!isHitMiddleRight || !isHitMiddleLeft)) {
 		arg_newPos = arg_from;
+		m_onGround = true;
 	}
 
 	//まだ着地していなかったら着地にする。
@@ -516,6 +533,7 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 		if (m_prevOnGimmick) m_onGimmick = true;
 		//次に補間する上ベクトルとプレイヤーの上ベクトルにする。
 		arg_hitInfo->m_terrianNormal = m_transform.GetUp();
+		m_onGround = true;
 	}
 
 }
@@ -849,6 +867,12 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		m_transform,
 		drawParam);
 
+
+
+	KuroEngine::DrawFunc3D::DrawLine(arg_cam, a, a - m_prevTransform.GetUp() * 3.0f, isHitA ? KuroEngine::Color(255, 0, 0, 255) : KuroEngine::Color(0, 0, 255, 255), 0.4f);
+	KuroEngine::DrawFunc3D::DrawLine(arg_cam, b, b - m_prevTransform.GetUp() * 3.0f, isHitB ? KuroEngine::Color(255, 0, 0, 255) : KuroEngine::Color(0, 0, 255, 255), 0.4f);
+
+
 	/*
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_axisModel,
@@ -1077,11 +1101,11 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 
 				//ギミックに当たっている判定
 				if (arg_rayDirID == RAY_DIR_ID::BOTTOM) {
-					m_onGimmick = true;
+					//m_onGimmick = true;
 
 					//さらにギミックに当たったトリガーだったらギミックを有効化させる。
 					if (!m_prevOnGimmick) {
-						arg_collisionData.m_stage.lock()->Activate();
+						//arg_collisionData.m_stage.lock()->Activate();
 					}
 
 				}
