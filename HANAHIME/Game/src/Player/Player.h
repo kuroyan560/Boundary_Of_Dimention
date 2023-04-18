@@ -103,6 +103,7 @@ class Player : public KuroEngine::Debugger
 	bool m_canJump;									//ジャンプができるかのフラグ
 	int m_canJumpDelayTimer;						//ジャンプができるようになるまでの引っ掛かり
 	const int CAN_JUMP_DELAY = 20;
+	const int CAN_JUMP_DELAY_FAST = 1;
 
 
 	struct HitCheckResult

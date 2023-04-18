@@ -83,14 +83,14 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 		index = 0;
 	}
 
+	//地面との当たり判定
+	CheckHitGround(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
+
 	//周囲の壁との当たり判定
 	CheckHitAround(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
 
 	//ジャンプ中は地面との当たり判定を行わない(ジャンプ先の上ベクトルが今の地面の上ベクトルになってしまうため)
-	if (m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP) return true;
-
-	//地面との当たり判定
-	CheckHitGround(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
+	//if (m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP) return true;
 
 	//死んだか(挟まっているか)どうかを判定
 	CheckDeath(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
@@ -331,8 +331,13 @@ void Player::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 		//地点が保存されていなかったら処理を飛ばす。
 		if (minIndex != -1) {
 
+			//引っ掛かっているオブジェクトがすぐにジャンプできるやつだったらフラグを更新。
+			if (arg_castRayArgment.m_impactPoint[minIndex].m_isFastJump) {
+				m_canJump = CAN_JUMP_DELAY_FAST <= m_canJumpDelayTimer;
+			}
+
 			//ジャンプができる状態だったらジャンプする。
-			if (m_canJump || arg_castRayArgment.m_impactPoint[minIndex].m_isFastJump) {
+			if (m_canJump) {
 
 				//最短の衝突点を求めたら、それをジャンプ先にする。
 				arg_hitInfo->m_terrianNormal = arg_castRayArgment.m_impactPoint[minIndex].m_normal;
@@ -1096,14 +1101,10 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 
 				arg_charaPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
 
-				//動く床がプレイヤーから離れるように動いていたら、すぐに飛び乗る。(数F引っ掛かる仕様だと動く床動いてガクガクしてしまうから。)
-				float oldPosDistance = (arg_charaPos - arg_collisionData.m_stage.lock()->GetOldPos()).Length();
-				float nowPosDistance = (arg_charaPos - arg_collisionData.m_stage.lock()->GetNowPos()).Length();
+			}else if(m_prevOnGimmick){
 
-				if (oldPosDistance < nowPosDistance) {
-					arg_collisionData.m_impactPoint.back().m_isFastJump = true;
-				}
-
+				arg_collisionData.m_impactPoint.back().m_isFastJump = true;
+			
 			}
 
 			break;
