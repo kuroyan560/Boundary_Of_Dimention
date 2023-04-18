@@ -96,11 +96,11 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	CheckDeath(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
 
 	//死んでいたら処理を飛ばす。
-	bool isDeath = false;
-	isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::RIGHT)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::LEFT)]);
-	isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::TOP)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::BOTTOM)]);
-	isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::FRONT)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::BEHIND)]);
-	if (isDeath) {
+	m_isDeath = false;
+	m_isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::RIGHT)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::LEFT)]);
+	m_isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::TOP)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::BOTTOM)]);
+	m_isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::FRONT)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::BEHIND)]);
+	if (m_isDeath) {
 		++m_deathTimer;
 	}
 	else {
@@ -111,7 +111,7 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	if (DEATH_TIMER < m_deathTimer) {
 		m_isDeath = true;
 		return false;
-	
+
 	}
 
 	m_isDeath = false;
@@ -303,6 +303,9 @@ void Player::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 			//崖チェック
 			CheckCliff(index, arg_nowStage);
 
+			//本当に飛べるのかチェック
+			CheckCanJump(index, arg_nowStage);
+
 		}
 
 		//最小値保存用変数
@@ -478,6 +481,9 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 			//下方向にレイを飛ばす。
 			m_onGround |= CastRay(arg_newPos, arg_newPos + KuroEngine::Math::TransformVec3(m_moveSpeed, m_transform.GetRotate()).GetNormal() * AROUND_GROUNDRAY_LENGTH, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
 
+			//ギミックを起動するためのレイ
+			CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND, RAY_DIR_ID::BOTTOM);
+
 			//=================================================
 		}
 	}
@@ -564,6 +570,79 @@ void Player::CheckCliff(Player::ImpactPointData& arg_impactPointData, std::weak_
 
 			//下方向にレイを飛ばす。
 			MeshCollisionOutput output = MeshCollision(arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * 0.5f, -m_transform.GetUp(), mesh);
+
+			//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
+			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
+
+				//壁に当たった時点で崖ではないので処理を飛ばす。
+				return;
+
+			}
+
+			//=================================================
+		}
+	}
+
+	//最後まで壁に当たってなかったら崖を超えているので無効化する。
+	arg_impactPointData.m_isActive = false;
+
+}
+
+void Player::CheckCanJump(Player::ImpactPointData& arg_impactPointData, std::weak_ptr<Stage> arg_nowStage)
+{
+
+	//有効化されていなかったら処理を飛ばす。
+	if (!arg_impactPointData.m_isActive) return;
+
+	//崖判定用のレイの長さ
+	const float CLIFF_RAY_LENGTH = WALL_JUMP_LENGTH + m_transform.GetScale().Length();
+
+	//地形配列走査
+	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
+	{
+		//モデル情報取得
+		auto model = terrian.m_model.lock();
+
+		//メッシュを走査
+		for (auto& modelMesh : model->m_meshes)
+		{
+
+			//判定↓============================================
+
+			//当たり判定を行うメッシュ。
+			std::vector<StageParts::Polygon> mesh = terrian.m_collisionMesh[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+
+			//下方向にレイを飛ばす。
+			MeshCollisionOutput output = MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_transform.GetScale().x) + m_transform.GetUp() * WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
+
+			//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
+			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
+
+				//壁に当たった時点で崖ではないので処理を飛ばす。
+				return;
+
+			}
+
+			//=================================================
+		}
+	}
+
+	//ギミックとの当たり判定
+	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
+	{
+		//モデル情報取得
+		auto model = terrian->GetModel();
+
+		//メッシュを走査
+		for (auto& modelMesh : model.lock()->m_meshes) {
+
+			//判定↓============================================
+
+			//当たり判定を行うメッシュ。
+			std::vector<StageParts::Polygon> mesh = terrian->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+
+			//下方向にレイを飛ばす。
+			MeshCollisionOutput output = MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_transform.GetScale().x) + m_transform.GetUp() * WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
 
 			//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
@@ -992,12 +1071,16 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 			if (arg_collisionData.m_stageType == StageParts::MOVE_SCAFFOLD) {
 
 				//ギミックに当たっている判定
-				m_onGimmick = true;
+				if (arg_rayDirID == RAY_DIR_ID::BOTTOM) {
+					m_onGimmick = true;
 
-				//さらにギミックに当たったトリガーだったらギミックを有効化させる。
-				if (!m_prevOnGimmick) {
-					arg_collisionData.m_stage.lock()->Activate();
+					//さらにギミックに当たったトリガーだったらギミックを有効化させる。
+					if (!m_prevOnGimmick) {
+						arg_collisionData.m_stage.lock()->Activate();
+					}
+
 				}
+
 
 			}
 

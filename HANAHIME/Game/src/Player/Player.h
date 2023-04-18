@@ -80,7 +80,7 @@ class Player : public KuroEngine::Debugger
 	bool m_onGimmick;		//ギミックの上にいるかどうか
 	bool m_isDeath;			//プレイヤーが死んだかどうか 死んだらリトライされる
 	int m_deathTimer;		//このフレームの間死んでいたら死んだ判定にする。
-	const int DEATH_TIMER = 5;
+	const int DEATH_TIMER = 1;
 
 	//Imguiデバッグ関数オーバーライド
 	void OnImguiItems()override;
@@ -238,6 +238,7 @@ private:
 	void CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo, Player::CastRayArgument& arg_castRayArgment);
 	void CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo, Player::CastRayArgument& arg_castRayArgment);
 	void CheckCliff(Player::ImpactPointData& arg_impactPointData, std::weak_ptr<Stage> arg_nowStage);
+	void CheckCanJump(Player::ImpactPointData& arg_impactPointData, std::weak_ptr<Stage> arg_nowStage);
 
 };
 
