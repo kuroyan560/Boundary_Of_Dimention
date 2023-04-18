@@ -79,6 +79,8 @@ class Player : public KuroEngine::Debugger
 	bool m_prevOnGimmick;	//ギミックの上にいるかどうか
 	bool m_onGimmick;		//ギミックの上にいるかどうか
 	bool m_isDeath;			//プレイヤーが死んだかどうか 死んだらリトライされる
+	int m_deathTimer;		//このフレームの間死んでいたら死んだ判定にする。
+	const int DEATH_TIMER = 5;
 
 	//Imguiデバッグ関数オーバーライド
 	void OnImguiItems()override;
