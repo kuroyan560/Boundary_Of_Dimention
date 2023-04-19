@@ -391,13 +391,20 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 	m_prevOnGround = m_onGround;
 	m_onGround = false;
 
+	const float AROUND_GROUNDRAY_LENGTH = 2.0f;
+
 	//ワールド空間で移動した方向を現在の上ベクトルを軸に左右に90度回した位置から下方向にレイを飛ばし、そのどちらも床に当たっていなかったら移動を無効化する。
-	KuroEngine::Vec3<float> moveMiddlePos = arg_from + (KuroEngine::Math::TransformVec3(-m_moveSpeed, m_transform.GetRotate())) / 2.0f;
 	KuroEngine::Vec3<float> moveVec = KuroEngine::Math::TransformVec3(m_moveSpeed, m_transform.GetRotate()).GetNormal();
 	//移動方向ベクトルを90度回転させる。
 	auto moveRot = XMQuaternionRotationAxis({ m_transform.GetUp().x,m_transform.GetUp().y,m_transform.GetUp().z,1.0f }, XMConvertToRadians(90.0f));
 	auto rotMoveVec = XMVector3Transform(moveVec, XMMatrixRotationQuaternion(moveRot));
 	moveVec = KuroEngine::Vec3<float>(rotMoveVec.m128_f32[0], rotMoveVec.m128_f32[1], rotMoveVec.m128_f32[2]);
+
+	//MoveVecをスケーリングする。
+	moveVec = moveVec.GetNormal() * AROUND_GROUNDRAY_LENGTH;
+
+	//中間地点を求める。
+	KuroEngine::Vec3<float> moveMiddlePos = arg_from + (moveVec / 2.0f);
 
 	//移動した距離の中間地点の左右から下にレイを伸ばした時の当たったかフラグ。
 	bool isHitMiddleRight = false;
@@ -407,8 +414,6 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 		isHitMiddleRight = true;
 		isHitMiddleLeft = true;
 	}
-
-	const float AROUND_GROUNDRAY_LENGTH = 2.0f;
 
 	//地形配列走査
 	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
@@ -494,7 +499,7 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 	//左右に飛ばしたレイのどちらも当たっていなかったらそこは崖際の角を抜けているので処理を飛ばす。
 	if (m_isFirstOnGround && (!isHitMiddleRight || !isHitMiddleLeft)) {
-		arg_newPos = arg_from;
+		arg_newPos = arg_from + m_gimmickVel;
 		m_onGround = true;
 	}
 
@@ -1102,10 +1107,11 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 
 				arg_charaPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
 
-			}else if(m_prevOnGimmick){
+			}
+			else if (m_prevOnGimmick) {
 
 				arg_collisionData.m_impactPoint.back().m_isFastJump = true;
-			
+
 			}
 
 			break;
