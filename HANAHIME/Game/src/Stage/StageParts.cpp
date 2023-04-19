@@ -236,16 +236,26 @@ void Lever::Update(Player& arg_player)
 	//スイッチの状態が固定されている
 	if (m_parentSwitch->IsFixed())return;
 
+	//衝突フラグを保存。
+	m_isOldHit = m_isHit;
+	m_isHit = false;
+
 	//植物繁殖光との当たり判定
 	for (auto& lig : GrowPlantLight::GrowPlantLightArray())
 	{
 		if (lig->HitCheckWithBox(m_boxCollider.m_center, m_boxCollider.m_size))
 		{
 			//レバー操作でオンオフ切り替え
-			m_flg = !m_flg;
+			m_isHit = true;
 			break;
 		}
 	}
+
+	//衝突のトリガー判定だったらフラグを切り替える。
+	if (m_isHit && !m_isOldHit) {
+		m_flg = !m_flg;
+	}
+
 }
 
 void Lever::OnDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)

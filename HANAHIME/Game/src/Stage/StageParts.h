@@ -91,7 +91,7 @@ public:
 	Terrian(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
 		:StageParts(TERRIAN, arg_model, arg_initTransform)
 	{
-		m_collider.BuilCollisionMesh(arg_model,arg_initTransform);
+		m_collider.BuilCollisionMesh(arg_model, arg_initTransform);
 	}
 	void Update(Player& arg_player)override {}
 	const std::vector<std::vector<TerrianHitPolygon>>& GetCollisionMesh()const { return m_collider.GetCollisionMesh(); }
@@ -206,6 +206,10 @@ private:
 	//初期化時のフラグ
 	const bool m_initFlg = false;
 
+	//衝突判定トリガー用変数
+	bool m_isHit;
+	bool m_isOldHit;
+
 	//オンオフ
 	bool m_flg = false;
 
@@ -213,11 +217,15 @@ public:
 	Lever(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_id, bool arg_initFlg = false)
 		:StageParts(LEVER, arg_model, arg_initTransform), m_id(arg_id), m_initFlg(arg_initFlg)
 	{
+		m_boxCollider.m_center = arg_initTransform.GetPosWorld();
+		m_boxCollider.m_size = arg_initTransform.GetScale();
 	}
 
 	void OnInit()override
 	{
 		m_flg = m_initFlg;
+		m_isHit = false;
+		m_isOldHit = false;
 	}
 	void Update(Player& arg_player)override;
 	void OnDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
