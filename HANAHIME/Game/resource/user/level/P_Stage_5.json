@@ -46,7 +46,8 @@
                         1.0
                     ]
                 },
-                "file_name": "Goal"
+                "file_name": "Goal",
+                "leverID" : 0
             },
             {
                 "type": "Terrian",
@@ -93,19 +94,45 @@
                     ]
                 },
                 "file_name": "MoveScaffoldStage5",
-                "translationArray": {
-                    "translation_0": [
+                "translationArray": 
+                {
+                    "translation_0":[
                         10.0,
                         0.0,
                         -1.0
                     ],
-                    "translation_1": [
+                    "translation_1":
+                    [
                         20.0,
                         0.0,
                         -1.0
                     ]
                 }
-                
+            },
+            {
+                "type": "Lever",
+                "name": "立方体",
+                "transform": {
+                    "translation": [
+                        30.755146026611328,
+                        -2.3894805908203125,
+                        13.379966735839844
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Lever",
+                "id" : 0,
+                "initFlg":false
             }
         ]
     }

@@ -4,6 +4,7 @@
 #include"FrameWork/Importer.h"
 #include"ForUser/Object/Model.h"
 #include "StageParts.h"
+#include"Switch.h"
 
 std::string Stage::s_terrianModelDir = "resource/user/model/terrian/";
 
@@ -87,14 +88,23 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 	//ゴール地点
 	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::GOAL_POINT))
 	{
-		m_goalPoint = std::make_shared<GoalPoint>(model, transform);
+		//全てのレバーをオンにすることがクリア条件
+		if (obj.contains("leverID"))
+		{
+			m_goalLeverID = obj["leverID"];
+		}
+		//目的地に到達することがクリア条件
+		else
+		{
+			m_goalPoint = std::make_shared<GoalPoint>(model, transform);
+		}
 	}
 	//見かけだけのオブジェクト
 	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::APPEARANCE))
 	{
 		m_gimmickArray.emplace_back(std::make_shared<Appearance>(model, transform));
 	}
-	//ギミック
+	//動く足場
 	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::MOVE_SCAFFOLD))
 	{
 		std::shared_ptr<StageParts>gimmick;
@@ -102,6 +112,18 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 		{
 			m_gimmickArray.emplace_back(gimmick);
 		}
+	}
+	//レバー
+	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::LEVER))
+	{
+		//必要なパラメータがない
+		if (!CheckJsonKeyExist(arg_fileName, arg_json, "id") || !CheckJsonKeyExist(arg_fileName, arg_json, "initFlg"))return;
+
+		m_gimmickArray.emplace_back(std::make_shared<Lever>(model, transform, arg_json["id"], arg_json["initFlg"]));
+	}
+	else
+	{
+		AppearMessageBox("Warning : Stage::LoadWithType()", "ステージパーツの読み込み中に知らない種別キー \"" + arg_typeKey + "\"があったけど大丈夫？");
 	}
 }
 
@@ -142,6 +164,20 @@ void Stage::GimmickUpdate(Player& arg_player)
 	{
 		gimmick->Update(arg_player);
 	}
+
+	if (m_goalPoint)m_goalPoint->Update(arg_player);
+}
+
+bool Stage::IsClear() const
+{
+	//レバークリア
+	if (m_goalLeverID != Lever::INVALID_ID)return m_goalSwitch->IsBooting();
+
+	//目的地到達
+	if (m_goalPoint)return m_goalPoint->HitPlayer();
+
+	//クリアが存在しない
+	return false;
 }
 
 void Stage::TerrianDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
@@ -201,9 +237,34 @@ void Stage::Load(std::string arg_dir, std::string arg_fileName, float arg_terria
 	{
 		AppearMessageBox("Stage : Load() 警告", arg_fileName + " にスタート地点の情報がないよ。");
 	}
-	//ゴール地点があるか
-	if (arg_hasGoal && !m_goalPoint)
+	//ゴールがあるか
+	if (arg_hasGoal && !m_goalPoint && m_goalLeverID == Lever::INVALID_ID)
 	{
-		AppearMessageBox("Stage : Load() 警告", arg_fileName + "にゴール地点の情報がないよ。");
+		AppearMessageBox("Stage : Load() 警告", arg_fileName + "にゴールの情報がないよ。");
 	}
+
+	//レバーとスイッチの関係構築（ゴール）
+	if (m_goalLeverID != Lever::INVALID_ID)
+	{
+		m_goalSwitch = std::make_shared<Switch>();
+		m_goalSwitch->m_leverID = m_goalLeverID;
+
+		std::vector<std::weak_ptr<Lever>>goalLeverArray;
+		for (auto& gimmick : m_gimmickArray)
+		{
+			//レバーじゃない
+			if (gimmick->GetType() != StageParts::LEVER)continue;
+
+			//レバーのポインタに変換
+			auto lever = dynamic_pointer_cast<Lever>(gimmick);
+
+			//レバーの識別番号が異なる
+			if (lever->m_id != m_goalLeverID)continue;
+
+			//関係構築
+			lever->m_parentSwitch = m_goalSwitch.get();
+			m_goalSwitch->m_leverArray.emplace_back(lever);
+		}
+	}
+
 }

@@ -364,6 +364,9 @@
     <ClCompile Include="src\Plant\GrowPlantLight.cpp">
       <Filter>src\user\Plant</Filter>
     </ClCompile>
+    <ClCompile Include="src\Stage\Switch.cpp">
+      <Filter>src\user\Stage</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -708,6 +711,9 @@
     </ClInclude>
     <ClInclude Include="src\Plant\GrowPlantLight.h">
       <Filter>src\user\Plant</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\Switch.h">
+      <Filter>src\user\Stage</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

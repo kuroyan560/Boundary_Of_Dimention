@@ -110,8 +110,9 @@ void GameScene::OnUpdate()
 		m_nowCam = m_movieCamera.GetCamera().lock();
 	}
 	//ƒS[ƒ‹Žž‚Ì‰‰o
-	if (m_goal.IsHit(m_player.GetTransform().GetPos()))
+	if (StageManager::Instance()->IsClearNowStage())
 	{
+		m_goal.Start();
 		//m_nowCam = m_goal.GetCamera().lock();
 		OperationConfig::Instance()->SetActive(false);
 		m_clearFlag = true;

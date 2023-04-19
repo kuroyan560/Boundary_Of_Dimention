@@ -21,8 +21,12 @@ public:
 	void Update(KuroEngine::Transform *transform);
 	void Draw(KuroEngine::Camera &camera);
 
-	//ゴールとの衝突判定
-	bool IsHit(const KuroEngine::Vec3<float> &player_pos);
+	//ゴール演出スタート
+	void Start()
+	{
+		m_isStartFlg = true;
+	}
+
 	//ゴール演出が終わったか
 	bool IsEnd();
 
@@ -33,11 +37,10 @@ public:
 
 private:
 	bool m_initFlag;
-	bool m_isHitFlag, m_startGoalEffectFlag;
+	bool m_isStartFlg, m_startGoalEffectFlag;
 	bool m_startCameraFlag;
 	MovieCamera m_movieCamera;					//ゴール時のカメラワーク
 	
-	std::shared_ptr<KuroEngine::ModelObject> m_model;
 	KuroEngine::Transform m_cameraTransform;
 
 	//ゴールの文字演出
@@ -48,11 +51,11 @@ private:
 	KuroEngine::Timer m_clearEaseTimer;
 
 	//ゴールのモデル演出
-	std::shared_ptr<GoalPoint>m_goalModel;
+	//std::shared_ptr<GoalPoint>m_goalModel;
 	KuroEngine::Timer m_upEffectEase;
 	KuroEngine::Timer m_downEffectEase;
 
-	KuroEngine::Transform m_goalModelBaseTransform;
+	//KuroEngine::Transform m_goalModelBaseTransform;
 
 
 	//デバック用

@@ -1,7 +1,7 @@
 #include"Goal.h"
 #include"../OperationConfig.h"
 
-Goal::Goal() :m_model(std::make_shared<KuroEngine::ModelObject>("resource/user/model/", "Player.glb")), m_initFlag(false), m_clearEaseTimer(30),
+Goal::Goal() :m_initFlag(false), m_clearEaseTimer(30),
 m_upEffectEase(60), m_downEffectEase(10)
 {
 	m_startGoalEffectFlag = false;
@@ -19,10 +19,8 @@ m_upEffectEase(60), m_downEffectEase(10)
 void Goal::Init(const KuroEngine::Transform &transform, std::shared_ptr<GoalPoint>goal_model)
 {
 	m_initFlag = true;
-	m_model->m_transform = transform;
-	m_model->m_transform.SetScale(3.0f);
 	m_startGoalEffectFlag = false;
-	m_isHitFlag = false;
+	m_isStartFlg = false;
 
 	m_movieCamera.Init();
 
@@ -30,8 +28,8 @@ void Goal::Init(const KuroEngine::Transform &transform, std::shared_ptr<GoalPoin
 	m_upEffectEase.Reset();
 	m_downEffectEase.Reset();
 
-	m_goalModel = goal_model;
-	m_goalModelBaseTransform = goal_model->GetTransform();
+	//m_goalModel = goal_model;
+	//m_goalModelBaseTransform = goal_model->GetTransform();
 	m_startCameraFlag = false;
 
 }
@@ -48,34 +46,35 @@ void Goal::Update(KuroEngine::Transform *transform)
 		return;
 	}
 
-	if (m_isHitFlag && false)
-	{
-		float upEffectRate = m_upEffectEase.GetTimeRate();
+	//if (m_isStartFlg && false)
+	//{
+	//	float upEffectRate = m_upEffectEase.GetTimeRate();
 
-		//ゴールモデルの演出
-		KuroEngine::Transform transform;
-		//回転
-		KuroEngine::Vec3<float>rotaVel = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, upEffectRate, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,360.0f });
-		transform.SetRotate(rotaVel);
-		//上に上げる
-		KuroEngine::Vec3<float>upVel = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, upEffectRate, m_goalModelBaseTransform.GetPos(), m_goalModelBaseTransform.GetPos() + KuroEngine::Vec3<float>(0.0f, 5.0f, 0.0f));
-		transform.SetPos(upVel);
+	//	//ゴールモデルの演出
+	//	KuroEngine::Transform transform;
+	//	//回転
+	//	KuroEngine::Vec3<float>rotaVel = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, upEffectRate, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,360.0f });
+	//	transform.SetRotate(rotaVel);
+	//	//上に上げる
+	//	KuroEngine::Vec3<float>upVel = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, upEffectRate, m_goalModelBaseTransform.GetPos(), m_goalModelBaseTransform.GetPos() + KuroEngine::Vec3<float>(0.0f, 5.0f, 0.0f));
+	//	transform.SetPos(upVel);
 
-		m_upEffectEase.UpdateTimer();
-		if (m_upEffectEase.IsTimeUp())
-		{
-			//下に下げる
-			KuroEngine::Vec3<float>downVel = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, m_downEffectEase.GetTimeRate(), m_goalModelBaseTransform.GetPos() + KuroEngine::Vec3<float>(0.0f, 5.0f, 0.0f), m_goalModelBaseTransform.GetPos());
-			transform.SetPos(downVel);
-			m_downEffectEase.UpdateTimer();
-		}
-		if (m_downEffectEase.IsTimeUp())
-		{
-			m_startCameraFlag = true;
-		}
+	//	m_upEffectEase.UpdateTimer();
+	//	if (m_upEffectEase.IsTimeUp())
+	//	{
+	//		//下に下げる
+	//		KuroEngine::Vec3<float>downVel = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, m_downEffectEase.GetTimeRate(), m_goalModelBaseTransform.GetPos() + KuroEngine::Vec3<float>(0.0f, 5.0f, 0.0f), m_goalModelBaseTransform.GetPos());
+	//		transform.SetPos(downVel);
+	//		m_downEffectEase.UpdateTimer();
+	//	}
+	//	if (m_downEffectEase.IsTimeUp())
+	//	{
+	//		m_startCameraFlag = true;
+	//	}
 
-		m_goalModel->SetTransform(transform);
-	}
+	//	m_goalModel->SetTransform(transform);
+	//}
+	
 	////①視点ベクトル(カメラからオブジェクトまでのベクトル)を求める。
 	//KuroEngine::Vec3<float>eyePos = m_goalModelBaseTransform.GetPos() + KuroEngine::Vec3<float>(0.0f, 0.0f, 30.0f);
 	//KuroEngine::Vec3<float>eyeDir = m_goalModelBaseTransform.GetPos() - eyePos;
@@ -132,7 +131,7 @@ void Goal::Update(KuroEngine::Transform *transform)
 
 
 	//ゴールカメラモード
-	if (m_isHitFlag && !m_startGoalEffectFlag)
+	if (m_isStartFlg && !m_startGoalEffectFlag)
 	{
 		std::vector<MovieCameraData>cameraDataArray;
 
@@ -161,7 +160,7 @@ void Goal::Update(KuroEngine::Transform *transform)
 
 	m_pos = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Circ, m_clearEaseTimer.GetTimeRate(), m_basePos, m_goalPos);
 	clearTexRadian = KuroEngine::Angle::ConvertToRadian(KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Circ, m_clearEaseTimer.GetTimeRate(), 0.0f, 360.0f));
-	if (m_isHitFlag)
+	if (m_isStartFlg)
 	{
 		m_clearEaseTimer.UpdateTimer();
 	}
@@ -174,10 +173,9 @@ void Goal::Draw(KuroEngine::Camera &camera)
 		return;
 	}
 #ifdef _DEBUG
-	KuroEngine::DrawFunc3D::DrawNonShadingModel(m_model, camera);
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(m_goalCamera, camera);
 
-	if (!m_isHitFlag)
+	if (!m_isStartFlg)
 	{
 		//前
 		{
@@ -200,15 +198,15 @@ void Goal::Draw(KuroEngine::Camera &camera)
 			KuroEngine::DrawFunc3D::DrawLine(camera, startPos, endPos, KuroEngine::Color(255, 0, 0, 255), 1.0f);
 		}
 	}
-	KuroEngine::Vec3<float> result(0, 1, 0);
-	DirectX::XMMATRIX mat = DirectX::XMMatrixRotationQuaternion(m_goalModel->GetTransform().GetRotate());
-	DirectX::XMVECTOR rota(DirectX::XMVector3Transform(result, mat));
-	result = { rota.m128_f32[0],rota.m128_f32[1],rota.m128_f32[2] };
-	result.Normalize();
+	//KuroEngine::Vec3<float> result(0, 1, 0);
+	//DirectX::XMMATRIX mat = DirectX::XMMatrixRotationQuaternion(m_goalModel->GetTransform().GetRotate());
+	//DirectX::XMVECTOR rota(DirectX::XMVector3Transform(result, mat));
+	//result = { rota.m128_f32[0],rota.m128_f32[1],rota.m128_f32[2] };
+	//result.Normalize();
 
-	KuroEngine::Vec3<float>startPos(m_goalModelBaseTransform.GetPos());
-	KuroEngine::Vec3<float>endPos(m_goalModelBaseTransform.GetPos() + result * 5.0f);
-	KuroEngine::DrawFunc3D::DrawLine(camera, startPos, endPos, KuroEngine::Color(255, 0, 0, 255), 1.0f);
+	//KuroEngine::Vec3<float>startPos(m_goalModelBaseTransform.GetPos());
+	//KuroEngine::Vec3<float>endPos(m_goalModelBaseTransform.GetPos() + result * 5.0f);
+	//KuroEngine::DrawFunc3D::DrawLine(camera, startPos, endPos, KuroEngine::Color(255, 0, 0, 255), 1.0f);
 
 #endif // _DEBUG
 	
@@ -216,26 +214,8 @@ void Goal::Draw(KuroEngine::Camera &camera)
 	//KuroEngine::DrawFunc3D::DrawNonShadingPlane(m_ddsTex, transform, camera);
 }
 
-bool Goal::IsHit(const KuroEngine::Vec3<float> &player_pos)
-{
-	if (!m_initFlag)
-	{
-		return false;
-	}
-	std::array<KuroEngine::Vec3<float>, 2> size = { m_model->m_transform.GetScale(),m_model->m_transform.GetScale() };
-	KuroEngine::Vec3<float>distance = m_model->m_transform.GetPos() - player_pos;
-	const int square1 = 0;
-	const int square2 = 1;
-	bool isHitFlag =
-		fabs(distance.x) <= size[square1].x + size[square2].x &&
-		fabs(distance.y) <= size[square1].y + size[square2].y &&
-		fabs(distance.z) <= size[square1].z + size[square2].z;
-	m_isHitFlag = isHitFlag;
-	return isHitFlag;
-}
-
 bool Goal::IsEnd()
 {
-	return m_isHitFlag && m_movieCamera.IsFinish();
+	return m_isStartFlg && m_movieCamera.IsFinish();
 }
 

@@ -188,7 +188,7 @@ private:
 	/// <param name="arg_rayDir"> レイの射出方向 </param>
 	/// <param name="arg_targetMesh"> 判定を行う対象のメッシュ </param>
 	/// <returns> 当たり判定結果 </returns>
-	MeshCollisionOutput MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, std::vector<Terrian::Polygon>& arg_targetMesh);
+	MeshCollisionOutput MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, std::vector<TerrianHitPolygon>& arg_targetMesh);
 
 	/// <summary>
 	/// 重心座標を求める。
@@ -207,7 +207,7 @@ private:
 	//CastRayに渡すデータ用構造体
 	struct CastRayArgument {
 		std::weak_ptr<StageParts> m_stage;			//ステージ
-		std::vector<Terrian::Polygon> m_mesh;		//判定を行う対象のメッシュ
+		std::vector<TerrianHitPolygon> m_mesh;		//判定を行う対象のメッシュ
 		std::vector<ImpactPointData> m_impactPoint;	//前後左右のレイの当たった地点。
 		KuroEngine::Vec3<float> m_bottomTerrianNormal;
 		StageParts::STAGE_PARTS_TYPE m_stageType;

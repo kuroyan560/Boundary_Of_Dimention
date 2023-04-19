@@ -109,6 +109,11 @@ void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 	m_nowStage->TerrianDraw(arg_cam, arg_ligMgr);
 }
 
+bool StageManager::IsClearNowStage() const
+{
+	return m_nowStage->IsClear();
+}
+
 KuroEngine::Transform StageManager::GetPlayerSpawnTransform() const
 {
 	return m_nowStage->GetPlayerSpawnTransform();

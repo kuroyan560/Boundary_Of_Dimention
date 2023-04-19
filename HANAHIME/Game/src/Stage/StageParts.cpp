@@ -3,10 +3,11 @@
 #include"../Graphics/BasicDraw.h"
 #include"../Player/Player.h"
 #include"../../../../src/engine/ForUser/DrawFunc/3D/DrawFunc3D.h"
+#include"Switch.h"
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
-	"Terrian","Start","Goal","Appearance","MoveScaffold"
+	"Terrian","Start","Goal","Appearance","MoveScaffold","Lever"
 };
 
 const std::string& StageParts::GetTypeKeyOnJson(STAGE_PARTS_TYPE arg_type)
@@ -33,21 +34,22 @@ void StageParts::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg
 	OnDraw(arg_cam, arg_ligMgr);
 }
 
-void StageParts::BuilCollisionMesh()
+
+void TerrianMeshCollider::BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_transform)
 {
 	//当たり判定用のメッシュをモデルのメッシュに合わせる。
-	int meshNum = static_cast<int>(m_model.lock()->m_meshes.size());
+	int meshNum = static_cast<int>(arg_model.lock()->m_meshes.size());
 	m_collisionMesh.resize(meshNum);
 
 	//当たり判定用メッシュを作成。
 	for (int meshIdx = 0; meshIdx < meshNum; ++meshIdx)
 	{
-		auto& mesh = m_model.lock()->m_meshes[meshIdx].mesh;
+		auto& mesh = arg_model.lock()->m_meshes[meshIdx].mesh;
 
 		/*-- ① モデル情報から当たり判定用のポリゴンを作り出す --*/
 
 	//当たり判定用ポリゴン
-		struct Polygon {
+		struct TerrianHitPolygon {
 			bool m_isActive;					//このポリゴンが有効化されているかのフラグ
 			KuroEngine::ModelMesh::Vertex m_p0;	//頂点0
 			KuroEngine::ModelMesh::Vertex m_p1;	//頂点1
@@ -75,13 +77,13 @@ void StageParts::BuilCollisionMesh()
 
 		/*-- ② ポリゴンをワールド変換する --*/
 		//ワールド行列
-		DirectX::XMMATRIX targetRotMat = DirectX::XMMatrixRotationQuaternion(m_transform.GetRotate());
+		DirectX::XMMATRIX targetRotMat = DirectX::XMMatrixRotationQuaternion(arg_transform.GetRotate());
 		DirectX::XMMATRIX targetWorldMat = DirectX::XMMatrixIdentity();
-		targetWorldMat *= DirectX::XMMatrixScaling(m_transform.GetScale().x, m_transform.GetScale().y, m_transform.GetScale().z);
+		targetWorldMat *= DirectX::XMMatrixScaling(arg_transform.GetScale().x, arg_transform.GetScale().y, arg_transform.GetScale().z);
 		targetWorldMat *= targetRotMat;
-		targetWorldMat.r[3].m128_f32[0] = m_transform.GetPos().x;
-		targetWorldMat.r[3].m128_f32[1] = m_transform.GetPos().y;
-		targetWorldMat.r[3].m128_f32[2] = m_transform.GetPos().z;
+		targetWorldMat.r[3].m128_f32[0] = arg_transform.GetPos().x;
+		targetWorldMat.r[3].m128_f32[1] = arg_transform.GetPos().y;
+		targetWorldMat.r[3].m128_f32[2] = arg_transform.GetPos().z;
 		for (auto& index : m_collisionMesh[meshIdx]) {
 			//頂点を変換
 			index.m_p0.pos = KuroEngine::Math::TransformVec3(index.m_p0.pos, targetWorldMat);
@@ -98,6 +100,14 @@ void StageParts::BuilCollisionMesh()
 	}
 }
 
+void GoalPoint::Update(Player& arg_player)
+{
+	static const float HIT_RADIUS = 3.0f;
+	static const float HIT_OFFSET = 5.0f;
+
+	//プレイヤーとの当たり判定
+	if (!m_hitPlayer)m_hitPlayer = (arg_player.GetTransform().GetPosWorld().Distance(m_transform.GetPosWorld() + -m_transform.GetUp() * HIT_OFFSET * m_transform.GetScale().x) < HIT_RADIUS);
+}
 
 void MoveScaffold::OnInit()
 {
@@ -114,13 +124,12 @@ void MoveScaffold::OnInit()
 	m_oldPos = m_translationArray[0];
 	m_nowPos = m_translationArray[0];
 
-	//当たり判定を再構築。
-	BuilCollisionMesh();
+	//当たり判定構築。
+	m_collider.BuilCollisionMesh(m_model, m_transform);
 }
 
 void MoveScaffold::OnDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
-
 	//移動経路がなかったら飛ばす。
 	if (m_maxTranslation < 0) return;
 
@@ -217,6 +226,24 @@ void MoveScaffold::Update(Player& arg_player)
 	}
 
 	//当たり判定を再構築。
-	BuilCollisionMesh();
+	m_collider.BuilCollisionMesh(m_model, m_transform);
 
 }
+
+void Lever::Update(Player& arg_player)
+{
+	//スイッチの状態が固定されている
+	if (m_parentSwitch->IsFixed())return;
+
+	//植物繁殖光との当たり判定
+	for (auto& lig : GrowPlantLight::GrowPlantLightArray())
+	{
+		if (lig->HitCheckWithBox(m_boxCollider.m_center, m_boxCollider.m_size))
+		{
+			//レバー操作でオンオフ切り替え
+			m_flg = !m_flg;
+			break;
+		}
+	}
+}
+
