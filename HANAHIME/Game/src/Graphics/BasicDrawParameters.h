@@ -27,9 +27,7 @@ public:
 	//マスクレイヤーに描画するか
 	int m_drawMask = 0;
 
-	//プレイヤーか
-	int m_isPlayer = 0;
-	int pad[2];
+	int pad[3];
 	
 	IndividualDrawParameter() { *this = GetDefault(); }
 	IndividualDrawParameter(

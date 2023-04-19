@@ -668,7 +668,7 @@ void Player::CheckCanJump(Player::ImpactPointData& arg_impactPointData, std::wea
 }
 
 Player::Player()
-	:KuroEngine::Debugger("Player", true, true)
+	:KuroEngine::Debugger("Player", true, true), m_growPlantPtLig(8.0f, &m_transform)
 {
 	AddCustomParameter("Sensitivity", { "camera", "sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity, "Camera");
 	LoadParameterLog();
@@ -713,6 +713,8 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_prevOnGimmick = false;
 	m_isDeath = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
+	
+	m_growPlantPtLig.Register();
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
@@ -840,15 +842,12 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		arg_cam);
 	*/
 
-	static IndividualDrawParameter drawParam = IndividualDrawParameter::GetDefault();
-	drawParam.m_isPlayer = 1;
-
 	BasicDraw::Instance()->Draw_Player(
 		arg_cam,
 		arg_ligMgr,
 		m_model,
 		m_transform,
-		drawParam);
+		IndividualDrawParameter::GetDefault());
 
 	/*
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(

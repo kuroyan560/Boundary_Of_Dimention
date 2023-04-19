@@ -8,6 +8,7 @@
 #include"Render/RenderObject/LightManager.h"
 #include"Render/RenderObject/SpriteMesh.h"
 #include"KuroEngineDevice.h"
+#include"../Plant//GrowPlantLight.h"
 
 BasicDraw::BasicDraw() :KuroEngine::Debugger("BasicDraw")
 {
@@ -70,6 +71,9 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"トゥーンの共通パラメータ"),
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"トゥーンの個別パラメータ"),
 		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"プレイヤーの座標情報"),
+		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "アクティブ中の植物ライト数バッファ"),
+		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "植物ポイントライト情報 (構造化バッファ)"),
+		RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "植物スポットライト情報 (構造化バッファ)"),
 	};
 
 	//レンダーターゲット描画先情報
@@ -270,10 +274,27 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		&initSendPlayerInfo,
 		"BasicDraw - PlayerInfo");
 
+	//植物を繁殖させる光に関するバッファ
+	m_growPlantLigNumBuffer = D3D12App::Instance()->GenerateConstantBuffer(
+		sizeof(GrowPlantLightNum),
+		1,
+		nullptr,
+		"BasicDraw - GrowPlantLightNum");
+	m_growPlantPtLigBuffer = D3D12App::Instance()->GenerateStructuredBuffer(
+		sizeof(GrowPlantLight_Point::ConstData),
+		GROW_PLANT_LIGHT_MAX_NUM,
+		nullptr,
+		"BasicDraw - GrowPlantPointLight");
+	m_growPlantSpotLigBuffer = D3D12App::Instance()->GenerateStructuredBuffer(
+		sizeof(GrowPlantLight_Spot::ConstData),
+		GROW_PLANT_LIGHT_MAX_NUM,
+		nullptr,
+		"BasicDraw - GrowPlantSpotLight");
+
 	//レンダーターゲット生成
 	std::array<std::string, RENDER_TARGET_TYPE::NUM>targetNames =
 	{
-		"MainRenderTarget","EmissiveMap","DepthMap","EdgeColorMap","BrightMap", "NormalMap", "WorldPos"
+		"MainRenderTarget","EmissiveMap","DepthMap","EdgeColorMap","BrightMap", "NormalMap","GrassNormalMap", "WorldPos"
 	};
 	auto targetSize = D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize();
 	for (int targetIdx = 0; targetIdx < RENDER_TARGET_TYPE::NUM; ++targetIdx)
@@ -298,6 +319,30 @@ void BasicDraw::Update(KuroEngine::Vec3<float> arg_playerPos, KuroEngine::Camera
 		sendInfo.m_screenPos = ConvertWorldToScreen(arg_playerPos, arg_cam.GetViewMat(), arg_cam.GetProjectionMat(), m_renderTargetArray[MAIN]->GetGraphSize().Float());
 		m_playerInfoBuffer->Mapping(&sendInfo);
 	}
+
+	//植物を繁殖させる光
+	GrowPlantLightNum ligNum;
+	std::vector<GrowPlantLight_Point::ConstData>ptLigConstData;
+	std::vector<GrowPlantLight_Spot::ConstData>spotLigConstData;
+	for (auto& lig : GrowPlantLight::GrowPlantLightArray())
+	{
+		auto type = lig->GetType();
+
+		if (type == GrowPlantLight::TYPE::POINT)
+		{
+			ptLigConstData.emplace_back(((GrowPlantLight_Point*)lig)->GetSendData());
+			if(ligNum.m_ptLig < GROW_PLANT_LIGHT_MAX_NUM)ligNum.m_ptLig++;
+		}
+		else if (type == GrowPlantLight::TYPE::SPOT)
+		{
+			spotLigConstData.emplace_back(((GrowPlantLight_Spot*)lig)->GetSendData());
+			if (ligNum.m_spotLig < GROW_PLANT_LIGHT_MAX_NUM)ligNum.m_spotLig++;
+		}
+	}
+	m_growPlantLigNumBuffer->Mapping(&ligNum);
+
+	if (ligNum.m_ptLig)m_growPlantPtLigBuffer->Mapping(ptLigConstData.data());
+	if (ligNum.m_spotLig)m_growPlantSpotLigBuffer->Mapping(spotLigConstData.data());
 }
 
 void BasicDraw::RenderTargetsClearAndSet(std::weak_ptr<KuroEngine::DepthStencil>arg_ds)
@@ -357,6 +402,9 @@ void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_
 				{m_toonCommonParamBuff,CBV},
 				{m_toonIndividualParamBuff[m_individualParamCount],CBV},
 				{m_playerInfoBuffer,CBV},
+				{m_growPlantLigNumBuffer,CBV},
+				{m_growPlantPtLigBuffer,SRV},
+				{m_growPlantSpotLigBuffer,SRV},
 			},
 			arg_transform.GetPos().z,
 			arg_blendMode == AlphaBlendMode_Trans);
@@ -409,6 +457,9 @@ void BasicDraw::Draw_Player(KuroEngine::Camera& arg_cam, KuroEngine::LightManage
 				{m_toonCommonParamBuff,CBV},
 				{m_toonIndividualParamBuff[m_individualParamCount],CBV},
 				{m_playerInfoBuffer,CBV},
+				{m_growPlantLigNumBuffer,CBV},
+				{m_growPlantPtLigBuffer,SRV},
+				{m_growPlantSpotLigBuffer,SRV},
 			},
 			arg_transform.GetPos().z,
 			arg_blendMode == AlphaBlendMode_Trans);
@@ -492,6 +543,9 @@ void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightMan
 				{m_toonCommonParamBuff,CBV},
 				{m_toonIndividualParamBuff[m_individualParamCount],CBV},
 				{m_playerInfoBuffer,CBV},
+				{m_growPlantLigNumBuffer,CBV},
+				{m_growPlantPtLigBuffer,SRV},
+				{m_growPlantSpotLigBuffer,SRV},
 			},
 			arg_depth,
 			arg_blendMode == AlphaBlendMode_Trans,

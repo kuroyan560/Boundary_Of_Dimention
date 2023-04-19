@@ -193,6 +193,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\OutGame\PazzleStageSelect.cpp" />
     <ClCompile Include="src\OutGame\Select.cpp" />
     <ClCompile Include="src\OutGame\Title.cpp" />
+    <ClCompile Include="src\Plant\GrowPlantLight.cpp" />
     <ClCompile Include="src\Player\CameraController.cpp" />
     <ClCompile Include="src\Player\Player.cpp" />
     <ClCompile Include="src\Stage\Gate.cpp" />
@@ -305,6 +306,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\OutGame\PazzleStageSelect.h" />
     <ClInclude Include="src\OutGame\Select.h" />
     <ClInclude Include="src\OutGame\Title.h" />
+    <ClInclude Include="src\Plant\GrowPlantLight.h" />
     <ClInclude Include="src\Player\CameraController.h" />
     <ClInclude Include="src\Player\Player.h" />
     <ClInclude Include="src\Stage\Gate.h" />

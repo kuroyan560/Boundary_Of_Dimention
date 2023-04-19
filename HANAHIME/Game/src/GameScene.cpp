@@ -9,6 +9,7 @@
 #include"ForUser/JsonData.h"
 #include"Graphics/BasicDraw.h"
 #include"FrameWork/UsersInput.h"
+#include"Plant/GrowPlantLight.h"
 
 GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer())
 {
@@ -43,8 +44,17 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer())
 }
 
 
+void GameScene::GameInit()
+{
+	GrowPlantLight::ResetRegisteredLight();
+	StageManager::Instance()->SetStage(m_stageNum);
+	m_player.Init(StageManager::Instance()->GetPlayerSpawnTransform());
+}
+
 void GameScene::OnInitialize()
 {
+	GrowPlantLight::ResetRegisteredLight();
+
 	KuroEngine::Debugger::Register({
 	OperationConfig::Instance(),
 	&m_player,
@@ -148,8 +158,7 @@ void GameScene::OnUpdate()
 
 	if (m_gateSceneChange.IsHide())
 	{
-		StageManager::Instance()->SetStage(m_stageNum);
-		m_player.Init(StageManager::Instance()->GetPlayerSpawnTransform());
+		GameInit();
 		//パズル画面からシーンチェンジしたらカメラモードを切り替える
 		if (!m_title.IsFinish())
 		{

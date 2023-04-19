@@ -1,74 +1,11 @@
-#include"../../engine/ModelInfo.hlsli"
-#include"../../engine/Camera.hlsli"
-#include"../../engine/LightInfo.hlsli"
 #include"../../engine/Math.hlsli"
 #include"../../engine/ColorProcess.hlsli"
+#include"BasicDraw.hlsli"
 
-struct ToonCommonParameter
-{
-    float m_brightThresholdLow;
-    float m_brightThresholdRange;
-    float m_monochromeRate;
-};
-
-struct ToonIndividualParameter
-{
-    float4 m_fillColor;
-    float4 m_brightMulColor;
-    float4 m_darkMulColor;
-    float4 m_edgeColor;
-    int m_drawMask;
-    int m_isPlayer;
-};
-
-cbuffer cbuff0 : register(b0)
-{
-    Camera cam;
-}
-
-cbuffer cbuff1 : register(b1)
-{
-    LightInfo ligNum; //アクティブ中のライトの数の情報
-}
-
-StructuredBuffer<DirectionLight> dirLight : register(t0);
-StructuredBuffer<PointLight> pointLight : register(t1);
-StructuredBuffer<SpotLight> spotLight : register(t2);
-StructuredBuffer<HemiSphereLight> hemiSphereLight : register(t3);
-
-//CPU側と合わせる
 static const int MAX_NUM = 1024;
 cbuffer cbuff2 : register(b2)
 {
     matrix world[MAX_NUM];
-}
-
-cbuffer cbuff3 : register(b3)
-{
-    matrix bones[256]; //ボーン行列
-}
-
-Texture2D<float4> baseTex : register(t4);
-SamplerState smp : register(s0);
-
-cbuffer cbuff3 : register(b4)
-{
-    Material material;
-}
-
-cbuffer cbuff4 : register(b5)
-{
-    ToonCommonParameter toonCommonParam;
-}
-
-cbuffer cbuff5 : register(b6)
-{
-    ToonIndividualParameter toonIndividualParam;
-}
-
-cbuffer cbuff7 : register(b7)
-{
-    float3 playerPos;
 }
 
 struct VSOutput
@@ -130,16 +67,6 @@ VSOutput VSmain(Vertex input, uint instanceID : SV_InstanceID)
     output.uv = input.uv;
     return output;
 }
-
-struct PSOutput
-{
-    float4 color : SV_Target0;
-    float4 emissive : SV_Target1;
-    float depth : SV_Target2;
-    float4 edgeColor : SV_Target3;
-    float4 bright : SV_Target4;
-    float4 normal : SV_Target5;
-};
 
 PSOutput PSmain(VSOutput input) : SV_TARGET
 {
@@ -269,22 +196,29 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     //塗りつぶし
     result.xyz = toonIndividualParam.m_fillColor.xyz * toonIndividualParam.m_fillColor.w + result.xyz * (1.0f - toonIndividualParam.m_fillColor.w);
     
-     //プレイヤーを光源とした場合の光の当たり具合を求める
-    float3 ligRay = input.worldpos - playerPos;
-    float bright = dot(-normalize(ligRay), input.normal);
-    //-1 ~ 1 から 0 ~ 1の範囲に収める
-    bright = (bright + 1.0f) / 2.0f;
-	//影響率は距離に比例して小さくなっていく
-    float range = 40.0f;
-    float affect = 1.0f - 1.0f / range * length(ligRay);
-	//影響力がマイナスにならないように補正をかける
-    if (affect < 0.0f)
-        affect = 0.0f;
-    bright *= affect;
-    //bright = smoothstep(0.45f, 0.47f, bright);
-    int isBright = step(0.45f, bright);
-    if (toonIndividualParam.m_isPlayer)
-        isBright = 1;
+    int isBright = 0;
+    
+    //植物を繁殖させるポイントライト
+    for (int i = 0; i < ligNum_Plant.ptLigNum; ++i)
+    {
+        if (!pointLight_Plant[i].m_active)
+            continue;
+        
+        float3 ligRay = input.worldpos - pointLight_Plant[i].m_pos;
+        float bright = dot(-normalize(ligRay), input.normal);
+        //-1 ~ 1 から 0 ~ 1の範囲に収める
+        bright = saturate(bright);
+        isBright += 1.0f - step(pointLight_Plant[i].m_influenceRange, length(ligRay) * int(bright == 0 ? pointLight_Plant[i].m_influenceRange : 1));
+        
+    }
+    //植物を繁殖させるスポットライト
+    for (int i = 0; i < ligNum_Plant.spotLigNum; ++i)
+    {
+        if (!spotLight_Plant[i].m_active)
+            continue;
+    }
+    
+    isBright = min(isBright, 1);
     result.xyz *= lerp(0.5f, 1.0f, isBright);
     
     //光が当たっていないならモノクロ化
