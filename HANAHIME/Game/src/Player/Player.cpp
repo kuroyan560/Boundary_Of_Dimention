@@ -344,7 +344,7 @@ void Player::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 				m_jumpTimer = 0;
 				m_jumpStartPos = arg_newPos;
 				m_bezierCurveControlPos = m_jumpStartPos + m_transform.GetUp() * WALL_JUMP_LENGTH;
-				m_jumpEndPos = arg_castRayArgment.m_impactPoint[minIndex].m_impactPos + arg_castRayArgment.m_impactPoint[minIndex].m_normal * m_transform.GetScale().x;
+				m_jumpEndPos = arg_castRayArgment.m_impactPoint[minIndex].m_impactPos + arg_castRayArgment.m_impactPoint[minIndex].m_normal * (m_transform.GetScale().x / 2.0f);
 				m_jumpEndPos += m_transform.GetUp() * WALL_JUMP_LENGTH;
 
 				//ジャンプしたのでタイマーを初期化
@@ -398,10 +398,6 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 	auto moveRot = XMQuaternionRotationAxis({ m_transform.GetUp().x,m_transform.GetUp().y,m_transform.GetUp().z,1.0f }, XMConvertToRadians(90.0f));
 	auto rotMoveVec = XMVector3Transform(moveVec, XMMatrixRotationQuaternion(moveRot));
 	moveVec = KuroEngine::Vec3<float>(rotMoveVec.m128_f32[0], rotMoveVec.m128_f32[1], rotMoveVec.m128_f32[2]);
-	//moveVec *= 2.0f;
-
-	a = moveMiddlePos + moveVec;
-	b = moveMiddlePos - moveVec;
 
 	//移動した距離の中間地点の左右から下にレイを伸ばした時の当たったかフラグ。
 	bool isHitMiddleRight = false;
@@ -494,19 +490,6 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 			//=================================================
 		}
-	}
-
-	if (!isHitMiddleRight) {
-		isHitA = true;
-	}
-	else {
-		isHitA = false;
-	}
-	if (!isHitMiddleLeft) {
-		isHitB = true;
-	}
-	else {
-		isHitB = false;
 	}
 
 	//左右に飛ばしたレイのどちらも当たっていなかったらそこは崖際の角を抜けているので処理を飛ばす。
@@ -867,12 +850,6 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		m_transform,
 		drawParam);
 
-
-
-	KuroEngine::DrawFunc3D::DrawLine(arg_cam, a, a - m_prevTransform.GetUp() * 3.0f, isHitA ? KuroEngine::Color(255, 0, 0, 255) : KuroEngine::Color(0, 0, 255, 255), 0.4f);
-	KuroEngine::DrawFunc3D::DrawLine(arg_cam, b, b - m_prevTransform.GetUp() * 3.0f, isHitB ? KuroEngine::Color(255, 0, 0, 255) : KuroEngine::Color(0, 0, 255, 255), 0.4f);
-
-
 	/*
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_axisModel,
@@ -1101,11 +1078,11 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 
 				//ギミックに当たっている判定
 				if (arg_rayDirID == RAY_DIR_ID::BOTTOM) {
-					//m_onGimmick = true;
+					m_onGimmick = true;
 
 					//さらにギミックに当たったトリガーだったらギミックを有効化させる。
 					if (!m_prevOnGimmick) {
-						//arg_collisionData.m_stage.lock()->Activate();
+						arg_collisionData.m_stage.lock()->Activate();
 					}
 
 				}

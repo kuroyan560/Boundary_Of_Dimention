@@ -19,13 +19,6 @@ class Stage;
 
 class Player : public KuroEngine::Debugger
 {
-
-	KuroEngine::Vec3<float> a;
-	KuroEngine::Vec3<float> b;
-	bool isHitA;
-	bool isHitB;
-
-
 	//プレイヤーのモデル
 	std::shared_ptr<KuroEngine::Model>m_model;
 	std::shared_ptr<KuroEngine::Model>m_axisModel;
