@@ -88,7 +88,12 @@ public:
 class GrowPlantLight_Spot : public GrowPlantLight
 {
 public:
-	GrowPlantLight_Spot() :GrowPlantLight(SPOT) {}
+	GrowPlantLight_Spot(float arg_influenceRange, KuroEngine::Angle arg_apertureAngle, KuroEngine::Transform* arg_parent = nullptr) :GrowPlantLight(SPOT)
+	{
+		m_apertureAngle = arg_apertureAngle;
+		m_influenceRange = arg_influenceRange;
+		SetParent(arg_parent);
+	}
 
 	//デフォルト状態（回転がない）での向き
 	KuroEngine::Vec3<float>m_defaultVec = { 0,1,0 };
