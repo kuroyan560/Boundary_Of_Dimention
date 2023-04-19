@@ -220,6 +220,8 @@ public:
 		m_flg = m_initFlg;
 	}
 	void Update(Player& arg_player)override;
+	void OnDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 
 	const bool& GetLeverFlg()const { return m_flg; }
+
 };

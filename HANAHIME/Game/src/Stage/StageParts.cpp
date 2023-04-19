@@ -2,8 +2,9 @@
 #include"ForUser/Object/Model.h"
 #include"../Graphics/BasicDraw.h"
 #include"../Player/Player.h"
-#include"../../../../src/engine/ForUser/DrawFunc/3D/DrawFunc3D.h"
+#include"ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"Switch.h"
+#include"ForUser/DrawFunc/BillBoard/DrawFuncBillBoard.h"
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
@@ -245,5 +246,19 @@ void Lever::Update(Player& arg_player)
 			break;
 		}
 	}
+}
+
+void Lever::OnDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+{
+	//デバッグ用
+#ifdef _DEBUG
+	if (m_flg)
+	{
+		KuroEngine::DrawFuncBillBoard::Box(arg_cam,
+			m_transform.GetPosWorld() + m_transform.GetUp() * 2.0f,
+			{ 3.0f,3.0f },
+			KuroEngine::Color(1.0f, 1.0f, 1.0f, 1.0f));
+	}
+#endif
 }
 
