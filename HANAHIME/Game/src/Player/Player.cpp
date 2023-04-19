@@ -718,6 +718,17 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_prevOnGimmick = false;
 	m_isDeath = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
+
+	//プレイヤーの周囲に浮かぶ壁を設定
+	for (auto& index : m_invisibleTransform) {
+
+		index.SetScale(1.0f);
+
+	}
+	m_invisibleTransform[static_cast<int>(InvisibleWall::RIGHT)].SetRotate(0,-DirectX::XM_PIDIV2,0);
+	m_invisibleTransform[static_cast<int>(InvisibleWall::LEFT)].SetRotate(0, DirectX::XM_PIDIV2, 0);
+	m_invisibleTransform[static_cast<int>(InvisibleWall::FRONT)].SetRotate(0, DirectX::XM_PI, 0);
+
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
@@ -834,6 +845,20 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//ギミックの移動を打ち消す。
 	m_gimmickVel = KuroEngine::Vec3<float>();
+
+	//プレイヤーの周囲に浮かぶ壁を設定
+	m_invisibleTransform[static_cast<int>(InvisibleWall::RIGHT)].SetRotate(DirectX::XMQuaternionMultiply(m_transform.GetRotate(), DirectX::XMQuaternionRotationAxis(m_transform.GetUp(), DirectX::XMConvertToRadians(-90))));
+	m_invisibleTransform[static_cast<int>(InvisibleWall::LEFT)].SetRotate(DirectX::XMQuaternionMultiply(m_transform.GetRotate(), DirectX::XMQuaternionRotationAxis(m_transform.GetUp(), DirectX::XMConvertToRadians(90))));
+	m_invisibleTransform[static_cast<int>(InvisibleWall::FRONT)].SetRotate(DirectX::XMQuaternionMultiply(m_transform.GetRotate(), DirectX::XMQuaternionRotationAxis(m_transform.GetUp(), DirectX::XMConvertToRadians(180))));
+	m_invisibleTransform[static_cast<int>(InvisibleWall::BEHIND)].SetRotate(DirectX::XMQuaternionMultiply(m_transform.GetRotate(), DirectX::XMQuaternionRotationAxis(m_transform.GetUp(), DirectX::XMConvertToRadians(0))));
+
+	//プレイヤーの周囲に浮かぶ壁を設定
+	const float INV_WALL_LENGTH = 4.0f;
+	m_invisibleTransform[static_cast<int>(InvisibleWall::RIGHT)].SetPos(m_transform.GetPos() + m_transform.GetRight() * INV_WALL_LENGTH);
+	m_invisibleTransform[static_cast<int>(InvisibleWall::LEFT)].SetPos(m_transform.GetPos() - m_transform.GetRight() * INV_WALL_LENGTH);
+	m_invisibleTransform[static_cast<int>(InvisibleWall::FRONT)].SetPos(m_transform.GetPos() + m_transform.GetFront() * INV_WALL_LENGTH);
+	m_invisibleTransform[static_cast<int>(InvisibleWall::BEHIND)].SetPos(m_transform.GetPos() - m_transform.GetFront() * INV_WALL_LENGTH);
+
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
@@ -854,6 +879,17 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		m_model,
 		m_transform,
 		drawParam);
+
+	//プレイヤーの周囲に浮かぶ壁を描画
+	auto ddsTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.dds");
+	for (auto& index : m_invisibleTransform) {
+
+		/*KuroEngine::DrawFunc3D::DrawNonShadingPlane(
+			ddsTex,
+			index,
+			arg_cam);*/
+
+	}
 
 	/*
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(

@@ -45,7 +45,7 @@ class Player : public KuroEngine::Debugger
 	//カメラ感度
 	float m_camSensitivity = 1.0f;
 	int m_cameraMode;
-	std::array<const float, 3> CAMERA_MODE = {-20.0f,-40.0f,-70.0f};
+	std::array<const float, 3> CAMERA_MODE = { -20.0f,-40.0f,-70.0f };
 
 	//草を生やす際の散らし量。
 	KuroEngine::Vec2<float> m_grassPosScatter = KuroEngine::Vec2<float>(2.0f, 2.0f);
@@ -104,6 +104,16 @@ class Player : public KuroEngine::Debugger
 	int m_canJumpDelayTimer;						//ジャンプができるようになるまでの引っ掛かり
 	const int CAN_JUMP_DELAY = 20;
 	const int CAN_JUMP_DELAY_FAST = 1;
+
+
+	//プレイヤーの周囲にある見えない壁
+	enum class InvisibleWall {
+		RIGHT,
+		LEFT,
+		FRONT,
+		BEHIND,
+	};
+	std::array<KuroEngine::Transform, 4> m_invisibleTransform;
 
 
 	struct HitCheckResult
@@ -198,7 +208,7 @@ private:
 		KuroEngine::Vec3<float> m_normal;
 		bool m_isActive;
 		bool m_isFastJump;	//ぶつかってから暫くしてジャンプするのではなく、すぐに飛び乗るフラグ。すぐに乗りたいオブジェクトがある場合、これをtrueにする。
-		ImpactPointData(KuroEngine::Vec3<float> arg_impactPos, KuroEngine::Vec3<float> arg_normal) : m_impactPos(arg_impactPos), m_normal(arg_normal), m_isActive(true), m_isFastJump(false){};
+		ImpactPointData(KuroEngine::Vec3<float> arg_impactPos, KuroEngine::Vec3<float> arg_normal) : m_impactPos(arg_impactPos), m_normal(arg_normal), m_isActive(true), m_isFastJump(false) {};
 	};
 
 	//CastRayに渡すデータ用構造体
