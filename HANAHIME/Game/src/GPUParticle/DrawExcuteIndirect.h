@@ -55,5 +55,8 @@ private:
 	D3D12_INDIRECT_ARGUMENT_TYPE drawType;
 
 
+	std::shared_ptr<KuroEngine::TextureBuffer>m_particleTexture;
+
+
 };
 

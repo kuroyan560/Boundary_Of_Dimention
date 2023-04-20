@@ -207,6 +207,7 @@ void GameScene::OnDraw()
 	//ステージ描画
 	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
 
+
 	Transform transform;
 	transform.SetPos({ -0.5f,0,0 });
 	DrawFunc3D::DrawNonShadingPlane(
@@ -235,6 +236,7 @@ void GameScene::OnDraw()
 	//KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 	//m_waterPaintBlend.Register(main, *nowCamera, ds);
 	//m_vignettePostEffect.Register(m_waterPaintBlend.GetResultTex());
+
 
 	if (m_title.IsStartOP())
 	{

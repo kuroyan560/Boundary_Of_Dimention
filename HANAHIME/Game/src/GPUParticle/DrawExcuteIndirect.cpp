@@ -1,7 +1,8 @@
 #include "DrawExcuteIndirect.h"
 #include"DirectX12/D3D12App.h"
 
-DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawIndexedExcuteIndirect &INIT_DATA) :initData(INIT_DATA)
+DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawIndexedExcuteIndirect &INIT_DATA) :initData(INIT_DATA),
+m_particleTexture(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/Orb.png"))
 {
 	drawType = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
 
@@ -44,7 +45,8 @@ DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawIndexedExcuteIndirect &INIT
 	m_indirectDevice = std::make_shared<KuroEngine::IndirectDevice>(KuroEngine::DRAW_INDEXED, commandSig);
 }
 
-DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawExcuteIndirect &INIT_DATA)
+DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawExcuteIndirect &INIT_DATA):
+	m_particleTexture(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/Orb.png"))
 {
 	drawType = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW;
 
@@ -82,8 +84,13 @@ DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawExcuteIndirect &INIT_DATA)
 
 void DrawExcuteIndirect::Draw(std::shared_ptr<KuroEngine::GraphicsPipeline> pipeline,const Microsoft::WRL::ComPtr<ID3D12Resource> &COUNTER_BUFFER)
 {
+	std::vector<KuroEngine::RegisterDescriptorData>descData =
+	{
+		{m_particleTexture,KuroEngine::SRV},
+	};
+
 	KuroEngine::KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(pipeline);
 	KuroEngine::KuroEngineDevice::Instance()->Graphics().ExecuteIndirectDrawIndexed(
-		initData.particleVertex, initData.particleIndex, m_indirectCmdBuffer, m_indirectDevice
+		initData.particleVertex, initData.particleIndex, m_indirectCmdBuffer, m_indirectDevice, 0, descData
 	);
 }

@@ -52,7 +52,8 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 
 	std::vector<KuroEngine::RootParam> graphicRootParam =
 	{
-		KuroEngine::RootParam(KuroEngine::UAV,"蛍パーティクルの描画情報(RWStructuredBuffer)"),
+		KuroEngine::RootParam(KuroEngine::UAV,"蛍パーティクルの描画情報(RWStructuredBuffer)")
+		,KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"パーティクルのテクスチャ")
 	};
 	std::vector<D3D12_STATIC_SAMPLER_DESC>sampler;
 	sampler.emplace_back(KuroEngine::WrappedSampler(true, false));
@@ -67,23 +68,31 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 	std::vector<KuroEngine::RenderTargetInfo>RENDER_TARGET_INFO;
 	RENDER_TARGET_INFO.emplace_back(renderTargetFormat, KuroEngine::AlphaBlendMode_Trans);
 
+
+	static std::vector<KuroEngine::InputLayoutParam>INPUT_LAYOUT =
+	{
+		KuroEngine::InputLayoutParam("POSITION",DXGI_FORMAT_R32G32B32_FLOAT),
+		KuroEngine::InputLayoutParam("TEXCOORD",DXGI_FORMAT_R32G32_FLOAT)
+	};
 	m_gPipeline = KuroEngine::D3D12App::Instance()->GenerateGraphicsPipeline
 	(
 		PIPELINE_OPTION,
 		SHADERS,
-		KuroEngine::SpriteMesh::Vertex::GetInputLayout(),
+		INPUT_LAYOUT,
 		graphicRootParam,
 		RENDER_TARGET_INFO,
 		{ KuroEngine::WrappedSampler(true, false) }
 	);
-
-	rootsignature = KuroEngine::D3D12App::Instance()->GenerateRootSignature(graphicRootParam, sampler);
 	//パイプラインの生成----------------------------------------
 
+
+
+
 	//ExcuteIndirect----------------------------------------
-	std::array<Vertex, 4>verticesArray;
+	std::array<SpriteVertex, 4>verticesArray;
 	InitVerticesPos(&verticesArray[0].pos, &verticesArray[1].pos, &verticesArray[2].pos, &verticesArray[3].pos, { 0.5f,0.5f });
-	m_particleVertex = KuroEngine::D3D12App::Instance()->GenerateVertexBuffer(sizeof(Vertex), static_cast<int>(verticesArray.size()), verticesArray.data());
+	InitUvPos(&verticesArray[0].uv, &verticesArray[1].uv, &verticesArray[2].uv, &verticesArray[3].uv);
+	m_particleVertex = KuroEngine::D3D12App::Instance()->GenerateVertexBuffer(sizeof(SpriteVertex), static_cast<int>(verticesArray.size()), verticesArray.data());
 
 	std::array<UINT, 6>result;
 	result[0] = 0;
@@ -100,15 +109,17 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 	lInitData.indexNum = m_particleIndex->m_indexNum;
 	lInitData.elementNum = particleMaxNum;
 	lInitData.updateView = m_fireFlyDrawBuffer->GetResource()->GetBuff()->GetGPUVirtualAddress();
-	lInitData.rootsignature = rootsignature;
+	lInitData.rootsignature = m_gPipeline->m_rootSignature;
 
 	std::array<D3D12_INDIRECT_ARGUMENT_DESC, 2> args{};
 	args[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_UNORDERED_ACCESS_VIEW;
 	args[0].UnorderedAccessView.RootParameterIndex = 0;
 	args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
 
-	lInitData.argument.push_back(args[0]);
-	lInitData.argument.push_back(args[1]);
+	for (int i = 0; i < args.size(); ++i)
+	{
+		lInitData.argument.push_back(args[i]);
+	}
 	excuteIndirect = std::make_unique<DrawExcuteIndirect>(lInitData);
 	//ExcuteIndirect----------------------------------------
 }

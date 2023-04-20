@@ -785,7 +785,6 @@ namespace KuroEngine
 		int	m_handle = -1;	//パイプライン識別番号
 
 		ComPtr<ID3D12PipelineState>m_pipeline;			//パイプライン
-		ComPtr<ID3D12RootSignature>m_rootSignature;	//ルートシグネチャ
 		D3D_PRIMITIVE_TOPOLOGY m_topology;
 	public:
 		GraphicsPipeline(const ComPtr<ID3D12PipelineState>& Pipeline, const ComPtr<ID3D12RootSignature>& RootSignature, const D3D_PRIMITIVE_TOPOLOGY& Topology)
@@ -794,6 +793,7 @@ namespace KuroEngine
 		void SetPipeline(const ComPtr<ID3D12GraphicsCommandList>& CmdList);
 
 		const int& GetPipelineHandle() { return m_handle; }
+		ComPtr<ID3D12RootSignature>m_rootSignature;	//ルートシグネチャ
 
 	};
 

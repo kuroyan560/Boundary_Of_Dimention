@@ -179,11 +179,11 @@ void KuroEngine::GraphicsManager::ExecuteIndirectDraw(const std::shared_ptr<Vert
 	m_gCommands.emplace_back(std::make_shared<ExcuteIndirectCommand>(CmdBuff, IndirectDevice, ArgBufferOffset, VertexBuff));
 }
 
-void KuroEngine::GraphicsManager::ExecuteIndirectDrawIndexed(const std::shared_ptr<VertexBuffer>& VertexBuff, const std::shared_ptr<IndexBuffer>& IndexBuff, const std::shared_ptr<IndirectCommandBuffer>& CmdBuff, const std::shared_ptr<IndirectDevice>& IndirectDevice, const UINT& ArgBufferOffset)
+void KuroEngine::GraphicsManager::ExecuteIndirectDrawIndexed(const std::shared_ptr<VertexBuffer>& VertexBuff, const std::shared_ptr<IndexBuffer>& IndexBuff, const std::shared_ptr<IndirectCommandBuffer>& CmdBuff, const std::shared_ptr<IndirectDevice>& IndirectDevice, const UINT& ArgBufferOffset, const std::vector<RegisterDescriptorData> &DescDatas)
 {
 	assert(CmdBuff->IndirectType() == DRAW_INDEXED);
 	assert(IndirectDevice->IndirectType() == DRAW_INDEXED);
-	m_gCommands.emplace_back(std::make_shared<ExcuteIndirectCommand>(CmdBuff, IndirectDevice, ArgBufferOffset, VertexBuff, IndexBuff));
+	m_gCommands.emplace_back(std::make_shared<ExcuteIndirectCommand>(CmdBuff, IndirectDevice, ArgBufferOffset, VertexBuff, IndexBuff, DescDatas));
 }
 
 
@@ -245,6 +245,13 @@ void KuroEngine::GraphicsManager::CopyTex::Execute(const ComPtr<ID3D12GraphicsCo
 
 void KuroEngine::GraphicsManager::ExcuteIndirectCommand::Execute(const ComPtr<ID3D12GraphicsCommandList>& CmdList)
 {
+	//ディスクリプタセット
+	for (int i = 0; i < m_registerDescDatas.size(); ++i)
+	{
+		if (!m_registerDescDatas[i].m_descData)continue;
+		m_registerDescDatas[i].SetAsGraphics(CmdList, 1);
+	}
+
 	if (auto buff = m_vertBuff.lock())buff->SetView(CmdList);
 	if (auto buff = m_idxBuff.lock())buff->SetView(CmdList);
 
