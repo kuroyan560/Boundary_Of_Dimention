@@ -52,7 +52,8 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 
 	std::vector<KuroEngine::RootParam> graphicRootParam =
 	{
-		KuroEngine::RootParam(KuroEngine::UAV,"蛍パーティクルの描画情報(RWStructuredBuffer)"),
+		KuroEngine::RootParam(KuroEngine::UAV,"蛍パーティクルの描画情報(RWStructuredBuffer)")
+		,KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"パーティクルのテクスチャ")
 	};
 	std::vector<D3D12_STATIC_SAMPLER_DESC>sampler;
 	sampler.emplace_back(KuroEngine::WrappedSampler(true, false));
@@ -76,9 +77,10 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 		RENDER_TARGET_INFO,
 		{ KuroEngine::WrappedSampler(true, false) }
 	);
-
-	rootsignature = KuroEngine::D3D12App::Instance()->GenerateRootSignature(graphicRootParam, sampler);
 	//パイプラインの生成----------------------------------------
+
+
+
 
 	//ExcuteIndirect----------------------------------------
 	std::array<Vertex, 4>verticesArray;
@@ -100,15 +102,17 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 	lInitData.indexNum = m_particleIndex->m_indexNum;
 	lInitData.elementNum = particleMaxNum;
 	lInitData.updateView = m_fireFlyDrawBuffer->GetResource()->GetBuff()->GetGPUVirtualAddress();
-	lInitData.rootsignature = rootsignature;
+	lInitData.rootsignature = m_gPipeline->m_rootSignature;
 
 	std::array<D3D12_INDIRECT_ARGUMENT_DESC, 2> args{};
 	args[0].Type = D3D12_INDIRECT_ARGUMENT_TYPE_UNORDERED_ACCESS_VIEW;
 	args[0].UnorderedAccessView.RootParameterIndex = 0;
 	args[1].Type = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
 
-	lInitData.argument.push_back(args[0]);
-	lInitData.argument.push_back(args[1]);
+	for (int i = 0; i < args.size(); ++i)
+	{
+		lInitData.argument.push_back(args[i]);
+	}
 	excuteIndirect = std::make_unique<DrawExcuteIndirect>(lInitData);
 	//ExcuteIndirect----------------------------------------
 }

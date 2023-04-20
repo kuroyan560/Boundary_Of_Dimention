@@ -148,11 +148,13 @@ namespace KuroEngine
 			UINT m_argBufferOffset = 0;
 			std::weak_ptr<VertexBuffer>m_vertBuff;
 			std::weak_ptr<IndexBuffer>m_idxBuff;
+			std::vector<RegisterDescriptorData>m_registerDescDatas;
 
 		public:
 			ExcuteIndirectCommand(const std::weak_ptr<IndirectCommandBuffer>& CmdBuff, const std::weak_ptr<IndirectDevice>& IndirectDevice, const UINT& ArgBufferOffset,
-				const std::weak_ptr<VertexBuffer>& VertBuff = std::weak_ptr<VertexBuffer>(), const std::weak_ptr<IndexBuffer>& IdxBuff = std::weak_ptr<IndexBuffer>())
-				:m_cmdBuff(CmdBuff), m_indirectDevice(IndirectDevice), m_argBufferOffset(ArgBufferOffset), m_vertBuff(VertBuff), m_idxBuff(IdxBuff) {}
+				const std::weak_ptr<VertexBuffer>& VertBuff = std::weak_ptr<VertexBuffer>(), const std::weak_ptr<IndexBuffer>& IdxBuff = std::weak_ptr<IndexBuffer>(),
+				const std::vector<RegisterDescriptorData> &DescDatas = {})
+				:m_cmdBuff(CmdBuff), m_indirectDevice(IndirectDevice), m_argBufferOffset(ArgBufferOffset), m_vertBuff(VertBuff), m_idxBuff(IdxBuff),m_registerDescDatas(DescDatas) {}
 
 			void Execute(const ComPtr<ID3D12GraphicsCommandList>& CmdList)override;
 		};
@@ -225,10 +227,11 @@ namespace KuroEngine
 
 		//ExecuteIndirectコマンド積み上げ
 		void ExecuteIndirectDispatch(const std::shared_ptr<IndirectCommandBuffer>& CmdBuff, const std::shared_ptr<IndirectDevice>& IndirectDevice, const UINT& ArgBufferOffset = 0);
-		void ExecuteIndirectDraw(const std::shared_ptr<VertexBuffer>& VertexBuff,
-			const std::shared_ptr<IndirectCommandBuffer>& CmdBuff, const std::shared_ptr<IndirectDevice>& IndirectDevice, const UINT& ArgBufferOffset = 0);
+		void ExecuteIndirectDraw(const std::shared_ptr<VertexBuffer> &VertexBuff,
+			const std::shared_ptr<IndirectCommandBuffer> &CmdBuff, const std::shared_ptr<IndirectDevice> &IndirectDevice, const UINT &ArgBufferOffset = 0);
 		void ExecuteIndirectDrawIndexed(const std::shared_ptr<VertexBuffer>& VertexBuff, const std::shared_ptr<IndexBuffer>& IndexBuff,
-			const std::shared_ptr<IndirectCommandBuffer>& CmdBuff, const std::shared_ptr<IndirectDevice>& IndirectDevice, const UINT& ArgBufferOffset = 0);
+			const std::shared_ptr<IndirectCommandBuffer>& CmdBuff, const std::shared_ptr<IndirectDevice>& IndirectDevice, const UINT& ArgBufferOffset = 0,
+			const std::vector<RegisterDescriptorData> &DescDatas = {});
 
 		//コマンドリスト全実行
 		void CommandsExcute(const Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>& CmdList);
