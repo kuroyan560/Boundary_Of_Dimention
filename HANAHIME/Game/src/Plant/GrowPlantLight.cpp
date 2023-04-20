@@ -9,8 +9,11 @@ bool GrowPlantLight_Point::HitCheckWithBox(KuroEngine::Vec3<float> arg_center, K
 	//当たり判定の対象との距離
 	float distance = KuroEngine::Vec3<float>(arg_center - worldPos).Length();
 
+	//見た目で少し分かりづらかったので、条件を少し厳しく
+	static const float RADIUS_OFFSET = 2.0f;
+
 	//衝突判定をおこなう。
-	return distance <= arg_size.Length() + m_influenceRange;
+	return distance <= arg_size.Length() + (m_influenceRange - RADIUS_OFFSET);
 
 }
 
@@ -22,8 +25,11 @@ bool GrowPlantLight_Spot::HitCheckWithBox(KuroEngine::Vec3<float> arg_center, Ku
 	//当たり判定の対象との距離
 	float distance = KuroEngine::Vec3<float>(arg_center - worldPos).Length();
 
+	//見た目で少し分かりづらかったので、条件を少し厳しく
+	static const float RADIUS_OFFSET = 2.0f;
+
 	//衝突判定をおこなう。
-	bool isHit = distance <= arg_size.Length() + m_influenceRange;
+	bool isHit = distance <= arg_size.Length() + (m_influenceRange - RADIUS_OFFSET);
 
 	//当たっていなかったら処理を飛ばす。
 	if (!isHit) return false;
