@@ -68,11 +68,17 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 	std::vector<KuroEngine::RenderTargetInfo>RENDER_TARGET_INFO;
 	RENDER_TARGET_INFO.emplace_back(renderTargetFormat, KuroEngine::AlphaBlendMode_Trans);
 
+
+	static std::vector<KuroEngine::InputLayoutParam>INPUT_LAYOUT =
+	{
+		KuroEngine::InputLayoutParam("POSITION",DXGI_FORMAT_R32G32B32_FLOAT),
+		KuroEngine::InputLayoutParam("TEXCOORD",DXGI_FORMAT_R32G32_FLOAT)
+	};
 	m_gPipeline = KuroEngine::D3D12App::Instance()->GenerateGraphicsPipeline
 	(
 		PIPELINE_OPTION,
 		SHADERS,
-		KuroEngine::SpriteMesh::Vertex::GetInputLayout(),
+		INPUT_LAYOUT,
 		graphicRootParam,
 		RENDER_TARGET_INFO,
 		{ KuroEngine::WrappedSampler(true, false) }
@@ -83,9 +89,10 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 
 
 	//ExcuteIndirect----------------------------------------
-	std::array<Vertex, 4>verticesArray;
+	std::array<SpriteVertex, 4>verticesArray;
 	InitVerticesPos(&verticesArray[0].pos, &verticesArray[1].pos, &verticesArray[2].pos, &verticesArray[3].pos, { 0.5f,0.5f });
-	m_particleVertex = KuroEngine::D3D12App::Instance()->GenerateVertexBuffer(sizeof(Vertex), static_cast<int>(verticesArray.size()), verticesArray.data());
+	InitUvPos(&verticesArray[0].uv, &verticesArray[1].uv, &verticesArray[2].uv, &verticesArray[3].uv);
+	m_particleVertex = KuroEngine::D3D12App::Instance()->GenerateVertexBuffer(sizeof(SpriteVertex), static_cast<int>(verticesArray.size()), verticesArray.data());
 
 	std::array<UINT, 6>result;
 	result[0] = 0;

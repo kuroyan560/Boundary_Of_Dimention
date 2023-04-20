@@ -226,7 +226,7 @@ void GameScene::OnDraw()
 	//m_waterPaintBlend.Register(main, *nowCamera, ds);
 	//m_vignettePostEffect.Register(m_waterPaintBlend.GetResultTex());
 
-	if (m_title.IsStartOP())
+	//if (m_title.IsStartOP())
 	{
 		m_particleRender.Draw(*m_nowCam);
 	}

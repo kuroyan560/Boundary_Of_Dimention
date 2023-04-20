@@ -2,7 +2,7 @@
 #include"DirectX12/D3D12App.h"
 
 DrawExcuteIndirect::DrawExcuteIndirect(const InitDrawIndexedExcuteIndirect &INIT_DATA) :initData(INIT_DATA),
-m_particleTexture(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/Orb.png"))
+m_particleTexture(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png"))
 {
 	drawType = D3D12_INDIRECT_ARGUMENT_TYPE_DRAW_INDEXED;
 

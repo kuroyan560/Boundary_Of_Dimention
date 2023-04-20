@@ -47,10 +47,10 @@ private:
 	std::shared_ptr<KuroEngine::GraphicsPipeline> m_gPipeline;
 	Microsoft::WRL::ComPtr<ID3D12RootSignature>rootsignature;
 
-	struct Vertex
+	struct SpriteVertex
 	{
 		DirectX::XMFLOAT3 pos;
-		DirectX::XMFLOAT4 color;
+		DirectX::XMFLOAT2 uv;
 	};
 	std::shared_ptr<KuroEngine::VertexBuffer> m_particleVertex;
 	std::shared_ptr<KuroEngine::IndexBuffer> m_particleIndex;
@@ -89,5 +89,13 @@ private:
 		*RIGHTUP_POS = { (1.0f - ANCHOR_POINT.x), (0.0f - ANCHOR_POINT.y) ,0.0f };
 		*RIGHTDOWN_POS = { (1.0f - ANCHOR_POINT.x), (1.0f - ANCHOR_POINT.y) ,0.0f };
 	}
+	void InitUvPos(DirectX::XMFLOAT2 *UV_LEFTUP_POS, DirectX::XMFLOAT2 *UV_LEFTDOWN_POS, DirectX::XMFLOAT2 *UV_RIGHTUP_POS, DirectX::XMFLOAT2 *UV_RIGHTDOWN_POS)
+	{
+		*UV_LEFTUP_POS = { 0.0f,0.0f };
+		*UV_LEFTDOWN_POS = { 0.0f,1.0f };
+		*UV_RIGHTUP_POS = { 1.0f,0.0f };
+		*UV_RIGHTDOWN_POS = { 1.0f,1.0f };
+	}
+
 };
 
