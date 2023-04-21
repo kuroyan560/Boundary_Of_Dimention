@@ -657,7 +657,6 @@
     <ClInclude Include="..\..\src\engine\ForUser\PostEffect\DOF.h">
       <Filter>src\engine\ForUser\PostEffect</Filter>
     </ClInclude>
-    <ClInclude Include="src\Stage\Grass.h" />
     <ClInclude Include="src\Stage\Stage.h" />
     <ClInclude Include="src\Stage\StageManager.h" />
     <ClInclude Include="..\..\src\engine\ForUser\PostEffect\Fog.h">
@@ -714,6 +713,9 @@
     </ClInclude>
     <ClInclude Include="src\Stage\Switch.h">
       <Filter>src\user\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\Grass.h">
+      <Filter>src\user\Plant</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
