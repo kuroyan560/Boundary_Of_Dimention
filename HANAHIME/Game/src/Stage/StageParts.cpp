@@ -297,6 +297,21 @@ void IvyZipLine::CheckHit(bool arg_isHitStartPos) {
 	m_isActive = true;
 	m_isReadyPlayer = false;
 
+	//ジップライン移動に必要な変数を準備
+	if (arg_isHitStartPos) {
+		m_nowTranslationIndex = 0;
+		m_nextTranslationIndex = 1;
+		m_moveLength = (m_translationArray[1] - m_translationArray.front()).Length();
+		m_moveDir = (m_translationArray[1] - m_translationArray.front()).GetNormal();
+	}
+	else {
+		m_nowTranslationIndex = m_maxTranslation;
+		m_nextTranslationIndex = m_maxTranslation - 1;
+		m_moveLength = (m_translationArray[m_maxTranslation - 1] - m_translationArray.back()).Length();
+		m_moveDir = (m_translationArray[m_maxTranslation - 1] - m_translationArray.back()).GetNormal();
+	}
+	m_nowMoveLength = 0;
+
 }
 
 KuroEngine::Vec3<float> IvyZipLine::GetPoint(bool arg_isEaseStart) {
@@ -320,6 +335,83 @@ KuroEngine::Vec3<float> IvyZipLine::GetPoint(bool arg_isEaseStart) {
 
 void IvyZipLine::Update(Player& arg_player)
 {
+
+	//ジップラインが有効化されている かつ プレイヤーの移動準備が出来ていたらプレイヤーを動かす。
+	if (!m_isActive) return;
+	if (!m_isReadyPlayer) return;
+
+	//移動した量を保存。
+	m_nowMoveLength += ZIPLINE_SPEED;
+
+	//移動した量が規定値を超えていたら、終わった判定。
+	float moveSpeed = ZIPLINE_SPEED;
+	bool isFinish = false;
+	if (m_moveLength < m_nowMoveLength) {
+
+		isFinish = true;
+
+		//オーバーした分だけ動かす。
+		moveSpeed = m_moveLength - m_nowMoveLength;
+
+	}
+
+	//次の地点へ向かって動かす。
+	arg_player.GetTransform().SetPos(arg_player.GetTransform().GetPos() + m_moveDir * moveSpeed);
+
+	//プレイヤーも動かす。
+	if (arg_player.GetOnGimmick()) {
+		arg_player.SetGimmickVel(m_moveDir * moveSpeed);
+	}
+
+	//プレイヤーがジャンプ中だったら、ジャンプ地点も動かす。
+	if (arg_player.GetIsJump()) {
+		arg_player.SetJumpEndPos(arg_player.GetJumpEndPos() + m_moveDir * moveSpeed);
+	}
+
+	//いろいろと初期化して次向かう方向を決める。
+	if (isFinish) {
+
+		//正の方向に進むフラグだったら
+		if (m_isHitStartPos) {
+
+			//次のIndexへ
+			m_nowTranslationIndex = m_nextTranslationIndex;
+			++m_nextTranslationIndex;
+			if (m_maxTranslation < m_nextTranslationIndex) {
+
+				//終わっていたら
+				m_nextTranslationIndex = m_maxTranslation;
+				m_isActive = false;
+				arg_player.FinishGimmickMove();
+
+			}
+
+		}
+		//負の方向に進むフラグだったら
+		else {
+
+			//次のIndexへ
+			m_nowTranslationIndex = m_nextTranslationIndex;
+			--m_nextTranslationIndex;
+			if (m_nextTranslationIndex < 0) {
+
+				//終わっていたら
+				m_nextTranslationIndex = 0;
+				m_isActive = false;
+				arg_player.FinishGimmickMove();
+
+			}
+
+		}
+
+		//移動する方向と量を求める。
+		m_moveDir = KuroEngine::Vec3<float>(m_translationArray[m_nextTranslationIndex] - m_translationArray[m_nowTranslationIndex]).GetNormal();
+		m_moveLength = KuroEngine::Vec3<float>(m_translationArray[m_nextTranslationIndex] - m_translationArray[m_nowTranslationIndex]).Length();
+		m_nowMoveLength = 0;
+
+
+	}
+
 }
 
 void IvyBlock::Update(Player& arg_player)

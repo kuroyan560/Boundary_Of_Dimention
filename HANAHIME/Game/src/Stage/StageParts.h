@@ -254,6 +254,7 @@ public:
 
 	//蔦に乗ることができる範囲
 	const float JUMP_SCALE = 2.0f;
+	const float ZIPLINE_SPEED = 1.0f;
 
 public:
 	IvyZipLine(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>arg_translationArray)
@@ -273,6 +274,13 @@ public:
 		m_translationArray.emplace_back(m_translationArray.back());
 		m_translationArray.back().x -= 10.0f;
 		m_translationArray.back().y += 6.0f;
+
+		//ジップライン移動に必要な変数を初期化
+		m_maxTranslation = static_cast<int>(m_translationArray.size()) - 1;
+		m_nowTranslationIndex = 0;
+		m_nextTranslationIndex = 0;
+		m_moveLength = 0;
+		m_nowMoveLength = 0;
 
 		m_isActive = false;
 		m_isReadyPlayer = false;

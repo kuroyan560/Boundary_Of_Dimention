@@ -124,6 +124,7 @@ class Player : public KuroEngine::Debugger
 	int m_ziplineMoveTimer;							//ジップラインに入ったり出たりするときに使うタイマー
 	KuroEngine::Vec3<float> m_zipInOutPos;			//ジップラインに出たり入ったりするときの場所。イージングに使用する。
 	std::weak_ptr<IvyZipLine> m_refZipline;
+	bool m_canZip;
 
 	struct HitCheckResult
 	{
@@ -168,6 +169,9 @@ public:
 
 	//死亡フラグを取得。
 	bool GetIsDeath() { return m_isDeath; }
+
+	//ギミックによる移動を終わらせる。
+	void FinishGimmickMove();
 
 private:
 	//レイとメッシュの当たり判定出力用構造体
