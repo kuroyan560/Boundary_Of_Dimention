@@ -18,7 +18,12 @@ bool Stage::CheckJsonKeyExist(std::string arg_fileName, nlohmann::json arg_json,
 	return exist;
 }
 
-bool Stage::LoadMoveScaffold(std::string arg_fileName, std::shared_ptr<StageParts>* arg_result, nlohmann::json arg_json, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
+KuroEngine::Vec3<float> Stage::GetConsiderCoordinate(nlohmann::json arg_json)
+{
+	return KuroEngine::Vec3<float>(-(float)arg_json[0], (float)arg_json[2], -(float)arg_json[1]);
+}
+
+bool Stage::LoadTranslationArray(std::string arg_fileName, std::vector<KuroEngine::Vec3<float>>* arg_result, nlohmann::json arg_json)
 {
 	using namespace KuroEngine;
 
@@ -34,13 +39,13 @@ bool Stage::LoadMoveScaffold(std::string arg_fileName, std::shared_ptr<StagePart
 	{
 		translationArray.emplace_back();
 		//平行移動
-		translationArray.back() = { -(float)jsonArray[key][0],(float)jsonArray[key][2],-(float)jsonArray[key][1] };
+		translationArray.back() = GetConsiderCoordinate(jsonArray[key]);
 		translationArray.back() *= m_terrianScaling;
 
 		key = "translation_" + std::to_string(++idx);
 	}
 
-	*arg_result = std::make_shared<MoveScaffold>(arg_model, arg_initTransform, translationArray);
+	*arg_result = translationArray;
 
 	return true;
 }
@@ -59,7 +64,7 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 	auto transformObj = obj["transform"];
 
 	//平行移動
-	Vec3<float>translation = { -(float)transformObj["translation"][0],(float)transformObj["translation"][2],-(float)transformObj["translation"][1] };
+	Vec3<float>translation = GetConsiderCoordinate(transformObj["translation"]);
 
 	//回転
 	XMVECTOR quaternion = { (float)transformObj["rotation"][0],(float)transformObj["rotation"][2], -(float)transformObj["rotation"][1],(float)transformObj["rotation"][3] };
@@ -107,10 +112,10 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 	//動く足場
 	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::MOVE_SCAFFOLD))
 	{
-		std::shared_ptr<StageParts>gimmick;
-		if (LoadMoveScaffold(arg_fileName, &gimmick, obj, model, transform))
+		std::vector<KuroEngine::Vec3<float>>translationArray;
+		if (LoadTranslationArray(arg_fileName, &translationArray, obj))
 		{
-			m_gimmickArray.emplace_back(gimmick);
+			m_gimmickArray.emplace_back(std::make_shared<MoveScaffold>(model, transform, translationArray));
 		}
 	}
 	//レバー
@@ -120,6 +125,30 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 		if (!CheckJsonKeyExist(arg_fileName, arg_json, "id") || !CheckJsonKeyExist(arg_fileName, arg_json, "initFlg"))return;
 
 		m_gimmickArray.emplace_back(std::make_shared<Lever>(model, transform, arg_json["id"], arg_json["initFlg"]));
+	}
+	//ジップライン蔓
+	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::IVY_ZIP_LINE))
+	{
+		std::vector<KuroEngine::Vec3<float>>translationArray;
+		if (LoadTranslationArray(arg_fileName, &translationArray, obj))
+		{
+			m_gimmickArray.emplace_back(std::make_shared<IvyZipLine>(model, transform, translationArray));
+		}
+	}
+	//蔓ブロック
+	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::IVY_BLOCK))
+	{
+		//必要なパラメータがない
+		if (!CheckJsonKeyExist(arg_fileName, arg_json, "block"))return;
+		if (!CheckJsonKeyExist(arg_fileName, arg_json["block"], "left_top_front_pos"))return;
+		if (!CheckJsonKeyExist(arg_fileName, arg_json["block"], "right_bottom_back_pos"))return;
+
+		//左上手前
+		Vec3<float>leftTopFront = GetConsiderCoordinate(arg_json["block"]["left_top_front_pos"]);
+		//右下奥
+		Vec3<float>rightBottomBack = GetConsiderCoordinate(arg_json["block"]["right_bottom_back_pos"]);
+
+		m_gimmickArray.emplace_back(std::make_shared<IvyBlock>(model, transform, leftTopFront, rightBottomBack));
 	}
 	else
 	{

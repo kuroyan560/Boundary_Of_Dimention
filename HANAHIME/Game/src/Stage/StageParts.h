@@ -40,7 +40,7 @@ public:
 class StageParts
 {
 public:
-	enum STAGE_PARTS_TYPE { TERRIAN, START_POINT, GOAL_POINT, APPEARANCE, MOVE_SCAFFOLD, LEVER, NUM, NONE };
+	enum STAGE_PARTS_TYPE { TERRIAN, START_POINT, GOAL_POINT, APPEARANCE, MOVE_SCAFFOLD, LEVER, IVY_ZIP_LINE, IVY_BLOCK, NUM, NONE };
 	static const std::string& GetTypeKeyOnJson(STAGE_PARTS_TYPE arg_type);
 
 private:
@@ -57,7 +57,6 @@ protected:
 	KuroEngine::Transform m_transform;
 
 	virtual void OnInit() {};
-	virtual void OnDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr) {};
 
 public:
 	StageParts(STAGE_PARTS_TYPE arg_type, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
@@ -66,7 +65,7 @@ public:
 
 	void Init();
 	virtual void Update(Player& arg_player) = 0;
-	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
+	virtual void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
 
 	//地形情報種別ゲッタ
 	const STAGE_PARTS_TYPE& GetType()const { return m_type; }
@@ -163,7 +162,7 @@ public:
 	}
 
 	void OnInit()override;
-	void OnDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
+	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 
 	void Update(Player& arg_player)override;
 
@@ -228,8 +227,38 @@ public:
 		m_isOldHit = false;
 	}
 	void Update(Player& arg_player)override;
-	void OnDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
+	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 
 	const bool& GetLeverFlg()const { return m_flg; }
 
+};
+
+//ジップライン蔓
+class IvyZipLine : public StageParts
+{
+	//トランスフォームの配列（0からスタート、最後まで到達したら折り返し）
+	std::vector<KuroEngine::Vec3<float>>m_translationArray;
+
+public:
+	IvyZipLine(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>arg_translationArray)
+		:StageParts(IVY_ZIP_LINE, arg_model, arg_initTransform), m_translationArray(arg_translationArray) {}
+
+	void Update(Player& arg_player)override;
+	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
+};
+
+//蔓ブロック（消えたり出現したりするブロック）
+class IvyBlock : public StageParts
+{
+	//ブロックの左上手前座標
+	KuroEngine::Vec3<float>m_leftTopFront;
+	//ブロックの右下奥座標
+	KuroEngine::Vec3<float>m_rightBottomBack;
+
+public:
+	IvyBlock(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, KuroEngine::Vec3<float>arg_leftTopFront, KuroEngine::Vec3<float>arg_rightBottomBack)
+		:StageParts(IVY_BLOCK, arg_model, arg_initTransform), m_leftTopFront(arg_leftTopFront), m_rightBottomBack(arg_rightBottomBack) {}
+
+	void Update(Player& arg_player)override;
+	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 };

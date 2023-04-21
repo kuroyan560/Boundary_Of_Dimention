@@ -8,7 +8,7 @@
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
-	"Terrian","Start","Goal","Appearance","MoveScaffold","Lever"
+	"Terrian","Start","Goal","Appearance","MoveScaffold","Lever","Ivy","IvyBlock"
 };
 
 const std::string& StageParts::GetTypeKeyOnJson(STAGE_PARTS_TYPE arg_type)
@@ -31,8 +31,6 @@ void StageParts::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg
 		arg_ligMgr,
 		m_model.lock(),
 		m_transform);
-
-	OnDraw(arg_cam, arg_ligMgr);
 }
 
 
@@ -129,8 +127,10 @@ void MoveScaffold::OnInit()
 	m_collider.BuilCollisionMesh(m_model, m_transform);
 }
 
-void MoveScaffold::OnDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void MoveScaffold::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
+	StageParts::Draw(arg_cam, arg_ligMgr);
+
 	//移動経路がなかったら飛ばす。
 	if (m_maxTranslation < 0) return;
 
@@ -138,7 +138,6 @@ void MoveScaffold::OnDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager&
 	for (int index = 1; index <= m_maxTranslation; ++index) {
 		KuroEngine::DrawFunc3D::DrawLine(arg_cam, m_translationArray[index - 1], m_translationArray[index], KuroEngine::Color(255, 255, 255, 255), 0.1f);
 	}
-
 }
 
 void MoveScaffold::Update(Player& arg_player)
@@ -231,6 +230,22 @@ void MoveScaffold::Update(Player& arg_player)
 
 }
 
+void Lever::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+{
+	StageParts::Draw(arg_cam, arg_ligMgr);
+
+	//デバッグ用
+#ifdef _DEBUG
+	if (m_flg)
+	{
+		KuroEngine::DrawFuncBillBoard::Box(arg_cam,
+			m_transform.GetPosWorld() + m_transform.GetUp() * 2.0f,
+			{ 3.0f,3.0f },
+			KuroEngine::Color(1.0f, 1.0f, 1.0f, 1.0f));
+	}
+#endif
+}
+
 void Lever::Update(Player& arg_player)
 {
 	//スイッチの状態が固定されている
@@ -258,17 +273,18 @@ void Lever::Update(Player& arg_player)
 
 }
 
-void Lever::OnDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void IvyZipLine::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
-	//デバッグ用
-#ifdef _DEBUG
-	if (m_flg)
-	{
-		KuroEngine::DrawFuncBillBoard::Box(arg_cam,
-			m_transform.GetPosWorld() + m_transform.GetUp() * 2.0f,
-			{ 3.0f,3.0f },
-			KuroEngine::Color(1.0f, 1.0f, 1.0f, 1.0f));
-	}
-#endif
 }
 
+void IvyZipLine::Update(Player& arg_player)
+{
+}
+
+void IvyBlock::Update(Player& arg_player)
+{
+}
+
+void IvyBlock::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+{
+}
