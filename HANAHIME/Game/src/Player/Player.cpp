@@ -761,6 +761,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//トランスフォームを保存。
 	m_prevTransform = m_transform;
 
+	//ステージを保存。
+	m_stage = arg_nowStage;
+
 	//位置情報関係
 	auto beforePos = m_transform.GetPos();
 	auto newPos = beforePos;
@@ -829,6 +832,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		//当たり判定
 		CheckHit(beforePos, newPos, arg_nowStage);
 
+		m_transform.SetPos(newPos);
+
 	}
 	break;
 	case Player::PLAYER_MOVE_STATUS::JUMP:
@@ -854,6 +859,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 			m_cameraJumpLerpAmount = 0;
 		}
+		m_transform.SetPos(newPos);
 
 	}
 	break;
@@ -871,7 +877,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 
 	//座標変化適用
-	m_transform.SetPos(newPos);
 	m_ptLig.SetPos(newPos);
 
 	//カメラ操作
@@ -897,6 +902,12 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		m_transform,
 		IndividualDrawParameter::GetDefault());
 
+	auto a = m_transform.GetPosWorld();
+	for (auto& index : m_gimmickExitPos) {
+		KuroEngine::DrawFunc3D::DrawLine(arg_cam, index, index + KuroEngine::Vec3<float>(1, 1, 1), KuroEngine::Color(255, 255, 255, 255), 1.0f);
+	}
+
+
 	/*
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_axisModel,
@@ -921,6 +932,173 @@ void Player::Finalize()
 
 void Player::FinishGimmickMove()
 {
+
+	//全方向に地面用のレイを飛ばして地面判定をする。
+
+	m_gimmickExitPos.clear();
+	m_gimmickExitNormal.clear();
+
+	//押し戻し座標
+	KuroEngine::Vec3<float> pos = m_transform.GetPosWorld();
+
+	Player::CastRayArgument castRayArgument;
+
+	//レイの長さ
+	const float RAY_LENGTH = 10.0f;
+
+	//地形配列走査
+	for (auto& terrian : m_stage.lock()->GetTerrianArray())
+	{
+		//モデル情報取得
+		auto model = terrian.GetModel().lock();
+		//情報を取得。
+		castRayArgument.m_stageType = StageParts::TERRIAN;
+
+		//メッシュを走査
+		for (auto& modelMesh : model->m_meshes)
+		{
+			//メッシュ情報取得
+			auto& mesh = modelMesh.mesh;
+
+			//CastRayに渡す引数を更新。
+			castRayArgument.m_mesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+
+			//判定↓============================================
+
+			//右方向にレイを飛ばす。これは壁にくっつく用。
+			CastRay(pos, pos, m_transform.GetRight(), RAY_LENGTH, castRayArgument, RAY_ID::CHECK_IVY);
+
+			//左方向にレイを飛ばす。これは壁にくっつく用。
+			CastRay(pos, pos, -m_transform.GetRight(), RAY_LENGTH, castRayArgument, RAY_ID::CHECK_IVY);
+
+			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
+			CastRay(pos, pos, -m_transform.GetFront(), RAY_LENGTH, castRayArgument, RAY_ID::CHECK_IVY);
+
+			//正面方向にレイを飛ばす。これは壁にくっつく用。
+			CastRay(pos, pos, m_transform.GetFront(), RAY_LENGTH, castRayArgument, RAY_ID::CHECK_IVY);
+
+			//下方向にレイを飛ばす。これは壁にくっつく用。
+			CastRay(pos, pos, -m_transform.GetUp(), RAY_LENGTH, castRayArgument, RAY_ID::CHECK_IVY);
+
+			//上方向にレイを飛ばす。これは壁にくっつく用。
+			CastRay(pos, pos, m_transform.GetUp(), RAY_LENGTH, castRayArgument, RAY_ID::CHECK_IVY);
+
+			//=================================================
+		}
+	}
+
+	//動く足場との当たり判定
+	for (auto& terrian : m_stage.lock()->GetGimmickArray())
+	{
+		//動く足場でない
+		if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)continue;
+
+		//動く足場としてキャスト
+		auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
+
+		//モデル情報取得
+		auto model = terrian->GetModel();
+		//情報を取得。
+		castRayArgument.m_stageType = terrian->GetType();
+		//ステージ情報を保存。
+		castRayArgument.m_stage = terrian;
+
+		//メッシュを走査
+		for (auto& modelMesh : model.lock()->m_meshes)
+		{
+			//メッシュ情報取得
+			auto& mesh = modelMesh.mesh;
+
+			//CastRayに渡す引数を更新。
+			castRayArgument.m_mesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+
+			//判定↓============================================
+
+			//右方向にレイを飛ばす。これは壁にくっつく用。
+			CastRay(pos, pos, m_transform.GetRight(), RAY_LENGTH, castRayArgument, RAY_ID::CHECK_IVY);
+
+			//左方向にレイを飛ばす。これは壁にくっつく用。
+			CastRay(pos, pos, -m_transform.GetRight(), RAY_LENGTH, castRayArgument, RAY_ID::CHECK_IVY);
+
+			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
+			CastRay(pos, pos, -m_transform.GetFront(), RAY_LENGTH, castRayArgument, RAY_ID::CHECK_IVY);
+
+			//正面方向にレイを飛ばす。これは壁にくっつく用。
+			CastRay(pos, pos, m_transform.GetFront(), RAY_LENGTH, castRayArgument, RAY_ID::CHECK_IVY);
+
+			//下方向にレイを飛ばす。これは壁にくっつく用。
+			CastRay(pos, pos, -m_transform.GetUp(), RAY_LENGTH, castRayArgument, RAY_ID::CHECK_IVY);
+
+			//上方向にレイを飛ばす。これは壁にくっつく用。
+			CastRay(pos, pos, m_transform.GetUp(), RAY_LENGTH, castRayArgument, RAY_ID::CHECK_IVY);
+
+			//=================================================
+		}
+	}
+
+	//最短のものを検索する。
+	KuroEngine::Vec3<float> minPos = pos;
+	KuroEngine::Vec3<float> normal = {0,1,0};
+	float minLength = std::numeric_limits<float>().max();
+	for (int index = 0; index < static_cast<int>(m_gimmickExitNormal.size()); ++index) {
+		float length = KuroEngine::Vec3<float>(pos - m_gimmickExitPos[index]).Length();
+		if (length < minLength) {
+			minLength = length;
+			minPos = m_gimmickExitPos[index];
+			normal = m_gimmickExitNormal[index];
+		}
+	}
+
+	m_zipInOutPos = minPos;
+
+	//地形の法線が真下を向いているときに誤差できれいに0,-1,0になってくれないせいでうまくいかないので苦肉の策。
+	if (normal.y < -0.9f) {
+		normal = { 0,-1,0 };
+	}
+
+	//カメラを矯正する。
+	AdjustCaneraRotY(m_transform.GetUp(), normal);
+
+	//法線方向を見るクォータニオン
+	m_normalSpinQ = KuroEngine::Math::GetLookAtQuaternion({ 0,1,0 }, normal);
+
+	//カメラの回転でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。m_cameraJumpLerpAmountは補間後のカメラに向かって補間するため。
+	DirectX::XMVECTOR ySpin;
+	if (normal.y < -0.9f) {
+		ySpin = DirectX::XMQuaternionRotationNormal(normal, -(m_cameraRotY + m_cameraJumpLerpAmount) + DirectX::XM_PI);
+	}
+	else {
+		ySpin = DirectX::XMQuaternionRotationNormal(normal, m_cameraRotY + m_cameraJumpLerpAmount);
+	}
+
+	//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
+	DirectX::XMVECTOR playerYSpin;
+	playerYSpin = DirectX::XMQuaternionRotationNormal(normal, m_playerRotY);
+
+	//カメラ方向でのクォータニオンを求める。進む方向などを判断するのに使用するのはこっち。Fの一番最初にこの値を入れることでplayerYSpinの回転を打ち消す。
+	m_cameraQ = DirectX::XMQuaternionMultiply(m_normalSpinQ, ySpin);
+
+	//プレイヤーの移動方向でY軸回転させるクォータニオンをカメラのクォータニオンにかけて、プレイヤーを移動方向に向かせる。
+	m_moveQ = DirectX::XMQuaternionMultiply(m_cameraQ, playerYSpin);
+
+	//ジャンプ状態だったら
+	if (m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP) {
+
+		//ジャンプ後に回転するようにする。
+
+		//クォータニオンを保存。
+		m_jumpEndQ = m_moveQ;
+		m_jumpStartQ = m_prevTransform.GetRotate();
+		m_transform.SetRotate(m_prevTransform.GetRotate());
+
+	}
+	else {
+
+		//当たった面基準の回転にする。
+		m_transform.SetRotate(m_moveQ);
+
+	}
+
 	m_gimmickStatus = GIMMICK_STATUS::EXIT;
 }
 
@@ -1123,7 +1301,7 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 			arg_collisionData.m_bottomTerrianNormal = output.m_normal;
 
 			//押し戻す。
-			arg_charaPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
+			arg_charaPos += output.m_normal * (std::fabs(output.m_distance - m_transform.GetScale().x) - OFFSET);
 
 			//地形が動く床だったら有効化する。
 			if (arg_collisionData.m_stageType == StageParts::MOVE_SCAFFOLD) {
@@ -1152,7 +1330,7 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 			//動く床だったらめり込んでしまうので押し戻す。
 			if (arg_collisionData.m_stageType == StageParts::MOVE_SCAFFOLD) {
 
-				arg_charaPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
+				arg_charaPos += output.m_normal * (std::fabs(output.m_distance - m_transform.GetScale().x) - OFFSET);
 
 			}
 			else if (m_prevOnGimmick) {
@@ -1170,6 +1348,13 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 			break;
 
 		case Player::RAY_ID::CHECK_CLIFF:
+
+			break;
+
+		case Player::RAY_ID::CHECK_IVY:
+
+			m_gimmickExitPos.emplace_back(output.m_pos + output.m_normal * 0.5f);
+			m_gimmickExitNormal.emplace_back(output.m_normal);
 
 			break;
 
@@ -1487,7 +1672,7 @@ void Player::UpdateZipline() {
 		float scaleEaseRate = KuroEngine::Math::Ease(KuroEngine::EASE_CHANGE_TYPE::In, KuroEngine::EASING_TYPE::Back, timerRate, 0.0f, 1.0f);
 
 		//小さくする。
-		//m_transform.SetScale(1.0f - scaleEaseRate);
+		m_transform.SetScale(1.0f - scaleEaseRate);
 
 		if (ZIP_LINE_MOVE_TIMER_START <= m_ziplineMoveTimer) {
 
@@ -1518,13 +1703,13 @@ void Player::UpdateZipline() {
 		float timerRate = static_cast<float>(m_ziplineMoveTimer) / static_cast<float>(ZIP_LINE_MOVE_TIMER_END);
 
 		//移動量のイージング
-		float moveEaseRate = KuroEngine::Math::Ease(KuroEngine::EASE_CHANGE_TYPE::In, KuroEngine::EASING_TYPE::Circ, timerRate, 0.0f, 1.0f);
+		float moveEaseRate = KuroEngine::Math::Ease(KuroEngine::EASE_CHANGE_TYPE::Out, KuroEngine::EASING_TYPE::Circ, timerRate, 0.0f, 1.0f);
 
 		//移動させる。
-		m_transform.SetPos(m_zipInOutPos + (m_refZipline.lock()->GetPoint(true) - m_zipInOutPos) * moveEaseRate);
+		m_transform.SetPos(m_refZipline.lock()->GetPoint(false) + (m_zipInOutPos - m_refZipline.lock()->GetPoint(false)) * moveEaseRate);
 
 		//スケールのイージング
-		float scaleEaseRate = KuroEngine::Math::Ease(KuroEngine::EASE_CHANGE_TYPE::In, KuroEngine::EASING_TYPE::Back, timerRate, 0.0f, 1.0f);
+		float scaleEaseRate = KuroEngine::Math::Ease(KuroEngine::EASE_CHANGE_TYPE::Out, KuroEngine::EASING_TYPE::Back, timerRate, 0.0f, 1.0f);
 
 		//小さくする。
 		m_transform.SetScale(scaleEaseRate);

@@ -20,6 +20,7 @@ class Stage;
 
 class Player : public KuroEngine::Debugger
 {
+
 	//プレイヤーのモデル
 	std::shared_ptr<KuroEngine::Model>m_model;
 	std::shared_ptr<KuroEngine::Model>m_axisModel;
@@ -51,6 +52,9 @@ class Player : public KuroEngine::Debugger
 
 	//植物を繁殖させる点光源
 	GrowPlantLight_Point m_growPlantPtLig;
+
+	//ステージの参照
+	std::weak_ptr<Stage> m_stage;
 
 	//草を生やす際の散らし量。
 	KuroEngine::Vec2<float> m_grassPosScatter = KuroEngine::Vec2<float>(2.0f, 2.0f);
@@ -125,6 +129,8 @@ class Player : public KuroEngine::Debugger
 	KuroEngine::Vec3<float> m_zipInOutPos;			//ジップラインに出たり入ったりするときの場所。イージングに使用する。
 	std::weak_ptr<IvyZipLine> m_refZipline;
 	bool m_canZip;
+	std::vector<KuroEngine::Vec3<float>> m_gimmickExitPos;
+	std::vector<KuroEngine::Vec3<float>> m_gimmickExitNormal;
 
 	struct HitCheckResult
 	{
@@ -170,6 +176,10 @@ public:
 	//死亡フラグを取得。
 	bool GetIsDeath() { return m_isDeath; }
 
+	//座標を返す系。
+	KuroEngine::Vec3<float> GetNowPos() { return m_transform.GetPosWorld(); }
+	KuroEngine::Vec3<float> GetOldPos() { return m_prevTransform.GetPosWorld(); }
+
 	//ギミックによる移動を終わらせる。
 	void FinishGimmickMove();
 
@@ -189,6 +199,7 @@ private:
 		AROUND,	//周囲に向かって飛ばすレイ。壁のぼり判定で使用する。
 		CHECK_DEATH,	//死亡確認用
 		CHECK_CLIFF,	//崖チェック用
+		CHECK_IVY,
 
 	};
 	//レイの方向ID

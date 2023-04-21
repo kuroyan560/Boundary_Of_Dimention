@@ -409,7 +409,6 @@ void IvyZipLine::Update(Player& arg_player)
 		m_moveLength = KuroEngine::Vec3<float>(m_translationArray[m_nextTranslationIndex] - m_translationArray[m_nowTranslationIndex]).Length();
 		m_nowMoveLength = 0;
 
-
 	}
 
 }

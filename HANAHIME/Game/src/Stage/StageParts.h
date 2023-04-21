@@ -272,8 +272,8 @@ public:
 
 		//ジップラインを追加
 		m_translationArray.emplace_back(m_translationArray.back());
-		m_translationArray.back().x -= 10.0f;
-		m_translationArray.back().y += 6.0f;
+		m_translationArray.back().x -= 6.0f;
+		m_translationArray.back().y += 2.0f;
 
 		//ジップライン移動に必要な変数を初期化
 		m_maxTranslation = static_cast<int>(m_translationArray.size()) - 1;
