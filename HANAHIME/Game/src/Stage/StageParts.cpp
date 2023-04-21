@@ -275,6 +275,47 @@ void Lever::Update(Player& arg_player)
 
 void IvyZipLine::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
+
+	//’Ó‚ð•`‰æ
+	const int INDEX = static_cast<int>(m_translationArray.size());
+	for (int index = 0; index < INDEX - 1; ++index) {
+
+		KuroEngine::DrawFunc3D::DrawLine(arg_cam, m_translationArray[index], m_translationArray[index + 1], KuroEngine::Color(0.35f, 0.91f, 0.55f, 1.0f), 1.0f);
+
+	}
+
+	for (auto index : m_translationArray) {
+		KuroEngine::DrawFunc3D::DrawLine(arg_cam, index, index + KuroEngine::Vec3<float>(1.0f, 1.0f, 1.0f), KuroEngine::Color(0.35f, 0.91f, 0.55f, 1.0f), JUMP_SCALE);
+	}
+
+}
+
+void IvyZipLine::CheckHit(bool arg_isHitStartPos) {
+
+
+	m_isHitStartPos = arg_isHitStartPos;
+	m_isActive = true;
+	m_isReadyPlayer = false;
+
+}
+
+KuroEngine::Vec3<float> IvyZipLine::GetPoint(bool arg_isEaseStart) {
+	if (arg_isEaseStart) {
+		if (m_isHitStartPos) {
+			return m_translationArray.front();
+		}
+		else {
+			return m_translationArray.back();
+		}
+	}
+	else {
+		if (m_isHitStartPos) {
+			return m_translationArray.back();
+		}
+		else {
+			return m_translationArray.front();
+		}
+	}
 }
 
 void IvyZipLine::Update(Player& arg_player)

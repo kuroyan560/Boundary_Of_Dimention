@@ -89,6 +89,9 @@ bool Player::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngi
 	//周囲の壁との当たり判定
 	CheckHitAround(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
 
+	//ジップラインとの当たり判定
+	CheckZipline(arg_newPos, arg_nowStage);
+
 	//死んだか(挟まっているか)どうかを判定
 	CheckDeath(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
 
@@ -727,6 +730,7 @@ Player::Player()
 
 void Player::Init(KuroEngine::Transform arg_initTransform)
 {
+	m_initTransform = arg_initTransform;
 	m_transform = arg_initTransform;
 	m_camController.Init();
 	m_cameraRotY = 0;
@@ -745,7 +749,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_prevOnGimmick = false;
 	m_isDeath = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
-	
+
 	m_growPlantPtLig.Register();
 }
 
@@ -846,6 +850,14 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 			m_cameraJumpLerpAmount = 0;
 		}
+
+	}
+	break;
+	case PLAYER_MOVE_STATUS::ZIP:
+	{
+
+		//ジップラインの更新処理
+		UpdateZipline();
 
 	}
 	break;
@@ -1395,6 +1407,102 @@ void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const Ku
 
 		}
 
+	}
+
+}
+
+void Player::CheckZipline(const KuroEngine::Vec3<float> arg_newPos, std::weak_ptr<Stage> arg_nowStage) {
+
+	//ジップラインとの当たり判定
+	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
+	{
+		//ジップラインではない
+		if (terrian->GetType() != StageParts::IVY_ZIP_LINE)continue;
+
+		//ジップラインとしてキャスト
+		auto zipline = dynamic_pointer_cast<IvyZipLine>(terrian);
+
+		//ジップラインに登録されている頂点が1個以下だったら処理を飛ばす。
+		if (static_cast<int>(zipline->GetTranslationArraySize() <= 1)) continue;
+
+		//判定↓============================================
+
+		//始点との当たり判定
+		bool isHit = KuroEngine::Vec3<float>(zipline->GetStartPoint() - arg_newPos).Length() <= (m_transform.GetScale().x + zipline->JUMP_SCALE);
+		if (isHit) {
+			m_gimmickStatus = GIMMICK_STATUS::APPEAR;
+			m_playerMoveStatus = PLAYER_MOVE_STATUS::ZIP;
+			m_ziplineMoveTimer = 0;
+			zipline->CheckHit(true);
+			m_refZipline = zipline;
+			m_zipInOutPos = arg_newPos;
+		}
+
+		//終点との当たり判定
+		bool isHit = KuroEngine::Vec3<float>(zipline->GetEndPoint() - arg_newPos).Length() <= (m_transform.GetScale().x + zipline->JUMP_SCALE);
+		if (isHit) {
+			m_gimmickStatus = GIMMICK_STATUS::APPEAR;
+			m_playerMoveStatus = PLAYER_MOVE_STATUS::ZIP;
+			m_ziplineMoveTimer = 0;
+			zipline->CheckHit(false);
+			m_refZipline = zipline;
+			m_zipInOutPos = arg_newPos;
+		}
+
+		//=================================================
+
+	}
+
+}
+
+void Player::UpdateZipline() {
+
+	switch (m_gimmickStatus)
+	{
+	case Player::GIMMICK_STATUS::APPEAR:
+	{
+
+		//ジップラインの中に入っていくタイマーを更新
+		m_ziplineMoveTimer = std::clamp(m_ziplineMoveTimer + 1, 0, ZIP_LINE_MOVE_TIMER_START);
+
+		//イージングの量を求める。
+		float timerRate = static_cast<float>(m_ziplineMoveTimer) / static_cast<float>(ZIP_LINE_MOVE_TIMER_START);
+
+		//移動量のイージング
+		float moveEaseRate = KuroEngine::Math::Ease(KuroEngine::EASE_CHANGE_TYPE::In, KuroEngine::EASING_TYPE::Circ, timerRate, 0.0f, 1.0f);
+
+		//移動させる。
+		m_transform.SetPos(m_zipInOutPos + (m_refZipline.lock()->GetPoint(true) - m_zipInOutPos) * moveEaseRate);
+
+		//スケールのイージング
+		float scaleEaseRate = KuroEngine::Math::Ease(KuroEngine::EASE_CHANGE_TYPE::In, KuroEngine::EASING_TYPE::Back, timerRate, 0.0f, 1.0f);
+
+		//小さくする。
+		m_transform.SetScale(1.0f - moveEaseRate);
+
+		if (ZIP_LINE_MOVE_TIMER_START <= m_ziplineMoveTimer) {
+
+			//ジップラインを動かす。
+			m_refZipline.lock()->CanMovePlayer();
+
+			//NORMALにしてプレイヤーは何もしないようにする。
+			m_gimmickStatus = GIMMICK_STATUS::NORMAL;
+
+			m_ziplineMoveTimer = 0;
+
+		}
+
+	}
+	break;
+	case Player::GIMMICK_STATUS::NORMAL:
+	{
+
+	}
+	break;
+	case Player::GIMMICK_STATUS::EXIT:
+		break;
+	default:
+		break;
 	}
 
 }

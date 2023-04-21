@@ -239,12 +239,66 @@ class IvyZipLine : public StageParts
 	//トランスフォームの配列（0からスタート、最後まで到達したら折り返し）
 	std::vector<KuroEngine::Vec3<float>>m_translationArray;
 
+	bool m_isActive;
+	bool m_isHitStartPos;
+	bool m_isReadyPlayer;	//プレイヤー側で動かす準備ができたか。
+
+	int m_maxTranslation;		//移動する地点 - 1の数
+	int m_nowTranslationIndex;	//現在の移動する地点のIndex
+	int m_nextTranslationIndex;	//次の移動する地点のIndex
+	float m_moveLength;			//次の地点まで移動する量
+	float m_nowMoveLength;		//移動している現在量
+	KuroEngine::Vec3<float> m_moveDir;	//移動方向
+
+public:
+
+	//蔦に乗ることができる範囲
+	const float JUMP_SCALE = 2.0f;
+
 public:
 	IvyZipLine(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>arg_translationArray)
-		:StageParts(IVY_ZIP_LINE, arg_model, arg_initTransform), m_translationArray(arg_translationArray) {}
+		:StageParts(IVY_ZIP_LINE, arg_model, arg_initTransform), m_translationArray(arg_translationArray) {
+
+		//デバッグ用で先頭のジップラインのY座標を下げる。
+		m_translationArray.front().x -= 5.0f;
+		m_translationArray.front().y -= 6.0f;
+		m_translationArray.front().z += 15.0f;
+
+		//ジップラインを追加
+		m_translationArray.emplace_back(m_translationArray.back());
+		m_translationArray.back().x -= 0.0f;
+		m_translationArray.back().z += 30.0f;
+
+		//ジップラインを追加
+		m_translationArray.emplace_back(m_translationArray.back());
+		m_translationArray.back().x -= 10.0f;
+		m_translationArray.back().y += 6.0f;
+
+		m_isActive = false;
+		m_isReadyPlayer = false;
+
+	}
 
 	void Update(Player& arg_player)override;
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
+
+	//始点か終点に当たったら
+	void CheckHit(bool arg_isHitStartPos);
+
+	//ジップラインの制御点の数
+	int GetTranslationArraySize() { return static_cast<int>(m_translationArray.size()); }
+
+	//プレイヤーは動ける。
+	void CanMovePlayer() { m_isReadyPlayer = true; }
+
+	//始点と終点を取得
+	KuroEngine::Vec3<float> GetStartPoint() { return m_translationArray.front(); }
+	KuroEngine::Vec3<float> GetEndPoint() { return m_translationArray.back(); }
+
+
+	//イージングの始点と終点を取得する関数。
+	KuroEngine::Vec3<float> GetPoint(bool arg_isEaseStart);
+
 };
 
 //蔓ブロック（消えたり出現したりするブロック）
@@ -257,7 +311,8 @@ class IvyBlock : public StageParts
 
 public:
 	IvyBlock(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, KuroEngine::Vec3<float>arg_leftTopFront, KuroEngine::Vec3<float>arg_rightBottomBack)
-		:StageParts(IVY_BLOCK, arg_model, arg_initTransform), m_leftTopFront(arg_leftTopFront), m_rightBottomBack(arg_rightBottomBack) {}
+		:StageParts(IVY_BLOCK, arg_model, arg_initTransform), m_leftTopFront(arg_leftTopFront), m_rightBottomBack(arg_rightBottomBack) {
+	}
 
 	void Update(Player& arg_player)override;
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;

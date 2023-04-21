@@ -33,6 +33,7 @@ class Player : public KuroEngine::Debugger
 	//トランスフォーム
 	KuroEngine::Transform m_prevTransform;
 	KuroEngine::Transform m_transform;
+	KuroEngine::Transform m_initTransform;
 
 	//移動量
 	KuroEngine::Vec3<float> m_rowMoveVec;
@@ -46,7 +47,7 @@ class Player : public KuroEngine::Debugger
 	//カメラ感度
 	float m_camSensitivity = 1.0f;
 	int m_cameraMode;
-	std::array<const float, 3> CAMERA_MODE = {-20.0f,-40.0f,-70.0f};
+	std::array<const float, 3> CAMERA_MODE = { -20.0f,-40.0f,-70.0f };
 
 	//植物を繁殖させる点光源
 	GrowPlantLight_Point m_growPlantPtLig;
@@ -94,7 +95,15 @@ class Player : public KuroEngine::Debugger
 		NONE,
 		MOVE,	//通常移動中
 		JUMP,	//ジャンプ中(補間中)
+		ZIP,	//ジップライン移動中
 	}m_playerMoveStatus;
+
+	//ギミックにより操作不能のときのステータス
+	enum class GIMMICK_STATUS {
+		APPEAR,
+		NORMAL,
+		EXIT
+	}m_gimmickStatus;
 
 	//プレイヤーのジャンプに関する変数
 	KuroEngine::Vec3<float> m_jumpStartPos;			//ジャンプ開始位置
@@ -108,6 +117,13 @@ class Player : public KuroEngine::Debugger
 	int m_canJumpDelayTimer;						//ジャンプができるようになるまでの引っ掛かり
 	const int CAN_JUMP_DELAY = 20;
 	const int CAN_JUMP_DELAY_FAST = 1;
+
+	//ジップライン関係のステータス
+	const int ZIP_LINE_MOVE_TIMER_START = 30;
+	const int ZIP_LINE_MOVE_TIMER_END = 30;
+	int m_ziplineMoveTimer;							//ジップラインに入ったり出たりするときに使うタイマー
+	KuroEngine::Vec3<float> m_zipInOutPos;			//ジップラインに出たり入ったりするときの場所。イージングに使用する。
+	std::weak_ptr<IvyZipLine> m_refZipline;
 
 	struct HitCheckResult
 	{
@@ -201,7 +217,7 @@ private:
 		KuroEngine::Vec3<float> m_normal;
 		bool m_isActive;
 		bool m_isFastJump;	//ぶつかってから暫くしてジャンプするのではなく、すぐに飛び乗るフラグ。すぐに乗りたいオブジェクトがある場合、これをtrueにする。
-		ImpactPointData(KuroEngine::Vec3<float> arg_impactPos, KuroEngine::Vec3<float> arg_normal) : m_impactPos(arg_impactPos), m_normal(arg_normal), m_isActive(true), m_isFastJump(false){};
+		ImpactPointData(KuroEngine::Vec3<float> arg_impactPos, KuroEngine::Vec3<float> arg_normal) : m_impactPos(arg_impactPos), m_normal(arg_normal), m_isActive(true), m_isFastJump(false) {};
 	};
 
 	//CastRayに渡すデータ用構造体
@@ -243,6 +259,12 @@ private:
 	void CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo, Player::CastRayArgument& arg_castRayArgment);
 	void CheckCliff(Player::ImpactPointData& arg_impactPointData, std::weak_ptr<Stage> arg_nowStage);
 	void CheckCanJump(Player::ImpactPointData& arg_impactPointData, std::weak_ptr<Stage> arg_nowStage);
+
+	//ジップラインとの当たり判定
+	void CheckZipline(const KuroEngine::Vec3<float> arg_newPos, std::weak_ptr<Stage> arg_nowStage);
+
+	//ジップライン中の更新処理
+	void UpdateZipline();
 
 };
 
