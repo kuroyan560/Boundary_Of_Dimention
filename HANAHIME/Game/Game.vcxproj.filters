@@ -80,6 +80,9 @@
     <Filter Include="src\user\GPUParticle">
       <UniqueIdentifier>{3075240e-ae8f-4db1-b327-d4914c69f95b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\user\Plant">
+      <UniqueIdentifier>{82bf12bc-8867-4a74-a749-95983f70da95}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\KuroEngineDevice.cpp">
@@ -301,9 +304,6 @@
     <ClCompile Include="src\Graphics\BasicDraw.cpp">
       <Filter>src\user\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="src\Stage\Grass.cpp">
-      <Filter>src\user\Stage</Filter>
-    </ClCompile>
     <ClCompile Include="src\Graphics\CanvasPostEffect.cpp">
       <Filter>src\user\Graphics</Filter>
     </ClCompile>
@@ -318,9 +318,6 @@
     </ClCompile>
     <ClCompile Include="..\..\src\engine\ForUser\PostEffect\Fog.cpp">
       <Filter>src\engine\ForUser\PostEffect</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Stage\Gate.cpp">
-      <Filter>src\user</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp">
       <Filter>src\user</Filter>
@@ -356,6 +353,18 @@
       <Filter>src\user\Stage</Filter>
     </ClCompile>
     <ClCompile Include="src\Stage\Goal.cpp">
+      <Filter>src\user\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Stage\Grass.cpp">
+      <Filter>src\user\Plant</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Stage\Gate.cpp">
+      <Filter>src\user\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Plant\GrowPlantLight.cpp">
+      <Filter>src\user\Plant</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Stage\Switch.cpp">
       <Filter>src\user\Stage</Filter>
     </ClCompile>
   </ItemGroup>
@@ -639,9 +648,6 @@
     <ClInclude Include="src\Graphics\BasicDrawParameters.h">
       <Filter>src\user\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\Stage\Grass.h">
-      <Filter>src\user\Stage</Filter>
-    </ClInclude>
     <ClInclude Include="src\Graphics\CanvasPostEffect.h">
       <Filter>src\user\Graphics</Filter>
     </ClInclude>
@@ -659,9 +665,6 @@
     </ClInclude>
     <ClInclude Include="..\..\src\engine\ForUser\PostEffect\Fog.h">
       <Filter>src\engine\ForUser\PostEffect</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Stage\Gate.h">
-      <Filter>src\user</Filter>
     </ClInclude>
     <ClInclude Include="src\Movie\MovieCamera.h">
       <Filter>src\user\Movie</Filter>
@@ -694,8 +697,22 @@
     <ClInclude Include="src\Stage\StageParts.h">
       <Filter>src\user\Stage</Filter>
     </ClInclude>
-    <ClInclude Include="src\Stage\Goal.h" />
     <ClInclude Include="src\Stage\StageInfomation.h">
+      <Filter>src\user\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\Grass.h">
+      <Filter>src\user\Plant</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\Goal.h">
+      <Filter>src\user\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\Gate.h">
+      <Filter>src\user\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Plant\GrowPlantLight.h">
+      <Filter>src\user\Plant</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\Switch.h">
       <Filter>src\user\Stage</Filter>
     </ClInclude>
   </ItemGroup>

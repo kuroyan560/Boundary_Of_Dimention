@@ -5,6 +5,7 @@
 #include"StageParts.h"
 #include"json.hpp"
 #include<memory>
+#include<map>
 
 namespace KuroEngine
 {
@@ -13,6 +14,8 @@ namespace KuroEngine
 	class LightManager;
 	class Camera;
 }
+
+class Switch;
 
 class Stage
 {
@@ -41,6 +44,11 @@ private:
 	//地面
 	std::shared_ptr<KuroEngine::TextureBuffer>m_groundTex;
 
+	//全てをオン状態にすることがクリア条件となるレバーの識別番号
+	int m_goalLeverID = Lever::INVALID_ID;
+	//クリアのスイッチ
+	std::shared_ptr<Switch>m_goalSwitch;
+
 	//キーがjsonファイルに含まれているか、含まれていなかったらエラーで終了
 	bool CheckJsonKeyExist(std::string arg_fileName, nlohmann::json arg_json, std::string arg_key);
 
@@ -63,6 +71,9 @@ public:
 	void GimmickInit();
 
 	void GimmickUpdate(Player& arg_player);
+
+	//クリア判定
+	bool IsClear()const;
 
 	//地形の描画
 	void TerrianDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
@@ -101,6 +112,4 @@ public:
 	std::weak_ptr<KuroEngine::TextureBuffer>GetGroundTex() { return m_groundTex; }
 
 
-
-private:
 };

@@ -6,6 +6,7 @@
 #include"Render/RenderObject/ModelInfo/ModelMesh.h"
 #include"../Stage/StageParts.h"
 #include"Render/RenderObject/Light.h"
+#include"../Plant/GrowPlantLight.h"
 
 #include<memory>
 namespace KuroEngine
@@ -46,6 +47,9 @@ class Player : public KuroEngine::Debugger
 	float m_camSensitivity = 1.0f;
 	int m_cameraMode;
 	std::array<const float, 3> CAMERA_MODE = {-20.0f,-40.0f,-70.0f};
+
+	//植物を繁殖させる点光源
+	GrowPlantLight_Point m_growPlantPtLig;
 
 	//草を生やす際の散らし量。
 	KuroEngine::Vec2<float> m_grassPosScatter = KuroEngine::Vec2<float>(2.0f, 2.0f);
@@ -104,7 +108,6 @@ class Player : public KuroEngine::Debugger
 	int m_canJumpDelayTimer;						//ジャンプができるようになるまでの引っ掛かり
 	const int CAN_JUMP_DELAY = 20;
 	const int CAN_JUMP_DELAY_FAST = 1;
-
 
 	struct HitCheckResult
 	{
@@ -185,7 +188,7 @@ private:
 	/// <param name="arg_rayDir"> レイの射出方向 </param>
 	/// <param name="arg_targetMesh"> 判定を行う対象のメッシュ </param>
 	/// <returns> 当たり判定結果 </returns>
-	MeshCollisionOutput MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, std::vector<Terrian::Polygon>& arg_targetMesh);
+	MeshCollisionOutput MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, std::vector<TerrianHitPolygon>& arg_targetMesh);
 
 	/// <summary>
 	/// 重心座標を求める。
@@ -204,7 +207,7 @@ private:
 	//CastRayに渡すデータ用構造体
 	struct CastRayArgument {
 		std::weak_ptr<StageParts> m_stage;			//ステージ
-		std::vector<Terrian::Polygon> m_mesh;		//判定を行う対象のメッシュ
+		std::vector<TerrianHitPolygon> m_mesh;		//判定を行う対象のメッシュ
 		std::vector<ImpactPointData> m_impactPoint;	//前後左右のレイの当たった地点。
 		KuroEngine::Vec3<float> m_bottomTerrianNormal;
 		StageParts::STAGE_PARTS_TYPE m_stageType;

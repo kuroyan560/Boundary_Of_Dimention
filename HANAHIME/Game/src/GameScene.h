@@ -68,6 +68,8 @@ class GameScene : public KuroEngine::BaseScene
 	//ステージ外の蛍描画
 	FireFlyOutStage m_fireFlyStage;
 
+	void GameInit();
+
 	void OnInitialize()override;
 	void OnUpdate()override;
 	void OnDraw()override;

@@ -122,7 +122,7 @@ void Player::CheckDeath(const KuroEngine::Vec3<float> arg_from, KuroEngine::Vec3
 	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
 	{
 		//モデル情報取得
-		auto model = terrian.m_model.lock();
+		auto model = terrian.GetModel().lock();
 		//情報を取得。
 		arg_castRayArgment.m_stageType = StageParts::TERRIAN;
 
@@ -133,7 +133,7 @@ void Player::CheckDeath(const KuroEngine::Vec3<float> arg_from, KuroEngine::Vec3
 			auto& mesh = modelMesh.mesh;
 
 			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = terrian.m_collisionMesh[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+			arg_castRayArgment.m_mesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
 
 			//判定↓============================================
 
@@ -159,9 +159,15 @@ void Player::CheckDeath(const KuroEngine::Vec3<float> arg_from, KuroEngine::Vec3
 		}
 	}
 
-	//ギミックとの当たり判定
+	//動く足場との当たり判定
 	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
 	{
+		//動く足場でない
+		if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)continue;
+
+		//動く足場としてキャスト
+		auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
+
 		//モデル情報取得
 		auto model = terrian->GetModel();
 		//情報を取得。
@@ -176,21 +182,18 @@ void Player::CheckDeath(const KuroEngine::Vec3<float> arg_from, KuroEngine::Vec3
 			auto& mesh = modelMesh.mesh;
 
 			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = terrian->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+			arg_castRayArgment.m_mesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
 			//判定↓============================================
 
 			//移動した床がプレイヤーから離れる方向に動いていたら死亡判定を飛ばす。
-			if (terrian->GetType() == StageParts::MOVE_SCAFFOLD) {
+			float oldPosDistance = (arg_newPos - moveScaffold->GetOldPos()).Length();
+			float nowPosDistance = (arg_newPos - moveScaffold->GetNowPos()).Length();
 
-				float oldPosDistance = (arg_newPos - terrian->GetOldPos()).Length();
-				float nowPosDistance = (arg_newPos - terrian->GetNowPos()).Length();
-
-				if (oldPosDistance < nowPosDistance) {
-					continue;
-				}
-
+			if (oldPosDistance < nowPosDistance) {
+				continue;
 			}
+
 
 			//右方向にレイを飛ばす。
 			CastRay(arg_newPos, arg_newPos, m_transform.GetRight(), WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::RIGHT);
@@ -222,7 +225,7 @@ void Player::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
 	{
 		//モデル情報取得
-		auto model = terrian.m_model.lock();
+		auto model = terrian.GetModel().lock();
 		//情報を取得。
 		arg_castRayArgment.m_stageType = StageParts::TERRIAN;
 
@@ -233,7 +236,7 @@ void Player::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 			auto& mesh = modelMesh.mesh;
 
 			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = terrian.m_collisionMesh[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+			arg_castRayArgment.m_mesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
 
 			//判定↓============================================
 
@@ -253,9 +256,15 @@ void Player::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 		}
 	}
 
-	//ギミックとの当たり判定
+	//動く足場との当たり判定
 	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
 	{
+		//動く足場でない
+		if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)continue;
+
+		//動く足場としてキャスト
+		auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
+
 		//モデル情報取得
 		auto model = terrian->GetModel();
 		//情報を取得。
@@ -270,7 +279,7 @@ void Player::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 			auto& mesh = modelMesh.mesh;
 
 			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = terrian->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+			arg_castRayArgment.m_mesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
 			//判定↓============================================
 
@@ -419,7 +428,7 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
 	{
 		//モデル情報取得
-		auto model = terrian.m_model.lock();
+		auto model = terrian.GetModel().lock();
 		//情報を取得。
 		arg_castRayArgment.m_stageType = StageParts::TERRIAN;
 
@@ -430,7 +439,7 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 			auto& mesh = modelMesh.mesh;
 
 			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = terrian.m_collisionMesh[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+			arg_castRayArgment.m_mesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
 
 			//判定↓============================================
 
@@ -453,9 +462,15 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 			//=================================================
 		}
 	}
-	//ギミックとの当たり判定
+	//動く足場との当たり判定
 	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
 	{
+		//動く足場でない
+		if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)continue;
+
+		//動く足場としてキャスト
+		auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
+
 		//モデル情報取得
 		auto model = terrian->GetModel();
 		//情報を取得。
@@ -470,7 +485,7 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 			auto& mesh = modelMesh.mesh;
 
 			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = terrian->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+			arg_castRayArgment.m_mesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
 			//判定↓============================================
 
@@ -539,7 +554,7 @@ void Player::CheckCliff(Player::ImpactPointData& arg_impactPointData, std::weak_
 	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
 	{
 		//モデル情報取得
-		auto model = terrian.m_model.lock();
+		auto model = terrian.GetModel().lock();
 
 		//メッシュを走査
 		for (auto& modelMesh : model->m_meshes)
@@ -548,7 +563,7 @@ void Player::CheckCliff(Player::ImpactPointData& arg_impactPointData, std::weak_
 			//判定↓============================================
 
 			//当たり判定を行うメッシュ。
-			std::vector<StageParts::Polygon> mesh = terrian.m_collisionMesh[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+			std::vector<TerrianHitPolygon> mesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
 
 			//下方向にレイを飛ばす。
 			MeshCollisionOutput output = MeshCollision(arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * 0.5f, -m_transform.GetUp(), mesh);
@@ -565,9 +580,15 @@ void Player::CheckCliff(Player::ImpactPointData& arg_impactPointData, std::weak_
 		}
 	}
 
-	//ギミックとの当たり判定
+	//動く足場との当たり判定
 	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
 	{
+		//動く足場でない
+		if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)continue;
+
+		//動く足場としてキャスト
+		auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
+
 		//モデル情報取得
 		auto model = terrian->GetModel();
 
@@ -577,7 +598,7 @@ void Player::CheckCliff(Player::ImpactPointData& arg_impactPointData, std::weak_
 			//判定↓============================================
 
 			//当たり判定を行うメッシュ。
-			std::vector<StageParts::Polygon> mesh = terrian->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+			std::vector<TerrianHitPolygon> mesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
 			//下方向にレイを飛ばす。
 			MeshCollisionOutput output = MeshCollision(arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * 0.5f, -m_transform.GetUp(), mesh);
@@ -612,7 +633,7 @@ void Player::CheckCanJump(Player::ImpactPointData& arg_impactPointData, std::wea
 	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
 	{
 		//モデル情報取得
-		auto model = terrian.m_model.lock();
+		auto model = terrian.GetModel().lock();
 
 		//メッシュを走査
 		for (auto& modelMesh : model->m_meshes)
@@ -621,7 +642,7 @@ void Player::CheckCanJump(Player::ImpactPointData& arg_impactPointData, std::wea
 			//判定↓============================================
 
 			//当たり判定を行うメッシュ。
-			std::vector<StageParts::Polygon> mesh = terrian.m_collisionMesh[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+			std::vector<TerrianHitPolygon> mesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
 
 			//下方向にレイを飛ばす。
 			MeshCollisionOutput output = MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_transform.GetScale().x) + m_transform.GetUp() * WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
@@ -638,9 +659,15 @@ void Player::CheckCanJump(Player::ImpactPointData& arg_impactPointData, std::wea
 		}
 	}
 
-	//ギミックとの当たり判定
+	//動く足場との当たり判定
 	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
 	{
+		//動く足場でない
+		if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)continue;
+
+		//動く足場としてキャスト
+		auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
+
 		//モデル情報取得
 		auto model = terrian->GetModel();
 
@@ -650,7 +677,7 @@ void Player::CheckCanJump(Player::ImpactPointData& arg_impactPointData, std::wea
 			//判定↓============================================
 
 			//当たり判定を行うメッシュ。
-			std::vector<StageParts::Polygon> mesh = terrian->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+			std::vector<TerrianHitPolygon> mesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
 			//下方向にレイを飛ばす。
 			MeshCollisionOutput output = MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_transform.GetScale().x) + m_transform.GetUp() * WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
@@ -673,7 +700,7 @@ void Player::CheckCanJump(Player::ImpactPointData& arg_impactPointData, std::wea
 }
 
 Player::Player()
-	:KuroEngine::Debugger("Player", true, true)
+	:KuroEngine::Debugger("Player", true, true), m_growPlantPtLig(8.0f, &m_transform)
 {
 	AddCustomParameter("Sensitivity", { "camera", "sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity, "Camera");
 	LoadParameterLog();
@@ -718,6 +745,8 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_prevOnGimmick = false;
 	m_isDeath = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
+	
+	m_growPlantPtLig.Register();
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
@@ -845,15 +874,12 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		arg_cam);
 	*/
 
-	static IndividualDrawParameter drawParam = IndividualDrawParameter::GetDefault();
-	drawParam.m_isPlayer = 1;
-
 	BasicDraw::Instance()->Draw_Player(
 		arg_cam,
 		arg_ligMgr,
 		m_model,
 		m_transform,
-		drawParam);
+		IndividualDrawParameter::GetDefault());
 
 	/*
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
@@ -877,7 +903,7 @@ void Player::Finalize()
 {
 }
 
-Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, std::vector<Terrian::Polygon>& arg_targetMesh) {
+Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, std::vector<TerrianHitPolygon>& arg_targetMesh) {
 
 
 	/*===== メッシュとレイの当たり判定 =====*/
@@ -900,7 +926,7 @@ Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>&
 	/*-- ② ポリゴンとレイの当たり判定を行い、各情報を記録する --*/
 
 	// 記録用データ
-	std::vector<std::pair<Player::MeshCollisionOutput, Terrian::Polygon>> hitDataContainer;
+	std::vector<std::pair<Player::MeshCollisionOutput, TerrianHitPolygon>> hitDataContainer;
 
 	for (auto& index : arg_targetMesh) {
 
@@ -1087,7 +1113,7 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 
 					//さらにギミックに当たったトリガーだったらギミックを有効化させる。
 					if (!m_prevOnGimmick) {
-						arg_collisionData.m_stage.lock()->Activate();
+						dynamic_pointer_cast<MoveScaffold>(arg_collisionData.m_stage.lock())->Activate();
 					}
 
 				}

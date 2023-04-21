@@ -94,7 +94,21 @@ private:
 
 	//プレイヤーより手前のオブジェクトを透過させる際のテクスチャ
 	std::shared_ptr<KuroEngine::TextureBuffer>m_playerMaskTex;
-	
+
+	//植物を繁殖させるライトの数の定数バッファ
+	static const int GROW_PLANT_LIGHT_MAX_NUM = 20;
+	struct GrowPlantLightNum
+	{
+		unsigned int m_ptLig = 0;
+		unsigned int m_spotLig = 0;
+		unsigned int pad[2];
+	};
+	std::shared_ptr<KuroEngine::ConstantBuffer>m_growPlantLigNumBuffer;
+	//植物を繁殖させるポイントライトの構造バッファ
+	std::shared_ptr<KuroEngine::StructuredBuffer>m_growPlantPtLigBuffer;
+	//植物を繁殖させるスポットライトの構造バッファ
+	std::shared_ptr<KuroEngine::StructuredBuffer>m_growPlantSpotLigBuffer;
+
 	void OnImguiItems()override;
 
 public:

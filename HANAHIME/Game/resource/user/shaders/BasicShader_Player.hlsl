@@ -1,79 +1,10 @@
-#include"../../engine/ModelInfo.hlsli"
-#include"../../engine/Camera.hlsli"
-#include"../../engine/LightInfo.hlsli"
 #include"../../engine/Math.hlsli"
 #include"../../engine/ColorProcess.hlsli"
-
-struct ToonCommonParameter
-{
-    float m_brightThresholdLow;
-    float m_brightThresholdRange;
-    float m_monochromeRate;
-};
-
-struct ToonIndividualParameter
-{
-    float4 m_fillColor;
-    float4 m_brightMulColor;
-    float4 m_darkMulColor;
-    float4 m_edgeColor;
-    int m_drawMask;
-    int m_isPlayer;
-};
-
-struct PlayerInfo
-{
-    float3 m_worldPos;
-    float2 m_screenPos;
-};
-
-cbuffer cbuff0 : register(b0)
-{
-    Camera cam;
-}
-
-cbuffer cbuff1 : register(b1)
-{
-    LightInfo ligNum; //アクティブ中のライトの数の情報
-}
-
-StructuredBuffer<DirectionLight> dirLight : register(t0);
-StructuredBuffer<PointLight> pointLight : register(t1);
-StructuredBuffer<SpotLight> spotLight : register(t2);
-StructuredBuffer<HemiSphereLight> hemiSphereLight : register(t3);
-
+#include"BasicDraw.hlsli"
 
 cbuffer cbuff2 : register(b2)
 {
     matrix world;
-}
-
-cbuffer cbuff3 : register(b3)
-{
-    matrix bones[256]; //ボーン行列
-}
-
-Texture2D<float4> baseTex : register(t4);
-SamplerState smp : register(s0);
-
-cbuffer cbuff4 : register(b4)
-{
-    Material material;
-}
-
-cbuffer cbuff5 : register(b5)
-{
-    ToonCommonParameter toonCommonParam;
-}
-
-cbuffer cbuff6 : register(b6)
-{
-    ToonIndividualParameter toonIndividualParam;
-}
-
-cbuffer cbuff7 : register(b7)
-{
-    PlayerInfo player;
 }
 
 struct VSOutput
@@ -135,16 +66,6 @@ VSOutput VSmain(Vertex input)
     output.uv = input.uv;
     return output;
 }
-
-struct PSOutput
-{
-    float4 color : SV_Target0;
-    float4 emissive : SV_Target1;
-    float depth : SV_Target2;
-    float4 edgeColor : SV_Target3;
-    float4 bright : SV_Target4;
-    float4 normal : SV_Target5;
-};
 
 PSOutput PSmain(VSOutput input) : SV_TARGET
 {
@@ -266,21 +187,6 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     //塗りつぶし
     result.xyz = toonIndividualParam.m_fillColor.xyz * toonIndividualParam.m_fillColor.w + result.xyz * (1.0f - toonIndividualParam.m_fillColor.w);
     
-    //プレイヤーを光源とした場合の光の当たり具合を求める
-    float3 ligRay = input.worldpos - player.m_worldPos;
-    float bright = dot(-normalize(ligRay), input.normal);
-    //-1 ~ 1 から 0 ~ 1の範囲に収める
-    bright = saturate(bright);
-    //ライトにあたっているかどうかを距離で判断
-    float brightRange = 8.0f;
-    int isBright = 1.0f - step(brightRange, length(ligRay) * int(bright == 0 ? brightRange : 1));
-    if (toonIndividualParam.m_isPlayer)
-        isBright = 1;
-    result.xyz *= lerp(0.5f, 1.0f, isBright);
-    
-    //光が当たっていないならモノクロ化
-    result.xyz = lerp(lerp(result.xyz, Monochrome(result.xyz), toonCommonParam.m_monochromeRate), result.xyz, isBright);
-    
     PSOutput output;
     output.color = result;
     
@@ -293,9 +199,9 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     
     output.depth = input.depthInView;
 
-    output.edgeColor = toonIndividualParam.m_edgeColor * lerp(0.2f, 1.0f, isBright);
+    output.edgeColor = toonIndividualParam.m_edgeColor;
     
-    output.bright.x = isBright;
+    output.bright.x = 1;
     
     output.normal.xyz = input.normal;
 

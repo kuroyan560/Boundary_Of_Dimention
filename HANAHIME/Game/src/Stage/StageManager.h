@@ -51,6 +51,9 @@ public:
 		return static_cast<int>(m_stageArray.size());
 	}
 
+	//クリア判定
+	bool IsClearNowStage()const;
+
 	//プレイヤーの初期化トランスフォーム
 	KuroEngine::Transform GetPlayerSpawnTransform()const;
 
