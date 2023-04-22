@@ -1642,7 +1642,7 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 
 		case Player::RAY_ID::CHECK_IVY:
 
-			m_gimmickExitPos.emplace_back(output.m_pos + output.m_normal * 0.5f);
+			m_gimmickExitPos.emplace_back(output.m_pos + output.m_normal);
 			m_gimmickExitNormal.emplace_back(output.m_normal);
 
 			break;
@@ -1976,7 +1976,7 @@ void Player::UpdateZipline() {
 	break;
 	case Player::GIMMICK_STATUS::NORMAL:
 	{
-		m_zipInOutPos = m_transform.GetPosWorld();
+		//m_zipInOutPos = m_transform.GetPosWorld();
 	}
 	break;
 	case Player::GIMMICK_STATUS::EXIT:
