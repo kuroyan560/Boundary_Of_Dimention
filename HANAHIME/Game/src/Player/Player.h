@@ -198,6 +198,7 @@ private:
 
 		GROUND,	//地上向かって飛ばすレイ。設置判定で使用する。
 		AROUND,	//周囲に向かって飛ばすレイ。壁のぼり判定で使用する。
+		CLIFF,	//崖際の押し戻し用のレイ。仮の壁をつくってそれの押し戻し判定を行う。
 		CHECK_DEATH,	//死亡確認用
 		CHECK_CLIFF,	//崖チェック用
 		CHECK_IVY,
@@ -244,6 +245,7 @@ private:
 		KuroEngine::Vec3<float> m_bottomTerrianNormal;
 		StageParts::STAGE_PARTS_TYPE m_stageType;
 		std::array<bool, 6> m_checkDeathCounter;
+		std::array<bool, 4> m_checkHitAround;
 	};
 
 	/// <summary>
