@@ -27,6 +27,14 @@ PazzleStageSelect::PazzleStageSelect() :m_beatTimer(30)
 	m_selectTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(KuroEngine::Color(255, 255, 255, 255));
 
 
+	for (int i = 0; i < GetMaxNumber(); ++i)
+	{
+		m_stageTex.emplace_back(
+			KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(KuroEngine::Color(255, 255, 255, 255)),
+			KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(KuroEngine::Color(0, 0, 0, 255))
+		);
+	}
+
 	m_dirTex[0] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Dir.png");
 	m_dirTex[1] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Dir.png");
 
@@ -239,11 +247,18 @@ void PazzleStageSelect::Draw()
 	}
 
 
-	//ステージ名
-	//ステージサブタイトル
+	//ステージ名,ステージサブタイトル
+	KuroEngine::Vec2<float>stageUIPos = KuroEngine::WinApp::Instance()->GetExpandWinCenter();
+	stageUIPos.x = 470.0f;
+	stageUIPos.y += 130.0f;
+	for (auto &uiTex : m_stageTex)
+	{
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(stageUIPos, { 700.0f,150.0f }, 0.0f, uiTex.m_stageTex);
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(stageUIPos + KuroEngine::Vec2<float>(80.0f, 120.0f), { 700.0f,50.0f }, 0.0f, uiTex.m_subStageTex);
+	}
+	
 
 	//クリア表示
-
 	KuroEngine::Vec2<float>flamePos = KuroEngine::WinApp::Instance()->GetExpandWinSize();
 	flamePos.x -= 250.0f;
 	flamePos.y = KuroEngine::WinApp::Instance()->GetExpandWinCenter().y + 150.0f;

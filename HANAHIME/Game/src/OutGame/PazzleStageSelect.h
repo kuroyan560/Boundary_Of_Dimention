@@ -88,6 +88,20 @@ private:
 	KuroEngine::Timer m_beatTimer;
 	std::array<KuroEngine::Vec2<float>, 2>m_hexaSize;
 	KuroEngine::Vec2<float>m_clearSize;
+	//クリアUI----------------------------------------
+
+
+	//ステージUI----------------------------------------
+
+	struct StageUI
+	{
+		std::shared_ptr<KuroEngine::TextureBuffer>m_stageTex;
+		std::shared_ptr<KuroEngine::TextureBuffer>m_subStageTex;
+		StageUI(std::shared_ptr<KuroEngine::TextureBuffer>stageUITex, std::shared_ptr<KuroEngine::TextureBuffer>subStageUITex):
+		m_stageTex(stageUITex), m_subStageTex(subStageUITex)
+		{};
+	};
+	std::vector<StageUI>m_stageTex;
 
 	//上下の帯
 	class Band
