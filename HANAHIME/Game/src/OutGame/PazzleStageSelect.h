@@ -76,7 +76,17 @@ private:
 	KuroEngine::Vec2<float> m_baseStageSelectPos;
 	bool m_stopFlag;
 
+
+	//プレビューモード
+	bool m_previweFlag;
+	KuroEngine::Vec2<float>m_hideVel;
+	KuroEngine::Timer m_hideTiemr;
+	KuroEngine::Timer m_appearTimer;
+
+
+	//選択中の数字の後ろに描画する
 	std::shared_ptr<KuroEngine::TextureBuffer>m_selectTex;
+	//矢印
 	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, 2>m_dirTex;
 
 
@@ -103,7 +113,9 @@ private:
 	};
 	std::vector<StageUI>m_stageTex;
 
-	//上下の帯
+	//ステージUI----------------------------------------
+
+	//上下の帯-----------------------------------------------------------------------
 	class Band
 	{
 	public:
@@ -151,4 +163,6 @@ private:
 		bool m_appearFlag;
 	};
 	std::array<std::unique_ptr<Band>, 2>m_bandArray;
+
+	//上下の帯-----------------------------------------------------------------------
 };
