@@ -3,7 +3,7 @@
 #include"../Stage/StageManager.h"
 
 
-PazzleStageSelect::PazzleStageSelect()
+PazzleStageSelect::PazzleStageSelect() :m_beatTimer(30)
 {
 	const int STAGE_MAX_NUM = StageManager::Instance()->GetAllStageNum();
 	int yNum = 0;
@@ -25,6 +25,13 @@ PazzleStageSelect::PazzleStageSelect()
 	KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(m_numTexArray.data(), "resource/user/tex/Number.png", 10, { 10,1 });
 
 	m_selectTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(KuroEngine::Color(255, 255, 255, 255));
+
+
+	m_dirTex[0] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Dir.png");
+	m_dirTex[1] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Dir.png");
+
+	m_clearFlameTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Hexagon.png");
+	m_clearTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/title/Pazzle.png");
 
 	float bandSize = 100.0f;
 
@@ -123,6 +130,24 @@ void PazzleStageSelect::Update()
 		}
 		obj->Update();
 	}
+
+
+	//クリアUIのビート表現
+	if (m_beatTimer.IsTimeUp())
+	{
+		float vel = 0.4f;
+		m_hexaSize[0] += vel;
+		m_hexaSize[1] += vel;
+		m_clearSize += vel;
+		m_beatTimer.Reset();
+	}
+	m_beatTimer.UpdateTimer();
+
+	m_hexaSize[0] = KuroEngine::Math::Lerp(m_hexaSize[0], { 2.0f,2.0f }, 0.1f);
+	m_hexaSize[1] = KuroEngine::Math::Lerp(m_hexaSize[1], { 1.5f,1.5f }, 0.1f);
+	m_clearSize = KuroEngine::Math::Lerp(m_clearSize, { 1.0f,1.0f }, 0.1f);
+
+	++m_flameAngle;
 }
 
 void PazzleStageSelect::Draw()
@@ -156,13 +181,11 @@ void PazzleStageSelect::Draw()
 				numberAlpha = 0.5f;
 			}
 
-
 			//選択中の番号からみて遠ければ遠いほど透明にしていく
-			if (GetNumber() <= stageNumber|| stageNumber < GetNumber() + 10)
+			if (GetNumber() <= stageNumber || stageNumber < GetNumber() + 10)
 			{
 				numberAlpha = 1.0f - abs((stageNumber - GetNumber()) / 10.0f);
 			}
-
 
 			KuroEngine::Vec2<float>basePos(pos * texSize + m_baseStageSelectPos);
 			KuroEngine::Vec2<float>size(1.0f, 1.0f);
@@ -193,6 +216,43 @@ void PazzleStageSelect::Draw()
 	}
 
 
+	std::array<KuroEngine::Vec2<float>, 2>posArray;
+	KuroEngine::Vec2<float>offset(60.0f, 180.0f);
+	posArray[0] = { offset.x,KuroEngine::WinApp::Instance()->GetExpandWinCenter().y + offset.y };
+	posArray[1] = { KuroEngine::WinApp::Instance()->GetExpandWinSize().x - offset.x,KuroEngine::WinApp::Instance()->GetExpandWinCenter().y + offset.y };
+
+	//最初矢印表示
+	if (GetNumber() == 0)
+	{
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[0], { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(180), m_dirTex[0]);
+	}
+	//最後矢印表示
+	else if (GetNumber() == GetMaxNumber() - 1)
+	{
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[1], { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(0), m_dirTex[1]);
+	}
+	//両方矢印表示
+	else
+	{
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[0], { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(180), m_dirTex[0]);
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[1], { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(0), m_dirTex[1]);
+	}
+
+
+	//ステージ名
+	//ステージサブタイトル
+
+	//クリア表示
+
+	KuroEngine::Vec2<float>flamePos = KuroEngine::WinApp::Instance()->GetExpandWinSize();
+	flamePos.x -= 250.0f;
+	flamePos.y = KuroEngine::WinApp::Instance()->GetExpandWinCenter().y + 150.0f;
+	if (m_stageSelectArray[m_nowStageNum.y][m_nowStageNum.x].m_isClearFlag)
+	{
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(flamePos, m_clearSize, 0.0f, m_clearTex);
+	}
+	KuroEngine::DrawFunc2D::DrawRotaGraph2D(flamePos, m_hexaSize[0], KuroEngine::Angle::ConvertToRadian(m_flameAngle), m_clearFlameTex);
+	KuroEngine::DrawFunc2D::DrawRotaGraph2D(flamePos, m_hexaSize[1], KuroEngine::Angle::ConvertToRadian(-m_flameAngle), m_clearFlameTex);
 }
 
 int PazzleStageSelect::GetNumber()
@@ -204,5 +264,15 @@ int PazzleStageSelect::GetNumber()
 	}
 	num += m_nowStageNum.x;
 
+	return static_cast<int>(num);
+}
+
+int PazzleStageSelect::GetMaxNumber()
+{
+	size_t num = 0;
+	for (int y = 0; y < m_stageSelectArray.size(); ++y)
+	{
+		num += m_stageSelectArray[y].size();
+	}
 	return static_cast<int>(num);
 }

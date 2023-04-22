@@ -21,6 +21,7 @@ public:
 	void Draw();
 
 	int GetNumber();
+	int GetMaxNumber();
 	bool IsEnableToSelect()
 	{
 		return m_stageSelectArray[m_nowStageNum.y][m_nowStageNum.x].enableFlag;
@@ -76,9 +77,17 @@ private:
 	bool m_stopFlag;
 
 	std::shared_ptr<KuroEngine::TextureBuffer>m_selectTex;
+	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, 2>m_dirTex;
 
 
+	//ÉNÉäÉAUI----------------------------------------
 
+	std::shared_ptr<KuroEngine::TextureBuffer>m_clearTex;
+	std::shared_ptr<KuroEngine::TextureBuffer>m_clearFlameTex;
+	float m_flameAngle;
+	KuroEngine::Timer m_beatTimer;
+	std::array<KuroEngine::Vec2<float>, 2>m_hexaSize;
+	KuroEngine::Vec2<float>m_clearSize;
 
 	//è„â∫ÇÃë—
 	class Band
