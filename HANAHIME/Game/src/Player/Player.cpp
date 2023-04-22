@@ -735,6 +735,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_camController.Init();
 	m_cameraRotY = 0;
 	m_cameraRotYStorage = 0;
+	m_cameraRotMove = 0;
 	m_cameraJumpLerpAmount = 0;
 	m_cameraJumpLerpStorage = 0;
 	m_cameraQ = DirectX::XMQuaternionIdentity();
@@ -791,14 +792,14 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	case Player::PLAYER_MOVE_STATUS::MOVE:
 	{
 
-		//カメラの回転を保存。
-		m_cameraRotYStorage += scopeMove.x;
-
 		//プレイヤーの回転をカメラ基準にする。(移動方向の基準がカメラの角度なため)
 		m_transform.SetRotate(m_cameraQ);
 
 		//入力された移動量を取得
 		m_rowMoveVec = OperationConfig::Instance()->GetMoveVecFuna(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
+
+		//カメラの回転を保存。
+		m_cameraRotYStorage += scopeMove.x;
 
 		//入力量が一定以下だったら0にする。
 		const float DEADLINE = 0.8f;
@@ -820,6 +821,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 			//カメラの回転を保存。
 			m_cameraRotY = m_cameraRotYStorage;
+			m_cameraRotMove = m_cameraRotYStorage;
 
 		}
 		else {
@@ -845,8 +847,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		float easeAmount = KuroEngine::Math::Ease(Out, Sine, m_jumpTimer, 0.0f, 1.0f);
 
 		//カメラの回転を補間する。
-		m_cameraRotYStorage = m_cameraJumpLerpStorage + easeAmount * m_cameraJumpLerpAmount;
-		m_cameraRotY = m_cameraJumpLerpStorage + easeAmount * m_cameraJumpLerpAmount;
+		m_cameraRotMove = m_cameraJumpLerpStorage + easeAmount * m_cameraJumpLerpAmount;
 
 		//座標を補間する。
 		newPos = CalculateBezierPoint(easeAmount, m_jumpStartPos, m_jumpEndPos, m_bezierCurveControlPos);
@@ -1065,10 +1066,10 @@ void Player::FinishGimmickMove()
 	//カメラの回転でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。m_cameraJumpLerpAmountは補間後のカメラに向かって補間するため。
 	DirectX::XMVECTOR ySpin;
 	if (normal.y < -0.9f) {
-		ySpin = DirectX::XMQuaternionRotationNormal(normal, -(m_cameraRotY + m_cameraJumpLerpAmount) + DirectX::XM_PI);
+		ySpin = DirectX::XMQuaternionRotationNormal(normal, -(m_cameraRotMove + m_cameraJumpLerpAmount) + DirectX::XM_PI);
 	}
 	else {
-		ySpin = DirectX::XMQuaternionRotationNormal(normal, m_cameraRotY + m_cameraJumpLerpAmount);
+		ySpin = DirectX::XMQuaternionRotationNormal(normal, m_cameraRotMove + m_cameraJumpLerpAmount);
 	}
 
 	//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
@@ -1394,9 +1395,6 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 		m_moveSpeed.x = 0;
 
 	}
-	else {
-		int a = 0;
-	}
 
 	if (std::fabs(m_rowMoveVec.z) < 0.001f) {
 
@@ -1439,10 +1437,10 @@ void Player::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<flo
 	//カメラの回転でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。m_cameraJumpLerpAmountは補間後のカメラに向かって補間するため。
 	DirectX::XMVECTOR ySpin;
 	if (hitResult.m_terrianNormal.y < -0.9f) {
-		ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, -(m_cameraRotY + m_cameraJumpLerpAmount) + DirectX::XM_PI);
+		ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, -(m_cameraRotMove + m_cameraJumpLerpAmount) + DirectX::XM_PI);
 	}
 	else {
-		ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_cameraRotY + m_cameraJumpLerpAmount);
+		ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, m_cameraRotMove + m_cameraJumpLerpAmount);
 	}
 
 	//プレイヤーの移動方向でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。
@@ -1496,7 +1494,7 @@ void Player::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const Ku
 	// メモ:この関数で書いてある方向は初期位置(法線(0,1,0)で(0,0,1)を向いている状態)でのものです。
 
 	//回転元の値を保存。
-	m_cameraJumpLerpStorage = m_cameraRotYStorage;
+	m_cameraJumpLerpStorage = m_cameraRotMove;
 
 	//角度が変わってなかったら飛ばす。
 	if (0.9f <= arg_nowUp.Dot(arg_nextUp)) return;
