@@ -820,13 +820,13 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 			KuroEngine::Transform moveQtransform;
 			moveQtransform.SetRotate(m_moveQ);
 
-			m_debug = arg_newPos - moveQtransform.GetFront() * WALL_JUMP_LENGTH * 2.0f;
+			m_debug = arg_newPos - moveQtransform.GetFront() * WALL_JUMP_LENGTH * 1.0f;
 			//まずは真下にレイを飛ばす。
 			bool isHit = CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
 			bool isHitFront = CastRay(arg_newPos, arg_newPos + moveQtransform.GetFront() * WALL_JUMP_LENGTH * 2.0f, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
 
 			//次に動いた方向の後ろ側からレイを飛ばして当たっていたらギミックを起動する。
-			if (isHit && isHitFront && CastRay(arg_newPos, arg_newPos - moveQtransform.GetFront() * WALL_JUMP_LENGTH * 2.0f, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF)) {
+			if (isHit && isHitFront && CastRay(arg_newPos, arg_newPos - moveQtransform.GetFront() * WALL_JUMP_LENGTH * 1.0f, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF)) {
 
 				m_onGimmick = true;
 
