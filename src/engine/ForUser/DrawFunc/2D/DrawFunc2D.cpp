@@ -121,7 +121,7 @@ void KuroEngine::DrawFunc2D::DrawBox2D(const Vec2<float>& LeftUpPos, const Vec2<
 			//パイプライン設定
 			static PipelineInitializeOption PIPELINE_OPTION(D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT, D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 			PIPELINE_OPTION.m_depthTest = false;
-
+			PIPELINE_OPTION.m_calling = D3D12_CULL_MODE_NONE;
 			//シェーダー情報
 			static Shaders SHADERS;
 			SHADERS.m_vs = D3D12App::Instance()->CompileShader("resource/engine/DrawBox2D.hlsl", "VSmain", "vs_6_4");
