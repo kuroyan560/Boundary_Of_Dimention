@@ -353,7 +353,7 @@ void Player::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 			//引っ掛かっているオブジェクトがすぐにジャンプできるやつだったらフラグを更新。
 			if (arg_castRayArgment.m_impactPoint[minIndex].m_isFastJump) {
-				m_canJump = CAN_JUMP_DELAY_FAST <= m_canJumpDelayTimer;
+				m_canJump = true;
 			}
 
 			//ジャンプができる状態だったらジャンプする。
