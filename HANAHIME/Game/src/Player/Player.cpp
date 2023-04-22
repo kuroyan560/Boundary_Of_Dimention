@@ -704,7 +704,7 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 		}
 
 	}
-	if(0 < nearPos.size())nearestPos.emplace_back(nearPos.back());
+	if (0 < nearPos.size())nearestPos.emplace_back(nearPos.back());
 	nearPos.clear();
 	//次は左
 	for (auto& index : impactPoint[static_cast<int>(RAY_DIR_ID::LEFT)]) {
@@ -782,7 +782,7 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 			//判定↓============================================
 
-			m_onGround |= CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND, RAY_DIR_ID::BOTTOM);
+			m_onGround |= CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
 
 			//=================================================
 		}
@@ -814,7 +814,28 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 			//判定↓============================================
 
-			m_onGround |= CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND, RAY_DIR_ID::BOTTOM);
+			m_onGround |= CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+
+			//動いた方向基準の姿勢
+			KuroEngine::Transform moveQtransform;
+			moveQtransform.SetRotate(m_moveQ);
+
+			m_debug = arg_newPos - moveQtransform.GetFront() * WALL_JUMP_LENGTH * 2.0f;
+			//まずは真下にレイを飛ばす。
+			bool isHit = CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
+			bool isHitFront = CastRay(arg_newPos, arg_newPos + moveQtransform.GetFront() * WALL_JUMP_LENGTH * 2.0f, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
+
+			//次に動いた方向の後ろ側からレイを飛ばして当たっていたらギミックを起動する。
+			if (isHit && isHitFront && CastRay(arg_newPos, arg_newPos - moveQtransform.GetFront() * WALL_JUMP_LENGTH * 2.0f, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF)) {
+
+				m_onGimmick = true;
+
+				//さらにギミックに当たったトリガーだったらギミックを有効化させる。
+				if (!m_prevOnGimmick) {
+					moveScaffold->Activate();
+				}
+
+			}
 
 			//=================================================
 		}
@@ -1187,6 +1208,8 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		m_transform,
 		arg_cam);
 	*/
+
+	KuroEngine::DrawFunc3D::DrawLine(arg_cam, m_debug, m_debug + KuroEngine::Vec3<float>(0.1f, 0.1f, 0.1f), KuroEngine::Color(255, 255, 255, 255), 0.5f);
 
 	if (arg_cameraDraw)
 	{
@@ -1576,23 +1599,6 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 			//押し戻す。
 			arg_charaPos += output.m_normal * (std::fabs(output.m_distance - m_transform.GetScale().x) - OFFSET);
 
-			//地形が動く床だったら有効化する。
-			if (arg_collisionData.m_stageType == StageParts::MOVE_SCAFFOLD) {
-
-				//ギミックに当たっている判定
-				if (arg_rayDirID == RAY_DIR_ID::BOTTOM) {
-					m_onGimmick = true;
-
-					//さらにギミックに当たったトリガーだったらギミックを有効化させる。
-					if (!m_prevOnGimmick) {
-						dynamic_pointer_cast<MoveScaffold>(arg_collisionData.m_stage.lock())->Activate();
-					}
-
-				}
-
-
-			}
-
 			break;
 
 		case Player::RAY_ID::AROUND:
@@ -1629,6 +1635,18 @@ bool Player::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Ve
 
 		}
 		break;
+
+		case Player::RAY_ID::CHECK_GIMMICK:
+
+			m_onGimmick = true;
+
+			//さらにギミックに当たったトリガーだったらギミックを有効化させる。
+			if (!m_prevOnGimmick) {
+				dynamic_pointer_cast<MoveScaffold>(arg_collisionData.m_stage.lock())->Activate();
+			}
+
+
+			break;
 
 		case Player::RAY_ID::CHECK_DEATH:
 

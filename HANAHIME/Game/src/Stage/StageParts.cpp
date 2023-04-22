@@ -113,10 +113,10 @@ void MoveScaffold::OnInit()
 	m_isActive = false;
 	m_isOder = true;
 	m_nowTranslationIndex = 0;
-	m_nextTranslationIndex = 0;
-	m_moveLength = 0;
+	m_nextTranslationIndex = 1;
+	m_moveDir = KuroEngine::Vec3<float>(m_translationArray[m_nextTranslationIndex] - m_translationArray[m_nowTranslationIndex]).GetNormal();
+	m_moveLength = KuroEngine::Vec3<float>(m_translationArray[m_nextTranslationIndex] - m_translationArray[m_nowTranslationIndex]).Length();
 	m_nowMoveLength = 0;
-	m_moveDir = KuroEngine::Vec3<float>();
 
 	m_transform.SetPos(m_translationArray[0]);
 

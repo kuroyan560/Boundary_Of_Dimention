@@ -21,6 +21,8 @@ class Stage;
 class Player : public KuroEngine::Debugger
 {
 
+	KuroEngine::Vec3<float> m_debug;
+
 	//プレイヤーのモデル
 	std::shared_ptr<KuroEngine::Model>m_model;
 	std::shared_ptr<KuroEngine::Model>m_axisModel;
@@ -199,6 +201,7 @@ private:
 		GROUND,	//地上向かって飛ばすレイ。設置判定で使用する。
 		AROUND,	//周囲に向かって飛ばすレイ。壁のぼり判定で使用する。
 		CLIFF,	//崖際の押し戻し用のレイ。仮の壁をつくってそれの押し戻し判定を行う。
+		CHECK_GIMMICK,	//ギミックに乗っているか判定用。onGimmickをtrueにする。押し戻しはしない。
 		CHECK_DEATH,	//死亡確認用
 		CHECK_CLIFF,	//崖チェック用
 		CHECK_IVY,
