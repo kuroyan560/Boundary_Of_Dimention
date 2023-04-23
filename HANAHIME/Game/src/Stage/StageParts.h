@@ -1,6 +1,7 @@
 #pragma once
 #include<array>
 #include<memory>
+#include<optional>
 #include"Common/Transform.h"
 #include"../../../../src/engine/Render/RenderObject/ModelInfo/ModelMesh.h"
 
@@ -22,18 +23,33 @@ struct TerrianHitPolygon
 	KuroEngine::ModelMesh::Vertex m_p1;	//頂点1
 	KuroEngine::ModelMesh::Vertex m_p2;	//頂点2
 };
+struct AABB {
+	KuroEngine::Vec3<float> m_min;
+	KuroEngine::Vec3<float> m_max;
+	struct CollisionInfo {
+		KuroEngine::Vec3<float> m_pushBack;
+	};
+	//AABBの当たり判定
+	std::optional<CollisionInfo> CheckAABBCollision(const AABB& arg_aabb1);
+};
 
 class TerrianMeshCollider
 {
 public:
 	//当たり判定用ポリゴンコンテナ
 	std::vector<std::vector<TerrianHitPolygon>> m_collisionMesh;
+	//メッシュとメッシュの当たり判定に使用する、ポリゴンから作られた立方体コンテナ
+	std::vector<std::vector<AABB>> m_aabb;
+	const float CUBE_Z = 5.0f;
 
 public:
 	//当たり判定用メッシュを作成。
 	void BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_transform);
 	//当たり判定用ポリゴンコンテナゲッタ
 	const std::vector<std::vector<TerrianHitPolygon>>& GetCollisionMesh()const { return m_collisionMesh; }
+private:
+	//3頂点から立方体を生成する。
+	AABB CreateCubeFromPolygon(const KuroEngine::Vec3<float>& arg_v1, const KuroEngine::Vec3<float>& arg_v2, const KuroEngine::Vec3<float>& arg_v3, const KuroEngine::Vec3<float>& arg_normal);
 };
 
 //地形情報
@@ -131,8 +147,9 @@ public:
 //動く足場
 class MoveScaffold : public StageParts
 {
-private:
+public:
 	TerrianMeshCollider m_collider;
+private:
 
 	//トランスフォームの配列（0からスタート、他のTerrian以外のパーツに当たるか最後まで到達したら折り返し）
 	std::vector<KuroEngine::Vec3<float>>m_translationArray;
@@ -147,6 +164,9 @@ private:
 
 	//有効化フラグ
 	bool m_isActive;
+	bool m_prevOnPlayer;
+	bool m_onPlayer;	//プレイヤーが乗っているか
+	bool m_isStop;		//別の動く足場とぶつかって一時停止したか。
 
 	//座標関連
 	KuroEngine::Vec3<float> m_nowPos;
@@ -172,6 +192,17 @@ public:
 	void Activate() { m_isActive = true; }
 	void Deactivate() { m_isActive = false; }
 	bool GetIsActive() { return m_isActive; }
+	void Stop() { m_isStop = true; }	//地形同士がぶつかったときに一時停止する処理。
+
+	//プレイヤーが上に乗っているかのフラグを切り替える。
+	void SetOnPlayer(bool arg_onPlayer) { m_onPlayer = arg_onPlayer; }
+	void OnPlayer();
+
+	//当たり判定再構築
+	void BuildCollisionMesh();
+
+	//押し戻す。
+	void PushBack(KuroEngine::Vec3<float> arg_pushBack);
 
 	//移動した量
 	KuroEngine::Vec3<float> GetNowPos() { return m_nowPos; }

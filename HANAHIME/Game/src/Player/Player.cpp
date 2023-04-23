@@ -796,6 +796,9 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 		//動く足場としてキャスト
 		auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
 
+		//プレイヤーが乗っているかのフラグを一旦おる。
+		moveScaffold->SetOnPlayer(false);
+
 		//モデル情報取得
 		auto model = terrian->GetModel();
 		//情報を取得。
@@ -830,10 +833,8 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 				m_onGimmick = true;
 
-				//さらにギミックに当たったトリガーだったらギミックを有効化させる。
-				if (!m_prevOnGimmick) {
-					moveScaffold->Activate();
-				}
+				//プレイヤーが乗ったことをギミック側に伝える。
+				moveScaffold->OnPlayer();
 
 			}
 
@@ -1208,8 +1209,6 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		m_transform,
 		arg_cam);
 	*/
-
-	KuroEngine::DrawFunc3D::DrawLine(arg_cam, m_debug, m_debug + KuroEngine::Vec3<float>(0.1f, 0.1f, 0.1f), KuroEngine::Color(255, 255, 255, 255), 0.5f);
 
 	if (arg_cameraDraw)
 	{
