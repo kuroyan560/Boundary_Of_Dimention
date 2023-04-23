@@ -782,7 +782,14 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 			//判定↓============================================
 
-			m_onGround |= CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+			//動いた方向基準の姿勢
+			KuroEngine::Transform moveQtransform;
+			moveQtransform.SetRotate(m_moveQ);
+
+			m_onGround |= CastRay(arg_newPos, arg_newPos + moveQtransform.GetFront() * m_transform.GetScale().x, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+			m_onGround |= CastRay(arg_newPos, arg_newPos - moveQtransform.GetFront() * m_transform.GetScale().x, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+			m_onGround |= CastRay(arg_newPos, arg_newPos + moveQtransform.GetRight() * m_transform.GetScale().x, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+			m_onGround |= CastRay(arg_newPos, arg_newPos - moveQtransform.GetRight() * m_transform.GetScale().x, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
 
 			//=================================================
 		}
@@ -819,17 +826,11 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 			m_onGround |= CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
 
-			//動いた方向基準の姿勢
-			KuroEngine::Transform moveQtransform;
-			moveQtransform.SetRotate(m_moveQ);
-
-			m_debug = arg_newPos - moveQtransform.GetFront() * WALL_JUMP_LENGTH * 1.0f;
 			//まずは真下にレイを飛ばす。
 			bool isHit = CastRay(arg_newPos, arg_newPos, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
-			bool isHitFront = CastRay(arg_newPos, arg_newPos + moveQtransform.GetFront() * WALL_JUMP_LENGTH * 2.0f, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
 
 			//次に動いた方向の後ろ側からレイを飛ばして当たっていたらギミックを起動する。
-			if (isHit && isHitFront && CastRay(arg_newPos, arg_newPos - moveQtransform.GetFront() * WALL_JUMP_LENGTH * 1.0f, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF)) {
+			if (isHit) {
 
 				m_onGimmick = true;
 

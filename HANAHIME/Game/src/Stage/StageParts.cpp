@@ -565,4 +565,7 @@ void IvyBlock::Update(Player& arg_player)
 
 void IvyBlock::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
+
+	StageParts::Draw(arg_cam, arg_ligMgr);
+
 }
