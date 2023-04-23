@@ -122,7 +122,7 @@ class Player : public KuroEngine::Debugger
 	const float JUMP_TIMER = 0.08f;
 	bool m_canJump;									//ジャンプができるかのフラグ
 	int m_canJumpDelayTimer;						//ジャンプができるようになるまでの引っ掛かり
-	const int CAN_JUMP_DELAY = 20;
+	const int CAN_JUMP_DELAY = 10;
 	const int CAN_JUMP_DELAY_FAST = 1;
 
 	//ジップライン関係のステータス
