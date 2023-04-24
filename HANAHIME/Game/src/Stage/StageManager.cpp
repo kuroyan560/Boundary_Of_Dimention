@@ -42,7 +42,14 @@ StageManager::StageManager()
 	m_stageArray.back()->Load("resource/user/level/", "P_Stage_10.json", terrianScaling);*/
 	m_stageArray.emplace_back(std::make_shared<Stage>());
 	m_stageArray.back()->Load("resource/user/level/", "P_Stage_12.json", terrianScaling);
-
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_14.json", terrianScaling);
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_15.json", terrianScaling);
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_16.json", terrianScaling);
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load("resource/user/level/", "P_Stage_17.json", terrianScaling);
 
 	//現在のステージ指定（デフォルトはホーム用ステージ）
 	m_nowStage = m_homeStage;

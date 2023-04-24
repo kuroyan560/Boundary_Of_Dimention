@@ -158,6 +158,86 @@
                 "file_name": "Lever",
                 "id" : 0,
                 "initFlg":false
+            },
+            {
+                "type": "IvyBlock",
+                "name": "IvyBlock",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        10.0,
+                        8.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "IvyBlock",
+                "block":{
+                "left_top_front_pos":[
+                    -2.0,
+                    -2.0,
+                    -2.0
+                ],
+                "right_bottom_back_pos":[
+                    2.0,
+                    2.0,
+                    2.0
+                ]
+                }
+            },
+            {
+                "type": "Ivy",
+                "name": "Ivy",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        10.0,
+                        8.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "Ivy",
+                "translationArray": {
+                    "translation_0": [
+                        0.0,
+                        10.0,
+                        8.0
+                    ],
+                    "translation_1": [
+                        -10.0,
+                        10.0,
+                        8.0
+                    ],
+                    "translation_2": [
+                        -10.0,
+                        20.0,
+                        8.0
+                    ],
+                    "translation_3": [
+                        -10.0,
+                        20.0,
+                        0.0
+                    ]
+                }
             }
         ]
     }

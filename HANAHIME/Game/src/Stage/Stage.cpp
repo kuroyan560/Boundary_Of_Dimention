@@ -5,6 +5,7 @@
 #include"ForUser/Object/Model.h"
 #include "StageParts.h"
 #include"Switch.h"
+#include<optional>
 
 std::string Stage::s_terrianModelDir = "resource/user/model/terrian/";
 
@@ -18,7 +19,12 @@ bool Stage::CheckJsonKeyExist(std::string arg_fileName, nlohmann::json arg_json,
 	return exist;
 }
 
-bool Stage::LoadMoveScaffold(std::string arg_fileName, std::shared_ptr<StageParts>* arg_result, nlohmann::json arg_json, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
+KuroEngine::Vec3<float> Stage::GetConsiderCoordinate(nlohmann::json arg_json)
+{
+	return KuroEngine::Vec3<float>(-(float)arg_json[0], (float)arg_json[2], -(float)arg_json[1]);
+}
+
+bool Stage::LoadTranslationArray(std::string arg_fileName, std::vector<KuroEngine::Vec3<float>>* arg_result, nlohmann::json arg_json)
 {
 	using namespace KuroEngine;
 
@@ -34,13 +40,13 @@ bool Stage::LoadMoveScaffold(std::string arg_fileName, std::shared_ptr<StagePart
 	{
 		translationArray.emplace_back();
 		//平行移動
-		translationArray.back() = { -(float)jsonArray[key][0],(float)jsonArray[key][2],-(float)jsonArray[key][1] };
+		translationArray.back() = GetConsiderCoordinate(jsonArray[key]);
 		translationArray.back() *= m_terrianScaling;
 
 		key = "translation_" + std::to_string(++idx);
 	}
 
-	*arg_result = std::make_shared<MoveScaffold>(arg_model, arg_initTransform, translationArray);
+	*arg_result = translationArray;
 
 	return true;
 }
@@ -51,15 +57,15 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 
 	auto& obj = arg_json;
 
-//共通パラメータ
-	//モデル設定
+	//共通パラメータ
+		//モデル設定
 	auto model = Importer::Instance()->LoadModel(s_terrianModelDir, obj["file_name"].get<std::string>() + ".glb");
 
 	//トランスフォーム取得
 	auto transformObj = obj["transform"];
 
 	//平行移動
-	Vec3<float>translation = { -(float)transformObj["translation"][0],(float)transformObj["translation"][2],-(float)transformObj["translation"][1] };
+	Vec3<float>translation = GetConsiderCoordinate(transformObj["translation"]);
 
 	//回転
 	XMVECTOR quaternion = { (float)transformObj["rotation"][0],(float)transformObj["rotation"][2], -(float)transformObj["rotation"][1],(float)transformObj["rotation"][3] };
@@ -73,8 +79,8 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 	transform.SetRotate(quaternion);
 	transform.SetScale(scaling * m_terrianScaling);
 
-//種別に応じて変わるパラメータ
-	//通常の地形
+	//種別に応じて変わるパラメータ
+		//通常の地形
 	if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::TERRIAN))
 	{
 		m_terrianArray.emplace_back(model, transform);
@@ -107,10 +113,10 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 	//動く足場
 	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::MOVE_SCAFFOLD))
 	{
-		std::shared_ptr<StageParts>gimmick;
-		if (LoadMoveScaffold(arg_fileName, &gimmick, obj, model, transform))
+		std::vector<KuroEngine::Vec3<float>>translationArray;
+		if (LoadTranslationArray(arg_fileName, &translationArray, obj))
 		{
-			m_gimmickArray.emplace_back(gimmick);
+			m_gimmickArray.emplace_back(std::make_shared<MoveScaffold>(model, transform, translationArray));
 		}
 	}
 	//レバー
@@ -120,6 +126,30 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 		if (!CheckJsonKeyExist(arg_fileName, arg_json, "id") || !CheckJsonKeyExist(arg_fileName, arg_json, "initFlg"))return;
 
 		m_gimmickArray.emplace_back(std::make_shared<Lever>(model, transform, arg_json["id"], arg_json["initFlg"]));
+	}
+	//ジップライン蔓
+	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::IVY_ZIP_LINE))
+	{
+		std::vector<KuroEngine::Vec3<float>>translationArray;
+		if (LoadTranslationArray(arg_fileName, &translationArray, obj))
+		{
+			m_gimmickArray.emplace_back(std::make_shared<IvyZipLine>(model, transform, translationArray));
+		}
+	}
+	//蔓ブロック
+	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::IVY_BLOCK))
+	{
+		//必要なパラメータがない
+		if (!CheckJsonKeyExist(arg_fileName, arg_json, "block"))return;
+		if (!CheckJsonKeyExist(arg_fileName, arg_json["block"], "left_top_front_pos"))return;
+		if (!CheckJsonKeyExist(arg_fileName, arg_json["block"], "right_bottom_back_pos"))return;
+
+		//左上手前
+		Vec3<float>leftTopFront = GetConsiderCoordinate(arg_json["block"]["left_top_front_pos"]);
+		//右下奥
+		Vec3<float>rightBottomBack = GetConsiderCoordinate(arg_json["block"]["right_bottom_back_pos"]);
+
+		m_gimmickArray.emplace_back(std::make_shared<IvyBlock>(model, transform, leftTopFront, rightBottomBack));
 	}
 	else
 	{
@@ -163,6 +193,66 @@ void Stage::GimmickUpdate(Player& arg_player)
 	for (auto& gimmick : m_gimmickArray)
 	{
 		gimmick->Update(arg_player);
+	}
+
+	//動く足場同士の当たり判定を行う。
+	for (auto& gimmickA : m_gimmickArray) {
+
+		//動く足場じゃなかったら処理を飛ばす。
+		if (gimmickA->GetType() != StageParts::STAGE_PARTS_TYPE::MOVE_SCAFFOLD) continue;
+
+		for (auto& gimmickB : m_gimmickArray) {
+
+			//動く足場じゃなかったら処理を飛ばす。
+			if (gimmickB->GetType() != StageParts::STAGE_PARTS_TYPE::MOVE_SCAFFOLD) continue;
+
+			//同じオブジェクトだったら処理を飛ばす。
+			if (gimmickA == gimmickB) continue;
+
+			//当たり判定を行う。
+			auto moveScaffoldA = dynamic_pointer_cast<MoveScaffold>(gimmickA);
+			auto moveScaffoldB = dynamic_pointer_cast<MoveScaffold>(gimmickB);
+			std::optional<AABB::CollisionInfo> result;
+
+			//すべてのメッシュを走査して当たり判定を行う。
+			for (auto& meshA : moveScaffoldA->m_collider.m_aabb) {
+				for (auto& aabbA : meshA) {
+
+					for (auto& meshB : moveScaffoldB->m_collider.m_aabb) {
+						for (auto& aabbB : meshB) {
+
+							result = aabbA.CheckAABBCollision(aabbB);
+							if (!result) continue;	
+							//極小の誤差は無視する。
+							if (result->m_pushBack.Length() < 0.001f) continue;
+
+							//当たっていたらギミックの動きを止める。
+							moveScaffoldA->Stop();
+							moveScaffoldB->Stop();
+
+							////押し戻す。
+							//if (moveScaffoldA->GetIsActive() && moveScaffoldB->GetIsActive()) {
+							//	moveScaffoldA->PushBack(result->m_pushBack / 2.0f);
+							//	moveScaffoldB->PushBack(result->m_pushBack / 2.0f);
+							//}
+							//else if (moveScaffoldA->GetIsActive()) {
+							//	moveScaffoldA->PushBack(result->m_pushBack);
+							//}
+							//else if (moveScaffoldB->GetIsActive()) {
+							//	moveScaffoldB->PushBack(result->m_pushBack);
+							//}
+
+							//moveScaffoldA->BuildCollisionMesh();
+							//moveScaffoldB->BuildCollisionMesh();
+
+						}
+					}
+				}
+
+			}
+
+		}
+
 	}
 
 	if (m_goalPoint)m_goalPoint->Update(arg_player);
@@ -215,19 +305,19 @@ void Stage::Load(std::string arg_dir, std::string arg_fileName, float arg_terria
 	JsonData jsonData(arg_dir, arg_fileName);
 
 	//ステージ情報でない
-	if (!CheckJsonKeyExist(arg_fileName,jsonData.m_jsonData, "stage"))return;
+	if (!CheckJsonKeyExist(arg_fileName, jsonData.m_jsonData, "stage"))return;
 
 	auto stageJsonData = jsonData.m_jsonData["stage"];
 	for (auto& obj : stageJsonData["objects"])
 	{
 		//種別のパラメータがない
-		if (!CheckJsonKeyExist(arg_fileName,obj, "type"))break;
+		if (!CheckJsonKeyExist(arg_fileName, obj, "type"))break;
 
 		//モデルの名前のパラメータがない
-		if (!CheckJsonKeyExist(arg_fileName,obj, "file_name"))break;
+		if (!CheckJsonKeyExist(arg_fileName, obj, "file_name"))break;
 
 		//トランスフォームのパラメータがない
-		if (!CheckJsonKeyExist(arg_fileName,obj, "transform"))break;
+		if (!CheckJsonKeyExist(arg_fileName, obj, "transform"))break;
 
 		LoadWithType(arg_fileName, obj["type"].get<std::string>(), obj);
 	}
