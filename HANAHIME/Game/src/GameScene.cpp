@@ -213,18 +213,6 @@ void GameScene::OnUpdate()
 	m_fireFlyStage.ComputeUpdate();
 
 
-
-
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_O))
-	{
-		tutorial.Next();
-	}
-	if (KuroEngine::UsersInput::Instance()->KeyInput(DIK_P))
-	{
-		tutorial.Finish();
-	}
-
-	tutorial.Update();
 	m_stageSelect.Update();
 
 
