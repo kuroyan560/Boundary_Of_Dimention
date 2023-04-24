@@ -347,12 +347,19 @@ class IvyBlock : public StageParts
 	KuroEngine::Vec3<float>m_leftTopFront;
 	//ブロックの右下奥座標
 	KuroEngine::Vec3<float>m_rightBottomBack;
+	//当たり判定用コリジョン
+	TerrianMeshCollider m_collider;
+	//出現中か
+	bool m_isAppear;
 
 public:
 	IvyBlock(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, KuroEngine::Vec3<float>arg_leftTopFront, KuroEngine::Vec3<float>arg_rightBottomBack)
 		:StageParts(IVY_BLOCK, arg_model, arg_initTransform), m_leftTopFront(arg_leftTopFront), m_rightBottomBack(arg_rightBottomBack) {
+		m_collider.BuilCollisionMesh(arg_model, arg_initTransform);
 	}
 
 	void Update(Player& arg_player)override;
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
+
+	const std::vector<std::vector<TerrianHitPolygon>>& GetCollisionMesh()const { return m_collider.GetCollisionMesh(); }
 };

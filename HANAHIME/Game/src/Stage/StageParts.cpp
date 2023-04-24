@@ -366,6 +366,10 @@ void MoveScaffold::OnPlayer() {
 
 			m_isStop = false;
 
+			//‚ß‚è‚ñ‚Å‚¢‚é‚Ì‚Å‚¿‚å‚Á‚ÆˆÚ“®‚³‚¹‚éB
+			m_nowMoveLength += KuroEngine::Vec3<float>(m_moveDir * MOVE_SPEED).Length();
+			m_transform.SetPos(m_transform.GetPos() + m_moveDir * MOVE_SPEED);
+
 		}
 		else {
 			//•’Ê‚É—LŒø‰»
