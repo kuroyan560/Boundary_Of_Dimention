@@ -2,6 +2,7 @@
 #include"Common/Color.h"
 #include"Common/Vec.h"
 #include"ForUser/Debugger.h"
+#include"DirectX12/D3D12Data.h"
 #include<memory>
 namespace KuroEngine
 {
@@ -58,6 +59,8 @@ namespace KuroEngine
 
 		//結果のテクスチャ取得
 		std::shared_ptr<TextureBuffer>& GetResultTex() { return m_resultTex; }
+		//ウィンドウサイズで結果を描画
+		void DrawResult(const AlphaBlendMode& arg_alphaBlend);
 
 		//フォグの色を決めるグラデーションテクスチャ（横長）をアタッチ
 		void AttachGradationTex(std::shared_ptr<TextureBuffer>arg_tex);
