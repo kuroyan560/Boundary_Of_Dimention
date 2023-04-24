@@ -52,12 +52,13 @@ private:
 	//キーがjsonファイルに含まれているか、含まれていなかったらエラーで終了
 	bool CheckJsonKeyExist(std::string arg_fileName, nlohmann::json arg_json, std::string arg_key);
 
-	//動く足場の読み込み
-	bool LoadMoveScaffold(std::string arg_fileName,
-		std::shared_ptr<StageParts>* arg_result, 
-		nlohmann::json arg_json,
-		std::weak_ptr<KuroEngine::Model>arg_model,
-		KuroEngine::Transform arg_initTransform);
+	//座標系を考慮した座標読み込み
+	KuroEngine::Vec3<float>GetConsiderCoordinate(nlohmann::json arg_json);
+
+	//座標配列の読み込み
+	bool LoadTranslationArray(std::string arg_fileName,
+		std::vector<KuroEngine::Vec3<float>>* arg_result,
+		nlohmann::json arg_json);
 
 	//種別に応じて読み込みを分岐させる
 	void LoadWithType(std::string arg_fileName, std::string arg_typeKey, nlohmann::json arg_json);
