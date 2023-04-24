@@ -1312,6 +1312,41 @@ void Player::CheckCanJump(Player::ImpactPointData& arg_impactPointData, std::wea
 		}
 	}
 
+	//蔦ブロックとの当たり判定
+	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
+	{
+		//動く足場でない
+		if (terrian->GetType() != StageParts::IVY_BLOCK)continue;
+
+		//動く足場としてキャスト
+		auto ivyBlock = dynamic_pointer_cast<IvyBlock>(terrian);
+
+		//モデル情報取得
+		auto model = terrian->GetModel();
+
+		//メッシュを走査
+		for (auto& modelMesh : model.lock()->m_meshes) {
+
+			//判定↓============================================
+
+			//当たり判定を行うメッシュ。
+			std::vector<TerrianHitPolygon> mesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+
+			//下方向にレイを飛ばす。
+			MeshCollisionOutput output = MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_transform.GetScale().x) + m_transform.GetUp() * WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
+
+			//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
+			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
+
+				//壁に当たった時点で崖ではないので処理を飛ばす。
+				return;
+
+			}
+
+			//=================================================
+		}
+	}
+
 	//最後まで壁に当たってなかったら崖を超えているので無効化する。
 	arg_impactPointData.m_isActive = false;
 
