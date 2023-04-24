@@ -6,6 +6,7 @@
 #include"Switch.h"
 #include"ForUser/DrawFunc/BillBoard/DrawFuncBillBoard.h"
 #include"../SoundConfig.h"
+#include"../Player/PlayerCollision.h"
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
@@ -558,7 +559,7 @@ void IvyZipLine::Update(Player &arg_player)
 				//èIÇÌÇ¡ÇƒÇ¢ÇΩÇÁ
 				m_nextTranslationIndex = m_maxTranslation;
 				m_isActive = false;
-				arg_player.FinishGimmickMove();
+				arg_player.m_collision.FinishGimmickMove();
 
 			}
 
@@ -574,7 +575,7 @@ void IvyZipLine::Update(Player &arg_player)
 				//èIÇÌÇ¡ÇƒÇ¢ÇΩÇÁ
 				m_nextTranslationIndex = 0;
 				m_isActive = false;
-				arg_player.FinishGimmickMove();
+				arg_player.m_collision.FinishGimmickMove();
 
 			}
 

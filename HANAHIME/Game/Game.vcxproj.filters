@@ -376,6 +376,9 @@
     <ClCompile Include="src\SoundConfig.cpp">
       <Filter>src\user</Filter>
     </ClCompile>
+    <ClCompile Include="src\Player\PlayerCollision.cpp">
+      <Filter>src\user\Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -733,6 +736,9 @@
     </ClInclude>
     <ClInclude Include="src\SoundConfig.h">
       <Filter>src\user</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Player\PlayerCollision.h">
+      <Filter>src\user\Player</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
