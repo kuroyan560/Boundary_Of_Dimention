@@ -168,8 +168,10 @@ void PazzleStageSelect::Update()
 		bool debug = false;
 	}
 
-	StageManager::Instance()->SetStage(GetNumber());
-
+	if (0 < GetNumber() && GetNumber() < GetMaxNumber())
+	{
+		StageManager::Instance()->SetStage(GetNumber());
+	}
 
 	//クリアUIのビート表現
 	if (m_beatTimer.IsTimeUp())
@@ -250,15 +252,14 @@ void PazzleStageSelect::Draw()
 			int stageNumber = yNum + x;
 
 			float numberAlpha = 1.0f;
-			if (!m_stageSelectArray[y][x].enableFlag)
-			{
-				numberAlpha = 0.5f;
-			}
-
 			//選択中の番号からみて遠ければ遠いほど透明にしていく
 			if (GetNumber() <= stageNumber || stageNumber < GetNumber() + 10)
 			{
 				numberAlpha = 1.0f - abs((stageNumber - GetNumber()) / 10.0f);
+			}
+			if (!m_stageSelectArray[y][x].enableFlag)
+			{
+				numberAlpha = 0.0f;
 			}
 
 			KuroEngine::Vec2<float>basePos(pos * texSize + m_baseStageSelectPos);
