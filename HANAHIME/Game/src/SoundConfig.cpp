@@ -32,7 +32,7 @@ SoundConfig::SoundConfig()
 	m_seTable[SE_LEVER_OFF].Load(audioApp->LoadAudio(seDir + "lever_off.wav"));
 	m_seTable[SE_MOVE_SCAFFOLD_START].Load(audioApp->LoadAudio(seDir + "move_scaffold_start.wav"));
 	m_seTable[SE_MOVE_SCAFFOLD_STOP].Load(audioApp->LoadAudio(seDir + "move_scaffold_stop.wav"));
-	m_seTable[SE_CAM_MODE_CHANGE].Load(LoadSoundArray(seDir, "lever_on"), SoundSE::ORDER_TYPE::IN_ORDER);
+	m_seTable[SE_CAM_MODE_CHANGE].Load(LoadSoundArray(seDir, "cam_mode"), SoundSE::ORDER_TYPE::IN_ORDER);
 	m_seTable[SE_BOOT].Load(audioApp->LoadAudio(seDir + "boot.wav"));
 	m_seTable[SE_SHUT_DOWN].Load(audioApp->LoadAudio(seDir + "shutdown.wav"));
 
@@ -95,7 +95,7 @@ int SoundConfig::SoundSE::GetPlaySoundHandle()
 
 void SoundConfig::SoundSE::Play(int arg_delay, int arg_soundIdx)
 {
-	int soundIdx = arg_soundIdx == -1 ? GetPlaySoundHandle() : arg_soundIdx;
+	int soundIdx = arg_soundIdx == -1 ? GetPlaySoundHandle() : m_sounds[arg_soundIdx];
 	arg_delay == -1 ? KuroEngine::AudioApp::Instance()->PlayWave(soundIdx) : KuroEngine::AudioApp::Instance()->PlayWaveDelay(arg_delay);
 }
 
