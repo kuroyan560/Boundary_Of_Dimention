@@ -22,24 +22,24 @@ PazzleStageSelect::PazzleStageSelect() :m_beatTimer(30), m_appearTimer(60), m_hi
 
 
 	m_numTexArray.resize(10);
-	KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(m_numTexArray.data(), "resource/user/tex/Number.png", 10, { 10,1 });
+	KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(m_numTexArray.data(), "resource/user/tex/stage_select/stage_num_main.png", 10, { 10,1 });
 
-	m_selectTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(KuroEngine::Color(255, 255, 255, 255));
+	m_selectTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/cursor.png");
 
 
 	for (int i = 0; i < GetMaxNumber(); ++i)
 	{
 		m_stageTex.emplace_back(
-			KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(KuroEngine::Color(255, 255, 255, 255)),
-			KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(KuroEngine::Color(0, 0, 0, 255))
+			KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/stage_select/stage_name_main_test.png"),
+			KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/stage_select/stage_name_sub_test.png")
 		);
 	}
 
-	m_dirTex[0] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Dir.png");
-	m_dirTex[1] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Dir.png");
+	m_dirTex[0] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/stage_select/select_arrow.png");
+	m_dirTex[1] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/stage_select/select_arrow.png");
 
-	m_clearFlameTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Hexagon.png");
-	m_clearTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/title/Pazzle.png");
+	m_clearFlameTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/stage_select/clear_hexagon_big.png");
+	m_clearTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/stage_select/clear_str.png");
 
 	float bandSize = 100.0f;
 
@@ -184,8 +184,8 @@ void PazzleStageSelect::Update()
 	}
 	m_beatTimer.UpdateTimer();
 
-	m_hexaSize[0] = KuroEngine::Math::Lerp(m_hexaSize[0], { 2.0f,2.0f }, 0.1f);
-	m_hexaSize[1] = KuroEngine::Math::Lerp(m_hexaSize[1], { 1.5f,1.5f }, 0.1f);
+	m_hexaSize[0] = KuroEngine::Math::Lerp(m_hexaSize[0], { 1.0f,1.0f }, 0.1f);
+	m_hexaSize[1] = KuroEngine::Math::Lerp(m_hexaSize[1], { 0.75f,0.75f }, 0.1f);
 	m_clearSize = KuroEngine::Math::Lerp(m_clearSize, { 1.0f,1.0f }, 0.1f);
 
 	++m_flameAngle;
@@ -237,7 +237,7 @@ void PazzleStageSelect::Draw()
 	}
 
 	//選択中の数字の背景
-	KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_baseStageSelectPos + KuroEngine::Vec2<float>(10.0f, 25.0f) - m_hideVel, KuroEngine::Vec2<float>(128.0f, 128.0f), 0.0f, m_selectTex, 1.0f);
+	KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_baseStageSelectPos + KuroEngine::Vec2<float>(10.0f, 25.0f) - m_hideVel, KuroEngine::Vec2<float>(1.0f, 1.0f), 0.0f, m_selectTex, 1.0f);
 
 	//Y軸を考慮した数字のカウントに必要
 	int yNum = 0;
@@ -263,15 +263,15 @@ void PazzleStageSelect::Draw()
 			}
 
 			KuroEngine::Vec2<float>basePos(pos * texSize + m_baseStageSelectPos);
-			KuroEngine::Vec2<float>size(1.0f, 1.0f);
+			KuroEngine::Vec2<float>size(0.3f, 0.3f);
 			//桁の間のスペース
 			KuroEngine::Vec2<float>digitsBetween(30.0f, 0.0f);
 			//選択中の数字は強調させる
 			bool isSelectingFlag = GetNumber() == stageNumber;
 			if (isSelectingFlag)
 			{
-				size = { 2.0f,2.0f };
-				digitsBetween = { 50.0f,0.0f };
+				size = { 0.8f,0.8f };
+				digitsBetween = { 60.0f,0.0f };
 				basePos.y += 30.0f;
 			}
 			//桁の間を真ん中に持っていく処理
@@ -299,18 +299,18 @@ void PazzleStageSelect::Draw()
 	//最初矢印表示
 	if (GetNumber() == 0)
 	{
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[1] + m_hideVel, { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(0), m_dirTex[1]);
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[1] + m_hideVel, { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(180), m_dirTex[1]);
 	}
 	//最後矢印表示
 	else if (GetNumber() == StageManager::Instance()->GetAllStageNum() - 1)
 	{
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[0] + m_hideVel, { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(180), m_dirTex[0]);
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[0] + m_hideVel, { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(0), m_dirTex[0]);
 	}
 	//両方矢印表示
 	else
 	{
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[0] + m_hideVel, { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(180), m_dirTex[0]);
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[1] + m_hideVel, { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(0), m_dirTex[1]);
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[0] + m_hideVel, { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(0), m_dirTex[0]);
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[1] + m_hideVel, { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(180), m_dirTex[1]);
 	}
 
 	//プレビュー時に隠れきれてないUIを隠す
@@ -322,8 +322,8 @@ void PazzleStageSelect::Draw()
 	stageUIPos.y += 130.0f;
 	for (auto &uiTex : m_stageTex)
 	{
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(stageUIPos + m_hideVel * offsetVel, { 700.0f,150.0f }, 0.0f, uiTex.m_stageTex);
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(stageUIPos + KuroEngine::Vec2<float>(80.0f, 120.0f) + m_hideVel * offsetVel, { 700.0f,50.0f }, 0.0f, uiTex.m_subStageTex);
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(stageUIPos + m_hideVel * offsetVel, { 1.0f,1.0f }, 0.0f, uiTex.m_stageTex);
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(stageUIPos + KuroEngine::Vec2<float>(80.0f, 120.0f) + m_hideVel * offsetVel, { 1.0f,1.0f }, 0.0f, uiTex.m_subStageTex, 80.0f / 255.0f);
 	}
 
 
