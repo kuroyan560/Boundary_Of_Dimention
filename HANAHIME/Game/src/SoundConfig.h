@@ -82,12 +82,16 @@ private:
 	std::array<SoundSE, SE_NUM>m_seTable;
 	std::array<int, JINGLE_NUM>m_jingleTable = { INVALID_SOUND };
 	std::array<int, BGM_NUM>m_bgmTable = { INVALID_SOUND };
+	
+	//Œ»İÄ¶’†‚ÌBGM‚Ìƒnƒ“ƒhƒ‹
+	int m_nowPlayBGMHandle = INVALID_SOUND;
 
 public:
 	void Init();
 
 	void Play(SE arg_se, int arg_delay = -1, int arg_soundIdx = -1);
 	void Play(JINGLE arg_jingle);
+	void Play(BGM arg_bgm);
 
 	bool NowPlay(JINGLE arg_jingle);
 };

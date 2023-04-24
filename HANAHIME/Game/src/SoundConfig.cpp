@@ -114,6 +114,18 @@ void SoundConfig::Play(JINGLE arg_jingle)
 	KuroEngine::AudioApp::Instance()->PlayWave(m_jingleTable[arg_jingle]);
 }
 
+void SoundConfig::Play(BGM arg_bgm)
+{
+	//Šù‚ÉÄ¶’†‚È‚ç‚»‚ê‚ð’âŽ~
+	if (m_nowPlayBGMHandle != INVALID_SOUND)
+	{
+		KuroEngine::AudioApp::Instance()->StopWave(m_nowPlayBGMHandle);
+	}
+	KuroEngine::AudioApp::Instance()->PlayWave(m_bgmTable[arg_bgm], true);
+
+	m_nowPlayBGMHandle = m_bgmTable[arg_bgm];
+}
+
 bool SoundConfig::NowPlay(JINGLE arg_jingle)
 {
 	return KuroEngine::AudioApp::Instance()->NowPlay(m_jingleTable[arg_jingle]);
