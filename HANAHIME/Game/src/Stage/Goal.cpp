@@ -166,7 +166,7 @@ void Goal::Update(KuroEngine::Transform *transform)
 	m_limitIndexBuffer->Mapping(&num);
 	m_limitIndexPosBuffer->Mapping(posArray.data());
 
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE))
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) && false)
 	{
 		std::vector<KuroEngine::RegisterDescriptorData>descData =
 		{
@@ -244,31 +244,31 @@ void Goal::Draw(KuroEngine::Camera &camera)
 		return;
 	}
 #ifdef _DEBUG
-	KuroEngine::DrawFunc3D::DrawNonShadingModel(m_goalCamera, camera);
+	//KuroEngine::DrawFunc3D::DrawNonShadingModel(m_goalCamera, camera);
 
-	if (!m_isStartFlg)
-	{
-		//ëO
-		{
-			KuroEngine::Vec3<float>startPos(m_goalCamera->m_transform.GetPos());
-			KuroEngine::Vec3<float>endPos(m_goalCamera->m_transform.GetPos() + frontVec * 5.0f);
-			KuroEngine::DrawFunc3D::DrawLine(camera, startPos, endPos, KuroEngine::Color(0, 0, 255, 255), 1.0f);
-		}
-		//è„
-		{
-			KuroEngine::Vec3<float>startPos(m_goalCamera->m_transform.GetPos());
-			KuroEngine::Vec3<float>endPos(m_goalCamera->m_transform.GetPos() + upVec * 5.0f);
-			KuroEngine::DrawFunc3D::DrawLine(camera, startPos, endPos, KuroEngine::Color(0, 255, 0, 255), 1.0f);
-		}
-		//â°
-		{
-			KuroEngine::Vec3<float>rightDir(upVec.Cross(frontVec));
+	//if (!m_isStartFlg)
+	//{
+	//	//ëO
+	//	{
+	//		KuroEngine::Vec3<float>startPos(m_goalCamera->m_transform.GetPos());
+	//		KuroEngine::Vec3<float>endPos(m_goalCamera->m_transform.GetPos() + frontVec * 5.0f);
+	//		KuroEngine::DrawFunc3D::DrawLine(camera, startPos, endPos, KuroEngine::Color(0, 0, 255, 255), 1.0f);
+	//	}
+	//	//è„
+	//	{
+	//		KuroEngine::Vec3<float>startPos(m_goalCamera->m_transform.GetPos());
+	//		KuroEngine::Vec3<float>endPos(m_goalCamera->m_transform.GetPos() + upVec * 5.0f);
+	//		KuroEngine::DrawFunc3D::DrawLine(camera, startPos, endPos, KuroEngine::Color(0, 255, 0, 255), 1.0f);
+	//	}
+	//	//â°
+	//	{
+	//		KuroEngine::Vec3<float>rightDir(upVec.Cross(frontVec));
 
-			KuroEngine::Vec3<float>startPos(m_goalCamera->m_transform.GetPos());
-			KuroEngine::Vec3<float>endPos(m_goalCamera->m_transform.GetPos() + rightDir * 5.0f);
-			KuroEngine::DrawFunc3D::DrawLine(camera, startPos, endPos, KuroEngine::Color(255, 0, 0, 255), 1.0f);
-		}
-	}
+	//		KuroEngine::Vec3<float>startPos(m_goalCamera->m_transform.GetPos());
+	//		KuroEngine::Vec3<float>endPos(m_goalCamera->m_transform.GetPos() + rightDir * 5.0f);
+	//		KuroEngine::DrawFunc3D::DrawLine(camera, startPos, endPos, KuroEngine::Color(255, 0, 0, 255), 1.0f);
+	//	}
+	//}
 	//KuroEngine::Vec3<float> result(0, 1, 0);
 	//DirectX::XMMATRIX mat = DirectX::XMMatrixRotationQuaternion(m_goalModel->GetTransform().GetRotate());
 	//DirectX::XMVECTOR rota(DirectX::XMVector3Transform(result, mat));
@@ -279,11 +279,10 @@ void Goal::Draw(KuroEngine::Camera &camera)
 	//KuroEngine::Vec3<float>endPos(m_goalModelBaseTransform.GetPos() + result * 5.0f);
 	//KuroEngine::DrawFunc3D::DrawLine(camera, startPos, endPos, KuroEngine::Color(255, 0, 0, 255), 1.0f);
 
-	for (auto &obj : limitPosArray)
-	{
-		KuroEngine::DrawFunc3D::DrawNonShadingModel(obj, camera);
-	}
-
+	//for (auto &obj : limitPosArray)
+	//{
+	//	KuroEngine::DrawFunc3D::DrawNonShadingModel(obj, camera);
+	//}
 
 #endif // _DEBUG
 

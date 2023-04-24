@@ -169,6 +169,7 @@ void PazzleStageSelect::Update()
 		bool debug = false;
 	}
 
+
 	if (0 <= GetNumber() && GetNumber() < StageManager::Instance()->GetAllStageNum())
 	{
 		StageManager::Instance()->SetStage(GetNumber());
