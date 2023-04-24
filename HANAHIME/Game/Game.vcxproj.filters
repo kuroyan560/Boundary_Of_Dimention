@@ -726,13 +726,13 @@
     <ClInclude Include="src\Stage\Grass.h">
       <Filter>src\user\Plant</Filter>
     </ClInclude>
-<<<<<<< HEAD
     <ClInclude Include="src\GPUParticle\SignSpotFireFly.h" />
     <ClInclude Include="src\Tutorial.h" />
-=======
     <ClInclude Include="src\SoundConfig.h">
       <Filter>src\user</Filter>
     </ClInclude>
->>>>>>> b2d425ac8c60b06c751989a8e452ae0aeb577671
+    <ClInclude Include="src\SoundConfig.h">
+      <Filter>src\user</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
