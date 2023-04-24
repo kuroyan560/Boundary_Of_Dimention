@@ -189,7 +189,7 @@ void GameScene::OnUpdate()
 			
 			m_1flameStopTimer.Reset();
 
-			m_title.Clear(m_stageNum);
+			m_title.Clear();
 		}
 	}
 	m_1flameStopTimer.UpdateTimer();
