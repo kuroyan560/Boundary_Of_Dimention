@@ -70,7 +70,18 @@
                     ]
                 },
                 "file_name": "MoveScaffoldStage7",
-                "translationArray": {}
+                "translationArray": {
+                    "translation_0": [
+                        10.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "translation_1": [
+                        20.0,
+                        0.0,
+                        -2.0
+                    ]
+                }
             },
             {
                 "type": "Terrian",
@@ -93,7 +104,7 @@
                         5.0
                     ]
                 },
-                "file_name": "Stage18"
+                "file_name": "Stage7"
             }
         ]
     }

@@ -94,7 +94,18 @@
                     ]
                 },
                 "file_name": "MoveScaffoldStage14",
-                "translationArray": {},
+                "translationArray": {
+                    "translation_0": [
+                        -10.0,
+                        -10.0,
+                        -2.0
+                    ],
+                    "translation_1": [
+                        10.0,
+                        -10.0,
+                        -2.0
+                    ]
+                },
                 "children": [
                     {
                         "type": "Lever",

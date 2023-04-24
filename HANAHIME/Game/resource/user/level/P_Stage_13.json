@@ -120,7 +120,18 @@
                     ]
                 },
                 "file_name": "MoveScaffoldStage13",
-                "translationArray": {}
+                "translationArray": {
+                    "translation_0": [
+                        0.0,
+                        -10.0,
+                        -2.0
+                    ],
+                    "translation_1": [
+                        30.0,
+                        -10.0,
+                        -2.0
+                    ]
+                }
             },
             {
                 "type": "Goal",

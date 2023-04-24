@@ -94,7 +94,18 @@
                     ]
                 },
                 "file_name": "MoveScaffoldStage9",
-                "translationArray": {}
+                "translationArray": {
+                    "translation_0": [
+                        -10.0,
+                        10.0,
+                        8.0
+                    ],
+                    "translation_1": [
+                        0.0,
+                        10.0,
+                        8.0
+                    ]
+                }
             },
             {
                 "type": "Appearance",
