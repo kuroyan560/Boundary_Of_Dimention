@@ -8,6 +8,7 @@
 #include"../Graphics/BasicDrawParameters.h"
 #include"../../../../src/engine/ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"FrameWork/UsersInput.h"
+#include"../SoundConfig.h"
 
 void Player::OnImguiItems()
 {
@@ -1145,6 +1146,9 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 						ivyBlock->Disappear();
 
+						//SEを鳴らす。
+						SoundConfig::Instance()->Play(SoundConfig::SE_SHUT_DOWN);
+
 					}
 					//プレイヤーが乗っている判定。
 					else if (isHit) {
@@ -1166,6 +1170,9 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 						ivyBlock->Appear();
 						ivyBlock->OffPlayer();
+
+						//SEを鳴らす。
+						SoundConfig::Instance()->Play(SoundConfig::SE_BOOT);
 
 					}
 				}
@@ -1500,6 +1507,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		if (static_cast<int>(CAMERA_MODE.size()) <= m_cameraMode) {
 			m_cameraMode = 0;
 		}
+
+		//SEを鳴らす。
+		SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, m_cameraMode);
 	}
 
 	//ジップライン
@@ -1578,6 +1588,10 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		if (1.0f <= m_jumpTimer) {
 			m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 			m_cameraJumpLerpAmount = 0;
+
+			//面移動SEを鳴らす。
+			SoundConfig::Instance()->Play(SoundConfig::SE_SURFACE_JUMP);
+
 		}
 		m_transform.SetPos(newPos);
 
@@ -1814,6 +1828,9 @@ void Player::FinishGimmickMove()
 	}
 
 	m_gimmickStatus = GIMMICK_STATUS::EXIT;
+
+	//SEを鳴らす。
+	SoundConfig::Instance()->Play(SoundConfig::SE_SHUT_DOWN);
 }
 
 Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, std::vector<TerrianHitPolygon>& arg_targetMesh) {
@@ -2352,6 +2369,9 @@ void Player::CheckZipline(const KuroEngine::Vec3<float> arg_newPos, std::weak_pt
 			zipline->CheckHit(true);
 			m_refZipline = zipline;
 			m_zipInOutPos = arg_newPos;
+
+			//SEを鳴らす。
+			SoundConfig::Instance()->Play(SoundConfig::SE_BOOT);
 		}
 
 		//終点との当たり判定
@@ -2363,6 +2383,9 @@ void Player::CheckZipline(const KuroEngine::Vec3<float> arg_newPos, std::weak_pt
 			zipline->CheckHit(false);
 			m_refZipline = zipline;
 			m_zipInOutPos = arg_newPos;
+
+			//SEを鳴らす。
+			SoundConfig::Instance()->Play(SoundConfig::SE_BOOT);
 		}
 
 		//=================================================

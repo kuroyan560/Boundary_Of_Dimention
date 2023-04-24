@@ -164,9 +164,11 @@ private:
 
 	//有効化フラグ
 	bool m_isActive;
+	bool m_isOldActive;
 	bool m_prevOnPlayer;
 	bool m_onPlayer;	//プレイヤーが乗っているか
 	bool m_isStop;		//別の動く足場とぶつかって一時停止したか。
+	bool m_isOldStop;		//別の動く足場とぶつかって一時停止したか。
 
 	//座標関連
 	KuroEngine::Vec3<float> m_nowPos;
@@ -179,6 +181,7 @@ public:
 		:StageParts(MOVE_SCAFFOLD, arg_model, arg_initTransform), m_translationArray(arg_translationArray)
 	{
 		m_maxTranslation = static_cast<int>(arg_translationArray.size()) - 1;
+		m_isOldActive = false;
 	}
 
 	void OnInit()override;

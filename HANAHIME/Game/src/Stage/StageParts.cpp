@@ -5,6 +5,7 @@
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"Switch.h"
 #include"ForUser/DrawFunc/BillBoard/DrawFuncBillBoard.h"
+#include"../SoundConfig.h"
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
@@ -205,9 +206,11 @@ void GoalPoint::Update(Player& arg_player)
 void MoveScaffold::OnInit()
 {
 	m_isActive = false;
+	m_isOldActive = false;
 	m_prevOnPlayer = false;
 	m_onPlayer = false;
 	m_isStop = false;
+	m_isOldStop = false;
 	m_isOder = true;
 	m_nowTranslationIndex = 0;
 	m_nextTranslationIndex = 1;
@@ -243,6 +246,16 @@ void MoveScaffold::Update(Player& arg_player)
 
 	//フラグを保存。
 	m_prevOnPlayer = m_onPlayer;
+
+	//SEの処理
+	if ((!m_isOldActive && m_isActive) || (!m_isOldStop && m_isStop)) {
+		SoundConfig::Instance()->Play(SoundConfig::SE_MOVE_SCAFFOLD_START);
+	}
+	if ((m_isOldActive && !m_isActive) || (m_isOldStop && !m_isStop)) {
+		SoundConfig::Instance()->Play(SoundConfig::SE_MOVE_SCAFFOLD_STOP);
+	}
+	m_isOldActive = m_isActive;
+	m_isOldStop = m_isStop;
 
 	//有効化されていなかったら処理を飛ばす。
 	if (!m_isActive) return;
@@ -422,6 +435,19 @@ void Lever::Update(Player& arg_player)
 	if (m_isHit && !m_isOldHit) {
 		m_flg = !m_flg;
 	}
+
+	//onTriggerだったら
+	if (!m_isOldHit && m_isHit) {
+
+		SoundConfig::Instance()->Play(SoundConfig::SE_LEVER_ON);
+
+	}
+	else if (m_isOldHit && !m_isOldHit) {
+
+		SoundConfig::Instance()->Play(SoundConfig::SE_LEVER_OFF);
+
+	}
+
 
 }
 
