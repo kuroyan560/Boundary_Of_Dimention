@@ -380,16 +380,13 @@ void Lever::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 {
 	StageParts::Draw(arg_cam, arg_ligMgr);
 
-	//デバッグ用
-#ifdef _DEBUG
 	if (m_flg)
 	{
 		KuroEngine::DrawFuncBillBoard::Box(arg_cam,
-			m_transform.GetPosWorld() + m_transform.GetUp() * 2.0f,
-			{ 3.0f,3.0f },
+			m_transform.GetPosWorld() + m_transform.GetUp(),
+			{ 9.0f,9.0f },
 			KuroEngine::Color(1.0f, 1.0f, 1.0f, 1.0f));
 	}
-#endif
 }
 
 void Lever::Update(Player& arg_player)
