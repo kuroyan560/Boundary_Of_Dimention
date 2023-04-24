@@ -12,44 +12,22 @@ StageManager::StageManager()
 	AddCustomParameter("Woods_Height", { "scaling", "woods", "height" }, PARAM_TYPE::FLOAT, &m_woodsHeight, "Scaling");
 	LoadParameterLog();
 
+	//ステージのjsonファイルの所在
+	std::string stageDir = "resource/user/level/";
+
 	//ホームステージ
 	m_homeStage = std::make_shared<Stage>();
-	m_homeStage->Load("resource/user/level/", "New_Home.json", 5.0f, false);
+	m_homeStage->Load(stageDir, "New_Home.json", 5.0f, false);
 
 	float terrianScaling = 1.5f;
 
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_1.json", terrianScaling);
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_2.json", terrianScaling);
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_3.json", terrianScaling);
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_4.json", terrianScaling);
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_5.json", terrianScaling);
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_6.json", terrianScaling);
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_7.json", terrianScaling);
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_8.json", terrianScaling);
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_9.json", terrianScaling);
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_10.json", terrianScaling);
-	/*m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_10.json", terrianScaling);*/
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_12.json", terrianScaling);
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_14.json", terrianScaling);
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_15.json", terrianScaling);
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_16.json", terrianScaling);
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load("resource/user/level/", "P_Stage_17.json", terrianScaling);
+	//パズルステージ一括読み込み
+	int loadPazzleIdx = 1;
+	while (KuroEngine::ExistFile(stageDir + "P_Stage_" + std::to_string(loadPazzleIdx) + ".json"))
+	{
+		m_stageArray.emplace_back(std::make_shared<Stage>());
+		m_stageArray.back()->Load(stageDir, "P_Stage_" + std::to_string(loadPazzleIdx++) + ".json", terrianScaling);
+	}
 
 	//現在のステージ指定（デフォルトはホーム用ステージ）
 	m_nowStage = m_homeStage;
