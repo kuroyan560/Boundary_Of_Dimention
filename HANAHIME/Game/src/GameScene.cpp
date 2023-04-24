@@ -11,7 +11,7 @@
 #include"FrameWork/UsersInput.h"
 #include"Plant/GrowPlantLight.h"
 
-GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer())
+GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_1flameStopTimer(5)
 {
 	m_ddsTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.dds");
 	m_pngTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
@@ -75,9 +75,6 @@ void GameScene::OnInitialize()
 
 	m_waterPaintBlend.Init();
 
-	//タイトル画面に戻る
-	StageManager::Instance()->SetStage();
-
 	m_title.Init(m_eTitleMode);
 	//ゲーム画面からパズルモードに戻る場合にパズルモードとして初期化した後、再び選択できるようSELECTを入れる
 	m_eTitleMode = TITLE_SELECT;
@@ -112,7 +109,7 @@ void GameScene::OnUpdate()
 		m_nowCam = m_movieCamera.GetCamera().lock();
 	}
 	//ゴール時の演出
-	if (StageManager::Instance()->IsClearNowStage())
+	if (StageManager::Instance()->IsClearNowStage() && m_1flameStopTimer.IsTimeUp())
 	{
 		m_goal.Start();
 		//m_nowCam = m_goal.GetCamera().lock();
@@ -128,7 +125,6 @@ void GameScene::OnUpdate()
 
 	StageManager::Instance()->Update(m_player);
 
-	m_player.Update(StageManager::Instance()->GetNowStage());
 
 	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
 
@@ -171,6 +167,11 @@ void GameScene::OnUpdate()
 			m_title.FinishTitle();
 			OperationConfig::Instance()->SetActive(true);
 		}
+		else
+		{
+			//タイトル画面に戻る
+			StageManager::Instance()->SetStage();
+		}
 
 		m_goal.Init(StageManager::Instance()->GetGoalTransform(), StageManager::Instance()->GetGoalModel());
 
@@ -180,16 +181,21 @@ void GameScene::OnUpdate()
 			m_eTitleMode = TITLE_PAZZLE;
 			this->Initialize();
 			m_clearFlag = false;
+			m_1flameStopTimer.Reset();
 		}
 	}
+	m_1flameStopTimer.UpdateTimer();
 
 
+	//ゲームシーンでのみ使う物
+	if (m_title.IsFinish() || m_title.IsStartOP())
+	{
+		m_player.Update(StageManager::Instance()->GetNowStage());
+		m_goal.Update(&m_player.GetCamera().lock()->GetTransform());
+	}
 
-	m_goal.Update(&m_player.GetCamera().lock()->GetTransform());
 	m_gateSceneChange.Update();
-
 	m_movieCamera.Update();
-
 	m_fireFlyStage.ComputeUpdate();
 
 
@@ -204,7 +210,6 @@ void GameScene::OnUpdate()
 		tutorial.Finish();
 	}
 
-	//ゲームシーンで使われないまとめ
 	tutorial.Update();
 	m_stageSelect.Update();
 
@@ -238,9 +243,11 @@ void GameScene::OnDraw()
 		transform,
 		*m_nowCam);
 
-	m_player.Draw(*m_nowCam, m_ligMgr, DebugController::Instance()->IsActive());
-
-	m_grass.Draw(*m_nowCam, m_ligMgr);
+	if (m_title.IsFinish() || m_title.IsStartOP())
+	{
+		m_player.Draw(*m_nowCam, m_ligMgr, DebugController::Instance()->IsActive());
+		m_grass.Draw(*m_nowCam, m_ligMgr);
+	}
 
 	m_stageSelect.Draw(*m_nowCam, m_ligMgr);
 
@@ -272,8 +279,10 @@ void GameScene::OnDraw()
 
 	m_title.Draw(*m_nowCam, m_ligMgr);
 
-
-	m_goal.Draw(*m_nowCam);
+	if (m_title.IsFinish() || m_title.IsStartOP())
+	{
+		m_goal.Draw(*m_nowCam);
+	}
 
 
 	m_gateSceneChange.Draw();

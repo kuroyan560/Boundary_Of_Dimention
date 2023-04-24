@@ -46,7 +46,12 @@ private:
 	KuroEngine::Vec2<int> m_nowStageNum;
 	KuroEngine::Vec2<float> m_prevContollerLeftStick;
 
-	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_numTexArray;
+	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_numMainTexArray;
+	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_numSubTexArray;
+
+	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_nowNumTexArray;
+
+
 	std::vector<int> CountNumber(int TIME)
 	{
 		std::vector<int> Number(2);

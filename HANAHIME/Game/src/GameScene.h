@@ -62,6 +62,7 @@ class GameScene : public KuroEngine::BaseScene
 	Title m_title;
 	Goal m_goal;
 	bool m_clearFlag;
+	KuroEngine::Timer m_1flameStopTimer;
 
 	//GPUパーティクルの描画
 	GPUParticleRender m_particleRender;

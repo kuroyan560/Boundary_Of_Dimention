@@ -20,8 +20,10 @@ PazzleStageSelect::PazzleStageSelect() :m_beatTimer(30), m_appearTimer(60), m_hi
 		yNum += static_cast<int>(m_stageSelectArray[y].size());
 	}
 
-	m_numTexArray.resize(10);
-	KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(m_numTexArray.data(), "resource/user/tex/stage_select/stage_num_main.png", 10, { 10,1 });
+	m_numMainTexArray.resize(10);
+	m_numSubTexArray.resize(10);
+	KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(m_numMainTexArray.data(), "resource/user/tex/stage_select/stage_num_main.png", 10, { 10,1 });
+	KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(m_numSubTexArray.data(), "resource/user/tex/stage_select/stage_num_sub.png", 10, { 10,1 });
 
 	m_selectTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/cursor.png");
 
@@ -48,8 +50,8 @@ PazzleStageSelect::PazzleStageSelect() :m_beatTimer(30), m_appearTimer(60), m_hi
 
 	//ホームの周りを円状に回っていく処理----------------------------------------
 	const int xAngle = 20;
-	const float radius = 50.0f;
-	const float height = 20.0f;
+	const float radius = 100.0f;
+	const float height = 50.0f;
 
 	std::vector<MovieCameraData> titleCameraMoveDataArray;
 	MovieCameraData data;
@@ -262,13 +264,15 @@ void PazzleStageSelect::Draw()
 			}
 
 			KuroEngine::Vec2<float>basePos(pos * texSize + m_baseStageSelectPos);
-			KuroEngine::Vec2<float>size(0.3f, 0.3f);
+			KuroEngine::Vec2<float>size(1.0f, 1.0f);
 			//桁の間のスペース
 			KuroEngine::Vec2<float>digitsBetween(30.0f, 0.0f);
 			//選択中の数字は強調させる
 			bool isSelectingFlag = GetNumber() == stageNumber;
+			m_nowNumTexArray = m_numSubTexArray;
 			if (isSelectingFlag)
 			{
+				m_nowNumTexArray = m_numMainTexArray;
 				size = { 0.8f,0.8f };
 				digitsBetween = { 60.0f,0.0f };
 				basePos.y += 30.0f;
@@ -281,10 +285,12 @@ void PazzleStageSelect::Draw()
 			//選択中の数字を基準に全ての数字をずらす。
 			basePos.x -= GetNumber() * 128.0f;
 
+
+
 			//桁用意
 			std::vector<int>timeArray = CountNumber(stageNumber + 1);
-			KuroEngine::DrawFunc2D::DrawRotaGraph2D(basePos - m_hideVel, size, 0.0f, m_numTexArray[timeArray[0]], numberAlpha);
-			KuroEngine::DrawFunc2D::DrawRotaGraph2D(basePos + digitsBetween - m_hideVel, size, 0.0f, m_numTexArray[timeArray[1]], numberAlpha);
+			KuroEngine::DrawFunc2D::DrawRotaGraph2D(basePos - m_hideVel, size, 0.0f, m_nowNumTexArray[timeArray[0]], numberAlpha);
+			KuroEngine::DrawFunc2D::DrawRotaGraph2D(basePos + digitsBetween - m_hideVel, size, 0.0f, m_nowNumTexArray[timeArray[1]], numberAlpha);
 		}
 		yNum += static_cast<int>(m_stageSelectArray[y].size());
 	}
