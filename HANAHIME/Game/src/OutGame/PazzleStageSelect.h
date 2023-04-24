@@ -32,6 +32,10 @@ public:
 	{
 		m_stopFlag = true;
 	}
+	void Clear()
+	{
+		m_stageSelectArray[m_nowStageNum.y][m_nowStageNum.x].m_isClearFlag = true;
+	};
 
 	MovieCamera m_camera;
 private:
@@ -173,5 +177,7 @@ private:
 	std::array<std::unique_ptr<Band>, 2>m_bandArray;
 
 	//è„â∫ÇÃë—-----------------------------------------------------------------------
+
+	int m_prevStageIndex;
 
 };

@@ -51,14 +51,25 @@ bool Stage::LoadTranslationArray(std::string arg_fileName, std::vector<KuroEngin
 	return true;
 }
 
-void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nlohmann::json arg_json)
+void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, StageParts* arg_parent)
 {
 	using namespace KuroEngine;
 
 	auto& obj = arg_json;
 
+	//種別のパラメータがない
+	if (!CheckJsonKeyExist(arg_fileName, obj, "type"))return;
+
+	//モデルの名前のパラメータがない
+	if (!CheckJsonKeyExist(arg_fileName, obj, "file_name"))return;
+
+	//トランスフォームのパラメータがない
+	if (!CheckJsonKeyExist(arg_fileName, obj, "transform"))return;
+
 	//共通パラメータ
-		//モデル設定
+	//種別
+	auto typeKey = obj["type"].get<std::string>();
+	//モデル設定
 	auto model = Importer::Instance()->LoadModel(s_terrianModelDir, obj["file_name"].get<std::string>() + ".glb");
 
 	//トランスフォーム取得
@@ -75,24 +86,28 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 
 	//トランスフォーム設定
 	Transform transform;
-	transform.SetPos(translation * m_terrianScaling);
+	transform.SetPos(translation * (arg_parent == nullptr ? m_terrianScaling : 1.0f));
 	transform.SetRotate(quaternion);
-	transform.SetScale(scaling * m_terrianScaling);
+	transform.SetScale(scaling * (arg_parent == nullptr ? m_terrianScaling : 1.0f));
+
+	StageParts* newPart = nullptr;
 
 	//種別に応じて変わるパラメータ
 		//通常の地形
-	if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::TERRIAN))
+	if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::TERRIAN))
 	{
-		m_terrianArray.emplace_back(model, transform);
+		m_terrianArray.emplace_back(model, transform, arg_parent);
+		newPart = &m_terrianArray[static_cast<int>(m_terrianArray.size()) - 1];
 	}
 	//スタート地点
-	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::START_POINT))
+	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::START_POINT))
 	{
 		transform.SetScale(1.0f);
-		m_startPoint = std::make_shared<StartPoint>(model, transform);
+		m_startPoint = std::make_shared<StartPoint>(model, transform, arg_parent);
+		newPart = m_startPoint.get();
 	}
 	//ゴール地点
-	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::GOAL_POINT))
+	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::GOAL_POINT))
 	{
 		//全てのレバーをオンにすることがクリア条件
 		if (obj.contains("leverID") && obj["leverID"] != -1)
@@ -102,42 +117,47 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 		//目的地に到達することがクリア条件
 		else
 		{
-			m_goalPoint = std::make_shared<GoalPoint>(model, transform);
+			m_goalPoint = std::make_shared<GoalPoint>(model, transform, arg_parent);
 		}
+		newPart = m_goalPoint.get();
 	}
 	//見かけだけのオブジェクト
-	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::APPEARANCE))
+	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::APPEARANCE))
 	{
-		m_gimmickArray.emplace_back(std::make_shared<Appearance>(model, transform));
+		m_gimmickArray.emplace_back(std::make_shared<Appearance>(model, transform, arg_parent));
+		newPart = m_gimmickArray.back().get();
 	}
 	//動く足場
-	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::MOVE_SCAFFOLD))
+	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::MOVE_SCAFFOLD))
 	{
 		std::vector<KuroEngine::Vec3<float>>translationArray;
 		if (LoadTranslationArray(arg_fileName, &translationArray, obj))
 		{
-			m_gimmickArray.emplace_back(std::make_shared<MoveScaffold>(model, transform, translationArray));
+			m_gimmickArray.emplace_back(std::make_shared<MoveScaffold>(model, transform, arg_parent, translationArray));
 		}
+		newPart = m_gimmickArray.back().get();
 	}
 	//レバー
-	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::LEVER))
+	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::LEVER))
 	{
 		//必要なパラメータがない
 		if (!CheckJsonKeyExist(arg_fileName, arg_json, "id") || !CheckJsonKeyExist(arg_fileName, arg_json, "initFlg"))return;
 
-		m_gimmickArray.emplace_back(std::make_shared<Lever>(model, transform, arg_json["id"], arg_json["initFlg"]));
+		m_gimmickArray.emplace_back(std::make_shared<Lever>(model, transform, arg_parent, arg_json["id"], arg_json["initFlg"]));
+		newPart = m_gimmickArray.back().get();
 	}
 	//ジップライン蔓
-	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::IVY_ZIP_LINE))
+	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::IVY_ZIP_LINE))
 	{
 		std::vector<KuroEngine::Vec3<float>>translationArray;
 		if (LoadTranslationArray(arg_fileName, &translationArray, obj))
 		{
-			m_gimmickArray.emplace_back(std::make_shared<IvyZipLine>(model, transform, translationArray));
+			m_gimmickArray.emplace_back(std::make_shared<IvyZipLine>(model, transform, arg_parent, translationArray));
 		}
+		newPart = m_gimmickArray.back().get();
 	}
 	//蔓ブロック
-	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::IVY_BLOCK))
+	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::IVY_BLOCK))
 	{
 		//必要なパラメータがない
 		if (!CheckJsonKeyExist(arg_fileName, arg_json, "block"))return;
@@ -149,11 +169,21 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 		//右下奥
 		Vec3<float>rightBottomBack = GetConsiderCoordinate(arg_json["block"]["right_bottom_back_pos"]);
 
-		m_gimmickArray.emplace_back(std::make_shared<IvyBlock>(model, transform, leftTopFront, rightBottomBack));
+		m_gimmickArray.emplace_back(std::make_shared<IvyBlock>(model, transform, arg_parent, leftTopFront, rightBottomBack));
+		newPart = m_gimmickArray.back().get();
 	}
 	else
 	{
-		AppearMessageBox("Warning : Stage::LoadWithType()", "ステージパーツの読み込み中に知らない種別キー \"" + arg_typeKey + "\"があったけど大丈夫？");
+		AppearMessageBox("Warning : Stage::LoadWithType()", "ステージパーツの読み込み中に知らない種別キー \"" + typeKey + "\"があったけど大丈夫？");
+	}
+
+	//子供のパーツ読み込み
+	if (obj.contains("children"))
+	{
+		for (auto child : obj["children"])
+		{
+			LoadWithType(arg_fileName, child, newPart);
+		}
 	}
 }
 
@@ -310,16 +340,7 @@ void Stage::Load(std::string arg_dir, std::string arg_fileName, float arg_terria
 	auto stageJsonData = jsonData.m_jsonData["stage"];
 	for (auto& obj : stageJsonData["objects"])
 	{
-		//種別のパラメータがない
-		if (!CheckJsonKeyExist(arg_fileName, obj, "type"))break;
-
-		//モデルの名前のパラメータがない
-		if (!CheckJsonKeyExist(arg_fileName, obj, "file_name"))break;
-
-		//トランスフォームのパラメータがない
-		if (!CheckJsonKeyExist(arg_fileName, obj, "transform"))break;
-
-		LoadWithType(arg_fileName, obj["type"].get<std::string>(), obj);
+		LoadWithType(arg_fileName, obj, nullptr);
 	}
 
 	//スタート地点があるか

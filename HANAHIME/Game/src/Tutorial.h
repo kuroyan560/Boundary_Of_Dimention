@@ -1,6 +1,6 @@
 #pragma once
 #include"ForUser/Object/Object.h"
-#include"ForUser/DrawFunc/3D/DrawFunc3D.h"
+#include"ForUser/DrawFunc/BillBoard/DrawFuncBillBoard.h"
 #include"GPUParticle/SignSpotFireFly.h"
 
 /// <summary>

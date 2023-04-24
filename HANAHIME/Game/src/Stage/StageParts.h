@@ -75,8 +75,11 @@ protected:
 	virtual void OnInit() {};
 
 public:
-	StageParts(STAGE_PARTS_TYPE arg_type, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
-		:m_type(arg_type), m_model(arg_model), m_initializedTransform(arg_initTransform), m_transform(arg_initTransform) {}
+	StageParts(STAGE_PARTS_TYPE arg_type, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent)
+		:m_type(arg_type), m_model(arg_model), m_initializedTransform(arg_initTransform), m_transform(arg_initTransform)
+	{
+		if (arg_parent)m_transform.SetParent(&arg_parent->m_transform);
+	}
 	virtual ~StageParts() {}
 
 	void Init();
@@ -103,8 +106,8 @@ class Terrian : public StageParts
 	TerrianMeshCollider m_collider;
 
 public:
-	Terrian(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
-		:StageParts(TERRIAN, arg_model, arg_initTransform)
+	Terrian(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent)
+		:StageParts(TERRIAN, arg_model, arg_initTransform, arg_parent)
 	{
 		m_collider.BuilCollisionMesh(arg_model, arg_initTransform);
 	}
@@ -116,8 +119,8 @@ public:
 class StartPoint : public StageParts
 {
 public:
-	StartPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
-		:StageParts(START_POINT, arg_model, arg_initTransform) {}
+	StartPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent)
+		:StageParts(START_POINT, arg_model, arg_initTransform, arg_parent) {}
 	void Update(Player& arg_player)override {}
 };
 
@@ -126,8 +129,8 @@ class GoalPoint : public StageParts
 {
 	bool m_hitPlayer = false;
 public:
-	GoalPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
-		:StageParts(GOAL_POINT, arg_model, arg_initTransform) {}
+	GoalPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent)
+		:StageParts(GOAL_POINT, arg_model, arg_initTransform, arg_parent) {}
 	void Update(Player& arg_player)override;
 
 	const bool& HitPlayer()const { return m_hitPlayer; }
@@ -137,8 +140,8 @@ public:
 class Appearance : public StageParts
 {
 public:
-	Appearance(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
-		:StageParts(APPEARANCE, arg_model, arg_initTransform)
+	Appearance(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent)
+		:StageParts(APPEARANCE, arg_model, arg_initTransform, arg_parent)
 	{
 	}
 	void Update(Player& arg_player)override {}
@@ -177,8 +180,8 @@ private:
 	const float MOVE_SPEED = 0.1f;
 
 public:
-	MoveScaffold(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>arg_translationArray)
-		:StageParts(MOVE_SCAFFOLD, arg_model, arg_initTransform), m_translationArray(arg_translationArray)
+	MoveScaffold(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent, std::vector<KuroEngine::Vec3<float>>arg_translationArray)
+		:StageParts(MOVE_SCAFFOLD, arg_model, arg_initTransform, arg_parent), m_translationArray(arg_translationArray)
 	{
 		m_maxTranslation = static_cast<int>(arg_translationArray.size()) - 1;
 		m_isOldActive = false;
@@ -247,8 +250,8 @@ private:
 	bool m_flg = false;
 
 public:
-	Lever(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_id, bool arg_initFlg = false)
-		:StageParts(LEVER, arg_model, arg_initTransform), m_id(arg_id), m_initFlg(arg_initFlg)
+	Lever(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent, int arg_id, bool arg_initFlg = false)
+		:StageParts(LEVER, arg_model, arg_initTransform, arg_parent), m_id(arg_id), m_initFlg(arg_initFlg)
 	{
 		m_boxCollider.m_center = arg_initTransform.GetPosWorld();
 		m_boxCollider.m_size = arg_initTransform.GetScale();
@@ -291,8 +294,8 @@ public:
 	const float ZIPLINE_SPEED = 1.0f;
 
 public:
-	IvyZipLine(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>arg_translationArray)
-		:StageParts(IVY_ZIP_LINE, arg_model, arg_initTransform), m_translationArray(arg_translationArray) {
+	IvyZipLine(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent, std::vector<KuroEngine::Vec3<float>>arg_translationArray)
+		:StageParts(IVY_ZIP_LINE, arg_model, arg_initTransform, arg_parent), m_translationArray(arg_translationArray) {
 
 		//デバッグ用で先頭のジップラインのY座標を下げる。
 		m_translationArray.front().x -= 5.0f;
@@ -366,8 +369,8 @@ class IvyBlock : public StageParts
 	const float HIT_SCALE_MAX = 15.5f;
 
 public:
-	IvyBlock(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, KuroEngine::Vec3<float>arg_leftTopFront, KuroEngine::Vec3<float>arg_rightBottomBack)
-		:StageParts(IVY_BLOCK, arg_model, arg_initTransform), m_leftTopFront(arg_leftTopFront), m_rightBottomBack(arg_rightBottomBack) {
+	IvyBlock(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent, KuroEngine::Vec3<float>arg_leftTopFront, KuroEngine::Vec3<float>arg_rightBottomBack)
+		:StageParts(IVY_BLOCK, arg_model, arg_initTransform, arg_parent), m_leftTopFront(arg_leftTopFront), m_rightBottomBack(arg_rightBottomBack) {
 		m_collider.BuilCollisionMesh(arg_model, arg_initTransform);
 		OnInit();
 	}

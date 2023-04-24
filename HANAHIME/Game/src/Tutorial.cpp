@@ -56,7 +56,7 @@ void Tutorial::Update()
 
 void Tutorial::Draw(KuroEngine::Camera &camera)
 {
-	KuroEngine::DrawFunc3D::DrawNonShadingPlane(m_tutorialDataArray[m_nowIndex].GetTex(), m_nowTransform, camera, m_fireFly.GetAlphaRate());
+	KuroEngine::DrawFuncBillBoard::Graph(camera, m_nowTransform.GetPos(), { 10.0f,10.0f }, m_tutorialDataArray[m_nowIndex].GetTex());
 }
 
 void Tutorial::Finish()
