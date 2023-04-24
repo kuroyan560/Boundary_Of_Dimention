@@ -33,6 +33,9 @@ SoundConfig::SoundConfig()
 	m_seTable[SE_MOVE_SCAFFOLD_START].Load(audioApp->LoadAudio(seDir + "move_scaffold_start.wav"));
 	m_seTable[SE_MOVE_SCAFFOLD_STOP].Load(audioApp->LoadAudio(seDir + "move_scaffold_stop.wav"));
 	m_seTable[SE_CAM_MODE_CHANGE].Load(LoadSoundArray(seDir, "cam_mode"), SoundSE::ORDER_TYPE::IN_ORDER);
+	m_seTable[SE_ZIP_LINE_GET_ON].Load(audioApp->LoadAudio(seDir + "ivy_zip_line_ride_on.wav"));
+	m_seTable[SE_ZIP_LINE_GET_OFF].Load(audioApp->LoadAudio(seDir + "ivy_zip_line_ride_off.wav"));
+	m_seTable[SE_GRASS].Load(audioApp->LoadAudio(seDir + "grass.wav"));
 	m_seTable[SE_BOOT].Load(audioApp->LoadAudio(seDir + "boot.wav"));
 	m_seTable[SE_SHUT_DOWN].Load(audioApp->LoadAudio(seDir + "shutdown.wav"));
 

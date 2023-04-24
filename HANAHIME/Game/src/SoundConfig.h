@@ -18,6 +18,9 @@ public:
 		SE_MOVE_SCAFFOLD_START,	//移動床起動
 		SE_MOVE_SCAFFOLD_STOP,	//移動床停止
 		SE_CAM_MODE_CHANGE,	//カメラモード切り替え
+		SE_ZIP_LINE_GET_ON,	//ジップラインに乗る
+		SE_ZIP_LINE_GET_OFF,	//ジップラインから降りる
+		SE_GRASS,	//草の音
 		SE_BOOT,	//起動
 		SE_SHUT_DOWN,	//シャットダウン
 		SE_NUM
