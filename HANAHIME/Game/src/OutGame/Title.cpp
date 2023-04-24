@@ -11,6 +11,7 @@ Title::Title()
 	m_storyModeTexBuff(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/title/Story.png")),
 	m_delayTime(10)
 {
+	SoundConfig::Instance()->Play(SoundConfig::BGM_TITLE);
 }
 
 void Title::Init(TitleMode title_mode)
@@ -86,9 +87,10 @@ void Title::Init(TitleMode title_mode)
 	default:
 		break;
 	}
+
 }
 
-void Title::Update(KuroEngine::Transform* player_camera)
+void Title::Update(KuroEngine::Transform *player_camera)
 {
 	//コントローラーで右に入力されたか
 	bool isInputControllerRight = 0.9f < KuroEngine::UsersInput::Instance()->GetLeftStickVecFuna(0).x;
@@ -106,6 +108,12 @@ void Title::Update(KuroEngine::Transform* player_camera)
 	}
 	m_isPazzleModeFlag = true;
 
+	if (m_isPazzleModeFlag != m_prevIsPazzleModeFlag)
+	{
+		SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
+		m_prevIsPazzleModeFlag = m_isPazzleModeFlag;
+	}
+
 	//コントローラーの入力を保存。
 	m_isPrevInputControllerRight = isInputControllerRight;
 	m_isPrevInputControllerLeft = isInputContollerLeft;
@@ -114,6 +122,8 @@ void Title::Update(KuroEngine::Transform* player_camera)
 	bool isInput = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A);
 	if (!m_isPazzleModeFlag && isInput && !m_startGameFlag && !m_startPazzleFlag)
 	{
+		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
+
 		m_startGameFlag = true;
 
 		std::vector<MovieCameraData> moveToTreeDataArray;
@@ -141,6 +151,7 @@ void Title::Update(KuroEngine::Transform* player_camera)
 	if (m_isPazzleModeFlag && isInputSpace && !m_startGameFlag)
 	{
 		m_startPazzleFlag = true;
+		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
 		m_stageSelect.Init();
 	}
 
@@ -158,6 +169,7 @@ void Title::Update(KuroEngine::Transform* player_camera)
 	//OPのカメラ挙動
 	if (m_startOPFlag && !m_generateCameraMoveDataFlag)
 	{
+		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
 		std::vector<MovieCameraData> lookDownDataArray;
 
 		//プレイヤーを基準に座標を動かして気を見ている
@@ -204,6 +216,7 @@ void Title::Update(KuroEngine::Transform* player_camera)
 
 		if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_ESCAPE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::START))
 		{
+			SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
 			m_startPazzleFlag = false;
 			m_delayInputFlag = false;
 			m_stageSelect.Stop();
@@ -211,9 +224,10 @@ void Title::Update(KuroEngine::Transform* player_camera)
 		}
 	}
 	m_camera.Update();
+
 }
 
-void Title::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 	if (m_isFinishFlag)
 	{

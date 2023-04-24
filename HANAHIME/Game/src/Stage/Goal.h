@@ -10,6 +10,8 @@
 #include"StageInfomation.h"
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"../Stage/StageParts.h"
+#include"../SoundConfig.h"
+
 
 //ステージに配置されているゴール
 class Goal
@@ -24,7 +26,7 @@ public:
 	//ゴール演出スタート
 	void Start()
 	{
-		m_isStartFlg = true;
+		m_isStartFlag = true;
 	}
 
 	//ゴール演出が終わったか
@@ -40,7 +42,7 @@ public:
 
 private:
 	bool m_initFlag;
-	bool m_isStartFlg, m_startGoalEffectFlag;
+	bool m_isStartFlag, m_prevStartFlag, m_startGoalEffectFlag;
 	bool m_startCameraFlag;
 	MovieCamera m_movieCamera;					//ゴール時のカメラワーク
 	

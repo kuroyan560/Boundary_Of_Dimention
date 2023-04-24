@@ -2,6 +2,7 @@
 #include"../Movie/MovieCamera.h"
 #include"ForUser/DrawFunc/2D/DrawFunc2D.h"
 #include"PazzleStageSelect.h"
+#include"../SoundConfig.h"
 
 enum TitleMode
 {
@@ -76,6 +77,7 @@ private:
 	bool m_startGameFlag;
 	bool m_startPazzleFlag;
 	bool m_isPazzleModeFlag;
+	bool m_prevIsPazzleModeFlag;
 	//OPƒtƒ‰ƒO
 	bool m_startOPFlag;
 	bool m_generateCameraMoveDataFlag;

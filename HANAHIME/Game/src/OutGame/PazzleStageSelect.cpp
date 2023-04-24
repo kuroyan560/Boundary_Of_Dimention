@@ -103,24 +103,33 @@ void PazzleStageSelect::Update()
 
 	const float DEADLINE = 0.8f;
 	bool isInputRightController = m_prevContollerLeftStick.x < DEADLINE &&DEADLINE < contollerLeftStickInput.x;
+	bool selectFlag = false;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_RIGHT) || isInputRightController)
 	{
 		++m_nowStageNum.x;
+		selectFlag = true;
 	}
 	bool isInputLeftController = -DEADLINE < m_prevContollerLeftStick.x &&contollerLeftStickInput.x < -DEADLINE;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_LEFT) || isInputLeftController)
 	{
 		--m_nowStageNum.x;
+		selectFlag = true;
 	}
 	bool isInputUpController = -DEADLINE < m_prevContollerLeftStick.y &&contollerLeftStickInput.y < -DEADLINE;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_UP) || isInputUpController)
 	{
 		--m_nowStageNum.y;
+		selectFlag = true;
 	}
 	bool isInputDownController = m_prevContollerLeftStick.y < DEADLINE &&DEADLINE < contollerLeftStickInput.y;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_DOWN) || isInputDownController)
 	{
 		++m_nowStageNum.y;
+		selectFlag = true;
+	}
+	if (selectFlag)
+	{
+		SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
 	}
 
 	//コントローラーの入力を保存。
@@ -161,12 +170,6 @@ void PazzleStageSelect::Update()
 	{
 		++m_nowStageNum.y;
 		m_nowStageNum.x = 0;
-	}
-
-	//クリアしたかどうか
-	if (m_stageSelectArray[m_nowStageNum.y][m_nowStageNum.x].m_isClearFlag)
-	{
-		bool debug = false;
 	}
 
 	if (0 <= GetNumber() && GetNumber() < StageManager::Instance()->GetAllStageNum())

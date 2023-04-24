@@ -50,6 +50,7 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 
 void GameScene::GameInit()
 {
+	SoundConfig::Instance()->Play(SoundConfig::BGM_IN_GAME);
 	GrowPlantLight::ResetRegisteredLight();
 	StageManager::Instance()->SetStage(m_stageNum);
 	m_player.Init(StageManager::Instance()->GetPlayerSpawnTransform());
@@ -85,6 +86,7 @@ void GameScene::OnInitialize()
 	m_eTitleMode = TITLE_SELECT;
 
 	m_goal.m_gpuParticleBuffer = m_particleRender.GetStackBuffer();
+
 }
 
 void GameScene::OnUpdate()
@@ -95,6 +97,7 @@ void GameScene::OnUpdate()
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_I) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::B) || m_player.GetIsDeath())
 	{
 		m_eTitleMode = TITLE_PAZZLE;
+		SoundConfig::Instance()->Play(SoundConfig::BGM_TITLE);
 		this->Finalize();
 		this->Initialize();
 	}
@@ -175,6 +178,7 @@ void GameScene::OnUpdate()
 		else
 		{
 			//ƒ^ƒCƒgƒ‹‰æ–Ê‚É–ß‚é
+			SoundConfig::Instance()->Play(SoundConfig::BGM_TITLE);
 			StageManager::Instance()->SetStage();
 		}
 
