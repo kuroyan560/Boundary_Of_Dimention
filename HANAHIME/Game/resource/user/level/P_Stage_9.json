@@ -7,9 +7,9 @@
                 "name": "Start_9",
                 "transform": {
                     "translation": [
+                        -10.0,
                         0.0,
-                        0.0,
-                        6.5
+                        16.5
                     ],
                     "rotation": [
                         0.0,
@@ -30,9 +30,9 @@
                 "name": "Goal_9",
                 "transform": {
                     "translation": [
-                        -10.0,
-                        0.0,
-                        28.0
+                        10.0,
+                        10.0,
+                        17.0
                     ],
                     "rotation": [
                         0.0,
@@ -46,16 +46,40 @@
                         1.0
                     ]
                 },
-                "file_name": "Goal"
+                "file_name": "Goal",
+                "leverID": -1
+            },
+            {
+                "type": "Terrian",
+                "name": "Stage9_0",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        -1.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        4.0
+                    ]
+                },
+                "file_name": "Stage9"
             },
             {
                 "type": "MoveScaffold",
                 "name": "MoveScaffoldStage9_0",
                 "transform": {
                     "translation": [
-                        0.0,
-                        0.0,
-                        19.0
+                        -10.0,
+                        10.0,
+                        8.0
                     ],
                     "rotation": [
                         0.0,
@@ -72,25 +96,25 @@
                 "file_name": "MoveScaffoldStage9",
                 "translationArray": {
                     "translation_0": [
-                        0.0,
-                        0.0,
-                        19.0
+                        -10.0,
+                        10.0,
+                        8.0
                     ],
                     "translation_1": [
-                        10.0,
                         0.0,
-                        19.0
+                        10.0,
+                        8.0
                     ]
                 }
             },
             {
-                "type": "Terrian",
-                "name": "Stage9_0",
+                "type": "Appearance",
+                "name": "PROP9_0",
                 "transform": {
                     "translation": [
                         0.0,
                         0.0,
-                        0.0
+                        -1.0
                     ],
                     "rotation": [
                         0.0,
@@ -104,7 +128,7 @@
                         4.0
                     ]
                 },
-                "file_name": "Stage9"
+                "file_name": "PROP9"
             }
         ]
     }
