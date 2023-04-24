@@ -7,8 +7,8 @@
                 "name": "Start_12",
                 "transform": {
                     "translation": [
-                        10.0,
-                        20.0,
+                        0.0,
+                        0.0,
                         6.5
                     ],
                     "rotation": [
@@ -26,19 +26,19 @@
                 "file_name": "Start"
             },
             {
-                "type": "Goal",
-                "name": "Goal_12",
+                "type": "Lever",
+                "name": "Lever12_0",
                 "transform": {
                     "translation": [
-                        10.0,
-                        20.0,
-                        -10.0
+                        0.0,
+                        -10.0,
+                        3.0
                     ],
                     "rotation": [
-                        -0.0,
-                        -1.0,
-                        -0.0,
-                        4.371138828673793e-08
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
                     ],
                     "scaling": [
                         1.0,
@@ -46,7 +46,9 @@
                         1.0
                     ]
                 },
-                "file_name": "Goal"
+                "file_name": "Lever",
+                "id": 2,
+                "initFlg": false
             },
             {
                 "type": "Terrian",
@@ -55,7 +57,7 @@
                     "translation": [
                         0.0,
                         0.0,
-                        -1.0
+                        -2.0
                     ],
                     "rotation": [
                         0.0,
@@ -72,13 +74,13 @@
                 "file_name": "Stage12"
             },
             {
-                "type": "MoveScaffold",
-                "name": "MoveScaffoldStage12_0",
+                "type": "Lever",
+                "name": "Lever12_1",
                 "transform": {
                     "translation": [
-                        0.0,
+                        10.0,
                         -10.0,
-                        9.0
+                        3.0
                     ],
                     "rotation": [
                         0.0,
@@ -87,24 +89,263 @@
                         1.0
                     ],
                     "scaling": [
-                        5.0,
-                        5.0,
-                        5.0
+                        1.0,
+                        1.0,
+                        1.0
                     ]
                 },
-                "file_name": "MoveScaffoldStage12",
-                "translationArray": {
-                    "translation_0": [
+                "file_name": "Lever",
+                "id": 2,
+                "initFlg": false
+            },
+            {
+                "type": "Lever",
+                "name": "Lever12_2",
+                "transform": {
+                    "translation": [
+                        10.0,
                         0.0,
-                        -10.0,
-                        9.0
+                        3.0
                     ],
-                    "translation_1": [
+                    "rotation": [
                         0.0,
-                        -10.0,
-                        -1.0
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
                     ]
-                }
+                },
+                "file_name": "Lever",
+                "id": 2,
+                "initFlg": false
+            },
+            {
+                "type": "Lever",
+                "name": "Lever12_3",
+                "transform": {
+                    "translation": [
+                        20.0,
+                        0.0,
+                        3.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Lever",
+                "id": 2,
+                "initFlg": false
+            },
+            {
+                "type": "Lever",
+                "name": "Lever12_4",
+                "transform": {
+                    "translation": [
+                        20.0,
+                        -10.0,
+                        3.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Lever",
+                "id": 2,
+                "initFlg": false
+            },
+            {
+                "type": "Lever",
+                "name": "Lever12_5",
+                "transform": {
+                    "translation": [
+                        30.0,
+                        -10.0,
+                        3.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Lever",
+                "id": 2,
+                "initFlg": false
+            },
+            {
+                "type": "Lever",
+                "name": "Lever12_6",
+                "transform": {
+                    "translation": [
+                        30.0,
+                        0.0,
+                        3.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Lever",
+                "id": 2,
+                "initFlg": false
+            },
+            {
+                "type": "Lever",
+                "name": "Lever12_7",
+                "transform": {
+                    "translation": [
+                        30.0,
+                        5.0,
+                        8.0
+                    ],
+                    "rotation": [
+                        0.7071068286895752,
+                        0.0,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Lever",
+                "id": 2,
+                "initFlg": false
+            },
+            {
+                "type": "Lever",
+                "name": "Lever12_8",
+                "transform": {
+                    "translation": [
+                        20.0,
+                        5.0,
+                        8.0
+                    ],
+                    "rotation": [
+                        0.7071068286895752,
+                        0.0,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Lever",
+                "id": 2,
+                "initFlg": false
+            },
+            {
+                "type": "Lever",
+                "name": "Lever12_9",
+                "transform": {
+                    "translation": [
+                        20.0,
+                        5.0,
+                        18.0
+                    ],
+                    "rotation": [
+                        0.7071068286895752,
+                        0.0,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Lever",
+                "id": 2,
+                "initFlg": false
+            },
+            {
+                "type": "Lever",
+                "name": "Lever12_10",
+                "transform": {
+                    "translation": [
+                        30.0,
+                        5.0,
+                        18.0
+                    ],
+                    "rotation": [
+                        0.7071068286895752,
+                        0.0,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Lever",
+                "id": 2,
+                "initFlg": false
+            },
+            {
+                "type": "Goal",
+                "name": "Goal_12",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        0.10000000149011612,
+                        0.10000000149011612,
+                        0.10000000149011612
+                    ]
+                },
+                "file_name": "Goal",
+                "leverID": 2
             }
         ]
     }
