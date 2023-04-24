@@ -136,7 +136,7 @@ void PazzleStageSelect::Update()
 	}
 
 
-	int stageXMaxNum = static_cast<int>(m_stageSelectArray[m_nowStageNum.y].size());
+	int stageXMaxNum = static_cast<int>(StageManager::Instance()->GetAllStageNum());
 	//左上端から左に行こうとしたら右下端に向かう
 	if (m_nowStageNum.x < 0 && m_nowStageNum.y == 0)
 	{
@@ -168,7 +168,7 @@ void PazzleStageSelect::Update()
 		bool debug = false;
 	}
 
-	if (0 <= GetNumber() && GetNumber() < GetMaxNumber())
+	if (0 <= GetNumber() && GetNumber() < StageManager::Instance()->GetAllStageNum())
 	{
 		StageManager::Instance()->SetStage(GetNumber());
 	}
