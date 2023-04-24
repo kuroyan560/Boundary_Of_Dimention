@@ -299,12 +299,12 @@ void PazzleStageSelect::Draw()
 	//Å‰–îˆó•\Ž¦
 	if (GetNumber() == 0)
 	{
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[0] + m_hideVel, { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(180), m_dirTex[0]);
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[1] + m_hideVel, { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(0), m_dirTex[1]);
 	}
 	//ÅŒã–îˆó•\Ž¦
-	else if (GetNumber() == GetMaxNumber() - 1)
+	else if (GetNumber() == StageManager::Instance()->GetAllStageNum() - 1)
 	{
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[1] + m_hideVel, { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(0), m_dirTex[1]);
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[0] + m_hideVel, { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(180), m_dirTex[0]);
 	}
 	//—¼•û–îˆó•\Ž¦
 	else
