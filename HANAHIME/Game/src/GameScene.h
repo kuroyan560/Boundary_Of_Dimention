@@ -15,7 +15,7 @@
 #include"GPUParticle/GPUParticleRender.h"
 #include"GPUParticle/FireFlyOutStage.h"
 #include"Stage/Goal.h"
-
+#include"Tutorial.h"
 
 class GameScene : public KuroEngine::BaseScene
 {
@@ -67,6 +67,9 @@ class GameScene : public KuroEngine::BaseScene
 	GPUParticleRender m_particleRender;
 	//ステージ外の蛍描画
 	FireFlyOutStage m_fireFlyStage;
+
+	Tutorial tutorial;
+
 
 	void GameInit();
 

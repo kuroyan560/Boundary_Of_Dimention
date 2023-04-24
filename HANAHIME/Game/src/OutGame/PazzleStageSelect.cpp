@@ -20,7 +20,6 @@ PazzleStageSelect::PazzleStageSelect() :m_beatTimer(30), m_appearTimer(60), m_hi
 		yNum += static_cast<int>(m_stageSelectArray[y].size());
 	}
 
-
 	m_numTexArray.resize(10);
 	KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(m_numTexArray.data(), "resource/user/tex/stage_select/stage_num_main.png", 10, { 10,1 });
 

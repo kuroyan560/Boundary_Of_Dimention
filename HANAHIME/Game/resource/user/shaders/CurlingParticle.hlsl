@@ -28,10 +28,8 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
     }
 
     //行列計算-------------------------
-    matrix pMatWorld = scaleRotateBillboardMat;
-    pMatWorld[0][3] = worldPosColorArrayData[index].pos.x;
-    pMatWorld[1][3] = worldPosColorArrayData[index].pos.y;
-    pMatWorld[2][3] = worldPosColorArrayData[index].pos.z;
+    matrix pMatWorld = worldPosColorArrayData[index].world;
+    pMatWorld = mul(pMatWorld,scaleRotateBillboardMat);
     //行列計算-------------------------
 
     //出力--------------------------------------------

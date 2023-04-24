@@ -29,7 +29,10 @@ SamplerState smp : register(s0);
 float4 PSmain(VSOutput input) : SV_TARGET
 {
     float4 texColor = float4(tex.Sample(smp, input.uv));
-    //texColor.a = 0.0f;
-    //texColor.xyz = input.color.xyz;
+    if(input.color.a < texColor.a)
+    {
+        texColor.a = input.color.a;
+    }
+    texColor.xyz = input.color.xyz;
     return texColor;
 }

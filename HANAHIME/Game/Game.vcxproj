@@ -181,6 +181,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\GPUParticle\DrawExcuteIndirect.cpp" />
     <ClCompile Include="src\GPUParticle\FireFlyOutStage.cpp" />
     <ClCompile Include="src\GPUParticle\GPUParticleRender.cpp" />
+    <ClCompile Include="src\GPUParticle\SignSpotFireFly.cpp" />
     <ClCompile Include="src\Graphics\BasicDraw.cpp" />
     <ClCompile Include="src\Graphics\BasicDrawParameters.cpp" />
     <ClCompile Include="src\Graphics\CanvasPostEffect.cpp" />
@@ -204,6 +205,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Stage\StageParts.cpp" />
     <ClCompile Include="src\Stage\HomeStageSelect.cpp" />
     <ClCompile Include="src\Stage\Switch.cpp" />
+    <ClCompile Include="src\Tutorial.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\lib\dxcompiler\inc\d3d12shader.h" />
@@ -297,6 +299,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\GPUParticle\DrawExcuteIndirect.h" />
     <ClInclude Include="src\GPUParticle\FireFlyOutStage.h" />
     <ClInclude Include="src\GPUParticle\GPUParticleRender.h" />
+    <ClInclude Include="src\GPUParticle\SignSpotFireFly.h" />
     <ClInclude Include="src\Graphics\BasicDraw.h" />
     <ClInclude Include="src\Graphics\BasicDrawParameters.h" />
     <ClInclude Include="src\Graphics\CanvasPostEffect.h" />
@@ -319,6 +322,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Stage\StageParts.h" />
     <ClInclude Include="src\Stage\HomeStageSelect.h" />
     <ClInclude Include="src\Stage\Switch.h" />
+    <ClInclude Include="src\Tutorial.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

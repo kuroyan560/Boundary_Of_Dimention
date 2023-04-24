@@ -11,6 +11,11 @@ struct FireFlyParticleData
 RWStructuredBuffer<FireFlyParticleData> fireFlyDataBuffer : register(u0);
 AppendStructuredBuffer<ParticleData> particleData : register(u1);
 
+cbuffer RootConstants : register(b0)
+{    
+    matrix scaleRotate;
+};
+
 //蛍パーティクル初期化
 [numthreads(1024, 1, 1)]
 void InitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 groupThreadID : SV_GroupThreadID)
@@ -79,7 +84,8 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
 
     //出力--------------------------------------------
     ParticleData outputMat;
-    outputMat.pos = fireFlyDataBuffer[index].pos;
+    matrix mat = scaleRotate;
+    outputMat.world = SetPosInMatrix(mat,fireFlyDataBuffer[index].pos);
     outputMat.color = fireFlyDataBuffer[index].color;
     particleData.Append(outputMat);
     //出力--------------------------------------------

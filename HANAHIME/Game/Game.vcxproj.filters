@@ -367,6 +367,12 @@
     <ClCompile Include="src\Stage\Switch.cpp">
       <Filter>src\user\Stage</Filter>
     </ClCompile>
+    <ClCompile Include="src\GPUParticle\SignSpotFireFly.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tutorial.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -717,5 +723,7 @@
     <ClInclude Include="src\Stage\Grass.h">
       <Filter>src\user\Plant</Filter>
     </ClInclude>
+    <ClInclude Include="src\GPUParticle\SignSpotFireFly.h" />
+    <ClInclude Include="src\Tutorial.h" />
   </ItemGroup>
 </Project>

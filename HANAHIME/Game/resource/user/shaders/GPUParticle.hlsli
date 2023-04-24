@@ -1,6 +1,6 @@
 struct ParticleData
 {
-    float3 pos;
+    matrix world;
     float4 color;
 };
 
@@ -63,4 +63,98 @@ float AngleToRadian(float ANGLE)
 {
 	float radian = ANGLE * (3.14f / 180.0f);
 	return radian;
+}
+
+matrix SetPosInMatrix(matrix mat,float3 pos)
+{
+    matrix result = mat;
+    result[0][3] = pos.x;
+    result[1][3] = pos.y;
+    result[2][3] = pos.z;
+    return result;
+};
+
+uint GetIndex(uint3 groupID,uint3 groupThreadID)
+{
+    uint index = (groupThreadID.y * 1204) + groupThreadID.x + groupThreadID.z;
+    index += 1024 * groupID.x;
+    return index;
+}
+
+float3 Larp(float3 BASE_POS,float3 POS,float MUL)
+{
+    float3 distance = BASE_POS - POS;
+    distance *= MUL;
+    return POS + distance;
+}
+
+float GetRate(float min,float max)
+{
+    return min / max;
+}
+
+
+uint rand_xorshift(uint seed)
+{
+    uint rng_state = seed;
+    // Xorshift algorithm from George Marsaglia's paper
+    rng_state ^= (rng_state << 13);
+    rng_state ^= (rng_state >> 17);
+    rng_state ^= (rng_state << 5);
+    return rng_state;
+}
+
+float RandXorShift(uint seed,float MAX,float MIN)
+{
+    float f0 = float(rand_xorshift(seed * 42949)) * (1.0 / 4294967296.0);
+    float result = (MAX + abs(MIN)) * f0 - abs(MIN);
+    return result;
+}
+
+int parkMiller(int seed)
+{
+    const int a = 16807;
+    const int m = 2147483647; // 2^31 - 1
+    const int q = 127773;
+    const int r = 2836;
+
+    int hi = seed / q;
+    int lo = seed % q;
+    int test = a * lo - r * hi;
+
+    if (test > 0) {
+        seed = test;
+    } else {
+        seed = test + m;
+    }
+    return seed;
+}
+
+float randomParkMiller(int seed)
+{
+    seed = parkMiller(seed);
+    return float(seed) / 2147483647.0;
+}
+
+float RandFrac(float2 uv)
+{
+    return frac(sin(dot(uv,float2(12.9898,78.233))*43758.5453123));
+}
+
+float3 IsNanToZero(float3 vec)
+{
+    float3 result = vec;
+    if(isnan(result.x))
+    {
+        result.x = 0.0f;
+    }
+    if(isnan(result.y))
+    {
+        result.y = 0.0f;
+    }
+     if(isnan(result.z))
+    {
+        result.z = 0.0f;
+    }
+    return result;
 }

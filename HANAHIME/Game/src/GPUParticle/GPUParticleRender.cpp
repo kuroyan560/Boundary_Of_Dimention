@@ -12,7 +12,7 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 	//Œu‚Ì”z—ñî•ñ
 	KuroEngine::D3D12App::Instance()->GenerateRWStructuredBuffer(
 		&m_fireFlyArrayBuffer, &m_fireFlyCounterBuffer,
-		sizeof(FireFlyData),
+		sizeof(InputData),
 		particleMaxNum,
 		nullptr,
 		"FireFlyParticleData - RWStructuredBuffer");
@@ -135,7 +135,7 @@ void GPUParticleRender::Draw(KuroEngine::Camera &camera)
 {
 	ViewProjMatData mat;
 	mat.viewprojMat = camera.GetViewMat() * camera.GetProjectionMat();
-	mat.scaleRotateBillboardMat = DirectX::XMMatrixScaling(10.0f, 10.0f, 10.0f) * camera.GetBillBoardMat();
+	mat.scaleRotateBillboardMat = camera.GetBillBoardMat();
 	m_viewPorjBuffer->Mapping(&mat);
 
 	std::vector<KuroEngine::RegisterDescriptorData>descData =
@@ -144,7 +144,7 @@ void GPUParticleRender::Draw(KuroEngine::Camera &camera)
 		{m_fireFlyDrawBuffer,KuroEngine::UAV},
 		{m_viewPorjBuffer,KuroEngine::CBV},
 	};
-	KuroEngine::D3D12App::Instance()->DispathOneShot(m_cPipeline, { 1,1,1 }, descData);
+	KuroEngine::D3D12App::Instance()->DispathOneShot(m_cPipeline, { 10,1,1 }, descData);
 
 	excuteIndirect->Draw(m_gPipeline, nullptr);
 }

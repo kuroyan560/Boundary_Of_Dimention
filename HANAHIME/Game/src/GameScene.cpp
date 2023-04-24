@@ -11,7 +11,7 @@
 #include"FrameWork/UsersInput.h"
 #include"Plant/GrowPlantLight.h"
 
-GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer())
+GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer())
 {
 	m_ddsTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.dds");
 	m_pngTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
@@ -26,7 +26,7 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer())
 	m_dirLigArray.back().SetDir(dir.GetNormal());
 	m_dirLigArray.back().SetColor(KuroEngine::Color(0.8f, 0.8f, 0.8f, 1.0f));
 
-	for (auto& dirLig : m_dirLigArray)
+	for (auto &dirLig : m_dirLigArray)
 	{
 		m_ligMgr.RegisterDirLight(&dirLig);
 	}
@@ -81,6 +81,8 @@ void GameScene::OnInitialize()
 	m_title.Init(m_eTitleMode);
 	//ゲーム画面からパズルモードに戻る場合にパズルモードとして初期化した後、再び選択できるようSELECTを入れる
 	m_eTitleMode = TITLE_SELECT;
+
+	m_goal.m_gpuParticleBuffer = m_particleRender.GetStackBuffer();
 }
 
 void GameScene::OnUpdate()
@@ -190,6 +192,16 @@ void GameScene::OnUpdate()
 
 	m_fireFlyStage.ComputeUpdate();
 
+	tutorial.Update();
+
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_O))
+	{
+		tutorial.Next();
+	}
+	if (KuroEngine::UsersInput::Instance()->KeyInput(DIK_P))
+	{
+		tutorial.Finish();
+	}
 
 
 	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld(), *m_nowCam);
@@ -238,11 +250,11 @@ void GameScene::OnDraw()
 	//m_vignettePostEffect.Register(m_waterPaintBlend.GetResultTex());
 
 
-	if (m_title.IsStartOP())
+	//if (m_title.IsStartOP())
 	{
 		m_particleRender.Draw(*m_nowCam);
 	}
-
+	tutorial.Draw(*m_nowCam);
 
 	m_fogPostEffect->Register(
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN),

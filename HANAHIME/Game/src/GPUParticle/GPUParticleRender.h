@@ -16,7 +16,7 @@ public:
 
 	struct InputData
 	{
-		DirectX::XMMATRIX worldMat;
+		DirectX::XMMATRIX world;
 		DirectX::XMFLOAT4 color;
 	};
 private:
@@ -28,7 +28,7 @@ private:
 	};
 
 
-	int particleMaxNum = 1024;
+	int particleMaxNum = 1024 * 10;
 	/*ResouceBufferHelper computeCovertWorldMatToDrawMat;
 	KazGPUParticle::RESOURCE_HANDLE  worldMatHandle, outputHandle, viewProjMatHandle;
 
@@ -57,11 +57,6 @@ private:
 
 	//蛍情報のバッファ
 
-	struct FireFlyData
-	{
-		DirectX::XMFLOAT3 pos;
-		DirectX::XMFLOAT4 color;
-	};
 	struct DrawData
 	{
 		DirectX::XMMATRIX matrix;

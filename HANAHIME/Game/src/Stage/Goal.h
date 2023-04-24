@@ -35,6 +35,9 @@ public:
 		return m_movieCamera.GetCamera();
 	}
 
+
+	std::shared_ptr<KuroEngine::RWStructuredBuffer> m_gpuParticleBuffer;
+
 private:
 	bool m_initFlag;
 	bool m_isStartFlg, m_startGoalEffectFlag;
@@ -65,4 +68,75 @@ private:
 
 	KuroEngine::Vec3<float>upVec, frontVec;
 
+
+	//軌跡----------------------------------------
+
+	struct SplineData
+	{
+		DirectX::XMFLOAT3 pos;
+		DirectX::XMFLOAT3 vel;
+		DirectX::XMFLOAT4 color;
+		int startIndex;
+		float rate;
+	};
+
+	struct ConstData
+	{
+		DirectX::XMMATRIX scaleRotate;
+		UINT startIndex;
+		float rate;
+
+		ConstData()
+		{
+			startIndex = 0;
+			rate = 0.0f;
+		};
+	};
+
+	std::shared_ptr<KuroEngine::RWStructuredBuffer> m_particleBuffer;
+	std::shared_ptr<KuroEngine::RWStructuredBuffer> m_limitIndexPosBuffer;
+
+	std::shared_ptr<KuroEngine::ConstantBuffer> m_scaleRotaBuffer;
+	std::shared_ptr<KuroEngine::ConstantBuffer> m_limitIndexBuffer;
+
+	std::shared_ptr<KuroEngine::ComputePipeline> m_initLoucusPipeline;
+	std::shared_ptr<KuroEngine::ComputePipeline> m_updateLoucusPipeline;
+
+	ConstData cd;
+	KuroEngine::Timer m_splineTimer;
+
+	static const int LIMIT_POS_MAX = 10;
+	std::array<std::shared_ptr<KuroEngine::ModelObject>, LIMIT_POS_MAX>limitPosArray;
+
+	void GenerateLoucus()
+	{
+		m_particleBuffer = KuroEngine::D3D12App::Instance()->GenerateRWStructuredBuffer(sizeof(SplineData), 1024);
+		m_limitIndexPosBuffer = KuroEngine::D3D12App::Instance()->GenerateRWStructuredBuffer(sizeof(DirectX::XMFLOAT3), LIMIT_POS_MAX);
+
+		m_scaleRotaBuffer = KuroEngine::D3D12App::Instance()->GenerateConstantBuffer(sizeof(ConstData), 1);
+		m_limitIndexBuffer = KuroEngine::D3D12App::Instance()->GenerateConstantBuffer(sizeof(UINT), 1);
+
+
+		std::vector<KuroEngine::RootParam>rootParam =
+		{
+			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"スプラインパーティクルの情報(RWStructuredBuffer)"),
+			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"制御点の座標(RWStructuredBuffer)"),
+			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"制御点の最大値(RWStructuredBuffer)")
+		};
+		auto cs_init = KuroEngine::D3D12App::Instance()->CompileShader("resource/user/shaders/SplineParticle.hlsl", "SplineInitMain", "cs_6_4");
+		m_initLoucusPipeline = KuroEngine::D3D12App::Instance()->GenerateComputePipeline(cs_init, rootParam, { KuroEngine::WrappedSampler(true,true) });
+
+		auto cs_update = KuroEngine::D3D12App::Instance()->CompileShader("resource/user/shaders/SplineParticle.hlsl", "SplineUpdateMain", "cs_6_4");
+		m_updateLoucusPipeline = KuroEngine::D3D12App::Instance()->GenerateComputePipeline(cs_update, rootParam, { KuroEngine::WrappedSampler(true,true) });
+
+	};
+
+	//軌跡----------------------------------------
+
+
+
 };
+
+
+
+

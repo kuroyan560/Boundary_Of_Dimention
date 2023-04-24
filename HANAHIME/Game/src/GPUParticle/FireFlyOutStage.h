@@ -26,6 +26,8 @@ private:
 	std::shared_ptr<KuroEngine::RWStructuredBuffer> m_fireFlyParticleData;
 	std::shared_ptr<KuroEngine::RWStructuredBuffer> m_fireFlyParticleCounterData;
 
+	std::shared_ptr<KuroEngine::ConstantBuffer> m_scaleRotateData;
+
 	std::shared_ptr<KuroEngine::RWStructuredBuffer> m_particleData;
 };
 
