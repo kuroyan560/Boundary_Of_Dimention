@@ -175,22 +175,33 @@ void PazzleStageSelect::Update()
 		StageManager::Instance()->SetStage(GetNumber());
 	}
 
-	//クリアUIのビート表現
-	if (m_beatTimer.IsTimeUp())
+	if (m_stageSelectArray[m_nowStageNum.y][m_nowStageNum.x].m_isClearFlag)
 	{
-		float vel = 0.4f;
-		m_hexaSize[0] += vel;
-		m_hexaSize[1] += vel;
-		m_clearSize += vel;
-		m_beatTimer.Reset();
+		//クリアUIのビート表現
+		if (m_beatTimer.IsTimeUp())
+		{
+			float vel = 0.4f;
+			m_hexaSize[0] += vel;
+			m_hexaSize[1] += vel;
+			m_clearSize += vel;
+			m_beatTimer.Reset();
+		}
+		m_beatTimer.UpdateTimer();
+
+		m_hexaSize[0] = KuroEngine::Math::Lerp(m_hexaSize[0], { 1.0f,1.0f }, 0.1f);
+		m_hexaSize[1] = KuroEngine::Math::Lerp(m_hexaSize[1], { 0.75f,0.75f }, 0.1f);
+		m_clearSize = KuroEngine::Math::Lerp(m_clearSize, { 1.0f,1.0f }, 0.1f);
+
+		++m_flameAngle;
 	}
-	m_beatTimer.UpdateTimer();
-
-	m_hexaSize[0] = KuroEngine::Math::Lerp(m_hexaSize[0], { 1.0f,1.0f }, 0.1f);
-	m_hexaSize[1] = KuroEngine::Math::Lerp(m_hexaSize[1], { 0.75f,0.75f }, 0.1f);
-	m_clearSize = KuroEngine::Math::Lerp(m_clearSize, { 1.0f,1.0f }, 0.1f);
-
-	++m_flameAngle;
+	else
+	{
+		m_beatTimer.Reset();
+		m_flameAngle = -10;
+		m_hexaSize[0] = { 1.0f,1.0f };
+		m_hexaSize[1] = { 0.75f,0.75f };
+		m_clearSize = { 1.0f,1.0f };
+	}
 
 
 	if (KuroEngine::UsersInput::Instance()->KeyInput(DIK_L))
@@ -337,12 +348,17 @@ void PazzleStageSelect::Draw()
 	KuroEngine::Vec2<float>flamePos = KuroEngine::WinApp::Instance()->GetExpandWinSize();
 	flamePos.x -= 250.0f;
 	flamePos.y = KuroEngine::WinApp::Instance()->GetExpandWinCenter().y + 150.0f;
-	if (m_stageSelectArray[m_nowStageNum.y][m_nowStageNum.x].m_isClearFlag)
+
+	float alpha = 1.0f;
+	if (!m_stageSelectArray[m_nowStageNum.y][m_nowStageNum.x].m_isClearFlag)
 	{
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(flamePos + m_hideVel * offsetVel, m_clearSize, 0.0f, m_clearTex);
+		alpha *= 0.2f;
 	}
-	KuroEngine::DrawFunc2D::DrawRotaGraph2D(flamePos + m_hideVel * offsetVel, m_hexaSize[0], KuroEngine::Angle::ConvertToRadian(m_flameAngle), m_clearFlameTex);
-	KuroEngine::DrawFunc2D::DrawRotaGraph2D(flamePos + m_hideVel * offsetVel, m_hexaSize[1], KuroEngine::Angle::ConvertToRadian(-m_flameAngle), m_clearFlameTex);
+	KuroEngine::DrawFunc2D::DrawRotaGraph2D(flamePos + m_hideVel * offsetVel, m_clearSize, 0.0f, m_clearTex, alpha);
+	KuroEngine::DrawFunc2D::DrawRotaGraph2D(flamePos + m_hideVel * offsetVel, m_hexaSize[0], KuroEngine::Angle::ConvertToRadian(m_flameAngle), m_clearFlameTex, alpha);
+	KuroEngine::DrawFunc2D::DrawRotaGraph2D(flamePos + m_hideVel * offsetVel, m_hexaSize[1], KuroEngine::Angle::ConvertToRadian(-m_flameAngle), m_clearFlameTex, alpha);
+
+
 }
 
 int PazzleStageSelect::GetNumber()
