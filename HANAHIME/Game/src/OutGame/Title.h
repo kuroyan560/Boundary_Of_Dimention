@@ -34,7 +34,14 @@ public:
 	}
 	std::weak_ptr<KuroEngine::Camera>GetCamera()
 	{
-		return m_camera.GetCamera();
+		if (!m_startPazzleFlag)
+		{
+			return m_camera.GetCamera();
+		}
+		else
+		{
+			return m_stageSelect.m_camera.GetCamera();
+		}
 	}
 	int GetStageNum()
 	{

@@ -7,6 +7,7 @@
 #include"ForUser/DrawFunc/2D/DrawFunc2D.h"
 #include"DirectX12/D3D12App.h"
 #include"ForUser/Timer.h"
+#include"../Movie/MovieCamera.h"
 
 /// <summary>
 /// タイトルから直接ステージを選択する
@@ -30,6 +31,8 @@ public:
 	{
 		m_stopFlag = true;
 	}
+
+	MovieCamera m_camera;
 private:
 
 	struct StageData
@@ -165,4 +168,5 @@ private:
 	std::array<std::unique_ptr<Band>, 2>m_bandArray;
 
 	//上下の帯-----------------------------------------------------------------------
+
 };

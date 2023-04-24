@@ -45,6 +45,44 @@ PazzleStageSelect::PazzleStageSelect() :m_beatTimer(30), m_appearTimer(60), m_hi
 
 	m_bandArray[0] = std::make_unique<Band>(KuroEngine::Vec2<float>(0.0f, bandSize), KuroEngine::WinApp::Instance()->GetExpandWinSize() * KuroEngine::Vec2<float>(1.0f, -1.0f), KuroEngine::Vec2<float>(0.0f, -bandSize), 60.0f);
 	m_bandArray[1] = std::make_unique<Band>(KuroEngine::Vec2<float>(0.0f, KuroEngine::WinApp::Instance()->GetExpandWinSize().y - bandSize), KuroEngine::WinApp::Instance()->GetExpandWinSize(), KuroEngine::Vec2<float>(0.0f, bandSize), 60.0f);
+
+
+	//ホームの周りを円状に回っていく処理----------------------------------------
+	const int xAngle = 20;
+	const float radius = 50.0f;
+	const float height = 20.0f;
+
+	std::vector<MovieCameraData> titleCameraMoveDataArray;
+	MovieCameraData data;
+	data.easePosData.easeType = KuroEngine::EASING_TYPE_NUM;
+	data.easePosData.easeChangeType = KuroEngine::EASE_CHANGE_TYPE_NUM;
+	data.easeRotaData.easeType = KuroEngine::EASING_TYPE_NUM;
+	data.easeRotaData.easeChangeType = KuroEngine::EASE_CHANGE_TYPE_NUM;
+
+	const int limitPosMaxNum = 20;
+	for (int i = 0; i < limitPosMaxNum; ++i)
+	{
+		int angle = (360 / limitPosMaxNum) * i;
+		float radian = KuroEngine::Angle(angle);
+
+		data.transform.SetPos(KuroEngine::Vec3<float>(cosf(radian) * radius, height, sinf(radian) * radius));
+		data.transform.SetRotate(KuroEngine::Angle(xAngle), KuroEngine::Angle(-90 - angle), KuroEngine::Angle(0));
+		data.preStopTimer = 0;
+		data.interpolationTimer = 2;
+		titleCameraMoveDataArray.emplace_back(data);
+
+		KuroEngine::Matrix mat = titleCameraMoveDataArray[i].transform.GetMatWorld();
+		mat = titleCameraMoveDataArray[i].transform.GetMatWorld();
+	}
+	float radian = KuroEngine::Angle((360 / limitPosMaxNum) * 0);
+	data.transform.SetPos(KuroEngine::Vec3<float>(cosf(radian) * radius, height, sinf(radian) * radius));
+	data.transform.SetRotate(KuroEngine::Angle(xAngle), KuroEngine::Angle(-90), KuroEngine::Angle(0));
+	data.preStopTimer = 0;
+	data.interpolationTimer = 2;
+	titleCameraMoveDataArray.emplace_back(data);
+	//ホームの周りを円状に回っていく処理----------------------------------------
+
+	m_camera.StartMovie(titleCameraMoveDataArray, true);
 }
 
 void PazzleStageSelect::Init()
@@ -130,6 +168,8 @@ void PazzleStageSelect::Update()
 		bool debug = false;
 	}
 
+	StageManager::Instance()->SetStage(GetNumber());
+
 
 	//クリアUIのビート表現
 	if (m_beatTimer.IsTimeUp())
@@ -181,6 +221,7 @@ void PazzleStageSelect::Update()
 		m_hideTiemr.UpdateTimer();
 	}
 
+	m_camera.Update();
 }
 
 void PazzleStageSelect::Draw()
