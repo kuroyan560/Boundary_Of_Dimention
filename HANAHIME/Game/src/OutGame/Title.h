@@ -71,7 +71,7 @@ public:
 		return -1;
 	}
 
-	void Clear(int stageNum)
+	void Clear()
 	{
 		m_stageSelect.Clear();
 	};
