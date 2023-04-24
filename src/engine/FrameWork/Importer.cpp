@@ -10,8 +10,8 @@ void KuroEngine::Importer::ErrorMessage(const std::string& FuncName, const bool&
 {
 	if (Fail)
 	{
-		OutputDebugStringA((FuncName + Comment).c_str());
-		assert(0);
+		AppearMessageBox("Importer : " + FuncName, Comment);
+		exit(1);
 	}
 }
 
@@ -45,7 +45,7 @@ void KuroEngine::Importer::LoadGLTFPrimitive(ModelMesh& ModelMesh, const Microso
 	std::vector<uint8_t>vertJoint;
 	if (GLTFPrimitive.HasAttribute(ACCESSOR_JOINTS_0))
 	{
-		ErrorMessage("LoadGLTFPrimitive", !GLTFSkin, "This primitive has joint's info,but any skin node didn't be passed.");
+		ErrorMessage("LoadGLTFPrimitive()", !GLTFSkin, "ジョイントの情報がないよ。");
 		auto& idJoint = GLTFPrimitive.GetAttributeAccessorId(ACCESSOR_JOINTS_0);
 		auto& accJoint = Doc.accessors.Get(idJoint);
 		vertJoint = Reader.ReadBinaryData<uint8_t>(Doc, accJoint);
@@ -445,8 +445,8 @@ std::shared_ptr<KuroEngine::Model> KuroEngine::Importer::LoadGLTFModel(const std
 			const auto& output = doc.accessors.Get(sampler.outputAccessorId);
 			auto values = resourceReader->ReadBinaryData<float>(doc, output);
 
-			ErrorMessage("LoadGLTFModel",
-				path == Microsoft::glTF::TARGET_WEIGHTS || path == Microsoft::glTF::TARGET_UNKNOWN, "This anim's target path is unsupported.");
+			ErrorMessage("LoadGLTFModel()",
+				path == Microsoft::glTF::TARGET_WEIGHTS || path == Microsoft::glTF::TARGET_UNKNOWN, "このアニメーションのターゲットはサポートされてないよ。");
 
 			//Rotation(Quaternion)
 			if (path == Microsoft::glTF::TARGET_ROTATION)
@@ -605,7 +605,7 @@ std::shared_ptr<KuroEngine::Model> KuroEngine::Importer::LoadGLTFModel(const std
 std::shared_ptr<KuroEngine::Model> KuroEngine::Importer::LoadModel(const std::string& Dir, const std::string& FileName)
 {
 	//ファイルが存在しているか確認
-	ErrorMessage("LoadModel", !ExistFile(Dir + FileName), Dir + FileName + " wasn't found.\n");
+	ErrorMessage("LoadModel()", !ExistFile(Dir + FileName), Dir + FileName + " ってファイル無いよ。\n");
 
 	//既にロード済ならそのポインタを返す
 	auto result = m_models.find(Dir + FileName);
@@ -620,7 +620,7 @@ std::shared_ptr<KuroEngine::Model> KuroEngine::Importer::LoadModel(const std::st
 	}
 	else
 	{
-		ErrorMessage("LoadModel", true, "This format is valid.");
+		ErrorMessage("LoadModel()", true, "このモデルのフォーマット対応できてないよ。");
 	}
 	return std::shared_ptr<Model>();
 }

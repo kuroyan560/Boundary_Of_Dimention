@@ -2,52 +2,29 @@
     "stage": {
         "name": "scene",
         "objects": [
-          {
-            "type": "Goal",
-            "name": "Goal_14",
-            "transform": {
-              "translation": [
-                -30.0,
-                0.0,
-                7.0
-              ],
-              "rotation": [
-                -0.0,
-                -0.0,
-                -0.9961947202682495,
-                0.0871557667851448
-              ],
-              "scaling": [
-                0.9999999403953552,
-                0.9999999403953552,
-                1.0
-              ]
+            {
+                "type": "Start",
+                "name": "Start_14",
+                "transform": {
+                    "translation": [
+                        -10.0,
+                        0.0,
+                        6.5
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Start"
             },
-            "file_name": "Goal"
-          },
-          {
-            "type": "Start",
-            "name": "Start_14",
-            "transform": {
-              "translation": [
-                0.0,
-                0.0,
-                6.5
-              ],
-              "rotation": [
-                0.0,
-                0.0,
-                0.0,
-                1.0
-              ],
-              "scaling": [
-                1.0,
-                1.0,
-                1.0
-              ]
-            },
-            "file_name": "Start"
-          },
             {
                 "type": "Terrian",
                 "name": "Stage14_0",
@@ -72,13 +49,13 @@
                 "file_name": "Stage14"
             },
             {
-                "type": "MoveScaffold",
-                "name": "MoveScaffoldStage14a_0",
+                "type": "Goal",
+                "name": "Goal_14",
                 "transform": {
                     "translation": [
-                        -10.0,
-                        20.0,
-                        8.0
+                        -11.0,
+                        0.0,
+                        -2.0
                     ],
                     "rotation": [
                         0.0,
@@ -87,33 +64,22 @@
                         1.0
                     ],
                     "scaling": [
-                        5.0,
-                        5.0,
-                        5.0
+                        0.10000000149011612,
+                        0.10000000149011612,
+                        0.10000000149011612
                     ]
                 },
-                "file_name": "MoveScaffoldStage14a",
-                "translationArray": {
-                    "translation_0": [
-                        -10.0,
-                        -20.0,
-                        8.0
-                    ],
-                    "translation_1": [
-                        -10.0,
-                        30.06537628173828,
-                        8.0
-                    ]
-                }
+                "file_name": "Goal",
+                "leverID": 4
             },
             {
                 "type": "MoveScaffold",
-                "name": "MoveScaffoldStage14b_0",
+                "name": "MoveScaffoldStage14_0",
                 "transform": {
                     "translation": [
                         -10.0,
-                        -20.0,
-                        8.0
+                        -10.0,
+                        -2.0
                     ],
                     "rotation": [
                         0.0,
@@ -127,19 +93,121 @@
                         5.0
                     ]
                 },
-                "file_name": "MoveScaffoldStage14b",
+                "file_name": "MoveScaffoldStage14",
                 "translationArray": {
                     "translation_0": [
                         -10.0,
-                        20.0,
-                        8.0
+                        -10.0,
+                        -2.0
                     ],
                     "translation_1": [
+                        10.0,
                         -10.0,
-                        -30.06537628173828,
-                        8.0
+                        -2.0
                     ]
-                }
+                },
+                "children": [
+                    {
+                        "type": "Lever",
+                        "name": "Lever_14_0",
+                        "transform": {
+                            "translation": [
+                                0.0,
+                                0.0,
+                                1.0
+                            ],
+                            "rotation": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                1.0
+                            ],
+                            "scaling": [
+                                0.20000000298023224,
+                                0.20000000298023224,
+                                0.20000000298023224
+                            ]
+                        },
+                        "file_name": "Lever",
+                        "id": 4,
+                        "initFlg": false
+                    },
+                    {
+                        "type": "Lever",
+                        "name": "Lever_14_1",
+                        "transform": {
+                            "translation": [
+                                0.0,
+                                0.0,
+                                -1.0
+                            ],
+                            "rotation": [
+                                0.0,
+                                0.0,
+                                0.0,
+                                1.0
+                            ],
+                            "scaling": [
+                                0.20000000298023224,
+                                0.20000000298023224,
+                                0.20000000298023224
+                            ]
+                        },
+                        "file_name": "Lever",
+                        "id": 4,
+                        "initFlg": false
+                    },
+                    {
+                        "type": "Lever",
+                        "name": "Lever_14_2",
+                        "transform": {
+                            "translation": [
+                                -1.0,
+                                0.0,
+                                0.0
+                            ],
+                            "rotation": [
+                                0.0,
+                                0.7071068286895752,
+                                0.0,
+                                0.7071068286895752
+                            ],
+                            "scaling": [
+                                0.20000000298023224,
+                                0.20000000298023224,
+                                0.20000000298023224
+                            ]
+                        },
+                        "file_name": "Lever",
+                        "id": 4,
+                        "initFlg": false
+                    },
+                    {
+                        "type": "Lever",
+                        "name": "Lever_14_3",
+                        "transform": {
+                            "translation": [
+                                1.0,
+                                0.0,
+                                0.0
+                            ],
+                            "rotation": [
+                                0.0,
+                                0.7071068286895752,
+                                0.0,
+                                0.7071068286895752
+                            ],
+                            "scaling": [
+                                0.20000000298023224,
+                                0.20000000298023224,
+                                0.20000000298023224
+                            ]
+                        },
+                        "file_name": "Lever",
+                        "id": 4,
+                        "initFlg": false
+                    }
+                ]
             }
         ]
     }
