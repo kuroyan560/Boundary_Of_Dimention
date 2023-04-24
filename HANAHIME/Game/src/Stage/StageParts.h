@@ -354,9 +354,13 @@ class IvyBlock : public StageParts
 	bool m_prevOnPlayer;
 	bool m_onPlayer;	//プレイヤーが乗っているか
 
+	//イージングタイマー系
+	int m_easingTimer;
+	const int EASING_TIMER = 30;
+
 	//消えているときの出現判定に使うサイズ
-	const float HIT_SCALE_MIN = 5.0f;
-	const float HIT_SCALE_MAX = 7.5f;
+	const float HIT_SCALE_MIN = 7.5f;
+	const float HIT_SCALE_MAX = 15.5f;
 
 public:
 	IvyBlock(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, KuroEngine::Vec3<float>arg_leftTopFront, KuroEngine::Vec3<float>arg_rightBottomBack)
@@ -373,6 +377,7 @@ public:
 		m_isAppear = true;
 		m_onPlayer = false;
 		m_prevOnPlayer = false;
+		m_easingTimer = EASING_TIMER;
 
 	}
 

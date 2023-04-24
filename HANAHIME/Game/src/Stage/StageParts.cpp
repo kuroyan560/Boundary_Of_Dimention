@@ -570,12 +570,35 @@ void IvyBlock::Update(Player& arg_player)
 
 	m_prevOnPlayer = m_onPlayer;
 
+	//イージングタイマーを更新。
+	m_easingTimer = std::clamp(m_easingTimer + 1, 0, EASING_TIMER);
+
+	//出現中だったら。
+	if (m_isAppear) {
+
+		float easingValue = static_cast<float>(m_easingTimer) / EASING_TIMER;
+		easingValue = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, easingValue, 0.0f, 1.0f);
+
+		//スケーリング
+		float scale = HIT_SCALE_MIN * easingValue;
+		m_transform.SetScale(KuroEngine::Vec3<float>(scale, scale, scale));
+
+	}
+	else {
+
+		float easingValue = static_cast<float>(m_easingTimer) / EASING_TIMER;
+		easingValue = KuroEngine::Math::Ease(KuroEngine::In, KuroEngine::Back, easingValue, 0.0f, 1.0f);
+
+		//スケーリング
+		float scale = HIT_SCALE_MIN - HIT_SCALE_MIN * easingValue;
+		m_transform.SetScale(KuroEngine::Vec3<float>(scale, scale, scale));
+
+	}
+
 }
 
 void IvyBlock::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
-
-	if (!m_isAppear) return;
 
 	StageParts::Draw(arg_cam, arg_ligMgr);
 
@@ -585,6 +608,7 @@ void IvyBlock::Appear()
 {
 
 	m_isAppear = true;
+	m_easingTimer = 0;
 
 }
 
@@ -593,5 +617,6 @@ void IvyBlock::Disappear()
 
 	m_onPlayer = false;
 	m_isAppear = false;
+	m_easingTimer = 0;
 
 }

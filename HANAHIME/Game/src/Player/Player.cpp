@@ -1161,7 +1161,7 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 				//プレイヤーにヒットしていたら、大きめの当たり判定を行い、当たっていなかったら出現させる。
 				if (ivyBlock->GetOnPlayer()) {
-					bool isHit = KuroEngine::Vec3<float>(arg_newPos - ivyBlock->GetPos()).Length() <= ivyBlock->GetHitScaleMax() + ivyBlock->GetHitScaleMin();
+					bool isHit = KuroEngine::Vec3<float>(arg_newPos - ivyBlock->GetPos()).Length() <= ivyBlock->GetHitScaleMax();
 					if (!isHit) {
 
 						ivyBlock->Appear();
@@ -1171,9 +1171,7 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 				}
 				//プレイヤーのヒットしていなかったら、小さめの当たり判定を行い、出現させられるようにする。
 				else {
-					auto a = ivyBlock->GetPos();
-					auto length = KuroEngine::Vec3<float>(arg_newPos - ivyBlock->GetPos()).Length();
-					bool isHit = KuroEngine::Vec3<float>(arg_newPos - ivyBlock->GetPos()).Length() <= ivyBlock->GetHitScaleMax();
+					bool isHit = KuroEngine::Vec3<float>(arg_newPos - ivyBlock->GetPos()).Length() <= ivyBlock->GetHitScaleMin();
 					if (isHit) {
 
 						ivyBlock->OnPlayer();
