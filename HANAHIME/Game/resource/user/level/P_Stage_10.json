@@ -46,7 +46,8 @@
                         1.0
                     ]
                 },
-                "file_name": "Goal"
+                "file_name": "Goal",
+                "leverID": -1
             },
             {
                 "type": "MoveScaffold",
@@ -70,18 +71,7 @@
                     ]
                 },
                 "file_name": "MoveScaffoldStage10b",
-                "translationArray": {
-                    "translation_0": [
-                        0.0,
-                        20.0,
-                        -1.0
-                    ],
-                    "translation_1": [
-                        30.0,
-                        20.0,
-                        -1.0
-                    ]
-                }
+                "translationArray": {}
             },
             {
                 "type": "Terrian",
@@ -128,18 +118,7 @@
                     ]
                 },
                 "file_name": "MoveScaffoldStage10a",
-                "translationArray": {
-                    "translation_0": [
-                        30.0,
-                        -10.0,
-                        9.0
-                    ],
-                    "translation_1": [
-                        0.0,
-                        -10.0,
-                        9.0
-                    ]
-                }
+                "translationArray": {}
             }
         ]
     }

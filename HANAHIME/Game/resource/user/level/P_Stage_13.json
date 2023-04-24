@@ -3,8 +3,33 @@
         "name": "scene",
         "objects": [
             {
+                "type": "Lever",
+                "name": "Lever_13_0",
+                "transform": {
+                    "translation": [
+                        20.0,
+                        0.0,
+                        3.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Lever",
+                "id": 3,
+                "initFlg": false
+            },
+            {
                 "type": "Start",
-                "name": "Start_11",
+                "name": "Start_13",
                 "transform": {
                     "translation": [
                         0.0,
@@ -27,7 +52,7 @@
             },
             {
                 "type": "Terrian",
-                "name": "Stage11_0",
+                "name": "Stage13_0",
                 "transform": {
                     "translation": [
                         0.0,
@@ -46,44 +71,19 @@
                         5.0
                     ]
                 },
-                "file_name": "Stage11"
+                "file_name": "Stage13"
             },
             {
                 "type": "Lever",
-                "name": "Lever11_0",
-                "transform": {
-                    "translation": [
-                        30.0,
-                        0.0,
-                        3.0
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                },
-                "file_name": "Lever",
-                "id": 1,
-                "initFlg": false
-            },
-            {
-                "type": "Lever",
-                "name": "Lever11_1",
+                "name": "Lever_13_1",
                 "transform": {
                     "translation": [
                         30.0,
                         5.0,
-                        18.0
+                        8.0
                     ],
                     "rotation": [
-                        0.7071067094802856,
+                        0.7071068286895752,
                         0.0,
                         0.0,
                         0.7071068286895752
@@ -95,17 +95,17 @@
                     ]
                 },
                 "file_name": "Lever",
-                "id": 1,
+                "id": 3,
                 "initFlg": false
             },
             {
-                "type": "Lever",
-                "name": "Lever11_2",
+                "type": "MoveScaffold",
+                "name": "MoveScaffoldStage13_0",
                 "transform": {
                     "translation": [
-                        10.0,
                         0.0,
-                        3.0
+                        -10.0,
+                        -2.0
                     ],
                     "rotation": [
                         0.0,
@@ -114,18 +114,17 @@
                         1.0
                     ],
                     "scaling": [
-                        1.0,
-                        1.0,
-                        1.0
+                        5.0,
+                        5.0,
+                        5.0
                     ]
                 },
-                "file_name": "Lever",
-                "id": 1,
-                "initFlg": false
+                "file_name": "MoveScaffoldStage13",
+                "translationArray": {}
             },
             {
                 "type": "Goal",
-                "name": "Goal_11",
+                "name": "Goal_13",
                 "transform": {
                     "translation": [
                         0.0,
@@ -145,7 +144,7 @@
                     ]
                 },
                 "file_name": "Goal",
-                "leverID": 1
+                "leverID": 3
             }
         ]
     }

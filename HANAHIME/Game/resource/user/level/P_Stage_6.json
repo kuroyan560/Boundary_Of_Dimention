@@ -46,7 +46,8 @@
                         1.0
                     ]
                 },
-                "file_name": "Goal"
+                "file_name": "Goal",
+                "leverID": -1
             },
             {
                 "type": "Terrian",
@@ -93,18 +94,30 @@
                     ]
                 },
                 "file_name": "MoveScaffoldStage6",
-                "translationArray": {
-                    "translation_0": [
+                "translationArray": {}
+            },
+            {
+                "type": "Appearance",
+                "name": "PROP6_0",
+                "transform": {
+                    "translation": [
                         0.0,
-                        10.0,
-                        8.0
+                        0.0,
+                        -1.0
                     ],
-                    "translation_1": [
-                        -10.0,
-                        10.0,
-                        8.0
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        4.0
                     ]
-                }
+                },
+                "file_name": "PROP6"
             }
         ]
     }
