@@ -61,7 +61,7 @@ private:
 		nlohmann::json arg_json);
 
 	//í•Ê‚É‰‚¶‚Ä“Ç‚İ‚İ‚ğ•ªŠò‚³‚¹‚é
-	void LoadWithType(std::string arg_fileName, std::string arg_typeKey, nlohmann::json arg_json);
+	void LoadWithType(std::string arg_fileName, nlohmann::json arg_json, StageParts* arg_parent);
 
 public:
 	Stage();
