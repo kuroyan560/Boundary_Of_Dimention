@@ -8,6 +8,7 @@
 #include"DirectX12/D3D12App.h"
 #include"ForUser/Timer.h"
 #include"../Movie/MovieCamera.h"
+#include"../SoundConfig.h"
 
 /// <summary>
 /// タイトルから直接ステージを選択する

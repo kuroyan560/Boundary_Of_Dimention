@@ -28,7 +28,8 @@ void Goal::Init(const KuroEngine::Transform &transform, std::shared_ptr<GoalPoin
 {
 	m_initFlag = true;
 	m_startGoalEffectFlag = false;
-	m_isStartFlg = false;
+	m_isStartFlag = false;
+	m_prevStartFlag = false;
 
 	m_movieCamera.Init();
 
@@ -52,6 +53,12 @@ void Goal::Update(KuroEngine::Transform *transform)
 	if (!m_initFlag)
 	{
 		return;
+	}
+
+	if (m_isStartFlag != m_prevStartFlag)
+	{
+		SoundConfig::Instance()->Play(SoundConfig::JINGLE_STAGE_CLEAR);
+		m_prevStartFlag = m_isStartFlag;
 	}
 
 	//if (m_isStartFlg && false)
@@ -202,7 +209,7 @@ void Goal::Update(KuroEngine::Transform *transform)
 
 
 	//ゴールカメラモード
-	if (m_isStartFlg && !m_startGoalEffectFlag)
+	if (m_isStartFlag && !m_startGoalEffectFlag)
 	{
 		std::vector<MovieCameraData>cameraDataArray;
 
@@ -231,7 +238,7 @@ void Goal::Update(KuroEngine::Transform *transform)
 
 	m_pos = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Circ, m_clearEaseTimer.GetTimeRate(), m_basePos, m_goalPos);
 	clearTexRadian = KuroEngine::Angle::ConvertToRadian(KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Circ, m_clearEaseTimer.GetTimeRate(), 0.0f, 360.0f));
-	if (m_isStartFlg)
+	if (m_isStartFlag)
 	{
 		m_clearEaseTimer.UpdateTimer();
 	}
@@ -292,6 +299,6 @@ void Goal::Draw(KuroEngine::Camera &camera)
 
 bool Goal::IsEnd()
 {
-	return m_isStartFlg && m_movieCamera.IsFinish();
+	return m_isStartFlag && m_movieCamera.IsFinish();
 }
 
