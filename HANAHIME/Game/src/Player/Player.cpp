@@ -232,6 +232,9 @@ void Player::CheckDeath(const KuroEngine::Vec3<float> arg_from, KuroEngine::Vec3
 		//動く足場としてキャスト
 		auto ivyBlock = dynamic_pointer_cast<IvyBlock>(terrian);
 
+		//出現状態じゃなかったら処理を飛ばす。
+		if (!ivyBlock->GetIsAppear()) continue;
+
 		//モデル情報取得
 		auto model = terrian->GetModel();
 		//情報を取得。
@@ -247,7 +250,7 @@ void Player::CheckDeath(const KuroEngine::Vec3<float> arg_from, KuroEngine::Vec3
 
 			//CastRayに渡す引数を更新。
 			arg_castRayArgment.m_mesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
-			
+
 			//判定↓============================================
 
 			//右方向にレイを飛ばす。
@@ -371,6 +374,9 @@ void Player::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 		//動く足場としてキャスト
 		auto ivyBlock = dynamic_pointer_cast<IvyBlock>(terrian);
+
+		//出現状態じゃなかったら処理を飛ばす。
+		if (!ivyBlock->GetIsAppear()) continue;
 
 		//モデル情報取得
 		auto model = terrian->GetModel();
@@ -654,6 +660,9 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 		//動く足場としてキャスト
 		auto ivyBlock = dynamic_pointer_cast<IvyBlock>(terrian);
 
+		//出現状態じゃなかったら処理を飛ばす。
+		if (!ivyBlock->GetIsAppear()) continue;
+
 		//モデル情報取得
 		auto model = terrian->GetModel();
 		//情報を取得。
@@ -858,6 +867,9 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 		//動く足場としてキャスト
 		auto ivyBlock = dynamic_pointer_cast<IvyBlock>(terrian);
 
+		//出現状態じゃなかったら処理を飛ばす。
+		if (!ivyBlock->GetIsAppear()) continue;
+
 		//モデル情報取得
 		auto model = terrian->GetModel();
 		//情報を取得。
@@ -1055,7 +1067,7 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 			arg_castRayArgment.m_mesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
 			//判定↓============================================
-						
+
 			//動いた方向基準の姿勢
 			KuroEngine::Transform moveQtransform;
 			moveQtransform.SetRotate(m_moveQ);
@@ -1110,14 +1122,67 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 
 			//判定↓============================================
 
-			//動いた方向基準の姿勢
-			KuroEngine::Transform moveQtransform;
-			moveQtransform.SetRotate(m_moveQ);
+			//ブロックが出現中のときの処理
+			if (ivyBlock->GetIsAppear()) {
 
-			m_onGround |= CastRay(arg_newPos, arg_newPos + moveQtransform.GetFront() * m_transform.GetScale().x, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
-			m_onGround |= CastRay(arg_newPos, arg_newPos - moveQtransform.GetFront() * m_transform.GetScale().x, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
-			m_onGround |= CastRay(arg_newPos, arg_newPos + moveQtransform.GetRight() * m_transform.GetScale().x, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
-			m_onGround |= CastRay(arg_newPos, arg_newPos - moveQtransform.GetRight() * m_transform.GetScale().x, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+				//動いた方向基準の姿勢
+				KuroEngine::Transform moveQtransform;
+				moveQtransform.SetRotate(m_moveQ);
+
+				m_onGround |= CastRay(arg_newPos, arg_newPos + moveQtransform.GetFront() * m_transform.GetScale().x, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+				m_onGround |= CastRay(arg_newPos, arg_newPos - moveQtransform.GetFront() * m_transform.GetScale().x, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+				m_onGround |= CastRay(arg_newPos, arg_newPos + moveQtransform.GetRight() * m_transform.GetScale().x, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+				m_onGround |= CastRay(arg_newPos, arg_newPos - moveQtransform.GetRight() * m_transform.GetScale().x, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::GROUND);
+
+				//出現していたら
+				if (ivyBlock->GetIsAppear()) {
+
+					//移動方向基準の後ろの方にレイを飛ばす。
+					bool isHit = CastRay(arg_newPos, arg_newPos - moveQtransform.GetFront() * m_transform.GetScale().x, -m_transform.GetUp(), m_transform.GetScale().y, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
+
+					//プレイヤーが乗っている判定のときにレイが当たらなかったら、出現状態を切る。
+					if (ivyBlock->GetOnPlayer() && !isHit) {
+
+						ivyBlock->Disappear();
+
+					}
+					//プレイヤーが乗っている判定。
+					else if (isHit) {
+
+						ivyBlock->OnPlayer();
+
+					}
+
+				}
+
+			}
+			//出現中じゃないときの処理
+			else {
+
+				//プレイヤーにヒットしていたら、大きめの当たり判定を行い、当たっていなかったら出現させる。
+				if (ivyBlock->GetOnPlayer()) {
+					bool isHit = KuroEngine::Vec3<float>(arg_newPos - ivyBlock->GetPos()).Length() <= ivyBlock->GetHitScaleMax() + ivyBlock->GetHitScaleMin();
+					if (!isHit) {
+
+						ivyBlock->Appear();
+						ivyBlock->OffPlayer();
+
+					}
+				}
+				//プレイヤーのヒットしていなかったら、小さめの当たり判定を行い、出現させられるようにする。
+				else {
+					auto a = ivyBlock->GetPos();
+					auto length = KuroEngine::Vec3<float>(arg_newPos - ivyBlock->GetPos()).Length();
+					bool isHit = KuroEngine::Vec3<float>(arg_newPos - ivyBlock->GetPos()).Length() <= ivyBlock->GetHitScaleMax();
+					if (isHit) {
+
+						ivyBlock->OnPlayer();
+
+					}
+				}
+
+
+			}
 
 
 			//=================================================
@@ -1208,6 +1273,9 @@ void Player::CheckCliff(Player::ImpactPointData& arg_impactPointData, std::weak_
 
 		//動く足場としてキャスト
 		auto ivyBlock = dynamic_pointer_cast<IvyBlock>(terrian);
+
+		//出現状態じゃなかったら処理を飛ばす。
+		if (!ivyBlock->GetIsAppear()) continue;
 
 		//モデル情報取得
 		auto model = terrian->GetModel();
@@ -1320,6 +1388,9 @@ void Player::CheckCanJump(Player::ImpactPointData& arg_impactPointData, std::wea
 
 		//動く足場としてキャスト
 		auto ivyBlock = dynamic_pointer_cast<IvyBlock>(terrian);
+
+		//出現状態じゃなかったら処理を飛ばす。
+		if (!ivyBlock->GetIsAppear()) continue;
 
 		//モデル情報取得
 		auto model = terrian->GetModel();

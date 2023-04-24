@@ -26,6 +26,8 @@ void StageParts::Init()
 
 void StageParts::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
+	auto a = m_transform.GetPos();
+	auto b = m_transform.GetPosWorld();
 	BasicDraw::Instance()->Draw(
 		arg_cam,
 		arg_ligMgr,
@@ -565,11 +567,31 @@ void IvyZipLine::Update(Player& arg_player)
 
 void IvyBlock::Update(Player& arg_player)
 {
+
+	m_prevOnPlayer = m_onPlayer;
+
 }
 
 void IvyBlock::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 
+	if (!m_isAppear) return;
+
 	StageParts::Draw(arg_cam, arg_ligMgr);
+
+}
+
+void IvyBlock::Appear()
+{
+
+	m_isAppear = true;
+
+}
+
+void IvyBlock::Disappear()
+{
+
+	m_onPlayer = false;
+	m_isAppear = false;
 
 }
