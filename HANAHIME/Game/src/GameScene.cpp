@@ -12,7 +12,7 @@
 #include"FrameWork/UsersInput.h"
 #include"Plant/GrowPlantLight.h"
 
-GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_1flameStopTimer(5)
+GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_1flameStopTimer(30)
 {
 	m_ddsTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.dds");
 	m_pngTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
@@ -114,7 +114,7 @@ void GameScene::OnUpdate()
 		m_nowCam = m_movieCamera.GetCamera().lock();
 	}
 	//ゴール時の演出
-	if (StageManager::Instance()->IsClearNowStage() && m_1flameStopTimer.IsTimeUp())
+	if (StageManager::Instance()->IsClearNowStage() && m_1flameStopTimer.IsTimeUp() && (m_title.IsFinish() || m_title.IsStartOP()))
 	{
 		m_goal.Start();
 		//m_nowCam = m_goal.GetCamera().lock();
@@ -128,7 +128,7 @@ void GameScene::OnUpdate()
 		m_nowCam = m_debugCam;
 	}
 
-	StageManager::Instance()->Update(m_player);
+
 
 
 	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
@@ -186,7 +186,7 @@ void GameScene::OnUpdate()
 			m_eTitleMode = TITLE_PAZZLE;
 			this->Initialize();
 			m_clearFlag = false;
-			
+
 			m_1flameStopTimer.Reset();
 
 			m_title.Clear();
@@ -200,6 +200,8 @@ void GameScene::OnUpdate()
 	{
 		m_player.Update(StageManager::Instance()->GetNowStage());
 		m_goal.Update(&m_player.GetCamera().lock()->GetTransform());
+		//ステージ選択画面ではギミックを作動させない
+		StageManager::Instance()->Update(m_player);
 	}
 
 	m_gateSceneChange.Update();

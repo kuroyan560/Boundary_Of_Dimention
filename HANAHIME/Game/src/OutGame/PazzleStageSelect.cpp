@@ -343,7 +343,6 @@ void PazzleStageSelect::Draw()
 		KuroEngine::DrawFunc2D::DrawRotaGraph2D(stageUIPos + KuroEngine::Vec2<float>(80.0f, 120.0f) + m_hideVel * offsetVel, { 1.0f,1.0f }, 0.0f, uiTex.m_subStageTex, 80.0f / 255.0f);
 	}
 
-
 	//ÉNÉäÉAï\é¶
 	KuroEngine::Vec2<float>flamePos = KuroEngine::WinApp::Instance()->GetExpandWinSize();
 	flamePos.x -= 250.0f;
@@ -357,7 +356,6 @@ void PazzleStageSelect::Draw()
 	KuroEngine::DrawFunc2D::DrawRotaGraph2D(flamePos + m_hideVel * offsetVel, m_clearSize, 0.0f, m_clearTex, alpha);
 	KuroEngine::DrawFunc2D::DrawRotaGraph2D(flamePos + m_hideVel * offsetVel, m_hexaSize[0], KuroEngine::Angle::ConvertToRadian(m_flameAngle), m_clearFlameTex, alpha);
 	KuroEngine::DrawFunc2D::DrawRotaGraph2D(flamePos + m_hideVel * offsetVel, m_hexaSize[1], KuroEngine::Angle::ConvertToRadian(-m_flameAngle), m_clearFlameTex, alpha);
-
 
 }
 
