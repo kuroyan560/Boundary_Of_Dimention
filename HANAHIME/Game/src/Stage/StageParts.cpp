@@ -31,8 +31,8 @@ void StageParts::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg
 		arg_ligMgr,
 		m_model.lock(),
 		m_transform);
-}
 
+}
 
 void TerrianMeshCollider::BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_transform)
 {
@@ -97,6 +97,98 @@ void TerrianMeshCollider::BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_
 			index.m_p2.normal.Normalize();
 		}
 	}
+
+	//上記で作った当たり判定用ポリゴンを元に、当たり判定用のBOXを作る。
+	m_aabb.clear();
+	for (auto& stage : m_collisionMesh) {
+
+		//格納するデータを保存。
+		m_aabb.emplace_back();
+
+		for (auto& index : stage) {
+
+			//当たり判定BOXを入れるデータ
+			m_aabb.back().emplace_back(CreateCubeFromPolygon(index.m_p0.pos, index.m_p1.pos, index.m_p2.pos, index.m_p0.normal));
+
+		}
+
+	}
+
+}
+
+AABB TerrianMeshCollider::CreateCubeFromPolygon(const KuroEngine::Vec3<float>& arg_v1, const KuroEngine::Vec3<float>& arg_v2, const KuroEngine::Vec3<float>& arg_v3, const KuroEngine::Vec3<float>& arg_normal) {
+
+	KuroEngine::Vec3<float> edge1 = arg_v2 - arg_v1;
+	KuroEngine::Vec3<float> edge2 = arg_v3 - arg_v1;
+
+	KuroEngine::Vec3<float> inward_normal = arg_normal * (-1);
+	KuroEngine::Vec3<float> inward_offset = inward_normal * edge1.Length() / std::sqrt(2.0f);
+
+	std::array<KuroEngine::Vec3<float>, 8> cubeVertices;
+	cubeVertices[0] = arg_v1;
+	cubeVertices[1] = arg_v2;
+	cubeVertices[2] = arg_v3;
+	cubeVertices[3] = arg_v1 + edge2;
+	cubeVertices[4] = arg_v1 + inward_offset;
+	cubeVertices[5] = arg_v2 + inward_offset;
+	cubeVertices[6] = arg_v3 + inward_offset;
+	cubeVertices[7] = arg_v1 + edge2 + inward_offset;
+
+	AABB aabb;
+	aabb.m_min = cubeVertices[0];
+	aabb.m_max = cubeVertices[0];
+
+	for (auto& index : cubeVertices) {
+		aabb.m_min.x = std::min(aabb.m_min.x, index.x);
+		aabb.m_min.y = std::min(aabb.m_min.y, index.y);
+		aabb.m_min.z = std::min(aabb.m_min.z, index.z);
+		aabb.m_max.x = std::max(aabb.m_max.x, index.x);
+		aabb.m_max.y = std::max(aabb.m_max.y, index.y);
+		aabb.m_max.z = std::max(aabb.m_max.z, index.z);
+	}
+
+	return aabb;
+}
+
+std::optional<AABB::CollisionInfo> AABB::CheckAABBCollision(const AABB& arg_aabb1) {
+	KuroEngine::Vec3<float> pushBack(0.0f, 0.0f, 0.0f);
+	float minOverlap = std::numeric_limits<float>::max();
+	int minOverlapAxis = -1;
+
+	for (int i = 0; i < 3; ++i) {
+		float aabb1Max = (i == 0) ? m_max.x : (i == 1) ? m_max.y : m_max.z;
+		float aabb1Min = (i == 0) ? m_min.x : (i == 1) ? m_min.y : m_min.z;
+		float aabb2Max = (i == 0) ? arg_aabb1.m_max.x : (i == 1) ? arg_aabb1.m_max.y : arg_aabb1.m_max.z;
+		float aabb2Min = (i == 0) ? arg_aabb1.m_min.x : (i == 1) ? arg_aabb1.m_min.y : arg_aabb1.m_min.z;
+
+		if (aabb1Max < aabb2Min || aabb2Max < aabb1Min) {
+			return std::nullopt; // 衝突していない
+		}
+
+		float overlap1 = aabb1Max - aabb2Min;
+		float overlap2 = aabb2Max - aabb1Min;
+
+		if (std::abs(overlap1) < std::abs(overlap2)) {
+			if (std::abs(overlap1) < minOverlap) {
+				minOverlap = std::abs(overlap1);
+				minOverlapAxis = i;
+				pushBack = (i == 0) ? KuroEngine::Vec3<float>{overlap1, 0.0f, 0.0f} :
+					(i == 1) ? KuroEngine::Vec3<float>{0.0f, overlap1, 0.0f} :
+					KuroEngine::Vec3<float>{ 0.0f, 0.0f, overlap1 };
+			}
+		}
+		else {
+			if (std::abs(overlap2) < minOverlap) {
+				minOverlap = std::abs(overlap2);
+				minOverlapAxis = i;
+				pushBack = (i == 0) ? KuroEngine::Vec3<float>{-overlap2, 0.0f, 0.0f} :
+					(i == 1) ? KuroEngine::Vec3<float>{0.0f, -overlap2, 0.0f} :
+					KuroEngine::Vec3<float>{ 0.0f, 0.0f, -overlap2 };
+			}
+		}
+	}
+
+	return CollisionInfo{ pushBack };
 }
 
 void GoalPoint::Update(Player& arg_player)
@@ -111,12 +203,15 @@ void GoalPoint::Update(Player& arg_player)
 void MoveScaffold::OnInit()
 {
 	m_isActive = false;
+	m_prevOnPlayer = false;
+	m_onPlayer = false;
+	m_isStop = false;
 	m_isOder = true;
 	m_nowTranslationIndex = 0;
-	m_nextTranslationIndex = 0;
-	m_moveLength = 0;
+	m_nextTranslationIndex = 1;
+	m_moveDir = KuroEngine::Vec3<float>(m_translationArray[m_nextTranslationIndex] - m_translationArray[m_nowTranslationIndex]).GetNormal();
+	m_moveLength = KuroEngine::Vec3<float>(m_translationArray[m_nextTranslationIndex] - m_translationArray[m_nowTranslationIndex]).Length();
 	m_nowMoveLength = 0;
-	m_moveDir = KuroEngine::Vec3<float>();
 
 	m_transform.SetPos(m_translationArray[0]);
 
@@ -138,13 +233,20 @@ void MoveScaffold::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 	for (int index = 1; index <= m_maxTranslation; ++index) {
 		KuroEngine::DrawFunc3D::DrawLine(arg_cam, m_translationArray[index - 1], m_translationArray[index], KuroEngine::Color(255, 255, 255, 255), 0.1f);
 	}
+
 }
 
 void MoveScaffold::Update(Player& arg_player)
 {
 
+	//フラグを保存。
+	m_prevOnPlayer = m_onPlayer;
+
 	//有効化されていなかったら処理を飛ばす。
 	if (!m_isActive) return;
+
+	//一時停止中だったら処理を飛ばす。
+	if (m_isStop) return;
 
 	//ルートが設定されていない。
 	assert(m_maxTranslation != 0);
@@ -230,6 +332,50 @@ void MoveScaffold::Update(Player& arg_player)
 
 }
 
+void MoveScaffold::PushBack(KuroEngine::Vec3<float> arg_pushBack) {
+
+	//押し戻す。
+	m_nowMoveLength -= arg_pushBack.Length();
+	m_transform.SetPos(m_transform.GetPos() - m_moveDir * arg_pushBack);
+
+}
+
+void MoveScaffold::BuildCollisionMesh() {
+	m_collider.BuilCollisionMesh(m_model, m_transform);
+}
+
+void MoveScaffold::OnPlayer() {
+
+	m_onPlayer = true;
+
+	//乗ったトリガーだったら有効化する。
+	if (!m_prevOnPlayer && m_onPlayer) {
+
+		//一時停止中だったら
+		if (m_isStop) {
+
+			//現在進んでいる量を反転させる。
+			m_nowMoveLength = m_moveLength - m_nowMoveLength;
+
+			//移動方向も反転
+			m_moveDir *= -1.0f;
+
+			//フラグとインデックスも反転。
+			std::swap(m_nowTranslationIndex, m_nextTranslationIndex);
+			m_isOder = !m_isOder;
+
+			m_isStop = false;
+
+		}
+		else {
+			//普通に有効化
+			Activate();
+		}
+
+	}
+
+}
+
 void Lever::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 	StageParts::Draw(arg_cam, arg_ligMgr);
@@ -275,10 +421,142 @@ void Lever::Update(Player& arg_player)
 
 void IvyZipLine::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
+
+	//蔦を描画
+	const int INDEX = static_cast<int>(m_translationArray.size());
+	for (int index = 0; index < INDEX - 1; ++index) {
+
+		KuroEngine::DrawFunc3D::DrawLine(arg_cam, m_translationArray[index], m_translationArray[index + 1], KuroEngine::Color(0.35f, 0.91f, 0.55f, 1.0f), 1.0f);
+
+	}
+
+	for (auto index : m_translationArray) {
+		KuroEngine::DrawFunc3D::DrawLine(arg_cam, index, index + KuroEngine::Vec3<float>(1.0f, 1.0f, 1.0f), KuroEngine::Color(0.35f, 0.91f, 0.55f, 1.0f), JUMP_SCALE);
+	}
+
+}
+
+void IvyZipLine::CheckHit(bool arg_isHitStartPos) {
+
+
+	m_isHitStartPos = arg_isHitStartPos;
+	m_isActive = true;
+	m_isReadyPlayer = false;
+
+	//ジップライン移動に必要な変数を準備
+	if (arg_isHitStartPos) {
+		m_nowTranslationIndex = 0;
+		m_nextTranslationIndex = 1;
+		m_moveLength = (m_translationArray[1] - m_translationArray.front()).Length();
+		m_moveDir = (m_translationArray[1] - m_translationArray.front()).GetNormal();
+	}
+	else {
+		m_nowTranslationIndex = m_maxTranslation;
+		m_nextTranslationIndex = m_maxTranslation - 1;
+		m_moveLength = (m_translationArray[m_maxTranslation - 1] - m_translationArray.back()).Length();
+		m_moveDir = (m_translationArray[m_maxTranslation - 1] - m_translationArray.back()).GetNormal();
+	}
+	m_nowMoveLength = 0;
+
+}
+
+KuroEngine::Vec3<float> IvyZipLine::GetPoint(bool arg_isEaseStart) {
+	if (arg_isEaseStart) {
+		if (m_isHitStartPos) {
+			return m_translationArray.front();
+		}
+		else {
+			return m_translationArray.back();
+		}
+	}
+	else {
+		if (m_isHitStartPos) {
+			return m_translationArray.back();
+		}
+		else {
+			return m_translationArray.front();
+		}
+	}
 }
 
 void IvyZipLine::Update(Player& arg_player)
 {
+
+	//ジップラインが有効化されている かつ プレイヤーの移動準備が出来ていたらプレイヤーを動かす。
+	if (!m_isActive) return;
+	if (!m_isReadyPlayer) return;
+
+	//移動した量を保存。
+	m_nowMoveLength += ZIPLINE_SPEED;
+
+	//移動した量が規定値を超えていたら、終わった判定。
+	float moveSpeed = ZIPLINE_SPEED;
+	bool isFinish = false;
+	if (m_moveLength < m_nowMoveLength) {
+
+		isFinish = true;
+
+		//オーバーした分だけ動かす。
+		moveSpeed = m_moveLength - m_nowMoveLength;
+
+	}
+
+	//次の地点へ向かって動かす。
+	arg_player.GetTransform().SetPos(arg_player.GetTransform().GetPos() + m_moveDir * moveSpeed);
+
+	//プレイヤーも動かす。
+	if (arg_player.GetOnGimmick()) {
+		arg_player.SetGimmickVel(m_moveDir * moveSpeed);
+	}
+
+	//プレイヤーがジャンプ中だったら、ジャンプ地点も動かす。
+	if (arg_player.GetIsJump()) {
+		arg_player.SetJumpEndPos(arg_player.GetJumpEndPos() + m_moveDir * moveSpeed);
+	}
+
+	//いろいろと初期化して次向かう方向を決める。
+	if (isFinish) {
+
+		//正の方向に進むフラグだったら
+		if (m_isHitStartPos) {
+
+			//次のIndexへ
+			m_nowTranslationIndex = m_nextTranslationIndex;
+			++m_nextTranslationIndex;
+			if (m_maxTranslation < m_nextTranslationIndex) {
+
+				//終わっていたら
+				m_nextTranslationIndex = m_maxTranslation;
+				m_isActive = false;
+				arg_player.FinishGimmickMove();
+
+			}
+
+		}
+		//負の方向に進むフラグだったら
+		else {
+
+			//次のIndexへ
+			m_nowTranslationIndex = m_nextTranslationIndex;
+			--m_nextTranslationIndex;
+			if (m_nextTranslationIndex < 0) {
+
+				//終わっていたら
+				m_nextTranslationIndex = 0;
+				m_isActive = false;
+				arg_player.FinishGimmickMove();
+
+			}
+
+		}
+
+		//移動する方向と量を求める。
+		m_moveDir = KuroEngine::Vec3<float>(m_translationArray[m_nextTranslationIndex] - m_translationArray[m_nowTranslationIndex]).GetNormal();
+		m_moveLength = KuroEngine::Vec3<float>(m_translationArray[m_nextTranslationIndex] - m_translationArray[m_nowTranslationIndex]).Length();
+		m_nowMoveLength = 0;
+
+	}
+
 }
 
 void IvyBlock::Update(Player& arg_player)
@@ -287,4 +565,7 @@ void IvyBlock::Update(Player& arg_player)
 
 void IvyBlock::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
+
+	StageParts::Draw(arg_cam, arg_ligMgr);
+
 }

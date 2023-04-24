@@ -1,0 +1,146 @@
+{
+    "stage": {
+        "name": "scene",
+        "objects": [
+          {
+            "type": "Goal",
+            "name": "Goal_14",
+            "transform": {
+              "translation": [
+                -30.0,
+                0.0,
+                7.0
+              ],
+              "rotation": [
+                -0.0,
+                -0.0,
+                -0.9961947202682495,
+                0.0871557667851448
+              ],
+              "scaling": [
+                0.9999999403953552,
+                0.9999999403953552,
+                1.0
+              ]
+            },
+            "file_name": "Goal"
+          },
+          {
+            "type": "Start",
+            "name": "Start_14",
+            "transform": {
+              "translation": [
+                0.0,
+                0.0,
+                6.5
+              ],
+              "rotation": [
+                0.0,
+                0.0,
+                0.0,
+                1.0
+              ],
+              "scaling": [
+                1.0,
+                1.0,
+                1.0
+              ]
+            },
+            "file_name": "Start"
+          },
+            {
+                "type": "Terrian",
+                "name": "Stage14_0",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "Stage14"
+            },
+            {
+                "type": "MoveScaffold",
+                "name": "MoveScaffoldStage14a_0",
+                "transform": {
+                    "translation": [
+                        -10.0,
+                        20.0,
+                        8.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "MoveScaffoldStage14a",
+                "translationArray": {
+                    "translation_0": [
+                        -10.0,
+                        -20.0,
+                        8.0
+                    ],
+                    "translation_1": [
+                        -10.0,
+                        30.06537628173828,
+                        8.0
+                    ]
+                }
+            },
+            {
+                "type": "MoveScaffold",
+                "name": "MoveScaffoldStage14b_0",
+                "transform": {
+                    "translation": [
+                        -10.0,
+                        -20.0,
+                        8.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "MoveScaffoldStage14b",
+                "translationArray": {
+                    "translation_0": [
+                        -10.0,
+                        20.0,
+                        8.0
+                    ],
+                    "translation_1": [
+                        -10.0,
+                        -30.06537628173828,
+                        8.0
+                    ]
+                }
+            }
+        ]
+    }
+}

@@ -5,6 +5,7 @@
 #include"ForUser/Object/Model.h"
 #include "StageParts.h"
 #include"Switch.h"
+#include<optional>
 
 std::string Stage::s_terrianModelDir = "resource/user/model/terrian/";
 
@@ -56,8 +57,8 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 
 	auto& obj = arg_json;
 
-//共通パラメータ
-	//モデル設定
+	//共通パラメータ
+		//モデル設定
 	auto model = Importer::Instance()->LoadModel(s_terrianModelDir, obj["file_name"].get<std::string>() + ".glb");
 
 	//トランスフォーム取得
@@ -78,8 +79,8 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 	transform.SetRotate(quaternion);
 	transform.SetScale(scaling * m_terrianScaling);
 
-//種別に応じて変わるパラメータ
-	//通常の地形
+	//種別に応じて変わるパラメータ
+		//通常の地形
 	if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::TERRIAN))
 	{
 		m_terrianArray.emplace_back(model, transform);
@@ -194,6 +195,66 @@ void Stage::GimmickUpdate(Player& arg_player)
 		gimmick->Update(arg_player);
 	}
 
+	//動く足場同士の当たり判定を行う。
+	for (auto& gimmickA : m_gimmickArray) {
+
+		//動く足場じゃなかったら処理を飛ばす。
+		if (gimmickA->GetType() != StageParts::STAGE_PARTS_TYPE::MOVE_SCAFFOLD) continue;
+
+		for (auto& gimmickB : m_gimmickArray) {
+
+			//動く足場じゃなかったら処理を飛ばす。
+			if (gimmickB->GetType() != StageParts::STAGE_PARTS_TYPE::MOVE_SCAFFOLD) continue;
+
+			//同じオブジェクトだったら処理を飛ばす。
+			if (gimmickA == gimmickB) continue;
+
+			//当たり判定を行う。
+			auto moveScaffoldA = dynamic_pointer_cast<MoveScaffold>(gimmickA);
+			auto moveScaffoldB = dynamic_pointer_cast<MoveScaffold>(gimmickB);
+			std::optional<AABB::CollisionInfo> result;
+
+			//すべてのメッシュを走査して当たり判定を行う。
+			for (auto& meshA : moveScaffoldA->m_collider.m_aabb) {
+				for (auto& aabbA : meshA) {
+
+					for (auto& meshB : moveScaffoldB->m_collider.m_aabb) {
+						for (auto& aabbB : meshB) {
+
+							result = aabbA.CheckAABBCollision(aabbB);
+							if (!result) continue;	
+							//極小の誤差は無視する。
+							if (result->m_pushBack.Length() < 0.001f) continue;
+
+							//当たっていたらギミックの動きを止める。
+							moveScaffoldA->Stop();
+							moveScaffoldB->Stop();
+
+							////押し戻す。
+							//if (moveScaffoldA->GetIsActive() && moveScaffoldB->GetIsActive()) {
+							//	moveScaffoldA->PushBack(result->m_pushBack / 2.0f);
+							//	moveScaffoldB->PushBack(result->m_pushBack / 2.0f);
+							//}
+							//else if (moveScaffoldA->GetIsActive()) {
+							//	moveScaffoldA->PushBack(result->m_pushBack);
+							//}
+							//else if (moveScaffoldB->GetIsActive()) {
+							//	moveScaffoldB->PushBack(result->m_pushBack);
+							//}
+
+							//moveScaffoldA->BuildCollisionMesh();
+							//moveScaffoldB->BuildCollisionMesh();
+
+						}
+					}
+				}
+
+			}
+
+		}
+
+	}
+
 	if (m_goalPoint)m_goalPoint->Update(arg_player);
 }
 
@@ -244,19 +305,19 @@ void Stage::Load(std::string arg_dir, std::string arg_fileName, float arg_terria
 	JsonData jsonData(arg_dir, arg_fileName);
 
 	//ステージ情報でない
-	if (!CheckJsonKeyExist(arg_fileName,jsonData.m_jsonData, "stage"))return;
+	if (!CheckJsonKeyExist(arg_fileName, jsonData.m_jsonData, "stage"))return;
 
 	auto stageJsonData = jsonData.m_jsonData["stage"];
 	for (auto& obj : stageJsonData["objects"])
 	{
 		//種別のパラメータがない
-		if (!CheckJsonKeyExist(arg_fileName,obj, "type"))break;
+		if (!CheckJsonKeyExist(arg_fileName, obj, "type"))break;
 
 		//モデルの名前のパラメータがない
-		if (!CheckJsonKeyExist(arg_fileName,obj, "file_name"))break;
+		if (!CheckJsonKeyExist(arg_fileName, obj, "file_name"))break;
 
 		//トランスフォームのパラメータがない
-		if (!CheckJsonKeyExist(arg_fileName,obj, "transform"))break;
+		if (!CheckJsonKeyExist(arg_fileName, obj, "transform"))break;
 
 		LoadWithType(arg_fileName, obj["type"].get<std::string>(), obj);
 	}
