@@ -1147,7 +1147,7 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 						ivyBlock->Disappear();
 
 						//SEを鳴らす。
-						SoundConfig::Instance()->Play(SoundConfig::SE_SHUT_DOWN);
+						SoundConfig::Instance()->Play(SoundConfig::SE_GRASS);
 
 					}
 					//プレイヤーが乗っている判定。
@@ -1172,7 +1172,7 @@ void Player::CheckHitGround(const KuroEngine::Vec3<float>arg_from, KuroEngine::V
 						ivyBlock->OffPlayer();
 
 						//SEを鳴らす。
-						SoundConfig::Instance()->Play(SoundConfig::SE_BOOT);
+						SoundConfig::Instance()->Play(SoundConfig::SE_GRASS);
 
 					}
 				}
@@ -1830,7 +1830,7 @@ void Player::FinishGimmickMove()
 	m_gimmickStatus = GIMMICK_STATUS::EXIT;
 
 	//SEを鳴らす。
-	SoundConfig::Instance()->Play(SoundConfig::SE_SHUT_DOWN);
+	SoundConfig::Instance()->Play(SoundConfig::SE_ZIP_LINE_GET_ON);
 }
 
 Player::MeshCollisionOutput Player::MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, std::vector<TerrianHitPolygon>& arg_targetMesh) {
@@ -2371,7 +2371,7 @@ void Player::CheckZipline(const KuroEngine::Vec3<float> arg_newPos, std::weak_pt
 			m_zipInOutPos = arg_newPos;
 
 			//SEを鳴らす。
-			SoundConfig::Instance()->Play(SoundConfig::SE_BOOT);
+			SoundConfig::Instance()->Play(SoundConfig::SE_ZIP_LINE_GET_ON);
 		}
 
 		//終点との当たり判定
@@ -2385,7 +2385,7 @@ void Player::CheckZipline(const KuroEngine::Vec3<float> arg_newPos, std::weak_pt
 			m_zipInOutPos = arg_newPos;
 
 			//SEを鳴らす。
-			SoundConfig::Instance()->Play(SoundConfig::SE_BOOT);
+			SoundConfig::Instance()->Play(SoundConfig::SE_ZIP_LINE_GET_ON);
 		}
 
 		//=================================================
