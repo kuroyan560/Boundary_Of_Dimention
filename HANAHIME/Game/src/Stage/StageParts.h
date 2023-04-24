@@ -164,9 +164,11 @@ private:
 
 	//有効化フラグ
 	bool m_isActive;
+	bool m_isOldActive;
 	bool m_prevOnPlayer;
 	bool m_onPlayer;	//プレイヤーが乗っているか
 	bool m_isStop;		//別の動く足場とぶつかって一時停止したか。
+	bool m_isOldStop;		//別の動く足場とぶつかって一時停止したか。
 
 	//座標関連
 	KuroEngine::Vec3<float> m_nowPos;
@@ -179,6 +181,7 @@ public:
 		:StageParts(MOVE_SCAFFOLD, arg_model, arg_initTransform), m_translationArray(arg_translationArray)
 	{
 		m_maxTranslation = static_cast<int>(arg_translationArray.size()) - 1;
+		m_isOldActive = false;
 	}
 
 	void OnInit()override;
@@ -347,12 +350,54 @@ class IvyBlock : public StageParts
 	KuroEngine::Vec3<float>m_leftTopFront;
 	//ブロックの右下奥座標
 	KuroEngine::Vec3<float>m_rightBottomBack;
+	//当たり判定用コリジョン
+	TerrianMeshCollider m_collider;
+	//出現中か
+	bool m_isAppear;
+	bool m_prevOnPlayer;
+	bool m_onPlayer;	//プレイヤーが乗っているか
+
+	//イージングタイマー系
+	int m_easingTimer;
+	const int EASING_TIMER = 30;
+
+	//消えているときの出現判定に使うサイズ
+	const float HIT_SCALE_MIN = 7.5f;
+	const float HIT_SCALE_MAX = 15.5f;
 
 public:
 	IvyBlock(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, KuroEngine::Vec3<float>arg_leftTopFront, KuroEngine::Vec3<float>arg_rightBottomBack)
 		:StageParts(IVY_BLOCK, arg_model, arg_initTransform), m_leftTopFront(arg_leftTopFront), m_rightBottomBack(arg_rightBottomBack) {
+		m_collider.BuilCollisionMesh(arg_model, arg_initTransform);
+		OnInit();
 	}
 
 	void Update(Player& arg_player)override;
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
+
+	void OnInit()override
+	{
+		m_isAppear = true;
+		m_onPlayer = false;
+		m_prevOnPlayer = false;
+		m_easingTimer = EASING_TIMER;
+
+	}
+
+	void Appear();
+	void Disappear();
+
+	void OnPlayer() { m_onPlayer = true; }
+	void OffPlayer() { m_onPlayer = false; }
+	bool GetOnPlayer() { return m_onPlayer; }
+	bool GetIsAppear() { return m_isAppear; }
+
+	//座標を取得
+	KuroEngine::Vec3<float> GetPos() { return m_transform.GetPosWorld(); }
+
+	//当たり判定用スケールを返す。
+	float GetHitScaleMin() { return HIT_SCALE_MIN; }
+	float GetHitScaleMax() { return HIT_SCALE_MAX; }
+
+	const std::vector<std::vector<TerrianHitPolygon>>& GetCollisionMesh()const { return m_collider.GetCollisionMesh(); }
 };

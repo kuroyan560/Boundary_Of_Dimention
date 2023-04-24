@@ -5,6 +5,7 @@
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"Switch.h"
 #include"ForUser/DrawFunc/BillBoard/DrawFuncBillBoard.h"
+#include"../SoundConfig.h"
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
@@ -26,6 +27,8 @@ void StageParts::Init()
 
 void StageParts::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
+	auto a = m_transform.GetPos();
+	auto b = m_transform.GetPosWorld();
 	BasicDraw::Instance()->Draw(
 		arg_cam,
 		arg_ligMgr,
@@ -204,9 +207,11 @@ void GoalPoint::Update(Player &arg_player)
 void MoveScaffold::OnInit()
 {
 	m_isActive = false;
+	m_isOldActive = false;
 	m_prevOnPlayer = false;
 	m_onPlayer = false;
 	m_isStop = false;
+	m_isOldStop = false;
 	m_isOder = true;
 	m_nowTranslationIndex = 0;
 	m_nextTranslationIndex = 1;
@@ -242,6 +247,16 @@ void MoveScaffold::Update(Player &arg_player)
 
 	//フラグを保存。
 	m_prevOnPlayer = m_onPlayer;
+
+	//SEの処理
+	if ((!m_isOldActive && m_isActive) || (!m_isOldStop && m_isStop)) {
+		SoundConfig::Instance()->Play(SoundConfig::SE_MOVE_SCAFFOLD_START);
+	}
+	if ((m_isOldActive && !m_isActive) || (m_isOldStop && !m_isStop)) {
+		SoundConfig::Instance()->Play(SoundConfig::SE_MOVE_SCAFFOLD_STOP);
+	}
+	m_isOldActive = m_isActive;
+	m_isOldStop = m_isStop;
 
 	//有効化されていなかったら処理を飛ばす。
 	if (!m_isActive) return;
@@ -367,6 +382,10 @@ void MoveScaffold::OnPlayer() {
 
 			m_isStop = false;
 
+			//めり込んでいるのでちょっと移動させる。
+			m_nowMoveLength += KuroEngine::Vec3<float>(m_moveDir * MOVE_SPEED).Length();
+			m_transform.SetPos(m_transform.GetPos() + m_moveDir * MOVE_SPEED);
+
 		}
 		else {
 			//普通に有効化
@@ -417,6 +436,19 @@ void Lever::Update(Player &arg_player)
 	if (m_isHit && !m_isOldHit) {
 		m_flg = !m_flg;
 	}
+
+	//onTriggerだったら
+	if (!m_isOldHit && m_isHit) {
+
+		SoundConfig::Instance()->Play(SoundConfig::SE_LEVER_ON);
+
+	}
+	else if (m_isOldHit && !m_isOldHit) {
+
+		SoundConfig::Instance()->Play(SoundConfig::SE_LEVER_OFF);
+
+	}
+
 
 }
 
@@ -562,11 +594,56 @@ void IvyZipLine::Update(Player &arg_player)
 
 void IvyBlock::Update(Player &arg_player)
 {
+
+	m_prevOnPlayer = m_onPlayer;
+
+	//イージングタイマーを更新。
+	m_easingTimer = std::clamp(m_easingTimer + 1, 0, EASING_TIMER);
+
+	//出現中だったら。
+	if (m_isAppear) {
+
+		float easingValue = static_cast<float>(m_easingTimer) / EASING_TIMER;
+		easingValue = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, easingValue, 0.0f, 1.0f);
+
+		//スケーリング
+		float scale = HIT_SCALE_MIN * easingValue;
+		m_transform.SetScale(KuroEngine::Vec3<float>(scale, scale, scale));
+
+	}
+	else {
+
+		float easingValue = static_cast<float>(m_easingTimer) / EASING_TIMER;
+		easingValue = KuroEngine::Math::Ease(KuroEngine::In, KuroEngine::Back, easingValue, 0.0f, 1.0f);
+
+		//スケーリング
+		float scale = HIT_SCALE_MIN - HIT_SCALE_MIN * easingValue;
+		m_transform.SetScale(KuroEngine::Vec3<float>(scale, scale, scale));
+
+	}
+
 }
 
 void IvyBlock::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 
 	StageParts::Draw(arg_cam, arg_ligMgr);
+
+}
+
+void IvyBlock::Appear()
+{
+
+	m_isAppear = true;
+	m_easingTimer = 0;
+
+}
+
+void IvyBlock::Disappear()
+{
+
+	m_onPlayer = false;
+	m_isAppear = false;
+	m_easingTimer = 0;
 
 }
