@@ -3,6 +3,7 @@
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"ForUser/Debugger.h"
 #include"OperationConfig.h"
+#include"SoundConfig.h"
 #include"DebugController.h"
 #include"Stage/StageManager.h"
 
@@ -41,6 +42,9 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer())
 
 	//起動時にタイトル画面を出す為に必要
 	m_eTitleMode = TITLE_SELECT;
+
+	//音声の読み込み
+	SoundConfig::Instance();
 }
 
 
@@ -49,6 +53,7 @@ void GameScene::GameInit()
 	GrowPlantLight::ResetRegisteredLight();
 	StageManager::Instance()->SetStage(m_stageNum);
 	m_player.Init(StageManager::Instance()->GetPlayerSpawnTransform());
+	SoundConfig::Instance()->Init();
 }
 
 void GameScene::OnInitialize()
