@@ -237,7 +237,8 @@ private:
 		KuroEngine::Vec3<float> m_normal;
 		bool m_isActive;
 		bool m_isFastJump;	//ぶつかってから暫くしてジャンプするのではなく、すぐに飛び乗るフラグ。すぐに乗りたいオブジェクトがある場合、これをtrueにする。
-		ImpactPointData(KuroEngine::Vec3<float> arg_impactPos, KuroEngine::Vec3<float> arg_normal) : m_impactPos(arg_impactPos), m_normal(arg_normal), m_isActive(true), m_isFastJump(false) {};
+		bool m_isAppearWall;
+		ImpactPointData(KuroEngine::Vec3<float> arg_impactPos, KuroEngine::Vec3<float> arg_normal) : m_impactPos(arg_impactPos), m_normal(arg_normal), m_isActive(true), m_isFastJump(false), m_isAppearWall(false){};
 	};
 
 	//CastRayに渡すデータ用構造体

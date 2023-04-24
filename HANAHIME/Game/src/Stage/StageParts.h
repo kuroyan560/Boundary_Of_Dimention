@@ -139,12 +139,15 @@ public:
 //見かけだけのオブジェクト（描画だけで何もしない）
 class Appearance : public StageParts
 {
+	TerrianMeshCollider m_collider;
 public:
 	Appearance(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent)
 		:StageParts(APPEARANCE, arg_model, arg_initTransform, arg_parent)
 	{
+		m_collider.BuilCollisionMesh(arg_model, arg_initTransform);
 	}
 	void Update(Player& arg_player)override {}
+	const std::vector<std::vector<TerrianHitPolygon>>& GetCollisionMesh()const { return m_collider.GetCollisionMesh(); }
 };
 
 //動く足場
