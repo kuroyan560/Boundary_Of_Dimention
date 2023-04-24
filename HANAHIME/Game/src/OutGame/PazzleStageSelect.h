@@ -31,6 +31,10 @@ public:
 	{
 		m_stopFlag = true;
 	}
+	void Clear()
+	{
+		m_stageSelectArray[m_nowStageNum.y][m_nowStageNum.x].m_isClearFlag = true;
+	};
 
 	MovieCamera m_camera;
 private:

@@ -71,6 +71,12 @@ public:
 		return -1;
 	}
 
+	void Clear(int stageNum)
+	{
+		m_stageSelect.Clear();
+	};
+
+	PazzleStageSelect m_stageSelect;
 private:
 	//ゲーム開始フラグ
 	bool m_startGameFlag;
@@ -100,7 +106,7 @@ private:
 	KuroEngine::Timer m_delayTime;
 
 	KuroEngine::Vec2<float> m_pazzleModeLogoPos, m_storyModeLogoPos;
-	PazzleStageSelect m_stageSelect;
+
 	std::shared_ptr<KuroEngine::TextureBuffer> m_pazzleModeTexBuff;
 	std::shared_ptr<KuroEngine::TextureBuffer> m_storyModeTexBuff;
 };

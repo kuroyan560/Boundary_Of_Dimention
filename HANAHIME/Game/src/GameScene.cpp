@@ -186,7 +186,10 @@ void GameScene::OnUpdate()
 			m_eTitleMode = TITLE_PAZZLE;
 			this->Initialize();
 			m_clearFlag = false;
+			
 			m_1flameStopTimer.Reset();
+
+			m_title.Clear(m_stageNum);
 		}
 	}
 	m_1flameStopTimer.UpdateTimer();
