@@ -95,7 +95,7 @@ void Stage::LoadWithType(std::string arg_fileName, std::string arg_typeKey, nloh
 	else if (arg_typeKey == StageParts::GetTypeKeyOnJson(StageParts::GOAL_POINT))
 	{
 		//全てのレバーをオンにすることがクリア条件
-		if (obj.contains("leverID"))
+		if (obj.contains("leverID") && obj["leverID"] != -1)
 		{
 			m_goalLeverID = obj["leverID"];
 		}
