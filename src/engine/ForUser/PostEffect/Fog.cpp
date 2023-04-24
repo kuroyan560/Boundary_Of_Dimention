@@ -1,5 +1,7 @@
 #include "Fog.h"
 #include"KuroEngineDevice.h"
+#include"ForUser/DrawFunc/2D/DrawFunc2D.h"
+
 
 void KuroEngine::Fog::OnImguiItems()
 {
@@ -81,6 +83,11 @@ void KuroEngine::Fog::Register(const std::shared_ptr<TextureBuffer>& arg_main, c
 
 	KuroEngineDevice::Instance()->Graphics().SetComputePipeline(m_cPipeline);
 	KuroEngineDevice::Instance()->Graphics().Dispatch(threadNum, descData);
+}
+
+void KuroEngine::Fog::DrawResult(const AlphaBlendMode& arg_alphaBlend)
+{
+	KuroEngine::DrawFunc2D::DrawExtendGraph2D({ 0,0 }, KuroEngine::WinApp::Instance()->GetExpandWinSize(), m_resultTex, 1.0f, arg_alphaBlend);
 }
 
 void KuroEngine::Fog::AttachGradationTex(std::shared_ptr<TextureBuffer> arg_tex)
