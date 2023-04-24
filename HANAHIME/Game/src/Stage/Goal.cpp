@@ -16,7 +16,7 @@ m_upEffectEase(60), m_downEffectEase(10), m_splineTimer(120)
 		obj = std::make_shared<KuroEngine::ModelObject>("resource/user/model/", "Player.glb");
 	}
 
-	m_clearTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/KusodasaClear.png");
+	m_clearTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/in_game/gameClear.png");
 
 	m_camera = std::make_shared<KuroEngine::Camera>("cameraName");
 

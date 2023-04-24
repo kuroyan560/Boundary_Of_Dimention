@@ -133,7 +133,10 @@ void GameScene::OnUpdate()
 	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
 
 	//ホームでの処理----------------------------------------
-	m_title.Update(&m_player.GetCamera().lock()->GetTransform());
+	if (!m_title.IsFinish() && !m_title.IsStartOP())
+	{
+		m_title.Update(&m_player.GetCamera().lock()->GetTransform());
+	}
 
 	//ステージ選択
 	int stageNum = -1;
@@ -181,9 +184,6 @@ void GameScene::OnUpdate()
 	}
 
 
-	m_stageSelect.Update();
-	//ホームでの処理----------------------------------------
-
 
 	m_goal.Update(&m_player.GetCamera().lock()->GetTransform());
 	m_gateSceneChange.Update();
@@ -192,7 +192,8 @@ void GameScene::OnUpdate()
 
 	m_fireFlyStage.ComputeUpdate();
 
-	tutorial.Update();
+
+
 
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_O))
 	{
@@ -202,6 +203,10 @@ void GameScene::OnUpdate()
 	{
 		tutorial.Finish();
 	}
+
+	//ゲームシーンで使われないまとめ
+	tutorial.Update();
+	m_stageSelect.Update();
 
 
 	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld(), *m_nowCam);
