@@ -3,7 +3,9 @@
 #include<vector>
 #include<array>
 #include<string>
-class SoundConfig : public KuroEngine::DesignPattern::Singleton<SoundConfig>
+#include"ForUser/Debugger.h"
+
+class SoundConfig : public KuroEngine::DesignPattern::Singleton<SoundConfig>, public KuroEngine::Debugger
 {
 public:
 	//SE（再生機能のみ）
@@ -79,15 +81,24 @@ private:
 			m_latestIdx = 0;
 		}
 		void Play(int arg_delay = -1, int arg_soundIdx = -1);
+		void SetVolume(float arg_vol);
 	};
 
 	static const int INVALID_SOUND = -1;
 	std::array<SoundSE, SE_NUM>m_seTable;
 	std::array<int, JINGLE_NUM>m_jingleTable = { INVALID_SOUND };
 	std::array<int, BGM_NUM>m_bgmTable = { INVALID_SOUND };
-	
+
+	//各音声の個別のボリューム
+	std::array<float, SE_NUM>m_seEachVol = { 1.0f };
+	std::array<float, JINGLE_NUM>m_jingleEachVol = { 1.0f };
+	std::array<float, BGM_NUM>m_bgmEachVol = { 1.0f };
+
 	//現在再生中のBGMのハンドル
 	int m_nowPlayBGMHandle = INVALID_SOUND;
+
+	void SetIndividualVolume();
+	void OnImguiItems() { if (CustomParamDirty())SetIndividualVolume(); }
 
 public:
 	void Init();

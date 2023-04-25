@@ -3,13 +3,14 @@
 #include<memory>
 #include<optional>
 #include"Common/Transform.h"
-#include"../../../../src/engine/Render/RenderObject/ModelInfo/ModelMesh.h"
+#include"Render/RenderObject/ModelInfo/ModelMesh.h"
 
 namespace KuroEngine
 {
 	class Model;
 	class Camera;
 	class LightManager;
+	class ModelAnimator;
 }
 
 class Player;
@@ -223,6 +224,8 @@ class Lever :public StageParts
 {
 public:
 	static const int INVALID_ID = -1;
+	static const std::string TURN_ON_ANIM_NAME;
+	static const std::string TURN_OFF_ANIM_NAME;
 
 private:
 	friend class Stage;
@@ -252,20 +255,12 @@ private:
 	//ƒIƒ“ƒIƒt
 	bool m_flg = false;
 
-public:
-	Lever(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent, int arg_id, bool arg_initFlg = false)
-		:StageParts(LEVER, arg_model, arg_initTransform, arg_parent), m_id(arg_id), m_initFlg(arg_initFlg)
-	{
-		m_boxCollider.m_center = arg_initTransform.GetPosWorld();
-		m_boxCollider.m_size = arg_initTransform.GetScale();
-	}
+	std::shared_ptr<KuroEngine::ModelAnimator>m_modelAnimator;
 
-	void OnInit()override
-	{
-		m_flg = m_initFlg;
-		m_isHit = false;
-		m_isOldHit = false;
-	}
+public:
+	Lever(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent, int arg_id, bool arg_initFlg = false);
+
+	void OnInit()override;
 	void Update(Player& arg_player)override;
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 

@@ -16,28 +16,58 @@ std::vector<int> SoundConfig::LoadSoundArray(std::string arg_dir, std::string ar
 	return result;
 }
 
-SoundConfig::SoundConfig()
+SoundConfig::SoundConfig() : Debugger("SoundConfig")
 {
 	using namespace KuroEngine;
+	
+	//SEのファイル名設定
+	std::array<std::string, SE_NUM>seFileName =
+	{
+		"select",
+		"done",
+		"cancel",
+		"surface_jump",
+		"lever_on",
+		"lever_off",
+		"move_scaffold_start",
+		"move_scaffold_stop",
+		"cam_mode",
+		"ivy_zip_line_ride_on",
+		"ivy_zip_line_ride_off",
+		"grass",
+		"boot",
+		"shutdown",
+	};
+	//ジングルのファイル名指定
+	std::array<std::string, JINGLE_NUM>jingleFileName =
+	{
+		"clear"
+	};
+	//BGMのファイル名指定
+	std::array<std::string, BGM_NUM>bgmFileName =
+	{
+		"title",
+		"in_game",
+	};
 
 	auto audioApp = AudioApp::Instance();
 	std::string seDir = "resource/user/sound/se/";
 
 	//SE読み込み
-	m_seTable[SE_SELECT].Load(audioApp->LoadAudio(seDir + "select.wav"));
-	m_seTable[SE_DONE].Load(audioApp->LoadAudio(seDir + "done.wav"));
-	m_seTable[SE_CANCEL].Load(audioApp->LoadAudio(seDir + "cancel.wav"));
-	m_seTable[SE_SURFACE_JUMP].Load(LoadSoundArray(seDir, "surface_jump"), SoundSE::ORDER_TYPE::RANDOM);
-	m_seTable[SE_LEVER_ON].Load(LoadSoundArray(seDir, "lever_on"), SoundSE::ORDER_TYPE::IN_ORDER);
-	m_seTable[SE_LEVER_OFF].Load(audioApp->LoadAudio(seDir + "lever_off.wav"));
-	m_seTable[SE_MOVE_SCAFFOLD_START].Load(audioApp->LoadAudio(seDir + "move_scaffold_start.wav"));
-	m_seTable[SE_MOVE_SCAFFOLD_STOP].Load(audioApp->LoadAudio(seDir + "move_scaffold_stop.wav"));
-	m_seTable[SE_CAM_MODE_CHANGE].Load(LoadSoundArray(seDir, "cam_mode"), SoundSE::ORDER_TYPE::IN_ORDER);
-	m_seTable[SE_ZIP_LINE_GET_ON].Load(audioApp->LoadAudio(seDir + "ivy_zip_line_ride_on.wav"));
-	m_seTable[SE_ZIP_LINE_GET_OFF].Load(audioApp->LoadAudio(seDir + "ivy_zip_line_ride_off.wav"));
-	m_seTable[SE_GRASS].Load(audioApp->LoadAudio(seDir + "grass.wav"));
-	m_seTable[SE_BOOT].Load(audioApp->LoadAudio(seDir + "boot.wav"));
-	m_seTable[SE_SHUT_DOWN].Load(audioApp->LoadAudio(seDir + "shutdown.wav"));
+	m_seTable[SE_SELECT].Load(audioApp->LoadAudio(seDir + seFileName[SE_SELECT] + ".wav"));
+	m_seTable[SE_DONE].Load(audioApp->LoadAudio(seDir + seFileName[SE_DONE] + ".wav"));
+	m_seTable[SE_CANCEL].Load(audioApp->LoadAudio(seDir + seFileName[SE_CANCEL] + ".wav"));
+	m_seTable[SE_SURFACE_JUMP].Load(LoadSoundArray(seDir, seFileName[SE_SURFACE_JUMP]), SoundSE::ORDER_TYPE::RANDOM);
+	m_seTable[SE_LEVER_ON].Load(LoadSoundArray(seDir, seFileName[SE_LEVER_ON]), SoundSE::ORDER_TYPE::IN_ORDER);
+	m_seTable[SE_LEVER_OFF].Load(audioApp->LoadAudio(seDir + seFileName[SE_LEVER_OFF] + ".wav"));
+	m_seTable[SE_MOVE_SCAFFOLD_START].Load(audioApp->LoadAudio(seDir + seFileName[SE_MOVE_SCAFFOLD_START] + ".wav"));
+	m_seTable[SE_MOVE_SCAFFOLD_STOP].Load(audioApp->LoadAudio(seDir + seFileName[SE_MOVE_SCAFFOLD_STOP] + ".wav"));
+	m_seTable[SE_CAM_MODE_CHANGE].Load(LoadSoundArray(seDir, seFileName[SE_CAM_MODE_CHANGE]), SoundSE::ORDER_TYPE::IN_ORDER);
+	m_seTable[SE_ZIP_LINE_GET_ON].Load(audioApp->LoadAudio(seDir + seFileName[SE_ZIP_LINE_GET_ON] + ".wav"));
+	m_seTable[SE_ZIP_LINE_GET_OFF].Load(audioApp->LoadAudio(seDir + seFileName[SE_ZIP_LINE_GET_OFF] + ".wav"));
+	m_seTable[SE_GRASS].Load(audioApp->LoadAudio(seDir + seFileName[SE_GRASS] + ".wav"));
+	m_seTable[SE_BOOT].Load(audioApp->LoadAudio(seDir + seFileName[SE_BOOT] + ".wav"));
+	m_seTable[SE_SHUT_DOWN].Load(audioApp->LoadAudio(seDir + seFileName[SE_SHUT_DOWN] + ".wav"));
 
 	//ジングル読み込み
 	std::string jingleDir = "resource/user/sound/jingle/";
@@ -67,6 +97,24 @@ SoundConfig::SoundConfig()
 		AppearMessageBox("SoundConfig コンストラクタ", "読み込まれていないBGMがあるよ。");
 		exit(1);
 	}
+
+	//カスタムパラメータより各音声の個別のボリュームを読み込み
+	for (int seIdx = 0; seIdx < SE_NUM; ++seIdx)
+	{
+		AddCustomParameter(seFileName[seIdx], { "individualVolme","se",seFileName[seIdx] }, PARAM_TYPE::FLOAT, &m_seEachVol[seIdx], "IndividualVolme(SE)", true, 0.0f, 1.5f);
+	}
+	for (int jingleIdx = 0; jingleIdx < JINGLE_NUM; ++jingleIdx)
+	{
+		AddCustomParameter(jingleFileName[jingleIdx], { "individualVolme","jingle",jingleFileName[jingleIdx] }, PARAM_TYPE::FLOAT, &m_jingleEachVol[jingleIdx], "IndividualVolme(Jingle)", true, 0.0f, 1.5f);
+	}
+	for (int bgmIdx = 0; bgmIdx < BGM_NUM; ++bgmIdx)
+	{
+		AddCustomParameter(bgmFileName[bgmIdx], { "individualVolme","bgm",bgmFileName[bgmIdx] }, PARAM_TYPE::FLOAT, &m_bgmEachVol[bgmIdx], "IndividualVolme(BGM)", true, 0.0f, 1.5f);
+	}
+	LoadParameterLog();
+
+	//音量個別設定
+	SetIndividualVolume();
 }
 
 int SoundConfig::SoundSE::GetPlaySoundHandle()
@@ -100,6 +148,30 @@ void SoundConfig::SoundSE::Play(int arg_delay, int arg_soundIdx)
 {
 	int soundIdx = arg_soundIdx == -1 ? GetPlaySoundHandle() : m_sounds[arg_soundIdx];
 	arg_delay == -1 ? KuroEngine::AudioApp::Instance()->PlayWave(soundIdx) : KuroEngine::AudioApp::Instance()->PlayWaveDelay(arg_delay);
+}
+
+void SoundConfig::SoundSE::SetVolume(float arg_vol)
+{
+	for (auto& sound : m_sounds)
+	{
+		KuroEngine::AudioApp::Instance()->ChangeVolume(sound, arg_vol);
+	}
+}
+
+void SoundConfig::SetIndividualVolume()
+{
+	for (int seIdx = 0; seIdx < SE_NUM; ++seIdx)
+	{
+		m_seTable[seIdx].SetVolume(m_seEachVol[seIdx]);
+	}
+	for (int jingleIdx = 0; jingleIdx < JINGLE_NUM; ++jingleIdx)
+	{
+		KuroEngine::AudioApp::Instance()->ChangeVolume(m_jingleTable[jingleIdx], m_jingleEachVol[jingleIdx]);
+	}
+	for (int bgmIdx = 0; bgmIdx < BGM_NUM; ++bgmIdx)
+	{
+		KuroEngine::AudioApp::Instance()->ChangeVolume(m_bgmTable[bgmIdx], m_bgmEachVol[bgmIdx]);
+	}
 }
 
 void SoundConfig::Init()

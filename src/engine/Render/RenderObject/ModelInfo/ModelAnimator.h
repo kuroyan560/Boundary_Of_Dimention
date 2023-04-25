@@ -48,7 +48,14 @@ namespace KuroEngine
 		ModelAnimator(std::weak_ptr<Model>Model);
 		void Attach(std::weak_ptr<Model>Model);
 
+		//単位行列で埋める
 		void Reset();
+
+		//指定したアニメーションの始まりの姿勢をセット
+		void SetStartPosture(const std::string& AnimationName);
+
+		//指定したアニメーションの終わりの姿勢をセット
+		void SetEndPosture(const std::string& AnimationName);
 
 		//アニメーション再生
 		void Play(const std::string& AnimationName, const bool& Loop, const bool& Blend);

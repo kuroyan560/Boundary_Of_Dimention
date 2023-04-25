@@ -71,6 +71,7 @@ void GameScene::OnInitialize()
 	&m_waterPaintBlend,
 	&m_ligMgr,
 	m_fogPostEffect.get(),
+	SoundConfig::Instance(),
 		});
 
 	m_debugCam.Init({ 0,5,-10 });

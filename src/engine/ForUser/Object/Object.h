@@ -12,7 +12,6 @@ namespace KuroEngine
 	{
 	private:
 		std::shared_ptr<ConstantBuffer>m_transformBuff;
-		std::shared_ptr<ConstantBuffer>m_boneBuff;
 		void AttachModel(const std::shared_ptr<Model>& Model);
 
 	public:
