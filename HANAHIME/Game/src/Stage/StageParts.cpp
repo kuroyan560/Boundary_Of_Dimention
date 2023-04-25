@@ -432,7 +432,7 @@ void Lever::Update(Player &arg_player)
 	//植物繁殖光との当たり判定
 	for (auto &lig : GrowPlantLight::GrowPlantLightArray())
 	{
-		if (lig->HitCheckWithBox(m_boxCollider.m_center, m_boxCollider.m_size))
+		if (lig->HitCheckWithBox(m_transform.GetPosWorld(), m_boxCollider.m_size))
 		{
 			//レバー操作でオンオフ切り替え
 			m_isHit = true;
