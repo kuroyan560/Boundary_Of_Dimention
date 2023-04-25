@@ -45,7 +45,7 @@ private:
 	bool m_isStartFlag, m_prevStartFlag, m_startGoalEffectFlag;
 	bool m_startCameraFlag;
 	MovieCamera m_movieCamera;					//ゴール時のカメラワーク
-	
+	bool m_goalFlag, m_goalTriggerFlag;
 	KuroEngine::Transform m_cameraTransform;
 
 	//ゴールの文字演出

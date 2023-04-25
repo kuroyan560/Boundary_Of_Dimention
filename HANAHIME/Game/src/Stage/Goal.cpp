@@ -41,6 +41,9 @@ void Goal::Init(const KuroEngine::Transform &transform, std::shared_ptr<GoalPoin
 	//m_goalModelBaseTransform = goal_model->GetTransform();
 	m_startCameraFlag = false;
 
+	m_goalFlag = false;
+	m_goalTriggerFlag = false;
+
 }
 
 void Goal::Finalize()
@@ -242,6 +245,11 @@ void Goal::Update(KuroEngine::Transform *transform)
 	{
 		m_clearEaseTimer.UpdateTimer();
 	}
+
+	if (m_movieCamera.IsFinish())
+	{
+		m_goalFlag = true;
+	}
 }
 
 void Goal::Draw(KuroEngine::Camera &camera)
@@ -299,6 +307,11 @@ void Goal::Draw(KuroEngine::Camera &camera)
 
 bool Goal::IsEnd()
 {
-	return m_isStartFlag && m_movieCamera.IsFinish();
+	if (m_isStartFlag && m_goalFlag && !m_goalTriggerFlag)
+	{
+		m_goalTriggerFlag = true;
+		return true;
+	};
+	return false;
 }
 
