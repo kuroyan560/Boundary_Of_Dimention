@@ -112,13 +112,13 @@ void PazzleStageSelect::Update()
 	const float DEADLINE = 0.8f;
 	bool isInputRightController = m_prevContollerLeftStick.x < DEADLINE &&DEADLINE < contollerLeftStickInput.x;
 	bool selectFlag = false;
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_A) || isInputRightController)
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_D) || isInputRightController)
 	{
 		++m_nowStageNum.x;
 		selectFlag = true;
 	}
 	bool isInputLeftController = -DEADLINE < m_prevContollerLeftStick.x &&contollerLeftStickInput.x < -DEADLINE;
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_D) || isInputLeftController)
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_A) || isInputLeftController)
 	{
 		--m_nowStageNum.x;
 		selectFlag = true;
@@ -276,20 +276,53 @@ void PazzleStageSelect::Update()
 			cameraVec.Normalize();
 			float radian = atan2(cameraVec.z, cameraVec.x);
 			m_angle.x = static_cast<float>(KuroEngine::Angle::ConvertToDegree(radian));
-
 			m_angle.y = 0.0f;
+
+			m_larpAngle = m_angle;
+
 			//角度入手----------------------------------------
+
+			m_radius = 100.0f;
+			m_larpRadius = m_radius;
 		}
 		const LONG SENSITIVITY = static_cast<long>(0.5);
-		m_angle.x += mouseVel.m_inputX;
-		m_angle.y += mouseVel.m_inputY;
-		m_radius = 100.0f;
+		m_larpAngle.x += mouseVel.m_inputX;
+		m_larpAngle.y += mouseVel.m_inputY;
+
+		const float ANGLE_MAX = 90;
+		if (m_larpAngle.y <= -ANGLE_MAX)
+		{
+			m_larpAngle.y = -ANGLE_MAX;
+		}
+		if (10.0f <= m_larpAngle.y)
+		{
+			m_larpAngle.y = 10.0f;
+		}
+		m_angle = KuroEngine::Math::Lerp(m_angle, m_larpAngle, 0.1f);
+
+		//ホイール入力で距離を変更
+		if (mouseVel.m_inputZ != 0)
+		{
+			float inputZ = (mouseVel.m_inputZ / 20.0f) * -1.0f;
+			m_larpRadius += inputZ;
+
+			if (m_larpRadius < 30)
+			{
+				m_larpRadius = 30.0f;
+			}
+			if (100 < m_larpRadius)
+			{
+				m_larpRadius = 100.0f;
+			}
+		}
+		m_radius = KuroEngine::Math::Lerp(m_radius, m_larpRadius, 0.1f);
+
 		KuroEngine::Vec2<float>radian(KuroEngine::Angle::ConvertToRadian(m_angle.x), KuroEngine::Angle::ConvertToRadian(m_angle.y));
 		KuroEngine::Vec2<float>velX = { cosf(radian.x) * m_radius,sinf(radian.x) * m_radius };
 		KuroEngine::Vec2<float>velY = { cosf(radian.y) * m_radius,sinf(radian.y) * m_radius };
 		m_cameraPos = {
 			velX.x,
-			50.0f,
+			50.0f + velY.y,
 			velX.y
 		};
 

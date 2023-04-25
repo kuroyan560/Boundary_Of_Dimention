@@ -207,8 +207,8 @@ private:
 	std::shared_ptr<KuroEngine::Camera> m_previewCamera;
 	KuroEngine::Transform m_cameraTransform;
 	KuroEngine::Vec3<float>m_cameraPos;
-	KuroEngine::Vec2<float> m_angle;
-	float m_radius;
+	KuroEngine::Vec2<float> m_angle, m_larpAngle;
+	float m_radius, m_larpRadius;
 
 	KuroEngine::UsersInput::MouseMove m_preMouseVel;
 
