@@ -13,7 +13,7 @@ std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyO
 	"Terrian","Start","Goal","Appearance","MoveScaffold","Lever","Ivy","IvyBlock"
 };
 
-const std::string &StageParts::GetTypeKeyOnJson(STAGE_PARTS_TYPE arg_type)
+const std::string& StageParts::GetTypeKeyOnJson(STAGE_PARTS_TYPE arg_type)
 {
 	return s_typeKeyOnJson[arg_type];
 }
@@ -26,7 +26,7 @@ void StageParts::Init()
 	OnInit();
 }
 
-void StageParts::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
+void StageParts::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 	BasicDraw::Instance()->Draw(
 		arg_cam,
@@ -44,7 +44,7 @@ void TerrianMeshCollider::BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_
 	//当たり判定用メッシュを作成。
 	for (int meshIdx = 0; meshIdx < meshNum; ++meshIdx)
 	{
-		auto &mesh = arg_model.lock()->m_meshes[meshIdx].mesh;
+		auto& mesh = arg_model.lock()->m_meshes[meshIdx].mesh;
 
 		/*-- ① モデル情報から当たり判定用のポリゴンを作り出す --*/
 
@@ -60,7 +60,7 @@ void TerrianMeshCollider::BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_
 		m_collisionMesh[meshIdx].resize(mesh->indices.size() / static_cast<size_t>(3));
 
 		//当たり判定用ポリゴンコンテナにデータを入れていく。
-		for (auto &index : m_collisionMesh[meshIdx]) {
+		for (auto& index : m_collisionMesh[meshIdx]) {
 
 			// 現在のIndex数。
 			int nowIndex = static_cast<int>(&index - &m_collisionMesh[meshIdx][0]);
@@ -84,7 +84,7 @@ void TerrianMeshCollider::BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_
 		targetWorldMat.r[3].m128_f32[0] = arg_transform.GetPos().x;
 		targetWorldMat.r[3].m128_f32[1] = arg_transform.GetPos().y;
 		targetWorldMat.r[3].m128_f32[2] = arg_transform.GetPos().z;
-		for (auto &index : m_collisionMesh[meshIdx]) {
+		for (auto& index : m_collisionMesh[meshIdx]) {
 			//頂点を変換
 			index.m_p0.pos = KuroEngine::Math::TransformVec3(index.m_p0.pos, targetWorldMat);
 			index.m_p1.pos = KuroEngine::Math::TransformVec3(index.m_p1.pos, targetWorldMat);
@@ -101,12 +101,12 @@ void TerrianMeshCollider::BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_
 
 	//上記で作った当たり判定用ポリゴンを元に、当たり判定用のBOXを作る。
 	m_aabb.clear();
-	for (auto &stage : m_collisionMesh) {
+	for (auto& stage : m_collisionMesh) {
 
 		//格納するデータを保存。
 		m_aabb.emplace_back();
 
-		for (auto &index : stage) {
+		for (auto& index : stage) {
 
 			//当たり判定BOXを入れるデータ
 			m_aabb.back().emplace_back(CreateCubeFromPolygon(index.m_p0.pos, index.m_p1.pos, index.m_p2.pos, index.m_p0.normal));
@@ -117,7 +117,7 @@ void TerrianMeshCollider::BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_
 
 }
 
-AABB TerrianMeshCollider::CreateCubeFromPolygon(const KuroEngine::Vec3<float> &arg_v1, const KuroEngine::Vec3<float> &arg_v2, const KuroEngine::Vec3<float> &arg_v3, const KuroEngine::Vec3<float> &arg_normal) {
+AABB TerrianMeshCollider::CreateCubeFromPolygon(const KuroEngine::Vec3<float>& arg_v1, const KuroEngine::Vec3<float>& arg_v2, const KuroEngine::Vec3<float>& arg_v3, const KuroEngine::Vec3<float>& arg_normal) {
 
 	KuroEngine::Vec3<float> edge1 = arg_v2 - arg_v1;
 	KuroEngine::Vec3<float> edge2 = arg_v3 - arg_v1;
@@ -139,7 +139,7 @@ AABB TerrianMeshCollider::CreateCubeFromPolygon(const KuroEngine::Vec3<float> &a
 	aabb.m_min = cubeVertices[0];
 	aabb.m_max = cubeVertices[0];
 
-	for (auto &index : cubeVertices) {
+	for (auto& index : cubeVertices) {
 		aabb.m_min.x = std::min(aabb.m_min.x, index.x);
 		aabb.m_min.y = std::min(aabb.m_min.y, index.y);
 		aabb.m_min.z = std::min(aabb.m_min.z, index.z);
@@ -151,7 +151,7 @@ AABB TerrianMeshCollider::CreateCubeFromPolygon(const KuroEngine::Vec3<float> &a
 	return aabb;
 }
 
-std::optional<AABB::CollisionInfo> AABB::CheckAABBCollision(const AABB &arg_aabb1) {
+std::optional<AABB::CollisionInfo> AABB::CheckAABBCollision(const AABB& arg_aabb1) {
 	KuroEngine::Vec3<float> pushBack(0.0f, 0.0f, 0.0f);
 	float minOverlap = std::numeric_limits<float>::max();
 	int minOverlapAxis = -1;
@@ -192,14 +192,14 @@ std::optional<AABB::CollisionInfo> AABB::CheckAABBCollision(const AABB &arg_aabb
 	return CollisionInfo{ pushBack };
 }
 
-void GoalPoint::Update(Player &arg_player)
+void GoalPoint::Update(Player& arg_player)
 {
 	static const float HIT_RADIUS = 3.0f;
 	static const float HIT_OFFSET = 5.0f;
 
 	//プレイヤーとの当たり判定
 	//if (!m_hitPlayer)
-		m_hitPlayer = (arg_player.GetTransform().GetPosWorld().Distance(m_transform.GetPosWorld() + -m_transform.GetUp() * HIT_OFFSET * m_transform.GetScale().x) < HIT_RADIUS);
+	m_hitPlayer = (arg_player.GetTransform().GetPosWorld().Distance(m_transform.GetPosWorld() + -m_transform.GetUp() * HIT_OFFSET * m_transform.GetScale().x) < HIT_RADIUS);
 }
 
 void MoveScaffold::OnInit()
@@ -226,7 +226,7 @@ void MoveScaffold::OnInit()
 	m_collider.BuilCollisionMesh(m_model, m_transform);
 }
 
-void MoveScaffold::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
+void MoveScaffold::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 	StageParts::Draw(arg_cam, arg_ligMgr);
 
@@ -240,7 +240,7 @@ void MoveScaffold::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &a
 
 }
 
-void MoveScaffold::Update(Player &arg_player)
+void MoveScaffold::Update(Player& arg_player)
 {
 
 	//フラグを保存。
@@ -403,7 +403,7 @@ Lever::Lever(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform a
 	auto& anims = arg_model.lock()->m_skelton->animations;
 	if (anims.find(TURN_OFF_ANIM_NAME) == anims.end() && anims.find(TURN_ON_ANIM_NAME) == anims.end())
 	{
-		
+
 		KuroEngine::AppearMessageBox("Lever コンストラクタ失敗", "モデル(" + arg_model.lock()->m_header.fileName + ")に turn_on か turn_off のアニメーションが足りてないよ。");
 		exit(1);
 	}
@@ -421,7 +421,7 @@ void Lever::OnInit()
 	m_modelAnimator->SetStartPosture(TURN_ON_ANIM_NAME);
 }
 
-void Lever::Update(Player &arg_player)
+void Lever::Update(Player& arg_player)
 {
 	//スイッチの状態が固定されている
 	if (m_parentSwitch->IsFixed())return;
@@ -431,8 +431,11 @@ void Lever::Update(Player &arg_player)
 	m_isHit = false;
 
 	//植物繁殖光との当たり判定
-	for (auto &lig : GrowPlantLight::GrowPlantLightArray())
+	for (auto& lig : GrowPlantLight::GrowPlantLightArray())
 	{
+		if (DirectX::XM_PIDIV4 / 2.0f < acos(arg_player.GetTransform().GetUpWorld().Dot(m_transform.GetUpWorld()))) break;
+
+		//内積でライトの法線とプレイヤーの上座標が離れてたら無効化する。
 		if (lig->HitCheckWithBox(m_transform.GetPosWorld(), m_boxCollider.m_size))
 		{
 			//レバー操作でオンオフ切り替え
@@ -473,8 +476,7 @@ void Lever::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 		m_modelAnimator->GetBoneMatBuff());
 }
 
-
-void IvyZipLine::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
+void IvyZipLine::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 
 	//蔦を描画
@@ -534,7 +536,7 @@ KuroEngine::Vec3<float> IvyZipLine::GetPoint(bool arg_isEaseStart) {
 	}
 }
 
-void IvyZipLine::Update(Player &arg_player)
+void IvyZipLine::Update(Player& arg_player)
 {
 
 	//ジップラインが有効化されている かつ プレイヤーの移動準備が出来ていたらプレイヤーを動かす。
@@ -614,7 +616,7 @@ void IvyZipLine::Update(Player &arg_player)
 
 }
 
-void IvyBlock::Update(Player &arg_player)
+void IvyBlock::Update(Player& arg_player)
 {
 
 	m_prevOnPlayer = m_onPlayer;
@@ -646,7 +648,7 @@ void IvyBlock::Update(Player &arg_player)
 
 }
 
-void IvyBlock::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
+void IvyBlock::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 
 	StageParts::Draw(arg_cam, arg_ligMgr);

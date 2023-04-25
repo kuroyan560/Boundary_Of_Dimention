@@ -45,6 +45,9 @@ public:
 
 	//種別のゲッタ
 	const TYPE& GetType()const { return m_type; }
+
+	//トランスフォームを取得
+	KuroEngine::Transform GetTransform() { return m_transform; }
 };
 
 //点光源
