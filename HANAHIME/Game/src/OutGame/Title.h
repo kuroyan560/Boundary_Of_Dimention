@@ -41,7 +41,7 @@ public:
 		}
 		else
 		{
-			return m_stageSelect.m_camera.GetCamera();
+			return m_stageSelect.GetCamera();
 		}
 	}
 	int GetStageNum()

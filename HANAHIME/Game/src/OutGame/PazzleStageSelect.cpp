@@ -1,7 +1,9 @@
 #include"PazzleStageSelect.h"
 #include"FrameWork/WinApp.h"
 #include"../Stage/StageManager.h"
-
+#include <cmath>
+#include <limits>
+#include <iostream>
 
 PazzleStageSelect::PazzleStageSelect() :m_beatTimer(30), m_appearTimer(60), m_hideTiemr(60)
 {
@@ -84,6 +86,11 @@ PazzleStageSelect::PazzleStageSelect() :m_beatTimer(30), m_appearTimer(60), m_hi
 	//ホームの周りを円状に回っていく処理----------------------------------------
 
 	m_camera.StartMovie(titleCameraMoveDataArray, true);
+
+	m_appearTimer.ForciblyTimeUp();
+	m_hideTiemr.ForciblyTimeUp();
+
+	m_previewCamera = std::make_shared<KuroEngine::Camera>("PreviewCamera");
 }
 
 void PazzleStageSelect::Init()
@@ -224,7 +231,6 @@ void PazzleStageSelect::Update()
 		obj->Update();
 	}
 
-
 	if (m_previweFlag)
 	{
 		m_hideTiemr.Reset();
@@ -238,7 +244,76 @@ void PazzleStageSelect::Update()
 		m_hideTiemr.UpdateTimer();
 	}
 
-	m_camera.Update();
+
+	//プレビューモードのカメラ
+	if (m_previweFlag)
+	{
+		//カメラの初期化
+		if (m_previweFlag && !m_triggerPreviewFlag)
+		{
+			KuroEngine::Matrix mat = m_camera.GetCamera().lock()->GetTransform().GetMatWorld();
+			m_previewCamera->GetTransform().SetWorldMat(mat);
+			m_previewCamera->GetTransform().CalucuratePosRotaBasedOnWorldMatrix();
+
+			m_cameraPos = m_previewCamera->GetTransform().GetPosWorld();
+
+			//角度入手----------------------------------------
+			KuroEngine::Vec3<float>cameraVec(m_cameraPos);
+			cameraVec.y = 0.0f;
+			cameraVec.Normalize();
+			float radian = atan2(cameraVec.z, cameraVec.x);
+			m_angle.x = static_cast<float>(KuroEngine::Angle::ConvertToDegree(radian));
+
+			radian = atan2(cameraVec.y, cameraVec.z);
+			m_angle.y = static_cast<float>(KuroEngine::Angle::ConvertToDegree(radian));
+			//角度入手----------------------------------------
+		}
+		//終了処理
+		if (!m_previweFlag && m_triggerPreviewFlag)
+		{
+
+		}
+		const LONG SENSITIVITY = static_cast<long>(0.5);
+		m_angle.x += KuroEngine::UsersInput::Instance()->GetMouseMove().m_inputX;
+		m_angle.y += KuroEngine::UsersInput::Instance()->GetMouseMove().m_inputY;
+		m_radius = 100.0f;
+		KuroEngine::Vec2<float>radian(KuroEngine::Angle::ConvertToRadian(m_angle.x), KuroEngine::Angle::ConvertToRadian(m_angle.y));
+		KuroEngine::Vec2<float>velX = { cosf(radian.x) * m_radius,sinf(radian.x) * m_radius };
+		KuroEngine::Vec2<float>velY = { cosf(radian.y) * m_radius,sinf(radian.y) * m_radius };
+		m_cameraPos = {
+			velX.x,
+			50.0f,
+			velX.y
+		};
+
+		std::cout << "AngleX:" << m_angle.x << std::endl;
+		std::cout << "AngleY:" << m_angle.y;
+
+		auto &transform = m_previewCamera->GetTransform();
+	
+		//カメラの注視点
+		transform.SetPos(m_cameraPos);
+		KuroEngine::Vec3<float>eyeDir = m_cameraPos;
+		eyeDir.Normalize();
+		KuroEngine::Vec3<float> rightVec = eyeDir.Cross({ 0,-1,0 });
+		rightVec.Normalize();
+		KuroEngine::Vec3<float> upVec = eyeDir.Cross(rightVec);
+		upVec.Normalize();
+		DirectX::XMMATRIX matA = DirectX::XMMatrixIdentity();
+		matA.r[0] = { rightVec.x,rightVec.y,rightVec.z,0.0f };
+		matA.r[1] = { upVec.x,upVec.y,upVec.z,0.0f };
+		matA.r[2] = { eyeDir.x,eyeDir.y,eyeDir.z,0.0f };
+		transform.SetRotaMatrix(matA);
+	}
+	else
+	{
+		m_camera.Update();
+	}
+	m_triggerPreviewFlag = m_previweFlag;
+
+
+
+
 }
 
 void PazzleStageSelect::Draw()
