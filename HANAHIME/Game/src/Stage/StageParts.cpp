@@ -27,14 +27,11 @@ void StageParts::Init()
 
 void StageParts::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
-	auto a = m_transform.GetPos();
-	auto b = m_transform.GetPosWorld();
 	BasicDraw::Instance()->Draw(
 		arg_cam,
 		arg_ligMgr,
 		m_model.lock(),
 		m_transform);
-
 }
 
 void TerrianMeshCollider::BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_transform)
@@ -396,17 +393,31 @@ void MoveScaffold::OnPlayer() {
 
 }
 
-void Lever::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
-{
-	StageParts::Draw(arg_cam, arg_ligMgr);
+const std::string Lever::TURN_ON_ANIM_NAME = "turn_on";
+const std::string Lever::TURN_OFF_ANIM_NAME = "turn_off";
 
-	if (m_flg)
+Lever::Lever(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent, int arg_id, bool arg_initFlg)
+	:StageParts(LEVER, arg_model, arg_initTransform, arg_parent), m_id(arg_id), m_initFlg(arg_initFlg)
+{
+	auto& anims = arg_model.lock()->m_skelton->animations;
+	if (anims.find(TURN_OFF_ANIM_NAME) == anims.end() && anims.find(TURN_ON_ANIM_NAME) == anims.end())
 	{
-		KuroEngine::DrawFuncBillBoard::Box(arg_cam,
-			m_transform.GetPosWorld() + m_transform.GetUp(),
-			{ 9.0f,9.0f },
-			KuroEngine::Color(1.0f, 1.0f, 1.0f, 1.0f));
+		
+		KuroEngine::AppearMessageBox("Lever コンストラクタ失敗", "モデル(" + arg_model.lock()->m_header.fileName + ")に turn_on か turn_off のアニメーションが足りてないよ。");
+		exit(1);
 	}
+
+	m_boxCollider.m_center = arg_initTransform.GetPosWorld();
+	m_boxCollider.m_size = arg_initTransform.GetScale();
+	m_modelAnimator = std::make_shared<KuroEngine::ModelAnimator>(arg_model);
+}
+
+void Lever::OnInit()
+{
+	m_flg = m_initFlg;
+	m_isHit = false;
+	m_isOldHit = false;
+	m_modelAnimator->SetStartPosture(TURN_ON_ANIM_NAME);
 }
 
 void Lever::Update(Player &arg_player)
@@ -432,22 +443,35 @@ void Lever::Update(Player &arg_player)
 	//衝突のトリガー判定だったらフラグを切り替える。
 	if (m_isHit && !m_isOldHit) {
 		m_flg = !m_flg;
+
+		//オン
+		if (m_flg)
+		{
+			SoundConfig::Instance()->Play(SoundConfig::SE_LEVER_ON);
+			m_modelAnimator->Play(TURN_ON_ANIM_NAME, false, false);
+		}
+		//オフ
+		else
+		{
+			SoundConfig::Instance()->Play(SoundConfig::SE_LEVER_OFF);
+			m_modelAnimator->Play(TURN_OFF_ANIM_NAME, false, false);
+		}
 	}
 
-	//onTriggerだったら
-	if (!m_isOldHit && m_isHit) {
-
-		SoundConfig::Instance()->Play(SoundConfig::SE_LEVER_ON);
-
-	}
-	else if (m_isOldHit && !m_isOldHit) {
-
-		SoundConfig::Instance()->Play(SoundConfig::SE_LEVER_OFF);
-
-	}
-
-
+	m_modelAnimator->Update(1.0f);
 }
+
+void Lever::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+{
+	BasicDraw::Instance()->Draw(
+		arg_cam,
+		arg_ligMgr,
+		m_model.lock(),
+		m_transform,
+		KuroEngine::AlphaBlendMode_None,
+		m_modelAnimator->GetBoneMatBuff());
+}
+
 
 void IvyZipLine::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {

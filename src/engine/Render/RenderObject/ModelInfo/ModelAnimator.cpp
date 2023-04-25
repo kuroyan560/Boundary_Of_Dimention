@@ -138,7 +138,7 @@ void KuroEngine::ModelAnimator::BoneMatrixRecursive(const int& BoneIdx, const fl
 	CalculateTransform(m_boneTransform[BoneIdx], boneAnim, Past, finish);
 
 	//アニメーションは終了していない
-	if (*Finish && !finish)*Finish = false;
+	if (Finish != nullptr && !finish)*Finish = false;
 
 	boneMatricies[BoneIdx] = skel->bones[BoneIdx].invBindMat * m_boneTransform[BoneIdx].GetMatLocal();
 
@@ -195,6 +195,36 @@ void KuroEngine::ModelAnimator::Reset()
 
 	//再生中アニメーション名リセット
 	playAnimations.clear();
+}
+
+void KuroEngine::ModelAnimator::SetStartPosture(const std::string& AnimationName)
+{
+	auto skel = attachSkelton.lock();
+	if (!skel)return;	//スケルトンがアタッチされていない
+
+	//アニメーション情報取得
+	auto& anim = skel->animations[AnimationName];
+
+	//ボーン行列を再帰的に計算
+	BoneMatrixRecursive(static_cast<int>(skel->bones.size() - 1), 0, nullptr, anim);
+
+	//バッファにデータ転送
+	boneBuff->Mapping(boneMatricies.data());
+}
+
+void KuroEngine::ModelAnimator::SetEndPosture(const std::string& AnimationName)
+{
+	auto skel = attachSkelton.lock();
+	if (!skel)return;	//スケルトンがアタッチされていない
+
+	//アニメーション情報取得
+	auto& anim = skel->animations[AnimationName];
+
+	//ボーン行列を再帰的に計算
+	BoneMatrixRecursive(static_cast<int>(skel->bones.size() - 1), static_cast<float>(anim.finishTime), nullptr, anim);
+
+	//バッファにデータ転送
+	boneBuff->Mapping(boneMatricies.data());
 }
 
 void KuroEngine::ModelAnimator::Play(const std::string& AnimationName, const bool& Loop, const bool& Blend)
