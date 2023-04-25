@@ -91,19 +91,22 @@ class Grass
 	{
 		KuroEngine::Vec3<float>m_camPos;
 		float m_seed;
-		KuroEngine::Vec2<float> m_pad;
 		int m_grassCount;
 		int m_plantOnceCount;
+		KuroEngine::Vec2<float> m_pad;
 	};
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_otherTransformConstBuffer;
 
 	//行列以外のデータ用構造体（好きなの入れてね）
 	struct CBVdata
 	{
-		//プレイヤーの座標
-		KuroEngine::Vec3<float> m_playerPos;
+		KuroEngine::Matrix matView; // ビュー行列
+		KuroEngine::Matrix matProjection;	//プロジェクション行列
+		KuroEngine::Vec3<float> eye = { 0,0,0 }; // カメラ座標（ワールド座標）
 		//判定を飛ばす距離
 		float m_checkClipOffset = 2.0f;
+		//プレイヤーの座標
+		KuroEngine::Vec3<float> m_playerPos;
 		//周辺に既に草が生えているか確認する際の範囲
 		float m_checkRange = 0.5f;
 		//草むら登場時のイージング速度
@@ -114,14 +117,6 @@ class Grass
 		float m_sineWave = 0;
 		//草を枯らす距離
 		float m_deathDistance = 8.0f;
-		KuroEngine::Vec3<float> m_pad;		
-		KuroEngine::Matrix matView; // ビュー行列
-		KuroEngine::Matrix matProjection;	//プロジェクション行列
-		KuroEngine::Matrix billboardMat;
-		KuroEngine::Matrix billboardMatY;
-		KuroEngine::Vec3<float> eye = { 0,0,0 }; // カメラ座標（ワールド座標）
-		float nearClip = 0.1f;
-		float farClip = 3000.0f;
 	}m_constData;
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_constBuffer;
 

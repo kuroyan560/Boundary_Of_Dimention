@@ -14,10 +14,16 @@ struct PlantGrass
 //全草むらで共通する定数バッファ用のパラメータ
 struct CommonGrassInfo
 {
-    //プレイヤーの座標
-    float3 m_playerPos;
+    //ビュー行列
+    matrix matView;
+    //プロジェクション行列
+    matrix matProjection;
+    //カメラ座標（ワールド座標）
+    float3 eye;
     //判定を飛ばす距離
     float m_checkClipOffset;
+    //プレイヤーの座標
+    float3 m_playerPos;
 	//周辺に既に草が生えているか確認する際の範囲
     float m_checkRange;
     //草むら登場時のイージング速度
@@ -28,7 +34,6 @@ struct CommonGrassInfo
     float m_sineWave;
     //草を枯らす距離
     float m_deathDistance;
-    float3 m_pad;
 };
 
 //草むら以外の外部オブジェクトのトランスフォーム情報
@@ -36,9 +41,9 @@ struct TransformData
 {
     float3 m_camPos;
     float m_seed;
-    float2 m_pad;
     int m_grassCount;
     int m_plantOnceCount;
+    float2 m_pad;
 };
 
 //ランダム

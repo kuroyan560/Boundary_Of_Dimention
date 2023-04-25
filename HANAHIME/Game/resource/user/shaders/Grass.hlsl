@@ -44,7 +44,6 @@ cbuffer cbuff0 : register(b0)
 cbuffer cbuff1 : register(b1)
 {
     CommonGrassInfo commonInfo;
-    Camera camera;
 }
 
 [numthreads(1, 1, 1)]
@@ -79,8 +78,8 @@ void Update(uint DTid : SV_DispatchThreadID)
     PlantGrass grass = aliveGrassBuffer[DTid];
     
     //現在位置にライトが当たっているかを確認する。
-    float4 viewPos = mul(camera.view, float4(grass.m_pos, 1.0f));
-    float4 clipPos = mul(camera.proj, viewPos);
+    float4 viewPos = mul(commonInfo.matView, float4(grass.m_pos, 1.0f));
+    float4 clipPos = mul(commonInfo.matProjection, viewPos);
     float3 ndcPos = clipPos.xyz / clipPos.w;
     uint2 screenPos = round(float2((ndcPos.x * 0.5f + 0.5f) * 1280.0f, (1.0f - (ndcPos.y * 0.5f + 0.5f)) * 720.0f));
     float texColor = g_brightMap[screenPos].x;

@@ -200,7 +200,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 	m_otherTransformConstBuffer->Mapping(&transformData);
 
 	//if (m_plantTimer.IsTimeUp() && 0.01f < KuroEngine::Vec3<float>(m_oldPlayerPos - arg_playerTransform.GetPos()).Length())
-	if (false)
+	if (true)
 	{
 		//トランスフォームに流し込む
 		Transform grassTransform;
@@ -226,11 +226,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 	//カメラの情報を入れる。
 	m_constData.matView = arg_cam.lock()->GetViewMat();
 	m_constData.matProjection = arg_cam.lock()->GetProjectionMat();
-	m_constData.billboardMat = arg_cam.lock()->GetBillBoardMat();
-	m_constData.billboardMatY = arg_cam.lock()->GetBillBoardMat();
 	m_constData.eye = arg_cam.lock()->GetEye();
-	m_constData.nearClip = arg_cam.lock()->GetNearZ();
-	m_constData.farClip = arg_cam.lock()->GetFarZ();
 	//定数バッファ1をGPUに転送。
 	m_constBuffer->Mapping(&m_constData);
 
