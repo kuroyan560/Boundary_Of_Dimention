@@ -28,6 +28,12 @@ public:
 	{
 		return m_stageSelectArray[m_nowStageNum.y][m_nowStageNum.x].enableFlag;
 	}
+	bool IsEnableToDone()
+	{
+		bool flag = !m_previweFlag && !stop1FlameFlag;
+		stop1FlameFlag = false;
+		return flag;
+	}
 	void Stop()
 	{
 		m_stopFlag = true;
@@ -103,6 +109,7 @@ private:
 
 	//プレビューモード
 	bool m_previweFlag, m_triggerPreviewFlag;
+	bool stop1FlameFlag;
 	KuroEngine::Vec2<float>m_hideVel;
 	KuroEngine::Timer m_hideTiemr;
 	KuroEngine::Timer m_appearTimer;
@@ -131,8 +138,8 @@ private:
 	{
 		std::shared_ptr<KuroEngine::TextureBuffer>m_stageTex;
 		std::shared_ptr<KuroEngine::TextureBuffer>m_subStageTex;
-		StageUI(std::shared_ptr<KuroEngine::TextureBuffer>stageUITex, std::shared_ptr<KuroEngine::TextureBuffer>subStageUITex):
-		m_stageTex(stageUITex), m_subStageTex(subStageUITex)
+		StageUI(std::shared_ptr<KuroEngine::TextureBuffer>stageUITex, std::shared_ptr<KuroEngine::TextureBuffer>subStageUITex) :
+			m_stageTex(stageUITex), m_subStageTex(subStageUITex)
 		{};
 	};
 	std::vector<StageUI>m_stageTex;
@@ -198,9 +205,13 @@ private:
 	//プレビュー-----------------------------------------------------------------------
 
 	std::shared_ptr<KuroEngine::Camera> m_previewCamera;
+	KuroEngine::Transform m_cameraTransform;
 	KuroEngine::Vec3<float>m_cameraPos;
 	KuroEngine::Vec2<float> m_angle;
 	float m_radius;
+
+	KuroEngine::UsersInput::MouseMove m_preMouseVel;
+
 
 	//プレビュー-----------------------------------------------------------------------
 
