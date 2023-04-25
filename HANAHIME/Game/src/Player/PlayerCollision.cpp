@@ -31,17 +31,17 @@ bool PlayerCollision::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from,
 		index = false;
 	}
 
-	//周囲の壁との当たり判定
-	CheckHitAround(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
-
 	//地面との当たり判定
 	CheckHitGround(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
 
-	//ジップラインとの当たり判定
-	CheckZipline(arg_newPos, arg_nowStage);
-
 	//死んだか(挟まっているか)どうかを判定
 	CheckDeath(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
+
+	//周囲の壁との当たり判定
+	CheckHitAround(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
+
+	//ジップラインとの当たり判定
+	CheckZipline(arg_newPos, arg_nowStage);
 
 	//死んでいたら処理を飛ばす。
 	m_refPlayer->m_isDeath = false;
@@ -494,8 +494,11 @@ void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, Kuro
 				m_refPlayer->m_canJump = true;
 			}
 
+			if (arg_castRayArgment.m_impactPoint[minIndex].m_isAppearWall) {
+				arg_hitInfo->m_terrianNormal = m_refPlayer->m_transform.GetUp();
+			}
 			//ジャンプができる状態だったらジャンプする。
-			if (m_refPlayer->m_canJump) {
+			else if (m_refPlayer->m_canJump) {
 
 				//最短の衝突点を求めたら、それをジャンプ先にする。
 				arg_hitInfo->m_terrianNormal = arg_castRayArgment.m_impactPoint[minIndex].m_normal;
@@ -1566,6 +1569,41 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 		}
 	}
 
+	//見えない壁との当たり判定
+	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
+	{
+		//動く足場でない
+		if (terrian->GetType() != StageParts::APPEARANCE)continue;
+
+		//見えない壁としてキャスト
+		auto appearWall = dynamic_pointer_cast<Appearance>(terrian);
+
+		//モデル情報取得
+		auto model = terrian->GetModel();
+
+		//メッシュを走査
+		for (auto& modelMesh : model.lock()->m_meshes) {
+
+			//判定↓============================================
+
+			//当たり判定を行うメッシュ。
+			std::vector<TerrianHitPolygon> mesh = appearWall->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+
+			//下方向にレイを飛ばす。
+			MeshCollisionOutput output = MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
+
+			//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
+			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
+
+				//壁に当たった時点で崖ではないので処理を飛ばす。
+				return;
+
+			}
+
+			//=================================================
+		}
+	}
+
 	//最後まで壁に当たってなかったら崖を超えているので無効化する。
 	arg_impactPointData.m_isActive = false;
 
@@ -1789,6 +1827,7 @@ bool PlayerCollision::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroE
 
 				arg_charaPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
 				arg_collisionData.m_impactPoint.back().m_isAppearWall = true;
+				arg_collisionData.m_bottomTerrianNormal = m_refPlayer->m_transform.GetUp();
 
 			}
 			else if (m_refPlayer->m_prevOnGimmick) {
@@ -2141,7 +2180,6 @@ void PlayerCollision::FinishGimmickMove()
 	//SEを鳴らす。
 	SoundConfig::Instance()->Play(SoundConfig::SE_ZIP_LINE_GET_ON);
 }
-
 
 void PlayerCollision::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const KuroEngine::Vec3<float>& arg_nextUp) {
 
