@@ -404,7 +404,7 @@ void PazzleStageSelect::Draw()
 			if (isSelectingFlag)
 			{
 				m_nowNumTexArray = m_numMainTexArray;
-				size = { 0.8f,0.8f };
+				size = { 1.8f,1.8f };
 				digitsBetween = { 60.0f,0.0f };
 				basePos.y += 30.0f;
 			}
