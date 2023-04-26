@@ -87,7 +87,7 @@ void Title::Init(TitleMode title_mode)
 	default:
 		break;
 	}
-
+	m_doneFlag = false;
 }
 
 void Title::Update(KuroEngine::Transform *player_camera)
