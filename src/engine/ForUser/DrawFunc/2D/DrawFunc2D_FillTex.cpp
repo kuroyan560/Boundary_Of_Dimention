@@ -87,7 +87,7 @@ void KuroEngine::DrawFunc2D_FillTex::DrawExtendGraph2D(const Vec2<float>& LeftUp
 			{KuroEngine::KuroEngineDevice::Instance()->GetParallelMatProjBuff(),CBV},
 			{DestTex,SRV},
 			{SrcTex,SRV},
-		}, 0.0f, true);
+		}, 0, true);
 
 	s_DrawExtendGraphCount++;
 }
@@ -168,7 +168,7 @@ void KuroEngine::DrawFunc2D_FillTex::DrawRotaGraph2D(const Vec2<float>& Center, 
 			{KuroEngine::KuroEngineDevice::Instance()->GetParallelMatProjBuff(),CBV},
 			{DestTex,SRV},
 			{SrcTex,SRV},
-		}, 0.0f, true);
+		}, 0, true);
 
 	s_DrawRotaGraphCount++;
 }

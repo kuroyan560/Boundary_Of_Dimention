@@ -41,7 +41,7 @@ namespace KuroEngine
 		}
 
 		//ŽlŠp•`‰æ
-		static void Box(Camera& Cam, const Vec3<float>& Pos, const Vec2<float>& Size, const Color& BoxColor, const AlphaBlendMode& BlendMode = AlphaBlendMode_None);
-		static void Graph(Camera& Cam, const Vec3<float>& Pos, const Vec2<float>& Size, std::shared_ptr<TextureBuffer>Tex, const AlphaBlendMode& BlendMode = AlphaBlendMode_Trans);
+		static void Box(Camera& Cam, const Vec3<float>& Pos, const Vec2<float>& Size, const Color& BoxColor, const AlphaBlendMode& BlendMode = AlphaBlendMode_None, const int& arg_layer = 0);
+		static void Graph(Camera& Cam, const Vec3<float>& Pos, const Vec2<float>& Size, std::shared_ptr<TextureBuffer>Tex, const AlphaBlendMode& BlendMode = AlphaBlendMode_Trans, const int& arg_layer = 0);
 	};
 }

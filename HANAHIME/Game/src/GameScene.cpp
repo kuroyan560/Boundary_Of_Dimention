@@ -236,10 +236,6 @@ void GameScene::OnDraw()
 	//レンダーターゲットのクリアとセット
 	BasicDraw::Instance()->RenderTargetsClearAndSet(ds);
 
-	//ステージ描画
-	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
-
-
 	Transform transform;
 	transform.SetPos({ -0.5f,0,0 });
 	DrawFunc3D::DrawNonShadingPlane(
@@ -258,6 +254,9 @@ void GameScene::OnDraw()
 		m_player.Draw(*m_nowCam, m_ligMgr, DebugController::Instance()->IsActive());
 		m_grass.Draw(*m_nowCam, m_ligMgr);
 	}
+
+	//ステージ描画
+	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
 
 	m_stageSelect.Draw(*m_nowCam, m_ligMgr);
 

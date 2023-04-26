@@ -92,7 +92,7 @@ void KuroEngine::DrawFunc2D_Color::DrawExtendGraph2D(const Vec2<float>& LeftUpPo
 		{
 			{KuroEngine::KuroEngineDevice::Instance()->GetParallelMatProjBuff(),CBV},
 			{Tex,SRV }
-		}, 0.0f, true);
+		}, 0, true);
 
 	s_DrawExtendGraphCount++;
 }
@@ -171,7 +171,7 @@ void KuroEngine::DrawFunc2D_Color::DrawRotaGraph2D(const Vec2<float>& Center, co
 		{
 			{KuroEngine::KuroEngineDevice::Instance()->GetParallelMatProjBuff(),CBV},
 			{Tex,SRV },
-		}, 0.0f, true);
+		}, 0, true);
 
 	s_DrawRotaGraphCount++;
 }

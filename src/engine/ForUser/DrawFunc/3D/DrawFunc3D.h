@@ -56,43 +56,43 @@ namespace KuroEngine
 		//線描画パイプライン事前生成
 		static void GenerateDrawLinePipeline(DXGI_FORMAT arg_format, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans);
 		//線描画
-		static void DrawLine(Camera& arg_cam, const Vec3<float>& arg_from, const Vec3<float>& arg_to, const Color& arg_lineColor, const float& arg_thickness, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans);
+		static void DrawLine(Camera& arg_cam, const Vec3<float>& arg_from, const Vec3<float>& arg_to, const Color& arg_lineColor, const float& arg_thickness, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans, const int& arg_layer = 0);
 		//通常描画
-		static void DrawNonShadingModel(const std::weak_ptr<Model>arg_model, const Matrix& arg_worldMat, float arg_depth, Camera& arg_camera, const float& arg_alpha = 1.0f, std::shared_ptr<ModelAnimator> arg_animator = nullptr, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans);
-		static void DrawNonShadingModel(const std::weak_ptr<Model>arg_model, Transform& arg_transform, Camera& arg_camera, const float& arg_alpha = 1.0f, std::shared_ptr<ModelAnimator> arg_animator = nullptr, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans)
+		static void DrawNonShadingModel(const std::weak_ptr<Model>arg_model, const Matrix& arg_worldMat, Camera& arg_camera, const float& arg_alpha = 1.0f, std::shared_ptr<ModelAnimator> arg_animator = nullptr, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans, int arg_layer = 0);
+		static void DrawNonShadingModel(const std::weak_ptr<Model>arg_model, Transform& arg_transform, Camera& arg_camera, const float& arg_alpha = 1.0f, std::shared_ptr<ModelAnimator> arg_animator = nullptr, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans, int arg_layer = 0)
 		{
-			DrawNonShadingModel(arg_model, arg_transform.GetMatWorld(), arg_transform.GetPos().z, arg_camera, arg_alpha, arg_animator, arg_blendMode);
+			DrawNonShadingModel(arg_model, arg_transform.GetMatWorld(), arg_camera, arg_alpha, arg_animator, arg_blendMode, arg_layer);
 		}
 		static void DrawNonShadingModel(const std::weak_ptr<ModelObject>arg_modelObject, Camera& arg_camera, const float& arg_alpha = 1.0f, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans)
 		{
 			auto obj = arg_modelObject.lock();
 			DrawNonShadingModel(obj->m_model, obj->m_transform, arg_camera, arg_alpha, obj->m_animator, arg_blendMode);
 		}
-		static void DrawNonShadingModel(const std::weak_ptr<Model>arg_model, const std::vector<Matrix>& arg_matArray, Camera& arg_Camera, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans, const float& arg_depth = 0.0f, std::shared_ptr<ModelAnimator> arg_animator = nullptr);
+		static void DrawNonShadingModel(const std::weak_ptr<Model>arg_model, const std::vector<Matrix>& arg_matArray, Camera& arg_Camera, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans, const int& arg_layer = 0, std::shared_ptr<ModelAnimator> arg_animator = nullptr);
 		//影つき描画
-		static void DrawADSShadingModel(LightManager& arg_ligManager, const std::weak_ptr<Model>arg_model, Transform& arg_transform, Camera& arg_cam, std::shared_ptr<ModelAnimator> arg_animator = nullptr, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans);
-		static void DrawADSShadingModel(LightManager& arg_ligManager, const std::weak_ptr<ModelObject>arg_modelObject, Camera& arg_cam, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans)
+		static void DrawADSShadingModel(LightManager& arg_ligManager, const std::weak_ptr<Model>arg_model, Transform& arg_transform, Camera& arg_cam, std::shared_ptr<ModelAnimator> arg_animator = nullptr, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans, int arg_layer = 0);
+		static void DrawADSShadingModel(LightManager& arg_ligManager, const std::weak_ptr<ModelObject>arg_modelObject, Camera& arg_cam, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans, int arg_layer = 0)
 		{
 			auto obj = arg_modelObject.lock();
-			DrawADSShadingModel(arg_ligManager, obj->m_model, obj->m_transform, arg_cam, obj->m_animator, arg_blendMode);
+			DrawADSShadingModel(arg_ligManager, obj->m_model, obj->m_transform, arg_cam, obj->m_animator, arg_blendMode, arg_layer);
 		}
 		//影つき描画(PBR)
-		static void DrawPBRShadingModel(LightManager& arg_ligManager, const std::weak_ptr<Model>arg_model, Transform& arg_transform, Camera& arg_cam, std::shared_ptr<ModelAnimator> arg_animator = nullptr, std::shared_ptr<CubeMap>arg_attachCubeMap = nullptr, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans);
-		static void DrawPBRShadingModel(LightManager& arg_ligManager, const std::weak_ptr<ModelObject>arg_modelObject, Camera& arg_cam, std::shared_ptr<CubeMap>arg_attachCubeMap = nullptr, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans)
+		static void DrawPBRShadingModel(LightManager& arg_ligManager, const std::weak_ptr<Model>arg_model, Transform& arg_transform, Camera& arg_cam, std::shared_ptr<ModelAnimator> arg_animator = nullptr, std::shared_ptr<CubeMap>arg_attachCubeMap = nullptr, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans, int arg_layer = 0);
+		static void DrawPBRShadingModel(LightManager& arg_ligManager, const std::weak_ptr<ModelObject>arg_modelObject, Camera& arg_cam, std::shared_ptr<CubeMap>arg_attachCubeMap = nullptr, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans, int arg_layer = 0)
 		{
 			auto obj = arg_modelObject.lock();
-			DrawPBRShadingModel(arg_ligManager, obj->m_model, obj->m_transform, arg_cam, obj->m_animator, arg_attachCubeMap, arg_blendMode);
+			DrawPBRShadingModel(arg_ligManager, obj->m_model, obj->m_transform, arg_cam, obj->m_animator, arg_attachCubeMap, arg_blendMode, arg_layer);
 		}
 		//トゥーンシェーディング
-		static void DrawToonModel(const std::weak_ptr<TextureBuffer>arg_toonTex, LightManager& arg_ligManager, const std::weak_ptr<Model>arg_model, Transform& arg_transform, Camera& arg_cam, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans);
-		static void DrawToonModel(const std::weak_ptr<TextureBuffer>arg_toonTex, LightManager& arg_ligManager, const std::weak_ptr<ModelObject>arg_modelObject, Camera& arg_cam, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans)
+		static void DrawToonModel(const std::weak_ptr<TextureBuffer>arg_toonTex, LightManager& arg_ligManager, const std::weak_ptr<Model>arg_model, Transform& arg_transform, Camera& arg_cam, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans, int arg_layer = 0);
+		static void DrawToonModel(const std::weak_ptr<TextureBuffer>arg_toonTex, LightManager& arg_ligManager, const std::weak_ptr<ModelObject>arg_modelObject, Camera& arg_cam, const AlphaBlendMode& arg_blendMode = AlphaBlendMode_Trans, int arg_layer = 0)
 		{
 			auto obj = arg_modelObject.lock();
-			DrawToonModel(arg_toonTex, arg_ligManager, obj->m_model, obj->m_transform, arg_cam, arg_blendMode);
+			DrawToonModel(arg_toonTex, arg_ligManager, obj->m_model, obj->m_transform, arg_cam, arg_blendMode, arg_layer);
 		}
 
 		//テクスチャを設定して板ポリ通常描画(サイズ：1x1）
-		static void DrawNonShadingPlane(const std::weak_ptr<TextureBuffer>arg_tex, Transform& arg_transform, Camera& arg_camera, const float& arg_alpha = 1.0f, const Vec2<bool>& arg_mirror = { false,false }, AlphaBlendMode arg_blendMode = AlphaBlendMode_Trans);
+		static void DrawNonShadingPlane(const std::weak_ptr<TextureBuffer>arg_tex, Transform& arg_transform, Camera& arg_camera, const float& arg_alpha = 1.0f, const Vec2<bool>& arg_mirror = { false,false }, AlphaBlendMode arg_blendMode = AlphaBlendMode_Trans, int arg_layer = 0);
 
 	};
 }

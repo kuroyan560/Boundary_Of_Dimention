@@ -67,6 +67,7 @@ private:
 	};
 	std::array<std::array<StageData, 30>, 1>m_stageSelectArray;
 	KuroEngine::Vec2<int> m_nowStageNum;
+	int m_preStageNum;
 	KuroEngine::Vec2<float> m_prevContollerLeftStick;
 
 	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_numMainTexArray;

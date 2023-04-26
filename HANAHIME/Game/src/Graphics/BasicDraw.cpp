@@ -121,7 +121,7 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 
 		std::vector<RenderTargetInfo> playerRenderTargetInfo =
 		{
-			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), (AlphaBlendMode)0),	//通常描画
+			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), (AlphaBlendMode)AlphaBlendMode_Trans),	//通常描画
 			RenderTargetInfo(DXGI_FORMAT_R32G32B32A32_FLOAT, AlphaBlendMode_Trans),	//エミッシブマップ
 			RenderTargetInfo(DXGI_FORMAT_R16_FLOAT, AlphaBlendMode_None),	//深度マップ
 			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_None),	//エッジカラーマップ
@@ -360,11 +360,11 @@ void BasicDraw::RenderTargetsClearAndSet(std::weak_ptr<KuroEngine::DepthStencil>
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(rts, arg_ds.lock());
 }
 
-void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform& arg_transform, const IndividualDrawParameter& arg_toonParam, const KuroEngine::AlphaBlendMode& arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff)
+void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform& arg_transform, const IndividualDrawParameter& arg_toonParam, const KuroEngine::AlphaBlendMode& arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff, int arg_layer)
 {
 	using namespace KuroEngine;
 
-	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_drawPipeline[arg_blendMode]);
+	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_drawPipeline[AlphaBlendMode_Trans]);
 
 	//トランスフォームバッファ送信
 	if (m_drawTransformBuff.size() < (m_drawCount + 1))
@@ -406,7 +406,7 @@ void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_
 				{m_growPlantPtLigBuffer,SRV},
 				{m_growPlantSpotLigBuffer,SRV},
 			},
-			arg_transform.GetPos().z,
+			arg_layer,
 			arg_blendMode == AlphaBlendMode_Trans);
 	}
 
@@ -414,7 +414,7 @@ void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_
 	m_individualParamCount++;
 }
 
-void BasicDraw::Draw_Player(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform& arg_transform, const IndividualDrawParameter& arg_toonParam, const KuroEngine::AlphaBlendMode& arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff)
+void BasicDraw::Draw_Player(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform& arg_transform, const IndividualDrawParameter& arg_toonParam, const KuroEngine::AlphaBlendMode& arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff, int arg_layer)
 {
 
 	using namespace KuroEngine;
@@ -461,7 +461,7 @@ void BasicDraw::Draw_Player(KuroEngine::Camera& arg_cam, KuroEngine::LightManage
 				{m_growPlantPtLigBuffer,SRV},
 				{m_growPlantSpotLigBuffer,SRV},
 			},
-			arg_transform.GetPos().z,
+			arg_layer,
 			arg_blendMode == AlphaBlendMode_Trans);
 	}
 
@@ -470,12 +470,12 @@ void BasicDraw::Draw_Player(KuroEngine::Camera& arg_cam, KuroEngine::LightManage
 
 }
 
-void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform& arg_transform, const KuroEngine::AlphaBlendMode& arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff)
+void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform& arg_transform, const KuroEngine::AlphaBlendMode& arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff, int arg_layer)
 {
-	BasicDraw::Draw(arg_cam, arg_ligMgr, arg_model, arg_transform, IndividualDrawParameter::GetDefault(), arg_blendMode, arg_boneBuff);
+	BasicDraw::Draw(arg_cam, arg_ligMgr, arg_model, arg_transform, IndividualDrawParameter::GetDefault(), arg_blendMode, arg_boneBuff, arg_layer);
 }
 
-void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, const std::weak_ptr<KuroEngine::ModelObject> arg_modelObj, const IndividualDrawParameter& arg_toonParam, const KuroEngine::AlphaBlendMode& arg_blendMode)
+void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, const std::weak_ptr<KuroEngine::ModelObject> arg_modelObj, const IndividualDrawParameter& arg_toonParam, const KuroEngine::AlphaBlendMode& arg_blendMode, int arg_layer)
 {
 	using namespace KuroEngine;
 
@@ -484,15 +484,15 @@ void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_
 	auto model = obj->m_model;
 	std::shared_ptr<ConstantBuffer>boneBuff;
 	if (obj->m_animator)boneBuff = obj->m_animator->GetBoneMatBuff();
-	Draw(arg_cam, arg_ligMgr, model, obj->m_transform, arg_toonParam, arg_blendMode, boneBuff);
+	Draw(arg_cam, arg_ligMgr, model, obj->m_transform, arg_toonParam, arg_blendMode, boneBuff, arg_layer);
 }
 
-void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, const std::weak_ptr<KuroEngine::ModelObject> arg_modelObj, const KuroEngine::AlphaBlendMode& arg_blendMode)
+void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, const std::weak_ptr<KuroEngine::ModelObject> arg_modelObj, const KuroEngine::AlphaBlendMode& arg_blendMode, int arg_layer)
 {
-	Draw(arg_cam, arg_ligMgr, arg_modelObj, IndividualDrawParameter::GetDefault(), arg_blendMode);
+	Draw(arg_cam, arg_ligMgr, arg_modelObj, IndividualDrawParameter::GetDefault(), arg_blendMode, arg_layer);
 }
 
-void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, std::vector<KuroEngine::Matrix>& arg_matArray, const IndividualDrawParameter& arg_toonParam, bool arg_depthWriteMask, const KuroEngine::AlphaBlendMode& arg_blendMode, const float& arg_depth, std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff)
+void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, std::vector<KuroEngine::Matrix>& arg_matArray, const IndividualDrawParameter& arg_toonParam, bool arg_depthWriteMask, const KuroEngine::AlphaBlendMode& arg_blendMode, int arg_layer, std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff)
 {
 	using namespace KuroEngine;
 
@@ -547,7 +547,7 @@ void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightMan
 				{m_growPlantPtLigBuffer,SRV},
 				{m_growPlantSpotLigBuffer,SRV},
 			},
-			arg_depth,
+			arg_layer,
 			arg_blendMode == AlphaBlendMode_Trans,
 			static_cast<int>(arg_matArray.size()));
 	}
@@ -556,7 +556,7 @@ void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightMan
 	m_individualParamCount++;
 }
 
-void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, std::vector<KuroEngine::Matrix>& arg_matArray, bool arg_depthWriteMask, const KuroEngine::AlphaBlendMode& arg_blendMode, const float& arg_depth, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff)
+void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, std::vector<KuroEngine::Matrix>& arg_matArray, bool arg_depthWriteMask, const KuroEngine::AlphaBlendMode& arg_blendMode, int arg_layer, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff)
 {
 	InstancingDraw(arg_cam,
 		arg_ligMgr,
@@ -565,7 +565,7 @@ void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightMan
 		IndividualDrawParameter::GetDefault(),
 		arg_depthWriteMask,
 		arg_blendMode,
-		arg_depth,
+		arg_layer,
 		arg_boneBuff);
 }
 

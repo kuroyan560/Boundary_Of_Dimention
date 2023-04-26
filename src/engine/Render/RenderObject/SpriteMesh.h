@@ -50,7 +50,7 @@ namespace KuroEngine
 		//頂点ごとの位置オフセット
 		std::array<Vec2<float>, IDX_NUM>offset = { Vec2<float>(0,0) };
 		//内部パラメータZバッファ
-		float zLayer = 0.0f;
+		int drawLayer = 0;
 
 		//透過するか
 		bool trans = false;
@@ -77,8 +77,8 @@ namespace KuroEngine
 			flip = Flip;
 			dirty = true;
 		}
-		void SetZLayer(const float& ZLayer) {
-			zLayer = ZLayer;
+		void SetZLayer(const int& Layer) {
+			drawLayer = Layer;
 		}
 		void SetTransFlg(const bool& TransFlg) {
 			trans = TransFlg;

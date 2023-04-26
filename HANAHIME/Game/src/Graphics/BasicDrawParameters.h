@@ -27,7 +27,10 @@ public:
 	//マスクレイヤーに描画するか
 	int m_drawMask = 0;
 
-	int pad[3];
+	//アルファ値
+	float m_alpha = 1.0f;
+
+	int pad[2];
 	
 	IndividualDrawParameter() { *this = GetDefault(); }
 	IndividualDrawParameter(

@@ -80,7 +80,7 @@ void KuroEngine::DrawFunc2D_Mask::DrawExtendGraph2D(const Vec2<float>& LeftUpPos
 		{
 			{KuroEngine::KuroEngineDevice::Instance()->GetParallelMatProjBuff(),CBV},
 			{Tex,SRV }
-		}, 0.0f, true);
+		}, 0, true);
 
 	s_DrawExtendGraphCount++;
 }
@@ -156,7 +156,7 @@ void KuroEngine::DrawFunc2D_Mask::DrawRotaGraph2D(const Vec2<float>& Center, con
 		{
 			{KuroEngine::KuroEngineDevice::Instance()->GetParallelMatProjBuff(),CBV},
 			{Tex,SRV }
-		}, 0.0f, true);
+		}, 0, true);
 
 	s_DrawRotaGraphCount++;
 }

@@ -345,7 +345,7 @@ void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 	KuroEngineDevice::Instance()->Graphics().ObjectRender(
 		m_vertBuffer,
 		descData,
-		0.0f,
+		0,
 		true,
 		plantGrassCount);
 }

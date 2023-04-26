@@ -184,8 +184,12 @@ void PazzleStageSelect::Update()
 
 	if (0 <= GetNumber() && GetNumber() < StageManager::Instance()->GetAllStageNum())
 	{
-		StageManager::Instance()->SetStage(GetNumber());
+		//if (GetNumber() != m_preStageNum)
+		{
+			StageManager::Instance()->SetStage(GetNumber());
+		}
 	}
+	m_preStageNum = GetNumber();
 
 	if (m_stageSelectArray[m_nowStageNum.y][m_nowStageNum.x].m_isClearFlag)
 	{
@@ -241,14 +245,19 @@ void PazzleStageSelect::Update()
 
 	KuroEngine::UsersInput::MouseMove mouseVel = KuroEngine::UsersInput::Instance()->GetMouseMove();
 	KuroEngine::Vec3<float>inputVel = {
-		static_cast<float>(mouseVel.m_inputX) + KuroEngine::UsersInput::Instance()->GetRightStickVec(0).x * 5.0f,
-		static_cast<float>(mouseVel.m_inputY) + KuroEngine::UsersInput::Instance()->GetRightStickVec(0).y * 5.0f,
+		static_cast<float>(mouseVel.m_inputX / 5.0f) + KuroEngine::UsersInput::Instance()->GetRightStickVec(0).x * 5.0f,
+		static_cast<float>(mouseVel.m_inputY / 5.0f) + KuroEngine::UsersInput::Instance()->GetRightStickVec(0).y * 5.0f,
 		static_cast<float>(mouseVel.m_inputZ)
 	};
 
-	if (inputVel.x != m_preMouseVel.x ||
+	bool moveFlag = inputVel.x != m_preMouseVel.x ||
 		inputVel.y != m_preMouseVel.y ||
-		inputVel.z != m_preMouseVel.z)
+		inputVel.z != m_preMouseVel.z;
+	float mouseDeadLine = 10.0f;
+	bool velFlag = mouseDeadLine <= abs(inputVel.x) ||
+		mouseDeadLine <= abs(inputVel.y) ||
+		mouseDeadLine <= abs(inputVel.z);
+	if (moveFlag && velFlag)
 	{
 		m_previweFlag = true;
 	}
@@ -464,7 +473,7 @@ void PazzleStageSelect::Draw()
 	else
 	{
 		KuroEngine::DrawFunc2D::DrawRotaGraph2D(flamePos + m_hideVel * offsetVel, m_clearSize, 0.0f, m_clearTex, alpha);
-	}	
+	}
 	KuroEngine::DrawFunc2D::DrawRotaGraph2D(flamePos + m_hideVel * offsetVel, m_hexaSize[0], KuroEngine::Angle::ConvertToRadian(m_flameAngle), m_clearFlameTex, alpha);
 	KuroEngine::DrawFunc2D::DrawRotaGraph2D(flamePos + m_hideVel * offsetVel, m_hexaSize[1], KuroEngine::Angle::ConvertToRadian(-m_flameAngle), m_clearFlameTex, alpha);
 

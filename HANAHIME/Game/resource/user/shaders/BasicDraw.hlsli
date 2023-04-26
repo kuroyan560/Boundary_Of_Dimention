@@ -16,6 +16,7 @@ struct ToonIndividualParameter
     float4 m_darkMulColor;
     float4 m_edgeColor;
     int m_drawMask;
+    float m_alpha;
 };
 
 struct PlayerInfo

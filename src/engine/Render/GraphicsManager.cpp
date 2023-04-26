@@ -145,19 +145,19 @@ void KuroEngine::GraphicsManager::CopyTexture(std::weak_ptr<TextureBuffer> DestT
 }
 
 void KuroEngine::GraphicsManager::ObjectRender(std::weak_ptr<VertexBuffer> VertexBuff, std::vector<RegisterDescriptorData> DescDatas,
-	const float& Depth, const bool& TransFlg, const int& InstanceNum)
+	const int& Layer, const bool& TransFlg, const int& InstanceNum)
 {
 	//ソートするので gCommands ではなく一時的にrenderCommandsに積む
-	m_renderCommands.emplace_back(std::make_shared<RenderCommand>(VertexBuff, DescDatas, Depth, TransFlg, InstanceNum));
+	m_renderCommands.emplace_back(std::make_shared<RenderCommand>(VertexBuff, DescDatas, Layer, TransFlg, InstanceNum));
 }
 
 void KuroEngine::GraphicsManager::ObjectRender(std::weak_ptr<VertexBuffer> VertexBuff,
 	std::weak_ptr<IndexBuffer> IndexBuff,
 	std::vector<RegisterDescriptorData> DescDatas,
-	const float& Depth, const bool& TransFlg, const int& InstanceNum)
+	const int& Layer, const bool& TransFlg, const int& InstanceNum)
 {
 	//ソートするので gCommands ではなく一時的にrenderCommandsに積む
-	m_renderCommands.emplace_back(std::make_shared<RenderCommand>(VertexBuff, IndexBuff, DescDatas, Depth, TransFlg, InstanceNum));
+	m_renderCommands.emplace_back(std::make_shared<RenderCommand>(VertexBuff, IndexBuff, DescDatas, Layer, TransFlg, InstanceNum));
 }
 
 void KuroEngine::GraphicsManager::Dispatch(const Vec3<int>& ThreadNum, std::vector<RegisterDescriptorData> DescDatas)
@@ -196,7 +196,7 @@ void KuroEngine::GraphicsManager::StackRenderCommands()
 			if (a->m_trans == b->m_trans)
 			{
 				//Zソート（添字小さい = 奥）
-				return b->m_depth < a->m_depth;
+				return b->m_layer < a->m_layer;
 			}
 			else
 			{

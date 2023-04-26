@@ -127,6 +127,6 @@ namespace KuroEngine
 	public:
 		DynamicCubeMap(const int& CubeMapEdge = 512);
 		void Clear();
-		void DrawToCubeMap(LightManager& LigManager, const std::vector<std::weak_ptr<ModelObject>>& ModelObject);
+		void DrawToCubeMap(LightManager& LigManager, const std::vector<std::weak_ptr<ModelObject>>& ModelObject, int Layer);
 	};
 }

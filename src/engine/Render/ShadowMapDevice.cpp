@@ -81,7 +81,7 @@ void KuroEngine::ShadowMapDevice::DrawShadowMap(const std::vector<std::weak_ptr<
 					{TRANSFORM_BUFF[i],CBV},
 					{boneBuff,CBV}
 				},
-				obj->m_transform.GetPos().z,
+				0,
 				true);
 		}
 	}
@@ -89,7 +89,7 @@ void KuroEngine::ShadowMapDevice::DrawShadowMap(const std::vector<std::weak_ptr<
 	m_gaussianBlur->Register(m_shadowMap);
 }
 
-void KuroEngine::ShadowMapDevice::DrawShadowReceiver(const std::vector<std::weak_ptr<ModelObject>>& Models, Camera& GameCamera, const AlphaBlendMode& BlendMode)
+void KuroEngine::ShadowMapDevice::DrawShadowReceiver(const std::vector<std::weak_ptr<ModelObject>>& Models, Camera& GameCamera, const AlphaBlendMode& BlendMode, int Layer)
 {
 	static std::shared_ptr<GraphicsPipeline>PIPELINE[AlphaBlendModeNum];
 	static std::vector<std::shared_ptr<ConstantBuffer>>TRANSFORM_BUFF;
@@ -156,7 +156,7 @@ void KuroEngine::ShadowMapDevice::DrawShadowReceiver(const std::vector<std::weak
 					{m_gaussianBlur->GetResultTex(),SRV},
 					{m_lightCamera.GetBuff(),CBV}
 				},
-				obj->m_transform.GetPos().z,
+				Layer,
 				true);
 		}
 	}

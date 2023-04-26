@@ -224,6 +224,9 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     //光が当たっていないならモノクロ化
     result.xyz = lerp(lerp(result.xyz, Monochrome(result.xyz), toonCommonParam.m_monochromeRate), result.xyz, isBright);
     
+    //アルファ値適用
+    result.w *= toonIndividualParam.m_alpha;
+    
     PSOutput output;
     output.color = result;
     
