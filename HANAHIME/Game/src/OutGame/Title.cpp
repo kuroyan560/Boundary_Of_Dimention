@@ -214,7 +214,7 @@ void Title::Update(KuroEngine::Transform *player_camera, std::shared_ptr<KuroEng
 		}
 		m_delayTime.UpdateTimer();
 
-		if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_ESCAPE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::START))
+		if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_ESCAPE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::B))
 		{
 			SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
 			m_startPazzleFlag = false;

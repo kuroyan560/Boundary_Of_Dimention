@@ -96,7 +96,7 @@ void GameScene::OnUpdate()
 	m_particleRender.InitCount();
 
 	//デバッグ用
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_I) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::B) || m_player.GetIsFinishDeathAnimation())
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_I) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::START) || m_player.GetIsFinishDeathAnimation())
 	{
 		m_eTitleMode = TITLE_PAZZLE;
 		SoundConfig::Instance()->Play(SoundConfig::BGM_TITLE);
