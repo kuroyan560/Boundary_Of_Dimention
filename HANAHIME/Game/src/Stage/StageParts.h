@@ -383,6 +383,8 @@ public:
 		m_prevOnPlayer = false;
 		m_easingTimer = EASING_TIMER;
 
+		m_collider.BuilCollisionMesh(m_model, m_transform);
+
 	}
 
 	void Appear();

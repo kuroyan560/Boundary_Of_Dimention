@@ -624,6 +624,9 @@ void IvyBlock::Update(Player& arg_player)
 	//イージングタイマーを更新。
 	m_easingTimer = std::clamp(m_easingTimer + 1, 0, EASING_TIMER);
 
+
+	m_collider.BuilCollisionMesh(m_model, m_transform);
+
 	//出現中だったら。
 	if (m_isAppear) {
 
