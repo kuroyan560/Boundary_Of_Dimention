@@ -237,7 +237,7 @@ void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligM
 	//É^ÉCÉgÉãÉçÉSï`âÊ
 	if (m_startPazzleFlag)
 	{
-		m_stageSelect.Draw();
+		m_stageSelect.Draw(arg_cam);
 		return;
 	}
 	KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_titlePos, m_titleLogoSize.Float(), 0.0f, m_titleTexBuff, 1.0f - m_alphaRate.GetTimeRate());

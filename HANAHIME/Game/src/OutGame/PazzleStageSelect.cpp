@@ -91,12 +91,18 @@ PazzleStageSelect::PazzleStageSelect() :m_beatTimer(30), m_appearTimer(60), m_hi
 	m_hideTiemr.ForciblyTimeUp();
 
 	m_previewCamera = std::make_shared<KuroEngine::Camera>("PreviewCamera");
+	m_arrowSinTimer = 0;
+	m_cameraAngle = 0;
+	m_cameraLength = DEF_CAMERA_LENGTH;
 }
 
 void PazzleStageSelect::Init()
 {
 	m_stopFlag = false;
 	m_previweFlag = false;
+	m_arrowSinTimer = 0;
+	m_cameraAngle = 0;
+	m_cameraLength = DEF_CAMERA_LENGTH;
 }
 
 void PazzleStageSelect::Update()
@@ -116,9 +122,6 @@ void PazzleStageSelect::Update()
 	{
 		++m_nowStageNum.x;
 		selectFlag = true;
-
-		//選択した瞬間に選択中の数字のアルファ値を減らす。
-		m_nowAlpha[0][GetNumber()] = 0.0f;
 	}
 	bool isInputLeftController = -DEADLINE < m_prevContollerLeftStick.x&& contollerLeftStickInput.x < -DEADLINE;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_A) || isInputLeftController)
@@ -352,11 +355,43 @@ void PazzleStageSelect::Update()
 	}
 	else
 	{
-		m_camera.Update();
+
+		m_cameraAngle += CAMERA_ANGLE_ADD;
+
+		//カメラの座標を求める。
+		KuroEngine::Vec3<float> cameraDir = KuroEngine::Vec3<float>(cosf(m_cameraAngle), 1.0f, sinf(m_cameraAngle));
+		cameraDir.Normalize();
+		m_cameraPos = cameraDir * DEF_CAMERA_LENGTH;
+
+		//①視点ベクトル(カメラからオブジェクトまでのベクトル)を求める。
+		KuroEngine::Vec3<float>eyePos = m_cameraPos;
+		KuroEngine::Vec3<float>eyeDir = KuroEngine::Vec3<float>(0.0f, 0.0f, 0.0f) - eyePos;
+		eyeDir.Normalize();
+
+		//②上ベクトルを固定し、右ベクトルを求める。
+		KuroEngine::Vec3<float> rightVec = eyeDir.Cross({ 0,-1,0 });
+		rightVec.Normalize();
+
+		//③視点ベクトルと右ベクトルから正しい上ベクトルを求める。
+		KuroEngine::Vec3<float> upVec = eyeDir.Cross(rightVec);
+		upVec.Normalize();
+
+		//④求められたベクトルから姿勢を出す。
+		DirectX::XMMATRIX matA = DirectX::XMMatrixIdentity();
+		matA.r[0] = { rightVec.x,rightVec.y,rightVec.z,0.0f };
+		matA.r[1] = { upVec.x,upVec.y,upVec.z,0.0f };
+		matA.r[2] = { eyeDir.x,eyeDir.y,eyeDir.z,0.0f };
+		m_cameraTransform.SetPos(m_cameraPos);
+		m_cameraTransform.SetRotaMatrix(matA);
+		m_cameraTransform.CalucuratePosRotaBasedOnWorldMatrix();
+
+		auto& transform = m_previewCamera->GetTransform();
+		transform.SetParent(&m_cameraTransform);
+
+		//m_camera.Update();
 	}
 	m_triggerPreviewFlag = m_previweFlag;
 	m_preMouseVel = inputVel;
-
 
 	//座標を補完する。
 	for (int y = 0; y < m_stageSelectArray.size(); ++y)
@@ -371,9 +406,18 @@ void PazzleStageSelect::Update()
 
 	}
 
+	//選択したらアルファを0にする。
+	if (selectFlag) {
+		//選択した瞬間に選択中の数字のアルファ値を減らす。
+		m_nowAlpha[0][GetNumber()] = 0.0f;
+	}
+
+	//サイン波のタイマーを更新。
+	m_arrowSinTimer += ARROW_SINE_TIMER;
+
 }
 
-void PazzleStageSelect::Draw()
+void PazzleStageSelect::Draw(KuroEngine::Camera& arg_cam)
 {
 	m_baseStageSelectPos = { 200.0f,64.0f };
 
@@ -451,21 +495,24 @@ void PazzleStageSelect::Draw()
 	posArray[0] = { offset.x,KuroEngine::WinApp::Instance()->GetExpandWinCenter().y + offset.y };
 	posArray[1] = { KuroEngine::WinApp::Instance()->GetExpandWinSize().x - offset.x,KuroEngine::WinApp::Instance()->GetExpandWinCenter().y + offset.y };
 
+	//矢印の移動量を計算。
+	float sineMove = std::sinf(m_arrowSinTimer) * ARROW_SINE_INIT_LENGTH;
+
 	//最初矢印表示
 	if (GetNumber() == 0)
 	{
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[1] + m_hideVel, { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(180), m_dirTex[1]);
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[1] + m_hideVel + KuroEngine::Vec2<float>(0, sineMove), { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(180), m_dirTex[1]);
 	}
 	//最後矢印表示
 	else if (GetNumber() == StageManager::Instance()->GetAllStageNum() - 1)
 	{
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[0] + m_hideVel, { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(0), m_dirTex[0]);
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[0] + m_hideVel + KuroEngine::Vec2<float>(0, sineMove), { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(0), m_dirTex[0]);
 	}
 	//両方矢印表示
 	else
 	{
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[0] + m_hideVel, { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(0), m_dirTex[0]);
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[1] + m_hideVel, { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(180), m_dirTex[1]);
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[0] + m_hideVel + KuroEngine::Vec2<float>(0, sineMove), { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(0), m_dirTex[0]);
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[1] + m_hideVel + KuroEngine::Vec2<float>(0, sineMove), { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(180), m_dirTex[1]);
 	}
 
 	//プレビュー時に隠れきれてないUIを隠す

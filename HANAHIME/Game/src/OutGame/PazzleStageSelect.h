@@ -20,7 +20,7 @@ public:
 
 	void Init();
 	void Update();
-	void Draw();
+	void Draw(KuroEngine::Camera& arg_cam);
 
 	int GetNumber();
 	int GetMaxNumber();
@@ -74,6 +74,19 @@ private:
 	KuroEngine::Vec2<int> m_nowStageNum;
 	int m_preStageNum;
 	KuroEngine::Vec2<float> m_prevContollerLeftStick;
+
+	//矢印をサイン波で動かす用の変数
+	float m_arrowSinTimer;						//サイン波を揺らす際のタイマー
+	const float ARROW_SINE_INIT_LENGTH = 10.0f;	//サイン波の揺れの幅の初期値
+	const float ARROW_SINE_TIMER = 0.138f / 2.0f;	//サイン波を揺らすタイマーに加算する量 音楽に合わせているので微妙な値になっている。
+
+	//カメラのパラメーター
+	float m_cameraAngle;
+	const float CAMERA_ANGLE_ADD = 0.1f;
+	float m_cameraLength;
+	const float DEF_CAMERA_LENGTH = 20.0f;
+	const float FAR_CAMERA_LENGTH = 200.0f;
+
 
 	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_numMainTexArray;
 	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_numSubTexArray;
