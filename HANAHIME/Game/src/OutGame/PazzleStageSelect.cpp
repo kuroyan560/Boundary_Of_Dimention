@@ -32,10 +32,11 @@ PazzleStageSelect::PazzleStageSelect() :m_beatTimer(30), m_appearTimer(60), m_hi
 	m_selectTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/cursor.png");
 
 
-	for (int i = 0; i < GetMaxNumber(); ++i)
+	for (int i = 0; i < STAGE_MAX_NUM; ++i)
 	{
 		m_stageTex.emplace_back(
-			KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/stage_select/stage_name_main_test.png"),
+			//KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/stage_select/stage_name_main_test.png"),
+			KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/stage_select/stage_name_main_" + std::to_string(i + 1) + ".png"),
 			KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/stage_select/stage_name_sub_test.png")
 		);
 	}
@@ -570,12 +571,12 @@ void PazzleStageSelect::Draw(KuroEngine::Camera& arg_cam)
 
 	//ステージ名,ステージサブタイトル
 	KuroEngine::Vec2<float>stageUIPos = KuroEngine::WinApp::Instance()->GetExpandWinCenter();
-	stageUIPos.x = 470.0f;
-	stageUIPos.y += 130.0f;
-	for (auto& uiTex : m_stageTex)
+	stageUIPos.x = 500.0f;
+	stageUIPos.y += 170.0f;
+	//for (auto& uiTex : m_stageTex)
 	{
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(stageUIPos + m_hideVel * offsetVel, { 1.0f,1.0f }, 0.0f, uiTex.m_stageTex);
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(stageUIPos + KuroEngine::Vec2<float>(80.0f, 120.0f) + m_hideVel * offsetVel, { 1.0f,1.0f }, 0.0f, uiTex.m_subStageTex, 80.0f / 255.0f);
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(stageUIPos + m_hideVel * offsetVel, { 0.8f,0.8f }, 0.0f, m_stageTex[m_nowStageNum.x].m_stageTex);
+		//KuroEngine::DrawFunc2D::DrawRotaGraph2D(stageUIPos + KuroEngine::Vec2<float>(80.0f, 120.0f) + m_hideVel * offsetVel, { 1.0f,1.0f }, 0.0f, uiTex.m_subStageTex, 80.0f / 255.0f);
 	}
 
 	//クリア表示
