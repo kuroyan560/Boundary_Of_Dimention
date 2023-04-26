@@ -18,7 +18,7 @@ class Title
 public:
 	Title();
 	void Init(TitleMode title_mode);
-	void Update(KuroEngine::Transform *player_camera);
+	void Update(KuroEngine::Transform *player_camera, std::shared_ptr<KuroEngine::Camera> arg_cam);
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr);
 
 	bool IsStartOP()

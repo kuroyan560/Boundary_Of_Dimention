@@ -90,7 +90,7 @@ void Title::Init(TitleMode title_mode)
 	m_doneFlag = false;
 }
 
-void Title::Update(KuroEngine::Transform *player_camera)
+void Title::Update(KuroEngine::Transform *player_camera, std::shared_ptr<KuroEngine::Camera> arg_cam)
 {
 	//コントローラーで右に入力されたか
 	bool isInputControllerRight = 0.9f < KuroEngine::UsersInput::Instance()->GetLeftStickVecFuna(0).x;
@@ -206,7 +206,7 @@ void Title::Update(KuroEngine::Transform *player_camera)
 
 	if (m_startPazzleFlag)
 	{
-		m_stageSelect.Update();
+		m_stageSelect.Update(arg_cam);
 
 		if (m_delayTime.IsTimeUp())
 		{

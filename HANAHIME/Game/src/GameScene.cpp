@@ -141,7 +141,7 @@ void GameScene::OnUpdate()
 	//ホームでの処理----------------------------------------
 	if (!m_title.IsFinish() && !m_title.IsStartOP())
 	{
-		m_title.Update(&m_player.GetCamera().lock()->GetTransform());
+		m_title.Update(&m_player.GetCamera().lock()->GetTransform(), m_nowCam);
 	}
 
 	//ステージ選択
@@ -199,7 +199,6 @@ void GameScene::OnUpdate()
 		}
 	}
 	m_1flameStopTimer.UpdateTimer();
-
 
 	//ゲームシーンでのみ使う物
 	if (m_title.IsFinish() || m_title.IsStartOP())

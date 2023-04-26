@@ -1,6 +1,7 @@
 #include"PazzleStageSelect.h"
 #include"FrameWork/WinApp.h"
 #include"../Stage/StageManager.h"
+#include"../Stage/Stage.h"
 #include <cmath>
 #include <limits>
 #include <iostream>
@@ -91,21 +92,37 @@ PazzleStageSelect::PazzleStageSelect() :m_beatTimer(30), m_appearTimer(60), m_hi
 	m_hideTiemr.ForciblyTimeUp();
 
 	m_previewCamera = std::make_shared<KuroEngine::Camera>("PreviewCamera");
-	m_arrowSinTimer = 0;
 	m_cameraAngle = 0;
 	m_cameraLength = DEF_CAMERA_LENGTH;
+
+	for (int index = 0; index < 2; ++index) {
+		m_arrowAlpha[index] = 0.0f;
+		m_arrowSinTimer[index] = 0;
+		m_arrowSinTimerAddNow[index] = ARROW_SINE_TIMER;
+		m_arrowSinTimerAddBase[index] = ARROW_SINE_TIMER;
+		m_arrowSineLengthNow[index] = ARROW_SINE_INIT_LENGTH;
+		m_arrowSineLengthBase[index] = ARROW_SINE_INIT_LENGTH;
+	}
 }
 
 void PazzleStageSelect::Init()
 {
 	m_stopFlag = false;
 	m_previweFlag = false;
-	m_arrowSinTimer = 0;
 	m_cameraAngle = 0;
 	m_cameraLength = DEF_CAMERA_LENGTH;
+
+	for (int index = 0; index < 2; ++index) {
+		m_arrowAlpha[index] = 0.0f;
+		m_arrowSinTimer[index] = 0;
+		m_arrowSinTimerAddNow[index] = ARROW_SINE_TIMER;
+		m_arrowSinTimerAddBase[index] = ARROW_SINE_TIMER;
+		m_arrowSineLengthNow[index] = ARROW_SINE_INIT_LENGTH;
+		m_arrowSineLengthBase[index] = ARROW_SINE_INIT_LENGTH;
+	}
 }
 
-void PazzleStageSelect::Update()
+void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam)
 {
 	if (m_stopFlag)
 	{
@@ -122,24 +139,36 @@ void PazzleStageSelect::Update()
 	{
 		++m_nowStageNum.x;
 		selectFlag = true;
+		m_cameraLength = FAR_CAMERA_LENGTH;
+		m_arrowSineLengthNow[RIGHT] = ARROW_SINE_INIT_LENGTH_ADD;
+		m_arrowSinTimerAddNow[RIGHT] = ARROW_SINE_TIMER_ADD;
 	}
 	bool isInputLeftController = -DEADLINE < m_prevContollerLeftStick.x&& contollerLeftStickInput.x < -DEADLINE;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_A) || isInputLeftController)
 	{
 		--m_nowStageNum.x;
 		selectFlag = true;
+		m_cameraLength = FAR_CAMERA_LENGTH;
+		m_arrowSineLengthNow[LEFT] = ARROW_SINE_INIT_LENGTH_ADD;
+		m_arrowSinTimerAddNow[LEFT] = ARROW_SINE_TIMER_ADD;
 	}
 	bool isInputUpController = -DEADLINE < m_prevContollerLeftStick.y&& contollerLeftStickInput.y < -DEADLINE;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_W) || isInputUpController)
 	{
 		--m_nowStageNum.y;
 		selectFlag = true;
+		m_cameraLength = FAR_CAMERA_LENGTH;
+		m_arrowSineLengthNow[RIGHT] = ARROW_SINE_INIT_LENGTH_ADD;
+		m_arrowSinTimerAddNow[RIGHT] = ARROW_SINE_TIMER_ADD;
 	}
 	bool isInputDownController = m_prevContollerLeftStick.y < DEADLINE&& DEADLINE < contollerLeftStickInput.y;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_S) || isInputDownController)
 	{
 		++m_nowStageNum.y;
 		selectFlag = true;
+		m_cameraLength = FAR_CAMERA_LENGTH;
+		m_arrowSineLengthNow[LEFT] = ARROW_SINE_INIT_LENGTH_ADD;
+		m_arrowSinTimerAddNow[LEFT] = ARROW_SINE_TIMER_ADD;
 	}
 	if (selectFlag)
 	{
@@ -359,13 +388,13 @@ void PazzleStageSelect::Update()
 		m_cameraAngle += CAMERA_ANGLE_ADD;
 
 		//カメラの座標を求める。
-		KuroEngine::Vec3<float> cameraDir = KuroEngine::Vec3<float>(cosf(m_cameraAngle), 1.0f, sinf(m_cameraAngle));
+		KuroEngine::Vec3<float> cameraDir = KuroEngine::Vec3<float>(cosf(m_cameraAngle), 0.3f, sinf(m_cameraAngle));
 		cameraDir.Normalize();
-		m_cameraPos = cameraDir * DEF_CAMERA_LENGTH;
+		m_cameraPos = cameraDir * m_cameraLength;
 
 		//①視点ベクトル(カメラからオブジェクトまでのベクトル)を求める。
 		KuroEngine::Vec3<float>eyePos = m_cameraPos;
-		KuroEngine::Vec3<float>eyeDir = KuroEngine::Vec3<float>(0.0f, 0.0f, 0.0f) - eyePos;
+		KuroEngine::Vec3<float>eyeDir = StageManager::Instance()->GetNowStage().lock()->GetPlayerSpawnTransform().GetPosWorld() - eyePos;
 		eyeDir.Normalize();
 
 		//②上ベクトルを固定し、右ベクトルを求める。
@@ -385,7 +414,7 @@ void PazzleStageSelect::Update()
 		m_cameraTransform.SetRotaMatrix(matA);
 		m_cameraTransform.CalucuratePosRotaBasedOnWorldMatrix();
 
-		auto& transform = m_previewCamera->GetTransform();
+		auto& transform = arg_cam->GetTransform();
 		transform.SetParent(&m_cameraTransform);
 
 		//m_camera.Update();
@@ -393,13 +422,16 @@ void PazzleStageSelect::Update()
 	m_triggerPreviewFlag = m_previweFlag;
 	m_preMouseVel = inputVel;
 
+	//カメラの距離を補間
+	m_cameraLength += (DEF_CAMERA_LENGTH - m_cameraLength) / 10.0f;
+
 	//座標を補完する。
 	for (int y = 0; y < m_stageSelectArray.size(); ++y)
 	{
 		for (int x = 0; x < m_stageSelectArray[y].size(); ++x)
 		{
 
-			m_nowPos[y][x] += (m_basePos[y][x] - m_nowPos[y][x]) / 5.0f;
+			m_nowPos[y][x] += (m_basePos[y][x] - m_nowPos[y][x]) / 10.0f;
 			m_nowAlpha[y][x] += (m_baseAlpha[y][x] - m_nowAlpha[y][x]) / 10.0f;
 
 		}
@@ -412,8 +444,35 @@ void PazzleStageSelect::Update()
 		m_nowAlpha[0][GetNumber()] = 0.0f;
 	}
 
-	//サイン波のタイマーを更新。
-	m_arrowSinTimer += ARROW_SINE_TIMER;
+	for (int index = 0; index < 2; ++index) {
+
+		//サイン波のタイマーを更新。
+		m_arrowSinTimerAddBase[index] += (ARROW_SINE_TIMER - m_arrowSinTimerAddBase[index]) / 2.0f;
+		m_arrowSinTimerAddNow[index] += (m_arrowSinTimerAddBase[index] - m_arrowSinTimerAddNow[index]) / 15.0f;
+		m_arrowSinTimer[index] += m_arrowSinTimerAddNow[index];
+
+		//サイン波のタイマーを更新。
+		m_arrowSineLengthBase[index] += (ARROW_SINE_INIT_LENGTH - m_arrowSineLengthBase[index]) / 2.0f;
+		m_arrowSineLengthNow[index] += (m_arrowSineLengthBase[index] - m_arrowSineLengthNow[index]) / 15.0f;
+	}
+
+	//最初矢印表示
+	if (GetNumber() == 0)
+	{
+		m_arrowAlpha[LEFT] -= m_arrowAlpha[LEFT] / 5.0f;
+		m_arrowAlpha[RIGHT] += (1.0f - m_arrowAlpha[RIGHT]) / 5.0f;
+	}
+	//最後矢印表示
+	else if (GetNumber() == StageManager::Instance()->GetAllStageNum() - 1)
+	{
+		m_arrowAlpha[RIGHT] -= m_arrowAlpha[RIGHT] / 5.0f;
+		m_arrowAlpha[LEFT] += (1.0f - m_arrowAlpha[LEFT]) / 5.0f;
+	}
+	//両方表示
+	else {
+		m_arrowAlpha[RIGHT] += (1.0f - m_arrowAlpha[RIGHT]) / 5.0f;
+		m_arrowAlpha[LEFT] += (1.0f - m_arrowAlpha[LEFT]) / 5.0f;
+	}
 
 }
 
@@ -496,24 +555,11 @@ void PazzleStageSelect::Draw(KuroEngine::Camera& arg_cam)
 	posArray[1] = { KuroEngine::WinApp::Instance()->GetExpandWinSize().x - offset.x,KuroEngine::WinApp::Instance()->GetExpandWinCenter().y + offset.y };
 
 	//矢印の移動量を計算。
-	float sineMove = std::sinf(m_arrowSinTimer) * ARROW_SINE_INIT_LENGTH;
+	float sineMoveRight = std::sinf(m_arrowSinTimer[RIGHT]) * m_arrowSineLengthNow[RIGHT];
+	float sineMoveLeft = std::sinf(m_arrowSinTimer[LEFT]) * m_arrowSineLengthNow[LEFT];
 
-	//最初矢印表示
-	if (GetNumber() == 0)
-	{
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[1] + m_hideVel + KuroEngine::Vec2<float>(0, sineMove), { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(180), m_dirTex[1]);
-	}
-	//最後矢印表示
-	else if (GetNumber() == StageManager::Instance()->GetAllStageNum() - 1)
-	{
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[0] + m_hideVel + KuroEngine::Vec2<float>(0, sineMove), { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(0), m_dirTex[0]);
-	}
-	//両方矢印表示
-	else
-	{
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[0] + m_hideVel + KuroEngine::Vec2<float>(0, sineMove), { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(0), m_dirTex[0]);
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[1] + m_hideVel + KuroEngine::Vec2<float>(0, sineMove), { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(180), m_dirTex[1]);
-	}
+	KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[LEFT] + m_hideVel + KuroEngine::Vec2<float>(0, sineMoveLeft), { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(0), m_dirTex[LEFT], m_arrowAlpha[LEFT]);
+	KuroEngine::DrawFunc2D::DrawRotaGraph2D(posArray[RIGHT] + m_hideVel + KuroEngine::Vec2<float>(0, sineMoveRight), { 1.0f,1.0f }, KuroEngine::Angle::ConvertToRadian(180), m_dirTex[RIGHT], m_arrowAlpha[RIGHT]);
 
 	//プレビュー時に隠れきれてないUIを隠す
 	const float offsetVel = 2.0f;

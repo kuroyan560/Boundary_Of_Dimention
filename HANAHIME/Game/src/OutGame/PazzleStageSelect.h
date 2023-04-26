@@ -19,7 +19,7 @@ public:
 	PazzleStageSelect();
 
 	void Init();
-	void Update();
+	void Update(std::shared_ptr<KuroEngine::Camera> arg_cam);
 	void Draw(KuroEngine::Camera& arg_cam);
 
 	int GetNumber();
@@ -75,16 +75,28 @@ private:
 	int m_preStageNum;
 	KuroEngine::Vec2<float> m_prevContollerLeftStick;
 
+	enum {
+		LEFT = 0,
+		RIGHT = 1,
+	};
+
 	//矢印をサイン波で動かす用の変数
-	float m_arrowSinTimer;						//サイン波を揺らす際のタイマー
-	const float ARROW_SINE_INIT_LENGTH = 10.0f;	//サイン波の揺れの幅の初期値
+	std::array<float, 2> m_arrowAlpha;
+	std::array<float, 2> m_arrowSinTimer;						//サイン波を揺らす際のタイマー
+	std::array<float, 2> m_arrowSinTimerAddNow;				//サイン波を揺らす加算量
+	std::array<float, 2> m_arrowSinTimerAddBase;				//サイン波を揺らす加算量の補間先
 	const float ARROW_SINE_TIMER = 0.138f / 2.0f;	//サイン波を揺らすタイマーに加算する量 音楽に合わせているので微妙な値になっている。
+	const float ARROW_SINE_TIMER_ADD = 0.5f;	//サイン波を揺らすタイマーに加算する量 音楽に合わせているので微妙な値になっている。
+	std::array<float, 2> m_arrowSineLengthNow;
+	std::array<float, 2> m_arrowSineLengthBase;
+	const float ARROW_SINE_INIT_LENGTH = 10.0f;	//サイン波の揺れの幅の初期値
+	const float ARROW_SINE_INIT_LENGTH_ADD = 30.0f;	//サイン波の揺れの幅の初期値
 
 	//カメラのパラメーター
 	float m_cameraAngle;
-	const float CAMERA_ANGLE_ADD = 0.1f;
+	const float CAMERA_ANGLE_ADD = 0.005f;
 	float m_cameraLength;
-	const float DEF_CAMERA_LENGTH = 20.0f;
+	const float DEF_CAMERA_LENGTH = 120.0f;
 	const float FAR_CAMERA_LENGTH = 200.0f;
 
 
