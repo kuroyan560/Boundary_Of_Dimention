@@ -58,10 +58,11 @@ public:
 
 		//入力＝決定。ステージ番号を渡す
 		bool inputFlag = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A);
-		if (inputFlag && m_stageSelect.IsEnableToDone())
+		if (inputFlag && m_stageSelect.IsEnableToDone() && !m_doneFlag)
 		{
 			if (m_stageSelect.IsEnableToSelect())
 			{
+				m_doneFlag = true;
 				m_stageSelect.Stop();
 				return m_stageSelect.GetNumber();
 			}
@@ -92,6 +93,8 @@ private:
 	//入力フラグ
 	bool m_isPrevInputControllerRight;
 	bool m_isPrevInputControllerLeft;
+
+	bool m_doneFlag;
 
 	//終了フラグ
 	bool m_isFinishFlag;
