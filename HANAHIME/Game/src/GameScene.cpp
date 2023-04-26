@@ -273,7 +273,8 @@ void GameScene::OnDraw()
 	{
 		m_particleRender.Draw(*m_nowCam);
 	}
-	tutorial.Draw(*m_nowCam);
+
+	//tutorial.Draw(*m_nowCam);
 
 	m_fogPostEffect->Register(
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN),
