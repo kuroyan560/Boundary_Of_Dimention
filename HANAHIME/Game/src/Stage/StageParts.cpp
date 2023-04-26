@@ -202,6 +202,35 @@ void GoalPoint::Update(Player& arg_player)
 	m_hitPlayer = (arg_player.GetTransform().GetPosWorld().Distance(m_transform.GetPosWorld() + -m_transform.GetUp() * HIT_OFFSET * m_transform.GetScale().x) < HIT_RADIUS);
 }
 
+std::map<std::string, std::weak_ptr<KuroEngine::Model>>Appearance::s_models;
+
+void Appearance::ModelsUpdate()
+{
+	//UVアニメーション
+	for (auto& modelPtr : s_models)
+	{
+		auto model = modelPtr.second.lock();
+
+		for (auto& mesh : model->m_meshes)
+		{
+			for (auto& vertex : mesh.mesh->vertices)
+			{
+				vertex.uv.y += 0.002f;
+				//if (1.0f < vertex.uv.y)vertex.uv.y -= 1.0f;
+			}
+			mesh.mesh->Mapping();
+		}
+	}
+}
+
+Appearance::Appearance(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent)
+	:StageParts(APPEARANCE, arg_model, arg_initTransform, arg_parent)
+{
+	if (!s_models.contains(arg_model.lock()->m_header.fileName))s_models[arg_model.lock()->m_header.fileName] = arg_model;
+
+	m_collider.BuilCollisionMesh(arg_model, arg_initTransform);
+}
+
 void MoveScaffold::OnInit()
 {
 	m_isActive = false;
@@ -674,3 +703,5 @@ void IvyBlock::Disappear()
 	m_easingTimer = 0;
 
 }
+
+
