@@ -46,6 +46,15 @@ public:
 	//種別のゲッタ
 	const TYPE& GetType()const { return m_type; }
 
+	void Active()
+	{
+		m_active = true;
+	};
+	void Disactive()
+	{
+		m_active = false;
+	};
+
 	//トランスフォームを取得
 	KuroEngine::Transform GetTransform() { return m_transform; }
 };

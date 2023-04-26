@@ -183,6 +183,14 @@ public:
 	KuroEngine::Vec3<float> GetNowPos() { return m_transform.GetPosWorld(); }
 	KuroEngine::Vec3<float> GetOldPos() { return m_prevTransform.GetPosWorld(); }
 
+	//ギミックによる移動を終わらせる。
+	void FinishGimmickMove();
+
+	void DisactiveLight()
+	{
+		m_growPlantPtLig.Disactive();
+	}
+
 private:
 	
 	//移動させる。

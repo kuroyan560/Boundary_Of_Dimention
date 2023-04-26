@@ -73,7 +73,7 @@ class Grass
 	int m_plantGrassMax = 10000;
 
 	//一度に植える草の数
-	static const int PLANT_ONCE_COUNT = 256;
+	static const int PLANT_ONCE_COUNT = 256 * 2;
 
 	//コンピュートパイプライン種別
 	enum COMPUTE_PHASE { INIT, SEARCH_PLANT_POS, APPEAR, UPDATE, SORT, DISAPPEAR, NUM };

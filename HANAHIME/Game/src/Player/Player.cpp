@@ -261,6 +261,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//ギミックの移動を打ち消す。
 	m_gimmickVel = KuroEngine::Vec3<float>();
+
+	m_growPlantPtLig.Active();
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)

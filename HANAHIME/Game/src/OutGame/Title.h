@@ -41,7 +41,7 @@ public:
 		}
 		else
 		{
-			return m_stageSelect.m_camera.GetCamera();
+			return m_stageSelect.GetCamera();
 		}
 	}
 	int GetStageNum()
@@ -57,7 +57,8 @@ public:
 		}
 
 		//入力＝決定。ステージ番号を渡す
-		if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0,KuroEngine::A))
+		bool inputFlag = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A);
+		if (inputFlag && m_stageSelect.IsEnableToDone())
 		{
 			if (m_stageSelect.IsEnableToSelect())
 			{

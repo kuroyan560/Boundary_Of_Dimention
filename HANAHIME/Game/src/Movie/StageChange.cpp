@@ -4,7 +4,8 @@
 #include"FrameWork/WinApp.h"
 
 SceneChange::SceneChange() :
-	m_time(60),
+	SCENE_CHANGE_TIME(60),
+	m_time(SCENE_CHANGE_TIME),
 	m_startFlag(false), m_blackOutFlag(false),
 	m_countTimeUpNum(0),
 	m_blackTexBuff(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(KuroEngine::Color(0, 0, 0, 255))),
@@ -38,6 +39,7 @@ void SceneChange::Update()
 	if (m_blackOutFlag)
 	{
 		++m_countTimeUpNum;
+		m_alphaOffset = 0.0f;
 		m_time.Reset();
 	}
 	//ñæì]ÇµÇΩèuä‘
@@ -58,12 +60,23 @@ void SceneChange::Draw()
 	{
 		return;
 	}
-	KuroEngine::DrawFunc2D::DrawRotaGraph2D({ m_size.x / 2.0f,m_size.y / 2.0f }, m_size, 0.0f, m_blackTexBuff, m_alpha);
+	KuroEngine::DrawFunc2D::DrawRotaGraph2D({ m_size.x / 2.0f,m_size.y / 2.0f }, m_size, 0.0f, m_blackTexBuff, m_alpha + m_alphaOffset);
 }
 
 void SceneChange::Start()
 {
-	m_startFlag = true;
+	if (m_startFlag)
+	{
+		m_countTimeUpNum = 0;
+		m_alphaOffset = m_time.GetInverseTimeRate();
+		m_time.Reset(m_time.GetLeftTime());
+	}
+	else
+	{
+		m_startFlag = true;
+		m_alphaOffset = 0.0f;
+		m_time.Reset(SCENE_CHANGE_TIME);
+	}
 }
 
 bool SceneChange::IsHide()
