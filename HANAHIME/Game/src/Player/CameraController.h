@@ -64,4 +64,6 @@ public:
 	const KuroEngine::Quaternion& GetPosRotate() {
 		return m_camParentTransform.GetRotate();
 	}
+
+	std::weak_ptr<KuroEngine::Camera> GetCamera() { return m_attachedCam; }
 };

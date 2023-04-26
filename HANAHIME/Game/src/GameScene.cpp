@@ -11,6 +11,7 @@
 #include"Graphics/BasicDraw.h"
 #include"FrameWork/UsersInput.h"
 #include"Plant/GrowPlantLight.h"
+#include"TimeScaleMgr.h"
 
 GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_1flameStopTimer(30)
 {
@@ -95,7 +96,7 @@ void GameScene::OnUpdate()
 	m_particleRender.InitCount();
 
 	//デバッグ用
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_I) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::B) || m_player.GetIsDeath())
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_I) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::B) || m_player.GetIsFinishDeathAnimation())
 	{
 		m_eTitleMode = TITLE_PAZZLE;
 		SoundConfig::Instance()->Play(SoundConfig::BGM_TITLE);

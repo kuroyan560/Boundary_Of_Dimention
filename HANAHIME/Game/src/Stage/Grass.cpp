@@ -298,9 +298,14 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 			aliveGrassArray.emplace_back(aliveGrassArrayBufferPtr[i]);
 			if (aliveGrassArray.back().m_isAlive == 0)consumeCount++;
 		}
+		for (auto& index : aliveGrassArray) {
+			if (1.0f <= index.m_pos.Length()) continue;
+			index.m_isAlive = false;
+		}
 		std::sort(aliveGrassArray.begin(), aliveGrassArray.end(), [](PlantGrass& a, PlantGrass& b) {
 			return a.m_isAlive > b.m_isAlive;
 			});
+		//Œ´“_•t‹ß‚Ì‘‚Ííœ
 		m_plantGrassBuffer->Mapping(aliveGrassArray.data(), *plantGrassCountPtr);
 		m_sortAndDisappearNumBuffer->Mapping(&consumeCount);
 

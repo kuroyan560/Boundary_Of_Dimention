@@ -170,10 +170,27 @@ void SearchPlantPos(uint DTid : SV_DispatchThreadID)
     result.m_isSuccess = false;
     
     //乱数の種
-    float seed = otherTransformData.m_seed + DTid * 103.0f;
+    float seed1 = otherTransformData.m_seed + DTid * 103.0f;
+    float seed2 = otherTransformData.m_seed + DTid * 307.0f + otherTransformData.m_seed;
+    float seed3 = otherTransformData.m_seed + DTid * 701.0f + otherTransformData.m_seed * otherTransformData.m_seed;
     
-    //サンプリングするスクリーン座標を求める。
-    screenPos = uint2(RandomIntInRange(0, 1280, seed), RandomIntInRange(0, 720, seed * 2.0f));
+    //草を生成する範囲
+    const float GENERATE_RAD = 10.0f;
+    
+    //位置乱数
+    float3 posOffset = float3(RandomIntInRange(seed1) * 2.0f - 1.0f, RandomIntInRange(seed2) * 2.0f - 1.0f, RandomIntInRange(seed3) * 2.0f - 1.0f);
+    posOffset.x *= GENERATE_RAD;
+    posOffset.y *= GENERATE_RAD;
+    posOffset.z *= GENERATE_RAD;
+    
+    //プレイヤーの周囲に草を生成する場所を決める。
+    float3 generatePos = commonInfo.m_playerPos + posOffset;
+    
+    //サンプリングするスクリーン座標を求める。    
+    float4 viewPos = mul(commonInfo.matView, float4(generatePos, 1.0f));
+    float4 clipPos = mul(commonInfo.matProjection, viewPos);
+    float3 ndcPos = clipPos.xyz / clipPos.w;
+    screenPos = round(float2((ndcPos.x * 0.5f + 0.5f) * 1280.0f, (1.0f - (ndcPos.y * 0.5f + 0.5f)) * 720.0f));
         
     //サンプリングした座標がライトに当たっている位置かどうかを判断。
     result.m_isSuccess = step(0.9f, g_brightMap[screenPos].x);

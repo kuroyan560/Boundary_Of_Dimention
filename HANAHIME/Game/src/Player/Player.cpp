@@ -3,6 +3,7 @@
 #include"../OperationConfig.h"
 #include"FrameWork/Importer.h"
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
+#include"ForUser/DrawFunc/2D/DrawFunc2D.h"
 #include"../Graphics/BasicDraw.h"
 #include"../Stage/Stage.h"
 #include"../Graphics/BasicDrawParameters.h"
@@ -10,6 +11,8 @@
 #include"FrameWork/UsersInput.h"
 #include"../SoundConfig.h"
 #include"PlayerCollision.h"
+#include"../TimeScaleMgr.h"
+#include"../../../../src/engine/DirectX12/D3D12App.h"
 
 void Player::OnImguiItems()
 {
@@ -95,6 +98,9 @@ Player::Player()
 
 	m_collision.m_refPlayer = this;
 
+	//死亡アニメーションを読み込み
+	KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(m_deathAnimSprite.data(), "resource/user/tex/Number.png", DEATH_SPRITE_ANIM_COUNT, KuroEngine::Vec2<int>(DEATH_SPRITE_ANIM_COUNT, 1));
+
 }
 
 void Player::Init(KuroEngine::Transform arg_initTransform)
@@ -122,6 +128,15 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 
 	m_growPlantPtLig.Register();
+	//死亡演出のタイマーを初期化。
+	m_deathEffectTimer = 0;
+	m_deathShakeAmount = 0;
+	m_deathShake = KuroEngine::Vec3<float>();
+	m_deathStatus = DEATH_STATUS::APPROACH;
+	m_isFinishDeathAnimation = false;
+
+	m_deathSpriteAnimNumber = 0;
+	m_deathSpriteAnimTimer = KuroEngine::Timer(DEATH_SPRITE_TIMER);
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
@@ -139,7 +154,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	auto newPos = beforePos;
 
 	//入力された視線移動角度量を取得
-	auto scopeMove = OperationConfig::Instance()->GetScopeMove();
+	auto scopeMove = OperationConfig::Instance()->GetScopeMove() * TimeScaleMgr::s_inGame.GetTimeScale();
 
 	//ジャンプができるかどうか。	一定時間地形に引っ掛かってたらジャンプできる。
 	m_canJump = CAN_JUMP_DELAY <= m_canJumpDelayTimer;
@@ -186,7 +201,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		}
 
 		//移動させる。
-		Move(newPos);
+		if (!m_isDeath) {
+			Move(newPos);
+		}
 
 		//入力がなかったら
 		if (m_rowMoveVec.Length() <= 0) {
@@ -214,7 +231,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	{
 
 		//タイマーを更新。
-		m_jumpTimer = std::clamp(m_jumpTimer + JUMP_TIMER, 0.0f, 1.0f);
+		m_jumpTimer = std::clamp(m_jumpTimer + JUMP_TIMER * TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, 1.0f);
 
 		float easeAmount = KuroEngine::Math::Ease(Out, Sine, m_jumpTimer, 0.0f, 1.0f);
 
@@ -248,6 +265,17 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	}
 	break;
+	case PLAYER_MOVE_STATUS::DEATH:
+	{
+
+		//死亡の更新処理
+		UpdateDeath();
+
+		//動かさない。
+		m_transform = m_prevTransform;
+
+	}
+	break;
 	default:
 		break;
 	}
@@ -256,13 +284,35 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//座標変化適用
 	m_ptLig.SetPos(newPos);
 
-	//カメラ操作
-	m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_cameraRotYStorage, CAMERA_MODE[m_cameraMode]);
-
 	//ギミックの移動を打ち消す。
 	m_gimmickVel = KuroEngine::Vec3<float>();
 
 	m_growPlantPtLig.Active();
+
+	//死んでいたら死亡の更新処理を入れる。
+	if (!m_isDeath) {
+		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
+		m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_cameraRotYStorage, CAMERA_MODE[m_cameraMode]);
+		m_deathEffectCameraZ = CAMERA_MODE[m_cameraMode];
+		TimeScaleMgr::s_inGame.Set(1.0f);
+	}
+	else {
+
+		//シェイクの分を戻す。
+		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_deathShake);
+
+		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
+		m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_cameraRotYStorage, m_deathEffectCameraZ);
+
+		//シェイクを計算。
+		m_deathShake.x = KuroEngine::GetRand(-m_deathShakeAmount, m_deathShakeAmount);
+		m_deathShake.y = KuroEngine::GetRand(-m_deathShakeAmount, m_deathShakeAmount);
+		m_deathShake.z = KuroEngine::GetRand(-m_deathShakeAmount, m_deathShakeAmount);
+
+		//シェイクをかける。
+		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() + m_deathShake);
+	}
+
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
@@ -296,6 +346,18 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 			camTransform.GetMatWorld(),
 			arg_cam);
 	}
+
+	//死んでいる かつ アニメーションが終わっていなかったら
+	bool isFinishAnimation = m_deathSpriteAnimNumber == DEATH_SPRITE_ANIM_COUNT && m_deathSpriteAnimTimer.IsTimeUp();
+	if (m_deathStatus == Player::DEATH_STATUS::LEAVE && !isFinishAnimation) {
+
+		KuroEngine::Vec2<float> winCenter = KuroEngine::Vec2<float>(1280.0f / 2.0f, 720.0f / 2.0f);
+		KuroEngine::Vec2<float> spriteSize = KuroEngine::Vec2<float>(512.0f, 512.0f);
+
+		KuroEngine::DrawFunc2D::DrawExtendGraph2D(winCenter - spriteSize, winCenter + spriteSize, m_deathAnimSprite[m_deathSpriteAnimNumber]);
+
+	}
+
 }
 
 void Player::Finalize()
@@ -345,7 +407,7 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 	auto moveAmount = KuroEngine::Math::TransformVec3(m_moveSpeed, m_transform.GetRotate());
 
 	//移動量加算
-	arg_newPos += moveAmount;
+	arg_newPos += moveAmount * TimeScaleMgr::s_inGame.GetTimeScale();
 
 	//ギミックの移動量も加算。
 	arg_newPos += m_gimmickVel;
@@ -429,6 +491,84 @@ void Player::UpdateZipline() {
 
 			m_ziplineMoveTimer = 0;
 
+		}
+
+	}
+	break;
+	default:
+		break;
+	}
+
+}
+
+void Player::UpdateDeath() {
+
+	switch (m_deathStatus)
+	{
+	case Player::DEATH_STATUS::APPROACH:
+	{
+		//カメラを近づける。
+		m_deathEffectCameraZ += (DEATH_EFFECT_CAMERA_Z - m_deathEffectCameraZ) / 2.0f;
+
+		//速度を遅くする。
+		TimeScaleMgr::s_inGame.Set(DEATH_EFFECT_TIMER_SCALE);
+
+		++m_deathEffectTimer;
+		if (DEATH_EFFECT_APPROACH_TIMER <= m_deathEffectTimer) {
+			m_deathStatus = DEATH_STATUS::STAY;
+
+			//死亡演出のタイマーを初期化。
+			m_deathEffectTimer = 0;
+		}
+	}
+	break;
+	case Player::DEATH_STATUS::STAY:
+	{
+
+		++m_deathEffectTimer;
+		if (DEATH_EFFECT_STAY_TIMER <= m_deathEffectTimer) {
+			m_deathStatus = DEATH_STATUS::LEAVE;
+
+			//死亡演出のタイマーを初期化。
+			m_deathEffectTimer = 0;
+
+			//シェイクをかける。
+			m_deathShakeAmount = DEATH_SHAKE_AMOUNT;
+		}
+
+	}
+	break;
+	case Player::DEATH_STATUS::LEAVE:
+	{
+		//カメラを離す。
+		m_deathEffectCameraZ += (CAMERA_MODE[1] - m_deathEffectCameraZ) / 5.0f;
+
+		//速度を元に戻す。
+		TimeScaleMgr::s_inGame.Set(1.0f);
+
+		//シェイク量をへらす。
+		m_deathShakeAmount = std::clamp(m_deathShakeAmount - SUB_DEATH_SHAKE_AMOUNT, 0.0f, 100.0f);
+
+		//死亡演出のアニメーションを更新。
+		m_deathSpriteAnimTimer.UpdateTimer(1.0f);
+
+		//タイマーが終わったら。
+		if (m_deathSpriteAnimTimer.IsTimeUpOnTrigger()) {
+
+			//次のアニメーションがあったら
+			if (m_deathSpriteAnimNumber < DEATH_SPRITE_ANIM_COUNT - 1) {
+
+				++m_deathSpriteAnimNumber;
+				m_deathSpriteAnimTimer = KuroEngine::Timer(DEATH_SPRITE_TIMER);
+
+			}
+
+		}
+
+		++m_deathEffectTimer;
+		if (DEATH_EFFECT_FINISH_TIMER <= m_deathEffectTimer) {
+
+			m_isFinishDeathAnimation = true;
 		}
 
 	}
