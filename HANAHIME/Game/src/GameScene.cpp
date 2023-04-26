@@ -284,6 +284,8 @@ void GameScene::OnDraw()
 
 	m_vignettePostEffect.Register(m_fogPostEffect->GetResultTex());
 
+	m_player.DrawUI();
+
 
 	m_title.Draw(*m_nowCam, m_ligMgr);
 

@@ -346,7 +346,10 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 			camTransform.GetMatWorld(),
 			arg_cam);
 	}
+}
 
+void Player::DrawUI()
+{
 	//死んでいる かつ アニメーションが終わっていなかったら
 	bool isFinishAnimation = m_deathSpriteAnimNumber == DEATH_SPRITE_ANIM_COUNT && m_deathSpriteAnimTimer.IsTimeUp();
 	if (m_deathStatus == Player::DEATH_STATUS::LEAVE && !isFinishAnimation) {
@@ -357,7 +360,6 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		KuroEngine::DrawFunc2D::DrawExtendGraph2D(winCenter - spriteSize, winCenter + spriteSize, m_deathAnimSprite[m_deathSpriteAnimNumber]);
 
 	}
-
 }
 
 void Player::Finalize()

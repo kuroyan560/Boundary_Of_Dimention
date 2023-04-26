@@ -178,6 +178,7 @@ public:
 	void Init(KuroEngine::Transform arg_initTransform);
 	void Update(const std::weak_ptr<Stage>arg_nowStage);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw = false);
+	void DrawUI();
 	void Finalize();
 
 	//“–‚½‚è”»’èƒNƒ‰ƒX
