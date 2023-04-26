@@ -240,10 +240,15 @@ void PazzleStageSelect::Update()
 
 
 	KuroEngine::UsersInput::MouseMove mouseVel = KuroEngine::UsersInput::Instance()->GetMouseMove();
+	KuroEngine::Vec3<float>inputVel = {
+		static_cast<float>(mouseVel.m_inputX) + KuroEngine::UsersInput::Instance()->GetRightStickVec(0).x * 5.0f,
+		static_cast<float>(mouseVel.m_inputY) + KuroEngine::UsersInput::Instance()->GetRightStickVec(0).y * 5.0f,
+		static_cast<float>(mouseVel.m_inputZ)
+	};
 
-	if (mouseVel.m_inputX != m_preMouseVel.m_inputX ||
-		mouseVel.m_inputY != m_preMouseVel.m_inputY ||
-		mouseVel.m_inputZ != m_preMouseVel.m_inputZ)
+	if (inputVel.x != m_preMouseVel.x ||
+		inputVel.y != m_preMouseVel.y ||
+		inputVel.z != m_preMouseVel.z)
 	{
 		m_previweFlag = true;
 	}
@@ -283,11 +288,9 @@ void PazzleStageSelect::Update()
 			//角度入手----------------------------------------
 
 			m_radius = 100.0f;
-			m_larpRadius = m_radius;
 		}
-		const LONG SENSITIVITY = static_cast<long>(0.5);
-		m_larpAngle.x += mouseVel.m_inputX;
-		m_larpAngle.y += mouseVel.m_inputY;
+		m_larpAngle.x += inputVel.x;
+		m_larpAngle.y += inputVel.y;
 
 		const float ANGLE_MAX = 90;
 		if (m_larpAngle.y <= -ANGLE_MAX)
@@ -299,23 +302,6 @@ void PazzleStageSelect::Update()
 			m_larpAngle.y = 10.0f;
 		}
 		m_angle = KuroEngine::Math::Lerp(m_angle, m_larpAngle, 0.1f);
-
-		//ホイール入力で距離を変更
-		if (mouseVel.m_inputZ != 0)
-		{
-			float inputZ = (mouseVel.m_inputZ / 20.0f) * -1.0f;
-			m_larpRadius += inputZ;
-
-			if (m_larpRadius < 30)
-			{
-				m_larpRadius = 30.0f;
-			}
-			if (100 < m_larpRadius)
-			{
-				m_larpRadius = 100.0f;
-			}
-		}
-		m_radius = KuroEngine::Math::Lerp(m_radius, m_larpRadius, 0.1f);
 
 		KuroEngine::Vec2<float>radian(KuroEngine::Angle::ConvertToRadian(m_angle.x), KuroEngine::Angle::ConvertToRadian(m_angle.y));
 		KuroEngine::Vec2<float>velX = { cosf(radian.x) * m_radius,sinf(radian.x) * m_radius };
@@ -357,7 +343,7 @@ void PazzleStageSelect::Update()
 		m_camera.Update();
 	}
 	m_triggerPreviewFlag = m_previweFlag;
-	m_preMouseVel = mouseVel;
+	m_preMouseVel = inputVel;
 
 
 
