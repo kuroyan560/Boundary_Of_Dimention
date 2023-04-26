@@ -60,8 +60,8 @@ class Grass
 		float m_sineLength;
 		KuroEngine::Vec3<float>m_up;
 		int m_texIdx;
-		KuroEngine::Vec3<float>m_pad;
 		int m_isAlive;
+		KuroEngine::Vec3<float>m_pad;
 	};
 	//ˆê“x‚É¶¬‚Å‚«‚éÅ‘å”
 	static const int GENERATE_MAX_ONCE = 2000;
@@ -93,7 +93,7 @@ class Grass
 		float m_seed;
 		int m_grassCount;
 		int m_plantOnceCount;
-		KuroEngine::Vec2<float> m_pad;
+		int pad[2];
 	};
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_otherTransformConstBuffer;
 

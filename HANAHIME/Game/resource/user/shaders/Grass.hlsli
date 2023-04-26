@@ -8,7 +8,6 @@ struct PlantGrass
     float m_appearY;
     float m_appearYTimer;
     int m_isAlive;
-    int m_pad;
 };
 
 //全草むらで共通する定数バッファ用のパラメータ
@@ -43,7 +42,6 @@ struct TransformData
     float m_seed;
     int m_grassCount;
     int m_plantOnceCount;
-    float2 m_pad;
 };
 
 //ランダム

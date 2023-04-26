@@ -9,7 +9,6 @@ struct GrassInitializer
     float m_sineLength;
     float3 m_up;
     int m_texIdx;
-    float3 m_pad;
     int m_isAlive;
 };
 
@@ -20,7 +19,6 @@ struct CheckResult
     float3 m_plantPos;
     int m_isSuccess;
     float3 m_plantNormal;
-    int m_pad;
 };
 
 RWStructuredBuffer<PlantGrass> aliveGrassBuffer : register(u0);
@@ -66,7 +64,6 @@ void Appear(uint DTid : SV_DispatchThreadID)
     newGrass.m_appearYTimer = 0;
     newGrass.m_appearY = 0;
     newGrass.m_isAlive = 1;
-    newGrass.m_pad = 1;
     
     appendAliveGrassBuffer.Append(newGrass);
 };
