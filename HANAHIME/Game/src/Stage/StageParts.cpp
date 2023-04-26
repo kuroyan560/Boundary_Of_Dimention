@@ -678,6 +678,7 @@ void IvyBlock::Update(Player& arg_player)
 		auto scale = HIT_SCALE_MIN * easingValue;
 		m_transform.SetScale(scale);
 
+		m_nonExistDrawParam.m_alpha = easingValue;
 	}
 	else {
 
@@ -688,6 +689,7 @@ void IvyBlock::Update(Player& arg_player)
 		auto scale = HIT_SCALE_MIN - HIT_SCALE_MIN * easingValue;
 		m_transform.SetScale(scale);
 
+		m_nonExistDrawParam.m_alpha = easingValue;
 	}
 
 }
@@ -702,17 +704,15 @@ void IvyBlock::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_l
 	
 	KuroEngine::Transform invisibleTrans = m_transform;
 	invisibleTrans.SetScale(HIT_SCALE_MIN);
-	if (!m_isAppear && EASING_TIMER <= m_easingTimer)
-	{
-		BasicDraw::Instance()->Draw(
-			arg_cam,
-			arg_ligMgr,
-			m_nonExistModel,
-			invisibleTrans,
-			KuroEngine::AlphaBlendMode_Trans,
-			nullptr,
-			1);
-	}
+	BasicDraw::Instance()->Draw(
+		arg_cam,
+		arg_ligMgr,
+		m_nonExistModel,
+		invisibleTrans,
+		m_nonExistDrawParam,
+		KuroEngine::AlphaBlendMode_Trans,
+		nullptr,
+		1);
 }
 
 void IvyBlock::Appear()

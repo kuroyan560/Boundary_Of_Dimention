@@ -4,6 +4,7 @@
 #include<optional>
 #include"Common/Transform.h"
 #include"Render/RenderObject/ModelInfo/ModelMesh.h"
+#include"../Graphics/BasicDrawParameters.h"
 
 namespace KuroEngine
 {
@@ -351,6 +352,7 @@ class IvyBlock : public StageParts
 	std::shared_ptr<KuroEngine::Model>m_nonExistModel;
 	//消失している間に描画するモデルのマテリアル
 	std::shared_ptr<KuroEngine::Material>m_nonExistMaterial;
+	IndividualDrawParameter m_nonExistDrawParam;
 
 
 	//ブロックの左上手前座標
@@ -385,6 +387,8 @@ public:
 		m_easingTimer = EASING_TIMER;
 
 		m_collider.BuilCollisionMesh(m_model, m_transform);
+
+		m_nonExistDrawParam.m_alpha = 0.0f;
 	}
 
 	void Appear();
