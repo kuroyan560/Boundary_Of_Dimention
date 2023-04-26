@@ -184,8 +184,12 @@ void PazzleStageSelect::Update()
 
 	if (0 <= GetNumber() && GetNumber() < StageManager::Instance()->GetAllStageNum())
 	{
-		StageManager::Instance()->SetStage(GetNumber());
+		//if (GetNumber() != m_preStageNum)
+		{
+			StageManager::Instance()->SetStage(GetNumber());
+		}
 	}
+	m_preStageNum = GetNumber();
 
 	if (m_stageSelectArray[m_nowStageNum.y][m_nowStageNum.x].m_isClearFlag)
 	{
