@@ -49,6 +49,7 @@ void StageManager::SetStage(int stage_num)
 void StageManager::Update(Player& arg_player)
 {
 	m_nowStage->GimmickUpdate(arg_player);
+	Appearance::ModelsUpdate();
 }
 
 void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
