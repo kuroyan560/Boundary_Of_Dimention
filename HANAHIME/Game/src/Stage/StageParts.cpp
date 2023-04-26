@@ -265,7 +265,7 @@ void MoveScaffold::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 
 	//ˆÚ“®Œo˜H‚ğ•`‰æ‚·‚éB
 	for (int index = 1; index <= m_maxTranslation; ++index) {
-		KuroEngine::DrawFunc3D::DrawLine(arg_cam, m_translationArray[index - 1], m_translationArray[index], KuroEngine::Color(255, 255, 255, 255), 0.1f);
+		KuroEngine::DrawFunc3D::DrawLine(arg_cam, m_translationArray[index - 1], m_translationArray[index], KuroEngine::Color(255, 255, 255, 255), 1.0f);
 	}
 
 }
