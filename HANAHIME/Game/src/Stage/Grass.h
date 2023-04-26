@@ -46,7 +46,6 @@ class Grass
 		float m_appearY;		//出現エフェクトに使用する変数 Y軸をどこまで表示させるか。
 		float m_appearYTimer;
 		int m_isAlive;
-		int m_pad;
 	};
 	//植えた草の情報配列バッファ
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_plantGrassBuffer;

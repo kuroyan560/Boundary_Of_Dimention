@@ -140,7 +140,7 @@ Grass::Grass()
 
 	//ソートと削除処理で使うunsigned int のバッファー
 	m_sortAndDisappearNumBuffer = D3D12App::Instance()->GenerateRWStructuredBuffer(
-		sizeof(unsigned int),
+		sizeof(int),
 		1,
 		nullptr,
 		"Grass - SortAndDisappearNumber - RWStructuredBuffer");
@@ -289,11 +289,26 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 
 		m_sortAndDisappearNumBuffer->Mapping(plantGrassCountPtr);
 
+		//GPU上でソートしたら草消えるバグ置きたのでCPU側でソート。動けば勝ちや！！！！！！！！！！！
+		auto aliveGrassArrayBufferPtr = m_plantGrassBuffer->GetResource()->GetBuffOnCpu<PlantGrass>();
+		std::vector<PlantGrass>aliveGrassArray;
+		int consumeCount = 0;
+		for (int i = 0; i < *plantGrassCountPtr; ++i)
+		{
+			aliveGrassArray.emplace_back(aliveGrassArrayBufferPtr[i]);
+			if (aliveGrassArray.back().m_isAlive == 0)consumeCount++;
+		}
+		std::sort(aliveGrassArray.begin(), aliveGrassArray.end(), [](PlantGrass& a, PlantGrass& b) {
+			return a.m_isAlive > b.m_isAlive;
+			});
+		m_plantGrassBuffer->Mapping(aliveGrassArray.data(), *plantGrassCountPtr);
+		m_sortAndDisappearNumBuffer->Mapping(&consumeCount);
+
 		//死んでいるものが先頭に来るようソート
-		D3D12App::Instance()->DispathOneShot(
+		/*D3D12App::Instance()->DispathOneShot(
 			m_cPipeline[SORT],
 			{ 1,1,1 },
-			descData);
+			descData);*/
 
 		//死んでいるものを削除
 		D3D12App::Instance()->DispathOneShot(

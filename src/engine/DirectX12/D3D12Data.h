@@ -112,6 +112,9 @@ namespace KuroEngine
 		ComPtr<ID3D12Resource>m_buff = nullptr;	//リソースバッファ
 		D3D12_RESOURCE_STATES m_barrier = D3D12_RESOURCE_STATE_COMMON;	//リソースバリアの状態
 
+		//マッピング
+		void Mapping();
+
 	public:
 		GPUResource(const ComPtr<ID3D12Resource>& Buff, const D3D12_RESOURCE_STATES& Barrier, const wchar_t* Name = nullptr)
 		{
@@ -136,8 +139,6 @@ namespace KuroEngine
 		//現在のリソースバリア取得
 		const D3D12_RESOURCE_STATES& GetResourceBarrier() { return m_barrier; }
 
-		//マッピング
-		void Mapping();
 		//マッピング（初期化情報の送信）
 		void Mapping(const size_t& DataSize, const int& ElementNum, const void* SendData, const int OffsetElementNum = 0);
 		//リソースバリアの変更
@@ -146,7 +147,11 @@ namespace KuroEngine
 		void CopyGPUResource(const ComPtr<ID3D12GraphicsCommandList>& CmdList, GPUResource& CopySource);
 
 		template<typename T>
-		T* GetBuffOnCpu() { return (T*)m_buffOnCPU; }
+		T* GetBuffOnCpu() 
+		{
+			Mapping();
+			return (T*)m_buffOnCPU; 
+		}
 	};
 
 	//レンダリングの際にセットするバッファ（ディスクリプタ登録の必要があるタイプのデータ）
@@ -341,6 +346,10 @@ namespace KuroEngine
 		void Mapping(void* SendData)
 		{
 			m_resource->Mapping(m_dataSize, m_elementNum, SendData);
+		}
+		void Mapping(const void* SendData, int ElementNum)
+		{
+			m_resource->Mapping(m_dataSize, ElementNum, SendData);
 		}
 	};
 

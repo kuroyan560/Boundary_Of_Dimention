@@ -25,7 +25,7 @@ RWStructuredBuffer<PlantGrass> aliveGrassBuffer : register(u0);
 ConsumeStructuredBuffer<PlantGrass> consumeAliveGrassBuffer : register(u0);
 AppendStructuredBuffer<PlantGrass> appendAliveGrassBuffer : register(u0);
 
-RWStructuredBuffer<uint> sortAndDisappearNumBuffer : register(u1);
+RWStructuredBuffer<int> sortAndDisappearNumBuffer : register(u1);
 
 RWStructuredBuffer<CheckResult> checkResultBuffer : register(u2);
 
@@ -98,7 +98,7 @@ void Update(uint DTid : SV_DispatchThreadID)
         //0ˆÈ‰º‚É‚È‚Á‚½‚çƒtƒ‰ƒO‚ğÜ‚éB
         if (grass.m_appearYTimer <= 0)
         {
-            grass.m_isAlive = false;
+            grass.m_isAlive = 0;
         }
         
     }
