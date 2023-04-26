@@ -55,4 +55,7 @@ public:
 	/// <param name="arg_sensitivity">感度</param>
 	/// <returns>視線移動角度（ラジアン）</returns>
 	KuroEngine::Vec3<float>GetScopeMove();
+
+	bool InputDone();
+	bool InputSelect();
 };
