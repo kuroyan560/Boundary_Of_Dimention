@@ -148,7 +148,7 @@ void Title::Update(KuroEngine::Transform *player_camera)
 	}
 
 	bool isInputSpace = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A);
-	if (m_isPazzleModeFlag && isInputSpace && !m_startGameFlag)
+	if (m_isPazzleModeFlag && isInputSpace && !m_startGameFlag && m_stageSelect.IsEnableToDone())
 	{
 		m_startPazzleFlag = true;
 		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);

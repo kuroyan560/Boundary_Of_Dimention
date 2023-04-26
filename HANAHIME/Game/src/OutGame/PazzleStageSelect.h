@@ -28,6 +28,12 @@ public:
 	{
 		return m_stageSelectArray[m_nowStageNum.y][m_nowStageNum.x].enableFlag;
 	}
+	bool IsEnableToDone()
+	{
+		bool flag = !m_previweFlag && !stop1FlameFlag;
+		stop1FlameFlag = false;
+		return flag;
+	}
 	void Stop()
 	{
 		m_stopFlag = true;
@@ -36,6 +42,18 @@ public:
 	{
 		m_stageSelectArray[m_nowStageNum.y][m_nowStageNum.x].m_isClearFlag = true;
 	};
+
+	std::weak_ptr<KuroEngine::Camera>GetCamera()
+	{
+		if (!m_previweFlag)
+		{
+			return m_camera.GetCamera();
+		}
+		else
+		{
+			return m_previewCamera;
+		}
+	}
 
 	MovieCamera m_camera;
 private:
@@ -90,7 +108,8 @@ private:
 
 
 	//プレビューモード
-	bool m_previweFlag;
+	bool m_previweFlag, m_triggerPreviewFlag;
+	bool stop1FlameFlag;
 	KuroEngine::Vec2<float>m_hideVel;
 	KuroEngine::Timer m_hideTiemr;
 	KuroEngine::Timer m_appearTimer;
@@ -119,8 +138,8 @@ private:
 	{
 		std::shared_ptr<KuroEngine::TextureBuffer>m_stageTex;
 		std::shared_ptr<KuroEngine::TextureBuffer>m_subStageTex;
-		StageUI(std::shared_ptr<KuroEngine::TextureBuffer>stageUITex, std::shared_ptr<KuroEngine::TextureBuffer>subStageUITex):
-		m_stageTex(stageUITex), m_subStageTex(subStageUITex)
+		StageUI(std::shared_ptr<KuroEngine::TextureBuffer>stageUITex, std::shared_ptr<KuroEngine::TextureBuffer>subStageUITex) :
+			m_stageTex(stageUITex), m_subStageTex(subStageUITex)
 		{};
 	};
 	std::vector<StageUI>m_stageTex;
@@ -133,8 +152,10 @@ private:
 	public:
 
 		Band(const KuroEngine::Vec2<float> &pos, const KuroEngine::Vec2<float> &size, const KuroEngine::Vec2<float> &easeVel, float flame) :
-			m_pos(pos), m_size(size), m_easeVel(easeVel), m_appearTimer(flame), m_disappearTimer(flame), m_appearFlag(true)
+			m_pos(pos), m_size(size), m_easeVel(easeVel), m_hideVel({}), m_appearTimer(flame), m_disappearTimer(flame), m_appearFlag(true)
 		{
+			m_appearTimer.ForciblyTimeUp();
+			m_disappearTimer.ForciblyTimeUp();
 		};
 
 		void Update()
@@ -179,5 +200,20 @@ private:
 	//上下の帯-----------------------------------------------------------------------
 
 	int m_prevStageIndex;
+
+
+	//プレビュー-----------------------------------------------------------------------
+
+	std::shared_ptr<KuroEngine::Camera> m_previewCamera;
+	KuroEngine::Transform m_cameraTransform;
+	KuroEngine::Vec3<float>m_cameraPos;
+	KuroEngine::Vec2<float> m_angle, m_larpAngle;
+	float m_radius;
+
+	KuroEngine::Vec3<float> m_preMouseVel;
+
+
+	//プレビュー-----------------------------------------------------------------------
+
 
 };

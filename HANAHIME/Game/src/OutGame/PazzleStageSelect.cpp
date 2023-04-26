@@ -1,7 +1,9 @@
 #include"PazzleStageSelect.h"
 #include"FrameWork/WinApp.h"
 #include"../Stage/StageManager.h"
-
+#include <cmath>
+#include <limits>
+#include <iostream>
 
 PazzleStageSelect::PazzleStageSelect() :m_beatTimer(30), m_appearTimer(60), m_hideTiemr(60)
 {
@@ -84,11 +86,17 @@ PazzleStageSelect::PazzleStageSelect() :m_beatTimer(30), m_appearTimer(60), m_hi
 	//ホームの周りを円状に回っていく処理----------------------------------------
 
 	m_camera.StartMovie(titleCameraMoveDataArray, true);
+
+	m_appearTimer.ForciblyTimeUp();
+	m_hideTiemr.ForciblyTimeUp();
+
+	m_previewCamera = std::make_shared<KuroEngine::Camera>("PreviewCamera");
 }
 
 void PazzleStageSelect::Init()
 {
 	m_stopFlag = false;
+	m_previweFlag = false;
 }
 
 void PazzleStageSelect::Update()
@@ -104,33 +112,35 @@ void PazzleStageSelect::Update()
 	const float DEADLINE = 0.8f;
 	bool isInputRightController = m_prevContollerLeftStick.x < DEADLINE &&DEADLINE < contollerLeftStickInput.x;
 	bool selectFlag = false;
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_RIGHT) || isInputRightController)
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_D) || isInputRightController)
 	{
 		++m_nowStageNum.x;
 		selectFlag = true;
 	}
 	bool isInputLeftController = -DEADLINE < m_prevContollerLeftStick.x &&contollerLeftStickInput.x < -DEADLINE;
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_LEFT) || isInputLeftController)
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_A) || isInputLeftController)
 	{
 		--m_nowStageNum.x;
 		selectFlag = true;
 	}
 	bool isInputUpController = -DEADLINE < m_prevContollerLeftStick.y &&contollerLeftStickInput.y < -DEADLINE;
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_UP) || isInputUpController)
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_W) || isInputUpController)
 	{
 		--m_nowStageNum.y;
 		selectFlag = true;
 	}
 	bool isInputDownController = m_prevContollerLeftStick.y < DEADLINE &&DEADLINE < contollerLeftStickInput.y;
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_DOWN) || isInputDownController)
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_S) || isInputDownController)
 	{
 		++m_nowStageNum.y;
 		selectFlag = true;
 	}
 	if (selectFlag)
 	{
+		m_previweFlag = false;
 		SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
 	}
+
 
 	//コントローラーの入力を保存。
 	m_prevContollerLeftStick = contollerLeftStickInput;
@@ -206,15 +216,6 @@ void PazzleStageSelect::Update()
 	}
 
 
-	if (KuroEngine::UsersInput::Instance()->KeyInput(DIK_L))
-	{
-		m_previweFlag = true;
-	}
-	else
-	{
-		m_previweFlag = false;
-	}
-
 	for (auto &obj : m_bandArray)
 	{
 		if (m_previweFlag)
@@ -223,7 +224,6 @@ void PazzleStageSelect::Update()
 		}
 		obj->Update();
 	}
-
 
 	if (m_previweFlag)
 	{
@@ -238,7 +238,115 @@ void PazzleStageSelect::Update()
 		m_hideTiemr.UpdateTimer();
 	}
 
-	m_camera.Update();
+
+	KuroEngine::UsersInput::MouseMove mouseVel = KuroEngine::UsersInput::Instance()->GetMouseMove();
+	KuroEngine::Vec3<float>inputVel = {
+		static_cast<float>(mouseVel.m_inputX) + KuroEngine::UsersInput::Instance()->GetRightStickVec(0).x * 5.0f,
+		static_cast<float>(mouseVel.m_inputY) + KuroEngine::UsersInput::Instance()->GetRightStickVec(0).y * 5.0f,
+		static_cast<float>(mouseVel.m_inputZ)
+	};
+
+	if (inputVel.x != m_preMouseVel.x ||
+		inputVel.y != m_preMouseVel.y ||
+		inputVel.z != m_preMouseVel.z)
+	{
+		m_previweFlag = true;
+	}
+
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE))
+	{
+		if (m_previweFlag)
+		{
+			stop1FlameFlag = true;
+		}
+		m_previweFlag = false;
+	}
+
+
+	//プレビューモードのカメラ
+	if (m_previweFlag)
+	{
+		//カメラの初期化
+		if (m_previweFlag && !m_triggerPreviewFlag)
+		{
+			KuroEngine::Matrix mat = m_camera.GetCamera().lock()->GetTransform().GetMatWorld();
+			m_cameraTransform.SetWorldMat(mat);
+			m_cameraTransform.CalucuratePosRotaBasedOnWorldMatrix();
+
+			m_cameraPos = m_cameraTransform.GetPosWorld();
+
+			//角度入手----------------------------------------
+			KuroEngine::Vec3<float>cameraVec(m_cameraPos);
+			cameraVec.y = 0.0f;
+			cameraVec.Normalize();
+			float radian = atan2(cameraVec.z, cameraVec.x);
+			m_angle.x = static_cast<float>(KuroEngine::Angle::ConvertToDegree(radian));
+			m_angle.y = 0.0f;
+
+			m_larpAngle = m_angle;
+
+			//角度入手----------------------------------------
+
+			m_radius = 100.0f;
+		}
+		m_larpAngle.x += inputVel.x;
+		m_larpAngle.y += inputVel.y;
+
+		const float ANGLE_MAX = 90;
+		if (m_larpAngle.y <= -ANGLE_MAX)
+		{
+			m_larpAngle.y = -ANGLE_MAX;
+		}
+		if (10.0f <= m_larpAngle.y)
+		{
+			m_larpAngle.y = 10.0f;
+		}
+		m_angle = KuroEngine::Math::Lerp(m_angle, m_larpAngle, 0.1f);
+
+		KuroEngine::Vec2<float>radian(KuroEngine::Angle::ConvertToRadian(m_angle.x), KuroEngine::Angle::ConvertToRadian(m_angle.y));
+		KuroEngine::Vec2<float>velX = { cosf(radian.x) * m_radius,sinf(radian.x) * m_radius };
+		KuroEngine::Vec2<float>velY = { cosf(radian.y) * m_radius,sinf(radian.y) * m_radius };
+		m_cameraPos = {
+			velX.x,
+			50.0f + velY.y,
+			velX.y
+		};
+
+
+		//①視点ベクトル(カメラからオブジェクトまでのベクトル)を求める。
+		KuroEngine::Vec3<float>eyePos = m_cameraPos;
+		KuroEngine::Vec3<float>eyeDir = KuroEngine::Vec3<float>(0.0f, 0.0f, 0.0f) - eyePos;
+		eyeDir.Normalize();
+
+		//②上ベクトルを固定し、右ベクトルを求める。
+		KuroEngine::Vec3<float> rightVec = eyeDir.Cross({ 0,-1,0 });
+		rightVec.Normalize();
+
+		//③視点ベクトルと右ベクトルから正しい上ベクトルを求める。
+		KuroEngine::Vec3<float> upVec = eyeDir.Cross(rightVec);
+		upVec.Normalize();
+
+		//④求められたベクトルから姿勢を出す。
+		DirectX::XMMATRIX matA = DirectX::XMMatrixIdentity();
+		matA.r[0] = { rightVec.x,rightVec.y,rightVec.z,0.0f };
+		matA.r[1] = { upVec.x,upVec.y,upVec.z,0.0f };
+		matA.r[2] = { eyeDir.x,eyeDir.y,eyeDir.z,0.0f };
+		m_cameraTransform.SetPos(m_cameraPos);
+		m_cameraTransform.SetRotaMatrix(matA);
+		m_cameraTransform.CalucuratePosRotaBasedOnWorldMatrix();
+
+		auto &transform = m_previewCamera->GetTransform();
+		transform.SetParent(&m_cameraTransform);
+	}
+	else
+	{
+		m_camera.Update();
+	}
+	m_triggerPreviewFlag = m_previweFlag;
+	m_preMouseVel = inputVel;
+
+
+
 }
 
 void PazzleStageSelect::Draw()
@@ -298,8 +406,6 @@ void PazzleStageSelect::Draw()
 
 			//選択中の数字を基準に全ての数字をずらす。
 			basePos.x -= GetNumber() * 128.0f;
-
-
 
 			//桁用意
 			std::vector<int>timeArray = CountNumber(stageNumber + 1);

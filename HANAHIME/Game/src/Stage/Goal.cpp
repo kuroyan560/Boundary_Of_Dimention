@@ -37,8 +37,6 @@ void Goal::Init(const KuroEngine::Transform &transform, std::shared_ptr<GoalPoin
 	m_upEffectEase.Reset();
 	m_downEffectEase.Reset();
 
-	//m_goalModel = goal_model;
-	//m_goalModelBaseTransform = goal_model->GetTransform();
 	m_startCameraFlag = false;
 
 	m_goalFlag = false;
