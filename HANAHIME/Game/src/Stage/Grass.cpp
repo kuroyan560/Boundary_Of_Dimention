@@ -299,7 +299,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 			if (aliveGrassArray.back().m_isAlive == 0)consumeCount++;
 		}
 		for (auto& index : aliveGrassArray) {
-			if (1.0f <= index.m_pos.Length()) continue;
+			if (5.0f <= index.m_pos.Length()) continue;
 			index.m_isAlive = false;
 		}
 		std::sort(aliveGrassArray.begin(), aliveGrassArray.end(), [](PlantGrass& a, PlantGrass& b) {
