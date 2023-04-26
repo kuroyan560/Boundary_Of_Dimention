@@ -216,7 +216,7 @@ void Appearance::ModelsUpdate()
 		{
 			for (auto& vertex : mesh.mesh->vertices)
 			{
-				vertex.uv.y += 0.002f;
+				vertex.uv.y += 0.002f * TimeScaleMgr::s_inGame.GetTimeScale();
 				//if (1.0f < vertex.uv.y)vertex.uv.y -= 1.0f;
 			}
 			mesh.mesh->Mapping();

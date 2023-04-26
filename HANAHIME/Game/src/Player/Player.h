@@ -8,6 +8,7 @@
 #include"Render/RenderObject/Light.h"
 #include"../Plant/GrowPlantLight.h"
 #include"PlayerCollision.h"
+#include"../../../../src/engine/ForUser/Timer.h"
 
 #include<memory>
 namespace KuroEngine
@@ -96,6 +97,10 @@ class Player : public KuroEngine::Debugger
 	bool m_isDeath;			//プレイヤーが死んだかどうか 死んだらリトライされる
 	int m_deathTimer;		//このフレームの間死んでいたら死んだ判定にする。
 	const int DEATH_TIMER = 1;
+	float m_deathEffectCameraZ;	//死亡演出中のカメラ
+	const float DEATH_EFFECT_CAMERA_Z = -15.0f;
+	const float DEATH_EFFECT_TIMER_SCALE = 0.1f;
+
 
 	//Imguiデバッグ関数オーバーライド
 	void OnImguiItems()override;
@@ -106,6 +111,7 @@ class Player : public KuroEngine::Debugger
 		MOVE,	//通常移動中
 		JUMP,	//ジャンプ中(補間中)
 		ZIP,	//ジップライン移動中
+		DEATH,	//死亡中。
 	}m_playerMoveStatus;
 
 	//ギミックにより操作不能のときのステータス
@@ -114,6 +120,21 @@ class Player : public KuroEngine::Debugger
 		NORMAL,
 		EXIT
 	}m_gimmickStatus;
+
+	//死亡演出のステータス
+	enum class DEATH_STATUS {
+		APPROACH,
+		STAY,
+		LEAVE,
+	}m_deathStatus;
+	int m_deathEffectTimer;
+	const int DEATH_EFFECT_APPROACH_TIMER = 30;
+	const int DEATH_EFFECT_STAY_TIMER = 30;
+	const int DEATH_EFFECT_FINISH_TIMER = 120;
+	float m_deathShakeAmount;
+	KuroEngine::Vec3<float> m_deathShake;
+	const float DEATH_SHAKE_AMOUNT = 3.0f;
+	const float SUB_DEATH_SHAKE_AMOUNT = 0.2f;
 
 	//プレイヤーのジャンプに関する変数
 	KuroEngine::Vec3<float> m_jumpStartPos;			//ジャンプ開始位置
@@ -137,6 +158,14 @@ class Player : public KuroEngine::Debugger
 	bool m_canZip;
 	std::vector<KuroEngine::Vec3<float>> m_gimmickExitPos;
 	std::vector<KuroEngine::Vec3<float>> m_gimmickExitNormal;
+
+	//死亡スプライト関連の変数
+	KuroEngine::Timer m_deathSpriteAnimTimer;		//死亡演出のアニメーションのタイマー
+	const float DEATH_SPRITE_TIMER = 4;			//アニメーションを切り替えるタイマー
+	int m_deathSpriteAnimNumber;					//アニメーションの連番番号
+	static const int DEATH_SPRITE_ANIM_COUNT = 10;	//アニメーションの数
+	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, DEATH_SPRITE_ANIM_COUNT> m_deathAnimSprite;
+	bool m_isFinishDeathAnimation;					//死亡時のアニメーションが終わったか。
 
 	//プレイヤーの大きさ（半径）
 	float GetPlayersRadius()
@@ -178,6 +207,7 @@ public:
 
 	//死亡フラグを取得。
 	bool GetIsDeath() { return m_isDeath; }
+	bool GetIsFinishDeathAnimation() { return m_isFinishDeathAnimation; }
 
 	//座標を返す系。
 	KuroEngine::Vec3<float> GetNowPos() { return m_transform.GetPosWorld(); }
@@ -192,7 +222,7 @@ public:
 	}
 
 private:
-	
+
 	//移動させる。
 	void Move(KuroEngine::Vec3<float>& arg_newPos);
 
@@ -201,6 +231,9 @@ private:
 
 	//ジップライン中の更新処理
 	void UpdateZipline();
+
+	//死亡中の更新処理
+	void UpdateDeath();
 
 };
 
