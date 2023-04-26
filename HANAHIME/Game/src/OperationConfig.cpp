@@ -109,3 +109,17 @@ KuroEngine::Vec3<float> OperationConfig::GetScopeMove()
 	if (!input.IsZero())RegisterLatestDevice(INPUT_DEVICE::CONTROLLER);
 	return result;
 }
+
+bool OperationConfig::InputDone()
+{
+	if (!m_isActive)return false;
+	bool doneFlag = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::XBOX_BUTTON::A);
+	return doneFlag;
+}
+
+bool OperationConfig::InputSelect()
+{
+	if (!m_isActive)return false;
+	bool doneFlag = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::XBOX_BUTTON::A);
+	return doneFlag;
+}

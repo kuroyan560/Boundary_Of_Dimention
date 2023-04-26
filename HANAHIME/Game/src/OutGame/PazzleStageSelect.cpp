@@ -4,6 +4,7 @@
 #include <cmath>
 #include <limits>
 #include <iostream>
+#include"../OperationConfig.h"
 
 PazzleStageSelect::PazzleStageSelect() :m_beatTimer(30), m_appearTimer(60), m_hideTiemr(60)
 {
@@ -257,12 +258,15 @@ void PazzleStageSelect::Update()
 	bool velFlag = mouseDeadLine <= abs(inputVel.x) ||
 		mouseDeadLine <= abs(inputVel.y) ||
 		mouseDeadLine <= abs(inputVel.z);
-	if (moveFlag && velFlag)
+
+	bool controllerFlag = KuroEngine::UsersInput::Instance()->GetRightStickVec(0).x != 0.0f || KuroEngine::UsersInput::Instance()->GetRightStickVec(0).y != 0.0f;
+
+	if ((moveFlag && velFlag) || controllerFlag)
 	{
 		m_previweFlag = true;
 	}
 
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE))
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::XBOX_BUTTON::A))
 	{
 		if (m_previweFlag)
 		{
