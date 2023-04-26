@@ -60,12 +60,17 @@ private:
 
 	struct StageData
 	{
+		KuroEngine::Vec2<float> m_pos;
 		bool m_isClearFlag;
 		bool enableFlag;	//遊べるステージかどうか
 		StageData() :m_isClearFlag(false)
 		{};
 	};
 	std::array<std::array<StageData, 30>, 1>m_stageSelectArray;
+	std::array<std::array<KuroEngine::Vec2<float>, 30>, 1>m_basePos;
+	std::array<std::array<KuroEngine::Vec2<float>, 30>, 1>m_nowPos;
+	std::array<std::array<float, 30>, 1>m_baseAlpha;
+	std::array<std::array<float, 30>, 1>m_nowAlpha;
 	KuroEngine::Vec2<int> m_nowStageNum;
 	int m_preStageNum;
 	KuroEngine::Vec2<float> m_prevContollerLeftStick;

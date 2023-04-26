@@ -110,26 +110,29 @@ void PazzleStageSelect::Update()
 	KuroEngine::Vec2<float> contollerLeftStickInput = KuroEngine::UsersInput::Instance()->GetLeftStickVecFuna(0);
 
 	const float DEADLINE = 0.8f;
-	bool isInputRightController = m_prevContollerLeftStick.x < DEADLINE &&DEADLINE < contollerLeftStickInput.x;
+	bool isInputRightController = m_prevContollerLeftStick.x < DEADLINE&& DEADLINE < contollerLeftStickInput.x;
 	bool selectFlag = false;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_D) || isInputRightController)
 	{
 		++m_nowStageNum.x;
 		selectFlag = true;
+
+		//選択した瞬間に選択中の数字のアルファ値を減らす。
+		m_nowAlpha[0][GetNumber()] = 0.0f;
 	}
-	bool isInputLeftController = -DEADLINE < m_prevContollerLeftStick.x &&contollerLeftStickInput.x < -DEADLINE;
+	bool isInputLeftController = -DEADLINE < m_prevContollerLeftStick.x&& contollerLeftStickInput.x < -DEADLINE;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_A) || isInputLeftController)
 	{
 		--m_nowStageNum.x;
 		selectFlag = true;
 	}
-	bool isInputUpController = -DEADLINE < m_prevContollerLeftStick.y &&contollerLeftStickInput.y < -DEADLINE;
+	bool isInputUpController = -DEADLINE < m_prevContollerLeftStick.y&& contollerLeftStickInput.y < -DEADLINE;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_W) || isInputUpController)
 	{
 		--m_nowStageNum.y;
 		selectFlag = true;
 	}
-	bool isInputDownController = m_prevContollerLeftStick.y < DEADLINE &&DEADLINE < contollerLeftStickInput.y;
+	bool isInputDownController = m_prevContollerLeftStick.y < DEADLINE&& DEADLINE < contollerLeftStickInput.y;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_S) || isInputDownController)
 	{
 		++m_nowStageNum.y;
@@ -220,7 +223,7 @@ void PazzleStageSelect::Update()
 	}
 
 
-	for (auto &obj : m_bandArray)
+	for (auto& obj : m_bandArray)
 	{
 		if (m_previweFlag)
 		{
@@ -344,7 +347,7 @@ void PazzleStageSelect::Update()
 		m_cameraTransform.SetRotaMatrix(matA);
 		m_cameraTransform.CalucuratePosRotaBasedOnWorldMatrix();
 
-		auto &transform = m_previewCamera->GetTransform();
+		auto& transform = m_previewCamera->GetTransform();
 		transform.SetParent(&m_cameraTransform);
 	}
 	else
@@ -355,6 +358,18 @@ void PazzleStageSelect::Update()
 	m_preMouseVel = inputVel;
 
 
+	//座標を補完する。
+	for (int y = 0; y < m_stageSelectArray.size(); ++y)
+	{
+		for (int x = 0; x < m_stageSelectArray[y].size(); ++x)
+		{
+
+			m_nowPos[y][x] += (m_basePos[y][x] - m_nowPos[y][x]) / 5.0f;
+			m_nowAlpha[y][x] += (m_baseAlpha[y][x] - m_nowAlpha[y][x]) / 10.0f;
+
+		}
+
+	}
 
 }
 
@@ -363,7 +378,7 @@ void PazzleStageSelect::Draw()
 	m_baseStageSelectPos = { 200.0f,64.0f };
 
 
-	for (auto &obj : m_bandArray)
+	for (auto& obj : m_bandArray)
 	{
 		obj->Draw();
 	}
@@ -404,10 +419,13 @@ void PazzleStageSelect::Draw()
 			if (isSelectingFlag)
 			{
 				m_nowNumTexArray = m_numMainTexArray;
-				size = { 1.8f,1.8f };
+				size = { 0.8f,0.8f };
 				digitsBetween = { 60.0f,0.0f };
 				basePos.y += 30.0f;
+
 			}
+
+
 			//桁の間を真ん中に持っていく処理
 			basePos -= { 15.0f, 0.0f };
 			//選択中の数字の裏に描画する為の座標を保存する
@@ -416,14 +434,17 @@ void PazzleStageSelect::Draw()
 			//選択中の数字を基準に全ての数字をずらす。
 			basePos.x -= GetNumber() * 128.0f;
 
+			m_basePos[y][x] = basePos;
+			m_baseAlpha[y][x] = numberAlpha;
+
 			//桁用意
 			std::vector<int>timeArray = CountNumber(stageNumber + 1);
-			KuroEngine::DrawFunc2D::DrawRotaGraph2D(basePos - m_hideVel, size, 0.0f, m_nowNumTexArray[timeArray[0]], numberAlpha);
-			KuroEngine::DrawFunc2D::DrawRotaGraph2D(basePos + digitsBetween - m_hideVel, size, 0.0f, m_nowNumTexArray[timeArray[1]], numberAlpha);
+			KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_nowPos[y][x] - m_hideVel, size, 0.0f, m_nowNumTexArray[timeArray[0]], m_nowAlpha[y][x]);
+			KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_nowPos[y][x] + digitsBetween - m_hideVel, size, 0.0f, m_nowNumTexArray[timeArray[1]], m_nowAlpha[y][x]);
+
 		}
 		yNum += static_cast<int>(m_stageSelectArray[y].size());
 	}
-
 
 	std::array<KuroEngine::Vec2<float>, 2>posArray;
 	KuroEngine::Vec2<float>offset(60.0f, 180.0f);
@@ -454,7 +475,7 @@ void PazzleStageSelect::Draw()
 	KuroEngine::Vec2<float>stageUIPos = KuroEngine::WinApp::Instance()->GetExpandWinCenter();
 	stageUIPos.x = 470.0f;
 	stageUIPos.y += 130.0f;
-	for (auto &uiTex : m_stageTex)
+	for (auto& uiTex : m_stageTex)
 	{
 		KuroEngine::DrawFunc2D::DrawRotaGraph2D(stageUIPos + m_hideVel * offsetVel, { 1.0f,1.0f }, 0.0f, uiTex.m_stageTex);
 		KuroEngine::DrawFunc2D::DrawRotaGraph2D(stageUIPos + KuroEngine::Vec2<float>(80.0f, 120.0f) + m_hideVel * offsetVel, { 1.0f,1.0f }, 0.0f, uiTex.m_subStageTex, 80.0f / 255.0f);
