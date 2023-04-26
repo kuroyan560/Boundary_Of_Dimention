@@ -11,6 +11,7 @@
 #include"Graphics/BasicDraw.h"
 #include"FrameWork/UsersInput.h"
 #include"Plant/GrowPlantLight.h"
+#include"TimeScaleMgr.h"
 
 GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_1flameStopTimer(30)
 {

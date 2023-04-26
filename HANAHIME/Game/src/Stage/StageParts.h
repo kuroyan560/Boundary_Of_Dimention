@@ -359,8 +359,8 @@ class IvyBlock : public StageParts
 	bool m_onPlayer;	//プレイヤーが乗っているか
 
 	//イージングタイマー系
-	int m_easingTimer;
-	const int EASING_TIMER = 30;
+	float m_easingTimer;
+	const float EASING_TIMER = 0.03f;
 
 	//消えているときの出現判定に使うサイズ
 	const float HIT_SCALE_MIN = 7.5f;

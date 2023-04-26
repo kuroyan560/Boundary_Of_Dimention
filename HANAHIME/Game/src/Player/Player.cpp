@@ -10,6 +10,7 @@
 #include"FrameWork/UsersInput.h"
 #include"../SoundConfig.h"
 #include"PlayerCollision.h"
+#include"../TimeScaleMgr.h"
 
 void Player::OnImguiItems()
 {
@@ -214,7 +215,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	{
 
 		//タイマーを更新。
-		m_jumpTimer = std::clamp(m_jumpTimer + JUMP_TIMER, 0.0f, 1.0f);
+		m_jumpTimer = std::clamp(m_jumpTimer + JUMP_TIMER * TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, 1.0f);
 
 		float easeAmount = KuroEngine::Math::Ease(Out, Sine, m_jumpTimer, 0.0f, 1.0f);
 
@@ -346,7 +347,7 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 	auto moveAmount = KuroEngine::Math::TransformVec3(m_moveSpeed, m_transform.GetRotate());
 
 	//移動量加算
-	arg_newPos += moveAmount;
+	arg_newPos += moveAmount * TimeScaleMgr::s_inGame.GetTimeScale();
 
 	//ギミックの移動量も加算。
 	arg_newPos += m_gimmickVel;

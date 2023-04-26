@@ -7,6 +7,7 @@
 #include"ForUser/DrawFunc/BillBoard/DrawFuncBillBoard.h"
 #include"../SoundConfig.h"
 #include"../Player/PlayerCollision.h"
+#include"../TimeScaleMgr.h"
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
@@ -298,10 +299,10 @@ void MoveScaffold::Update(Player& arg_player)
 	m_oldPos = m_nowPos;
 
 	//移動した量を保存。
-	m_nowMoveLength += MOVE_SPEED;
+	float moveSpeed = MOVE_SPEED * TimeScaleMgr::s_inGame.GetTimeScale();
+	m_nowMoveLength += moveSpeed;
 
 	//移動した量が規定値を超えていたら、終わった判定。
-	float moveSpeed = MOVE_SPEED;
 	bool isFinish = false;
 	if (m_moveLength < m_nowMoveLength) {
 
@@ -491,7 +492,7 @@ void Lever::Update(Player& arg_player)
 		}
 	}
 
-	m_modelAnimator->Update(1.0f);
+	m_modelAnimator->Update(TimeScaleMgr::s_inGame.GetTimeScale());
 }
 
 void Lever::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
@@ -651,7 +652,7 @@ void IvyBlock::Update(Player& arg_player)
 	m_prevOnPlayer = m_onPlayer;
 
 	//イージングタイマーを更新。
-	m_easingTimer = std::clamp(m_easingTimer + 1, 0, EASING_TIMER);
+	m_easingTimer = std::clamp(m_easingTimer + EASING_TIMER * TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, 1.0f);
 
 
 	m_collider.BuilCollisionMesh(m_model, m_transform);
@@ -659,7 +660,7 @@ void IvyBlock::Update(Player& arg_player)
 	//出現中だったら。
 	if (m_isAppear) {
 
-		float easingValue = static_cast<float>(m_easingTimer) / EASING_TIMER;
+		float easingValue = m_easingTimer;
 		easingValue = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, easingValue, 0.0f, 1.0f);
 
 		//スケーリング
@@ -669,7 +670,7 @@ void IvyBlock::Update(Player& arg_player)
 	}
 	else {
 
-		float easingValue = static_cast<float>(m_easingTimer) / EASING_TIMER;
+		float easingValue = m_easingTimer;
 		easingValue = KuroEngine::Math::Ease(KuroEngine::In, KuroEngine::Back, easingValue, 0.0f, 1.0f);
 
 		//スケーリング
