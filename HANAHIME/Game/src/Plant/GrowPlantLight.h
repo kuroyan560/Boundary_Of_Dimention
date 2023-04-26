@@ -45,6 +45,15 @@ public:
 
 	//Ží•Ê‚ÌƒQƒbƒ^
 	const TYPE& GetType()const { return m_type; }
+
+	void Active()
+	{
+		m_active = true;
+	};
+	void Disactive()
+	{
+		m_active = false;
+	};
 };
 
 //“_ŒõŒ¹

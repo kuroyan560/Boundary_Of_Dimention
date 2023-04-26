@@ -208,6 +208,11 @@ void GameScene::OnUpdate()
 		//ステージ選択画面ではギミックを作動させない
 		StageManager::Instance()->Update(m_player);
 	}
+	else
+	{
+		m_player.GetPointLig()->SetActive(false);
+		m_player.DisactiveLight();
+	}
 
 	m_gateSceneChange.Update();
 	m_movieCamera.Update();
@@ -218,6 +223,7 @@ void GameScene::OnUpdate()
 
 
 	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld(), *m_nowCam);
+
 }
 
 void GameScene::OnDraw()
@@ -263,7 +269,6 @@ void GameScene::OnDraw()
 	//KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 	//m_waterPaintBlend.Register(main, *nowCamera, ds);
 	//m_vignettePostEffect.Register(m_waterPaintBlend.GetResultTex());
-
 
 	//if (m_title.IsStartOP())
 	{

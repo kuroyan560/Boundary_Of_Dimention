@@ -186,6 +186,11 @@ public:
 	//ギミックによる移動を終わらせる。
 	void FinishGimmickMove();
 
+	void DisactiveLight()
+	{
+		m_growPlantPtLig.Disactive();
+	}
+
 private:
 	//レイとメッシュの当たり判定出力用構造体
 	struct MeshCollisionOutput {
