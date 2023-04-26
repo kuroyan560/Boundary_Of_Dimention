@@ -45,7 +45,7 @@ struct TransformData
 };
 
 //ƒ‰ƒ“ƒ_ƒ€
-float RandomIntInRange(float arg_minVal, float arg_maxVal, float arg_seed)
-{
-    return frac(sin(dot(float2(arg_seed, arg_seed + 1.0f), float2(12.9898f, 78.233f))) * 43758.5453f) * (arg_maxVal - arg_minVal + 1.0f) + arg_minVal;
+float RandomIntInRange(float arg_seed)
+{   
+    return frac(sin(dot(float2(arg_seed, arg_seed + 1.0f), float2(12.9898f, 78.233f))) * 43758.5453f);
 }
