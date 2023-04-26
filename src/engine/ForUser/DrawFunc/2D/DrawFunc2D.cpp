@@ -79,7 +79,7 @@ void KuroEngine::DrawFunc2D::DrawLine2D(const Vec2<float>& FromPos, const Vec2<f
 	};
 	LINE_VERTEX_BUFF[s_DrawLineCount]->Mapping(&vertex[0]);
 
-	KuroEngine::KuroEngineDevice::Instance()->Graphics().ObjectRender(LINE_VERTEX_BUFF[s_DrawLineCount], { {KuroEngine::KuroEngineDevice::Instance()->GetParallelMatProjBuff(), CBV} }, 0.0f, true);
+	KuroEngine::KuroEngineDevice::Instance()->Graphics().ObjectRender(LINE_VERTEX_BUFF[s_DrawLineCount], { {KuroEngine::KuroEngineDevice::Instance()->GetParallelMatProjBuff(), CBV} }, 0, true);
 
 	s_DrawLineCount++;
 }
@@ -159,7 +159,7 @@ void KuroEngine::DrawFunc2D::DrawBox2D(const Vec2<float>& LeftUpPos, const Vec2<
 		BOX_VERTEX_BUFF[s_DrawBoxCount]->Mapping(&vertex);
 
 		KuroEngine::KuroEngineDevice::Instance()->Graphics().ObjectRender(BOX_VERTEX_BUFF[s_DrawBoxCount],
-			{ {KuroEngine::KuroEngineDevice::Instance()->GetParallelMatProjBuff(),CBV} }, 0.0f, true);
+			{ {KuroEngine::KuroEngineDevice::Instance()->GetParallelMatProjBuff(),CBV} }, 0, true);
 
 		s_DrawBoxCount++;
 	}
@@ -247,7 +247,7 @@ void KuroEngine::DrawFunc2D::DrawCircle2D(const Vec2<float>& Center, const float
 
 	CIRCLE_VERTEX_BUFF[s_DrawCircleCount]->Mapping(&vertex);
 
-	KuroEngine::KuroEngineDevice::Instance()->Graphics().ObjectRender(CIRCLE_VERTEX_BUFF[s_DrawCircleCount], { {KuroEngine::KuroEngineDevice::Instance()->GetParallelMatProjBuff(),CBV} }, 0.0f, true);
+	KuroEngine::KuroEngineDevice::Instance()->Graphics().ObjectRender(CIRCLE_VERTEX_BUFF[s_DrawCircleCount], { {KuroEngine::KuroEngineDevice::Instance()->GetParallelMatProjBuff(),CBV} }, 0, true);
 
 	s_DrawCircleCount++;
 }
@@ -326,7 +326,7 @@ void KuroEngine::DrawFunc2D::DrawExtendGraph2D(const Vec2<float>& LeftUpPos, con
 		{
 			{KuroEngine::KuroEngineDevice::Instance()->GetParallelMatProjBuff(),CBV},
 			{Tex,SRV},
-		}, 0.0f, true);
+		}, 0, true);
 
 	s_DrawExtendGraphCount++;
 }
@@ -406,7 +406,7 @@ void KuroEngine::DrawFunc2D::DrawRotaGraph2D(const Vec2<float>& Center, const Ve
 		{
 			{KuroEngine::KuroEngineDevice::Instance()->GetParallelMatProjBuff(),CBV},
 			{Tex,SRV }
-		}, 0.0f, true);
+		}, 0, true);
 
 	s_DrawRotaGraphCount++;
 }
@@ -486,7 +486,7 @@ void KuroEngine::DrawFunc2D::DrawRadialWipeGraph2D(
 		{
 			{KuroEngine::KuroEngineDevice::Instance()->GetParallelMatProjBuff(),CBV},
 			{arg_tex,SRV }
-		}, 0.0f, 
+		}, 0, 
 		BlendMode == AlphaBlendMode_Trans);
 
 	s_DrawRadialWipeGraphCount++;

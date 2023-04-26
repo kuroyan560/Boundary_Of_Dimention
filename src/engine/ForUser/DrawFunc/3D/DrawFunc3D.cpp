@@ -61,7 +61,7 @@ void KuroEngine::DrawFunc3D::GenerateDrawLinePipeline(DXGI_FORMAT arg_format, co
 	}
 }
 
-void KuroEngine::DrawFunc3D::DrawLine(Camera& arg_cam, const Vec3<float>& arg_from, const Vec3<float>& arg_to, const Color& arg_lineColor, const float& arg_thickness, const AlphaBlendMode& arg_blendMode)
+void KuroEngine::DrawFunc3D::DrawLine(Camera& arg_cam, const Vec3<float>& arg_from, const Vec3<float>& arg_to, const Color& arg_lineColor, const float& arg_thickness, const AlphaBlendMode& arg_blendMode, const int& arg_layer)
 {
 	static std::vector<std::shared_ptr<VertexBuffer>>LINE_VERTEX_BUFF;
 
@@ -97,13 +97,13 @@ void KuroEngine::DrawFunc3D::DrawLine(Camera& arg_cam, const Vec3<float>& arg_fr
 		{
 			{arg_cam.GetBuff(),CBV}
 		},
-		center.z,
+		arg_layer,
 		true);
 
 	s_drawLineCount++;
 }
 
-void KuroEngine::DrawFunc3D::DrawNonShadingModel(const std::weak_ptr<Model> arg_model, const Matrix& arg_worldMat, float arg_depth, Camera& arg_camera, const float& arg_alpha, std::shared_ptr<ModelAnimator> arg_animator, const AlphaBlendMode& arg_blendMode)
+void KuroEngine::DrawFunc3D::DrawNonShadingModel(const std::weak_ptr<Model> arg_model, const Matrix& arg_worldMat, Camera& arg_camera, const float& arg_alpha, std::shared_ptr<ModelAnimator> arg_animator, const AlphaBlendMode& arg_blendMode, int arg_layer)
 {
 	static std::map<DXGI_FORMAT, std::array<std::shared_ptr<GraphicsPipeline>, AlphaBlendModeNum>>PIPELINE;
 	static std::vector<std::shared_ptr<ConstantBuffer>>DRWA_DATA_BUFF;
@@ -172,14 +172,14 @@ void KuroEngine::DrawFunc3D::DrawNonShadingModel(const std::weak_ptr<Model> arg_
 				{mesh.material->texBuff[COLOR_TEX],SRV},
 				{mesh.material->buff,CBV}
 			},
-			arg_depth,
+			arg_layer,
 			arg_blendMode == AlphaBlendMode_Trans);
 	}
 
 	s_drawNonShadingCount++;
 }
 
-void KuroEngine::DrawFunc3D::DrawNonShadingModel(const std::weak_ptr<Model> arg_model, const std::vector<Matrix>& arg_matArray, Camera& arg_cam, const AlphaBlendMode& arg_blendMode, const float& arg_depth, std::shared_ptr<ModelAnimator> arg_animator)
+void KuroEngine::DrawFunc3D::DrawNonShadingModel(const std::weak_ptr<Model> arg_model, const std::vector<Matrix>& arg_matArray, Camera& arg_cam, const AlphaBlendMode& arg_blendMode, const int& arg_layer, std::shared_ptr<ModelAnimator> arg_animator)
 {
 	if (INSTANCE_MAX < arg_matArray.size())assert(0);
 	if (arg_matArray.empty())return;
@@ -242,7 +242,7 @@ void KuroEngine::DrawFunc3D::DrawNonShadingModel(const std::weak_ptr<Model> arg_
 				{mesh.material->texBuff[COLOR_TEX],SRV},
 				{mesh.material->buff,CBV}
 			},
-			arg_depth,
+			arg_layer,
 			arg_blendMode == AlphaBlendMode_Trans,
 			static_cast<int>(arg_matArray.size()));
 	}
@@ -250,7 +250,7 @@ void KuroEngine::DrawFunc3D::DrawNonShadingModel(const std::weak_ptr<Model> arg_
 	s_drawNonShadingCountHuge++;
 }
 
-void KuroEngine::DrawFunc3D::DrawADSShadingModel(LightManager& arg_ligManager, const std::weak_ptr<Model> arg_model, Transform& arg_transform, Camera& arg_cam, std::shared_ptr<ModelAnimator> arg_animator, const AlphaBlendMode& arg_blendMode)
+void KuroEngine::DrawFunc3D::DrawADSShadingModel(LightManager& arg_ligManager, const std::weak_ptr<Model> arg_model, Transform& arg_transform, Camera& arg_cam, std::shared_ptr<ModelAnimator> arg_animator, const AlphaBlendMode& arg_blendMode, int arg_layer)
 {
 	static std::shared_ptr<GraphicsPipeline>PIPELINE[AlphaBlendModeNum];
 	static std::vector<std::shared_ptr<ConstantBuffer>>TRANSFORM_BUFF;
@@ -321,14 +321,14 @@ void KuroEngine::DrawFunc3D::DrawADSShadingModel(LightManager& arg_ligManager, c
 				{mesh.material->texBuff[NORMAL_TEX],SRV},
 				{mesh.material->buff,CBV}
 			},
-			arg_transform.GetPos().z,
+			arg_layer,
 			true);
 	}
 
 	s_drawAdsShadingCount++;
 }
 
-void KuroEngine::DrawFunc3D::DrawPBRShadingModel(LightManager& arg_ligManager, const std::weak_ptr<Model> arg_model, Transform& arg_transform, Camera& arg_cam, std::shared_ptr<ModelAnimator> arg_animator, std::shared_ptr<CubeMap>arg_attachCubeMap, const AlphaBlendMode& arg_blendMode)
+void KuroEngine::DrawFunc3D::DrawPBRShadingModel(LightManager& arg_ligManager, const std::weak_ptr<Model> arg_model, Transform& arg_transform, Camera& arg_cam, std::shared_ptr<ModelAnimator> arg_animator, std::shared_ptr<CubeMap>arg_attachCubeMap, const AlphaBlendMode& arg_blendMode, int arg_layer)
 {
 	static std::shared_ptr<GraphicsPipeline>PIPELINE[AlphaBlendModeNum];
 	static std::vector<std::shared_ptr<ConstantBuffer>>TRANSFORM_BUFF;
@@ -411,14 +411,14 @@ void KuroEngine::DrawFunc3D::DrawPBRShadingModel(LightManager& arg_ligManager, c
 				{mesh.material->texBuff[ROUGHNESS_TEX],SRV},
 				{mesh.material->buff,CBV},
 			},
-			arg_transform.GetPos().z,
+			arg_layer,
 			true);
 	}
 
 	s_drawPbrShadingCount++;
 }
 
-void KuroEngine::DrawFunc3D::DrawToonModel(const std::weak_ptr<TextureBuffer> arg_toonTex, LightManager& arg_ligManager, const std::weak_ptr<Model> arg_model, Transform& arg_transform, Camera& arg_cam, const AlphaBlendMode& arg_blendMode)
+void KuroEngine::DrawFunc3D::DrawToonModel(const std::weak_ptr<TextureBuffer> arg_toonTex, LightManager& arg_ligManager, const std::weak_ptr<Model> arg_model, Transform& arg_transform, Camera& arg_cam, const AlphaBlendMode& arg_blendMode, int arg_layer)
 {
 	static std::shared_ptr<GraphicsPipeline>PIPELINE[AlphaBlendModeNum];
 	static std::vector<std::shared_ptr<ConstantBuffer>>TRANSFORM_BUFF;
@@ -487,14 +487,14 @@ void KuroEngine::DrawFunc3D::DrawToonModel(const std::weak_ptr<TextureBuffer> ar
 				{arg_toonTex.lock(),SRV},
 				{mesh.material->buff,CBV}
 			},
-			arg_transform.GetPos().z,
+			arg_layer,
 			true);
 	}
 
 	s_drawToonCount++;
 }
 
-void KuroEngine::DrawFunc3D::DrawNonShadingPlane(const std::weak_ptr<TextureBuffer> arg_tex, Transform& arg_transform, Camera& arg_camera, const float& arg_alpha, const Vec2<bool>& arg_mirror, AlphaBlendMode arg_blendMode)
+void KuroEngine::DrawFunc3D::DrawNonShadingPlane(const std::weak_ptr<TextureBuffer> arg_tex, Transform& arg_transform, Camera& arg_camera, const float& arg_alpha, const Vec2<bool>& arg_mirror, AlphaBlendMode arg_blendMode, int arg_layer)
 {
 	static std::shared_ptr<GraphicsPipeline>PIPELINE[AlphaBlendModeNum];
 	static std::vector<std::shared_ptr<VertexBuffer>>VERTEX_BUFF;
@@ -570,7 +570,7 @@ void KuroEngine::DrawFunc3D::DrawNonShadingPlane(const std::weak_ptr<TextureBuff
 			{arg_camera.GetBuff(),CBV},
 			{arg_tex.lock(),SRV},
 		},
-		arg_transform.GetPos().z,
+		arg_layer,
 		arg_alpha != 1.0f);
 
 	s_drawNonShadingPlaneCount++;

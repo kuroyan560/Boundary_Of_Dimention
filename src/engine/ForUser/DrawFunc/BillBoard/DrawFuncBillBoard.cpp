@@ -55,7 +55,7 @@ void KuroEngine::DrawFuncBillBoard::PrepareGraphVertBuff(int arg_num)
 	}
 }
 
-void KuroEngine::DrawFuncBillBoard::Box(Camera& Cam, const Vec3<float>& Pos, const Vec2<float>& Size, const Color& BoxColor, const AlphaBlendMode& BlendMode)
+void KuroEngine::DrawFuncBillBoard::Box(Camera& Cam, const Vec3<float>& Pos, const Vec2<float>& Size, const Color& BoxColor, const AlphaBlendMode& BlendMode, const int& arg_layer)
 {
 	static std::vector<std::shared_ptr<VertexBuffer>>s_boxVertBuff;
 	static std::shared_ptr<TextureBuffer>s_defaultTex = D3D12App::Instance()->GenerateTextureBuffer(Color());
@@ -79,13 +79,13 @@ void KuroEngine::DrawFuncBillBoard::Box(Camera& Cam, const Vec3<float>& Pos, con
 			{Cam.GetBuff(),CBV},
 			{s_defaultTex,SRV}
 		},
-		Pos.z,
+		arg_layer,
 		true);
 
 	s_drawBoxCount++;
 }
 
-void KuroEngine::DrawFuncBillBoard::Graph(Camera& Cam, const Vec3<float>& Pos, const Vec2<float>& Size, std::shared_ptr<TextureBuffer> Tex, const AlphaBlendMode& BlendMode)
+void KuroEngine::DrawFuncBillBoard::Graph(Camera& Cam, const Vec3<float>& Pos, const Vec2<float>& Size, std::shared_ptr<TextureBuffer> Tex, const AlphaBlendMode& BlendMode, const int& arg_layer)
 {
 	const auto targetFormat = KuroEngine::KuroEngineDevice::Instance()->Graphics().GetRecentRenderTargetFormat(0);
 	GeneratePipeline(targetFormat, BlendMode);
@@ -106,7 +106,7 @@ void KuroEngine::DrawFuncBillBoard::Graph(Camera& Cam, const Vec3<float>& Pos, c
 			{Cam.GetBuff(),CBV},
 			{Tex,SRV}
 		},
-		Pos.z,
+		arg_layer,
 		true);
 
 	s_drawGraphCount++;

@@ -43,7 +43,7 @@ std::shared_ptr<KuroEngine::GraphicsPipeline> KuroEngine::CollisionPrimitive::Ge
 	return PIPELINE;
 }
 
-void KuroEngine::CollisionPoint::DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat, const float& arg_depth)
+void KuroEngine::CollisionPoint::DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat)
 {
 	KuroEngine::DrawFuncBillBoard::Box(arg_cam, GetWorldPos(arg_parentMat), {0.4f,0.4f }, arg_hit ? Color(1.0f, 0.0f, 0.0f, 1.0f) : Color());
 }
@@ -79,14 +79,14 @@ bool KuroEngine::CollisionPoint::HitCheck(const Matrix& arg_myMat, const Matrix&
 	return false;
 }
 
-void KuroEngine::CollisionLine::DebugDraw(const bool& Hit, Camera& Cam, const Matrix& arg_parentMat, const float& arg_depth)
+void KuroEngine::CollisionLine::DebugDraw(const bool& Hit, Camera& Cam, const Matrix& arg_parentMat)
 {
 	auto startPos = GetStartWorldPos(arg_parentMat);
 	auto endPos = GetEndWorldPos(arg_parentMat);
 	KuroEngine::DrawFunc3D::DrawLine(Cam, startPos, endPos, Hit ? Color(1, 0, 0, 1) : Color(), 0.01f);
 }
 
-void KuroEngine::CollisionSphere::DebugDraw(const bool& Hit,Camera& Cam, const Matrix& arg_parentMat, const float& arg_depth)
+void KuroEngine::CollisionSphere::DebugDraw(const bool& Hit,Camera& Cam, const Matrix& arg_parentMat)
 {
 	static std::shared_ptr<VertexBuffer>vertBuff;
 	static std::shared_ptr<IndexBuffer>idxBuff;
@@ -155,7 +155,7 @@ void KuroEngine::CollisionSphere::DebugDraw(const bool& Hit,Camera& Cam, const M
 			{Cam.GetBuff(),CBV},
 			{m_constBuff,CBV }
 		}, 
-		arg_depth,
+		0,
 		true);
 }
 
@@ -361,7 +361,7 @@ bool KuroEngine::CollisionSphere::HitCheck(const Matrix& arg_myMat, const Matrix
 	return false;
 }
 
-void KuroEngine::CollisionAABB::DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat, const float& arg_depth)
+void KuroEngine::CollisionAABB::DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat)
 {
 	static std::shared_ptr<IndexBuffer>INDEX_BUFF;
 	if (!INDEX_BUFF)
@@ -398,7 +398,7 @@ void KuroEngine::CollisionAABB::DebugDraw(const bool& arg_hit, Camera& arg_cam, 
 			{arg_cam.GetBuff(),CBV},
 			{m_constBuff,CBV },
 		}, 
-		arg_depth, 
+		0, 
 		true);
 }
 
@@ -545,7 +545,7 @@ void KuroEngine::CollisionMesh::SetTriangles(const std::vector<CollisionTriangle
 
 }
 
-void KuroEngine::CollisionMesh::DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat, const float& arg_depth)
+void KuroEngine::CollisionMesh::DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat)
 {
 	static std::shared_ptr<GraphicsPipeline>PIPELINE;
 	if (!PIPELINE)
@@ -591,6 +591,6 @@ void KuroEngine::CollisionMesh::DebugDraw(const bool& arg_hit, Camera& arg_cam, 
 			{arg_cam.GetBuff(),CBV},
 			{m_constBuff,CBV }
 		}, 
-		arg_depth, 
+		0, 
 		true);
 }

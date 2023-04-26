@@ -140,7 +140,7 @@ void KuroEngine::DrawFunc2D_Shadow::DrawExtendGraph2D(LightManager& LigManager, 
 	};
 
 	KuroEngine::KuroEngineDevice::Instance()->Graphics().ObjectRender(EXTEND_GRAPH_VERTEX_BUFF[s_drawExtendGraphCount],
-		descDatas, 0.0f, true);
+		descDatas, 0, true);
 
 	s_drawExtendGraphCount++;
 }
@@ -238,7 +238,7 @@ void KuroEngine::DrawFunc2D_Shadow::DrawRotaGraph2D(LightManager& LigManager, co
 			{normalMap,SRV},
 			{emissiveMap,SRV}
 		},
-		0.0f, true);
+		0, true);
 
 	s_drawRotaGraphCount++;
 }

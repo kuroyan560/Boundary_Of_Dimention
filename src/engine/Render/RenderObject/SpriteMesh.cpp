@@ -102,5 +102,5 @@ void KuroEngine::SpriteMesh::Render(const std::vector<RegisterDescriptorData>& D
 		SendBuff();
 	}
 
-	KuroEngine::KuroEngineDevice::Instance()->Graphics().ObjectRender(mesh->vertBuff, DescDatas, zLayer, trans, InstanceNum);
+	KuroEngine::KuroEngineDevice::Instance()->Graphics().ObjectRender(mesh->vertBuff, DescDatas, drawLayer, trans, InstanceNum);
 }

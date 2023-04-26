@@ -39,7 +39,7 @@ namespace KuroEngine
 		CollisionPrimitive(const CollisionPrimitive& arg) = delete;
 
 		//当たり判定の可視化
-		virtual void DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat, const float& arg_depth) {};
+		virtual void DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat) {};
 
 		/*
 		ダブルディスパッチでプリミティブ形状判定して関数呼び出し
@@ -68,7 +68,7 @@ namespace KuroEngine
 	{
 	private:
 		std::shared_ptr<ConstantBuffer>m_constBuff;
-		void DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat, const float& arg_depth)override;
+		void DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat)override;
 		bool HitCheck(const Matrix& arg_myMat, const Matrix& arg_otherMat, CollisionFloorMesh* arg_other, CollisionResultInfo* arg_info)override;
 
 	public:
@@ -95,7 +95,7 @@ namespace KuroEngine
 	class CollisionLine : public CollisionPrimitive
 	{
 	private:
-		void DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat, const float& arg_depth)override;
+		void DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat)override;
 
 	public:
 		//始点座標
@@ -138,7 +138,7 @@ namespace KuroEngine
 
 	private:
 		std::shared_ptr<ConstantBuffer>m_constBuff;
-		void DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat, const float& arg_depth)override;
+		void DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat)override;
 
 		bool HitCheck(const Matrix& arg_myMat, const Matrix& arg_otherMat, CollisionSphere* arg_other, CollisionResultInfo* arg_info)override;
 		bool HitCheck(const Matrix& arg_myMat, const Matrix& arg_otherMat, CollisionPlane* arg_other, CollisionResultInfo* arg_info)override;
@@ -176,7 +176,7 @@ namespace KuroEngine
 		friend class Collision;
 
 	private:
-		void DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat, const float& arg_depth)override;
+		void DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat)override;
 
 	public:
 		Vec3<float>m_normal = { 0,1,0 };	//板ポリの法線
@@ -205,7 +205,7 @@ namespace KuroEngine
 
 	private:
 		std::shared_ptr<ConstantBuffer>m_constBuff;
-		void DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat, const float& arg_depth)override;
+		void DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat)override;
 
 	public:
 		Vec3<float>m_offset;
@@ -240,7 +240,7 @@ namespace KuroEngine
 
 	private:
 		std::shared_ptr<ConstantBuffer>m_constBuff;
-		void DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat, const float& arg_depth)override;
+		void DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat)override;
 
 		bool HitCheck(const Matrix& arg_myMat, const Matrix& arg_otherMat, CollisionSphere* arg_other, CollisionResultInfo* arg_info)override
 		{
@@ -341,7 +341,7 @@ namespace KuroEngine
 		{
 			return this->HitCheckDispatch(arg_myMat, arg_otherMat, arg_other, arg_info);
 		}
-		void DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat, const float& arg_depth)override;
+		void DebugDraw(const bool& arg_hit, Camera& arg_cam, const Matrix& arg_parentMat)override;
 
 	public:
 		CollisionMesh(const std::vector<CollisionTriangle>& Triangles)

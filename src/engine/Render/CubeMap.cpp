@@ -251,7 +251,7 @@ void KuroEngine::StaticallyCubeMap::Draw(Camera& Cam)
 				{m_transformBuff,CBV},
 				{s.m_tex,SRV}
 			},
-			m_sideLength * 0.5f,
+			0,
 			false);
 	}
 }
@@ -392,7 +392,7 @@ void KuroEngine::DynamicCubeMap::Clear()
 	m_cubeDepth->Clear(D3D12App::Instance()->GetCmdList());
 }
 
-void KuroEngine::DynamicCubeMap::DrawToCubeMap(LightManager& LigManager, const std::vector<std::weak_ptr<ModelObject>>& ModelObject)
+void KuroEngine::DynamicCubeMap::DrawToCubeMap(LightManager& LigManager, const std::vector<std::weak_ptr<ModelObject>>& ModelObject, int Layer)
 {
 	static std::shared_ptr<GraphicsPipeline>PIPELINE;
 
@@ -457,7 +457,7 @@ void KuroEngine::DynamicCubeMap::DrawToCubeMap(LightManager& LigManager, const s
 					{mesh.material->texBuff[ROUGHNESS_TEX],SRV},
 					{mesh.material->buff,CBV},
 				},
-				m->m_transform.GetPos().z,
+				Layer,
 				true);
 		}
 	}

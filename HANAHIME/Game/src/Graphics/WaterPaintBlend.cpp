@@ -279,7 +279,7 @@ void WaterPaintBlend::Register(std::shared_ptr<KuroEngine::TextureBuffer> arg_ba
 	KuroEngineDevice::Instance()->Graphics().ObjectRender(
 		s_maskInkPolygon,
 		maskInkDescData_Graphics,
-		0.0f,
+		0,
 		true,
 		*aliveInkCountPtr);
 

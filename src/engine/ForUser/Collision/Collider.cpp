@@ -68,8 +68,7 @@ void KuroEngine::Collider::DebugDraw(Camera& Cam)
 	for (auto& primitive : m_primitiveArray)
 	{
 		primitive->DebugDraw(m_isHit, Cam,
-			this->GetTransformMat(),
-			this->GetDepth());
+			this->GetTransformMat());
 	}
 }
 

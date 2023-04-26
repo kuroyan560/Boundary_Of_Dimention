@@ -699,7 +699,6 @@ void IvyBlock::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_l
 		arg_ligMgr,
 		m_model.lock(),
 		m_transform);
-
 	
 	KuroEngine::Transform invisibleTrans = m_transform;
 	invisibleTrans.SetScale(HIT_SCALE_MIN);
@@ -710,7 +709,9 @@ void IvyBlock::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_l
 			arg_ligMgr,
 			m_nonExistModel,
 			invisibleTrans,
-			KuroEngine::AlphaBlendMode_Trans);
+			KuroEngine::AlphaBlendMode_Trans,
+			nullptr,
+			1);
 	}
 }
 

@@ -294,7 +294,6 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		KuroEngine::DrawFunc3D::DrawNonShadingModel(
 			m_camModel,
 			camTransform.GetMatWorld(),
-			camTransform.GetPos().z,
 			arg_cam);
 	}
 }

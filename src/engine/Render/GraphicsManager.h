@@ -92,25 +92,25 @@ namespace KuroEngine
 			const int m_instanceNum = 1;	//インスタンス数（インスタンシング描画用）
 
 		public:
-			const float m_depth = 0.0f;	//Zソート用
+			int m_layer = 0;	//レイヤー（増えると描画が後回しに）
 			const bool m_trans = false;	//透過オブジェクト
 
 			//インデックスなし
 			RenderCommand(const std::weak_ptr<VertexBuffer>& VertexBuff,
 				const std::vector<RegisterDescriptorData>& DescDatas,
-				const float& Depth,
+				const int& Layer,
 				const bool& TransFlg,
 				const int& InstanceNum = 1)
-				:m_vertexBuff(VertexBuff), m_registerDescDatas(DescDatas), m_depth(Depth), m_trans(TransFlg), m_instanceNum(InstanceNum) {}
+				:m_vertexBuff(VertexBuff), m_registerDescDatas(DescDatas), m_layer(Layer), m_trans(TransFlg), m_instanceNum(InstanceNum) {}
 
 			//インデックスあり
 			RenderCommand(const std::weak_ptr<VertexBuffer>& VertexBuff,
 				const std::weak_ptr<IndexBuffer>& IndexBuff,
 				const std::vector<RegisterDescriptorData>& DescDatas,
-				const float& Depth,
+				const int& Layer,
 				const bool& TransFlg,
 				const int& InstanceNum = 1)
-				:m_vertexBuff(VertexBuff), m_idxBuff(IndexBuff), m_registerDescDatas(DescDatas), m_depth(Depth), m_trans(TransFlg), m_instanceNum(InstanceNum) {}
+				:m_vertexBuff(VertexBuff), m_idxBuff(IndexBuff), m_registerDescDatas(DescDatas), m_layer(Layer), m_trans(TransFlg), m_instanceNum(InstanceNum) {}
 			void Execute(const ComPtr<ID3D12GraphicsCommandList>& CmdList)override;
 		};
 
@@ -215,12 +215,12 @@ namespace KuroEngine
 		//オブジェクトのレンダリングコマンド積み上げ（インデックスなし）
 		void ObjectRender(std::weak_ptr<VertexBuffer> VertexBuff,
 			std::vector<RegisterDescriptorData> DescDatas,
-			const float& Depth, const bool& TransFlg, const int& InstanceNum = 1);
+			const int& Layer, const bool& TransFlg, const int& InstanceNum = 1);
 
 		//オブジェクトのレンダリングコマンド積み上げ（インデックスなし）
 		void ObjectRender(std::weak_ptr<VertexBuffer> VertexBuff, std::weak_ptr<IndexBuffer> IndexBuff,
 			std::vector<RegisterDescriptorData> DescDatas,
-			const float& Depth, const bool& TransFlg, const int& InstanceNum = 1);
+			const int& Layer, const bool& TransFlg, const int& InstanceNum = 1);
 
 		//ディスパッチコマンド積み上げ
 		void Dispatch(const Vec3<int>& ThreadNum, std::vector<RegisterDescriptorData> DescDatas);
