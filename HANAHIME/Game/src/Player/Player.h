@@ -130,7 +130,7 @@ class Player : public KuroEngine::Debugger
 	int m_deathEffectTimer;
 	const int DEATH_EFFECT_APPROACH_TIMER = 30;
 	const int DEATH_EFFECT_STAY_TIMER = 30;
-	const int DEATH_EFFECT_FINISH_TIMER = 120;
+	const int DEATH_EFFECT_FINISH_TIMER = 150;
 	float m_deathShakeAmount;
 	KuroEngine::Vec3<float> m_deathShake;
 	const float DEATH_SHAKE_AMOUNT = 3.0f;

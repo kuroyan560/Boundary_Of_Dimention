@@ -2256,6 +2256,12 @@ void PlayerCollision::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp,
 			m_refPlayer->m_cameraJumpLerpAmount -= DirectX::XM_PIDIV2;
 
 		}
+		//è„ÇÃï«Ç…à⁄ìÆÇµÇΩÇÁ
+		if (arg_nextUp.y  <= -0.9f) {
+
+			m_refPlayer->m_cameraJumpLerpAmount -= DirectX::XM_PI;
+
+		}
 
 	}
 
@@ -2290,6 +2296,11 @@ void PlayerCollision::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp,
 		if (0.9f <= arg_nextUp.x) {
 
 			m_refPlayer->m_cameraJumpLerpAmount += DirectX::XM_PI;
+
+		}
+		if (arg_nextUp.z <= -0.9f) {
+
+			m_refPlayer->m_cameraJumpLerpAmount -= DirectX::XM_PI;
 
 		}
 
