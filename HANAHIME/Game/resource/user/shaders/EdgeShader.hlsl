@@ -104,7 +104,7 @@ float4 PSmain(VSOutput input) : SV_TARGET
     
     // 自身の深度値と近傍8テクセルの深度値の差を調べる
     // 法線が異なる　かつ　深度値が結構違う場合はエッジ出力
-    if (!sameNormal || m_edgeParam.m_depthThreshold <= depthDiffer)
+    if (!sameNormal && m_edgeParam.m_depthThreshold <= depthDiffer)
     {
         //一番手前側のエッジカラーを採用する
         return g_edgeColorMap.Sample(g_sampler, nearestUv);
