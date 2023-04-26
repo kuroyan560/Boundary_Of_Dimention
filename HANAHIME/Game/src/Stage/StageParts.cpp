@@ -615,9 +615,7 @@ void IvyZipLine::Update(Player& arg_player)
 				m_nextTranslationIndex = m_maxTranslation;
 				m_isActive = false;
 				arg_player.m_collision.FinishGimmickMove();
-
 			}
-
 		}
 		//負の方向に進むフラグだったら
 		else {
@@ -645,6 +643,20 @@ void IvyZipLine::Update(Player& arg_player)
 
 }
 
+IvyBlock::IvyBlock(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent, KuroEngine::Vec3<float> arg_leftTopFront, KuroEngine::Vec3<float> arg_rightBottomBack)
+	:StageParts(IVY_BLOCK, arg_model, arg_initTransform, arg_parent), m_leftTopFront(arg_leftTopFront), m_rightBottomBack(arg_rightBottomBack) 
+{
+	m_collider.BuilCollisionMesh(arg_model, arg_initTransform);
+	OnInit();
+	m_nonExistModel = std::shared_ptr<KuroEngine::Model>(new KuroEngine::Model(*arg_model.lock()));
+	m_nonExistMaterial = std::shared_ptr<KuroEngine::Material>(new KuroEngine::Material(*arg_model.lock()->m_meshes[0].material));
+	m_nonExistMaterial->texBuff[KuroEngine::MATERIAL_TEX_TYPE::COLOR_TEX] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/invisibleIvyBlock.png");
+	for (auto& mesh : m_nonExistModel->m_meshes)
+	{
+		mesh.material = m_nonExistMaterial;
+	}
+}
+
 void IvyBlock::Update(Player& arg_player)
 {
 
@@ -663,8 +675,8 @@ void IvyBlock::Update(Player& arg_player)
 		easingValue = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, easingValue, 0.0f, 1.0f);
 
 		//スケーリング
-		float scale = HIT_SCALE_MIN * easingValue;
-		m_transform.SetScale(KuroEngine::Vec3<float>(scale, scale, scale));
+		auto scale = HIT_SCALE_MIN * easingValue;
+		m_transform.SetScale(scale);
 
 	}
 	else {
@@ -673,8 +685,8 @@ void IvyBlock::Update(Player& arg_player)
 		easingValue = KuroEngine::Math::Ease(KuroEngine::In, KuroEngine::Back, easingValue, 0.0f, 1.0f);
 
 		//スケーリング
-		float scale = HIT_SCALE_MIN - HIT_SCALE_MIN * easingValue;
-		m_transform.SetScale(KuroEngine::Vec3<float>(scale, scale, scale));
+		auto scale = HIT_SCALE_MIN - HIT_SCALE_MIN * easingValue;
+		m_transform.SetScale(scale);
 
 	}
 
@@ -682,9 +694,24 @@ void IvyBlock::Update(Player& arg_player)
 
 void IvyBlock::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
+	BasicDraw::Instance()->Draw(
+		arg_cam,
+		arg_ligMgr,
+		m_model.lock(),
+		m_transform);
 
-	StageParts::Draw(arg_cam, arg_ligMgr);
-
+	
+	KuroEngine::Transform invisibleTrans = m_transform;
+	invisibleTrans.SetScale(HIT_SCALE_MIN);
+	if (!m_isAppear && EASING_TIMER <= m_easingTimer)
+	{
+		BasicDraw::Instance()->Draw(
+			arg_cam,
+			arg_ligMgr,
+			m_nonExistModel,
+			invisibleTrans,
+			KuroEngine::AlphaBlendMode_Trans);
+	}
 }
 
 void IvyBlock::Appear()

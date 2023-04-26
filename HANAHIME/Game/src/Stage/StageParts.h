@@ -347,6 +347,12 @@ public:
 //蔓ブロック（消えたり出現したりするブロック）
 class IvyBlock : public StageParts
 {
+	//消失している間に描画するモデル
+	std::shared_ptr<KuroEngine::Model>m_nonExistModel;
+	//消失している間に描画するモデルのマテリアル
+	std::shared_ptr<KuroEngine::Material>m_nonExistMaterial;
+
+
 	//ブロックの左上手前座標
 	KuroEngine::Vec3<float>m_leftTopFront;
 	//ブロックの右下奥座標
@@ -362,16 +368,11 @@ class IvyBlock : public StageParts
 	int m_easingTimer;
 	const int EASING_TIMER = 30;
 
-	//消えているときの出現判定に使うサイズ
 	const float HIT_SCALE_MIN = 7.5f;
 	const float HIT_SCALE_MAX = 15.5f;
 
 public:
-	IvyBlock(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent, KuroEngine::Vec3<float>arg_leftTopFront, KuroEngine::Vec3<float>arg_rightBottomBack)
-		:StageParts(IVY_BLOCK, arg_model, arg_initTransform, arg_parent), m_leftTopFront(arg_leftTopFront), m_rightBottomBack(arg_rightBottomBack) {
-		m_collider.BuilCollisionMesh(arg_model, arg_initTransform);
-		OnInit();
-	}
+	IvyBlock(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent, KuroEngine::Vec3<float>arg_leftTopFront, KuroEngine::Vec3<float>arg_rightBottomBack);
 
 	void Update(Player& arg_player)override;
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
@@ -384,7 +385,6 @@ public:
 		m_easingTimer = EASING_TIMER;
 
 		m_collider.BuilCollisionMesh(m_model, m_transform);
-
 	}
 
 	void Appear();
@@ -398,7 +398,6 @@ public:
 	//座標を取得
 	KuroEngine::Vec3<float> GetPos() { return m_transform.GetPosWorld(); }
 
-	//当たり判定用スケールを返す。
 	float GetHitScaleMin() { return HIT_SCALE_MIN; }
 	float GetHitScaleMax() { return HIT_SCALE_MAX; }
 
