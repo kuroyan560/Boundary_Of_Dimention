@@ -207,6 +207,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Stage\StageParts.cpp" />
     <ClCompile Include="src\Stage\HomeStageSelect.cpp" />
     <ClCompile Include="src\Stage\Switch.cpp" />
+    <ClCompile Include="src\TimeScaleMgr.cpp" />
     <ClCompile Include="src\Tutorial.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -326,6 +327,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Stage\StageParts.h" />
     <ClInclude Include="src\Stage\HomeStageSelect.h" />
     <ClInclude Include="src\Stage\Switch.h" />
+    <ClInclude Include="src\TimeScaleMgr.h" />
     <ClInclude Include="src\Tutorial.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
