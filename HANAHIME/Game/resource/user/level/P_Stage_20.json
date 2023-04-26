@@ -1,0 +1,472 @@
+{
+    "stage": {
+        "name": "scene",
+        "objects": [
+            {
+                "type": "Start",
+                "name": "Start_20",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        6.5
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Start"
+            },
+            {
+                "type": "Goal",
+                "name": "Goal_20",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        -0.0,
+                        -1.0,
+                        -0.0,
+                        4.371138828673793e-08
+                    ],
+                    "scaling": [
+                        0.10000000149011612,
+                        0.10000000149011612,
+                        0.10000000149011612
+                    ]
+                },
+                "file_name": "Goal",
+                "leverID": 7
+            },
+            {
+                "type": "Terrian",
+                "name": "Stage20_0",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "Stage20"
+            },
+            {
+                "type": "IvyBlock",
+                "name": "IvyBlock_0.002",
+                "transform": {
+                    "translation": [
+                        20.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "IvyBlock",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -1.0,
+                        -1.0
+                    ]
+                }
+            },
+            {
+                "type": "IvyBlock",
+                "name": "IvyBlock_0.003",
+                "transform": {
+                    "translation": [
+                        30.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "IvyBlock",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -1.0,
+                        -1.0
+                    ]
+                }
+            },
+            {
+                "type": "IvyBlock",
+                "name": "IvyBlock_0.004",
+                "transform": {
+                    "translation": [
+                        10.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "IvyBlock",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -1.0,
+                        -1.0
+                    ]
+                }
+            },
+            {
+                "type": "IvyBlock",
+                "name": "IvyBlock_0.005",
+                "transform": {
+                    "translation": [
+                        20.0,
+                        0.0,
+                        -22.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "IvyBlock",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -1.0,
+                        -1.0
+                    ]
+                }
+            },
+            {
+                "type": "IvyBlock",
+                "name": "IvyBlock_0.006",
+                "transform": {
+                    "translation": [
+                        30.0,
+                        0.0,
+                        -22.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "IvyBlock",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -1.0,
+                        -1.0
+                    ]
+                }
+            },
+            {
+                "type": "IvyBlock",
+                "name": "IvyBlock_0.007",
+                "transform": {
+                    "translation": [
+                        10.0,
+                        0.0,
+                        -22.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "IvyBlock",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -1.0,
+                        -1.0
+                    ]
+                }
+            },
+            {
+                "type": "MoveScaffold",
+                "name": "MoveScaffoldStage20_0",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        -10.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "MoveScaffoldStage20",
+                "translationArray": {
+                    "translation_0": [
+                        0.0,
+                        -10.0,
+                        -42.0
+                    ],
+                    "translation_1": [
+                        40.0,
+                        -10.0,
+                        -42.0
+                    ]
+                }
+            },
+            {
+                "type": "Lever",
+                "name": "Lever20_0",
+                "transform": {
+                    "translation": [
+                        45.0,
+                        10.0,
+                        8.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.7071068286895752,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Lever",
+                "id": 7,
+                "initFlg": false
+            },
+            {
+                "type": "Lever",
+                "name": "Lever20_1",
+                "transform": {
+                    "translation": [
+                        45.0,
+                        10.0,
+                        -32.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.7071068286895752,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Lever",
+                "id": 7,
+                "initFlg": false
+            },
+            {
+                "type": "Lever",
+                "name": "Lever20_2",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        5.0,
+                        -12.0
+                    ],
+                    "rotation": [
+                        0.7071068286895752,
+                        0.0,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Lever",
+                "id": 7,
+                "initFlg": false
+            },
+            {
+                "type": "Lever",
+                "name": "Lever20_3",
+                "transform": {
+                    "translation": [
+                        45.0,
+                        -10.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.7071068286895752,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Lever",
+                "id": 7,
+                "initFlg": false
+            },
+            {
+                "type": "Lever",
+                "name": "Lever20_4",
+                "transform": {
+                    "translation": [
+                        55.0,
+                        10.0,
+                        8.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.7071068286895752,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Lever",
+                "id": 7,
+                "initFlg": false
+            },
+            {
+                "type": "Lever",
+                "name": "Lever20_5",
+                "transform": {
+                    "translation": [
+                        50.13194274902344,
+                        10.0,
+                        -37.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Lever",
+                "id": 7,
+                "initFlg": false
+            }
+        ]
+    }
+}
