@@ -109,7 +109,8 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_transform = arg_initTransform;
 	m_camController.Init();
 	m_cameraRotY = 0;
-	m_cameraRotYStorage = 0;
+	auto a = arg_initTransform.GetRotateAsEuler();
+	m_cameraRotYStorage = arg_initTransform.GetRotateAsEuler().x;
 	m_cameraRotMove = 0;
 	m_cameraJumpLerpAmount = 0;
 	m_cameraJumpLerpStorage = 0;
