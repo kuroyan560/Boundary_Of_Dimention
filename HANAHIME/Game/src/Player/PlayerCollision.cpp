@@ -2187,6 +2187,15 @@ void PlayerCollision::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp,
 
 	// メモ:この関数で書いてある方向は初期位置(法線(0,1,0)で(0,0,1)を向いている状態)でのものです。
 
+	//プレイヤーが上の面に移動した瞬間。
+	if (fabs(arg_nowUp.y) <= 0.5f && arg_nextUp.y < -0.9f) {
+		m_refPlayer->m_isCameraInvX = true;
+	}
+	//プレイヤーが下の面に移動した瞬間。
+	if (fabs(arg_nextUp.y) <= 0.5f && arg_nowUp.y < -0.9f) {
+		m_refPlayer->m_isCameraInvX = true;
+	}
+
 	return;
 
 	//回転元の値を保存。
