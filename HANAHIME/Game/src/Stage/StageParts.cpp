@@ -463,9 +463,9 @@ void Lever::Update(Player& arg_player)
 	//植物繁殖光との当たり判定
 	for (auto& lig : GrowPlantLight::GrowPlantLightArray())
 	{
-		if (DirectX::XM_PIDIV4 / 2.0f < acos(arg_player.GetTransform().GetUpWorld().Dot(m_transform.GetUpWorld()))) break;
-
 		//内積でライトの法線とプレイヤーの上座標が離れてたら無効化する。
+		if (DirectX::XM_PIDIV4 < acosf(arg_player.GetTransform().GetUpWorld().Dot(m_transform.GetUpWorld()))) continue;
+
 		if (lig->HitCheckWithBox(m_transform.GetPosWorld(), m_boxCollider.m_size))
 		{
 			//レバー操作でオンオフ切り替え
@@ -504,6 +504,13 @@ void Lever::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 		m_transform,
 		KuroEngine::AlphaBlendMode_None,
 		m_modelAnimator->GetBoneMatBuff());
+
+#ifdef _DEBUG
+
+	KuroEngine::DrawFunc3D::DrawLine(arg_cam, m_transform.GetPosWorld(), m_transform.GetPosWorld() + m_transform.GetUpWorld() * 10.0f, KuroEngine::Color(0.95f, 0.00f, 0.51f, 1.0f), 1.0f);
+
+#endif // _DEBUG
+
 }
 
 void IvyZipLine::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
