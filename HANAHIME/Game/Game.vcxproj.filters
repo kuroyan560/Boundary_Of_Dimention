@@ -379,6 +379,9 @@
     <ClCompile Include="src\Player\PlayerCollision.cpp">
       <Filter>src\user\Player</Filter>
     </ClCompile>
+    <ClCompile Include="src\TimeScaleMgr.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -740,5 +743,6 @@
     <ClInclude Include="src\Player\PlayerCollision.h">
       <Filter>src\user\Player</Filter>
     </ClInclude>
+    <ClInclude Include="src\TimeScaleMgr.h" />
   </ItemGroup>
 </Project>

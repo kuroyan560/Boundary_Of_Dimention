@@ -109,7 +109,6 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_transform = arg_initTransform;
 	m_camController.Init();
 	m_cameraRotY = 0;
-	auto a = arg_initTransform.GetRotateAsEuler();
 	m_cameraRotYStorage = arg_initTransform.GetRotateAsEuler().x;
 	m_cameraRotMove = 0;
 	m_cameraJumpLerpAmount = 0;
@@ -205,9 +204,12 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 				//プレイヤーの法線とカメラまでの距離から、Z軸方向(ローカル)の移動方向を反転させるかを決める。
 				KuroEngine::Vec3<float> cameraDir = m_camController.GetCamera().lock()->GetTransform().GetPosWorld() - m_transform.GetPos();
 				cameraDir.Normalize();
-				if (m_transform.GetUp().Dot(cameraDir) < 0.1f || m_isCameraInvX) {
-					//m_isCameraInvX = true;
+				if (m_transform.GetUp().Dot(cameraDir) < 0.1f) {
+					m_isCameraInvX = true;
 					m_rowMoveVec.z *= -1.0f;
+				}
+				else {
+					m_isCameraInvX = false;
 				}
 
 			}
@@ -219,13 +221,18 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 				//プレイヤーの法線とカメラまでの距離から、Z軸方向(ローカル)の移動方向を反転させるかを決める。
 				KuroEngine::Vec3<float> cameraDir = m_camController.GetCamera().lock()->GetTransform().GetPosWorld() - m_transform.GetPos();
 				cameraDir.Normalize();
-				if (-0.1f < m_transform.GetUp().Dot(cameraDir) || m_isCameraInvX) {
-					//m_isCameraInvX = true;
+				if (-0.1f < m_transform.GetUp().Dot(cameraDir)) {
+					m_isCameraInvX = true;
 					m_rowMoveVec.z *= -1.0f;
+				}
+				else {
+					m_isCameraInvX = false;
 				}
 
 			}
-			m_isCameraInvX = false;
+			else {
+				m_isCameraInvX = false;
+			}
 		}
 		else {
 
@@ -256,14 +263,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		//移動させる。
 		if (!m_isDeath) {
 			Move(newPos);
-		}
-
-		//入力がなかったら
-		if (m_rowMoveVec.Length() <= 0) {
-			m_isCameraInvX = false;
-		}
-		else {
-
 		}
 
 		//カメラの回転を保存。
