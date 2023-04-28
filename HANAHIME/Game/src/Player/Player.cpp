@@ -125,6 +125,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_prevOnGimmick = false;
 	m_isDeath = false;
 	m_canZip = false;
+	m_isCameraInvX = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 
 	m_growPlantPtLig.Register();
@@ -198,6 +199,24 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		if (m_transform.GetUp().y < -0.9f) {
 			//Xの移動方向を反転
 			m_rowMoveVec.x *= -1.0f;
+
+			//プレイヤーの法線とカメラまでの距離から、Z軸方向(ローカル)の移動方向を反転させるかを決める。
+			KuroEngine::Vec3<float> cameraDir = m_camController.GetCamera().lock()->GetTransform().GetPosWorld() - m_transform.GetPos();
+			cameraDir.Normalize();
+			if (-0.1f < m_transform.GetUp().Dot(cameraDir)) {
+				m_rowMoveVec.z *= -1.0f;
+			}
+
+		}
+		else {
+
+			//プレイヤーの法線とカメラまでの距離から、Z軸方向(ローカル)の移動方向を反転させるかを決める。
+			KuroEngine::Vec3<float> cameraDir = m_camController.GetCamera().lock()->GetTransform().GetPosWorld() - m_transform.GetPos();
+			cameraDir.Normalize();
+			if (m_transform.GetUp().Dot(cameraDir) < 0) {
+				m_rowMoveVec.z *= -1.0f;
+			}
+
 		}
 
 		//移動させる。
@@ -207,18 +226,18 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 		//入力がなかったら
 		if (m_rowMoveVec.Length() <= 0) {
-
-			//カメラの回転を保存。
-			m_cameraRotY = m_cameraRotYStorage;
-			m_cameraRotMove = m_cameraRotYStorage;
-
+			m_isCameraInvX = false;
 		}
 		else {
 
-			//移動した方向を保存。
-			m_playerRotY = atan2f(m_rowMoveVec.x, m_rowMoveVec.z);
-
 		}
+
+		//カメラの回転を保存。
+		m_cameraRotY = m_cameraRotYStorage;
+		m_cameraRotMove = m_cameraRotYStorage;
+
+		//移動した方向を保存。
+		m_playerRotY = atan2f(m_rowMoveVec.x, m_rowMoveVec.z);
 
 		//当たり判定
 		m_collision.CheckHit(beforePos, newPos, arg_nowStage);

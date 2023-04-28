@@ -135,6 +135,7 @@ class Player : public KuroEngine::Debugger
 	KuroEngine::Vec3<float> m_deathShake;
 	const float DEATH_SHAKE_AMOUNT = 3.0f;
 	const float SUB_DEATH_SHAKE_AMOUNT = 0.2f;
+	bool m_isCameraInvX;
 
 	//プレイヤーのジャンプに関する変数
 	KuroEngine::Vec3<float> m_jumpStartPos;			//ジャンプ開始位置

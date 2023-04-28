@@ -2187,6 +2187,8 @@ void PlayerCollision::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp,
 
 	// メモ:この関数で書いてある方向は初期位置(法線(0,1,0)で(0,0,1)を向いている状態)でのものです。
 
+	return;
+
 	//回転元の値を保存。
 	m_refPlayer->m_cameraJumpLerpStorage = m_refPlayer->m_cameraRotMove;
 
@@ -2200,6 +2202,7 @@ void PlayerCollision::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp,
 		if (arg_nextUp.y <= -0.9f) {
 
 			m_refPlayer->m_cameraJumpLerpAmount += DirectX::XM_PI;
+			m_refPlayer->m_isCameraInvX = true;
 
 		}
 		//正面の壁に移動したら
@@ -2224,6 +2227,7 @@ void PlayerCollision::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp,
 		if (arg_nextUp.y <= -0.9f) {
 
 			m_refPlayer->m_cameraJumpLerpAmount -= DirectX::XM_PI;
+			m_refPlayer->m_isCameraInvX = true;
 
 		}
 		//正面の壁に移動したら
@@ -2260,6 +2264,7 @@ void PlayerCollision::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp,
 		if (arg_nextUp.y  <= -0.9f) {
 
 			m_refPlayer->m_cameraJumpLerpAmount -= DirectX::XM_PI;
+			m_refPlayer->m_isCameraInvX = true;
 
 		}
 
