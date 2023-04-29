@@ -16,6 +16,16 @@ struct VSOutput
     float depthInView : CAM_Z;
 };
 
+struct PSOutput_Player
+{
+    float4 color : SV_Target0;
+    float4 emissive : SV_Target1;
+    float depth : SV_Target2;
+    float4 edgeColor : SV_Target3;
+    float4 bright : SV_Target4;
+    float4 normal : SV_Target5;
+};
+
 VSOutput VSmain(Vertex input)
 {
     float4 resultPos = input.pos;
@@ -67,7 +77,7 @@ VSOutput VSmain(Vertex input)
     return output;
 }
 
-PSOutput PSmain(VSOutput input) : SV_TARGET
+PSOutput_Player PSmain(VSOutput input) : SV_TARGET
 {
     float3 normal = input.normal;
     float3 vnormal = normalize(mul(cam.view, normal));
@@ -187,7 +197,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     //“h‚è‚Â‚Ô‚µ
     result.xyz = toonIndividualParam.m_fillColor.xyz * toonIndividualParam.m_fillColor.w + result.xyz * (1.0f - toonIndividualParam.m_fillColor.w);
     
-    PSOutput output;
+    PSOutput_Player output;
     output.color = result;
     
         //–¾‚é‚³ŒvŽZ
