@@ -82,6 +82,23 @@ void KuroEngine::D3D12App::Initialize(const HWND& Hwnd, const Vec2<int>& ScreenS
 	{
 		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
 		infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+
+		//GPU_BASED_VALIDATION_RESOURCE_STATE_IMPRECISE‚Ì—}§---------------------------------------
+		D3D12_MESSAGE_ID denyIds[] = {
+		 D3D12_MESSAGE_ID_GPU_BASED_VALIDATION_RESOURCE_STATE_IMPRECISE,
+		};
+		D3D12_MESSAGE_SEVERITY severities[] = {
+		  D3D12_MESSAGE_SEVERITY_INFO
+		};
+		D3D12_INFO_QUEUE_FILTER filter{};
+		filter.DenyList.NumIDs = _countof(denyIds);
+		filter.DenyList.pIDList = denyIds;
+		filter.DenyList.NumSeverities = _countof(severities);
+		filter.DenyList.pSeverityList = severities;
+		infoQueue->PushStorageFilter(&filter);
+		//GPU_BASED_VALIDATION_RESOURCE_STATE_IMPRECISE‚Ì—}§---------------------------------------
+
+
 		infoQueue->Release();
 	}
 #endif
