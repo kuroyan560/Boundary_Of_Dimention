@@ -83,6 +83,9 @@
     <Filter Include="src\user\Plant">
       <UniqueIdentifier>{82bf12bc-8867-4a74-a749-95983f70da95}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\user\CPUParticle">
+      <UniqueIdentifier>{6fab585c-9620-4df6-9fc0-212499aa3a39}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\KuroEngineDevice.cpp">
@@ -367,35 +370,35 @@
     <ClCompile Include="src\Stage\Switch.cpp">
       <Filter>src\user\Stage</Filter>
     </ClCompile>
-    <ClCompile Include="src\GPUParticle\SplineParticle.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GPUParticle\SignSpotFireFly.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Tutorial.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\SoundConfig.cpp">
       <Filter>src\user</Filter>
     </ClCompile>
-    <ClCompile Include="src\GPUParticle\FireWorkParticle.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
-    <ClCompile Include="src\CPUParticle\GlitterEmitter.cpp">
-      <Filter>src</Filter>
-    </ClCompile>
     <ClCompile Include="src\Movie\CameraData.cpp">
-      <Filter>src\user\Movie</Filter>
-    </ClCompile>
-    <ClCompile Include="src\CPUParticle\CPULoucusParticle.cpp">
       <Filter>src\user\Movie</Filter>
     </ClCompile>
     <ClCompile Include="src\Player\PlayerCollision.cpp">
       <Filter>src\user\Player</Filter>
     </ClCompile>
+    <ClCompile Include="src\CPUParticle\CPULoucusParticle.cpp">
+      <Filter>src\user\CPUParticle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CPUParticle\GlitterEmitter.cpp">
+      <Filter>src\user\CPUParticle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GPUParticle\FireWorkParticle.cpp">
+      <Filter>src\user\GPUParticle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GPUParticle\SplineParticle.cpp">
+      <Filter>src\user\GPUParticle</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GPUParticle\SignSpotFireFly.cpp">
+      <Filter>src\user\GPUParticle</Filter>
+    </ClCompile>
     <ClCompile Include="src\TimeScaleMgr.cpp">
-      <Filter>src</Filter>
+      <Filter>src\user</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tutorial.cpp">
+      <Filter>src\user</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -744,29 +747,41 @@
     <ClInclude Include="src\Stage\Switch.h">
       <Filter>src\user\Stage</Filter>
     </ClInclude>
-    <ClInclude Include="src\GPUParticle\SplineParticle.h" />
     <ClInclude Include="src\Stage\Grass.h">
       <Filter>src\user\Plant</Filter>
     </ClInclude>
-    <ClInclude Include="src\GPUParticle\SignSpotFireFly.h" />
-    <ClInclude Include="src\Tutorial.h" />
     <ClInclude Include="src\SoundConfig.h">
       <Filter>src\user</Filter>
     </ClInclude>
     <ClInclude Include="src\SoundConfig.h">
       <Filter>src\user</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GPUParticle\FireWorkParitlce.h" />
-    <ClInclude Include="src\CPUParticle\GlitterEmitter.h">
-      <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Movie\CameraData.h">
       <Filter>src\user\Movie</Filter>
     </ClInclude>
-    <ClInclude Include="src\CPUParticle\CPULoucusParticle.h" />
     <ClInclude Include="src\Player\PlayerCollision.h">
       <Filter>src\user\Player</Filter>
     </ClInclude>
-    <ClInclude Include="src\TimeScaleMgr.h" />
+    <ClInclude Include="src\CPUParticle\CPULoucusParticle.h">
+      <Filter>src\user\CPUParticle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GPUParticle\FireWorkParitlce.h">
+      <Filter>src\user\GPUParticle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GPUParticle\SignSpotFireFly.h">
+      <Filter>src\user\GPUParticle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GPUParticle\SplineParticle.h">
+      <Filter>src\user\GPUParticle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CPUParticle\GlitterEmitter.h">
+      <Filter>src\user\CPUParticle</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TimeScaleMgr.h">
+      <Filter>src\user</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Tutorial.h">
+      <Filter>src\user</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
