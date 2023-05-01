@@ -153,7 +153,7 @@ void KuroEngine::D3D12App::Initialize(const HWND& Hwnd, const Vec2<int>& ScreenS
 		scDesc.Width = ScreenSize.x;
 		scDesc.Height = ScreenSize.y;
 		scDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-		scDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+		scDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 		scDesc.SampleDesc.Count = 1;
 		//scDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;  // ディスプレイの解像度も変更する場合にはコメント解除。
 
@@ -1293,6 +1293,9 @@ void KuroEngine::D3D12App::Render(D3D12AppUser* User)
 	//バックバッファ番号取得
 	auto frameIdx = m_swapchain->GetSwapchain()->GetCurrentBackBufferIndex();
 
+	//コマンドリストの実行完了を待つ
+	m_swapchain->WaitPreviousFrame(m_commandQueue, frameIdx);
+
 	//コマンドアロケータリセット
 	hr = m_commandAllocators[frameIdx]->Reset();	//キューをクリア
 	assert(SUCCEEDED(hr));
@@ -1301,8 +1304,6 @@ void KuroEngine::D3D12App::Render(D3D12AppUser* User)
 	hr = m_commandList->Reset(m_commandAllocators[frameIdx].Get(), nullptr);		//コマンドリストを貯める準備
 	assert(SUCCEEDED(hr));
 
-	//コマンドリストの実行完了を待つ
-	m_swapchain->WaitPreviousFrame(m_commandQueue, frameIdx);
 
 	//SplitTexBuff呼ばれた回数リセット
 	m_splitTexBuffCount = 0;
