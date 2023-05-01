@@ -102,6 +102,12 @@ class Player : public KuroEngine::Debugger
 	const float DEATH_EFFECT_CAMERA_Z = -15.0f;
 	const float DEATH_EFFECT_TIMER_SCALE = 0.1f;
 
+	//潜る関連
+	bool m_isInputUnderGround;			//沈む際の入力がされているかを判断する用。
+	bool m_isUnderGround;				//地中の状態か否か
+	const float UNDERGROUND_Y = 6.5f;	//沈む量。
+	float m_underGroundEaseTimer;		//沈むときや浮上するときに使用するイージングのタイマー
+	const float ADD_UNDERGROUND_EASE_TIMER = 0.04f;
 
 	//Imguiデバッグ関数オーバーライド
 	void OnImguiItems()override;

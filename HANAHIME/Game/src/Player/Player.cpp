@@ -137,6 +137,11 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_deathStatus = DEATH_STATUS::APPROACH;
 	m_isFinishDeathAnimation = false;
 
+	//地中に沈む関連
+	m_isInputUnderGround = false;
+	m_isUnderGround = false;
+	m_underGroundEaseTimer = 1.0f;
+
 	m_deathSpriteAnimNumber = 0;
 	m_deathSpriteAnimTimer = KuroEngine::Timer(DEATH_SPRITE_TIMER);
 }
@@ -172,14 +177,36 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, m_cameraMode);
 	}
 
-	//ジップライン
-	m_canZip = UsersInput::Instance()->KeyOnTrigger(DIK_SPACE);
-
 	//移動ステータスによって処理を変える。
 	switch (m_playerMoveStatus)
 	{
 	case Player::PLAYER_MOVE_STATUS::MOVE:
 	{
+
+		//ジップライン
+		m_canZip = UsersInput::Instance()->KeyOnTrigger(DIK_LSHIFT);
+
+		//地中に沈むフラグを更新。 イージングが終わっていたら。
+		if (1.0f <= m_underGroundEaseTimer) {
+
+			m_isInputUnderGround = UsersInput::Instance()->KeyInput(DIK_SPACE) || UsersInput::Instance()->ControllerInput(0, KuroEngine::A);
+
+			//イージングが終わっている時のみ地中に潜ったり出たりする判定を持たせる。
+			bool isInputOnOff = UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->KeyOffTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A) || UsersInput::Instance()->ControllerOffTrigger(0, KuroEngine::A);
+			if (isInputOnOff || (!m_isUnderGround && m_isInputUnderGround) || (m_isUnderGround && !m_isInputUnderGround)) {
+				m_underGroundEaseTimer = 0;
+			}
+			             
+		}
+		else {
+
+			m_underGroundEaseTimer = std::clamp(m_underGroundEaseTimer + ADD_UNDERGROUND_EASE_TIMER, 0.0f, 1.0f);
+
+			if (1.0f <= m_underGroundEaseTimer) {
+				m_isUnderGround = m_isInputUnderGround;
+			}
+
+		}
 
 		//プレイヤーの回転をカメラ基準にする。(移動方向の基準がカメラの角度なため)
 		m_transform.SetRotate(m_cameraQ);
@@ -308,6 +335,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		}
 		m_transform.SetPos(newPos);
 
+		//ジャンプ中は常時回転を適用させる。
+		m_drawTransform.SetRotate(m_transform.GetRotate());
+
 	}
 	break;
 	case PLAYER_MOVE_STATUS::ZIP:
@@ -366,8 +396,35 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() + m_deathShake);
 	}
 
-	//描画用にトランスフォームを適用
-	m_drawTransform.SetPos(m_transform.GetPos());
+	//描画用にトランスフォームを適用		
+	if (m_underGroundEaseTimer < 1.0f) {
+
+		//地中にいるときといないときで処理を変える。
+		if (m_isUnderGround) {
+
+			float easeAmount = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, m_underGroundEaseTimer, 0.0f, 1.0f) * UNDERGROUND_Y;
+
+			auto underPos = m_transform.GetPos() - m_transform.GetUp() * UNDERGROUND_Y;
+			m_drawTransform.SetPos(underPos + m_transform.GetUp() * easeAmount);
+
+		}
+		else {
+
+			float easeAmount = KuroEngine::Math::Ease(KuroEngine::In, KuroEngine::Back, m_underGroundEaseTimer, 0.0f, 1.0f) * UNDERGROUND_Y;
+
+			m_drawTransform.SetPos(m_transform.GetPos() - m_transform.GetUp() * easeAmount);
+
+		}
+
+	}
+	else if (m_isUnderGround) {
+
+		m_drawTransform.SetPos(m_transform.GetPos() - m_transform.GetUp() * UNDERGROUND_Y);
+
+	}
+	else {
+		m_drawTransform.SetPos(m_transform.GetPos());
+	}
 	m_drawTransform.SetScale(m_transform.GetScale());
 	//回転は動いたときのみ適用させる。
 	if (0 < m_rowMoveVec.Length()) {
