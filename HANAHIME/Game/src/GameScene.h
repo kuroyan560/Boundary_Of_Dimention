@@ -16,6 +16,7 @@
 #include"GPUParticle/FireFlyOutStage.h"
 #include"Stage/Goal.h"
 #include"Tutorial.h"
+#include"Movie/CameraData.h"
 
 class GameScene : public KuroEngine::BaseScene
 {
@@ -60,7 +61,6 @@ class GameScene : public KuroEngine::BaseScene
 
 	TitleMode m_eTitleMode;
 	Title m_title;
-	Goal m_goal;
 	bool m_clearFlag;
 	KuroEngine::Timer m_1flameStopTimer;
 
@@ -70,6 +70,8 @@ class GameScene : public KuroEngine::BaseScene
 	FireFlyOutStage m_fireFlyStage;
 
 	Tutorial tutorial;
+
+	Goal m_goal;
 
 
 	void GameInit();

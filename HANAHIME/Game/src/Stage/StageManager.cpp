@@ -2,6 +2,7 @@
 #include"Stage.h"
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"../Graphics/BasicDraw.h"
+#include"../Movie/CameraData.h"
 
 StageManager::StageManager()
 	:KuroEngine::Debugger("StageManager", true, true)
@@ -31,6 +32,8 @@ StageManager::StageManager()
 
 	//現在のステージ指定（デフォルトはホーム用ステージ）
 	m_nowStage = m_homeStage;
+
+	CameraData::Instance()->RegistCameraData("");
 }
 
 void StageManager::SetStage(int stage_num)

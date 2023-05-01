@@ -13,7 +13,7 @@
 #include"Plant/GrowPlantLight.h"
 #include"TimeScaleMgr.h"
 
-GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_1flameStopTimer(30)
+GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_1flameStopTimer(30), m_goal(m_particleRender.GetStackBuffer())
 {
 	m_ddsTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.dds");
 	m_pngTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
@@ -46,6 +46,7 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 
 	//音声の読み込み
 	SoundConfig::Instance();
+	CameraData::Instance()->RegistCameraData("");
 }
 
 
@@ -86,9 +87,6 @@ void GameScene::OnInitialize()
 	m_title.Init(m_eTitleMode);
 	//ゲーム画面からパズルモードに戻る場合にパズルモードとして初期化した後、再び選択できるようSELECTを入れる
 	m_eTitleMode = TITLE_SELECT;
-
-	m_goal.m_gpuParticleBuffer = m_particleRender.GetStackBuffer();
-
 }
 
 void GameScene::OnUpdate()
@@ -122,7 +120,10 @@ void GameScene::OnUpdate()
 	if (StageManager::Instance()->IsClearNowStage() && m_1flameStopTimer.IsTimeUp() && (m_title.IsFinish() || m_title.IsStartOP()))
 	{
 		m_goal.Start();
-		//m_nowCam = m_goal.GetCamera().lock();
+		if (m_goal.ChangeCamera())
+		{
+			m_nowCam = m_goal.GetCamera().lock();
+		}
 		OperationConfig::Instance()->SetActive(false);
 		m_clearFlag = true;
 	}
@@ -204,7 +205,7 @@ void GameScene::OnUpdate()
 	if (m_title.IsFinish() || m_title.IsStartOP())
 	{
 		m_player.Update(StageManager::Instance()->GetNowStage());
-		m_goal.Update(&m_player.GetCamera().lock()->GetTransform());
+		m_goal.Update(&m_player.GetTransform());
 		//ステージ選択画面ではギミックを作動させない
 		StageManager::Instance()->Update(m_player);
 	}

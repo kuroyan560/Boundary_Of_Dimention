@@ -65,6 +65,7 @@ void SplineInitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,
 	worldPosData[index].color = float4(1,1,1,0);
     worldPosData[index].startIndex = startIndex;
     worldPosData[index].rate = rate;
+
 }
 
 

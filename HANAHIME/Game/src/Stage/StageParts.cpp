@@ -29,11 +29,15 @@ void StageParts::Init()
 
 void StageParts::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
+	KuroEngine::Transform transform = m_transform;
+	transform.SetPos(m_transform.GetPosWorld()+ m_offset.GetPosWorld());
+	transform.SetScale(m_transform.GetScale()+ m_offset.GetScale());
+
 	BasicDraw::Instance()->Draw(
 		arg_cam,
 		arg_ligMgr,
 		m_model.lock(),
-		m_transform);
+		transform);
 }
 
 void TerrianMeshCollider::BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_transform)

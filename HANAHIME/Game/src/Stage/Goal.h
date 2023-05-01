@@ -4,20 +4,28 @@
 #include<vector>
 #include<array>
 #include"ForUser/DrawFunc/2D/DrawFunc2D.h"
+#include"ForUser/ImpactShake.h"
 #include"DirectX12/D3D12App.h"
 #include"FrameWork/WinApp.h"
 #include"../Movie/MovieCamera.h"
 #include"StageInfomation.h"
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"../Stage/StageParts.h"
+#include"../GPUParticle/SplineParticle.h"
+#include"../GPUParticle/FireWorkParitlce.h"
 #include"../SoundConfig.h"
-
+#include"../Player/PlayerCollision.h"
+#include"StageManager.h"
+#include"StageInfomation.h"
+#include"Stage.h"
+#include"../CPUParticle/GlitterEmitter.h"
+#include"../CPUParticle/CPULoucusParticle.h"
 
 //ステージに配置されているゴール
 class Goal
 {
 public:
-	Goal();
+	Goal(std::shared_ptr<KuroEngine::RWStructuredBuffer> particle);
 	void Init(const KuroEngine::Transform &transform, std::shared_ptr<GoalPoint>goal_model);
 	void Finalize();
 	void Update(KuroEngine::Transform *transform);
@@ -32,13 +40,39 @@ public:
 	//ゴール演出が終わったか
 	bool IsEnd();
 
+	bool ChangeCamera()
+	{
+		return m_changeCameraFlag;
+	}
+
 	std::weak_ptr<KuroEngine::Camera>GetCamera()
 	{
-		return m_movieCamera.GetCamera();
+		return m_camera;
 	}
 
 
-	std::shared_ptr<KuroEngine::RWStructuredBuffer> m_gpuParticleBuffer;
+	void InitLimitPos(const KuroEngine::Vec3<float> &pos)
+	{
+		m_splineLimitPos[0].clear();
+		m_splineLimitPos[0].shrink_to_fit();
+		m_splineLimitPos[1].clear();
+		m_splineLimitPos[1].shrink_to_fit();
+
+		for (int i = 0; i < 9; ++i)
+		{
+			float radius = 7.0f;
+			float angle = static_cast<float>(i * 90);
+			float height = (-1.3f + static_cast<float>(i) * 0.4f) * GetFlagUpVec().y;
+			m_splineLimitPos[0].emplace_back(pos + KuroEngine::Vec3<float>(cosf(KuroEngine::Angle::ConvertToRadian(angle)), height, sinf(KuroEngine::Angle::ConvertToRadian(angle))) * radius);
+			m_splineLimitPos[1].emplace_back(pos + KuroEngine::Vec3<float>(cosf(KuroEngine::Angle::ConvertToRadian(angle + 180.0f)), height, sinf(KuroEngine::Angle::ConvertToRadian(angle + 180.0f))) * radius);
+		}
+
+		m_goalFlag = false;
+		m_goalTriggerFlag = false;
+
+		m_fireWorkEmittPos[0] = m_splineLimitPos[0][m_splineLimitPos[0].size() - 2];
+		m_fireWorkEmittPos[1] = m_splineLimitPos[1][m_splineLimitPos[1].size() - 2];
+	};
 
 private:
 	bool m_initFlag;
@@ -50,16 +84,20 @@ private:
 
 	//ゴールの文字演出
 
-	KuroEngine::Vec2<float>m_pos, m_basePos,m_goalPos;
+	KuroEngine::Vec2<float>m_pos, m_basePos, m_goalPos;
+	KuroEngine::Vec2<float>m_goalTexSize;
 	std::shared_ptr<KuroEngine::TextureBuffer>m_clearTex;
 	float clearTexRadian;
 	KuroEngine::Timer m_clearEaseTimer;
 
 	//ゴールのモデル演出
-	//std::shared_ptr<GoalPoint>m_goalModel;
+	std::shared_ptr<GoalPoint>m_goalModel;
+	KuroEngine::Vec3<float>m_goalModelPos;
+	KuroEngine::Vec3<float>m_scaleOffset;
 	KuroEngine::Timer m_upEffectEase;
 	KuroEngine::Timer m_downEffectEase;
 
+	std::shared_ptr<KuroEngine::RWStructuredBuffer> m_gpuParticleBuffer;
 	//KuroEngine::Transform m_goalModelBaseTransform;
 
 
@@ -67,75 +105,125 @@ private:
 	//ゴールカメラ表示
 	std::shared_ptr<KuroEngine::ModelObject> m_goalCamera;
 	std::shared_ptr<KuroEngine::Camera> m_camera;
-
 	KuroEngine::Vec3<float>upVec, frontVec;
+	std::array<KuroEngine::Vec3<float>, 4>m_cameraHitDirArray;
+
+	std::vector<KuroEngine::Vec3<float>> cameraPosArray;
 
 
 	//軌跡----------------------------------------
-
-	struct SplineData
-	{
-		DirectX::XMFLOAT3 pos;
-		DirectX::XMFLOAT3 vel;
-		DirectX::XMFLOAT4 color;
-		int startIndex;
-		float rate;
-	};
-
-	struct ConstData
-	{
-		DirectX::XMMATRIX scaleRotate;
-		UINT startIndex;
-		float rate;
-
-		ConstData()
-		{
-			startIndex = 0;
-			rate = 0.0f;
-		};
-	};
-
-	std::shared_ptr<KuroEngine::RWStructuredBuffer> m_particleBuffer;
-	std::shared_ptr<KuroEngine::RWStructuredBuffer> m_limitIndexPosBuffer;
-
-	std::shared_ptr<KuroEngine::ConstantBuffer> m_scaleRotaBuffer;
-	std::shared_ptr<KuroEngine::ConstantBuffer> m_limitIndexBuffer;
-
-	std::shared_ptr<KuroEngine::ComputePipeline> m_initLoucusPipeline;
-	std::shared_ptr<KuroEngine::ComputePipeline> m_updateLoucusPipeline;
-
-	ConstData cd;
-	KuroEngine::Timer m_splineTimer;
-
-	static const int LIMIT_POS_MAX = 10;
-	std::array<std::shared_ptr<KuroEngine::ModelObject>, LIMIT_POS_MAX>limitPosArray;
-
-	void GenerateLoucus()
-	{
-		m_particleBuffer = KuroEngine::D3D12App::Instance()->GenerateRWStructuredBuffer(sizeof(SplineData), 1024);
-		m_limitIndexPosBuffer = KuroEngine::D3D12App::Instance()->GenerateRWStructuredBuffer(sizeof(DirectX::XMFLOAT3), LIMIT_POS_MAX);
-
-		m_scaleRotaBuffer = KuroEngine::D3D12App::Instance()->GenerateConstantBuffer(sizeof(ConstData), 1);
-		m_limitIndexBuffer = KuroEngine::D3D12App::Instance()->GenerateConstantBuffer(sizeof(UINT), 1);
-
-
-		std::vector<KuroEngine::RootParam>rootParam =
-		{
-			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"スプラインパーティクルの情報(RWStructuredBuffer)"),
-			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"制御点の座標(RWStructuredBuffer)"),
-			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"制御点の最大値(RWStructuredBuffer)")
-		};
-		auto cs_init = KuroEngine::D3D12App::Instance()->CompileShader("resource/user/shaders/SplineParticle.hlsl", "SplineInitMain", "cs_6_4");
-		m_initLoucusPipeline = KuroEngine::D3D12App::Instance()->GenerateComputePipeline(cs_init, rootParam, { KuroEngine::WrappedSampler(true,true) });
-
-		auto cs_update = KuroEngine::D3D12App::Instance()->CompileShader("resource/user/shaders/SplineParticle.hlsl", "SplineUpdateMain", "cs_6_4");
-		m_updateLoucusPipeline = KuroEngine::D3D12App::Instance()->GenerateComputePipeline(cs_update, rootParam, { KuroEngine::WrappedSampler(true,true) });
-
-	};
-
+	bool m_playerGoalFlag;
+	std::array<std::vector<KuroEngine::Vec3<float>>, 2>m_splineLimitPos;
+	std::array<KuroEngine::Vec3<float>, 2>m_fireWorkEmittPos;
+	std::array<std::unique_ptr<SplineParticle>, 2>m_splineArray;
 	//軌跡----------------------------------------
 
 
+	bool m_changeCameraFlag;
+
+	/// <summary>
+	/// レイとメッシュの当たり判定
+	/// </summary>
+	/// <param name="arg_rayPos"> レイの射出地点 </param>
+	/// <param name="arg_rayDir"> レイの射出方向 </param>
+	/// <param name="arg_targetMesh"> 判定を行う対象のメッシュ </param>
+	/// <returns> 当たり判定結果 </returns>
+	PlayerCollision::MeshCollisionOutput MeshCollision(const KuroEngine::Vec3<float> &arg_rayPos, const KuroEngine::Vec3<float> &arg_rayDir, std::vector<TerrianHitPolygon> &arg_targetMesh);
+
+
+	/// <summary>
+	/// 重心座標を求める。
+	/// </summary>
+	KuroEngine::Vec3<float> CalBary(const KuroEngine::Vec3<float> &PosA, const KuroEngine::Vec3<float> &PosB, const KuroEngine::Vec3<float> &PosC, const KuroEngine::Vec3<float> &TargetPos);
+
+
+	KuroEngine::Vec3<float>GetFlagUpVec()
+	{
+		if (!m_goalModel)
+		{
+			return KuroEngine::Vec3<float>(0.0f, 1.0f, 0.0f);
+		}
+		DirectX::XMVECTOR dir;
+		float radian = 0.0f;
+		DirectX::XMQuaternionToAxisAngle(&dir, &radian, m_goalModel->GetTransform().GetRotate());
+
+		radian += KuroEngine::Angle::ConvertToRadian(90);
+		KuroEngine::Vec3<float>basePos = m_goalModel->GetTransform().GetPos();
+		KuroEngine::Vec3<float>circleDir(basePos + KuroEngine::Vec3<float>(cosf(radian), sinf(radian), 0.0f));
+
+		KuroEngine::Vec3<float>resultDir = circleDir - m_goalModel->GetTransform().GetPos();
+		resultDir.Normalize();
+
+		return resultDir;
+	}
+
+
+
+	//段々近づく
+	KuroEngine::Vec3<float>m_zoomCameraPos;
+
+	KuroEngine::Timer m_zoomInTimer, m_zoomOutTimer, m_sceneChangeTimer;
+
+	bool m_initParticleFlag;
+	GlitterEmitter m_glitterEmitt;
+
+	KuroEngine::ImpactShake m_shake;
+	KuroEngine::Vec3<float>m_goalBasePos;
+
+
+
+	std::array<CPULoucusEmitter, 2> m_loucusParticle;
+
+
+	void InitCameraPosArray(const KuroEngine::Vec3<float> &pos)
+	{
+		auto stage = StageManager::Instance()->GetNowStage().lock()->GetTerrianArray();
+		//前
+		m_cameraHitDirArray[0] = KuroEngine::Vec3<float>(0.0f, 0.0f, 1.0f);
+		//後
+		m_cameraHitDirArray[1] = KuroEngine::Vec3<float>(0.0f, 0.0f, -1.0f);
+		//左
+		m_cameraHitDirArray[2] = KuroEngine::Vec3<float>(-1.0f, 0.0f, 0.0f);
+		//右
+		m_cameraHitDirArray[3] = KuroEngine::Vec3<float>(1.0f, 0.0f, 0.0f);
+
+		const float distance = 30.0f;
+		std::array<bool, 4>hitIndex = { false,false,false,false };
+		for (auto &dir : m_cameraHitDirArray)
+		{
+			//地形配列走査
+			for (auto &terrian : stage)
+			{
+				//モデル情報取得
+				auto model = terrian.GetModel().lock();
+
+				//メッシュを走査
+				for (auto &modelMesh : model->m_meshes)
+				{
+					//判定↓============================================
+
+					//当たり判定を行うメッシュ。
+					std::vector<TerrianHitPolygon> mesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+					PlayerCollision::MeshCollisionOutput result = MeshCollision(pos, dir, mesh);
+					if (result.m_isHit && result.m_distance <= distance && 0.0f <= result.m_distance)
+					{
+						hitIndex[&dir - &m_cameraHitDirArray[0]] = true;
+					}
+					//=================================================
+				}
+			}
+		}
+
+		cameraPosArray.clear();
+		for (auto &obj : hitIndex)
+		{
+			if (!obj)
+			{
+				cameraPosArray.emplace_back(pos + m_cameraHitDirArray[&obj - &hitIndex[0]] * distance);
+			}
+		}
+
+	}
 
 };
 

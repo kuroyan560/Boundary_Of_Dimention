@@ -81,6 +81,7 @@ public:
 		:m_type(arg_type), m_model(arg_model), m_initializedTransform(arg_initTransform), m_transform(arg_initTransform)
 	{
 		if (arg_parent)m_transform.SetParent(&arg_parent->m_transform);
+		m_offset.SetScale({ 0.0f,0.0f,0.0f });
 	}
 	virtual ~StageParts() {}
 
@@ -100,6 +101,9 @@ public:
 
 	//ステージ情報のゲッタ
 	const std::weak_ptr<KuroEngine::Model>& GetModel()const { return m_model; }
+
+	//描画時のオフセット
+	KuroEngine::Transform m_offset;
 };
 
 //ギミックとは別の通常の地形

@@ -1,6 +1,6 @@
 #pragma once
 #include"Common/Transform.h"
-#include"../../../../src/engine/Render/RenderObject/ModelInfo/ModelMesh.h"
+#include"Render/RenderObject/ModelInfo/ModelMesh.h"
 #include<vector>
 #include"StageParts.h"
 #include"json.hpp"

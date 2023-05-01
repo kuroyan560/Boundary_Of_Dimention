@@ -111,3 +111,30 @@ void KuroEngine::DrawFuncBillBoard::Graph(Camera& Cam, const Vec3<float>& Pos, c
 
 	s_drawGraphCount++;
 }
+
+void KuroEngine::DrawFuncBillBoard::Graph(Camera &Cam, const Vec3<float> &Pos, const Vec2<float> &Size, std::shared_ptr<TextureBuffer> Tex, float alpha, const AlphaBlendMode &BlendMode)
+{
+	const auto targetFormat = KuroEngine::KuroEngineDevice::Instance()->Graphics().GetRecentRenderTargetFormat(0);
+	GeneratePipeline(targetFormat, BlendMode);
+
+	KuroEngine::KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(s_pipeline[targetFormat][BlendMode]);
+
+	if (s_graphVertBuff.size() < (s_drawGraphCount + 1))
+	{
+		s_graphVertBuff.emplace_back(D3D12App::Instance()->GenerateVertexBuffer(sizeof(Vertex), 1, nullptr, ("DrawGraphBillBoard -" + std::to_string(s_drawGraphCount)).c_str()));
+	}
+
+	Vertex vertex(Pos, Size, Color(1.0f, 1.0f, 1.0f, alpha));
+	s_graphVertBuff[s_drawGraphCount]->Mapping(&vertex);
+
+	KuroEngine::KuroEngineDevice::Instance()->Graphics().ObjectRender(
+		s_graphVertBuff[s_drawGraphCount],
+		{
+			{Cam.GetBuff(),CBV},
+			{Tex,SRV}
+		},
+		Pos.z,
+		true);
+
+	s_drawGraphCount++;
+}

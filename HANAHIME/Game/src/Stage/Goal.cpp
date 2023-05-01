@@ -1,27 +1,23 @@
 #include"Goal.h"
 #include"../OperationConfig.h"
 
-Goal::Goal() :m_initFlag(false), m_clearEaseTimer(30),
-m_upEffectEase(60), m_downEffectEase(10), m_splineTimer(120)
+Goal::Goal(std::shared_ptr<KuroEngine::RWStructuredBuffer> particle) :m_initFlag(false), m_clearEaseTimer(30),
+m_upEffectEase(60), m_downEffectEase(10), m_gpuParticleBuffer(particle), m_shake({ 1.0f,1.0f,1.0f })
 {
 	m_startGoalEffectFlag = false;
 
-	m_basePos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() + KuroEngine::Vec2<float>(0.0f, KuroEngine::WinApp::Instance()->GetExpandWinSize().y);
-	m_goalPos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() - KuroEngine::Vec2<float>(0.0f, KuroEngine::WinApp::Instance()->GetExpandWinCenter().y / 2.0f);
+	m_basePos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() + KuroEngine::Vec2<float>(0.0f, 100.0f);
+	m_goalPos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() - KuroEngine::Vec2<float>(0.0f, 200.0f);
 
 	m_goalCamera = std::make_shared<KuroEngine::ModelObject>("resource/user/model/", "Player.glb");
-
-	for (auto &obj : limitPosArray)
-	{
-		obj = std::make_shared<KuroEngine::ModelObject>("resource/user/model/", "Player.glb");
-	}
 
 	m_clearTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/in_game/gameClear.png");
 
 	m_camera = std::make_shared<KuroEngine::Camera>("cameraName");
 
-	GenerateLoucus();
 
+	m_splineArray[0] = std::make_unique<SplineParticle>(m_gpuParticleBuffer);
+	m_splineArray[1] = std::make_unique<SplineParticle>(m_gpuParticleBuffer);
 }
 
 void Goal::Init(const KuroEngine::Transform &transform, std::shared_ptr<GoalPoint>goal_model)
@@ -39,9 +35,43 @@ void Goal::Init(const KuroEngine::Transform &transform, std::shared_ptr<GoalPoin
 
 	m_startCameraFlag = false;
 
-	m_goalFlag = false;
-	m_goalTriggerFlag = false;
+	KuroEngine::Vec3<float>pos = transform.GetPos();
+	InitLimitPos(pos);
 
+
+
+	m_changeCameraFlag = false;
+	m_initParticleFlag = false;
+
+
+	m_zoomInTimer.Reset(60 * 2);
+	m_zoomOutTimer.Reset(60);
+	m_sceneChangeTimer.Reset(60);
+
+	m_glitterEmitt.Finalize();
+	m_shake.Init();
+
+	m_goalTexSize = { 1.0f,1.0f };
+
+
+
+	m_goalModel = goal_model;
+
+
+	if (!m_goalModel)
+	{
+		m_goalBasePos = { 0.0f,0.0f,0.0f };
+		m_playerGoalFlag = true;
+		return;
+	}
+	m_playerGoalFlag = false;
+	m_goalBasePos = m_goalModel->GetTransform().GetPos();
+
+	//カメラ配置---------------------------------------
+
+	InitCameraPosArray(m_goalBasePos);
+
+	//カメラ配置---------------------------------------
 }
 
 void Goal::Finalize()
@@ -59,195 +89,171 @@ void Goal::Update(KuroEngine::Transform *transform)
 	if (m_isStartFlag != m_prevStartFlag)
 	{
 		SoundConfig::Instance()->Play(SoundConfig::JINGLE_STAGE_CLEAR);
+		if (m_playerGoalFlag)
+		{
+			m_goalBasePos = transform->GetPos();
+			InitCameraPosArray(m_goalBasePos);
+		}
 		m_prevStartFlag = m_isStartFlag;
 	}
 
-	//if (m_isStartFlg && false)
-	//{
-	//	float upEffectRate = m_upEffectEase.GetTimeRate();
-
-	//	//ゴールモデルの演出
-	//	KuroEngine::Transform transform;
-	//	//回転
-	//	KuroEngine::Vec3<float>rotaVel = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, upEffectRate, { 0.0f,0.0f,0.0f }, { 0.0f,0.0f,360.0f });
-	//	transform.SetRotate(rotaVel);
-	//	//上に上げる
-	//	KuroEngine::Vec3<float>upVel = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, upEffectRate, m_goalModelBaseTransform.GetPos(), m_goalModelBaseTransform.GetPos() + KuroEngine::Vec3<float>(0.0f, 5.0f, 0.0f));
-	//	transform.SetPos(upVel);
-
-	//	m_upEffectEase.UpdateTimer();
-	//	if (m_upEffectEase.IsTimeUp())
-	//	{
-	//		//下に下げる
-	//		KuroEngine::Vec3<float>downVel = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, m_downEffectEase.GetTimeRate(), m_goalModelBaseTransform.GetPos() + KuroEngine::Vec3<float>(0.0f, 5.0f, 0.0f), m_goalModelBaseTransform.GetPos());
-	//		transform.SetPos(downVel);
-	//		m_downEffectEase.UpdateTimer();
-	//	}
-	//	if (m_downEffectEase.IsTimeUp())
-	//	{
-	//		m_startCameraFlag = true;
-	//	}
-
-	//	m_goalModel->SetTransform(transform);
-	//}
-
-	////①視点ベクトル(カメラからオブジェクトまでのベクトル)を求める。
-	//KuroEngine::Vec3<float>eyePos = m_goalModelBaseTransform.GetPos() + KuroEngine::Vec3<float>(0.0f, 0.0f, 30.0f);
-	//KuroEngine::Vec3<float>eyeDir = m_goalModelBaseTransform.GetPos() - eyePos;
-	//frontVec = eyeDir;
-	//eyeDir.Normalize();
-	//frontVec.Normalize();
-
-	////②視点ベクトルと(0, 0, 1)ベクトルを外積して法線を求める。
-	//KuroEngine::Vec3<float>eyeNormal = eyeDir.Cross(KuroEngine::Vec3<float>(0.0f, 0.0f, 1.0f));
-	//eyeNormal.Normalize();
-
-	////③視点ベクトルと(0, 0, 1)ベクトルを内積して回転量を求める。
-	//float eyeRota = eyeDir.Dot(KuroEngine::Vec3<float>(0.0f, 0.0f, 1.0f));
-	//eyeRota = acos(eyeRota);
-	//if (std::isnan(eyeRota))
-	//{
-	//	eyeRota = 0.0f;
-	//}
-
-	////④クォータニオンの関数で②を回転軸として③回転するクォータニオンを求める。
-	//KuroEngine::Quaternion quaternion = DirectX::XMQuaternionRotationNormal(eyeNormal, eyeRota);
-
-	////⑤④で求めれたクォータニオンを(0, 1, 0)ベクトルにかける。
-	//KuroEngine::Vec3<float> result(0, 1, 0);
-	//DirectX::XMMATRIX mat = DirectX::XMMatrixRotationQuaternion(quaternion);
-	//DirectX::XMVECTOR rota(DirectX::XMVector3Transform(result, mat));
-	//result = { rota.m128_f32[0],rota.m128_f32[1],rota.m128_f32[2] };
-
-	//upVec = result;
-	//upVec.Normalize();
-
-	////これで上ベクトルが求められます！
-	////DirectX::XMQuaternionRotationRollPitchYawFromVector();
-
-	//m_goalCamera->m_transform.SetPos(eyePos);
-	//
-	////m_goalCamera->m_transform.SetUp(result);
-	////m_goalCamera->m_transform.SetLookAtRotate(m_goalModelBaseTransform.GetPos());
-	////m_goalCamera->m_transform.SetRotate();
-	//
-
-	//KuroEngine::Vec3<float>rightDir(upVec.Cross(frontVec));
-
-	////DirectX::XMMATRIX matA = DirectX::XMMatrixIdentity();
-	////matA.r[0] = { rightDir.x,rightDir.y,rightDir.z,0.0f };
-	////matA.r[1] = { upVec.x,upVec.y,upVec.z,0.0f };
-	////matA.r[2] = { frontVec.x,frontVec.y,frontVec.z,0.0f };
-	////m_goalCamera->m_transform.SetRotaMatrix(matA);
-
-
-	//auto &c = m_camera->GetTransform();
-	//c.SetParent(&m_goalCamera->m_transform);
-
-
-	std::array<DirectX::XMFLOAT3, LIMIT_POS_MAX>posArray;
-	posArray[0] = { 0.0f,10.0f,0.0f };
-	posArray[1] = { 10.0f,10.0f,0.0f };
-	posArray[2] = { 10.0f,15.0f,0.0f };
-	posArray[3] = { 15.0f,15.0f,0.0f };
-	posArray[4] = { 15.0f,20.0f,0.0f };
-	posArray[5] = { 15.0f,20.0f,10.0f };
-	posArray[6] = { 15.0f,-20.0f,-10.0f };
-	posArray[7] = { 10.0f,10.0f,0.0f };
-	posArray[8] = { 0.0f,10.0f,0.0f };
-	posArray[9] = { 0.0f,10.0f,0.0f };
-
-	for (auto &obj : limitPosArray)
+	if (m_isStartFlag)
 	{
-		int index = static_cast<int>(&obj - &limitPosArray[0]);
-		obj->m_transform.SetPos(
-			{
-				posArray[index].x,
-				posArray[index].y,
-				posArray[index].z
-			}
-		);
-	}
-
-
-	UINT num = static_cast<UINT>(posArray.size());
-	m_limitIndexBuffer->Mapping(&num);
-	m_limitIndexPosBuffer->Mapping(posArray.data());
-
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) && false)
-	{
-		std::vector<KuroEngine::RegisterDescriptorData>descData =
+		for (auto &obj : m_splineArray)
 		{
-			{m_particleBuffer,KuroEngine::UAV},
-			{m_limitIndexPosBuffer,KuroEngine::UAV},
-			{m_limitIndexBuffer,KuroEngine::CBV},
-		};
-		KuroEngine::D3D12App::Instance()->DispathOneShot(m_initLoucusPipeline, { 1,1,1 }, descData);
+			obj->Update();
+		}
 	}
-	cd.scaleRotate = DirectX::XMMatrixScaling(0.3f, 0.3f, 0.3f);
-	if (m_splineTimer.IsTimeUp())
-	{
-		++cd.startIndex;
-		m_splineTimer.Reset();
-	}
-	if (posArray.size() <= cd.startIndex)
-	{
-		cd.startIndex = 0;
-	}
-	cd.rate = m_splineTimer.GetTimeRate();
-	m_splineTimer.UpdateTimer();
-	m_scaleRotaBuffer->Mapping(&cd);
 
 
-	std::vector<KuroEngine::RegisterDescriptorData>descData =
-	{
-		{m_particleBuffer,KuroEngine::UAV},
-		{m_gpuParticleBuffer,KuroEngine::UAV},
-		{m_scaleRotaBuffer,KuroEngine::CBV},
-	};
-	KuroEngine::D3D12App::Instance()->DispathOneShot(m_updateLoucusPipeline, { 1,1,1 }, descData);
-
-
-
-	//ゴールカメラモード
+	//カメラ切り替え
 	if (m_isStartFlag && !m_startGoalEffectFlag)
 	{
-		std::vector<MovieCameraData>cameraDataArray;
+		//プレイヤーと最も近いレイにカメラを配置
+		KuroEngine::Vec3<float>pos(transform->GetPos());
+		float minDistance = 1000, preMinDistance = 0;
+		int index = -1;
 
+		for (int i = 0; i < cameraPosArray.size(); ++i)
 		{
-			MovieCameraData data;
-			data.transform = m_goalCamera->m_transform;
-
-			data.interpolationTimer = 0;
-			data.afterStopTimer = 3;
-			cameraDataArray.emplace_back(data);
+			minDistance = std::min(minDistance, pos.Distance(cameraPosArray[i]));
+			if (minDistance != preMinDistance)
+			{
+				index = i;
+			}
+			preMinDistance = minDistance;
 		}
 
+		//カメラが配置出来なかった
+		if (index == -1)
 		{
-			MovieCameraData data;
-			data.transform = m_goalCamera->m_transform;
-			//data.afterStopTimer = 2;
+			static_assert(1);
+		}
+		m_goalCamera->m_transform.SetPos(cameraPosArray[index]);
+		m_zoomCameraPos = cameraPosArray[index];
 
-			cameraDataArray.emplace_back(data);
+		m_shake.Shake(10000.0f, 0.0f, 0.0f, 0.5f);
+		m_changeCameraFlag = true;
+
+		//演出開始---------------------------------------
+		if (m_playerGoalFlag)
+		{
+			InitLimitPos(transform->GetPos());
 		}
 
-		m_movieCamera.StartMovie(cameraDataArray, false);
+		m_loucusParticle[0].Init(m_splineLimitPos[0]);
+		m_loucusParticle[1].Init(m_splineLimitPos[1]);
+
 		m_startGoalEffectFlag = true;
+		//演出開始---------------------------------------
 	}
-	m_movieCamera.Update();
+
+	KuroEngine::Vec3<float>distance = m_goalBasePos - m_zoomCameraPos;
+	if (m_isStartFlag)
+	{
+		//段々旗に近づく
+		KuroEngine::Vec3<float>pos = KuroEngine::Math::Ease(KuroEngine::In, KuroEngine::Quint, m_zoomInTimer.GetTimeRate(), m_zoomCameraPos, m_zoomCameraPos + distance * 0.7f);
+		m_goalCamera->m_transform.SetPos(pos);
+
+		if (m_zoomInTimer.IsTimeUp())
+		{
+			KuroEngine::Vec3<float>pos = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Quint, m_zoomOutTimer.GetTimeRate(), m_zoomCameraPos + distance * 0.5f, m_zoomCameraPos - distance * 1.0f);
+			m_goalCamera->m_transform.SetPos(pos);
+
+			m_zoomOutTimer.UpdateTimer();
+		}
+		m_zoomInTimer.UpdateTimer();
+	}
+
+
+	if (m_isStartFlag && m_zoomInTimer.IsTimeUp())
+	{
+		float bigScale = 1.0f, smallScale = 0.0f;
+		if (!m_initParticleFlag)
+		{
+			m_glitterEmitt.Init(m_goalBasePos);
+			m_scaleOffset = { bigScale,bigScale,bigScale };
+			m_initParticleFlag = true;
+		}
+		m_scaleOffset = KuroEngine::Math::Lerp(m_scaleOffset, KuroEngine::Vec3<float>(smallScale, smallScale, smallScale), 0.1f);
+
+		if (m_goalModel)
+		{
+			m_goalModel->m_offset.SetScale(m_scaleOffset);
+			m_goalModel->m_offset.SetPos({ 0.0f,0.0f,0.0f });
+		}
+
+
+		m_clearEaseTimer.UpdateTimer();
+
+
+		if (m_clearEaseTimer.IsTimeUp())
+		{
+			m_sceneChangeTimer.UpdateTimer();
+		}
+		if (m_sceneChangeTimer.IsTimeUp())
+		{
+			m_goalFlag = true;
+		}
+	}
+	else
+	{
+		if (m_goalModel)
+		{
+			//旗を揺らす
+			m_goalModel->m_offset.SetPos(KuroEngine::Vec3<float>(m_shake.GetOffset().x, 0.0f, m_shake.GetOffset().z));
+			m_goalModel->m_offset.SetScale({ 0.0f,0.0f,0.0f });
+		}
+	}
+
+	m_glitterEmitt.Update();
+
+
+	//①視点ベクトル(カメラからオブジェクトまでのベクトル)を求める。
+	KuroEngine::Vec3<float>eyePos = m_goalCamera->m_transform.GetPos();
+	KuroEngine::Vec3<float>eyeDir = m_goalBasePos - eyePos;
+	eyeDir.Normalize();
+
+	//②上ベクトルを固定し、右ベクトルを求める。
+	KuroEngine::Vec3<float> rightVec = eyeDir.Cross({ 0,-1,0 });
+	rightVec.Normalize();
+
+	//③視点ベクトルと右ベクトルから正しい上ベクトルを求める。
+	KuroEngine::Vec3<float> upVec = eyeDir.Cross(rightVec);
+	upVec.Normalize();
+
+	KuroEngine::Vec3<float>frontVec = upVec.Cross(rightVec);
+	frontVec.Normalize();
+
+	//④求められたベクトルから姿勢を出す。
+	DirectX::XMMATRIX matA = DirectX::XMMatrixIdentity();
+	matA.r[0] = { rightVec.x,rightVec.y,rightVec.z,0.0f };
+	matA.r[1] = { upVec.x,upVec.y,upVec.z,0.0f };
+	matA.r[2] = { eyeDir.x,eyeDir.y,eyeDir.z,0.0f };
+	m_cameraTransform.SetPos(eyePos);
+	m_cameraTransform.SetRotaMatrix(matA);
+	m_cameraTransform.CalucuratePosRotaBasedOnWorldMatrix();
+
+	auto &cameraTransform = m_camera->GetTransform();
+	cameraTransform.SetParent(&m_cameraTransform);
 
 
 	m_pos = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Circ, m_clearEaseTimer.GetTimeRate(), m_basePos, m_goalPos);
+	m_goalTexSize = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, m_clearEaseTimer.GetTimeRate(), { 0.2f,0.2f }, { 1.0f,1.0f });
 	clearTexRadian = KuroEngine::Angle::ConvertToRadian(KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Circ, m_clearEaseTimer.GetTimeRate(), 0.0f, 360.0f));
-	if (m_isStartFlag)
+
+
+	if (!m_zoomInTimer.IsTimeUp())
 	{
-		m_clearEaseTimer.UpdateTimer();
+		m_shake.Update(1.0f);
 	}
 
-	if (m_movieCamera.IsFinish())
+
+	for (auto &obj : m_loucusParticle)
 	{
-		m_goalFlag = true;
+		obj.Update();
 	}
+
 }
 
 void Goal::Draw(KuroEngine::Camera &camera)
@@ -256,6 +262,13 @@ void Goal::Draw(KuroEngine::Camera &camera)
 	{
 		return;
 	}
+
+	for (auto &obj : m_loucusParticle)
+	{
+		obj.Draw(camera);
+	}
+
+
 #ifdef _DEBUG
 	//KuroEngine::DrawFunc3D::DrawNonShadingModel(m_goalCamera, camera);
 
@@ -292,14 +305,13 @@ void Goal::Draw(KuroEngine::Camera &camera)
 	//KuroEngine::Vec3<float>endPos(m_goalModelBaseTransform.GetPos() + result * 5.0f);
 	//KuroEngine::DrawFunc3D::DrawLine(camera, startPos, endPos, KuroEngine::Color(255, 0, 0, 255), 1.0f);
 
-	//for (auto &obj : limitPosArray)
-	//{
-	//	KuroEngine::DrawFunc3D::DrawNonShadingModel(obj, camera);
-	//}
-
 #endif // _DEBUG
+	m_glitterEmitt.Draw(camera);
 
-	KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_pos, { 1.0f,1.0f }, clearTexRadian, m_clearTex);
+	if (m_zoomInTimer.IsTimeUp())
+	{
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_pos, m_goalTexSize, 0.0f, m_clearTex);
+}
 	//KuroEngine::DrawFunc3D::DrawNonShadingPlane(m_ddsTex, transform, camera);
 }
 
@@ -313,3 +325,177 @@ bool Goal::IsEnd()
 	return false;
 }
 
+PlayerCollision::MeshCollisionOutput Goal::MeshCollision(const KuroEngine::Vec3<float> &arg_rayPos, const KuroEngine::Vec3<float> &arg_rayDir, std::vector<TerrianHitPolygon> &arg_targetMesh)
+{
+	/*===== メッシュとレイの当たり判定 =====*/
+
+
+	/*-- ① ポリゴンを法線情報をもとにカリングする --*/
+
+	//法線とレイの方向の内積が0より大きかった場合、そのポリゴンは背面なのでカリングする。
+	for (auto &index : arg_targetMesh) {
+
+		index.m_isActive = true;
+
+		if (index.m_p1.normal.Dot(arg_rayDir) < -0.0001f) continue;
+
+		index.m_isActive = false;
+
+	}
+
+
+	/*-- ② ポリゴンとレイの当たり判定を行い、各情報を記録する --*/
+
+	// 記録用データ
+	std::vector<std::pair<PlayerCollision::MeshCollisionOutput, TerrianHitPolygon>> hitDataContainer;
+
+	for (auto &index : arg_targetMesh) {
+
+		//ポリゴンが無効化されていたら次の処理へ
+		if (!index.m_isActive) continue;
+
+		//レイの開始地点から平面におろした垂線の長さを求める
+		//KuroEngine::Vec3<float> planeNorm = -index.m_p0.normal;
+		KuroEngine::Vec3<float> planeNorm = KuroEngine::Vec3<float>(KuroEngine::Vec3<float>(index.m_p0.pos - index.m_p2.pos).GetNormal()).Cross(KuroEngine::Vec3<float>(index.m_p0.pos - index.m_p1.pos).GetNormal());
+		float rayToOriginLength = arg_rayPos.Dot(planeNorm);
+		float planeToOriginLength = index.m_p0.pos.Dot(planeNorm);
+		//視点から平面におろした垂線の長さ
+		float perpendicularLine = rayToOriginLength - planeToOriginLength;
+
+		//三角関数を利用して視点から衝突点までの距離を求める
+		float dist = planeNorm.Dot(arg_rayDir);
+		float impDistance = perpendicularLine / -dist;
+
+		if (std::isnan(impDistance))continue;
+
+		//衝突地点
+		KuroEngine::Vec3<float> impactPoint = arg_rayPos + arg_rayDir * impDistance;
+
+		/*----- 衝突点がポリゴンの内側にあるかを調べる -----*/
+
+		/* 辺1本目 */
+		KuroEngine::Vec3<float> P1ToImpactPos = (impactPoint - index.m_p0.pos).GetNormal();
+		KuroEngine::Vec3<float> P1ToP2 = (index.m_p1.pos - index.m_p0.pos).GetNormal();
+		KuroEngine::Vec3<float> P1ToP3 = (index.m_p2.pos - index.m_p0.pos).GetNormal();
+
+		//衝突点と辺1の内積
+		float impactDot = P1ToImpactPos.Dot(P1ToP2);
+		//点1と点3の内積
+		float P1Dot = P1ToP2.Dot(P1ToP3);
+
+		//衝突点と辺1の内積が点1と点3の内積より小さかったらアウト
+		if (impactDot < P1Dot) {
+			index.m_isActive = false;
+			continue;
+		}
+
+		/* 辺2本目 */
+		KuroEngine::Vec3<float> P2ToImpactPos = (impactPoint - index.m_p1.pos).GetNormal();
+		KuroEngine::Vec3<float> P2ToP3 = (index.m_p2.pos - index.m_p1.pos).GetNormal();
+		KuroEngine::Vec3<float> P2ToP1 = (index.m_p0.pos - index.m_p1.pos).GetNormal();
+
+		//衝突点と辺2の内積
+		impactDot = P2ToImpactPos.Dot(P2ToP3);
+		//点2と点1の内積
+		float P2Dot = P2ToP3.Dot(P2ToP1);
+
+		//衝突点と辺2の内積が点2と点1の内積より小さかったらアウト
+		if (impactDot < P2Dot) {
+			index.m_isActive = false;
+			continue;
+		}
+
+		/* 辺3本目 */
+		KuroEngine::Vec3<float> P3ToImpactPos = (impactPoint - index.m_p2.pos).GetNormal();
+		KuroEngine::Vec3<float> P3ToP1 = (index.m_p0.pos - index.m_p2.pos).GetNormal();
+		KuroEngine::Vec3<float> P3ToP2 = (index.m_p1.pos - index.m_p2.pos).GetNormal();
+
+		//衝突点と辺3の内積
+		impactDot = P3ToImpactPos.Dot(P3ToP1);
+		//点3と点2の内積
+		float P3Dot = P3ToP1.Dot(P3ToP2);
+
+		//衝突点と辺3の内積が点3と点2の内積より小さかったらアウト
+		if (impactDot < P3Dot) {
+			index.m_isActive = false;
+			continue;
+		}
+
+		/* ここまで来たらポリゴンに衝突してる！ */
+		PlayerCollision::MeshCollisionOutput data;
+		data.m_isHit = true;
+		data.m_pos = impactPoint;
+		data.m_distance = impDistance;
+		data.m_normal = index.m_p0.normal;
+		hitDataContainer.emplace_back(std::pair(data, index));
+
+	}
+
+
+	/*-- ③ 記録した情報から最終的な衝突点を求める --*/
+
+	//hitPorygonの値が1以上だったら距離が最小の要素を検索
+	if (0 < hitDataContainer.size()) {
+
+		//距離が最小の要素を検索
+		int min = 0;
+		float minDistance = std::numeric_limits<float>().max();
+		for (auto &index : hitDataContainer) {
+			if (fabs(index.first.m_distance) < fabs(minDistance)) {
+				minDistance = index.first.m_distance;
+				min = static_cast<int>(&index - &hitDataContainer[0]);
+			}
+		}
+
+		//重心座標を求める。
+		KuroEngine::Vec3<float> bary = CalBary(hitDataContainer[min].second.m_p0.pos, hitDataContainer[min].second.m_p1.pos, hitDataContainer[min].second.m_p2.pos, hitDataContainer[min].first.m_pos);
+
+		KuroEngine::Vec3<float> baryBuff = bary;
+
+		//UVWの値がずれるので修正。
+		bary.x = baryBuff.y;
+		bary.y = baryBuff.z;
+		bary.z = baryBuff.x;
+
+		KuroEngine::Vec2<float> uv = KuroEngine::Vec2<float>();
+
+		//重心座標からUVを求める。
+		uv.x += hitDataContainer[min].second.m_p0.uv.x * bary.x;
+		uv.x += hitDataContainer[min].second.m_p1.uv.x * bary.y;
+		uv.x += hitDataContainer[min].second.m_p2.uv.x * bary.z;
+
+		uv.y += hitDataContainer[min].second.m_p0.uv.y * bary.x;
+		uv.y += hitDataContainer[min].second.m_p1.uv.y * bary.y;
+		uv.y += hitDataContainer[min].second.m_p2.uv.y * bary.z;
+
+		hitDataContainer[min].first.m_uv = uv;
+
+		return hitDataContainer[min].first;
+	}
+	else {
+
+		return PlayerCollision::MeshCollisionOutput();
+
+	}
+
+
+}
+
+KuroEngine::Vec3<float> Goal::CalBary(const KuroEngine::Vec3<float> &PosA, const KuroEngine::Vec3<float> &PosB, const KuroEngine::Vec3<float> &PosC, const KuroEngine::Vec3<float> &TargetPos)
+{
+
+	/*===== 重心座標を求める =====*/
+
+	KuroEngine::Vec3<float> uvw = KuroEngine::Vec3<float>();
+
+	// 三角形の面積を求める。
+	float areaABC = (PosC - PosA).Cross(PosB - PosA).Length() / 2.0f;
+
+	// 重心座標を求める。
+	uvw.x = ((PosA - TargetPos).Cross(PosB - TargetPos).Length() / 2.0f) / areaABC;
+	uvw.y = ((PosB - TargetPos).Cross(PosC - TargetPos).Length() / 2.0f) / areaABC;
+	uvw.z = ((PosC - TargetPos).Cross(PosA - TargetPos).Length() / 2.0f) / areaABC;
+
+	return uvw;
+
+}
