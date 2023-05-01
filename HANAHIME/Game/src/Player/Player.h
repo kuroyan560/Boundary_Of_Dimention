@@ -39,7 +39,8 @@ class Player : public KuroEngine::Debugger
 
 	//トランスフォーム
 	KuroEngine::Transform m_prevTransform;
-	KuroEngine::Transform m_transform;
+	KuroEngine::Transform m_transform;		//当たり判定や移動の際の方向の判定に使用するトランスフォーム
+	KuroEngine::Transform m_drawTransform;	//描画に使用するトランスフォーム プレイヤーを沈ませたり、カメラの方向を見ないようにするために使用する。
 	KuroEngine::Transform m_initTransform;
 
 	//移動量

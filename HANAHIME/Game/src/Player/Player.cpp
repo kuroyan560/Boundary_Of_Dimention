@@ -107,6 +107,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 {
 	m_initTransform = arg_initTransform;
 	m_transform = arg_initTransform;
+	m_drawTransform = arg_initTransform;
 	m_camController.Init();
 	m_cameraRotY = 0;
 	m_cameraRotYStorage = arg_initTransform.GetRotateAsEuler().x;
@@ -365,6 +366,14 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() + m_deathShake);
 	}
 
+	//描画用にトランスフォームを適用
+	m_drawTransform.SetPos(m_transform.GetPos());
+	m_drawTransform.SetScale(m_transform.GetScale());
+	//回転は動いたときのみ適用させる。
+	if (0 < m_rowMoveVec.Length()) {
+		m_drawTransform.SetRotate(m_transform.GetRotate());
+	}
+
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
@@ -380,7 +389,7 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		arg_cam,
 		arg_ligMgr,
 		m_model,
-		m_transform,
+		m_drawTransform,
 		IndividualDrawParameter::GetDefault());
 
 	/*
