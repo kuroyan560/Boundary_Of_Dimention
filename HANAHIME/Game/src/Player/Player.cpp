@@ -372,6 +372,14 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	m_growPlantPtLig.Active();
 
+	//地中にいるときはライトを変える。
+	if (m_isInputUnderGround) {
+		m_growPlantPtLig.m_influenceRange = std::clamp(m_growPlantPtLig.m_influenceRange - SUB_INFLUENCE_RANGE, MIN_INFLUENCE_RANGE, MAX_INFLUENCE_RANGE);
+	}
+	else {
+		m_growPlantPtLig.m_influenceRange = std::clamp(m_growPlantPtLig.m_influenceRange + ADD_INFLUENCE_RANGE, ATTACK_INFLUENCE_RANGE, MAX_INFLUENCE_RANGE);
+	}
+
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
@@ -396,7 +404,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() + m_deathShake);
 	}
 
-	//描画用にトランスフォームを適用		
+	//描画用にトランスフォームを適用	
+	//地中に潜っている時と戻っているときのイージング中のトランスフォームを計算。
 	if (m_underGroundEaseTimer < 1.0f) {
 
 		//地中にいるときといないときで処理を変える。
@@ -417,6 +426,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		}
 
 	}
+	//地中に潜っている時。
 	else if (m_isUnderGround) {
 
 		m_drawTransform.SetPos(m_transform.GetPos() - m_transform.GetUp() * UNDERGROUND_Y);
