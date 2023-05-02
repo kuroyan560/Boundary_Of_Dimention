@@ -190,9 +190,10 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     result.xyz = toonIndividualParam.m_fillColor.xyz * toonIndividualParam.m_fillColor.w + result.xyz * (1.0f - toonIndividualParam.m_fillColor.w);
     
     int isBright = 0;
+    int isBrightDefRange = 0; //デフォルトのライトの影響度の範囲
     
     //植物を繁殖させるポイントライト
-    for (int i = 0; i < ligNum_Plant.ptLigNum;++i)
+    for (int i = 0; i < ligNum_Plant.ptLigNum; ++i)
     {
         if (!pointLight_Plant[i].m_active)
             continue;
@@ -202,6 +203,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
         //-1 ~ 1 から 0 ~ 1の範囲に収める
         bright = saturate(bright);
         isBright += 1.0f - step(pointLight_Plant[i].m_influenceRange, length(ligRay) * int(bright == 0 ? pointLight_Plant[i].m_influenceRange : 1));
+        isBrightDefRange += 1.0f - step(pointLight_Plant[i].m_defInfluenceRange, length(ligRay) * int(bright == 0 ? pointLight_Plant[i].m_defInfluenceRange : 1));
         
     }
     //植物を繁殖させるスポットライト
@@ -211,8 +213,22 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
             continue;
     }
     
+    float3 albedo = result;
+    
     isBright = min(isBright, 1);
-    result.xyz *= lerp(0.7f, 1.0f, isBright);
+    isBrightDefRange = min(isBrightDefRange, 1);
+    if (isBright)
+    {
+        result.xyz *= lerp(0.7f, 1.0f, isBright);
+    }
+    else if (isBrightDefRange)
+    {
+        result.xyz = float3(1.0f, 0.0f, 0.0f);
+    }
+    else
+    {
+        result.xyz *= 0.7f;
+    }
     
     //光が当たっていないならモノクロ化
     result.xyz = lerp(lerp(result.xyz, Monochrome(result.xyz), toonCommonParam.m_monochromeRate), result.xyz, isBright);

@@ -196,7 +196,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			if (isInputOnOff || (!m_isUnderGround && m_isInputUnderGround) || (m_isUnderGround && !m_isInputUnderGround)) {
 				m_underGroundEaseTimer = 0;
 			}
-			             
+
 		}
 		else {
 
@@ -379,6 +379,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	else {
 		m_growPlantPtLig.m_influenceRange = std::clamp(m_growPlantPtLig.m_influenceRange + ADD_INFLUENCE_RANGE, ATTACK_INFLUENCE_RANGE, MAX_INFLUENCE_RANGE);
 	}
+	m_growPlantPtLig.m_defInfluenceRange = MAX_INFLUENCE_RANGE;
 
 	//€‚ñ‚Å‚¢‚½‚ç€–S‚ÌXVˆ—‚ğ“ü‚ê‚éB
 	if (!m_isDeath) {

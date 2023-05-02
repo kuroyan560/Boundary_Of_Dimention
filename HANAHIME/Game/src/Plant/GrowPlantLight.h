@@ -65,6 +65,7 @@ class GrowPlantLight_Point : public GrowPlantLight
 public:
 	//影響範囲（半径）
 	float m_influenceRange = 8.0f;
+	float m_defInfluenceRange = 8.0f;
 
 	GrowPlantLight_Point(float arg_influenceRange, KuroEngine::Transform* arg_parent = nullptr)
 		:m_influenceRange(arg_influenceRange), GrowPlantLight(POINT)
@@ -78,8 +79,9 @@ public:
 	public:
 		KuroEngine::Vec3<float>m_pos = { 0,0,0 };
 		float m_influenceRange = 8.0f;
+		float m_defInfluenceRange = 8.0f;
 		unsigned int m_active = 1;
-		int pad[3];
+		int pad[2];
 	};
 
 	//GPUに送信するデータ形式になおして出力
@@ -88,6 +90,7 @@ public:
 		ConstData data;
 		data.m_pos = m_transform.GetPosWorld();
 		data.m_influenceRange = m_influenceRange;
+		data.m_defInfluenceRange = m_defInfluenceRange;
 		data.m_active = m_active ? 1 : 0;
 		return data;
 	}

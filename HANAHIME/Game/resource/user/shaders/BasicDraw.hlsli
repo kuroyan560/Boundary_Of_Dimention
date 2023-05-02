@@ -37,6 +37,7 @@ struct PointLight_Plant
 {
     float3 m_pos;
     float m_influenceRange;
+    float m_defInfluenceRange;
     uint m_active;
 };
 
