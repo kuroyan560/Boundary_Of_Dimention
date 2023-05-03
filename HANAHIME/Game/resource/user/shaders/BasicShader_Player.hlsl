@@ -197,10 +197,46 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
     //塗りつぶし
     result.xyz = toonIndividualParam.m_fillColor.xyz * toonIndividualParam.m_fillColor.w + result.xyz * (1.0f - toonIndividualParam.m_fillColor.w);
     
+    int isBright = 0;
+    int isBrightDefRange = 0; //デフォルトのライトの影響度の範囲
+    
+    //植物を繁殖させるポイントライト
+    for (int i = 0; i < ligNum_Plant.ptLigNum; ++i)
+    {
+        if (!pointLight_Plant[i].m_active)
+            continue;
+        
+        float3 ligRay = input.worldpos - pointLight_Plant[i].m_pos;
+        float bright = dot(-normalize(ligRay), input.normal);
+        //-1 ~ 1 から 0 ~ 1の範囲に収める
+        bright = saturate(bright);
+        isBright += 1.0f - step(pointLight_Plant[i].m_influenceRange, length(ligRay) * int(bright == 0 ? pointLight_Plant[i].m_influenceRange : 1));
+        isBrightDefRange += 1.0f - step(pointLight_Plant[i].m_defInfluenceRange, length(ligRay) * int(bright == 0 ? pointLight_Plant[i].m_defInfluenceRange : 1));
+        
+    }
+    //植物を繁殖させるスポットライト
+    for (int i = 0; i < ligNum_Plant.spotLigNum; ++i)
+    {
+        if (!spotLight_Plant[i].m_active)
+            continue;
+    }
+    
+    float3 albedo = result;
+    
+    isBright = min(isBright, 1);
+    isBrightDefRange = min(isBrightDefRange, 1);
+    result.xyz *= lerp(0.7f, 1.0f, saturate(isBright + isBrightDefRange));
+    
+    //光が当たっていないならモノクロ化
+    result.xyz = lerp(lerp(result.xyz, Monochrome(result.xyz), toonCommonParam.m_monochromeRate), result.xyz, isBright);
+    
+    //アルファ値適用
+    result.w *= toonIndividualParam.m_alpha;
+    
     PSOutput_Player output;
     output.color = result;
     
-        //明るさ計算
+    //明るさ計算
     // float bright = dot(result.xyz, float3(0.2125f, 0.7154f, 0.0721f));
     // if (1.0f < bright)
     //    output.emissive += result;
@@ -209,11 +245,14 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
     
     output.depth = input.depthInView;
 
-    output.edgeColor = toonIndividualParam.m_edgeColor;
+    output.edgeColor = toonIndividualParam.m_edgeColor * lerp(0.2f, 1.0f, isBright);
     
     output.bright.x = 1;
+    output.bright.y = 1;
+    output.bright.z = 1;
     
     output.normal.xyz = input.normal;
 
     return output;
+
 }

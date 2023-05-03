@@ -264,7 +264,7 @@ void GameScene::OnDraw()
 
 
 	//m_canvasPostEffect.Execute();
-	BasicDraw::Instance()->DrawEdge();
+	BasicDraw::Instance()->DrawEdge(m_nowCam->GetViewMat(), m_nowCam->GetProjectionMat());
 
 	//KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 	//m_waterPaintBlend.Register(main, *nowCamera, ds);

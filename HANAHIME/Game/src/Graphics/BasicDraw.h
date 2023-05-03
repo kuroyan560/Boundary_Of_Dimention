@@ -44,11 +44,10 @@ private:
 	//エッジの共有パラメータ
 	struct EdgeCommonParameter
 	{
+		DirectX::XMMATRIX m_view;
+		DirectX::XMMATRIX m_proj;
 		//エッジ描画の判断をする深度差のしきい値
 		float m_depthThreshold = 0.19f;
-		float m_pad[3];
-		//深度値を比べるテクセルへのUVオフセット（近傍8）
-		std::array<KuroEngine::Vec2<float>, 8>m_uvOffset;
 	};
 	EdgeCommonParameter m_edgeShaderParam;
 
@@ -207,7 +206,7 @@ public:
 		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr);
 
 	//エッジ描画
-	void DrawEdge();
+	void DrawEdge(DirectX::XMMATRIX arg_camView, DirectX::XMMATRIX arg_camProj);
 
 	//メインのレンダーターゲットゲッタ
 	std::shared_ptr<KuroEngine::RenderTarget>& GetRenderTarget(RENDER_TARGET_TYPE arg_type) { return m_renderTargetArray[arg_type]; }

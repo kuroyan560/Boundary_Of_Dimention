@@ -62,7 +62,7 @@ class Player : public KuroEngine::Debugger
 	const float MAX_INFLUENCE_RANGE = 8.0f;
 	const float MIN_INFLUENCE_RANGE = 1.0f;
 	const float ATTACK_INFLUENCE_RANGE = 3.0f;
-	const float SUB_INFLUENCE_RANGE = 0.1f;
+	const float SUB_INFLUENCE_RANGE = 0.05f;
 	const float ADD_INFLUENCE_RANGE = 0.3f;
 
 	//ステージの参照
@@ -233,6 +233,11 @@ public:
 	void DisactiveLight()
 	{
 		m_growPlantPtLig.Disactive();
+	}
+
+	//アウトラインの点線を描画するときに使用する値
+	KuroEngine::Vec3<float> GetOutlineStandardVec() {
+		return KuroEngine::Math::TransformVec3(KuroEngine::Vec3<float>(0, 0, 1), m_normalSpinQ);
 	}
 
 private:

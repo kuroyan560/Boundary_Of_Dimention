@@ -50,7 +50,7 @@ void CSmain(uint2 DTid : SV_DispatchThreadID)
     
     float4 result = mainTex[DTid];
     result.xyz = lerp(result.xyz, fogColor.xyz, min(depth * config.m_intensity, config.m_opacityMax));
-    result.xyz = lerp(result.xyz, mainTex[DTid].xyz, maskTex[DTid].x);
+    //result.xyz = lerp(result.xyz, mainTex[DTid].xyz, maskTex[DTid].x);
     
     resultTex[DTid] = result;
 };

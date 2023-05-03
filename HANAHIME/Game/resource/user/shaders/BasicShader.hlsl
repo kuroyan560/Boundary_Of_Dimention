@@ -217,18 +217,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     
     isBright = min(isBright, 1);
     isBrightDefRange = min(isBrightDefRange, 1);
-    if (isBright)
-    {
-        result.xyz *= lerp(0.7f, 1.0f, isBright);
-    }
-    else if (isBrightDefRange)
-    {
-        result.xyz = float3(1.0f, 0.0f, 0.0f);
-    }
-    else
-    {
-        result.xyz *= 0.7f;
-    }
+    result.xyz *= lerp(0.7f, 1.0f, saturate(isBright + isBrightDefRange));
     
     //åıÇ™ìñÇΩÇ¡ÇƒÇ¢Ç»Ç¢Ç»ÇÁÉÇÉmÉNÉçâª
     result.xyz = lerp(lerp(result.xyz, Monochrome(result.xyz), toonCommonParam.m_monochromeRate), result.xyz, isBright);
@@ -239,7 +228,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     PSOutput output;
     output.color = result;
     
-        //ñæÇÈÇ≥åvéZ
+    //ñæÇÈÇ≥åvéZ
     // float bright = dot(result.xyz, float3(0.2125f, 0.7154f, 0.0721f));
     // if (1.0f < bright)
     //    output.emissive += result;
@@ -251,6 +240,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     output.edgeColor = toonIndividualParam.m_edgeColor * lerp(0.2f, 1.0f, isBright);
     
     output.bright.x = isBright;
+    output.bright.y = saturate(isBright + isBrightDefRange);
     
     output.worldPos = float4(input.worldpos, 1.0f);
     

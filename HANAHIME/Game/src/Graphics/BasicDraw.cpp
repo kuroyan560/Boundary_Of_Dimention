@@ -225,6 +225,7 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"光が当たっている範囲のマップ"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"エッジカラーマップ"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"法線マップ"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"ワールド座標"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"専用のパラメータ"),
 		};
 
@@ -235,27 +236,13 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		};
 		//パイプライン生成
 		m_edgePipeline = D3D12App::Instance()->GenerateGraphicsPipeline(
-			PIPELINE_OPTION, 
-			SHADERS, 
+			PIPELINE_OPTION,
+			SHADERS,
 			SpriteMesh::Vertex::GetInputLayout(),
 			ROOT_PARAMETER,
 			RENDER_TARGET_INFO,
 			{ WrappedSampler(false, true) });
 	}
-
-	//ウィンドウサイズからUVオフセットを求める
-	const auto winSize = WinApp::Instance()->GetWinSize().Float();
-	m_edgeShaderParam.m_uvOffset = 
-	{
-		Vec2<float>(0.0f,  1.0f / winSize.y), //上
-		Vec2<float>(0.0f, -1.0f / winSize.y), //下
-		Vec2<float>(1.0f / winSize.x,           0.0f), //右
-		Vec2<float>(-1.0f / winSize.x,           0.0f), //左
-		Vec2<float>(1.0f / winSize.x,  1.0f / winSize.y), //右上
-		Vec2<float>(-1.0f / winSize.x,  1.0f / winSize.y), //左上
-		Vec2<float>(1.0f / winSize.x, -1.0f / winSize.y), //右下
-		Vec2<float>(-1.0f / winSize.x, -1.0f / winSize.y)  //左下
-	};
 
 	//エッジ出力用のバッファを用意
 	m_edgeShaderParamBuff = D3D12App::Instance()->GenerateConstantBuffer(
@@ -569,11 +556,15 @@ void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightMan
 		arg_boneBuff);
 }
 
-void BasicDraw::DrawEdge()
+void BasicDraw::DrawEdge(DirectX::XMMATRIX arg_camView, DirectX::XMMATRIX arg_camProj)
 {
 	using namespace KuroEngine;
 
 	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_edgePipeline);
+
+	m_edgeShaderParam.m_view = arg_camView;
+	m_edgeShaderParam.m_proj = arg_camProj;
+	m_edgeShaderParamBuff->Mapping(&m_edgeShaderParam);
 
 	std::vector<RegisterDescriptorData>descDatas =
 	{
@@ -582,6 +573,7 @@ void BasicDraw::DrawEdge()
 		{m_renderTargetArray[BRIGHT],SRV},
 		{m_renderTargetArray[EDGE_COLOR],SRV},
 		{m_renderTargetArray[NORMAL],SRV},
+		{m_renderTargetArray[WORLD_POS],SRV},
 		{m_edgeShaderParamBuff,CBV},
 	};
 	m_spriteMesh->Render(descDatas);
