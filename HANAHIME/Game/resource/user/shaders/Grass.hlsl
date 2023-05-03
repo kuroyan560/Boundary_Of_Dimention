@@ -19,6 +19,7 @@ struct CheckResult
     float3 m_plantPos;
     int m_isSuccess;
     float3 m_plantNormal;
+    int m_pad;
 };
 
 RWStructuredBuffer<PlantGrass> aliveGrassBuffer : register(u0);
@@ -93,13 +94,13 @@ void Update(uint DTid : SV_DispatchThreadID)
     {
         
         //イージングタイマー更新
-        grass.m_appearYTimer = max(grass.m_appearYTimer - commonInfo.m_deadEaseSpeed, 0.0f);
+        //grass.m_appearYTimer = max(grass.m_appearYTimer - commonInfo.m_deadEaseSpeed, 0.0f);
         
         //0以下になったらフラグを折る。
-        if (grass.m_appearYTimer <= 0)
-        {
-            grass.m_isAlive = 0;
-        }
+       // if (grass.m_appearYTimer <= 0)
+       // {
+       //     grass.m_isAlive = 0;
+       // }
         
     }
     
@@ -158,39 +159,27 @@ void Disappear(uint DTid : SV_DispatchThreadID)
     }
 };
 
-[numthreads(1, 1, 1)]
-void SearchPlantPos(uint DTid : SV_DispatchThreadID)
+[numthreads(16, 16, 1)]
+void SearchPlantPos(uint3 GlobalID : SV_DispatchThreadID, uint3 GroupID : SV_GroupID, uint3 LocalID : SV_GroupThreadID)
 {
     
+    //グローバルIDの計算
+    const int GRASS_SPAN = 10;
+    uint index = GlobalID.y * (1280 / GRASS_SPAN) + GlobalID.x;
+    
     //スクリーン座標からワールド座標へ変換。
-    CheckResult result = checkResultBuffer[DTid];
+    CheckResult result = checkResultBuffer[index];
     
     //探す回数。
-    uint2 screenPos = uint2(0, 0);
+    uint2 screenPos = (GroupID.xy * uint2(16, 16) + LocalID.xy) * uint2(GRASS_SPAN, GRASS_SPAN);
+    
+    //ランダムでちょっとだけ散らす。
+    uint randomScatter = 10;
+    uint2 random = uint2(RandomIntInRange(otherTransformData.m_seed * LocalID.x * GlobalID.y + screenPos.x) * (randomScatter * 2), RandomIntInRange(otherTransformData.m_seed * LocalID.y * GlobalID.x + screenPos.y) * (randomScatter * 2));
+    random -= uint2(randomScatter, randomScatter);
+    screenPos += random;
+    
     result.m_isSuccess = false;
-    
-    //乱数の種
-    float seed1 = otherTransformData.m_seed + DTid * 103.0f;
-    float seed2 = otherTransformData.m_seed + DTid * 307.0f + otherTransformData.m_seed;
-    float seed3 = otherTransformData.m_seed + DTid * 701.0f + otherTransformData.m_seed * otherTransformData.m_seed;
-    
-    //草を生成する範囲
-    const float GENERATE_RAD = 10.0f;
-    
-    //位置乱数
-    float3 posOffset = float3(RandomIntInRange(seed1) * 2.0f - 1.0f, RandomIntInRange(seed2) * 2.0f - 1.0f, RandomIntInRange(seed3) * 2.0f - 1.0f);
-    posOffset.x *= GENERATE_RAD;
-    posOffset.y *= GENERATE_RAD;
-    posOffset.z *= GENERATE_RAD;
-    
-    //プレイヤーの周囲に草を生成する場所を決める。
-    float3 generatePos = commonInfo.m_playerPos + posOffset;
-    
-    //サンプリングするスクリーン座標を求める。    
-    float4 viewPos = mul(commonInfo.matView, float4(generatePos, 1.0f));
-    float4 clipPos = mul(commonInfo.matProjection, viewPos);
-    float3 ndcPos = clipPos.xyz / clipPos.w;
-    screenPos = round(float2((ndcPos.x * 0.5f + 0.5f) * 1280.0f, (1.0f - (ndcPos.y * 0.5f + 0.5f)) * 720.0f));
         
     //サンプリングした座標がライトに当たっている位置かどうかを判断。
     result.m_isSuccess = step(0.9f, g_brightMap[screenPos].x);
@@ -198,7 +187,7 @@ void SearchPlantPos(uint DTid : SV_DispatchThreadID)
     //サンプリングに失敗したら次へ。
     if (!result.m_isSuccess)
     {
-        checkResultBuffer[DTid] = result;
+        checkResultBuffer[index] = result;
         return;
     }
         
@@ -207,7 +196,20 @@ void SearchPlantPos(uint DTid : SV_DispatchThreadID)
         
     //法線も求める。
     result.m_plantNormal = g_normalMap[screenPos].xyz;
+    
+    //すでに生えているところにもう一度生やしていないかをチェック。
+    const float DEADLINE = 1.3f;
+    for (int grassIndex = 0; grassIndex < otherTransformData.m_grassCount; ++grassIndex)
+    {
+        float distance = length(result.m_plantPos - aliveGrassBuffer[grassIndex].m_pos);
+        if (distance < DEADLINE)
+        {
+            result.m_isSuccess = false;
+            break;
+        }
+
+    }
         
-    checkResultBuffer[DTid] = result;
+    checkResultBuffer[index] = result;
     
 }

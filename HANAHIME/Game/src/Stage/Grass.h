@@ -33,6 +33,15 @@ class Grass
 	//テクスチャの数
 	static const int s_textureNumMax = 5;
 
+	//草を生やすかチェックで使用する値
+	static const int GRASS_GROUP = 16;
+	static const int GRASS_SPAN = 10;
+	static const int GRASS_SEARCH_X = 1280 / GRASS_SPAN;
+	static const int GRASS_SEARCH_Y = 720 / GRASS_SPAN;
+	static const int GRASSF_SEARCH_COUNT = GRASS_SEARCH_X * GRASS_SEARCH_Y;
+	static const int GRASSF_SEARCH_DISPATCH_X = GRASS_SEARCH_X / GRASS_GROUP;
+	static const int GRASSF_SEARCH_DISPATCH_Y = GRASS_SEARCH_Y / GRASS_GROUP;
+
 	//パイプライン
 	std::shared_ptr<KuroEngine::GraphicsPipeline>m_pipeline;
 
@@ -163,6 +172,6 @@ private:
 	/// 草をはやす場所を取得する。
 	/// </summary>
 	/// <returns> t:生えている  f:生えていない </returns>
-	std::array<CheckResult, PLANT_ONCE_COUNT> SearchPlantPos(KuroEngine::Transform arg_playerTransform);
+	std::array<Grass::CheckResult, GRASSF_SEARCH_COUNT> SearchPlantPos(KuroEngine::Transform arg_playerTransform);
 
 };
