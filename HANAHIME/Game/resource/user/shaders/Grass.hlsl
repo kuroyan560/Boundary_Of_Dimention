@@ -94,13 +94,13 @@ void Update(uint DTid : SV_DispatchThreadID)
     {
         
         //イージングタイマー更新
-        //grass.m_appearYTimer = max(grass.m_appearYTimer - commonInfo.m_deadEaseSpeed, 0.0f);
+        grass.m_appearYTimer = max(grass.m_appearYTimer - commonInfo.m_deadEaseSpeed, 0.0f);
         
         //0以下になったらフラグを折る。
-       // if (grass.m_appearYTimer <= 0)
-       // {
-       //     grass.m_isAlive = 0;
-       // }
+        if (grass.m_appearYTimer <= 0)
+        {
+            grass.m_isAlive = 0;
+        }
         
     }
     

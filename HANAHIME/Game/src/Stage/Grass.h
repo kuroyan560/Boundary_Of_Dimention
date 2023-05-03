@@ -34,13 +34,13 @@ class Grass
 	static const int s_textureNumMax = 5;
 
 	//草を生やすかチェックで使用する値
-	static const int GRASS_GROUP = 16;
-	static const int GRASS_SPAN = 10;
-	static const int GRASS_SEARCH_X = 1280 / GRASS_SPAN;
-	static const int GRASS_SEARCH_Y = 720 / GRASS_SPAN;
-	static const int GRASSF_SEARCH_COUNT = GRASS_SEARCH_X * GRASS_SEARCH_Y;
-	static const int GRASSF_SEARCH_DISPATCH_X = GRASS_SEARCH_X / GRASS_GROUP;
-	static const int GRASSF_SEARCH_DISPATCH_Y = GRASS_SEARCH_Y / GRASS_GROUP;
+	static const int GRASS_GROUP = 16;						//スレッドグループに含まれる草の数
+	static const int GRASS_SPAN = 10;						//ピクセル単位で草を生やす間隔
+	static const int GRASS_SEARCH_X = 1280 / GRASS_SPAN;	//草を生やす場所を探す際に走査する数X
+	static const int GRASS_SEARCH_Y = 720 / GRASS_SPAN;		//草を生やす場所を探す際に走査する数Y
+	static const int GRASSF_SEARCH_COUNT = GRASS_SEARCH_X * GRASS_SEARCH_Y;		//草を生やす場所を探す際に走査する数合計
+	static const int GRASSF_SEARCH_DISPATCH_X = GRASS_SEARCH_X / GRASS_GROUP;	//走査する数にスレッドグループを考慮した値X
+	static const int GRASSF_SEARCH_DISPATCH_Y = GRASS_SEARCH_Y / GRASS_GROUP;	//走査する数にスレッドグループを考慮した値Y
 
 	//パイプライン
 	std::shared_ptr<KuroEngine::GraphicsPipeline>m_pipeline;
