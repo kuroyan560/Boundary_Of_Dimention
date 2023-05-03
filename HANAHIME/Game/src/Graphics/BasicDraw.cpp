@@ -341,8 +341,8 @@ void BasicDraw::Update(KuroEngine::Vec3<float> arg_playerPos, KuroEngine::Camera
 	}
 	m_growPlantLigNumBuffer->Mapping(&ligNum);
 
-	if (ligNum.m_ptLig)m_growPlantPtLigBuffer->Mapping(ptLigConstData.data());
-	if (ligNum.m_spotLig)m_growPlantSpotLigBuffer->Mapping(spotLigConstData.data());
+	if (ligNum.m_ptLig)m_growPlantPtLigBuffer->Mapping(ptLigConstData.data(), ligNum.m_ptLig);
+	if (ligNum.m_spotLig)m_growPlantSpotLigBuffer->Mapping(spotLigConstData.data(), ligNum.m_spotLig);
 }
 
 void BasicDraw::RenderTargetsClearAndSet(std::weak_ptr<KuroEngine::DepthStencil>arg_ds)

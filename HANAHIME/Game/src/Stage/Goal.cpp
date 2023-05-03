@@ -308,11 +308,15 @@ void Goal::Draw(KuroEngine::Camera &camera)
 #endif // _DEBUG
 	m_glitterEmitt.Draw(camera);
 
+	//KuroEngine::DrawFunc3D::DrawNonShadingPlane(m_ddsTex, transform, camera);
+}
+
+void Goal::Draw2D()
+{
 	if (m_zoomInTimer.IsTimeUp())
 	{
 		KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_pos, m_goalTexSize, 0.0f, m_clearTex);
-}
-	//KuroEngine::DrawFunc3D::DrawNonShadingPlane(m_ddsTex, transform, camera);
+	}
 }
 
 bool Goal::IsEnd()
