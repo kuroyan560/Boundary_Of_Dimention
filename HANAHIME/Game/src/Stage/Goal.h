@@ -30,6 +30,7 @@ public:
 	void Finalize();
 	void Update(KuroEngine::Transform *transform);
 	void Draw(KuroEngine::Camera &camera);
+	void Draw2D();
 
 	//ゴール演出スタート
 	void Start()

@@ -277,6 +277,11 @@ void GameScene::OnDraw()
 
 	//tutorial.Draw(*m_nowCam);
 
+	if (m_title.IsFinish() || m_title.IsStartOP())
+	{
+		m_goal.Draw(*m_nowCam);
+	}
+
 	m_fogPostEffect->Register(
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN),
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::DEPTH),
@@ -290,12 +295,6 @@ void GameScene::OnDraw()
 
 	m_title.Draw(*m_nowCam, m_ligMgr);
 
-	if (m_title.IsFinish() || m_title.IsStartOP())
-	{
-		m_goal.Draw(*m_nowCam);
-	}
-
-
 	m_gateSceneChange.Draw();
 
 
@@ -305,6 +304,7 @@ void GameScene::OnDraw()
 		});
 
 	m_vignettePostEffect.DrawResult(AlphaBlendMode_None);
+	m_goal.Draw2D();
 }
 
 void GameScene::OnImguiDebug()
