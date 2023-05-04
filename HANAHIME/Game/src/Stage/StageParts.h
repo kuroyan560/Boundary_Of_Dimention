@@ -58,7 +58,24 @@ private:
 class StageParts
 {
 public:
-	enum STAGE_PARTS_TYPE { TERRIAN, START_POINT, GOAL_POINT, APPEARANCE, MOVE_SCAFFOLD, LEVER, IVY_ZIP_LINE, IVY_BLOCK, NUM, NONE };
+	enum STAGE_PARTS_TYPE
+	{
+		//地形など動的オブジェクト
+		TERRIAN,
+		START_POINT,
+		GOAL_POINT,
+		APPEARANCE,
+		MOVE_SCAFFOLD,
+		LEVER,
+		IVY_ZIP_LINE,
+		IVY_BLOCK,
+
+		//敵など静的オブジェクト
+		MINI_BUG,	//チビ虫
+		DOSSUN_RING,	//ドッスンリング
+
+		NUM, NONE
+	};
 	static const std::string& GetTypeKeyOnJson(STAGE_PARTS_TYPE arg_type);
 
 private:

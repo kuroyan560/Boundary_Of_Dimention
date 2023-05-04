@@ -4,6 +4,7 @@
 #include"FrameWork/Importer.h"
 #include"ForUser/Object/Model.h"
 #include "StageParts.h"
+#include"Enemy/Enemy.h"
 #include"Switch.h"
 #include<optional>
 
@@ -172,6 +173,18 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		m_gimmickArray.emplace_back(std::make_shared<IvyBlock>(model, transform, arg_parent, leftTopFront, rightBottomBack));
 		newPart = m_gimmickArray.back().get();
 	}
+	//チビ虫
+	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::MINI_BUG))
+	{
+		m_enemyArray.emplace_back(std::make_shared<MiniBug>(model, transform, arg_parent));
+		newPart = m_enemyArray.back().get();
+	}
+	//ドッスンリング
+	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::DOSSUN_RING))
+	{
+		m_enemyArray.emplace_back(std::make_shared<DossunRing>(model, transform, arg_parent));
+		newPart = m_enemyArray.back().get();
+	}
 	else
 	{
 		AppearMessageBox("Warning : Stage::LoadWithType()", "ステージパーツの読み込み中に知らない種別キー \"" + typeKey + "\"があったけど大丈夫？");
@@ -210,15 +223,20 @@ Stage::Stage()
 	m_groundTex = s_defaultGroundTex;
 }
 
-void Stage::GimmickInit()
+void Stage::Init()
 {
 	for (auto& gimmick : m_gimmickArray)
 	{
 		gimmick->Init();
 	}
+
+	for (auto& enemy : m_enemyArray)
+	{
+		enemy->Init();
+	}
 }
 
-void Stage::GimmickUpdate(Player& arg_player)
+void Stage::Update(Player& arg_player)
 {
 	for (auto& gimmick : m_gimmickArray)
 	{
@@ -252,7 +270,7 @@ void Stage::GimmickUpdate(Player& arg_player)
 						for (auto& aabbB : meshB) {
 
 							result = aabbA.CheckAABBCollision(aabbB);
-							if (!result) continue;	
+							if (!result) continue;
 							//極小の誤差は無視する。
 							if (result->m_pushBack.Length() < 0.001f) continue;
 
@@ -285,23 +303,21 @@ void Stage::GimmickUpdate(Player& arg_player)
 
 	}
 
+	for (auto& enemy : m_enemyArray)
+	{
+		enemy->Update(arg_player);
+	}
+
 	if (m_goalPoint)m_goalPoint->Update(arg_player);
 }
 
-bool Stage::IsClear() const
+void Stage::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
-	//レバークリア
-	if (m_goalLeverID != Lever::INVALID_ID)return m_goalSwitch->IsBooting();
+	for (auto& enemy : m_enemyArray)
+	{
+		enemy->Draw(arg_cam, arg_ligMgr);
+	}
 
-	//目的地到達
-	if (m_goalPoint)return m_goalPoint->HitPlayer();
-
-	//クリアが存在しない
-	return false;
-}
-
-void Stage::TerrianDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
-{
 	for (auto& terrian : m_terrianArray)
 	{
 		terrian.Draw(arg_cam, arg_ligMgr);
@@ -320,6 +336,18 @@ void Stage::TerrianDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 	{
 		m_goalPoint->Draw(arg_cam, arg_ligMgr);
 	}
+}
+
+bool Stage::IsClear() const
+{
+	//レバークリア
+	if (m_goalLeverID != Lever::INVALID_ID)return m_goalSwitch->IsBooting();
+
+	//目的地到達
+	if (m_goalPoint)return m_goalPoint->HitPlayer();
+
+	//クリアが存在しない
+	return false;
 }
 
 void Stage::Load(std::string arg_dir, std::string arg_fileName, float arg_terrianScaling, bool arg_hasGoal)

@@ -86,6 +86,9 @@
     <Filter Include="src\user\CPUParticle">
       <UniqueIdentifier>{6fab585c-9620-4df6-9fc0-212499aa3a39}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\user\Stage\Enemy">
+      <UniqueIdentifier>{e2de437a-f319-413e-908d-312bad5e03ee}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\KuroEngineDevice.cpp">
@@ -399,6 +402,9 @@
     </ClCompile>
     <ClCompile Include="src\Tutorial.cpp">
       <Filter>src\user</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Stage\Enemy\Enemy.cpp">
+      <Filter>src\user\Stage\Enemy</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -782,6 +788,9 @@
     </ClInclude>
     <ClInclude Include="src\Tutorial.h">
       <Filter>src\user</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\Enemy\Enemy.h">
+      <Filter>src\user\Stage\Enemy</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

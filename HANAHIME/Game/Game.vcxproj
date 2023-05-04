@@ -204,6 +204,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Player\Player.cpp" />
     <ClCompile Include="src\Player\PlayerCollision.cpp" />
     <ClCompile Include="src\SoundConfig.cpp" />
+    <ClCompile Include="src\Stage\Enemy\Enemy.cpp" />
     <ClCompile Include="src\Stage\Gate.cpp" />
     <ClCompile Include="src\Stage\Goal.cpp" />
     <ClCompile Include="src\Stage\Grass.cpp" />
@@ -328,6 +329,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Player\Player.h" />
     <ClInclude Include="src\Player\PlayerCollision.h" />
     <ClInclude Include="src\SoundConfig.h" />
+    <ClInclude Include="src\Stage\Enemy\Enemy.h" />
     <ClInclude Include="src\Stage\Gate.h" />
     <ClInclude Include="src\Stage\Goal.h" />
     <ClInclude Include="src\Stage\Grass.h" />
