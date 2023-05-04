@@ -234,6 +234,7 @@ public:
 	{
 		m_growPlantPtLig.Disactive();
 	}
+	GrowPlantLight_Point GetGrowPlantLight() { return m_growPlantPtLig; }
 
 	//アウトラインの点線を描画するときに使用する値
 	KuroEngine::Vec3<float> GetOutlineStandardVec() {

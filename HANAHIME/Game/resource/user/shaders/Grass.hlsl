@@ -198,7 +198,7 @@ void SearchPlantPos(uint3 GlobalID : SV_DispatchThreadID, uint3 GroupID : SV_Gro
     result.m_plantNormal = g_normalMap[screenPos].xyz;
     
     //すでに生えているところにもう一度生やしていないかをチェック。
-    const float DEADLINE = 1.3f;
+    const float DEADLINE = 1.1f;
     for (int grassIndex = 0; grassIndex < otherTransformData.m_grassCount; ++grassIndex)
     {
         float distance = length(result.m_plantPos - aliveGrassBuffer[grassIndex].m_pos);

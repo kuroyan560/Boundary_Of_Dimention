@@ -277,10 +277,13 @@ PSOutput PSmain(GSOutput input)
     //距離によって最終的な明るさをクランプする。
     const float IN_CIRCLE_LUMI = 0.5f;
     lumi = clamp(lumi, step(distance, DISTANCE) * IN_CIRCLE_LUMI, 1.0f);
+    
+    //float bright = distance;
 
     //色を保存する。
     color.xyz *= lumi;
     output.color = color;
+    output.bright = float4(1, 1, 0, 1);
 
     output.emissive = float4(0, 0, 0, 0);
     output.depth = input.depthInView;

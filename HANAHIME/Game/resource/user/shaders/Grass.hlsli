@@ -40,8 +40,8 @@ struct TransformData
 {
     float3 m_camPos;
     float m_seed;
+    float3 m_playerPos;
     int m_grassCount;
-    int m_plantOnceCount;
 };
 
 //ƒ‰ƒ“ƒ_ƒ€

@@ -99,9 +99,8 @@ class Grass
 	{
 		KuroEngine::Vec3<float>m_camPos;
 		float m_seed;
+		KuroEngine::Vec3<float> m_playerPos;
 		int m_grassCount;
-		int m_plantOnceCount;
-		int pad[2];
 	};
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_otherTransformConstBuffer;
 
@@ -152,11 +151,14 @@ class Grass
 	//草を植えるスパン
 	KuroEngine::Timer m_plantTimer;
 
+	//当たり判定の大きさ
+	const float HIT_SCALE = 2.0f;
+
 public:
 	Grass();
 	void Init();
-	void Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
-	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
+	void Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, float arg_plantInfluenceRange);
+	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, float arg_plantInfluenceRange, bool arg_isAttack);
 
 	/// <summary>
 	/// 草を植える（ビルボード）
@@ -164,7 +166,7 @@ public:
 	/// <param name="arg_transform">座標</param>
 	/// <param name="arg_grassPosScatter">散らし具合</param>
 	/// <param name="arg_waterPaintBlend">水彩画風ブレンドポストエフェクト</param>
-	void Plant(KuroEngine::Transform arg_transform, KuroEngine::Transform arg_playerTransform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
+	void Plant(KuroEngine::Transform arg_transform, KuroEngine::Transform arg_playerTransform);
 
 private:
 

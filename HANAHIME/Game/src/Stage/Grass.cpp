@@ -3,6 +3,7 @@
 #include"FrameWork/Importer.h"
 #include"../Graphics/BasicDraw.h"
 #include"../Graphics/WaterPaintBlend.h"
+#include"../../../../src/engine/ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"KuroEngineDevice.h"
 #include"Render/RenderObject/Camera.h"
 
@@ -190,7 +191,7 @@ void Grass::Init()
 	m_plantTimer.Reset(0);
 }
 
-void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend)
+void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, float arg_plantInfluenceRange)
 {
 	using namespace KuroEngine;
 
@@ -208,7 +209,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 		grassTransform.SetRotate(arg_playerTransform.GetRotate());
 		grassTransform.SetScale({ 1.0f,1.0f,1.0f });
 
-		Plant(grassTransform, arg_playerTransform, arg_grassPosScatter, arg_waterPaintBlend);
+		Plant(grassTransform, arg_playerTransform);
 		m_plantTimer.Reset(0);
 	}
 	m_plantTimer.UpdateTimer();
@@ -299,6 +300,13 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 			if (aliveGrassArray.back().m_isAlive == 0)consumeCount++;
 		}
 		for (auto& index : aliveGrassArray) {
+
+			//一定の距離より離れていたら草を消す。
+			if (KuroEngine::Vec3<float>(index.m_pos - arg_playerTransform.GetPos()).Length() < arg_plantInfluenceRange) continue;
+			index.m_isAlive = false;
+		}
+		for (auto& index : aliveGrassArray) {
+
 			if (5.0f <= index.m_pos.Length()) continue;
 			index.m_isAlive = false;
 		}
@@ -323,7 +331,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 	}
 }
 
-void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, float arg_plantInfluenceRange, bool arg_isAttack)
 {
 	using namespace KuroEngine;
 
@@ -348,9 +356,34 @@ void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 		0,
 		true,
 		plantGrassCount);
+
+
+
+	//当たり判定を表示
+	if (arg_isAttack) {
+		auto aliveGrassArrayBufferPtr = m_plantGrassBuffer->GetResource()->GetBuffOnCpu<PlantGrass>();
+		std::vector<PlantGrass>aliveGrassArray;
+		auto plantGrassCountPtr = m_plantGrassCounterBuffer->GetResource()->GetBuffOnCpu<int>();
+		for (int i = 0; i < *plantGrassCountPtr; ++i)
+		{
+			aliveGrassArray.emplace_back(aliveGrassArrayBufferPtr[i]);
+		}
+
+		//線を描画
+		for (auto& index : aliveGrassArray) {
+
+			if (!index.m_isAlive) continue;
+
+			//KuroEngine::DrawFunc3D::DrawLine(arg_cam, index.m_pos, index.m_pos + KuroEngine::Vec3<float>(0, 1, 0), Color(255, 255, 255, 255), HIT_SCALE);
+
+		}
+
+	}
+
+
 }
 
-void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Transform arg_playerTransform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend)
+void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Transform arg_playerTransform)
 {
 
 	//草をはやす場所を取得。
@@ -391,7 +424,7 @@ std::array<Grass::CheckResult, Grass::GRASSF_SEARCH_COUNT> Grass::SearchPlantPos
 	auto transformCBVPtr = m_otherTransformConstBuffer->GetResource()->GetBuffOnCpu<TransformCBVData>();
 	transformCBVPtr->m_seed = KuroEngine::GetRand(0, 100000) / 100.0f;
 	transformCBVPtr->m_grassCount = plantGrassCount;
-	transformCBVPtr->m_plantOnceCount = plantGrassCount;
+	transformCBVPtr->m_playerPos = arg_playerTransform.GetPosWorld();
 
 	//判定用コンピュートパイプライン実行
 	//登録するディスクリプタの情報配列
@@ -425,7 +458,7 @@ std::array<Grass::CheckResult, Grass::GRASSF_SEARCH_COUNT> Grass::SearchPlantPos
 			result[index].m_plantNormal = checkResultPtr[index].m_plantNormal.GetNormal();
 			result[index].m_plantPos = checkResultPtr[index].m_plantPos + checkResultPtr[index].m_plantNormal;	//埋まってしまうので法線方向に少しだけ動かす。
 
-		}
+	}
 
 	return result;
 

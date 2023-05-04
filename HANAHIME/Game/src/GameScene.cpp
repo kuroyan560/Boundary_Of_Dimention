@@ -137,7 +137,7 @@ void GameScene::OnUpdate()
 
 
 
-	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
+	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrowPlantLight().m_influenceRange);
 
 	//ホームでの処理----------------------------------------
 	if (!m_title.IsFinish() && !m_title.IsStartOP())
@@ -252,7 +252,7 @@ void GameScene::OnDraw()
 	if (m_title.IsFinish() || m_title.IsStartOP())
 	{
 		m_player.Draw(*m_nowCam, m_ligMgr, DebugController::Instance()->IsActive());
-		m_grass.Draw(*m_nowCam, m_ligMgr);
+		m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, true);
 	}
 
 	//ステージ描画
