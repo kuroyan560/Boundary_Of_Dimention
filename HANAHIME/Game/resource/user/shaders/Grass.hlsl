@@ -81,9 +81,13 @@ void Update(uint DTid : SV_DispatchThreadID)
     float3 ndcPos = clipPos.xyz / clipPos.w;
     uint2 screenPos = round(float2((ndcPos.x * 0.5f + 0.5f) * 1280.0f, (1.0f - (ndcPos.y * 0.5f + 0.5f)) * 720.0f));
     float texColor = g_brightMap[screenPos].x;
+    
+    //プレイヤーとの距離
+    float playerDistance = length(grass.m_pos - otherTransformData.m_playerPos);
+    bool isFar = playerDistance <= otherTransformData.m_playerPlantLightRange;
   
     //光にあたっていたら草を生やし、 当たっていなかったらイージングタイマーを減らして草を枯らす。
-    if (0.9f < texColor)
+    if (0.9f < texColor || isFar)
     {
     
         //イージングタイマー更新

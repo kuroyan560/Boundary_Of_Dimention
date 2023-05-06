@@ -101,6 +101,8 @@ class Grass
 		float m_seed;
 		KuroEngine::Vec3<float> m_playerPos;
 		int m_grassCount;
+		float m_playerPlantLightRange;
+		KuroEngine::Vec3<float> m_pad;
 	};
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_otherTransformConstBuffer;
 

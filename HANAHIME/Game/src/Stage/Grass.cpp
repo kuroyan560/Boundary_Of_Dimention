@@ -197,6 +197,8 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 
 	//トランスフォーム情報をGPUに送信
 	TransformCBVData transformData;
+	transformData.m_playerPos = arg_playerTransform.GetPos();
+	transformData.m_playerPlantLightRange = arg_plantInfluenceRange;
 	transformData.m_camPos = { arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[0],arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[1],arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[2] };
 	m_otherTransformConstBuffer->Mapping(&transformData);
 
@@ -298,12 +300,6 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 		{
 			aliveGrassArray.emplace_back(aliveGrassArrayBufferPtr[i]);
 			if (aliveGrassArray.back().m_isAlive == 0)consumeCount++;
-		}
-		for (auto& index : aliveGrassArray) {
-
-			//一定の距離より離れていたら草を消す。
-			if (KuroEngine::Vec3<float>(index.m_pos - arg_playerTransform.GetPos()).Length() < arg_plantInfluenceRange) continue;
-			index.m_isAlive = false;
 		}
 		for (auto& index : aliveGrassArray) {
 

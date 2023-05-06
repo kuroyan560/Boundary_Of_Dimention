@@ -42,6 +42,8 @@ struct TransformData
     float m_seed;
     float3 m_playerPos;
     int m_grassCount;
+    float m_playerPlantLightRange;
+    float3 pad;
 };
 
 //ƒ‰ƒ“ƒ_ƒ€
