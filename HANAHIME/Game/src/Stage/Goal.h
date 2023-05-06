@@ -20,6 +20,7 @@
 #include"Stage.h"
 #include"../CPUParticle/GlitterEmitter.h"
 #include"../CPUParticle/CPULoucusParticle.h"
+#include"../Player/CollisionDetectionOfRayAndMesh.h"
 
 //ステージに配置されているゴール
 class Goal
@@ -122,22 +123,6 @@ private:
 
 	bool m_changeCameraFlag;
 
-	/// <summary>
-	/// レイとメッシュの当たり判定
-	/// </summary>
-	/// <param name="arg_rayPos"> レイの射出地点 </param>
-	/// <param name="arg_rayDir"> レイの射出方向 </param>
-	/// <param name="arg_targetMesh"> 判定を行う対象のメッシュ </param>
-	/// <returns> 当たり判定結果 </returns>
-	PlayerCollision::MeshCollisionOutput MeshCollision(const KuroEngine::Vec3<float> &arg_rayPos, const KuroEngine::Vec3<float> &arg_rayDir, std::vector<TerrianHitPolygon> &arg_targetMesh);
-
-
-	/// <summary>
-	/// 重心座標を求める。
-	/// </summary>
-	KuroEngine::Vec3<float> CalBary(const KuroEngine::Vec3<float> &PosA, const KuroEngine::Vec3<float> &PosB, const KuroEngine::Vec3<float> &PosC, const KuroEngine::Vec3<float> &TargetPos);
-
-
 	KuroEngine::Vec3<float>GetFlagUpVec()
 	{
 		if (!m_goalModel)
@@ -205,7 +190,7 @@ private:
 
 					//当たり判定を行うメッシュ。
 					std::vector<TerrianHitPolygon> mesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
-					PlayerCollision::MeshCollisionOutput result = MeshCollision(pos, dir, mesh);
+					CollisionDetectionOfRayAndMesh::MeshCollisionOutput result = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pos, dir, mesh);
 					if (result.m_isHit && result.m_distance <= distance && 0.0f <= result.m_distance)
 					{
 						hitIndex[&dir - &m_cameraHitDirArray[0]] = true;

@@ -400,6 +400,9 @@
     <ClCompile Include="src\Tutorial.cpp">
       <Filter>src\user</Filter>
     </ClCompile>
+    <ClCompile Include="src\Player\CollisionDetectionOfRayAndMesh.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -782,6 +785,9 @@
     </ClInclude>
     <ClInclude Include="src\Tutorial.h">
       <Filter>src\user</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Player\CollisionDetectionOfRayAndMesh.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
