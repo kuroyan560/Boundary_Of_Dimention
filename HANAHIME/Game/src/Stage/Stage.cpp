@@ -1,7 +1,6 @@
 #include "Stage.h"
 #include"FrameWork/Importer.h"
 #include"ForUser/JsonData.h"
-#include"FrameWork/Importer.h"
 #include"ForUser/Object/Model.h"
 #include "StageParts.h"
 #include"Enemy/Enemy.h"
@@ -176,14 +175,14 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	//チビ虫
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::MINI_BUG))
 	{
-		m_enemyArray.emplace_back(std::make_shared<MiniBug>(model, transform, arg_parent));
-		newPart = m_enemyArray.back().get();
+		//m_enemyArray.emplace_back(std::make_shared<MiniBug>(model, transform, arg_parent));
+		//newPart = m_enemyArray.back().get();
 	}
 	//ドッスンリング
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::DOSSUN_RING))
 	{
-		m_enemyArray.emplace_back(std::make_shared<DossunRing>(model, transform, arg_parent));
-		newPart = m_enemyArray.back().get();
+		//m_enemyArray.emplace_back(std::make_shared<DossunRing>(model, transform, arg_parent));
+		//newPart = m_enemyArray.back().get();
 	}
 	else
 	{

@@ -149,9 +149,9 @@ namespace KuroEngine
 
 	public:
 		Vec3<float>m_offset = { 0,0,0 };
-		float m_radius;					//半径
+		float m_hitBoxRadius;					//半径
 		CollisionSphere(const float& Radius, const Vec3<float>& Offset)
-			:m_offset(Offset), m_radius(Radius) {}
+			:m_offset(Offset), m_hitBoxRadius(Radius) {}
 		Vec3<float>GetCenter(const Matrix& arg_parentMat)
 		{
 			return KuroEngine::Math::TransformVec3(m_offset, arg_parentMat);
@@ -160,7 +160,7 @@ namespace KuroEngine
 		//クローンの生成
 		CollisionPrimitive* Clone()override
 		{
-			return new CollisionSphere(m_radius, m_offset);
+			return new CollisionSphere(m_hitBoxRadius, m_offset);
 		}
 
 		bool HitCheckDispatch(const Matrix& arg_myMat, const Matrix& arg_otherMat, CollisionPrimitive* arg_other, CollisionResultInfo* arg_info)override
@@ -211,14 +211,14 @@ namespace KuroEngine
 		Vec3<float>m_offset;
 		Vec3<float>m_sPoint;	//始点
 		Vec3<float>m_ePoint;	//終点
-		float m_radius;
+		float m_hitBoxRadius;
 		CollisionCapsule(const Vec3<float>& StartPt, const Vec3<float>& EndPt, const float& Radius, const Vec3<float>& Offset = Vec3<float>(0, 0, 0))
-			:m_offset(Offset), m_sPoint(StartPt), m_ePoint(EndPt), m_radius(Radius) {}
+			:m_offset(Offset), m_sPoint(StartPt), m_ePoint(EndPt), m_hitBoxRadius(Radius) {}
 
 		//クローンの生成
 		CollisionPrimitive* Clone()override
 		{
-			return new CollisionCapsule(m_sPoint, m_ePoint, m_radius, m_offset);
+			return new CollisionCapsule(m_sPoint, m_ePoint, m_hitBoxRadius, m_offset);
 		}
 
 		bool HitCheckDispatch(const Matrix& arg_myMat, const Matrix& arg_otherMat, CollisionPrimitive* arg_other, CollisionResultInfo* arg_info)override

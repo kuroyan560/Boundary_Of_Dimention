@@ -17,6 +17,8 @@
 #include"Stage/Goal.h"
 #include"Tutorial.h"
 #include"Movie/CameraData.h"
+#include"Stage/Enemy/Enemy.h"
+
 
 class GameScene : public KuroEngine::BaseScene
 {
@@ -72,6 +74,11 @@ class GameScene : public KuroEngine::BaseScene
 	Tutorial tutorial;
 
 	Goal m_goal;
+
+	//ŽG‹›“G•\Ž¦
+	std::unique_ptr<MiniBug> miniBug;
+	std::unique_ptr<DossunRing> dossun;
+	std::shared_ptr<KuroEngine::Model> m_enemyModel;
 
 
 	void GameInit();

@@ -8,8 +8,8 @@
 #include"Render/RenderObject/Light.h"
 #include"../Plant/GrowPlantLight.h"
 #include"PlayerCollision.h"
-#include"../../../../src/engine/ForUser/Timer.h"
-
+#include"ForUser/Timer.h"
+#include"../AI/EnemySearch.h"
 #include<memory>
 namespace KuroEngine
 {
@@ -239,6 +239,9 @@ public:
 	KuroEngine::Vec3<float> GetOutlineStandardVec() {
 		return KuroEngine::Math::TransformVec3(KuroEngine::Vec3<float>(0, 0, 1), m_normalSpinQ);
 	}
+
+	Sphere m_sphere;
+	float m_radius;
 
 private:
 

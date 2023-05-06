@@ -13,6 +13,8 @@
 #include"Plant/GrowPlantLight.h"
 #include"TimeScaleMgr.h"
 
+#include"FrameWork/Importer.h"
+
 GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_1flameStopTimer(30), m_goal(m_particleRender.GetStackBuffer())
 {
 	m_ddsTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.dds");
@@ -47,6 +49,37 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 	//‰¹º‚Ì“Ç‚Ýž‚Ý
 	SoundConfig::Instance();
 	CameraData::Instance()->RegistCameraData("");
+
+
+	std::vector<KuroEngine::Vec3<float>>posArray;
+
+	KuroEngine::Transform init;
+	init.SetPos({ 0.0f,5.0f,0.0f });
+
+	posArray.emplace_back(init.GetPos());
+	posArray.emplace_back(KuroEngine::Vec3<float>(5.0f, 1.0f, 0.0f));
+	posArray.emplace_back(KuroEngine::Vec3<float>(10.0f, 2.0f, 0.0f));
+	posArray.emplace_back(KuroEngine::Vec3<float>(15.0f, 3.0f, 0.0f));
+
+
+	m_enemyModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Player.glb");
+
+
+	miniBug = std::make_unique<MiniBug>
+		(
+			m_enemyModel,
+			init,
+			nullptr,
+			posArray
+			);
+
+	dossun = std::make_unique<DossunRing>
+		(
+			m_enemyModel,
+			init,
+			nullptr,
+			DossunRing::NORMAL
+		);
 }
 
 
@@ -222,6 +255,9 @@ void GameScene::OnUpdate()
 
 	m_stageSelect.Update();
 
+	miniBug->Update(m_player);
+	dossun->Update(m_player);
+
 
 	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld(), *m_nowCam);
 
@@ -275,12 +311,21 @@ void GameScene::OnDraw()
 		m_particleRender.Draw(*m_nowCam);
 	}
 
+	miniBug->Draw(*m_nowCam, m_ligMgr);
+	dossun->Draw(*m_nowCam, m_ligMgr);
+
+
 	//tutorial.Draw(*m_nowCam);
 
 	if (m_title.IsFinish() || m_title.IsStartOP())
 	{
 		m_goal.Draw(*m_nowCam);
 	}
+
+
+	miniBug->DebugDraw(*m_nowCam);
+	dossun->DebugDraw(*m_nowCam);
+
 
 	m_fogPostEffect->Register(
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN),

@@ -89,6 +89,9 @@
     <Filter Include="src\user\Stage\Enemy">
       <UniqueIdentifier>{e2de437a-f319-413e-908d-312bad5e03ee}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\user\AI">
+      <UniqueIdentifier>{4ddbc242-399e-44ed-b0f3-2d549a1dbbfc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\KuroEngineDevice.cpp">
@@ -405,6 +408,12 @@
     </ClCompile>
     <ClCompile Include="src\Stage\Enemy\Enemy.cpp">
       <Filter>src\user\Stage\Enemy</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AI\EnemyPatrol.cpp">
+      <Filter>src\user\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AI\EnemySearch.cpp">
+      <Filter>src\user\AI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -791,6 +800,12 @@
     </ClInclude>
     <ClInclude Include="src\Stage\Enemy\Enemy.h">
       <Filter>src\user\Stage\Enemy</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AI\EnemyPatrol.h">
+      <Filter>src\user\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AI\EnemySearch.h">
+      <Filter>src\user\AI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
