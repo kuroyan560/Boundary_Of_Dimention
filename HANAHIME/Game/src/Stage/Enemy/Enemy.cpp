@@ -4,11 +4,14 @@
 
 void MiniBug::Update(Player &arg_player)
 {
+	bool findFlag = m_sightArea.IsFind(arg_player.GetTransform().GetPos(), 180.0f);
+
+
 	if (m_decisionFlag != m_prevDecisionFlag)
 	{
 		//思考
 		//敵発見時(プレイヤーが視界に入った)
-		if (m_sightArea.IsFind(arg_player.GetTransform().GetPos(), &arg_player.GetTransform()))
+		if (findFlag)
 		{
 			m_nowStatus = MiniBug::ATTACK;
 		}
@@ -68,6 +71,7 @@ void MiniBug::Update(Player &arg_player)
 			break;
 		case MiniBug::ATTACK:
 			m_trackTimer.Reset(260);
+			m_sightArea.Init(&m_transform);
 			break;
 		case MiniBug::NOTICE:
 
@@ -95,7 +99,7 @@ void MiniBug::Update(Player &arg_player)
 
 
 	//行動
-	KuroEngine::Vec3<float>vel;
+	KuroEngine::Vec3<float>vel = { 0.0f,4.0f,0.0f };
 	switch (m_nowStatus)
 	{
 	case MiniBug::SERACH:
@@ -151,8 +155,9 @@ void MiniBug::Update(Player &arg_player)
 
 
 	//座標移動
-	m_pos = vel;
+	m_pos = { -32.6f, 20.3f , -3.5f };
 	m_transform.SetPos(m_pos);
+
 }
 
 void MiniBug::DebugDraw(KuroEngine::Camera &camera)
@@ -187,7 +192,7 @@ void DossunRing::Update(Player &arg_player)
 		m_findPlayerFlag = true;
 	}
 	//攻撃が終わってプレイヤーが見えなくなったら攻撃終了
-	else if(!m_attackFlag)
+	else if (!m_attackFlag)
 	{
 		m_findPlayerFlag = false;
 	}
@@ -227,6 +232,13 @@ void DossunRing::Update(Player &arg_player)
 			m_attackInterval.Reset(m_maxAttackIntervalTime);
 			m_attackFlag = false;
 		}
+
+		//プレイヤーと敵の判定
+		if (false)
+		{
+
+		}
+
 	}
 }
 

@@ -12,7 +12,7 @@
 #include"../SoundConfig.h"
 #include"PlayerCollision.h"
 #include"../TimeScaleMgr.h"
-#include"../../../../src/engine/DirectX12/D3D12App.h"
+#include"DirectX12/D3D12App.h"
 
 void Player::OnImguiItems()
 {

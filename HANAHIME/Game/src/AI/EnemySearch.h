@@ -18,7 +18,7 @@ public:
 
 struct Sphere
 {
-	const KuroEngine::Vec3<float>*m_centerPos;
+	const KuroEngine::Vec3<float> *m_centerPos;
 	const float *m_radius;
 };
 
@@ -28,15 +28,9 @@ class SightSearch
 {
 public:
 	SightSearch();
-	void Init(
-	float nearScale,
-	float farScale,
-	float length,
-	float nearHeight,
-	float farHeight
-	);
+	void Init(KuroEngine::Transform *transform);
 	//Ž‹ŠE“à‚É–Ú•W‚Ì•¨‘Ì‚ÍŒ©‚Â‚©‚Á‚½‚©
-	bool IsFind(const KuroEngine::Vec3<float> &pos, KuroEngine::Transform *rotation);
+	bool IsFind(const KuroEngine::Vec3<float> &transform, float viewAngle);
 	void DebugDraw(KuroEngine::Camera &camera);
 
 private:
@@ -61,6 +55,8 @@ private:
 
 	std::vector<Ray>m_rayArray;
 	std::vector<Sight>m_sightRay;
+
+	KuroEngine::Transform *m_transformPtr;
 
 	CollisionDetectionRayAndPoint collisionDetection;
 
@@ -130,5 +126,5 @@ private:
 	Sphere m_hitBox;
 
 	std::shared_ptr<KuroEngine::Model>m_hitBoxModel;
-	
+
 };

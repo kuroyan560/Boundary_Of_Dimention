@@ -11,13 +11,7 @@ public:
 	{
 		m_nowStatus = SERACH;
 		m_prevStatus = NONE;
-
-		float nearScale = 1.0f;
-		float farScale = 6.0f;
-		float length = 15.0f;
-		float nearHeight = 1.0f;
-		float farHeight = 5.0f;
-		m_sightArea.Init(nearScale, farScale, length, nearHeight, farHeight);
+		m_sightArea.Init(&m_transform);
 
 		m_posArray = posArray;
 	}

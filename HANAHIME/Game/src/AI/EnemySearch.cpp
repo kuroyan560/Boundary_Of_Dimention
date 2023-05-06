@@ -2,7 +2,6 @@
 
 SightSearch::SightSearch()
 {
-	m_rayArray.emplace_back();
 	KuroEngine::Vec3<float>basePos(0.0f, 0.0f, 0.0f);
 	float nearScale = 1.0f;
 	float farScale = 6.0f;
@@ -11,47 +10,12 @@ SightSearch::SightSearch()
 	float farHeight = 5.0f;
 
 	int index = 0;
-	//右上
-	{
-		m_rayArray[index].m_startPos = basePos + KuroEngine::Vec3<float>(nearScale, nearHeight, 0.0f);
-		m_rayArray[index].m_length = length;
-		KuroEngine::Vec3<float>farPos(m_rayArray[index].m_startPos + KuroEngine::Vec3<float>(farScale, farHeight, length));
-		KuroEngine::Vec3<float>distance(farPos - m_rayArray[index].m_startPos);
-		distance.Normalize();
-		m_rayArray[index].m_dir = distance;
-	}
-
 	m_rayArray.emplace_back();
-	++index;
-	//左上
+	//敵の正面ベクトル
 	{
-		m_rayArray[index].m_startPos = basePos + KuroEngine::Vec3<float>(-nearScale, nearHeight, 0.0f);
+		m_rayArray[index].m_startPos = basePos;
 		m_rayArray[index].m_length = length;
-		KuroEngine::Vec3<float>farPos(m_rayArray[index].m_startPos + KuroEngine::Vec3<float>(-farScale, farHeight, length));
-		KuroEngine::Vec3<float>distance(farPos - m_rayArray[index].m_startPos);
-		distance.Normalize();
-		m_rayArray[index].m_dir = distance;
-	}
-
-	m_rayArray.emplace_back();
-	++index;
-	//右下
-	{
-		m_rayArray[index].m_startPos = basePos + KuroEngine::Vec3<float>(nearScale, -nearHeight, 0.0f);
-		m_rayArray[index].m_length = length;
-		KuroEngine::Vec3<float>farPos(m_rayArray[index].m_startPos + KuroEngine::Vec3<float>(farScale, -farHeight, length));
-		KuroEngine::Vec3<float>distance(farPos - m_rayArray[index].m_startPos);
-		distance.Normalize();
-		m_rayArray[index].m_dir = distance;
-	}
-
-	m_rayArray.emplace_back();
-	++index;
-	//左下
-	{
-		m_rayArray[index].m_startPos = basePos + KuroEngine::Vec3<float>(-nearScale, -nearHeight, 0.0f);
-		m_rayArray[index].m_length = length;
-		KuroEngine::Vec3<float>farPos(m_rayArray[index].m_startPos + KuroEngine::Vec3<float>(-farScale, -farHeight, length));
+		KuroEngine::Vec3<float>farPos(m_rayArray[index].m_startPos + KuroEngine::Vec3<float>(0.0f, 0.0f, length));
 		KuroEngine::Vec3<float>distance(farPos - m_rayArray[index].m_startPos);
 		distance.Normalize();
 		m_rayArray[index].m_dir = distance;
@@ -62,20 +26,19 @@ SightSearch::SightSearch()
 		m_sightRay.emplace_back();
 		m_sightRay.back().ray = obj;
 	}
+
+	m_sightRay.emplace_back();
 }
 
 void SightSearch::Init(
-	float nearScale,
-	float farScale,
-	float length,
-	float nearHeight,
-	float farHeight
+	KuroEngine::Transform *transform
 )
 {
-	InitSight({ 0.0f, 0.0f, 0.0f }, length, nearScale, nearHeight, farScale, farHeight);
+	m_transformPtr = transform;
+	//InitSight({ 0.0f, 0.0f, 0.0f }, length, nearScale, nearHeight, farScale, farHeight);
 }
 
-bool SightSearch::IsFind(const KuroEngine::Vec3<float> &pos, KuroEngine::Transform *rotation)
+bool SightSearch::IsFind(const KuroEngine::Vec3<float> &pos, float viewAngle)
 {
 
 	bool findFlag = true;
@@ -85,27 +48,38 @@ bool SightSearch::IsFind(const KuroEngine::Vec3<float> &pos, KuroEngine::Transfo
 
 		KuroEngine::Transform hitStartPos;
 		KuroEngine::Transform hitEndPos;
-		hitStartPos.SetParent(rotation);
-		hitEndPos.SetParent(rotation);
+		hitStartPos.SetParent(m_transformPtr);
+		hitEndPos.SetParent(m_transformPtr);
 		hitStartPos.SetPos(m_rayArray[i].m_startPos);
 		hitEndPos.SetPos(m_rayArray[i].GetEndPos());
 
+		//正面ベクトル
 		m_sightRay[i].ray.m_startPos = hitStartPos.GetPosWorld();
 		m_sightRay[i].ray.m_dir = KuroEngine::Vec3<float>(hitEndPos.GetPosWorld() - hitStartPos.GetPosWorld()).GetNormal();
 
-		//当たり判定
-		float cross = collisionDetection.CaluCross(hitStartPos.GetPosWorld(), hitEndPos.GetPosWorld(), pos);
+		//プレイヤーとのベクトル
+		KuroEngine::Vec3<float>playerVec(pos - hitStartPos.GetPosWorld());
+		const float distance = pos.Distance(hitStartPos.GetPosWorld());
+		playerVec.Normalize();
 
-		//点が線の中に入っている事の確認
-		if (cross <= 0.0f)
+		//内積の衝突判定
+		float dot = m_sightRay[i].ray.m_dir.Dot(playerVec);
+
+
+		float rate = 1.0f - (viewAngle / 180.0f);
+		if (-dot <= -rate && distance <= m_sightRay[i].ray.m_length)
 		{
 			m_sightRay[i].hitFlag = true;
 		}
 		else
 		{
 			m_sightRay[i].hitFlag = false;
-			findFlag = false;
 		}
+
+		m_sightRay.back().ray.m_startPos = hitStartPos.GetPosWorld();
+		m_sightRay.back().ray.m_dir = playerVec;
+		m_sightRay.back().ray.m_length = m_sightRay[0].ray.m_length;
+
 	}
 	return findFlag;
 }
@@ -128,7 +102,7 @@ void SightSearch::DebugDraw(KuroEngine::Camera &camera)
 
 CircleSearch::CircleSearch()
 {
-	m_hitBoxModel = 
+	m_hitBoxModel =
 		KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Shpere.glb");
 }
 

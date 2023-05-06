@@ -1,6 +1,7 @@
 #pragma once
 #include"KuroEngine.h"
 #include"ForUser/Timer.h"
+#include"../TimeScaleMgr.h"
 
 //A地点からB地点に向かう
 class HeadNextPoint

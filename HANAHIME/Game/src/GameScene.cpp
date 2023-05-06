@@ -54,12 +54,12 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 	std::vector<KuroEngine::Vec3<float>>posArray;
 
 	KuroEngine::Transform init;
-	init.SetPos({ 0.0f,5.0f,0.0f });
+	init.SetPos({ 0.0f,10.0f,0.0f });
 
 	posArray.emplace_back(init.GetPos());
-	posArray.emplace_back(KuroEngine::Vec3<float>(5.0f, 1.0f, 0.0f));
-	posArray.emplace_back(KuroEngine::Vec3<float>(10.0f, 2.0f, 0.0f));
-	posArray.emplace_back(KuroEngine::Vec3<float>(15.0f, 3.0f, 0.0f));
+	posArray.emplace_back(KuroEngine::Vec3<float>(5.0f, 10.0f, 0.0f));
+	posArray.emplace_back(KuroEngine::Vec3<float>(10.0f, 12.0f, 0.0f));
+	posArray.emplace_back(KuroEngine::Vec3<float>(15.0f, 13.0f, 0.0f));
 
 
 	m_enemyModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Player.glb");
@@ -73,6 +73,8 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 			posArray
 			);
 
+
+	init.SetPos({ 0.0f,5.0f,0.0f });
 	dossun = std::make_unique<DossunRing>
 		(
 			m_enemyModel,

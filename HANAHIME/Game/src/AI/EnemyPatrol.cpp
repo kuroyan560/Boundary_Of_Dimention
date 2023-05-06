@@ -40,8 +40,7 @@ KuroEngine::Vec3<float> PatrolBasedOnControlPoint::Update()
 		pos = m_limitPosArray[m_limitIndex].m_moveToPoint.Update(endPos, startPos, m_moveTimer.GetTimeRate());
 	}
 
-
-	bool timerUpFlag = m_moveTimer.UpdateTimer();
+	bool timerUpFlag = m_moveTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
 	if (timerUpFlag)
 	{
 		m_moveTimer.Reset(60);
