@@ -84,7 +84,7 @@ void GSmain(
     GSOutput element;
     element.texID = grass.m_texIdx;
     element.normal = grass.m_normal;
-    float3 position = grass.m_pos;
+    float3 position = grass.m_worldPos;
 
     //ビルボードのサイズ
     const float2 PolygonSize = float2(0.75f, 3.0f);

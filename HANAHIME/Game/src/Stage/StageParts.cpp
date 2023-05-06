@@ -318,17 +318,18 @@ void MoveScaffold::Update(Player& arg_player)
 	}
 
 	//次の地点へ向かって動かす。
-	m_transform.SetPos(m_transform.GetPos() + m_moveDir * moveSpeed);
-	m_nowPos = m_transform.GetPos() + m_moveDir * moveSpeed;
+	m_moveAmount = m_moveDir * moveSpeed;
+	m_transform.SetPos(m_transform.GetPos() + m_moveAmount);
+	m_nowPos = m_transform.GetPos() + m_moveAmount;
 
 	//プレイヤーも動かす。
 	if (arg_player.GetOnGimmick()) {
-		arg_player.SetGimmickVel(m_moveDir * moveSpeed);
+		arg_player.SetGimmickVel(m_moveAmount);
 	}
 
 	//プレイヤーがジャンプ中だったら、ジャンプ地点も動かす。
 	if (arg_player.GetIsJump()) {
-		arg_player.SetJumpEndPos(arg_player.GetJumpEndPos() + m_moveDir * moveSpeed);
+		arg_player.SetJumpEndPos(arg_player.GetJumpEndPos() + m_moveAmount);
 	}
 
 	//いろいろと初期化して次向かう方向を決める。

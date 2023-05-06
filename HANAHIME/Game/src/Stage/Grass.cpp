@@ -6,6 +6,7 @@
 #include"../../../../src/engine/ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"KuroEngineDevice.h"
 #include"Render/RenderObject/Camera.h"
+#include"../Player/CollisionDetectionOfRayAndMesh.h"
 
 Grass::Grass()
 {
@@ -191,7 +192,7 @@ void Grass::Init()
 	m_plantTimer.Reset(0);
 }
 
-void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, float arg_plantInfluenceRange)
+void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, float arg_plantInfluenceRange, const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
 
@@ -296,19 +297,81 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 		auto aliveGrassArrayBufferPtr = m_plantGrassBuffer->GetResource()->GetBuffOnCpu<PlantGrass>();
 		std::vector<PlantGrass>aliveGrassArray;
 		int consumeCount = 0;
+		//GPU上の草データをvectorにいれる。
 		for (int i = 0; i < *plantGrassCountPtr; ++i)
 		{
 			aliveGrassArray.emplace_back(aliveGrassArrayBufferPtr[i]);
 			if (aliveGrassArray.back().m_isAlive == 0)consumeCount++;
 		}
+
+		//下方向にレイを飛ばして、そこが動く足場だったら親子関係を結ぶ。
 		for (auto& index : aliveGrassArray) {
 
-			if (5.0f <= index.m_pos.Length()) continue;
+			if (index.m_isCheckGround) continue;
+
+			int terrianIdx = 0;
+			for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
+			{
+				//動く足場でない
+				if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)continue;
+
+				//動く足場としてキャスト
+				auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
+				//モデル情報取得
+				auto model = terrian->GetModel();
+
+				//メッシュを走査
+				for (auto& modelMesh : model.lock()->m_meshes)
+				{
+
+					//当たり判定用メッシュ
+					auto checkHitMesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+
+					CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(index.m_worldPos, -index.m_normal, checkHitMesh);
+
+					//当たっていたら
+					if (output.m_isHit && 0 < output.m_distance && output.m_distance <= 1.0f) {
+
+						//親子関係を持たせる。
+						index.m_terrianIdx = terrianIdx;
+
+					}
+
+
+				}
+				++terrianIdx;
+
+			}
+
+
+			index.m_isCheckGround = true;
+		}
+
+		//草にトランスフォームを適応。
+		for (auto& index : aliveGrassArray) {
+
+			//Indexが-1だったら処理を飛ばす。
+			if (index.m_terrianIdx == -1) continue;
+
+			auto terrian = arg_nowStage.lock()->GetGimmickArray().begin();
+			std::advance(terrian, index.m_terrianIdx);
+
+			index.m_worldPos += terrian->get()->GetMoveAmount();
+
+		}
+
+		//原点付近に生える草は削除
+		for (auto& index : aliveGrassArray) {
+
+			if (5.0f <= index.m_worldPos.Length()) continue;
 			index.m_isAlive = false;
 		}
+
+		//フラグがfalseになった草を最後尾へ
 		std::sort(aliveGrassArray.begin(), aliveGrassArray.end(), [](PlantGrass& a, PlantGrass& b) {
 			return a.m_isAlive > b.m_isAlive;
 			});
+
 		//原点付近の草は削除
 		m_plantGrassBuffer->Mapping(aliveGrassArray.data(), *plantGrassCountPtr);
 		m_sortAndDisappearNumBuffer->Mapping(&consumeCount);
@@ -319,7 +382,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 			{ 1,1,1 },
 			descData);*/
 
-		//死んでいるものを削除
+			//死んでいるものを削除
 		D3D12App::Instance()->DispathOneShot(
 			m_cPipeline[DISAPPEAR],
 			{ 1,1,1 },
@@ -400,7 +463,6 @@ void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Transform arg
 		m_grassInitializerArray.back().m_sineLength = KuroEngine::GetRand(40) / 100.0f;
 	}
 
-
 	//インクマスクを落とす
 	//arg_waterPaintBlend.DropMaskInk(arg_transform.GetPos() + KuroEngine::Vec3<float>(0.0f, 1.0f, 0.0f));
 }
@@ -450,9 +512,9 @@ std::array<Grass::CheckResult, Grass::GRASSF_SEARCH_COUNT> Grass::SearchPlantPos
 
 	for (int index = 0; index < GRASSF_SEARCH_COUNT; ++index) {
 
-			result[index].m_isSuccess = checkResultPtr[index].m_isSuccess;
-			result[index].m_plantNormal = checkResultPtr[index].m_plantNormal.GetNormal();
-			result[index].m_plantPos = checkResultPtr[index].m_plantPos + checkResultPtr[index].m_plantNormal;	//埋まってしまうので法線方向に少しだけ動かす。
+		result[index].m_isSuccess = checkResultPtr[index].m_isSuccess;
+		result[index].m_plantNormal = checkResultPtr[index].m_plantNormal.GetNormal();
+		result[index].m_plantPos = checkResultPtr[index].m_plantPos + checkResultPtr[index].m_plantNormal;	//埋まってしまうので法線方向に少しだけ動かす。
 
 	}
 
