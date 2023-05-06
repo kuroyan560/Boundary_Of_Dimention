@@ -463,19 +463,31 @@ std::shared_ptr<KuroEngine::Model> KuroEngine::Importer::LoadGLTFModel(const std
 					keyFrame.value = XMVectorSet(values[offset], values[offset + 1], values[offset + 2], values[offset + 3]);
 				}
 			}
-			//TranslationかScale
-			else
+			//Translation
+			else if (path == Microsoft::glTF::TARGET_TRANSLATION)
 			{
-				Animation<Vec3<float>>* animPtr = &boneAnim.posAnim;
-				if (path == Microsoft::glTF::TARGET_SCALE) { animPtr = &boneAnim.scaleAnim; }
-
-				animPtr->startFrame = startFrame;
-				animPtr->endFrame = endFrame;
+				boneAnim.posAnim.startFrame = startFrame;
+				boneAnim.posAnim.endFrame = endFrame;
 
 				for (int keyFrameIdx = 0; keyFrameIdx < keyFrames.size(); ++keyFrameIdx)
 				{
-					animPtr->keyFrames.emplace_back();
-					auto& keyFrame = animPtr->keyFrames.back();
+					boneAnim.posAnim.keyFrames.emplace_back();
+					auto& keyFrame = boneAnim.posAnim.keyFrames.back();
+					keyFrame.frame = static_cast<int>(keyFrames[keyFrameIdx]);
+					int offset = keyFrameIdx * 3;	//インデックスのオフセット
+					keyFrame.value = { values[offset], values[offset + 1], values[offset + 2] };
+				}
+			}
+			//Scale
+			else
+			{
+				boneAnim.scaleAnim.startFrame = startFrame;
+				boneAnim.scaleAnim.endFrame = endFrame;
+
+				for (int keyFrameIdx = 0; keyFrameIdx < keyFrames.size(); ++keyFrameIdx)
+				{
+					boneAnim.scaleAnim.keyFrames.emplace_back();
+					auto& keyFrame = boneAnim.scaleAnim.keyFrames.back();
 					keyFrame.frame = static_cast<int>(keyFrames[keyFrameIdx]);
 					int offset = keyFrameIdx * 3;	//インデックスのオフセット
 					keyFrame.value = { values[offset], values[offset + 1], values[offset + 2] };

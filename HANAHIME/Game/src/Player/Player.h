@@ -125,6 +125,8 @@ class Player : public KuroEngine::Debugger
 		ZIP,	//ジップライン移動中
 		DEATH,	//死亡中。
 	}m_playerMoveStatus;
+	//１フレーム前の動きのステータス
+	PLAYER_MOVE_STATUS m_beforePlayerMoveStatus;
 
 	//ギミックにより操作不能のときのステータス
 	enum class GIMMICK_STATUS {
@@ -179,6 +181,22 @@ class Player : public KuroEngine::Debugger
 	static const int DEATH_SPRITE_ANIM_COUNT = 10;	//アニメーションの数
 	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, DEATH_SPRITE_ANIM_COUNT> m_deathAnimSprite;
 	bool m_isFinishDeathAnimation;					//死亡時のアニメーションが終わったか。
+
+	//アニメーター
+	std::shared_ptr<KuroEngine::ModelAnimator>m_modelAnimator;
+	//モデルのアニメーションパターン
+	enum ANIM_PATTERN { ANIM_PATTERN_WAIT, ANIM_PATTERN_INTEREST, ANIM_PATTERN_WALK, ANIM_PATTERN_CLEAR, ANIM_PATTERN_JUMP, ANIM_PATTERN_NUM };
+	//モデルのアニメーション名
+	const std::array<std::string, ANIM_PATTERN_NUM>m_animNames =
+	{
+		"Wait","Interest","Walk","Happy","Jump"
+	};
+	static const int ANIM_INTEREST_CYCLE = 2;
+	//待機アニメーションキョロキョロする周期のカウンター
+	int m_animInterestCycleCounter = ANIM_INTEREST_CYCLE;
+
+	//アニメーション指定
+	void AnimationSpecification(const KuroEngine::Vec3<float>& arg_beforePos, const KuroEngine::Vec3<float>& arg_newPos);
 
 	//プレイヤーの大きさ（半径）
 	float GetPlayersRadius()

@@ -140,7 +140,7 @@ void KuroEngine::ModelAnimator::BoneMatrixRecursive(const int& BoneIdx, const fl
 	//アニメーションは終了していない
 	if (Finish != nullptr && !finish)*Finish = false;
 
-	boneMatricies[BoneIdx] = skel->bones[BoneIdx].invBindMat * m_boneTransform[BoneIdx].GetMatLocal();
+	boneMatricies[BoneIdx] = skel->bones[BoneIdx].invBindMat * m_boneTransform[BoneIdx].GetMatWorld();
 
 	//子を呼び出して再帰的に計算
 	for (auto& child : bone.children)

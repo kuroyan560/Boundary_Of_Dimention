@@ -7,12 +7,13 @@
 #include"../Graphics/BasicDraw.h"
 #include"../Stage/Stage.h"
 #include"../Graphics/BasicDrawParameters.h"
-#include"../../../../src/engine/ForUser/DrawFunc/3D/DrawFunc3D.h"
+#include"ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"FrameWork/UsersInput.h"
 #include"../SoundConfig.h"
 #include"PlayerCollision.h"
 #include"../TimeScaleMgr.h"
-#include"../../../../src/engine/DirectX12/D3D12App.h"
+#include"DirectX12/D3D12App.h"
+#include"Render/RenderObject/ModelInfo/ModelAnimator.h"
 
 void Player::OnImguiItems()
 {
@@ -72,6 +73,66 @@ void Player::OnImguiItems()
 	}
 }
 
+void Player::AnimationSpecification(const KuroEngine::Vec3<float>& arg_beforePos, const KuroEngine::Vec3<float>& arg_newPos)
+{
+	//移動ステータス
+	if (m_playerMoveStatus == PLAYER_MOVE_STATUS::MOVE)
+	{
+		//ジャンプアニメーション中
+		if (m_modelAnimator->IsPlay(m_animNames[ANIM_PATTERN_JUMP]))return;
+
+		//動きに変動があった
+		if (FLT_EPSILON < arg_beforePos.Distance(arg_newPos))
+		{
+			//既に歩きアニメーション再生中
+			if (m_modelAnimator->IsPlay(m_animNames[ANIM_PATTERN_WALK]))return;
+
+			//歩きアニメーション再生
+			m_modelAnimator->Play(m_animNames[ANIM_PATTERN_WALK], true, false);
+		}
+		//動きなし
+		else
+		{
+			//既に待機アニメーションまたはキョロキョロアニメーション再生中
+			if (m_modelAnimator->IsPlay(m_animNames[ANIM_PATTERN_WAIT]) || m_modelAnimator->IsPlay(m_animNames[ANIM_PATTERN_INTEREST]))return;
+
+			//キョロキョロするカウンターデクリメント
+			m_animInterestCycleCounter--;
+
+			//まだキョロキョロ周期が訪れてない
+			if (0 <= m_animInterestCycleCounter)
+			{
+				//待機アニメーション再生
+				m_modelAnimator->Play(m_animNames[ANIM_PATTERN_WAIT], false, false);
+			}
+			//定期的にキョロキョロする
+			else
+			{
+				//キョロキョロアニメーション再生
+				m_modelAnimator->Play(m_animNames[ANIM_PATTERN_INTEREST], false, false);
+				//キョロキョロ周期カウンターリセット
+				m_animInterestCycleCounter = ANIM_INTEREST_CYCLE;
+			}
+		}
+	}
+	//ジャンプステータス
+	else if (m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP)
+	{
+		//トリガー時でない
+		if (m_playerMoveStatus == m_beforePlayerMoveStatus)return;
+
+		//ジャンプアニメーション再生
+		m_modelAnimator->Play(m_animNames[ANIM_PATTERN_JUMP], false, false);
+	}
+
+	//待機アニメーションでなければキョロキョロ周期カウンターが減ることはない
+	if (!m_modelAnimator->IsPlay(m_animNames[ANIM_PATTERN_WAIT]))
+	{
+		//キョロキョロ周期カウンターリセット
+		m_animInterestCycleCounter = ANIM_INTEREST_CYCLE;
+	}
+}
+
 Player::Player()
 	:KuroEngine::Debugger("Player", true, true), m_growPlantPtLig(8.0f, &m_transform)
 {
@@ -101,6 +162,8 @@ Player::Player()
 	//死亡アニメーションを読み込み
 	KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(m_deathAnimSprite.data(), "resource/user/tex/Number.png", DEATH_SPRITE_ANIM_COUNT, KuroEngine::Vec2<int>(DEATH_SPRITE_ANIM_COUNT, 1));
 
+	//アニメーター生成
+	m_modelAnimator = std::make_shared<KuroEngine::ModelAnimator>(m_model);
 }
 
 void Player::Init(KuroEngine::Transform arg_initTransform)
@@ -144,6 +207,10 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 
 	m_deathSpriteAnimNumber = 0;
 	m_deathSpriteAnimTimer = KuroEngine::Timer(DEATH_SPRITE_TIMER);
+
+	m_modelAnimator->Play(m_animNames[ANIM_PATTERN_WAIT], true, false);
+	m_animInterestCycleCounter = ANIM_INTEREST_CYCLE;
+	m_beforePlayerMoveStatus = m_playerMoveStatus;
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
@@ -304,7 +371,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_collision.CheckHit(beforePos, newPos, arg_nowStage);
 
 		m_transform.SetPos(newPos);
-
 	}
 	break;
 	case Player::PLAYER_MOVE_STATUS::JUMP:
@@ -442,6 +508,14 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_drawTransform.SetRotate(m_transform.GetRotate());
 	}
 
+	//アニメーション指定
+	AnimationSpecification(beforePos, newPos);
+
+	//モデルのアニメーター更新
+	m_modelAnimator->Update(TimeScaleMgr::s_inGame.GetTimeScale());
+
+	//動きのステータス記録
+	m_beforePlayerMoveStatus = m_playerMoveStatus;
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
@@ -458,7 +532,9 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		arg_ligMgr,
 		m_model,
 		m_drawTransform,
-		IndividualDrawParameter::GetDefault());
+		IndividualDrawParameter::GetDefault(),
+		KuroEngine::AlphaBlendMode_None,
+		m_modelAnimator->GetBoneMatBuff());
 
 	/*
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(

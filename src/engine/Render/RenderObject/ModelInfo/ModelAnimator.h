@@ -59,6 +59,12 @@ namespace KuroEngine
 
 		//アニメーション再生
 		void Play(const std::string& AnimationName, const bool& Loop, const bool& Blend);
+		//何かしらのアニメーションが現在再生中か
+		bool IsPlay()const
+		{
+			return !playAnimations.empty();
+		}
+
 		//指定のアニメーションが現在再生中か
 		bool IsPlay(const std::string& AnimationName)
 		{
