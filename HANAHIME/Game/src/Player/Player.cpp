@@ -476,12 +476,15 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		arg_cam);
 	*/
 
+	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
+	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 1.0f, 0.0f);
+
 	BasicDraw::Instance()->Draw_Player(
 		arg_cam,
 		arg_ligMgr,
 		m_model,
 		m_drawTransform,
-		IndividualDrawParameter::GetDefault());
+		edgeColor);
 
 	/*
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(

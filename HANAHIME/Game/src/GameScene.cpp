@@ -299,10 +299,6 @@ void GameScene::OnDraw()
 
 	//m_movieCamera.DebugDraw(*m_nowCam, m_ligMgr);
 
-
-	//m_canvasPostEffect.Execute();
-	BasicDraw::Instance()->DrawEdge(m_nowCam->GetViewMat(), m_nowCam->GetProjectionMat());
-
 	//KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 	//m_waterPaintBlend.Register(main, *nowCamera, ds);
 	//m_vignettePostEffect.Register(m_waterPaintBlend.GetResultTex());
@@ -328,10 +324,15 @@ void GameScene::OnDraw()
 	dossun->DebugDraw(*m_nowCam);
 
 
+	//m_canvasPostEffect.Execute();
+	BasicDraw::Instance()->DrawEdge(m_nowCam->GetViewMat(), m_nowCam->GetProjectionMat());
+
+
 	m_fogPostEffect->Register(
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN),
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::DEPTH),
-		BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT)
+		BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT), 
+		m_title.IsFinish() || m_title.IsStartOP()
 	);
 
 	m_vignettePostEffect.Register(m_fogPostEffect->GetResultTex());

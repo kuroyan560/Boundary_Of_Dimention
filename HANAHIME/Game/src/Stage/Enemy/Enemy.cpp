@@ -1,6 +1,7 @@
 #include "Enemy.h"
 #include"../../Player/Player.h"
 #include"FrameWork/UsersInput.h"
+#include"../../Graphics/BasicDraw.h"
 
 void MiniBug::Update(Player &arg_player)
 {
@@ -243,6 +244,21 @@ void MiniBug::Update(Player &arg_player)
 
 	m_transform.SetPos(m_larpPos);
 	m_transform.SetRotate(rotation);
+}
+
+void MiniBug::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+{
+
+	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
+	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
+
+	BasicDraw::Instance()->Draw_Player(
+		arg_cam,
+		arg_ligMgr,
+		m_model,
+		m_transform,
+		edgeColor);
+
 }
 
 void MiniBug::DebugDraw(KuroEngine::Camera &camera)

@@ -744,5 +744,3 @@ void IvyBlock::Disappear()
 	m_easingTimer = 0;
 
 }
-
-

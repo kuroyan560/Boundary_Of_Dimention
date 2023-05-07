@@ -61,8 +61,11 @@ KuroEngine::Fog::Fog(Vec2<int>arg_size, DXGI_FORMAT arg_mainFormat) : Debugger("
 	m_resultTex = D3D12App::Instance()->GenerateTextureBuffer(arg_size, arg_mainFormat, "Fog - ResultTex - TextureBuffer");
 }
 
-void KuroEngine::Fog::Register(const std::shared_ptr<TextureBuffer>& arg_main, const std::shared_ptr<TextureBuffer>& arg_depthMap, std::shared_ptr<TextureBuffer>arg_maskTex)
+void KuroEngine::Fog::Register(const std::shared_ptr<TextureBuffer>& arg_main, const std::shared_ptr<TextureBuffer>& arg_depthMap, std::shared_ptr<TextureBuffer>arg_maskTex, bool arg_isGameScene)
 {
+	m_colorConfig.m_isGameScene = arg_isGameScene;
+	m_colorConfigBuffer->Mapping(&m_colorConfig);
+
 	std::vector<RegisterDescriptorData>descData =
 	{
 		{m_configBuffer,CBV},

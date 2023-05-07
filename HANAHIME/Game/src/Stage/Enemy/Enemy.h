@@ -18,11 +18,12 @@ public:
 		m_limitIndex = 0;
 	}
 	void Update(Player &arg_player)override;
+	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 
 	void DebugDraw(KuroEngine::Camera &camera);
 
 private:
-	std::shared_ptr<KuroEngine::Model>m_model;
+	std::shared_ptr<KuroEngine::Model>m_enemyModel;
 
 	enum Status
 	{

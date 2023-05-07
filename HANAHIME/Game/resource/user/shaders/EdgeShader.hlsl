@@ -43,6 +43,8 @@ VSOutput VSmain(float4 pos : POSITION, float2 uv : TEXCOORD)
 float4 PSmain(VSOutput input) : SV_TARGET
 {   
     
+    // x->普通のアウトライン y->デフォルトの範囲の白いアウトライン z->プレイヤーのアウトライン w->敵のアウトライン
+    
     //画面の中心
     float2 centerPos = float2(0.5f, 0.5f);
     
@@ -50,6 +52,7 @@ float4 PSmain(VSOutput input) : SV_TARGET
     float myBright = g_brightMap.Sample(g_sampler, input.m_uv).x;
     float defBright = g_brightMap.Sample(g_sampler, input.m_uv).y; //デフォルトのライトの範囲
     float playerBright = g_brightMap.Sample(g_sampler, input.m_uv).z; //プレイヤー用アウトライン
+    float enemyBright = g_brightMap.Sample(g_sampler, input.m_uv).w; //敵用アウトライン
     
     // このピクセルの深度値を取得
     float depth = g_depthMap.Sample(g_sampler, input.m_uv).x;
@@ -88,47 +91,62 @@ float4 PSmain(VSOutput input) : SV_TARGET
     {
 
         //プレイヤーの輪郭線の処理
-        if (playerBright == 0)
+        if (playerBright == 0 && !enemyBright)
         {
         
             //明るさ取得
             float2 brihgtPickUv = input.m_uv + playerEdgeOffsetUV[i];
             float pickBright = g_brightMap.Sample(g_sampler, brihgtPickUv).z;
-            if (pickBright != playerBright)
+            if (pickBright != playerBright && !g_brightMap.Sample(g_sampler, brihgtPickUv).w)
             {
                 return float4(0.35f, 0.90f, 0.57f, 1.0f);
             }
 
         }
 
-        ////ライトの範囲の輪郭線
-        //if(myBright == 0){
+        //敵の輪郭線の処理
+        if (enemyBright == 0 && !playerBright)
+        {
         
-        //    //明るさ取得
-        //    float2 brihgtPickUv = input.m_uv + edgeOffsetUV[i];
-        //    float pickBright = g_brightMap.Sample(g_sampler, brihgtPickUv).x;
-        //    float isPlayer = g_brightMap.Sample(g_sampler, brihgtPickUv).z;
-        //    if(pickBright != myBright && !isPlayer)
-        //    {
-        //        return g_edgeColorMap.Sample(g_sampler, brihgtPickUv);
-        //    }
+            //明るさ取得
+            float2 brihgtPickUv = input.m_uv + playerEdgeOffsetUV[i];
+            float pickBright = g_brightMap.Sample(g_sampler, brihgtPickUv).w;
+            if (pickBright != enemyBright && !g_brightMap.Sample(g_sampler, brihgtPickUv).z)
+            {
+                return float4(0.54f, 0.14f, 0.33f, 1.0f);
+            }
 
-        //}
+        }
 
-        ////デフォルトのライトの範囲の輪郭線
-        //if (defBright == 0)
-        //{
+        //ライトの範囲の輪郭線
+        if (myBright == 0)
+        {
         
-        //    //明るさ取得
-        //    float2 brihgtPickUv = input.m_uv + edgeOffsetUV[i];
-        //    float pickBright = saturate(g_brightMap.Sample(g_sampler, brihgtPickUv).y);
-        //    float isPlayer = g_brightMap.Sample(g_sampler, brihgtPickUv).z;
-        //    if (pickBright != defBright && !isPlayer)
-        //    {
-        //        return float4(0.5f, 0.5f, 0.5f, 1.0f);
-        //    }
+            //明るさ取得
+            float2 brihgtPickUv = input.m_uv + edgeOffsetUV[i];
+            float pickBright = g_brightMap.Sample(g_sampler, brihgtPickUv).x;
+            float isPlayer = g_brightMap.Sample(g_sampler, brihgtPickUv).z;
+            if (pickBright != myBright && !isPlayer)
+            {
+                return g_edgeColorMap.Sample(g_sampler, brihgtPickUv);
+            }
 
-        //}
+        }
+
+        //デフォルトのライトの範囲の輪郭線
+        if (defBright == 0)
+        {
+        
+            //明るさ取得
+            float2 brihgtPickUv = input.m_uv + edgeOffsetUV[i];
+            float pickBright = saturate(g_brightMap.Sample(g_sampler, brihgtPickUv).y);
+            float isPlayer = g_brightMap.Sample(g_sampler, brihgtPickUv).z;
+            if (pickBright != defBright && !isPlayer)
+            {
+                return float4(0.5f, 0.5f, 0.5f, 1.0f);
+            }
+
+        }
         
         //深度取得
         float2 pickUv = input.m_uv + edgeOffsetUV[i];
@@ -153,8 +171,8 @@ float4 PSmain(VSOutput input) : SV_TARGET
     
     // 自身の深度値と近傍8テクセルの深度値の差を調べる
     // 法線が異なる　かつ　深度値が結構違う場合はエッジ出力
-    // プレイヤーには表示しない。
-    if (!sameNormal && m_edgeParam.m_depthThreshold <= depthDiffer && !playerBright)
+    // 敵・プレイヤーには表示しない。
+    if (!sameNormal && m_edgeParam.m_depthThreshold <= depthDiffer && !playerBright && !enemyBright)
     {
         //一番手前側のエッジカラーを採用する
         return g_edgeColorMap.Sample(g_sampler, nearestUv);
