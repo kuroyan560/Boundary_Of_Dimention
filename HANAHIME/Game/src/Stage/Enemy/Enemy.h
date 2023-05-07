@@ -47,7 +47,6 @@ private:
 	KuroEngine::Vec3<float>m_bPointPos;
 	KuroEngine::Timer m_attackIntervalTimer;
 	TrackEndPoint track;
-	KuroEngine::Timer m_readyToFightTimer;
 
 	//UŒ‚ˆ—---------------------------------------
 
@@ -59,8 +58,6 @@ private:
 
 	//§Œä“_
 	std::vector<KuroEngine::Vec3<float>>m_posArray;
-
-	bool m_attackFlag;
 };
 
 class DossunRing : public StageParts

@@ -100,7 +100,7 @@ void MiniBug::Update(Player &arg_player)
 	}
 
 	bool debug = false;
-
+	float distance = 0.0f;
 
 	//行動
 	KuroEngine::Vec3<float>vel = { 0.0f,0.0f,0.0f };
@@ -120,7 +120,7 @@ void MiniBug::Update(Player &arg_player)
 			break;
 		}
 
-		const float distance = arg_player.GetTransform().GetPos().Distance(vel);
+		distance = arg_player.GetTransform().GetPos().Distance(vel);
 		//プレイヤーと一定以上距離が離れた場合
 		if (30.0f <= distance)
 		{
