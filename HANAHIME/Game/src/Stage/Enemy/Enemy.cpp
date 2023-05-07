@@ -13,7 +13,7 @@ void MiniBug::OnInit()
 	m_deadTimer.Reset(120);
 }
 
-void MiniBug::Update(Player &arg_player)
+void MiniBug::Update(Player& arg_player)
 {
 
 
@@ -71,9 +71,12 @@ void MiniBug::Update(Player &arg_player)
 
 	bool findFlag = m_sightArea.IsFind(arg_player.GetTransform().GetPos(), 180.0f);
 	//プレイヤーが違う法線の面にいたら見ないようにする。
-	if (m_transform.GetUp().Dot(arg_player.GetTransform().GetUpWorld()) <= 0.5f) {
+	bool isDifferentWall = m_transform.GetUp().Dot(arg_player.GetTransform().GetUpWorld()) <= 0.5f;
+	bool isPlayerWallChange = arg_player.GetIsJump();
+	bool isAttackOrNotice = m_nowStatus ==  MiniBug::ATTACK || m_nowStatus == MiniBug::NOTICE;
+	if ((isDifferentWall || isPlayerWallChange) && isAttackOrNotice) {
 		findFlag = false;
-		m_nowStatus = MiniBug::RETURN;
+		m_nowStatus = MiniBug::NOTICE;
 	}
 	const bool isMoveFlag = arg_player.GetNowPos() != arg_player.GetOldPos();
 	if (findFlag && arg_player.GetIsUnderGround() && m_nowStatus != MiniBug::RETURN && isMoveFlag)
@@ -281,6 +284,10 @@ void MiniBug::Update(Player &arg_player)
 	{
 		//m_larpRotation = DirectX::XMQuaternionIdentity();
 	}
+	//プレイヤーが違う面にるか、ジャンプで壁面移動中はプレイヤーの方を見ない。
+	else if ((isDifferentWall || isPlayerWallChange) && isAttackOrNotice) {
+
+	}
 	else
 	{
 		DirectX::XMVECTOR dirVec = { axis.x,axis.y,axis.z,1.0f };
@@ -301,7 +308,7 @@ void MiniBug::Update(Player &arg_player)
 
 }
 
-void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
+void MiniBug::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
@@ -318,7 +325,7 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 
 }
 
-void MiniBug::DebugDraw(KuroEngine::Camera &camera)
+void MiniBug::DebugDraw(KuroEngine::Camera& camera)
 {
 #ifdef _DEBUG
 
@@ -343,7 +350,7 @@ void MiniBug::DebugDraw(KuroEngine::Camera &camera)
 
 }
 
-void DossunRing::Update(Player &arg_player)
+void DossunRing::Update(Player& arg_player)
 {
 	if (m_deadFlag)
 	{
@@ -426,7 +433,7 @@ void DossunRing::Update(Player &arg_player)
 	}
 }
 
-void DossunRing::DebugDraw(KuroEngine::Camera &camera)
+void DossunRing::DebugDraw(KuroEngine::Camera& camera)
 {
 #ifdef _DEBUG
 
