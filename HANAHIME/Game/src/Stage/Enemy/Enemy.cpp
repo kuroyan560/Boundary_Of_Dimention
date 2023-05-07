@@ -170,7 +170,13 @@ void MiniBug::Update(Player& arg_player)
 		float rad = std::acosf(defVec.Dot(vel.GetNormal()));
 		if (0 < axis.Length() && !std::isnan(rad)) {
 			auto q = DirectX::XMQuaternionRotationAxis(axis, rad);
-			m_transform.SetRotate(DirectX::XMQuaternionMultiply(m_transform.GetRotate(), q));
+
+			//q‚ª•âŠÔæ
+			q = DirectX::XMQuaternionMultiply(m_transform.GetRotate(), q);
+
+			//•âŠÔ‚·‚éB
+			m_transform.SetRotate(DirectX::XMQuaternionSlerp(m_transform.GetRotate(), q, 0.1f));
+
 		}
 
 		break;
