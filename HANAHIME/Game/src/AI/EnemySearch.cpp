@@ -114,9 +114,7 @@ void CircleSearch::Init(const Sphere &sphere)
 
 bool CircleSearch::IsFind(const Sphere &sphere)
 {
-	float distance = sphere.m_centerPos->Distance(*m_hitBox.m_centerPos);
-	float sumRadist = *m_hitBox.m_radius + *sphere.m_radius;
-	return (distance <= sumRadist);
+	return Collision::Instance()->CheckCircleAndCircle(sphere, m_hitBox);
 }
 
 void CircleSearch::DebugDraw(KuroEngine::Camera &camera)

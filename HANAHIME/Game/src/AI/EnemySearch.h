@@ -3,6 +3,26 @@
 #include"Render/RenderObject/Camera.h"
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"FrameWork/Importer.h"
+#include"Common/Singleton.h"
+
+struct Sphere
+{
+	const KuroEngine::Vec3<float> *m_centerPos;
+	const float *m_radius;
+};
+
+class Collision : public KuroEngine::DesignPattern::Singleton<Collision>
+{
+public:
+	bool CheckCircleAndCircle(const Sphere &sphereA, const Sphere &sphereB)
+	{
+		float distance = sphereA.m_centerPos->Distance(*sphereB.m_centerPos);
+		float sumRadist = *sphereA.m_radius + *sphereB.m_radius;
+		return (distance <= sumRadist);
+	}
+
+
+};
 
 //ü•ª‚Æ“_‚Ì”»’è
 class CollisionDetectionRayAndPoint
@@ -16,11 +36,6 @@ public:
 
 };
 
-struct Sphere
-{
-	const KuroEngine::Vec3<float> *m_centerPos;
-	const float *m_radius;
-};
 
 
 //‹ŠE‚ğŠî€‚Æ‚µ‚½õ“G
@@ -109,7 +124,6 @@ private:
 			m_sightRay[i].ray = m_rayArray[i];
 		}
 	}
-
 };
 
 //ü•Ó”ÍˆÍ‚ğŠî€‚Æ‚µ‚½õ“G

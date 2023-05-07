@@ -31,6 +31,11 @@ public:
 
 		m_reaction = std::make_unique<Reaction>(m_tex);
 
+		m_hitBox.m_centerPos = &m_transform.GetPos();
+		m_hitBox.m_radius = &m_hitBoxSize;
+
+		m_hitBoxSize = 3.0f;
+
 	}
 
 	void OnInit()override;
@@ -61,6 +66,7 @@ private:
 	SightSearch m_sightArea;
 	int m_limitIndex;
 
+	float m_hitBoxSize;
 
 	class AttackMotion
 	{
@@ -151,6 +157,8 @@ private:
 	bool m_deadFlag;
 	bool m_startDeadMotionFlag;
 	KuroEngine::Timer m_deadTimer;
+
+	Sphere m_hitBox;
 
 	//€–Sˆ—------------------------------------------------------------------------------
 
@@ -290,6 +298,9 @@ public:
 		m_startDeadMotionFlag = false;
 		m_deadTimer.Reset(120);
 		//€–Sˆ—---------------------------------------
+
+		m_hitBox.m_centerPos = &m_transform.GetPos();
+		m_hitBox.m_radius = &m_hitBoxRadius;
 	}
 	void Update(Player &arg_player)override;
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
@@ -312,6 +323,7 @@ private:
 	float m_hitBoxRadiusMax;	//UŒ‚‚Ì“–‚½‚è”»’è(Å‘å’l)
 	//UŒ‚ƒtƒF[ƒY---------------
 
+	Sphere m_hitBox;
 	Sphere m_sightHitBox;
 	CircleSearch m_sightArea;
 

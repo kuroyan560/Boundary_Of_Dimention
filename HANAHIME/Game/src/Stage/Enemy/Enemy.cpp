@@ -11,6 +11,11 @@ void MiniBug::OnInit()
 	m_deadFlag = false;
 	m_startDeadMotionFlag = false;
 	m_deadTimer.Reset(120);
+	m_scale = 1.0f;
+
+	m_hitBox.m_centerPos = &m_pos;
+	m_hitBox.m_radius = &m_scale;
+
 }
 
 void MiniBug::Update(Player &arg_player)
@@ -206,10 +211,16 @@ void MiniBug::Update(Player &arg_player)
 		//攻撃予備動作が終わって攻撃を行った。
 		if (m_attackFlag && m_attackIntervalTimer.UpdateTimer())
 		{
+			//プレイヤーと敵の判定
+			if (Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_hitBox))
+			{
+				arg_player.Damage();
+			}
+
 			//プレイヤーと敵の当たり判定の処理をここに書く
 			m_attackIntervalTimer.Reset(120);
-			m_attackFlag = false;
 			m_attackCoolTimer.Reset(120);
+			m_attackFlag = false;
 		}
 
 		//プレイヤーと一定以上距離が離れた場合
@@ -424,7 +435,7 @@ void DossunRing::Update(Player &arg_player)
 			m_attackFlag = false;
 		}
 
-		if (false)
+		if (Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_hitBox))
 		{
 			arg_player.Damage();
 		}

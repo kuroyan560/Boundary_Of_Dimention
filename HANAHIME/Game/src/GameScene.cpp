@@ -72,7 +72,7 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 			);
 
 
-	init.SetPos({ 0.0f,5.0f,0.0f });
+	init.SetPos({ -50.0f,5.0f,-50.0f });
 	dossun = std::make_unique<DossunRing>
 		(
 			m_enemyModel,
