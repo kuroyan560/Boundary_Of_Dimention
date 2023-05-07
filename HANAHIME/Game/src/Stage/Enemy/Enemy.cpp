@@ -63,8 +63,8 @@ void MiniBug::Update(Player &arg_player)
 		{
 			//最も近い制御地点からループする
 		case MiniBug::SERACH:
-			m_patrol.Init(0, false);
-			m_pos = m_patrol.GetLimitPos(0);
+			m_patrol.Init(m_limitIndex, false);
+			m_pos = m_patrol.GetLimitPos(m_limitIndex);
 
 			break;
 		case MiniBug::ATTACK:
@@ -88,6 +88,10 @@ void MiniBug::Update(Player &arg_player)
 				}
 			}
 			m_bPointPos = m_posArray[index];
+
+			m_trackPlayer.Init(m_pos, m_bPointPos, 0.1f);
+
+			m_limitIndex = index;
 			break;
 		default:
 			break;
@@ -146,7 +150,7 @@ void MiniBug::Update(Player &arg_player)
 			m_aPointPos = m_pos;
 		}
 		//プレイヤーを追尾中
-		else if(!m_attackFlag)
+		else if (!m_attackFlag)
 		{
 			m_thinkTimer.Reset(120);
 			vel = track.Update(m_pos, arg_player.GetTransform().GetPos());
@@ -163,7 +167,7 @@ void MiniBug::Update(Player &arg_player)
 		//期間中
 		m_thinkTimer.Reset(120);
 		vel = m_trackPlayer.Update();
-		if (false)
+		if (m_trackPlayer.IsArrive(arg_player.GetTransform().GetPos()))
 		{
 			m_nowStatus = MiniBug::SERACH;
 		}
@@ -177,10 +181,16 @@ void MiniBug::Update(Player &arg_player)
 
 	//座標移動
 	m_pos += vel;
-	m_transform.SetPos(m_pos);
 
 	DirectX::XMVECTOR dir = { 0.0f,1.0f,0.0f,0.0f };
-	m_transform.SetRotate(DirectX::XMQuaternionRotationAxis(dir, KuroEngine::Angle::ConvertToRadian(-90.0f)));
+	m_larpRotation = DirectX::XMQuaternionRotationAxis(dir, KuroEngine::Angle::ConvertToRadian(-90.0f));
+
+	m_larpPos = KuroEngine::Math::Lerp(m_larpPos, m_pos, 0.1f);
+	KuroEngine::Quaternion rotation = Lerp(m_transform.GetRotate(), m_larpRotation, 0.1f);
+
+	m_transform.SetPos(m_larpPos);
+	m_transform.SetRotate(rotation);
+
 
 }
 

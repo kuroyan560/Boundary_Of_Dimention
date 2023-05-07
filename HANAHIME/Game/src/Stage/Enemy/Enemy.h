@@ -14,8 +14,9 @@ public:
 		m_sightArea.Init(&m_transform);
 		track.Init(0.01f);
 		m_posArray = posArray;
+		m_limitIndex = 0;
 	}
-	void Update(Player& arg_player)override;
+	void Update(Player &arg_player)override;
 
 	void DebugDraw(KuroEngine::Camera &camera);
 
@@ -37,8 +38,9 @@ private:
 	KuroEngine::Vec3<float>m_pos;
 	PatrolBasedOnControlPoint m_patrol;
 	SightSearch m_sightArea;
+	int m_limitIndex;
 
-	
+
 	//UŒ‚ˆ—---------------------------------------
 
 	bool m_attackFlag;
@@ -52,14 +54,45 @@ private:
 
 	//UŒ‚ˆ—---------------------------------------
 
+	//ˆÚ“®ˆ—---------------------------------------
+	KuroEngine::Vec3<float>m_larpPos;
+	KuroEngine::Quaternion m_larpRotation;
+	//ˆÚ“®ˆ—---------------------------------------
 
 
 	//vlˆ—
 	KuroEngine::Timer m_thinkTimer;
-	bool m_decisionFlag,m_prevDecisionFlag;
+	bool m_decisionFlag, m_prevDecisionFlag;
 
 	//§Œä“_
 	std::vector<KuroEngine::Vec3<float>>m_posArray;
+
+
+	KuroEngine::Quaternion Lerp(const KuroEngine::Quaternion &a, const KuroEngine::Quaternion &b, float mul)
+	{
+		KuroEngine::Vec4<float> base;
+		base.x = a.m128_f32[0];
+		base.y = a.m128_f32[1];
+		base.z = a.m128_f32[2];
+		base.w = a.m128_f32[3];
+
+		KuroEngine::Vec4<float> base2;
+		base2.x = b.m128_f32[0];
+		base2.y = b.m128_f32[1];
+		base2.z = b.m128_f32[2];
+		base2.w = b.m128_f32[3];
+
+		KuroEngine::Vec4<float>ease = KuroEngine::Math::Lerp(base, base2, mul);
+
+		KuroEngine::Quaternion result;
+		result.m128_f32[0] = ease.x;
+		result.m128_f32[1] = ease.y;
+		result.m128_f32[2] = ease.z;
+		result.m128_f32[3] = ease.w;
+
+		return result;
+
+	};
 };
 
 class DossunRing : public StageParts
@@ -91,7 +124,7 @@ public:
 		m_attackInterval.Reset(m_maxAttackIntervalTime);
 		m_attackTimer.Reset(m_maxAttackTime);
 	}
-	void Update(Player& arg_player)override;
+	void Update(Player &arg_player)override;
 
 	void DebugDraw(KuroEngine::Camera &camera);
 
