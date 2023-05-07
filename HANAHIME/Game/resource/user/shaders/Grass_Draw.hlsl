@@ -28,8 +28,6 @@ struct PSOutput
     float4 emissive : SV_Target1;
     float depth : SV_Target2;
     float4 edgeColor : SV_Target3;
-    float4 bright : SV_Target4;
-    float4 normal : SV_Target5;
 };
 
 RWStructuredBuffer<PlantGrass> aliveGrassBuffer : register(u0);
@@ -283,11 +281,9 @@ PSOutput PSmain(GSOutput input)
     //F‚ğ•Û‘¶‚·‚éB
     color.xyz *= lumi;
     output.color = color;
-    output.bright = float4(1, 1, 0, 1);
 
     output.emissive = float4(0, 0, 0, 0);
     output.depth = input.depthInView;
-    output.normal.xyz = input.normal;
     output.edgeColor = float4(0.13, 0.53, 0.40, 1);
  
     return output;
