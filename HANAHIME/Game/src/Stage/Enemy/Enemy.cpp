@@ -81,7 +81,7 @@ void MiniBug::Update(Player &arg_player)
 		m_nowStatus = MiniBug::NOTICE;
 	}
 	const bool isMoveFlag = arg_player.GetNowPos() != arg_player.GetOldPos();
-	if (findFlag && arg_player.GetIsUnderGround() && m_nowStatus != MiniBug::RETURN && isMoveFlag && isDifferentWall)
+	if (findFlag && arg_player.GetIsUnderGround() && m_nowStatus != MiniBug::RETURN && isMoveFlag)
 	{
 		m_nowStatus = MiniBug::NOTICE;
 	}
@@ -123,7 +123,7 @@ void MiniBug::Update(Player &arg_player)
 
 			break;
 		case MiniBug::NOTICE:
-
+			m_reaction->Init(LOOK);
 			break;
 		case MiniBug::RETURN:
 			//最も近い制御点に戻る
@@ -165,6 +165,18 @@ void MiniBug::Update(Player &arg_player)
 
 		vel = m_patrol.Update(m_pos);
 		m_dir = vel;
+
+		{
+			//プレイヤーを回転させる。
+			KuroEngine::Vec3<float> defVec = m_transform.GetFront();
+			KuroEngine::Vec3<float> axis = defVec.Cross(vel.GetNormal());
+			float rad = std::acosf(defVec.Dot(vel.GetNormal()));
+			if (0 < axis.Length() && !std::isnan(rad)) {
+				auto q = DirectX::XMQuaternionRotationAxis(axis, rad);
+				m_transform.SetRotate(DirectX::XMQuaternionMultiply(m_transform.GetRotate(), q));
+			}
+		}
+
 		break;
 	case MiniBug::ATTACK:
 
