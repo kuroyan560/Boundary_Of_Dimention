@@ -154,6 +154,7 @@ class Grass
 
 	//１フレーム前のプレイヤーの位置
 	KuroEngine::Vec3<float>m_oldPlayerPos;
+	KuroEngine::Vec3<float>m_playerPos;
 	//草を植えるスパン
 	KuroEngine::Timer m_plantTimer;
 

@@ -142,6 +142,8 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_isUnderGround = false;
 	m_underGroundEaseTimer = 1.0f;
 
+	m_attackTimer = 0;
+
 	m_deathSpriteAnimNumber = 0;
 	m_deathSpriteAnimTimer = KuroEngine::Timer(DEATH_SPRITE_TIMER);
 
@@ -182,10 +184,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, m_cameraMode);
 	}
 
-	if (UsersInput::Instance()->KeyInput(DIK_V)) {
-		Damage();
-	}
-
 	//移動ステータスによって処理を変える。
 	switch (m_playerMoveStatus)
 	{
@@ -198,7 +196,15 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		//地中に沈むフラグを更新。 イージングが終わっていたら。
 		if (1.0f <= m_underGroundEaseTimer) {
 
+			bool prevInInputUnderGround = m_isInputUnderGround;
 			m_isInputUnderGround = UsersInput::Instance()->KeyInput(DIK_SPACE) || UsersInput::Instance()->ControllerInput(0, KuroEngine::A);
+
+			//沈むフラグが離されたトリガーだったら。
+			if (prevInInputUnderGround && !m_isInputUnderGround) {
+
+				//攻撃する。
+				m_attackTimer = ATTACK_TIMER;
+			}
 
 			//イージングが終わっている時のみ地中に潜ったり出たりする判定を持たせる。
 			bool isInputOnOff = UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->KeyOffTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A) || UsersInput::Instance()->ControllerOffTrigger(0, KuroEngine::A);
@@ -212,6 +218,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			m_underGroundEaseTimer = std::clamp(m_underGroundEaseTimer + ADD_UNDERGROUND_EASE_TIMER, 0.0f, 1.0f);
 
 			if (1.0f <= m_underGroundEaseTimer) {
+
+				//地中にいる判定を更新。
 				m_isUnderGround = m_isInputUnderGround;
 			}
 
@@ -450,6 +458,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_drawTransform.SetRotate(m_transform.GetRotate());
 	}
 
+	//攻撃中タイマーを減らす。
+	m_attackTimer = std::clamp(m_attackTimer - 1, 0, ATTACK_TIMER);
+
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
@@ -525,6 +536,26 @@ void Player::Damage()
 
 	m_isDeath = true;
 
+}
+
+bool Player::CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, float arg_enemySize)
+{
+
+	//攻撃状態じゃなかったら処理を戻す。
+	if (!GetIsAttack()) {
+		return false;
+	}
+
+	//まずは球の判定
+	float distance = (arg_enemyPos - m_transform.GetPosWorld()).Length();
+	bool isHit = distance < m_growPlantPtLig.m_influenceRange;
+
+	//当たっていなかったら処理を飛ばす。
+	if (!isHit) {
+		return false;
+	}
+
+	return true;
 }
 
 void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {

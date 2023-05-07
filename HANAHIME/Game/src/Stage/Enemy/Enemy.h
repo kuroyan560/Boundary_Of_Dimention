@@ -2,6 +2,7 @@
 #include"../StageParts.h"
 #include"../../AI/EnemyPatrol.h"
 #include"../../AI/EnemySearch.h"
+#include"../Grass.h"
 
 class MiniBug :public StageParts
 {

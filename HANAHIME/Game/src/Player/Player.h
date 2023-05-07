@@ -107,6 +107,10 @@ class Player : public KuroEngine::Debugger
 	const float DEATH_EFFECT_CAMERA_Z = -15.0f;
 	const float DEATH_EFFECT_TIMER_SCALE = 0.1f;
 
+	//攻撃判定
+	int m_attackTimer;
+	const int ATTACK_TIMER = 30;
+
 	//潜る関連
 	bool m_isInputUnderGround;			//沈む際の入力がされているかを判断する用。
 	bool m_isUnderGround;				//地中の状態か否か
@@ -235,6 +239,9 @@ public:
 	//ダメージを与える。とりあえずはこれが呼ばれたらプレイヤーは死ぬ。
 	void Damage();
 
+	//攻撃中か？
+	bool GetIsAttack() { return 0 < m_attackTimer; }
+
 	void DisactiveLight()
 	{
 		m_growPlantPtLig.Disactive();
@@ -245,6 +252,9 @@ public:
 	KuroEngine::Vec3<float> GetOutlineStandardVec() {
 		return KuroEngine::Math::TransformVec3(KuroEngine::Vec3<float>(0, 0, 1), m_normalSpinQ);
 	}
+
+	//草を生やす球との当たり判定
+	bool CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, float arg_enemySize);
 
 	Sphere m_sphere;
 	float m_radius;

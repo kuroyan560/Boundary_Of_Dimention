@@ -201,6 +201,9 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 	transformData.m_camPos = { arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[0],arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[1],arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[2] };
 	m_otherTransformConstBuffer->Mapping(&transformData);
 
+	//プレイヤーの座標を保存。
+	m_playerPos = arg_playerTransform.GetPos();
+
 	//if (m_plantTimer.IsTimeUp() && 0.01f < KuroEngine::Vec3<float>(m_oldPlayerPos - arg_playerTransform.GetPos()).Length())
 	if (true)
 	{
@@ -431,7 +434,10 @@ void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 
 			if (!index.m_isAlive) continue;
 
-			//KuroEngine::DrawFunc3D::DrawLine(arg_cam, index.m_pos, index.m_pos + KuroEngine::Vec3<float>(0, 1, 0), Color(255, 255, 255, 255), HIT_SCALE);
+			//距離が一定以上離れていたらアウト。
+			if (arg_plantInfluenceRange < (m_oldPlayerPos - index.m_worldPos).Length()) continue;
+
+			KuroEngine::DrawFunc3D::DrawLine(arg_cam, index.m_worldPos, index.m_worldPos + KuroEngine::Vec3<float>(0, 1, 0), Color(255, 255, 255, 255), HIT_SCALE);
 
 		}
 
