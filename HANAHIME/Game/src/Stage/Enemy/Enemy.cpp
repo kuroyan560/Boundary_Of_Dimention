@@ -5,7 +5,7 @@
 
 void MiniBug::OnInit()
 {
-	m_nowStatus = SERACH;
+	m_nowStatus = SEARCH;
 	m_prevStatus = NONE;
 	m_limitIndex = 0;
 	m_deadFlag = false;
@@ -66,7 +66,7 @@ void MiniBug::Update(Player &arg_player)
 	//巡回(何も起きていないorルートに帰還したら)
 	else if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_4))
 	{
-		m_nowStatus = MiniBug::SERACH;
+		m_nowStatus = MiniBug::SEARCH;
 	}
 
 	const bool findFlag = m_sightArea.IsFind(arg_player.GetTransform().GetPos(), 180.0f);
@@ -86,12 +86,12 @@ void MiniBug::Update(Player &arg_player)
 	if (m_nowStatus != m_prevStatus)
 	{
 		int index = 0;
-		float min = 10000000000.0f;
+		float min = std::numeric_limits<float>().max();
 		float prevMin = 0.0f;
 		switch (m_nowStatus)
 		{
 			//最も近い制御地点からループする
-		case MiniBug::SERACH:
+		case MiniBug::SEARCH:
 			m_patrol.Init(m_limitIndex, false);
 			m_pos = m_patrol.GetLimitPos(m_limitIndex);
 
@@ -143,7 +143,7 @@ void MiniBug::Update(Player &arg_player)
 	KuroEngine::Vec3<float>vel = { 0.0f,0.0f,0.0f };
 	switch (m_nowStatus)
 	{
-	case MiniBug::SERACH:
+	case MiniBug::SEARCH:
 		vel = m_patrol.Update(m_pos);
 		m_dir = vel;
 		break;
@@ -182,14 +182,9 @@ void MiniBug::Update(Player &arg_player)
 			m_reaction->Init(HIT);
 			m_attackMotion.Init(m_pos, m_pos + KuroEngine::Vec3<float>(0.0f, 2.0f, 0.0f), 0.5f);
 		}
-		if (m_attackFlag)
-		{
-			vel = m_attackMotion.GetVel(m_pos);
-		}
 
 		//攻撃予備動作が終わって攻撃を行った。
-		//if (m_attackFlag && m_attackIntervalTimer.UpdateTimer())
-		if (m_attackFlag && m_attackMotion.IsDone())
+		if (m_attackFlag && m_attackIntervalTimer.UpdateTimer())
 		{
 			//プレイヤーと敵の当たり判定の処理をここに書く
 			m_attackIntervalTimer.Reset(120);
@@ -237,7 +232,7 @@ void MiniBug::Update(Player &arg_player)
 		m_dir = vel.GetNormal();
 		if (m_trackPlayer.IsArrive(arg_player.GetTransform().GetPos()))
 		{
-			m_nowStatus = MiniBug::SERACH;
+			m_nowStatus = MiniBug::SEARCH;
 		}
 		break;
 	default:
@@ -310,7 +305,7 @@ void MiniBug::DebugDraw(KuroEngine::Camera &camera)
 
 	switch (m_nowStatus)
 	{
-	case MiniBug::SERACH:
+	case MiniBug::SEARCH:
 		m_patrol.DebugDraw();
 		break;
 	case MiniBug::ATTACK:

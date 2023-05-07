@@ -15,7 +15,7 @@ public:
 		track.Init(0.01f);
 		m_posArray = posArray;
 
-		m_nowStatus = SERACH;
+		m_nowStatus = SEARCH;
 		m_prevStatus = NONE;
 		m_limitIndex = 0;
 		m_deadFlag = false;
@@ -45,7 +45,7 @@ private:
 	enum Status
 	{
 		NONE,
-		SERACH,//循環中
+		SEARCH,//循環中
 		ATTACK,//プレイヤーを追跡
 		NOTICE,//プレイヤーらしきものを見つけた
 		RETURN,//循環エリアに戻る
