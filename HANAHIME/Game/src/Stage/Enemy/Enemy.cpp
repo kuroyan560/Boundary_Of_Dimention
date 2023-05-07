@@ -16,9 +16,6 @@ void MiniBug::OnInit()
 void MiniBug::Update(Player &arg_player)
 {
 
-
-
-
 	//共通処理
 	if (m_deadFlag)
 	{
@@ -53,22 +50,7 @@ void MiniBug::Update(Player &arg_player)
 	//敵発見時(プレイヤーが視界に入った)
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_1))
 	{
-		m_nowStatus = MiniBug::ATTACK;
-	}
-	//敵発見時(プレイヤーがもぐっているかつ動いている時に発見した)
-	else if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_2))
-	{
-		m_nowStatus = MiniBug::NOTICE;
-	}
-	//帰還(敵を見つけた後、見失った)
-	else if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_3))
-	{
-		m_nowStatus = MiniBug::RETURN;
-	}
-	//巡回(何も起きていないorルートに帰還したら)
-	else if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_4))
-	{
-		m_nowStatus = MiniBug::SEARCH;
+		OnInit();
 	}
 
 	bool findFlag = m_sightArea.IsFind(arg_player.GetTransform().GetPos(), 180.0f);
