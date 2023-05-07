@@ -7,6 +7,7 @@
 #include<memory>
 #include<array>
 #include"../Graphics/BasicDrawParameters.h"
+#include "Stage.h"
 
 namespace KuroEngine
 {
@@ -48,13 +49,16 @@ class Grass
 	//植えた草の情報
 	struct PlantGrass
 	{
-		KuroEngine::Vec3<float>m_pos = { 0,0,0 };
+		KuroEngine::Vec3<float>m_localPos = { 0,0,0 };
 		int m_texIdx = 0;
 		KuroEngine::Vec3<float>m_normal = { 0,1,0 };
 		float m_sineLength;
 		float m_appearY;		//出現エフェクトに使用する変数 Y軸をどこまで表示させるか。
 		float m_appearYTimer;
 		int m_isAlive;
+		int m_isCheckGround;
+		int m_terrianIdx;
+		KuroEngine::Vec3<float> m_worldPos = { 0,0,0 };
 	};
 	//植えた草の情報配列バッファ
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_plantGrassBuffer;
@@ -99,9 +103,10 @@ class Grass
 	{
 		KuroEngine::Vec3<float>m_camPos;
 		float m_seed;
+		KuroEngine::Vec3<float> m_playerPos;
 		int m_grassCount;
-		int m_plantOnceCount;
-		int pad[2];
+		float m_playerPlantLightRange;
+		KuroEngine::Vec3<float> m_pad;
 	};
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_otherTransformConstBuffer;
 
@@ -149,14 +154,18 @@ class Grass
 
 	//１フレーム前のプレイヤーの位置
 	KuroEngine::Vec3<float>m_oldPlayerPos;
+	KuroEngine::Vec3<float>m_playerPos;
 	//草を植えるスパン
 	KuroEngine::Timer m_plantTimer;
+
+	//当たり判定の大きさ
+	const float HIT_SCALE = 2.0f;
 
 public:
 	Grass();
 	void Init();
-	void Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
-	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
+	void Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, float arg_plantInfluenceRange, const std::weak_ptr<Stage>arg_nowStage);
+	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, float arg_plantInfluenceRange, bool arg_isAttack);
 
 	/// <summary>
 	/// 草を植える（ビルボード）
@@ -164,7 +173,7 @@ public:
 	/// <param name="arg_transform">座標</param>
 	/// <param name="arg_grassPosScatter">散らし具合</param>
 	/// <param name="arg_waterPaintBlend">水彩画風ブレンドポストエフェクト</param>
-	void Plant(KuroEngine::Transform arg_transform, KuroEngine::Transform arg_playerTransform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend);
+	void Plant(KuroEngine::Transform arg_transform, KuroEngine::Transform arg_playerTransform);
 
 private:
 

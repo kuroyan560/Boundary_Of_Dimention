@@ -1,13 +1,16 @@
 //植えた草の情報
 struct PlantGrass
 {
-    float3 m_pos;
+    float3 m_localPos;
     int m_texIdx;
     float3 m_normal;
     float m_sineLength;
     float m_appearY;
     float m_appearYTimer;
     int m_isAlive;
+    int m_isCheckGround;
+    int m_terrianIdx;
+    float3 m_worldPos;
 };
 
 //全草むらで共通する定数バッファ用のパラメータ
@@ -40,8 +43,10 @@ struct TransformData
 {
     float3 m_camPos;
     float m_seed;
+    float3 m_playerPos;
     int m_grassCount;
-    int m_plantOnceCount;
+    float m_playerPlantLightRange;
+    float3 pad;
 };
 
 //ランダム

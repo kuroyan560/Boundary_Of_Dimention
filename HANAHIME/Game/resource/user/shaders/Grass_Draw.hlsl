@@ -28,8 +28,6 @@ struct PSOutput
     float4 emissive : SV_Target1;
     float depth : SV_Target2;
     float4 edgeColor : SV_Target3;
-    float4 bright : SV_Target4;
-    float4 normal : SV_Target5;
 };
 
 RWStructuredBuffer<PlantGrass> aliveGrassBuffer : register(u0);
@@ -84,7 +82,7 @@ void GSmain(
     GSOutput element;
     element.texID = grass.m_texIdx;
     element.normal = grass.m_normal;
-    float3 position = grass.m_pos;
+    float3 position = grass.m_worldPos;
 
     //ビルボードのサイズ
     const float2 PolygonSize = float2(0.75f, 3.0f);
@@ -277,6 +275,8 @@ PSOutput PSmain(GSOutput input)
     //距離によって最終的な明るさをクランプする。
     const float IN_CIRCLE_LUMI = 0.5f;
     lumi = clamp(lumi, step(distance, DISTANCE) * IN_CIRCLE_LUMI, 1.0f);
+    
+    //float bright = distance;
 
     //色を保存する。
     color.xyz *= lumi;
@@ -284,7 +284,6 @@ PSOutput PSmain(GSOutput input)
 
     output.emissive = float4(0, 0, 0, 0);
     output.depth = input.depthInView;
-    output.normal.xyz = input.normal;
     output.edgeColor = float4(0.13, 0.53, 0.40, 1);
  
     return output;

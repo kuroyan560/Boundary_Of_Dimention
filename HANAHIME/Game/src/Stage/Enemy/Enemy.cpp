@@ -196,6 +196,11 @@ void MiniBug::Update(Player &arg_player)
 
 	//‹¤’Êˆ—
 
+
+
+	//‘‚Ì“–‚½‚è”»’è
+	arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length());
+
 	//À•WˆÚ“®
 	m_pos += vel;
 	m_prevPos = m_pos;

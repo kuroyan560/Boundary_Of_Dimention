@@ -3,8 +3,10 @@
 #include"FrameWork/Importer.h"
 #include"../Graphics/BasicDraw.h"
 #include"../Graphics/WaterPaintBlend.h"
+#include"../../../../src/engine/ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"KuroEngineDevice.h"
 #include"Render/RenderObject/Camera.h"
+#include"../Player/CollisionDetectionOfRayAndMesh.h"
 
 Grass::Grass()
 {
@@ -85,8 +87,6 @@ Grass::Grass()
 			RenderTargetInfo(DXGI_FORMAT_R32G32B32A32_FLOAT, AlphaBlendMode_Trans),	//エミッシブマップ
 			RenderTargetInfo(DXGI_FORMAT_R16_FLOAT, AlphaBlendMode_None),	//深度マップ
 			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_None),	//エッジカラーマップ
-			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//草むらマップ
-			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//ノーマルマップ
 		};
 
 		//設定を基にパイプライン生成
@@ -190,14 +190,19 @@ void Grass::Init()
 	m_plantTimer.Reset(0);
 }
 
-void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend)
+void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, float arg_plantInfluenceRange, const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
 
 	//トランスフォーム情報をGPUに送信
 	TransformCBVData transformData;
+	transformData.m_playerPos = arg_playerTransform.GetPos();
+	transformData.m_playerPlantLightRange = arg_plantInfluenceRange;
 	transformData.m_camPos = { arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[0],arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[1],arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[2] };
 	m_otherTransformConstBuffer->Mapping(&transformData);
+
+	//プレイヤーの座標を保存。
+	m_playerPos = arg_playerTransform.GetPos();
 
 	//if (m_plantTimer.IsTimeUp() && 0.01f < KuroEngine::Vec3<float>(m_oldPlayerPos - arg_playerTransform.GetPos()).Length())
 	if (true)
@@ -208,7 +213,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 		grassTransform.SetRotate(arg_playerTransform.GetRotate());
 		grassTransform.SetScale({ 1.0f,1.0f,1.0f });
 
-		Plant(grassTransform, arg_playerTransform, arg_grassPosScatter, arg_waterPaintBlend);
+		Plant(grassTransform, arg_playerTransform);
 		m_plantTimer.Reset(0);
 	}
 	m_plantTimer.UpdateTimer();
@@ -293,18 +298,81 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 		auto aliveGrassArrayBufferPtr = m_plantGrassBuffer->GetResource()->GetBuffOnCpu<PlantGrass>();
 		std::vector<PlantGrass>aliveGrassArray;
 		int consumeCount = 0;
+		//GPU上の草データをvectorにいれる。
 		for (int i = 0; i < *plantGrassCountPtr; ++i)
 		{
 			aliveGrassArray.emplace_back(aliveGrassArrayBufferPtr[i]);
 			if (aliveGrassArray.back().m_isAlive == 0)consumeCount++;
 		}
+
+		//下方向にレイを飛ばして、そこが動く足場だったら親子関係を結ぶ。
 		for (auto& index : aliveGrassArray) {
-			if (5.0f <= index.m_pos.Length()) continue;
+
+			if (index.m_isCheckGround) continue;
+
+			int terrianIdx = 0;
+			for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
+			{
+				//動く足場でない
+				if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)continue;
+
+				//動く足場としてキャスト
+				auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
+				//モデル情報取得
+				auto model = terrian->GetModel();
+
+				//メッシュを走査
+				for (auto& modelMesh : model.lock()->m_meshes)
+				{
+
+					//当たり判定用メッシュ
+					auto checkHitMesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+
+					CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(index.m_worldPos, -index.m_normal, checkHitMesh);
+
+					//当たっていたら
+					if (output.m_isHit && 0 < output.m_distance && output.m_distance <= 1.0f) {
+
+						//親子関係を持たせる。
+						index.m_terrianIdx = terrianIdx;
+
+					}
+
+
+				}
+				++terrianIdx;
+
+			}
+
+
+			index.m_isCheckGround = true;
+		}
+
+		//草にトランスフォームを適応。
+		for (auto& index : aliveGrassArray) {
+
+			//Indexが-1だったら処理を飛ばす。
+			if (index.m_terrianIdx == -1) continue;
+
+			auto terrian = arg_nowStage.lock()->GetGimmickArray().begin();
+			std::advance(terrian, index.m_terrianIdx);
+
+			index.m_worldPos += terrian->get()->GetMoveAmount();
+
+		}
+
+		//原点付近に生える草は削除
+		for (auto& index : aliveGrassArray) {
+
+			if (5.0f <= index.m_worldPos.Length()) continue;
 			index.m_isAlive = false;
 		}
+
+		//フラグがfalseになった草を最後尾へ
 		std::sort(aliveGrassArray.begin(), aliveGrassArray.end(), [](PlantGrass& a, PlantGrass& b) {
 			return a.m_isAlive > b.m_isAlive;
 			});
+
 		//原点付近の草は削除
 		m_plantGrassBuffer->Mapping(aliveGrassArray.data(), *plantGrassCountPtr);
 		m_sortAndDisappearNumBuffer->Mapping(&consumeCount);
@@ -315,7 +383,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 			{ 1,1,1 },
 			descData);*/
 
-		//死んでいるものを削除
+			//死んでいるものを削除
 		D3D12App::Instance()->DispathOneShot(
 			m_cPipeline[DISAPPEAR],
 			{ 1,1,1 },
@@ -323,7 +391,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 	}
 }
 
-void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, float arg_plantInfluenceRange, bool arg_isAttack)
 {
 	using namespace KuroEngine;
 
@@ -348,9 +416,37 @@ void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 		0,
 		true,
 		plantGrassCount);
+
+
+
+	//当たり判定を表示
+	if (arg_isAttack) {
+		auto aliveGrassArrayBufferPtr = m_plantGrassBuffer->GetResource()->GetBuffOnCpu<PlantGrass>();
+		std::vector<PlantGrass>aliveGrassArray;
+		auto plantGrassCountPtr = m_plantGrassCounterBuffer->GetResource()->GetBuffOnCpu<int>();
+		for (int i = 0; i < *plantGrassCountPtr; ++i)
+		{
+			aliveGrassArray.emplace_back(aliveGrassArrayBufferPtr[i]);
+		}
+
+		//線を描画
+		for (auto& index : aliveGrassArray) {
+
+			if (!index.m_isAlive) continue;
+
+			//距離が一定以上離れていたらアウト。
+			if (arg_plantInfluenceRange < (m_oldPlayerPos - index.m_worldPos).Length()) continue;
+
+			KuroEngine::DrawFunc3D::DrawLine(arg_cam, index.m_worldPos, index.m_worldPos + KuroEngine::Vec3<float>(0, 1, 0), Color(255, 255, 255, 255), HIT_SCALE);
+
+		}
+
+	}
+
+
 }
 
-void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Transform arg_playerTransform, KuroEngine::Vec2<float> arg_grassPosScatter, WaterPaintBlend& arg_waterPaintBlend)
+void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Transform arg_playerTransform)
 {
 
 	//草をはやす場所を取得。
@@ -371,7 +467,6 @@ void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Transform arg
 		m_grassInitializerArray.back().m_sineLength = KuroEngine::GetRand(40) / 100.0f;
 	}
 
-
 	//インクマスクを落とす
 	//arg_waterPaintBlend.DropMaskInk(arg_transform.GetPos() + KuroEngine::Vec3<float>(0.0f, 1.0f, 0.0f));
 }
@@ -391,7 +486,7 @@ std::array<Grass::CheckResult, Grass::GRASSF_SEARCH_COUNT> Grass::SearchPlantPos
 	auto transformCBVPtr = m_otherTransformConstBuffer->GetResource()->GetBuffOnCpu<TransformCBVData>();
 	transformCBVPtr->m_seed = KuroEngine::GetRand(0, 100000) / 100.0f;
 	transformCBVPtr->m_grassCount = plantGrassCount;
-	transformCBVPtr->m_plantOnceCount = plantGrassCount;
+	transformCBVPtr->m_playerPos = arg_playerTransform.GetPosWorld();
 
 	//判定用コンピュートパイプライン実行
 	//登録するディスクリプタの情報配列
@@ -421,11 +516,11 @@ std::array<Grass::CheckResult, Grass::GRASSF_SEARCH_COUNT> Grass::SearchPlantPos
 
 	for (int index = 0; index < GRASSF_SEARCH_COUNT; ++index) {
 
-			result[index].m_isSuccess = checkResultPtr[index].m_isSuccess;
-			result[index].m_plantNormal = checkResultPtr[index].m_plantNormal.GetNormal();
-			result[index].m_plantPos = checkResultPtr[index].m_plantPos + checkResultPtr[index].m_plantNormal;	//埋まってしまうので法線方向に少しだけ動かす。
+		result[index].m_isSuccess = checkResultPtr[index].m_isSuccess;
+		result[index].m_plantNormal = checkResultPtr[index].m_plantNormal.GetNormal();
+		result[index].m_plantPos = checkResultPtr[index].m_plantPos + checkResultPtr[index].m_plantNormal;	//埋まってしまうので法線方向に少しだけ動かす。
 
-		}
+	}
 
 	return result;
 

@@ -58,13 +58,16 @@ void Appear(uint DTid : SV_DispatchThreadID)
     
     //イニシャライザを取得して初期化
     GrassInitializer initializer = stackGrassInitializerBuffer[DTid];
-    newGrass.m_pos = initializer.m_pos;
+    newGrass.m_localPos = initializer.m_pos;
+    newGrass.m_worldPos = initializer.m_pos;
     newGrass.m_normal = initializer.m_up;
     newGrass.m_sineLength = initializer.m_sineLength;
     newGrass.m_texIdx = initializer.m_texIdx;
     newGrass.m_appearYTimer = 0;
     newGrass.m_appearY = 0;
     newGrass.m_isAlive = 1;
+    newGrass.m_isCheckGround = 0;
+    newGrass.m_terrianIdx = -1;
     
     appendAliveGrassBuffer.Append(newGrass);
 };
@@ -76,14 +79,18 @@ void Update(uint DTid : SV_DispatchThreadID)
     PlantGrass grass = aliveGrassBuffer[DTid];
     
     //現在位置にライトが当たっているかを確認する。
-    float4 viewPos = mul(commonInfo.matView, float4(grass.m_pos, 1.0f));
+    float4 viewPos = mul(commonInfo.matView, float4(grass.m_worldPos, 1.0f));
     float4 clipPos = mul(commonInfo.matProjection, viewPos);
     float3 ndcPos = clipPos.xyz / clipPos.w;
     uint2 screenPos = round(float2((ndcPos.x * 0.5f + 0.5f) * 1280.0f, (1.0f - (ndcPos.y * 0.5f + 0.5f)) * 720.0f));
     float texColor = g_brightMap[screenPos].x;
+    
+    //プレイヤーとの距離
+    float playerDistance = length(grass.m_worldPos - otherTransformData.m_playerPos);
+    bool isFar = playerDistance <= otherTransformData.m_playerPlantLightRange;
   
     //光にあたっていたら草を生やし、 当たっていなかったらイージングタイマーを減らして草を枯らす。
-    if (0.9f < texColor)
+    if (0.9f < texColor || isFar)
     {
     
         //イージングタイマー更新
@@ -198,10 +205,10 @@ void SearchPlantPos(uint3 GlobalID : SV_DispatchThreadID, uint3 GroupID : SV_Gro
     result.m_plantNormal = g_normalMap[screenPos].xyz;
     
     //すでに生えているところにもう一度生やしていないかをチェック。
-    const float DEADLINE = 1.3f;
+    const float DEADLINE = 1.1f;
     for (int grassIndex = 0; grassIndex < otherTransformData.m_grassCount; ++grassIndex)
     {
-        float distance = length(result.m_plantPos - aliveGrassBuffer[grassIndex].m_pos);
+        float distance = length(result.m_plantPos - aliveGrassBuffer[grassIndex].m_worldPos);
         if (distance < DEADLINE)
         {
             result.m_isSuccess = false;

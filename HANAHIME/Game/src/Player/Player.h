@@ -107,6 +107,10 @@ class Player : public KuroEngine::Debugger
 	const float DEATH_EFFECT_CAMERA_Z = -15.0f;
 	const float DEATH_EFFECT_TIMER_SCALE = 0.1f;
 
+	//攻撃判定
+	int m_attackTimer;
+	const int ATTACK_TIMER = 30;
+
 	//潜る関連
 	bool m_isInputUnderGround;			//沈む際の入力がされているかを判断する用。
 	bool m_isUnderGround;				//地中の状態か否か
@@ -156,7 +160,7 @@ class Player : public KuroEngine::Debugger
 	XMVECTOR m_jumpStartQ;							//ジャンプ開始時のクォータニオン
 	XMVECTOR m_jumpEndQ;							//ジャンプ終了時のクオータニオン
 	float m_jumpTimer;								//ジャンプの計測時間を図るタイマー
-	const float JUMP_TIMER = 0.08f;
+	const float JUMP_TIMER = 0.05f;
 	bool m_canJump;									//ジャンプができるかのフラグ
 	int m_canJumpDelayTimer;						//ジャンプができるようになるまでの引っ掛かり
 	const int CAN_JUMP_DELAY = 10;
@@ -171,6 +175,9 @@ class Player : public KuroEngine::Debugger
 	bool m_canZip;
 	std::vector<KuroEngine::Vec3<float>> m_gimmickExitPos;
 	std::vector<KuroEngine::Vec3<float>> m_gimmickExitNormal;
+
+	//当たり判定用ステージの参照
+	std::weak_ptr<Stage> m_nowStage;
 
 	//死亡スプライト関連の変数
 	KuroEngine::Timer m_deathSpriteAnimTimer;		//死亡演出のアニメーションのタイマー
@@ -223,6 +230,8 @@ public:
 	bool GetIsDeath() { return m_isDeath; }
 	bool GetIsFinishDeathAnimation() { return m_isFinishDeathAnimation; }
 
+	bool GetIsUnderGround() { return m_isUnderGround; }
+
 	//座標を返す系。
 	KuroEngine::Vec3<float> GetNowPos() { return m_transform.GetPosWorld(); }
 	KuroEngine::Vec3<float> GetOldPos() { return m_prevTransform.GetPosWorld(); }
@@ -230,15 +239,25 @@ public:
 	//ギミックによる移動を終わらせる。
 	void FinishGimmickMove();
 
+	//ダメージを与える。とりあえずはこれが呼ばれたらプレイヤーは死ぬ。
+	void Damage();
+
+	//攻撃中か？
+	bool GetIsAttack() { return 0 < m_attackTimer; }
+
 	void DisactiveLight()
 	{
 		m_growPlantPtLig.Disactive();
 	}
+	GrowPlantLight_Point GetGrowPlantLight() { return m_growPlantPtLig; }
 
 	//アウトラインの点線を描画するときに使用する値
 	KuroEngine::Vec3<float> GetOutlineStandardVec() {
 		return KuroEngine::Math::TransformVec3(KuroEngine::Vec3<float>(0, 0, 1), m_normalSpinQ);
 	}
+
+	//草を生やす球との当たり判定
+	bool CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, KuroEngine::Vec3<float> arg_enemyUp, float arg_enemySize);
 
 	Sphere m_sphere;
 	float m_radius;

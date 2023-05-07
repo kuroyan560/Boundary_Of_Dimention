@@ -90,6 +90,8 @@ protected:
 	const KuroEngine::Transform m_initializedTransform;
 	//トランスフォーム
 	KuroEngine::Transform m_transform;
+	//現在のフレームで移動した量。
+	KuroEngine::Vec3<float> m_moveAmount;
 
 	virtual void OnInit() {};
 
@@ -110,11 +112,12 @@ public:
 	const STAGE_PARTS_TYPE& GetType()const { return m_type; }
 
 	//トランスフォームゲッタ
-	const KuroEngine::Transform& GetTransform()const { return m_transform; }
+	KuroEngine::Transform& GetTransform() { return m_transform; }
 	void SetTransform(const KuroEngine::Transform& transform)
 	{
 		m_transform = transform;
 	}
+	KuroEngine::Vec3<float> GetMoveAmount() { return m_moveAmount; }
 
 	//ステージ情報のゲッタ
 	const std::weak_ptr<KuroEngine::Model>& GetModel()const { return m_model; }
