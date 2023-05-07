@@ -52,7 +52,7 @@ private:
 		HeadNextPoint m_back;
 
 		bool m_flag;
-		bool m_doneFlag;
+		bool m_doneFlag = true;
 	public:
 		void Init(const KuroEngine::Vec3<float> &aPointPos, const KuroEngine::Vec3<float> &bPointPos, float speed)
 		{
@@ -61,13 +61,20 @@ private:
 
 			m_go.Init(m_aPointPos, m_bPointPos, speed);
 			m_back.Init(m_bPointPos, m_aPointPos, speed);
-			m_doneFlag = false;
+			m_doneFlag = true;
 			m_flag = true;
 		};
 
 		bool IsDone()
 		{
 			return m_doneFlag;
+		}
+
+		void Done() {
+			m_doneFlag = true;
+		}
+		void UnDone() {
+			m_doneFlag = false;
 		}
 
 		KuroEngine::Vec3<float>GetVel(const KuroEngine::Vec3<float> &pos)

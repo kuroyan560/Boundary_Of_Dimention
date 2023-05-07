@@ -77,6 +77,9 @@ void MiniBug::Update(Player &arg_player)
 
 			m_jumpMotion.Init(m_pos, m_pos + KuroEngine::Vec3<float>(0.0f, 5.0f, 0.0f), 0.5f);
 
+			//Doneフラグをfalseにして、演出が終わってない状態にする。
+			m_jumpMotion.UnDone();
+
 			break;
 		case MiniBug::NOTICE:
 
@@ -127,7 +130,14 @@ void MiniBug::Update(Player &arg_player)
 			vel = m_jumpMotion.GetVel(m_pos);
 			m_dir = KuroEngine::Vec3<float>(arg_player.GetTransform().GetPos() - m_pos).GetNormal();
 			m_dir.y = 0.0f;
+
 			break;
+		}
+		else {
+
+			//終わってる状態にする。
+			m_jumpMotion.Done();
+
 		}
 
 		distance = arg_player.GetTransform().GetPos().Distance(m_pos);
@@ -224,7 +234,12 @@ void MiniBug::Update(Player &arg_player)
 
 
 	m_larpPos = KuroEngine::Math::Lerp(m_larpPos, m_pos, 0.1f);
-	KuroEngine::Quaternion rotation = Lerp(m_transform.GetRotate(), m_larpRotation, 0.1f);
+	KuroEngine::Quaternion rotation = m_transform.GetRotate();
+
+	//見つけた時のジャンプ中じゃなかったらプレイヤーの方向を向く。
+	if (m_jumpMotion.IsDone()) {
+		rotation = DirectX::XMQuaternionSlerp(m_transform.GetRotate(), m_larpRotation, 0.1f);
+	}
 
 	m_transform.SetPos(m_larpPos);
 	m_transform.SetRotate(rotation);
