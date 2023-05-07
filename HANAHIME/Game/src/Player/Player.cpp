@@ -182,6 +182,10 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, m_cameraMode);
 	}
 
+	if (UsersInput::Instance()->KeyInput(DIK_V)) {
+		Damage();
+	}
+
 	//移動ステータスによって処理を変える。
 	switch (m_playerMoveStatus)
 	{
@@ -441,7 +445,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	else {
 		m_drawTransform.SetPos(m_transform.GetPos());
 	}
-	m_drawTransform.SetScale(m_transform.GetScale());
 	//回転は動いたときのみ適用させる。
 	if (0 < m_rowMoveVec.Length()) {
 		m_drawTransform.SetRotate(m_transform.GetRotate());
@@ -511,6 +514,16 @@ KuroEngine::Vec3<float> Player::CalculateBezierPoint(float arg_time, KuroEngine:
 	float z = oneMinusTSquared * arg_startPoint.z + 2 * oneMinusT * arg_time * arg_controlPoint.z + tSquared * arg_endPoint.z;
 
 	return KuroEngine::Vec3<float>(x, y, z);
+
+}
+
+void Player::Damage()
+{
+
+	//死んでいたら処理を飛ばす。
+	if (m_isDeath) return;
+
+	m_isDeath = true;
 
 }
 
@@ -700,6 +713,9 @@ void Player::UpdateDeath() {
 			}
 
 		}
+
+		//スケールを小さくしていく。
+		m_drawTransform.SetScale(m_drawTransform.GetScale() * 0.9f);
 
 		++m_deathEffectTimer;
 		if (DEATH_EFFECT_FINISH_TIMER <= m_deathEffectTimer) {

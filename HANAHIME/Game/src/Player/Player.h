@@ -232,6 +232,9 @@ public:
 	//ギミックによる移動を終わらせる。
 	void FinishGimmickMove();
 
+	//ダメージを与える。とりあえずはこれが呼ばれたらプレイヤーは死ぬ。
+	void Damage();
+
 	void DisactiveLight()
 	{
 		m_growPlantPtLig.Disactive();

@@ -45,11 +45,12 @@ bool PlayerCollision::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from,
 	CheckZipline(arg_newPos, arg_nowStage);
 
 	//Ž€‚ñ‚Å‚¢‚½‚çˆ—‚ð”ò‚Î‚·B
-	m_refPlayer->m_isDeath = false;
-	m_refPlayer->m_isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::RIGHT)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::LEFT)]);
-	m_refPlayer->m_isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::TOP)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::BOTTOM)]);
-	m_refPlayer->m_isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::FRONT)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::BEHIND)]);
-	if (m_refPlayer->m_isDeath) {
+	bool isDeath = false;
+	isDeath = false;
+	isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::RIGHT)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::LEFT)]);
+	isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::TOP)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::BOTTOM)]);
+	isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::FRONT)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::BEHIND)]);
+	if (isDeath) {
 		++m_refPlayer->m_deathTimer;
 	}
 	else {
@@ -63,7 +64,6 @@ bool PlayerCollision::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from,
 
 	}
 
-	m_refPlayer->m_isDeath = false;
 	return true;
 }
 
