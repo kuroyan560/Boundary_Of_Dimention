@@ -3,7 +3,7 @@
 #include"FrameWork/UsersInput.h"
 #include"../../Graphics/BasicDraw.h"
 
-void MiniBug::Update(Player &arg_player)
+void MiniBug::Update(Player& arg_player)
 {
 
 	if (m_decisionFlag != m_prevDecisionFlag)
@@ -223,27 +223,26 @@ void MiniBug::Update(Player &arg_player)
 
 	if (axis.x == 0.0f && axis.y == 0.0f && axis.z == 0.0f)
 	{
-		m_larpRotation = DirectX::XMQuaternionIdentity();
+		//m_larpRotation = DirectX::XMQuaternionIdentity();
 	}
 	else
 	{
 		DirectX::XMVECTOR dirVec = { axis.x,axis.y,axis.z,1.0f };
 		m_larpRotation = DirectX::XMQuaternionRotationAxis(dirVec, rptaVel);
+		KuroEngine::Quaternion rotation = m_transform.GetRotate();
+
+		//見つけた時のジャンプ中じゃなかったらプレイヤーの方向を向く。
+		if (m_jumpMotion.IsDone()) {
+			rotation = DirectX::XMQuaternionSlerp(m_transform.GetRotate(), m_larpRotation, 0.1f);
+		}
+		m_transform.SetRotate(rotation);
+
 	}
-
-
-
 
 	m_larpPos = KuroEngine::Math::Lerp(m_larpPos, m_pos, 0.1f);
-	KuroEngine::Quaternion rotation = m_transform.GetRotate();
-
-	//見つけた時のジャンプ中じゃなかったらプレイヤーの方向を向く。
-	if (m_jumpMotion.IsDone()) {
-		rotation = DirectX::XMQuaternionSlerp(m_transform.GetRotate(), m_larpRotation, 0.1f);
-	}
 
 	m_transform.SetPos(m_larpPos);
-	m_transform.SetRotate(rotation);
+
 }
 
 void MiniBug::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
@@ -261,7 +260,7 @@ void MiniBug::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_li
 
 }
 
-void MiniBug::DebugDraw(KuroEngine::Camera &camera)
+void MiniBug::DebugDraw(KuroEngine::Camera& camera)
 {
 #ifdef _DEBUG
 
@@ -286,7 +285,7 @@ void MiniBug::DebugDraw(KuroEngine::Camera &camera)
 
 }
 
-void DossunRing::Update(Player &arg_player)
+void DossunRing::Update(Player& arg_player)
 {
 	if (m_sightArea.IsFind(arg_player.m_sphere))
 	{
@@ -342,7 +341,7 @@ void DossunRing::Update(Player &arg_player)
 	}
 }
 
-void DossunRing::DebugDraw(KuroEngine::Camera &camera)
+void DossunRing::DebugDraw(KuroEngine::Camera& camera)
 {
 #ifdef _DEBUG
 
