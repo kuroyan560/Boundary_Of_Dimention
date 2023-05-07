@@ -60,6 +60,12 @@ void CSmain(uint2 DTid : SV_DispatchThreadID)
         depth = 50.0f;
     }
     
+    //デバッグ用 赤いテクスチャはそのまま
+    if (IsColorEqual(result.xyz, float3(0.82f, 0.24f, 0.24f), 0.01f) && colorConfig.m_isGameScene)
+    {
+        depth = 0.0f;
+    }
+    
     depth = clamp(depth * (config.m_distMin / config.m_distMax), 0.0f, 1.0f);
     float4 fogColor = lerp(lerp(colorConfig.m_fogColorNear, colorConfig.m_fogColorFar, depth), gradation[DTid], colorConfig.m_useTex);
     
