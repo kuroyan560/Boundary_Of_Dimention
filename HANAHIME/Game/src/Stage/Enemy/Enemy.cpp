@@ -4,17 +4,14 @@
 
 void MiniBug::Update(Player &arg_player)
 {
-	bool findFlag = m_sightArea.IsFind(arg_player.GetTransform().GetPos(), 180.0f);
+
 	if (m_decisionFlag != m_prevDecisionFlag)
 	{
 		//思考
 		//敵発見時(プレイヤーが視界に入った)
-		if (findFlag)
-		{
-			m_nowStatus = MiniBug::ATTACK;
-		}
+
 		//敵発見時(プレイヤーがもぐっているかつ動いている時に発見した)
-		else if (false)
+		if (false)
 		{
 			m_nowStatus = MiniBug::NOTICE;
 		}
@@ -52,6 +49,11 @@ void MiniBug::Update(Player &arg_player)
 		m_nowStatus = MiniBug::SERACH;
 	}
 
+	bool findFlag = m_sightArea.IsFind(arg_player.GetTransform().GetPos(), 180.0f);
+	if (findFlag)
+	{
+		m_nowStatus = MiniBug::ATTACK;
+	}
 
 	//初期化
 	if (m_nowStatus != m_prevStatus)
@@ -72,6 +74,9 @@ void MiniBug::Update(Player &arg_player)
 			m_readyToGoToPlayerTimer.Reset(120);
 			m_sightArea.Init(&m_transform);
 			track.Init(0.1f);
+
+			m_jumpMotion.Init(m_pos, m_pos + KuroEngine::Vec3<float>(0.0f, 5.0f, 0.0f), 0.5f);
+
 			break;
 		case MiniBug::NOTICE:
 
@@ -109,15 +114,19 @@ void MiniBug::Update(Player &arg_player)
 	{
 	case MiniBug::SERACH:
 		vel = m_patrol.Update(m_pos);
+		m_dir = vel;
 		break;
 	case MiniBug::ATTACK:
 
 		//見つけた時のリアクション時間
-		if (!m_readyToGoToPlayerTimer.UpdateTimer())
+		//if (!m_readyToGoToPlayerTimer.UpdateTimer()) 時間で切り替える
+		if (!m_jumpMotion.IsDone())	//モーションで切り替える
 		{
 			//注視
-			debug = true;
 			//何かしらのアクションを書く
+			vel = m_jumpMotion.GetVel(m_pos);
+			m_dir = KuroEngine::Vec3<float>(arg_player.GetTransform().GetPos() - m_pos).GetNormal();
+			m_dir.y = 0.0f;
 			break;
 		}
 
@@ -125,12 +134,19 @@ void MiniBug::Update(Player &arg_player)
 
 
 		//プレイヤーと一定距離まで近づいたら攻撃予備動作を入れる
-		if (distance <= 5.0f && m_attackCoolTimer.UpdateTimer())
+		if (distance <= 5.0f && m_attackCoolTimer.UpdateTimer() && !m_attackFlag)
 		{
 			m_attackFlag = true;
+			m_attackMotion.Init(m_pos, m_pos + KuroEngine::Vec3<float>(0.0f, 2.0f, 0.0f), 0.5f);
 		}
+		if (m_attackFlag)
+		{
+			vel = m_attackMotion.GetVel(m_pos);
+		}
+
 		//攻撃予備動作が終わって攻撃を行った。
-		if (m_attackFlag && m_attackIntervalTimer.UpdateTimer())
+		//if (m_attackFlag && m_attackIntervalTimer.UpdateTimer())
+		if (m_attackFlag && m_attackMotion.IsDone())
 		{
 			//プレイヤーと敵の当たり判定の処理をここに書く
 			m_attackIntervalTimer.Reset(120);
@@ -154,6 +170,7 @@ void MiniBug::Update(Player &arg_player)
 		{
 			m_thinkTimer.Reset(120);
 			vel = track.Update(m_pos, arg_player.GetTransform().GetPos());
+			m_dir = track.Update(m_pos, arg_player.GetTransform().GetPos()).GetNormal();
 		}
 
 
@@ -161,12 +178,13 @@ void MiniBug::Update(Player &arg_player)
 	case MiniBug::NOTICE:
 		//暫く待って動かなかったら別の場所に向かう
 		//動いたら注視する
-		//判定
+		//判定a
 		break;
 	case MiniBug::RETURN:
 		//期間中
 		m_thinkTimer.Reset(120);
 		vel = m_trackPlayer.Update();
+		m_dir = m_trackPlayer.Update().GetNormal();
 		if (m_trackPlayer.IsArrive(arg_player.GetTransform().GetPos()))
 		{
 			m_nowStatus = MiniBug::SERACH;
@@ -178,20 +196,33 @@ void MiniBug::Update(Player &arg_player)
 
 	//共通処理
 
-
 	//座標移動
 	m_pos += vel;
+	m_prevPos = m_pos;
 
-	DirectX::XMVECTOR dir = { 0.0f,1.0f,0.0f,0.0f };
-	m_larpRotation = DirectX::XMQuaternionRotationAxis(dir, KuroEngine::Angle::ConvertToRadian(-90.0f));
+	KuroEngine::Vec3<float>frontVec(0.0f, 0.0f, 1.0f);
+
+	KuroEngine::Vec3<float>axis = frontVec.Cross(m_dir);
+	float rptaVel = acosf(frontVec.Dot(m_dir));
+
+	if (axis.x == 0.0f && axis.y == 0.0f && axis.z == 0.0f)
+	{
+		m_larpRotation = DirectX::XMQuaternionIdentity();
+	}
+	else
+	{
+		DirectX::XMVECTOR dirVec = { axis.x,axis.y,axis.z,1.0f };
+		m_larpRotation = DirectX::XMQuaternionRotationAxis(dirVec, rptaVel);
+	}
+
+
+
 
 	m_larpPos = KuroEngine::Math::Lerp(m_larpPos, m_pos, 0.1f);
 	KuroEngine::Quaternion rotation = Lerp(m_transform.GetRotate(), m_larpRotation, 0.1f);
 
 	m_transform.SetPos(m_larpPos);
 	m_transform.SetRotate(rotation);
-
-
 }
 
 void MiniBug::DebugDraw(KuroEngine::Camera &camera)

@@ -74,6 +74,7 @@ bool SightSearch::IsFind(const KuroEngine::Vec3<float> &pos, float viewAngle)
 		else
 		{
 			m_sightRay[i].hitFlag = false;
+			findFlag = false;
 		}
 
 		m_sightRay.back().ray.m_startPos = hitStartPos.GetPosWorld();

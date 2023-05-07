@@ -9,7 +9,7 @@ public:
 	MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts *arg_parent, std::vector<KuroEngine::Vec3<float>>posArray)
 		:StageParts(MINI_BUG, arg_model, arg_initTransform, arg_parent), m_patrol(posArray, 0)
 	{
-		m_nowStatus = NOTICE;
+		m_nowStatus = SERACH;
 		m_prevStatus = NONE;
 		m_sightArea.Init(&m_transform);
 		track.Init(0.01f);
@@ -35,21 +35,81 @@ private:
 	Status m_nowStatus;
 	Status m_prevStatus;
 
-	KuroEngine::Vec3<float>m_pos;
+	KuroEngine::Vec3<float>m_pos,m_prevPos;
+	KuroEngine::Vec3<float>m_dir;
 	PatrolBasedOnControlPoint m_patrol;
 	SightSearch m_sightArea;
 	int m_limitIndex;
 
 
+	class AttackMotion
+	{
+		KuroEngine::Vec3<float> m_aPointPos;
+		KuroEngine::Vec3<float> m_bPointPos;
+
+		HeadNextPoint m_go;
+		HeadNextPoint m_back;
+
+		bool m_flag;
+		bool m_doneFlag;
+	public:
+		void Init(const KuroEngine::Vec3<float> &aPointPos, const KuroEngine::Vec3<float> &bPointPos, float speed)
+		{
+			m_aPointPos = aPointPos;
+			m_bPointPos = bPointPos;
+
+			m_go.Init(m_aPointPos, m_bPointPos, speed);
+			m_back.Init(m_bPointPos, m_aPointPos, speed);
+			m_doneFlag = false;
+			m_flag = true;
+		};
+
+		bool IsDone()
+		{
+			return m_doneFlag;
+		}
+
+		KuroEngine::Vec3<float>GetVel(const KuroEngine::Vec3<float> &pos)
+		{
+			if (m_go.IsArrive(pos))
+			{
+				m_flag = false;
+			}
+			if(m_back.IsArrive(pos))
+			{
+				m_flag = true;
+				m_doneFlag = true;
+			}
+
+			if (m_flag)
+			{
+				return m_go.Update();
+			}
+			else
+			{
+				return m_back.Update();
+			}
+		};
+	};
+
+
 	//çUåÇèàóù---------------------------------------
+
+	//ó\îıìÆçÏ
+	KuroEngine::Timer m_attackIntervalTimer;
+	KuroEngine::Timer m_attackCoolTimer;
+	KuroEngine::Timer m_readyToGoToPlayerTimer;
+	KuroEngine::Vec3<float>m_attackOffsetVel;
+
+	AttackMotion m_jumpMotion;
+	AttackMotion m_attackMotion;
+
+
 
 	bool m_attackFlag;
 	HeadNextPoint m_trackPlayer;
 	KuroEngine::Vec3<float>m_aPointPos;
 	KuroEngine::Vec3<float>m_bPointPos;
-	KuroEngine::Timer m_attackIntervalTimer;
-	KuroEngine::Timer m_attackCoolTimer;
-	KuroEngine::Timer m_readyToGoToPlayerTimer;
 	TrackEndPoint track;
 
 	//çUåÇèàóù---------------------------------------
