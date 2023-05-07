@@ -148,15 +148,19 @@ void MiniBug::Update(Player &arg_player)
 		vel = m_patrol.Update(m_pos);
 		m_dir = vel;
 
-		{
-			//プレイヤーを回転させる。
-			KuroEngine::Vec3<float> defVec = m_transform.GetFront();
-			KuroEngine::Vec3<float> axis = defVec.Cross(vel.GetNormal());
-			float rad = std::acosf(defVec.Dot(vel.GetNormal()));
-			if (0 < axis.Length() && !std::isnan(rad)) {
-				auto q = DirectX::XMQuaternionRotationAxis(axis, rad);
-				m_transform.SetRotate(DirectX::XMQuaternionMultiply(m_transform.GetRotate(), q));
-			}
+		//プレイヤーを回転させる。
+		KuroEngine::Vec3<float> defVec = m_transform.GetFront();
+		KuroEngine::Vec3<float> axis = defVec.Cross(vel.GetNormal());
+		float rad = std::acosf(defVec.Dot(vel.GetNormal()));
+		if (0 < axis.Length() && !std::isnan(rad)) {
+			auto q = DirectX::XMQuaternionRotationAxis(axis, rad);
+
+			//qが補間先
+			q = DirectX::XMQuaternionMultiply(m_transform.GetRotate(), q);
+
+			//補間する。
+			m_transform.SetRotate(DirectX::XMQuaternionSlerp(m_transform.GetRotate(), q, 0.1f));
+
 		}
 
 		break;
