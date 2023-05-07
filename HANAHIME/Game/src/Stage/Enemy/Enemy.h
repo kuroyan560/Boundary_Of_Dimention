@@ -3,21 +3,39 @@
 #include"../../AI/EnemyPatrol.h"
 #include"../../AI/EnemySearch.h"
 #include"../Grass.h"
+#include"ForUser/DrawFunc/BillBoard/DrawFuncBillBoard.h"
 
 class MiniBug :public StageParts
 {
 public:
 	MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts *arg_parent, std::vector<KuroEngine::Vec3<float>>posArray)
-		:StageParts(MINI_BUG, arg_model, arg_initTransform, arg_parent), m_patrol(posArray, 0)
+		:StageParts(MINI_BUG, arg_model, arg_initTransform, arg_parent), m_patrol(posArray, 0), m_deadTimer(120)
 	{
-		m_nowStatus = SERACH;
-		m_prevStatus = NONE;
 		m_sightArea.Init(&m_transform);
 		track.Init(0.01f);
 		m_posArray = posArray;
+
+		m_nowStatus = SERACH;
+		m_prevStatus = NONE;
 		m_limitIndex = 0;
+		m_deadFlag = false;
+		m_startDeadMotionFlag = false;
+		m_deadTimer.Reset(120);
+
+		m_tex.resize(MAX);
+		m_tex[FIND] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/Find.png");
+		m_tex[HIT] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/Attack.png");
+		m_tex[LOOK] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/hatena.png");
+		m_tex[FAR_AWAY] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/hatena.png");
+		m_tex[DEAD] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/dead.png");
+
+		m_reaction = std::make_unique<Reaction>(m_tex);
+
 	}
+
+	void OnInit()override;
 	void Update(Player &arg_player)override;
+	void OnDraw(KuroEngine::Camera &camera)override;
 
 	void DebugDraw(KuroEngine::Camera &camera);
 
@@ -36,7 +54,8 @@ private:
 	Status m_nowStatus;
 	Status m_prevStatus;
 
-	KuroEngine::Vec3<float>m_pos,m_prevPos;
+	KuroEngine::Vec3<float>m_pos, m_prevPos;
+	float m_scale;
 	KuroEngine::Vec3<float>m_dir;
 	PatrolBasedOnControlPoint m_patrol;
 	SightSearch m_sightArea;
@@ -83,7 +102,7 @@ private:
 			{
 				m_flag = false;
 			}
-			if(m_back.IsArrive(pos))
+			if (m_back.IsArrive(pos))
 			{
 				m_flag = true;
 				m_doneFlag = true;
@@ -127,6 +146,15 @@ private:
 	KuroEngine::Quaternion m_larpRotation;
 	//移動処理---------------------------------------
 
+	//死亡処理------------------------------------------------------------------------------
+
+	bool m_deadFlag;
+	bool m_startDeadMotionFlag;
+	KuroEngine::Timer m_deadTimer;
+
+	//死亡処理------------------------------------------------------------------------------
+
+
 
 	//思考処理
 	KuroEngine::Timer m_thinkTimer;
@@ -134,6 +162,67 @@ private:
 
 	//制御点
 	std::vector<KuroEngine::Vec3<float>>m_posArray;
+
+
+	//リアクション表記---------------------------------------
+
+	enum ReactionEnum
+	{
+		FIND,
+		HIT,
+		LOOK,
+		FAR_AWAY,
+		DEAD,
+		MAX
+	};
+
+	class Reaction
+	{
+	public:
+		Reaction(std::vector<std::shared_ptr<KuroEngine::TextureBuffer>> buffer)
+		{
+			m_timer.Reset(120);
+			m_timer.ForciblyTimeUp();
+			m_tex = buffer;
+		}
+
+		void Init(int index)
+		{
+			m_index = index;
+			m_timer.Reset(120);
+		}
+
+		void Update(const KuroEngine::Vec3<float> &pos)
+		{
+			m_pos = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, m_timer.GetTimeRate(), pos, pos + KuroEngine::Vec3<float>(0.0f, 10.0f, 0.0f));
+			m_timer.UpdateTimer();
+		}
+
+		void Draw(KuroEngine::Camera &camera)
+		{
+			if (!m_timer.IsTimeUp())
+			{
+				KuroEngine::DrawFuncBillBoard::Graph(camera, m_pos, { 5.0f,5.0f }, m_tex[m_index]);
+			}
+		}
+
+		bool Done()
+		{
+			return m_timer.IsTimeUp();
+		}
+
+	private:
+		int m_index;
+		KuroEngine::Vec3<float>m_pos;
+		KuroEngine::Timer m_timer;
+		std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_tex;
+	};
+	std::unique_ptr<Reaction> m_reaction;
+
+	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_tex;
+
+	//リアクション表記---------------------------------------
+
 
 
 	KuroEngine::Quaternion Lerp(const KuroEngine::Quaternion &a, const KuroEngine::Quaternion &b, float mul)
@@ -191,6 +280,12 @@ public:
 
 		m_attackInterval.Reset(m_maxAttackIntervalTime);
 		m_attackTimer.Reset(m_maxAttackTime);
+
+		//死亡処理---------------------------------------
+		m_deadFlag = false;
+		m_startDeadMotionFlag = false;
+		m_deadTimer.Reset(120);
+		//死亡処理---------------------------------------
 	}
 	void Update(Player &arg_player)override;
 
@@ -216,5 +311,18 @@ private:
 	CircleSearch m_sightArea;
 
 	bool m_findPlayerFlag;
+
+	//死亡処理---------------------------------------
+	bool m_deadFlag;
+	bool m_startDeadMotionFlag;
+	KuroEngine::Timer m_deadTimer;
+	float m_scale;
+	//死亡処理---------------------------------------
+
+
+	//移動処理---------------------------------------
+	KuroEngine::Vec3<float>m_larpPos;
+	KuroEngine::Quaternion m_larpRotation;
+	//移動処理---------------------------------------
 
 };

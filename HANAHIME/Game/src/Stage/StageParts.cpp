@@ -39,6 +39,8 @@ void StageParts::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg
 		arg_ligMgr,
 		m_model.lock(),
 		transform);
+
+	OnDraw(arg_cam);
 }
 
 void TerrianMeshCollider::BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_transform)

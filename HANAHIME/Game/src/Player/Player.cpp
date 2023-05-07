@@ -562,7 +562,7 @@ bool Player::CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, KuroEngin
 	//プレイヤーから敵までのベクトルと敵の上ベクトルを内積して、その結果が0以下だったらライトが当たっている判定(草が当たっている判定。)
 	bool isLight = (arg_enemyPos - m_transform.GetPosWorld()).GetNormal().Dot(arg_enemyUp) < 0;
 
-	return isLight;
+	return true;
 }
 
 void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {

@@ -13,7 +13,7 @@ PatrolBasedOnControlPoint::PatrolBasedOnControlPoint(std::vector<KuroEngine::Vec
 		m_limitPosArray.emplace_back();
 		m_limitPosArray[i].m_startPos = posArray[i];
 		m_limitPosArray[i].m_endPos = posArray[i + 1];
-		m_limitPosArray[i].timer = 0.0f;
+		m_limitPosArray[i].m_speed = m_speed;
 		m_limitPosArray[i].m_moveToPoint.Init(posArray[i], posArray[i + 1], m_speed);
 	}
 	if (!m_loopFlag)
@@ -24,7 +24,7 @@ PatrolBasedOnControlPoint::PatrolBasedOnControlPoint(std::vector<KuroEngine::Vec
 			m_limitPosArray.emplace_back();
 			m_limitPosArray.back().m_startPos = posArray[i];
 			m_limitPosArray.back().m_endPos = posArray[i - 1];
-			m_limitPosArray.back().timer = 0.0f;
+			m_limitPosArray.back().m_speed = m_speed;
 			m_limitPosArray.back().m_moveToPoint.Init(posArray[i], posArray[i - 1], m_speed);
 		}
 	}
@@ -33,7 +33,7 @@ PatrolBasedOnControlPoint::PatrolBasedOnControlPoint(std::vector<KuroEngine::Vec
 		m_limitPosArray.emplace_back();
 		m_limitPosArray.back().m_startPos = m_limitPosArray[m_limitPosArray.size() - 2].m_endPos;
 		m_limitPosArray.back().m_endPos = m_limitPosArray[0].m_startPos;
-		m_limitPosArray.back().timer = 0.0f;
+		m_limitPosArray.back().m_speed = m_speed;
 		m_limitPosArray.back().m_moveToPoint.Init(m_limitPosArray[m_limitPosArray.size() - 2].m_endPos, m_limitPosArray[0].m_startPos, m_speed);
 	}
 	m_inverseFlag = false;
@@ -45,6 +45,12 @@ void PatrolBasedOnControlPoint::Init(int initLimitIndex, bool loopFlag)
 	m_limitIndex = initLimitIndex;
 	m_moveTimer.Reset(60);
 	m_inverseFlag = false;
+
+	for (auto &obj : m_limitPosArray)
+	{
+		obj.Init();
+	}
+
 }
 
 KuroEngine::Vec3<float> PatrolBasedOnControlPoint::Update(const KuroEngine::Vec3<float> &pos)

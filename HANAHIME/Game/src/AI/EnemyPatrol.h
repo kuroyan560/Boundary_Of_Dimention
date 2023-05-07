@@ -57,7 +57,12 @@ private:
 		KuroEngine::Vec3<float>m_startPos;
 		KuroEngine::Vec3<float>m_endPos;
 		HeadNextPoint m_moveToPoint;
-		float timer;
+		float m_speed;
+
+		void Init()
+		{
+			m_moveToPoint.Init(m_startPos, m_endPos, m_speed);
+		};
 	};
 	std::vector<EnemyMoveData>m_limitPosArray;
 
