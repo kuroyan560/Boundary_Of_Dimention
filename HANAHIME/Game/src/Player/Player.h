@@ -176,6 +176,9 @@ class Player : public KuroEngine::Debugger
 	std::vector<KuroEngine::Vec3<float>> m_gimmickExitPos;
 	std::vector<KuroEngine::Vec3<float>> m_gimmickExitNormal;
 
+	//当たり判定用ステージの参照
+	std::weak_ptr<Stage> m_nowStage;
+
 	//死亡スプライト関連の変数
 	KuroEngine::Timer m_deathSpriteAnimTimer;		//死亡演出のアニメーションのタイマー
 	const float DEATH_SPRITE_TIMER = 4;			//アニメーションを切り替えるタイマー
@@ -254,7 +257,7 @@ public:
 	}
 
 	//草を生やす球との当たり判定
-	bool CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, float arg_enemySize);
+	bool CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, KuroEngine::Vec3<float> arg_enemyUp, float arg_enemySize);
 
 	Sphere m_sphere;
 	float m_radius;

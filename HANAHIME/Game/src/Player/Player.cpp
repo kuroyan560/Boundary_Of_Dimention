@@ -13,6 +13,7 @@
 #include"PlayerCollision.h"
 #include"../TimeScaleMgr.h"
 #include"DirectX12/D3D12App.h"
+#include "CollisionDetectionOfRayAndMesh.h"
 
 void Player::OnImguiItems()
 {
@@ -159,6 +160,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//トランスフォームを保存。
 	m_prevTransform = m_transform;
+
+	//ステージの参照を保存。
+	m_nowStage = arg_nowStage;
 
 	//ステージを保存。
 	m_stage = arg_nowStage;
@@ -538,7 +542,7 @@ void Player::Damage()
 
 }
 
-bool Player::CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, float arg_enemySize)
+bool Player::CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, KuroEngine::Vec3<float> arg_enemyUp, float arg_enemySize)
 {
 
 	//攻撃状態じゃなかったら処理を戻す。
@@ -555,7 +559,10 @@ bool Player::CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, float arg
 		return false;
 	}
 
-	return true;
+	//プレイヤーから敵までのベクトルと敵の上ベクトルを内積して、その結果が0以下だったらライトが当たっている判定(草が当たっている判定。)
+	bool isLight = (arg_enemyPos - m_transform.GetPosWorld()).GetNormal().Dot(arg_enemyUp) < 0;
+
+	return isLight;
 }
 
 void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {

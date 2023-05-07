@@ -22,6 +22,16 @@ class Player;
 struct PlayerCollision {
 
 	Player* m_refPlayer;	//プレイヤーの参照
+
+	//崖に当たっているか？元はローカル変数。
+	std::array<bool, 4> m_isHitCliff;
+	std::array<std::vector<KuroEngine::Vec3<float>>, 4> m_impactPoint;
+	KuroEngine::Vec3<float> m_impactPointBuff;	//座標一時保存用
+
+	//当たり判定用のレイの長さ。
+	float m_checkUnderRayLength;
+	float m_checkCliffRayLength;
+
 	//発射するレイのID
 	enum class RAY_ID {
 
@@ -71,6 +81,10 @@ struct PlayerCollision {
 		std::array<bool, 4> m_checkHitAround;
 	};
 
+	//全てのオブジェクトを走査
+	template <typename Func>
+	void CheckHitAllObject(Func arg_func, KuroEngine::Vec3<float>& arg_newPos, const KuroEngine::Vec3<float>& arg_from, PlayerCollision::CastRayArgument& arg_castRayArgment, std::weak_ptr<Stage> arg_nowStage);
+
 	/// <summary>
 	/// レイを発射し、その後の一連の処理をまとめた関数
 	/// </summary>
@@ -100,5 +114,15 @@ struct PlayerCollision {
 
 	//移動方向を正しくさせるための処理
 	void AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const KuroEngine::Vec3<float>& arg_nextUp);
+
+private:
+
+	/*===== 以下関数ポインタ用 =====*/
+
+	//当たり判定_(崖 四方から下方向にレイを飛ばす。)
+	void CheckHitCliff_Under(KuroEngine::Vec3<float>& arg_newPos, const KuroEngine::Vec3<float>& arg_from, PlayerCollision::CastRayArgument& arg_castRayArgment, std::weak_ptr<Stage> arg_nowStage);
+	void CheckHitCliff_SearchImpactPoint(KuroEngine::Vec3<float>& arg_newPos, const KuroEngine::Vec3<float>& arg_from, PlayerCollision::CastRayArgument& arg_castRayArgment, std::weak_ptr<Stage> arg_nowStage);
+	void CheckHitDeath_Around(KuroEngine::Vec3<float>& arg_newPos, const  KuroEngine::Vec3<float>& arg_from, PlayerCollision::CastRayArgument& arg_castRayArgment, std::weak_ptr<Stage> arg_nowStage);
+	void CheckHitAround_Around(KuroEngine::Vec3<float>& arg_newPos, const KuroEngine::Vec3<float>& arg_from, PlayerCollision::CastRayArgument& arg_castRayArgment, std::weak_ptr<Stage> arg_nowStage);
 
 };
