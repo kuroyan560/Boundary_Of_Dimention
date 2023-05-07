@@ -223,6 +223,8 @@ public:
 	bool GetIsDeath() { return m_isDeath; }
 	bool GetIsFinishDeathAnimation() { return m_isFinishDeathAnimation; }
 
+	bool GetIsUnderGround() { return m_isUnderGround; }
+
 	//À•W‚ğ•Ô‚·ŒnB
 	KuroEngine::Vec3<float> GetNowPos() { return m_transform.GetPosWorld(); }
 	KuroEngine::Vec3<float> GetOldPos() { return m_prevTransform.GetPosWorld(); }
