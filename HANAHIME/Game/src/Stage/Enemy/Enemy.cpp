@@ -234,7 +234,7 @@ void MiniBug::Update(Player &arg_player)
 		//ŠúŠÔ’†
 		m_thinkTimer.Reset(120);
 		vel = m_trackPlayer.Update();
-		m_dir = m_trackPlayer.Update().GetNormal();
+		m_dir = vel.GetNormal();
 		if (m_trackPlayer.IsArrive(arg_player.GetTransform().GetPos()))
 		{
 			m_nowStatus = MiniBug::SERACH;
