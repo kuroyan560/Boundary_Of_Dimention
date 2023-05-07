@@ -101,34 +101,34 @@ float4 PSmain(VSOutput input) : SV_TARGET
 
         }
 
-        //ライトの範囲の輪郭線
-        if(myBright == 0){
+        ////ライトの範囲の輪郭線
+        //if(myBright == 0){
         
-            //明るさ取得
-            float2 brihgtPickUv = input.m_uv + edgeOffsetUV[i];
-            float pickBright = g_brightMap.Sample(g_sampler, brihgtPickUv).x;
-            float isPlayer = g_brightMap.Sample(g_sampler, brihgtPickUv).z;
-            if(pickBright != myBright && !isPlayer)
-            {
-                return g_edgeColorMap.Sample(g_sampler, brihgtPickUv);
-            }
+        //    //明るさ取得
+        //    float2 brihgtPickUv = input.m_uv + edgeOffsetUV[i];
+        //    float pickBright = g_brightMap.Sample(g_sampler, brihgtPickUv).x;
+        //    float isPlayer = g_brightMap.Sample(g_sampler, brihgtPickUv).z;
+        //    if(pickBright != myBright && !isPlayer)
+        //    {
+        //        return g_edgeColorMap.Sample(g_sampler, brihgtPickUv);
+        //    }
 
-        }
+        //}
 
-        //デフォルトのライトの範囲の輪郭線
-        if (defBright == 0)
-        {
+        ////デフォルトのライトの範囲の輪郭線
+        //if (defBright == 0)
+        //{
         
-            //明るさ取得
-            float2 brihgtPickUv = input.m_uv + edgeOffsetUV[i];
-            float pickBright = saturate(g_brightMap.Sample(g_sampler, brihgtPickUv).y);
-            float isPlayer = g_brightMap.Sample(g_sampler, brihgtPickUv).z;
-            if (pickBright != defBright && !isPlayer)
-            {
-                return float4(0.5f, 0.5f, 0.5f, 1.0f);
-            }
+        //    //明るさ取得
+        //    float2 brihgtPickUv = input.m_uv + edgeOffsetUV[i];
+        //    float pickBright = saturate(g_brightMap.Sample(g_sampler, brihgtPickUv).y);
+        //    float isPlayer = g_brightMap.Sample(g_sampler, brihgtPickUv).z;
+        //    if (pickBright != defBright && !isPlayer)
+        //    {
+        //        return float4(0.5f, 0.5f, 0.5f, 1.0f);
+        //    }
 
-        }
+        //}
         
         //深度取得
         float2 pickUv = input.m_uv + edgeOffsetUV[i];
@@ -153,7 +153,8 @@ float4 PSmain(VSOutput input) : SV_TARGET
     
     // 自身の深度値と近傍8テクセルの深度値の差を調べる
     // 法線が異なる　かつ　深度値が結構違う場合はエッジ出力
-    if (!sameNormal && m_edgeParam.m_depthThreshold <= depthDiffer)
+    // プレイヤーには表示しない。
+    if (!sameNormal && m_edgeParam.m_depthThreshold <= depthDiffer && !playerBright)
     {
         //一番手前側のエッジカラーを採用する
         return g_edgeColorMap.Sample(g_sampler, nearestUv);
