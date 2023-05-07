@@ -204,6 +204,10 @@ private:
 			{
 				KuroEngine::DrawFuncBillBoard::Graph(camera, m_pos, { 5.0f,5.0f }, m_tex[m_index]);
 			}
+			else
+			{
+				m_pos = { 0.0f,0.0f,0.0f };
+			}
 		}
 
 		bool Done()

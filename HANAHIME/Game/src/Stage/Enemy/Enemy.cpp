@@ -13,16 +13,16 @@ void MiniBug::OnInit()
 	m_deadTimer.Reset(120);
 }
 
-void MiniBug::Update(Player& arg_player)
+void MiniBug::Update(Player &arg_player)
 {
 
 
+
+
 	//共通処理
-	m_reaction->Update(m_pos);
-
-
 	if (m_deadFlag)
 	{
+		m_reaction->Update(m_pos);
 		return;
 	}
 
@@ -44,6 +44,8 @@ void MiniBug::Update(Player& arg_player)
 		KuroEngine::Quaternion rotation = m_transform.GetRotate();
 		rotation = DirectX::XMQuaternionSlerp(m_transform.GetRotate(), m_larpRotation, 0.1f);
 		m_transform.SetRotate(rotation);
+
+		m_reaction->Update(m_pos);
 
 		return;
 	}
@@ -73,24 +75,24 @@ void MiniBug::Update(Player& arg_player)
 	//プレイヤーが違う法線の面にいたら見ないようにする。
 	bool isDifferentWall = m_transform.GetUp().Dot(arg_player.GetTransform().GetUpWorld()) <= 0.5f;
 	bool isPlayerWallChange = arg_player.GetIsJump();
-	bool isAttackOrNotice = m_nowStatus ==  MiniBug::ATTACK || m_nowStatus == MiniBug::NOTICE;
+	bool isAttackOrNotice = m_nowStatus == MiniBug::ATTACK || m_nowStatus == MiniBug::NOTICE;
 	if ((isDifferentWall || isPlayerWallChange) && isAttackOrNotice) {
 		findFlag = false;
 		m_nowStatus = MiniBug::NOTICE;
 	}
 	const bool isMoveFlag = arg_player.GetNowPos() != arg_player.GetOldPos();
-	if (findFlag && arg_player.GetIsUnderGround() && m_nowStatus != MiniBug::RETURN && isMoveFlag)
+	if (findFlag && arg_player.GetIsUnderGround() && m_nowStatus != MiniBug::RETURN && isMoveFlag && isDifferentWall)
 	{
 		m_nowStatus = MiniBug::NOTICE;
 	}
-	else if (findFlag && !arg_player.GetIsUnderGround())
+	else if (findFlag && !arg_player.GetIsUnderGround() && !isDifferentWall)
 	{
 		m_nowStatus = MiniBug::ATTACK;
 	}
 
 
 
-	//初期化
+	//初期化---------------------------------------------------
 	if (m_nowStatus != m_prevStatus)
 	{
 		int index = 0;
@@ -99,7 +101,7 @@ void MiniBug::Update(Player& arg_player)
 		switch (m_nowStatus)
 		{
 			//最も近い制御地点からループする
-		case MiniBug::SERACH:
+		case MiniBug::SEARCH:
 
 			//プレイヤーが違う法線の面にいたら見ないようにする。
 			if (m_transform.GetUp().Dot(arg_player.GetTransform().GetUpWorld()) <= 0.5f) break;
@@ -147,18 +149,19 @@ void MiniBug::Update(Player& arg_player)
 		m_thinkTimer.Reset(120);
 		m_prevStatus = m_nowStatus;
 	}
+	//初期化---------------------------------------------------
 
-	bool debug = false;
+
 	float distance = 0.0f;
 
-	//行動
+	//更新処理---------------------------------------
 	KuroEngine::Vec3<float>vel = { 0.0f,0.0f,0.0f };
 	switch (m_nowStatus)
 	{
-	case MiniBug::SERACH:
+	case MiniBug::SEARCH:
 
 		//プレイヤーが違う法線の面にいたら見ないようにする。
-		if (m_transform.GetUp().Dot(arg_player.GetTransform().GetUpWorld()) <= 0.5f) break;
+		//if (m_transform.GetUp().Dot(arg_player.GetTransform().GetUpWorld()) <= 0.5f) break;
 
 		vel = m_patrol.Update(m_pos);
 		m_dir = vel;
@@ -193,7 +196,7 @@ void MiniBug::Update(Player& arg_player)
 
 
 		//プレイヤーと一定距離まで近づいたら攻撃予備動作を入れる
-		if (distance <= 5.0f && m_attackCoolTimer.UpdateTimer() && !m_attackFlag)
+		if (m_attackCoolTimer.UpdateTimer() && distance <= 5.0f && !m_attackFlag)
 		{
 			m_attackFlag = true;
 			m_reaction->Init(HIT);
@@ -206,7 +209,7 @@ void MiniBug::Update(Player& arg_player)
 			//プレイヤーと敵の当たり判定の処理をここに書く
 			m_attackIntervalTimer.Reset(120);
 			m_attackFlag = false;
-			m_attackCoolTimer.Reset(60);
+			m_attackCoolTimer.Reset(120);
 		}
 
 		//プレイヤーと一定以上距離が離れた場合
@@ -255,6 +258,7 @@ void MiniBug::Update(Player& arg_player)
 	default:
 		break;
 	}
+	//更新処理---------------------------------------
 
 
 	//草の当たり判定
@@ -264,7 +268,7 @@ void MiniBug::Update(Player& arg_player)
 		m_startDeadMotionFlag = true;
 	}
 
-
+	m_reaction->Update(m_pos);
 
 	//座標移動
 	m_pos += vel;
@@ -303,7 +307,7 @@ void MiniBug::Update(Player& arg_player)
 
 }
 
-void MiniBug::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
@@ -320,7 +324,7 @@ void MiniBug::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_li
 
 }
 
-void MiniBug::DebugDraw(KuroEngine::Camera& camera)
+void MiniBug::DebugDraw(KuroEngine::Camera &camera)
 {
 #ifdef _DEBUG
 
@@ -345,7 +349,7 @@ void MiniBug::DebugDraw(KuroEngine::Camera& camera)
 
 }
 
-void DossunRing::Update(Player& arg_player)
+void DossunRing::Update(Player &arg_player)
 {
 	if (m_deadFlag)
 	{
@@ -420,15 +424,22 @@ void DossunRing::Update(Player& arg_player)
 			m_attackFlag = false;
 		}
 
-		//プレイヤーと敵の当たり判定の処理をここに書く
-		if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()))
+		if (false)
 		{
-			m_startDeadMotionFlag = true;
+			arg_player.Damage();
 		}
 	}
+
+
+	//プレイヤーと敵の当たり判定の処理をここに書く
+	if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()))
+	{
+		m_startDeadMotionFlag = true;
+	}
+
 }
 
-void DossunRing::DebugDraw(KuroEngine::Camera& camera)
+void DossunRing::DebugDraw(KuroEngine::Camera &camera)
 {
 #ifdef _DEBUG
 
