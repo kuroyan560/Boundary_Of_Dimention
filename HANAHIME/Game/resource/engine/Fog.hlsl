@@ -61,7 +61,7 @@ void CSmain(uint2 DTid : SV_DispatchThreadID)
     }
     
     //デバッグ用 赤いテクスチャはそのまま
-    if (IsColorEqual(result.xyz, float3(0.82f, 0.24f, 0.24f), 0.01f) && colorConfig.m_isGameScene)
+    if (IsColorEqual(result.xyz, float3(0.64f, 0.05f, 0.05f), 0.01f) && colorConfig.m_isGameScene)
     {
         depth = 0.0f;
     }
