@@ -69,7 +69,12 @@ void MiniBug::Update(Player &arg_player)
 		m_nowStatus = MiniBug::SERACH;
 	}
 
-	const bool findFlag = m_sightArea.IsFind(arg_player.GetTransform().GetPos(), 180.0f);
+	bool findFlag = m_sightArea.IsFind(arg_player.GetTransform().GetPos(), 180.0f);
+	//プレイヤーが違う法線の面にいたら見ないようにする。
+	if (m_transform.GetUp().Dot(arg_player.GetTransform().GetUpWorld()) <= 0.5f) {
+		findFlag = false;
+		m_nowStatus = MiniBug::RETURN;
+	}
 	const bool isMoveFlag = arg_player.GetNowPos() != arg_player.GetOldPos();
 	if (findFlag && arg_player.GetIsUnderGround() && m_nowStatus != MiniBug::RETURN && isMoveFlag)
 	{
@@ -92,6 +97,10 @@ void MiniBug::Update(Player &arg_player)
 		{
 			//最も近い制御地点からループする
 		case MiniBug::SERACH:
+
+			//プレイヤーが違う法線の面にいたら見ないようにする。
+			if (m_transform.GetUp().Dot(arg_player.GetTransform().GetUpWorld()) <= 0.5f) break;
+
 			m_patrol.Init(m_limitIndex, false);
 			m_pos = m_patrol.GetLimitPos(m_limitIndex);
 
@@ -144,6 +153,10 @@ void MiniBug::Update(Player &arg_player)
 	switch (m_nowStatus)
 	{
 	case MiniBug::SERACH:
+
+		//プレイヤーが違う法線の面にいたら見ないようにする。
+		if (m_transform.GetUp().Dot(arg_player.GetTransform().GetUpWorld()) <= 0.5f) break;
+
 		vel = m_patrol.Update(m_pos);
 		m_dir = vel;
 		break;
@@ -171,6 +184,7 @@ void MiniBug::Update(Player &arg_player)
 			//終わってる状態にする。
 			m_jumpMotion.Done();
 		}
+
 
 		distance = arg_player.GetTransform().GetPos().Distance(m_pos);
 
