@@ -35,12 +35,12 @@ public:
 
 	void OnInit()override;
 	void Update(Player &arg_player)override;
-	void OnDraw(KuroEngine::Camera &camera)override;
+	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 
 	void DebugDraw(KuroEngine::Camera &camera);
 
 private:
-	std::shared_ptr<KuroEngine::Model>m_model;
+	std::shared_ptr<KuroEngine::Model>m_enemyModel;
 
 	enum Status
 	{

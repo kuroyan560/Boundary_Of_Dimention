@@ -247,9 +247,10 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
 
     output.edgeColor = toonIndividualParam.m_edgeColor * lerp(0.2f, 1.0f, isBright);
     
-    output.bright.x = 1;
-    output.bright.y = 1;
-    output.bright.z = 1;
+    output.bright.x = toonIndividualParam.m_edgeColor.w ? 0 : 1;
+    output.bright.y = toonIndividualParam.m_edgeColor.w ? 0 : 1;
+    output.bright.z = toonIndividualParam.m_edgeColor.z;
+    output.bright.w = toonIndividualParam.m_edgeColor.w;
     
     output.normal.xyz = input.normal;
 

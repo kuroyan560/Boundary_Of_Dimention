@@ -37,6 +37,8 @@ namespace KuroEngine
 			Color m_fogColorFar = Color(1.0f, 1.0f, 1.0f, 1.0f);
 			//テクスチャを使うか
 			unsigned int m_useTex = 0;
+			int m_isGameScene;
+			KuroEngine::Vec2<float> m_pad;
 		}m_colorConfig;
 		std::shared_ptr<ConstantBuffer>m_colorConfigBuffer;
 
@@ -55,7 +57,7 @@ namespace KuroEngine
 		Fog(Vec2<int>arg_size, DXGI_FORMAT arg_mainFormat);
 
 		//グラフィックスマネージャに登録
-		void Register(const std::shared_ptr<TextureBuffer>& arg_main, const std::shared_ptr<TextureBuffer>& arg_depthMap, std::shared_ptr<TextureBuffer>arg_maskTex = nullptr);
+		void Register(const std::shared_ptr<TextureBuffer>& arg_main, const std::shared_ptr<TextureBuffer>& arg_depthMap, std::shared_ptr<TextureBuffer>arg_maskTex = nullptr, bool arg_isGameScene = false);
 
 		//結果のテクスチャ取得
 		std::shared_ptr<TextureBuffer>& GetResultTex() { return m_resultTex; }

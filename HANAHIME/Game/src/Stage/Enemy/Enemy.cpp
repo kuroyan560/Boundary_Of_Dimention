@@ -1,6 +1,7 @@
 #include "Enemy.h"
 #include"../../Player/Player.h"
 #include"FrameWork/UsersInput.h"
+#include"../../Graphics/BasicDraw.h"
 
 void MiniBug::OnInit()
 {
@@ -270,27 +271,37 @@ void MiniBug::Update(Player &arg_player)
 	{
 		DirectX::XMVECTOR dirVec = { axis.x,axis.y,axis.z,1.0f };
 		m_larpRotation = DirectX::XMQuaternionRotationAxis(dirVec, rptaVel);
+		KuroEngine::Quaternion rotation = m_transform.GetRotate();
+
+		//見つけた時のジャンプ中じゃなかったらプレイヤーの方向を向く。
+		if (m_jumpMotion.IsDone() || m_nowStatus != MiniBug::ATTACK)
+		{
+			rotation = DirectX::XMQuaternionSlerp(m_transform.GetRotate(), m_larpRotation, 0.1f);
+		}
+		m_transform.SetRotate(rotation);
 	}
-
-
-
 
 	m_larpPos = KuroEngine::Math::Lerp(m_larpPos, m_pos, 0.1f);
-	KuroEngine::Quaternion rotation = m_transform.GetRotate();
-
-	//見つけた時のジャンプ中じゃなかったらプレイヤーの方向を向く。
-	if (m_jumpMotion.IsDone() || m_nowStatus != MiniBug::ATTACK)
-	{
-		rotation = DirectX::XMQuaternionSlerp(m_transform.GetRotate(), m_larpRotation, 0.1f);
-	}
 
 	m_transform.SetPos(m_larpPos);
-	m_transform.SetRotate(rotation);
+
 }
 
-void MiniBug::OnDraw(KuroEngine::Camera &camera)
+void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
-	m_reaction->Draw(camera);
+
+	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
+	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
+
+	BasicDraw::Instance()->Draw_Player(
+		arg_cam,
+		arg_ligMgr,
+		m_model,
+		m_transform,
+		edgeColor);
+
+	m_reaction->Draw(arg_cam);
+
 }
 
 void MiniBug::DebugDraw(KuroEngine::Camera &camera)

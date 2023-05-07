@@ -94,7 +94,6 @@ protected:
 	KuroEngine::Vec3<float> m_moveAmount;
 
 	virtual void OnInit() {};
-	virtual void OnDraw(KuroEngine::Camera &arg_cam) {};
 public:
 	StageParts(STAGE_PARTS_TYPE arg_type, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent)
 		:m_type(arg_type), m_model(arg_model), m_initializedTransform(arg_initTransform), m_transform(arg_initTransform)
