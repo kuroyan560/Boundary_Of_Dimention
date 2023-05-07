@@ -46,6 +46,8 @@ private:
 	KuroEngine::Vec3<float>m_aPointPos;
 	KuroEngine::Vec3<float>m_bPointPos;
 	KuroEngine::Timer m_attackIntervalTimer;
+	KuroEngine::Timer m_attackCoolTimer;
+	KuroEngine::Timer m_readyToGoToPlayerTimer;
 	TrackEndPoint track;
 
 	//UŒ‚ˆ—---------------------------------------

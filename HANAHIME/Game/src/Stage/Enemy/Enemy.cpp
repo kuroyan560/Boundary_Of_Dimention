@@ -5,11 +5,6 @@
 void MiniBug::Update(Player &arg_player)
 {
 	bool findFlag = m_sightArea.IsFind(arg_player.GetTransform().GetPos(), 180.0f);
-	if (findFlag)
-	{
-		m_nowStatus = MiniBug::ATTACK;
-	}
-
 	if (m_decisionFlag != m_prevDecisionFlag)
 	{
 		//思考
@@ -74,7 +69,9 @@ void MiniBug::Update(Player &arg_player)
 			break;
 		case MiniBug::ATTACK:
 			m_attackIntervalTimer.Reset(120);
+			m_readyToGoToPlayerTimer.Reset(120);
 			m_sightArea.Init(&m_transform);
+			track.Init(0.1f);
 			break;
 		case MiniBug::NOTICE:
 
@@ -112,7 +109,7 @@ void MiniBug::Update(Player &arg_player)
 	case MiniBug::ATTACK:
 
 		//見つけた時のリアクション時間
-		if (!m_attackIntervalTimer.UpdateTimer())
+		if (!m_readyToGoToPlayerTimer.UpdateTimer())
 		{
 			//注視
 			debug = true;
@@ -120,7 +117,24 @@ void MiniBug::Update(Player &arg_player)
 			break;
 		}
 
-		distance = arg_player.GetTransform().GetPos().Distance(vel);
+		distance = arg_player.GetTransform().GetPos().Distance(m_pos);
+
+
+		//プレイヤーと一定距離まで近づいたら攻撃予備動作を入れる
+		if (distance <= 5.0f && m_attackCoolTimer.UpdateTimer())
+		{
+			m_attackFlag = true;
+		}
+		//攻撃予備動作が終わって攻撃を行った。
+		if (m_attackFlag && m_attackIntervalTimer.UpdateTimer())
+		{
+			//プレイヤーと敵の当たり判定の処理をここに書く
+			m_attackIntervalTimer.Reset(120);
+			m_attackFlag = false;
+
+			m_attackCoolTimer.Reset(60);
+		}
+
 		//プレイヤーと一定以上距離が離れた場合
 		if (30.0f <= distance)
 		{
@@ -132,25 +146,12 @@ void MiniBug::Update(Player &arg_player)
 			m_aPointPos = m_pos;
 		}
 		//プレイヤーを追尾中
-		else
+		else if(!m_attackFlag)
 		{
 			m_thinkTimer.Reset(120);
 			vel = track.Update(m_pos, arg_player.GetTransform().GetPos());
 		}
 
-		//プレイヤーと一定距離まで近づいたら攻撃予備動作を入れる
-		if (distance <= 5.0f)
-		{
-			m_attackFlag = true;
-		}
-		//攻撃予備動作が終わって攻撃を行った。
-		if (m_attackFlag && m_attackIntervalTimer.UpdateTimer())
-		{
-			//プレイヤーと敵の当たり判定の処理をここに書く
-
-			m_attackIntervalTimer.Reset(120);
-			m_attackFlag = false;
-		}
 
 		break;
 	case MiniBug::NOTICE:
