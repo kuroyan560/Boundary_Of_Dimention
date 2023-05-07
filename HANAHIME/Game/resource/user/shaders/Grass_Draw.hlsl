@@ -85,7 +85,6 @@ void GSmain(
     PlantGrass grass = aliveGrassBuffer[input[0].instanceID];
     
     //草が伸びる対策
-    grass.m_appearY = saturate(grass.m_appearY);
     grass.m_normal = normalize(grass.m_normal);
     
     GSOutput element;
@@ -95,7 +94,7 @@ void GSmain(
     float3 position = grass.m_worldPos;
     
     //デフォルトだと少し浮いてしまっているので1.5だけ沈める。
-    position -= grass.m_normal * 1.5f;
+    position -= grass.m_normal * (1.5f * max(grass.m_appearY, 1.0f));
 
     //カメラ方向ベクトル
     float3 cameraVec = normalize(otherTransformData.m_camPos - position);
@@ -183,8 +182,8 @@ void GSmain(
     element.depthInView = element.position.z;
     element.position = mul(cam.proj, element.position);
     //UVを求める。
-    element.toUV = float2(toUVOffset, (1.0f - grass.m_appearY)); //補間先のUV
-    element.fromUV = float2(fromUVOFfset, (1.0f - grass.m_appearY)); //補間元のUV
+    element.toUV = float2(toUVOffset, (1.0f - saturate(grass.m_appearY))); //補間先のUV
+    element.fromUV = float2(fromUVOFfset, (1.0f - saturate(grass.m_appearY))); //補間元のUV
     output.Append(element);
     
     /*-- 右下 --*/
@@ -205,8 +204,8 @@ void GSmain(
     element.depthInView = element.position.z;
     element.position = mul(cam.proj, element.position);
     //UVを求める。
-    element.toUV = float2(toUVOffset + textureSizeU, (1.0f - grass.m_appearY)); //補間先のUV
-    element.fromUV = float2(fromUVOFfset + textureSizeU, (1.0f - grass.m_appearY)); //補間元のUV
+    element.toUV = float2(toUVOffset + textureSizeU, (1.0f - saturate(grass.m_appearY))); //補間先のUV
+    element.fromUV = float2(fromUVOFfset + textureSizeU, (1.0f - saturate(grass.m_appearY))); //補間元のUV
     output.Append(element);
 }
 

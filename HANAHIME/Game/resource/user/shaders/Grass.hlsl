@@ -112,7 +112,14 @@ void Update(uint DTid : SV_DispatchThreadID)
     }
     
     //イージング量を求める
-    grass.m_appearY = grass.m_appearYTimer;
+    if (1.0f < grass.m_appearY)
+    {
+        grass.m_appearY += (1.0f - grass.m_appearY) / 10.0f;
+    }
+    else
+    {
+        grass.m_appearY = grass.m_appearYTimer;
+    }
     
     //更新されたデータを適用
     aliveGrassBuffer[DTid] = grass;

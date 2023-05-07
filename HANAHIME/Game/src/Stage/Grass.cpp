@@ -190,7 +190,7 @@ void Grass::Init()
 	m_plantTimer.Reset(0);
 }
 
-void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, float arg_plantInfluenceRange, const std::weak_ptr<Stage>arg_nowStage)
+void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, float arg_plantInfluenceRange, const std::weak_ptr<Stage>arg_nowStage, bool arg_isAttack)
 {
 	using namespace KuroEngine;
 
@@ -364,6 +364,11 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 		//原点付近に生える草は削除
 		for (auto& index : aliveGrassArray) {
 
+			//攻撃中で、既定の範囲内だったらAppearYを超でかくする。
+			if (arg_isAttack && (arg_playerTransform.GetPos() - index.m_worldPos).Length() < arg_plantInfluenceRange) {
+				index.m_appearY = 10.0f;
+			}
+
 			if (5.0f <= index.m_worldPos.Length()) continue;
 			index.m_isAlive = false;
 		}
@@ -437,7 +442,7 @@ void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 			//距離が一定以上離れていたらアウト。
 			if (arg_plantInfluenceRange < (m_oldPlayerPos - index.m_worldPos).Length()) continue;
 
-			KuroEngine::DrawFunc3D::DrawLine(arg_cam, index.m_worldPos, index.m_worldPos + KuroEngine::Vec3<float>(0, 1, 0), Color(255, 255, 255, 255), HIT_SCALE);
+			//KuroEngine::DrawFunc3D::DrawLine(arg_cam, index.m_worldPos, index.m_worldPos + KuroEngine::Vec3<float>(0, 1, 0), Color(255, 255, 255, 255), HIT_SCALE);
 
 		}
 
