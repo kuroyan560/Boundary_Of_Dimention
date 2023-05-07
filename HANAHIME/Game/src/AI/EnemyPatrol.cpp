@@ -1,46 +1,68 @@
 #include"EnemyPatrol.h"
 
 PatrolBasedOnControlPoint::PatrolBasedOnControlPoint(std::vector<KuroEngine::Vec3<float>> posArray, int initLimitIndex) :
-	m_moveTimer(60),m_limitIndex(initLimitIndex)
+	m_moveTimer(60), m_limitIndex(initLimitIndex)
 {
-	for (int i = 0; i < posArray.size() / 2; ++i)
+	m_loopFlag = false;
+	m_speed = 0.1f;
+	const int halfArraySize = static_cast<int>(posArray.size() - 1);
+
+	//最初から最後までのルート
+	for (int i = 0; i < halfArraySize; ++i)
 	{
 		m_limitPosArray.emplace_back();
 		m_limitPosArray[i].m_startPos = posArray[i];
 		m_limitPosArray[i].m_endPos = posArray[i + 1];
 		m_limitPosArray[i].timer = 0.0f;
+		m_limitPosArray[i].m_moveToPoint.Init(posArray[i], posArray[i + 1], m_speed);
+	}
+	if (!m_loopFlag)
+	{
+		//上のとは逆ルート
+		for (int i = halfArraySize; 0 < i; --i)
+		{
+			m_limitPosArray.emplace_back();
+			m_limitPosArray.back().m_startPos = posArray[i];
+			m_limitPosArray.back().m_endPos = posArray[i - 1];
+			m_limitPosArray.back().timer = 0.0f;
+			m_limitPosArray.back().m_moveToPoint.Init(posArray[i], posArray[i - 1], m_speed);
+		}
+	}
+	else
+	{
+		m_limitPosArray.emplace_back();
+		m_limitPosArray.back().m_startPos = m_limitPosArray[m_limitPosArray.size() - 2].m_endPos;
+		m_limitPosArray.back().m_endPos = m_limitPosArray[0].m_startPos;
+		m_limitPosArray.back().timer = 0.0f;
+		m_limitPosArray.back().m_moveToPoint.Init(m_limitPosArray[m_limitPosArray.size() - 2].m_endPos, m_limitPosArray[0].m_startPos, m_speed);
 	}
 	m_inverseFlag = false;
-	m_loopFlag = false;
+
 }
 
 void PatrolBasedOnControlPoint::Init(int initLimitIndex, bool loopFlag)
 {
 	m_limitIndex = initLimitIndex;
-	m_loopFlag = loopFlag;
 	m_moveTimer.Reset(60);
 	m_inverseFlag = false;
 }
 
-KuroEngine::Vec3<float> PatrolBasedOnControlPoint::Update()
+KuroEngine::Vec3<float> PatrolBasedOnControlPoint::Update(const KuroEngine::Vec3<float> &pos)
 {
-	KuroEngine::Vec3<float>startPos(m_limitPosArray[m_limitIndex].m_startPos);
-	KuroEngine::Vec3<float>endPos(m_limitPosArray[m_limitIndex].m_endPos);
-
-	KuroEngine::Vec3<float>pos;
+	KuroEngine::Vec3<float>vel;
 
 	//最初から最後の制御点の進む
 	if (!m_inverseFlag)
 	{
-		pos = m_limitPosArray[m_limitIndex].m_moveToPoint.Update(startPos, endPos, m_moveTimer.GetTimeRate());
+		vel = m_limitPosArray[m_limitIndex].m_moveToPoint.Update();
 	}
 	//最後から最初の制御点の進む
 	else
 	{
-		pos = m_limitPosArray[m_limitIndex].m_moveToPoint.Update(endPos, startPos, m_moveTimer.GetTimeRate());
+		vel = m_limitPosArray[m_limitIndex].m_moveToPoint.Update() * -1.0f;
 	}
 
-	bool timerUpFlag = m_moveTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
+	bool timerUpFlag = m_limitPosArray[m_limitIndex].m_moveToPoint.IsArrive(pos);
 	if (timerUpFlag)
 	{
 		m_moveTimer.Reset(60);
@@ -87,7 +109,15 @@ KuroEngine::Vec3<float> PatrolBasedOnControlPoint::Update()
 		}
 	}
 
-	return pos;
+	if (timerUpFlag)
+	{
+		KuroEngine::Vec3<float>startPos(m_limitPosArray[m_limitIndex].m_startPos);
+		KuroEngine::Vec3<float>endPos(m_limitPosArray[m_limitIndex].m_endPos);
+
+		m_limitPosArray[m_limitIndex].m_moveToPoint.Init(startPos, endPos, m_speed);
+	}
+
+	return vel;
 
 }
 
@@ -99,17 +129,45 @@ HeadNextPoint::HeadNextPoint()
 {
 }
 
-void HeadNextPoint::Init()
+void HeadNextPoint::Init(const KuroEngine::Vec3<float> &aPos, const KuroEngine::Vec3<float> &bPos, float speed)
 {
+	m_speed = speed;
+	m_endPos = bPos;
+	KuroEngine::Vec3<float>distance(m_endPos - aPos);
+	m_vel = distance.GetNormal() * m_speed;
+	//到着推定時間(距離/スピード = 何フレーム分で辿り着けるか)
+	m_arriveTimer.Reset(distance.Length() / m_speed);
 }
 
-KuroEngine::Vec3<float> HeadNextPoint::Update(const KuroEngine::Vec3<float> &aPos, const KuroEngine::Vec3<float> &bPos, float timer)
+KuroEngine::Vec3<float> HeadNextPoint::Update()
 {
-	KuroEngine::Vec3<float>distance(bPos - aPos);
-	return aPos + distance * timer;
+	m_arriveTimer.UpdateTimer();
+	return m_vel;
 }
 
-bool HeadNextPoint::IsArrive()
+bool HeadNextPoint::IsArrive(const KuroEngine::Vec3<float> &pos)
 {
+	if (m_arriveTimer.IsTimeUp())
+	{
+		return true;
+	}
 	return false;
 }
+
+
+TrackEndPoint::TrackEndPoint()
+{
+}
+
+void TrackEndPoint::Init(float speed)
+{
+	m_speed = speed;
+}
+
+KuroEngine::Vec3<float> TrackEndPoint::Update(const KuroEngine::Vec3<float> &aPos, const KuroEngine::Vec3<float> &bPos)
+{
+	KuroEngine::Vec3<float>distance(bPos - aPos);
+	distance.Normalize();
+	return distance * m_speed;
+}
+

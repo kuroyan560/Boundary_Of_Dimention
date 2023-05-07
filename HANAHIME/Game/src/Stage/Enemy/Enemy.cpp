@@ -5,7 +5,10 @@
 void MiniBug::Update(Player &arg_player)
 {
 	bool findFlag = m_sightArea.IsFind(arg_player.GetTransform().GetPos(), 180.0f);
-
+	if (findFlag)
+	{
+		m_nowStatus = MiniBug::ATTACK;
+	}
 
 	if (m_decisionFlag != m_prevDecisionFlag)
 	{
@@ -55,8 +58,6 @@ void MiniBug::Update(Player &arg_player)
 	}
 
 
-
-
 	//初期化
 	if (m_nowStatus != m_prevStatus)
 	{
@@ -68,9 +69,11 @@ void MiniBug::Update(Player &arg_player)
 			//最も近い制御地点からループする
 		case MiniBug::SERACH:
 			m_patrol.Init(0, false);
+			m_pos = m_patrol.GetLimitPos(0);
+
 			break;
 		case MiniBug::ATTACK:
-			m_trackTimer.Reset(260);
+			m_attackIntervalTimer.Reset(120);
 			m_sightArea.Init(&m_transform);
 			break;
 		case MiniBug::NOTICE:
@@ -88,7 +91,6 @@ void MiniBug::Update(Player &arg_player)
 				}
 			}
 			m_bPointPos = m_posArray[index];
-			m_trackTimer.Reset(120);
 			break;
 		default:
 			break;
@@ -97,29 +99,35 @@ void MiniBug::Update(Player &arg_player)
 		m_prevStatus = m_nowStatus;
 	}
 
+	bool debug = false;
+
 
 	//行動
-	KuroEngine::Vec3<float>vel = { 0.0f,4.0f,0.0f };
+	KuroEngine::Vec3<float>vel = { 0.0f,0.0f,0.0f };
 	switch (m_nowStatus)
 	{
 	case MiniBug::SERACH:
-		vel = m_patrol.Update();
+		vel = m_patrol.Update(m_pos);
 		break;
 	case MiniBug::ATTACK:
 
 		//見つけた時のリアクション時間
-		if (false)
+		if (!m_attackIntervalTimer.UpdateTimer())
 		{
+			//注視
+			debug = true;
+			//何かしらのアクションを書く
 			break;
 		}
 
+		const float distance = arg_player.GetTransform().GetPos().Distance(vel);
 		//プレイヤーと一定以上距離が離れた場合
-		if (20.0f <= arg_player.GetTransform().GetPos().Distance(vel))
+		if (30.0f <= distance)
 		{
 			//暫く止まり、何もなければ思考を切り替える。
 			if (m_thinkTimer.UpdateTimer())
 			{
-				m_decisionFlag = true;
+				m_nowStatus = MiniBug::RETURN;
 			}
 			m_aPointPos = m_pos;
 		}
@@ -127,24 +135,36 @@ void MiniBug::Update(Player &arg_player)
 		else
 		{
 			m_thinkTimer.Reset(120);
-			vel = m_trackPlayer.Update(m_aPointPos, arg_player.GetTransform().GetPos(), m_trackTimer.GetTimeRate());
+			vel = track.Update(m_pos, arg_player.GetTransform().GetPos());
 		}
 
-		//プレイヤーと当たった場合
-		if (m_trackTimer.UpdateTimer())
+		//プレイヤーと一定距離まで近づいたら攻撃予備動作を入れる
+		if (distance <= 5.0f)
 		{
-
+			m_attackFlag = true;
 		}
+		//攻撃予備動作が終わって攻撃を行った。
+		if (m_attackFlag && m_attackIntervalTimer.UpdateTimer())
+		{
+			//プレイヤーと敵の当たり判定の処理をここに書く
+
+			m_attackIntervalTimer.Reset(120);
+			m_attackFlag = false;
+		}
+
 		break;
 	case MiniBug::NOTICE:
+		//暫く待って動かなかったら別の場所に向かう
+		//動いたら注視する
+		//判定
 		break;
 	case MiniBug::RETURN:
 		//期間中
 		m_thinkTimer.Reset(120);
-		vel = m_trackPlayer.Update(m_aPointPos, m_bPointPos, m_trackTimer.GetTimeRate());
-		if (m_trackTimer.UpdateTimer())
+		vel = m_trackPlayer.Update();
+		if (false)
 		{
-			m_decisionFlag = true;
+			m_nowStatus = MiniBug::SERACH;
 		}
 		break;
 	default:
@@ -155,8 +175,11 @@ void MiniBug::Update(Player &arg_player)
 
 
 	//座標移動
-	m_pos = { -32.6f, 20.3f , -3.5f };
+	m_pos += vel;
 	m_transform.SetPos(m_pos);
+
+	DirectX::XMVECTOR dir = { 0.0f,1.0f,0.0f,0.0f };
+	m_transform.SetRotate(DirectX::XMQuaternionRotationAxis(dir, KuroEngine::Angle::ConvertToRadian(-90.0f)));
 
 }
 
@@ -170,7 +193,6 @@ void MiniBug::DebugDraw(KuroEngine::Camera &camera)
 		m_patrol.DebugDraw();
 		break;
 	case MiniBug::ATTACK:
-		m_sightArea.DebugDraw(camera);
 		break;
 	case MiniBug::NOTICE:
 		break;
@@ -180,6 +202,7 @@ void MiniBug::DebugDraw(KuroEngine::Camera &camera)
 		break;
 	}
 
+	m_sightArea.DebugDraw(camera);
 
 #endif // _DEBUG
 
@@ -233,12 +256,11 @@ void DossunRing::Update(Player &arg_player)
 			m_attackFlag = false;
 		}
 
-		//プレイヤーと敵の判定
+		//プレイヤーと敵の当たり判定の処理をここに書く
 		if (false)
 		{
 
 		}
-
 	}
 }
 

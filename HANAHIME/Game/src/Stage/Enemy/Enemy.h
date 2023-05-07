@@ -9,10 +9,10 @@ public:
 	MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts *arg_parent, std::vector<KuroEngine::Vec3<float>>posArray)
 		:StageParts(MINI_BUG, arg_model, arg_initTransform, arg_parent), m_patrol(posArray, 0)
 	{
-		m_nowStatus = SERACH;
+		m_nowStatus = NOTICE;
 		m_prevStatus = NONE;
 		m_sightArea.Init(&m_transform);
-
+		track.Init(0.01f);
 		m_posArray = posArray;
 	}
 	void Update(Player& arg_player)override;
@@ -38,10 +38,20 @@ private:
 	PatrolBasedOnControlPoint m_patrol;
 	SightSearch m_sightArea;
 
+	
+	//UŒ‚ˆ—---------------------------------------
+
+	bool m_attackFlag;
 	HeadNextPoint m_trackPlayer;
 	KuroEngine::Vec3<float>m_aPointPos;
 	KuroEngine::Vec3<float>m_bPointPos;
-	KuroEngine::Timer m_trackTimer;
+	KuroEngine::Timer m_attackIntervalTimer;
+	TrackEndPoint track;
+	KuroEngine::Timer m_readyToFightTimer;
+
+	//UŒ‚ˆ—---------------------------------------
+
+
 
 	//vlˆ—
 	KuroEngine::Timer m_thinkTimer;

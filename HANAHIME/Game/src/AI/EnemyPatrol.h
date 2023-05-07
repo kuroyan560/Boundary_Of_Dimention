@@ -8,12 +8,29 @@ class HeadNextPoint
 {
 public:
 	HeadNextPoint();
-	void Init();
-	KuroEngine::Vec3<float> Update(const KuroEngine::Vec3<float> &aPos, const KuroEngine::Vec3<float> &bPos, float timer);
+	void Init(const KuroEngine::Vec3<float> &aPos, const KuroEngine::Vec3<float> &bPos, float speed);
+	KuroEngine::Vec3<float> Update();
 
-	bool IsArrive();
+	bool IsArrive(const KuroEngine::Vec3<float> &pos);
 
 private:
+	KuroEngine::Vec3<float>m_vel;
+	KuroEngine::Vec3<float>m_endPos;
+	float m_speed;
+
+	KuroEngine::Timer m_arriveTimer;
+};
+
+class TrackEndPoint
+{
+public:
+	TrackEndPoint();
+	void Init(float speed);
+	KuroEngine::Vec3<float> Update(const KuroEngine::Vec3<float> &aPos, const KuroEngine::Vec3<float> &bPos);
+
+private:
+	float m_speed;
+
 };
 
 
@@ -24,7 +41,13 @@ public:
 	PatrolBasedOnControlPoint(std::vector<KuroEngine::Vec3<float>>posArray, int initLimitIndex);
 
 	void Init(int initLimitIndex, bool loopFlag);
-	KuroEngine::Vec3<float> Update();
+	KuroEngine::Vec3<float> Update(const KuroEngine::Vec3<float> &pos);
+
+	KuroEngine::Vec3<float>GetLimitPos(int index)
+	{
+		return m_limitPosArray[index].m_startPos;
+	};
+
 	void DebugDraw();
 
 private:
@@ -37,10 +60,12 @@ private:
 		float timer;
 	};
 	std::vector<EnemyMoveData>m_limitPosArray;
-	
+
 	KuroEngine::Timer m_moveTimer;
 	int m_limitIndex;
 	bool m_loopFlag;
 	bool m_inverseFlag;
+
+	float m_speed;
 
 };
