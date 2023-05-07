@@ -68,8 +68,8 @@ void KuroEngine::Importer::LoadGLTFPrimitive(ModelMesh& ModelMesh, const Microso
 		int jid0 = 4 * vertIdx, jid1 = 4 * vertIdx + 1, jid2 = 4 * vertIdx + 2, jid3 = 4 * vertIdx + 3;
 
 		KuroEngine::ModelMesh::Vertex vertex;
-		vertex.pos = { vertPos[vid0],vertPos[vid1],vertPos[vid2] };
-		vertex.normal = { vertNrm[vid0],vertNrm[vid1],vertNrm[vid2] };
+		vertex.pos = { -vertPos[vid0],vertPos[vid1],vertPos[vid2] };
+		vertex.normal = { -vertNrm[vid0],vertNrm[vid1],vertNrm[vid2] };
 		vertex.uv = { vertUV[tid0],vertUV[tid1] };
 
 		if (!vertWeight.empty())
@@ -116,8 +116,8 @@ void KuroEngine::Importer::LoadGLTFPrimitive(ModelMesh& ModelMesh, const Microso
 	auto idxCount = accIndex.count;
 	for (int i = 0; i < idxCount; i += 3)
 	{
-		ModelMesh.mesh->indices.emplace_back(static_cast<unsigned int>(indices[i + 0]));
 		ModelMesh.mesh->indices.emplace_back(static_cast<unsigned int>(indices[i + 1]));
+		ModelMesh.mesh->indices.emplace_back(static_cast<unsigned int>(indices[i + 0]));
 		ModelMesh.mesh->indices.emplace_back(static_cast<unsigned int>(indices[i + 2]));
 	}
 }
@@ -400,7 +400,7 @@ std::shared_ptr<KuroEngine::Model> KuroEngine::Importer::LoadGLTFModel(const std
 				data[offset + 12], data[offset + 13], data[offset + 14], data[offset + 15]);
 
 			int boneIdx = std::atoi(gltfSkin.jointIds[matIdx].c_str());
-			skel.bones[boneIdx].invBindMat = invBindMat/* * skel.bones[boneIdx].invBindMat*/;
+			skel.bones[boneIdx].invBindMat = invBindMat;
 		}
 	}
 
@@ -460,6 +460,7 @@ std::shared_ptr<KuroEngine::Model> KuroEngine::Importer::LoadGLTFModel(const std
 					auto& keyFrame = boneAnim.rotateAnim.keyFrames.back();
 					keyFrame.frame = static_cast<int>(keyFrames[keyFrameIdx]);
 					int offset = keyFrameIdx * 4;	//インデックスのオフセット
+					//keyFrame.value = XMVectorSet(values[offset], -values[offset + 1], -values[offset + 2], values[offset + 3]);
 					keyFrame.value = XMVectorSet(values[offset], values[offset + 1], values[offset + 2], values[offset + 3]);
 				}
 			}
@@ -499,7 +500,7 @@ std::shared_ptr<KuroEngine::Model> KuroEngine::Importer::LoadGLTFModel(const std
 		modelAnim.finishTime = animEndFrame;
 	}
 
-	skel.CreateBoneTree();
+	skel.CreateBoneTree(XMMatrixScaling(-1.0f, 1.0f, 1.0f));
 	result->m_skelton = std::make_shared<Skeleton>(skel);
 
 	//マテリアル読み込み

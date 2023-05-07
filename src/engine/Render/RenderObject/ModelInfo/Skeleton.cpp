@@ -3,7 +3,7 @@
 
 const std::string KuroEngine::Skeleton::DEFINE_PARENT_BONE_NAME = "Defined_Parent";
 
-void KuroEngine::Skeleton::CreateBoneTree()
+void KuroEngine::Skeleton::CreateBoneTree(const Matrix CoordinateSysConvertMat)
 {
 	//É{Å[ÉìÇ™Ç»Ç¢Ç»ÇÁñ≥éã
 	if (bones.empty())return;
@@ -35,6 +35,8 @@ void KuroEngine::Skeleton::CreateBoneTree()
 		}
 		bones[bone.parent].children.emplace_back(i);
 	}
+
+	coordinateSystemConvertMat = CoordinateSysConvertMat;
 }
 
 int KuroEngine::Skeleton::GetIndex(const std::string& BoneName)

@@ -536,12 +536,12 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		KuroEngine::AlphaBlendMode_None,
 		m_modelAnimator->GetBoneMatBuff());
 
-	/*
+	
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_axisModel,
-		m_transform,
+		m_drawTransform,
 		arg_cam);
-	*/
+	
 
 	if (arg_cameraDraw)
 	{

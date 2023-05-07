@@ -42,6 +42,9 @@ namespace KuroEngine
 			std::map<std::string, BoneAnimation>boneAnim;
 		};
 
+		//座標系変換を修正するための行列
+		Matrix coordinateSystemConvertMat = XMMatrixIdentity();
+
 		std::vector<Bone>bones;
 		std::map<std::string, int>boneIdxTable;
 		/*
@@ -49,7 +52,8 @@ namespace KuroEngine
 			キーは アニメーション名
 		*/
 		std::map<std::string, ModelAnimation>animations;
-		void CreateBoneTree();
+
+		void CreateBoneTree(const Matrix CoordinateSysConvertMat);
 		int GetIndex(const std::string& BoneName);
 	};
 }
