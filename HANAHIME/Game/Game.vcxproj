@@ -177,6 +177,8 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="..\..\src\engine\Render\RenderObject\ModelInfo\Skeleton.cpp" />
     <ClCompile Include="..\..\src\engine\Render\RenderObject\SpriteMesh.cpp" />
     <ClCompile Include="..\..\src\engine\Render\ShadowMapDevice.cpp" />
+    <ClCompile Include="src\AI\EnemyPatrol.cpp" />
+    <ClCompile Include="src\AI\EnemySearch.cpp" />
     <ClCompile Include="src\CPUParticle\CPULoucusParticle.cpp" />
     <ClCompile Include="src\CPUParticle\GlitterEmitter.cpp" />
     <ClCompile Include="src\DebugController.cpp" />
@@ -205,6 +207,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Player\Player.cpp" />
     <ClCompile Include="src\Player\PlayerCollision.cpp" />
     <ClCompile Include="src\SoundConfig.cpp" />
+    <ClCompile Include="src\Stage\Enemy\Enemy.cpp" />
     <ClCompile Include="src\Stage\Gate.cpp" />
     <ClCompile Include="src\Stage\Goal.cpp" />
     <ClCompile Include="src\Stage\Grass.cpp" />
@@ -303,6 +306,8 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="..\..\src\engine\Render\RenderObject\ModelInfo\Skeleton.h" />
     <ClInclude Include="..\..\src\engine\Render\RenderObject\SpriteMesh.h" />
     <ClInclude Include="..\..\src\engine\Render\ShadowMapDevice.h" />
+    <ClInclude Include="src\AI\EnemyPatrol.h" />
+    <ClInclude Include="src\AI\EnemySearch.h" />
     <ClInclude Include="src\CPUParticle\CPULoucusParticle.h" />
     <ClInclude Include="src\CPUParticle\GlitterEmitter.h" />
     <ClInclude Include="src\DebugController.h" />
@@ -330,6 +335,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Player\Player.h" />
     <ClInclude Include="src\Player\PlayerCollision.h" />
     <ClInclude Include="src\SoundConfig.h" />
+    <ClInclude Include="src\Stage\Enemy\Enemy.h" />
     <ClInclude Include="src\Stage\Gate.h" />
     <ClInclude Include="src\Stage\Goal.h" />
     <ClInclude Include="src\Stage\Grass.h" />

@@ -239,7 +239,7 @@ private:
 	KuroEngine::Transform m_cameraTransform;
 	KuroEngine::Vec3<float>m_cameraPos;
 	KuroEngine::Vec2<float> m_angle, m_larpAngle;
-	float m_radius;
+	float m_hitBoxRadius;
 
 	KuroEngine::Vec3<float> m_preMouseVel;
 

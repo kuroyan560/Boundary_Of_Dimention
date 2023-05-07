@@ -12,7 +12,7 @@
 #include"../SoundConfig.h"
 #include"PlayerCollision.h"
 #include"../TimeScaleMgr.h"
-#include"../../../../src/engine/DirectX12/D3D12App.h"
+#include"DirectX12/D3D12App.h"
 
 void Player::OnImguiItems()
 {
@@ -144,6 +144,11 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 
 	m_deathSpriteAnimNumber = 0;
 	m_deathSpriteAnimTimer = KuroEngine::Timer(DEATH_SPRITE_TIMER);
+
+	//ÉvÉåÉCÉÑÅ[ÇÃãÖÇÃîªíË
+	m_sphere.m_centerPos = &m_drawTransform.GetPos();
+	m_sphere.m_radius = &m_radius;
+	m_radius = 2.0f;
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)

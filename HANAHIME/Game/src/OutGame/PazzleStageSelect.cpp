@@ -336,7 +336,7 @@ void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam)
 
 			//Šp“x“üŽè----------------------------------------
 
-			m_radius = 100.0f;
+			m_hitBoxRadius = 100.0f;
 		}
 		m_larpAngle.x += inputVel.x;
 		m_larpAngle.y += inputVel.y;
@@ -353,8 +353,8 @@ void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam)
 		m_angle = KuroEngine::Math::Lerp(m_angle, m_larpAngle, 0.1f);
 
 		KuroEngine::Vec2<float>radian(KuroEngine::Angle::ConvertToRadian(m_angle.x), KuroEngine::Angle::ConvertToRadian(m_angle.y));
-		KuroEngine::Vec2<float>velX = { cosf(radian.x) * m_radius,sinf(radian.x) * m_radius };
-		KuroEngine::Vec2<float>velY = { cosf(radian.y) * m_radius,sinf(radian.y) * m_radius };
+		KuroEngine::Vec2<float>velX = { cosf(radian.x) * m_hitBoxRadius,sinf(radian.x) * m_hitBoxRadius };
+		KuroEngine::Vec2<float>velY = { cosf(radian.y) * m_hitBoxRadius,sinf(radian.y) * m_hitBoxRadius };
 		m_cameraPos = {
 			velX.x,
 			50.0f + velY.y,
