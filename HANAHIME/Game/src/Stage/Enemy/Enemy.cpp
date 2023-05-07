@@ -465,8 +465,22 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 void DossunRing::DebugDraw(KuroEngine::Camera &camera)
 {
 #ifdef _DEBUG
-
-	m_sightArea.DebugDraw(camera);
+	if (m_attackFlag)
+	{
+		KuroEngine::Transform transform;
+		transform.SetPos(*m_hitBox.m_centerPos);
+		transform.SetScale(*m_hitBox.m_radius);
+		KuroEngine::DrawFunc3D::DrawNonShadingModel(
+			m_hitBoxModel,
+			transform.GetMatWorld(),
+			camera,
+			0.5f
+		);
+	}
+	else
+	{
+		m_sightArea.DebugDraw(camera);
+	}
 
 #endif // _DEBUG
 

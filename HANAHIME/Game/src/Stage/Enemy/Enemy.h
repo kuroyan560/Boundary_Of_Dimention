@@ -281,9 +281,11 @@ public:
 		m_findPlayerFlag = false;
 		m_nowStatus = status;
 
+		m_sightRange = m_hitBoxRadiusMax;
+
 		//‹ŠE‚Ì”»’è---------------------------------------
 		m_sightHitBox.m_centerPos = &m_transform.GetPos();
-		m_sightHitBox.m_radius = &m_hitBoxRadiusMax;
+		m_sightHitBox.m_radius = &m_sightRange;
 		m_sightArea.Init(m_sightHitBox);
 		//‹ŠE‚Ì”»’è---------------------------------------
 
@@ -301,6 +303,10 @@ public:
 
 		m_hitBox.m_centerPos = &m_transform.GetPos();
 		m_hitBox.m_radius = &m_hitBoxRadius;
+
+		m_hitBoxModel =
+			KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "RedSphere.glb");
+
 	}
 	void Update(Player &arg_player)override;
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
@@ -310,6 +316,8 @@ public:
 private:
 
 	Status m_nowStatus;
+	float m_sightRange;
+
 
 	//UŒ‚ƒtƒF[ƒY---------------
 	int m_maxAttackIntervalTime;//—\”õ“®ìŠÔ
@@ -341,5 +349,8 @@ private:
 	KuroEngine::Vec3<float>m_larpPos;
 	KuroEngine::Quaternion m_larpRotation;
 	//ˆÚ“®ˆ—---------------------------------------
+
+
+	std::shared_ptr<KuroEngine::Model>m_hitBoxModel;
 
 };
