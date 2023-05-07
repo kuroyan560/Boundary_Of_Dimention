@@ -19,6 +19,7 @@ struct GSOutput
     float uvLerpAmount : UVLERP; //UVの補間量
     uint texID : TexID; //使用するテクスチャのID
     float depthInView : CAM_Z; //カメラまでの距離（深度）
+    float isAlive : FLAG;
 };
 
 //ピクセルシェーダーを通したデータ（レンダーターゲットに書き込むデータ）
@@ -77,15 +78,21 @@ void GSmain(
 	point VSOutput input[1],
 	inout TriangleStream<GSOutput> output)
 {
+
+    //ビルボードのサイズ
+    float2 PolygonSize = float2(0.75f, 3.0f);
+    
     PlantGrass grass = aliveGrassBuffer[input[0].instanceID];
+    
+    //草が伸びる対策
+    grass.m_appearY = saturate(grass.m_appearY);
+    grass.m_normal = normalize(grass.m_normal);
     
     GSOutput element;
     element.texID = grass.m_texIdx;
     element.normal = grass.m_normal;
+    element.isAlive = grass.m_isAlive;
     float3 position = grass.m_worldPos;
-
-    //ビルボードのサイズ
-    const float2 PolygonSize = float2(0.75f, 3.0f);
     
     //デフォルトだと少し浮いてしまっているので1.5だけ沈める。
     position -= grass.m_normal * 1.5f;
@@ -206,6 +213,11 @@ void GSmain(
 PSOutput PSmain(GSOutput input)
 {
     PSOutput output;
+    
+    if (!input.isAlive)
+    {
+        discard;
+    }
 
     //色を取得。
     float4 color;
