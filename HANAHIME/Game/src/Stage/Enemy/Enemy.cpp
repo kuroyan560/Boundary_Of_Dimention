@@ -148,19 +148,21 @@ void MiniBug::Update(Player &arg_player)
 		vel = m_patrol.Update(m_pos);
 		m_dir = vel;
 
-		//プレイヤーを回転させる。
-		KuroEngine::Vec3<float> defVec = m_transform.GetFront();
-		KuroEngine::Vec3<float> axis = defVec.Cross(vel.GetNormal());
-		float rad = std::acosf(defVec.Dot(vel.GetNormal()));
-		if (0 < axis.Length() && !std::isnan(rad)) {
-			auto q = DirectX::XMQuaternionRotationAxis(axis, rad);
+		{
+			//プレイヤーを回転させる。
+			KuroEngine::Vec3<float> defVec = m_transform.GetFront();
+			KuroEngine::Vec3<float> axis = defVec.Cross(vel.GetNormal());
+			float rad = std::acosf(defVec.Dot(vel.GetNormal()));
+			if (0 < axis.Length() && !std::isnan(rad)) {
+				auto q = DirectX::XMQuaternionRotationAxis(axis, rad);
 
-			//qが補間先
-			q = DirectX::XMQuaternionMultiply(m_transform.GetRotate(), q);
+				//qが補間先
+				q = DirectX::XMQuaternionMultiply(m_transform.GetRotate(), q);
 
-			//補間する。
-			m_transform.SetRotate(DirectX::XMQuaternionSlerp(m_transform.GetRotate(), q, 0.1f));
+				//補間する。
+				m_transform.SetRotate(DirectX::XMQuaternionSlerp(m_transform.GetRotate(), q, 0.1f));
 
+			}
 		}
 
 		break;
@@ -434,7 +436,19 @@ void DossunRing::Update(Player &arg_player)
 	{
 		m_startDeadMotionFlag = true;
 	}
+}
 
+void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
+{
+	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
+	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
+
+	BasicDraw::Instance()->Draw_Player(
+		arg_cam,
+		arg_ligMgr,
+		m_model,
+		m_transform,
+		edgeColor);
 }
 
 void DossunRing::DebugDraw(KuroEngine::Camera &camera)

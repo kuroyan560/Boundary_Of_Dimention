@@ -292,6 +292,7 @@ public:
 		//€–Sˆ—---------------------------------------
 	}
 	void Update(Player &arg_player)override;
+	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
 
 	void DebugDraw(KuroEngine::Camera &camera);
 
