@@ -69,7 +69,7 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 			init,
 			nullptr,
 			posArray
-			);
+		);
 
 
 	init.SetPos({ -50.0f,5.0f,-50.0f });
