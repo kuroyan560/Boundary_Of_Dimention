@@ -801,7 +801,7 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 		}
 	}
 
-	////フェンスとの当たり判定
+	//フェンスとの当たり判定
 	if (!m_refPlayer->GetIsUnderGround()) {
 		for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
 		{
@@ -882,7 +882,7 @@ bool PlayerCollision::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroE
 
 			}
 			//動けない壁かフェンスだったら
-			else if (arg_collisionData.m_stageType == StageParts::APPEARANCE/* || arg_collisionData.m_stageType == StageParts::FENCE*/) {
+			else if (arg_collisionData.m_stageType == StageParts::APPEARANCE || arg_collisionData.m_stageType == StageParts::SPLATOON_FENCE) {
 
 				arg_charaPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
 				arg_collisionData.m_impactPoint.back().m_isAppearWall = true;
