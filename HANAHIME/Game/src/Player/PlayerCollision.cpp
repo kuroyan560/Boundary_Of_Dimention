@@ -581,7 +581,7 @@ void PlayerCollision::CheckCliff(PlayerCollision::ImpactPointData& arg_impactPoi
 		}
 	}
 
-	//蔦ブロックとの当たり判定
+	//見えない壁との当たり判定
 	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
 	{
 		//動く足場でない
@@ -612,6 +612,41 @@ void PlayerCollision::CheckCliff(PlayerCollision::ImpactPointData& arg_impactPoi
 			}
 			//=================================================
 		}
+	}
+
+	////フェンスとの当たり判定
+	if (!m_refPlayer->GetIsUnderGround()) {
+		//for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
+		//{
+		//	//動く足場でない
+		//	if (terrian->GetType() != StageParts::APPEARANCE)continue;
+
+		//	//動く足場としてキャスト
+		//	auto ivyBlock = dynamic_pointer_cast<Appearance>(terrian);
+
+		//	//モデル情報取得
+		//	auto model = terrian->GetModel();
+
+		//	//メッシュを走査
+		//	for (auto& modelMesh : model.lock()->m_meshes)
+		//	{
+
+		//		//当たり判定を行うメッシュ。
+		//		std::vector<TerrianHitPolygon> mesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+
+		//		//下方向にレイを飛ばす。
+		//		CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * 0.5f, -m_refPlayer->m_transform.GetUp(), mesh);
+
+		//		//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
+		//		if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
+
+		//			//壁に当たった時点で崖ではないので処理を飛ばす。
+		//			return;
+
+		//		}
+		//		//=================================================
+		//	}
+		//}
 	}
 
 	//最後まで壁に当たってなかったら崖を超えているので無効化する。
@@ -766,6 +801,43 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 		}
 	}
 
+	////フェンスとの当たり判定
+	if (!m_refPlayer->GetIsUnderGround()) {
+		//for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
+		//{
+		//	//動く足場でない
+		//	if (terrian->GetType() != StageParts::APPEARANCE)continue;
+
+		//	//見えない壁としてキャスト
+		//	auto appearWall = dynamic_pointer_cast<Appearance>(terrian);
+
+		//	//モデル情報取得
+		//	auto model = terrian->GetModel();
+
+		//	//メッシュを走査
+		//	for (auto& modelMesh : model.lock()->m_meshes) {
+
+		//		//判定↓============================================
+
+		//		//当たり判定を行うメッシュ。
+		//		std::vector<TerrianHitPolygon> mesh = appearWall->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+
+		//		//下方向にレイを飛ばす。
+		//		CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
+
+		//		//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
+		//		if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
+
+		//			//壁に当たった時点で崖ではないので処理を飛ばす。
+		//			return;
+
+		//		}
+
+		//		//=================================================
+		//	}
+		//}
+	}
+
 	//最後まで壁に当たってなかったら崖を超えているので無効化する。
 	arg_impactPointData.m_isActive = false;
 
@@ -809,7 +881,8 @@ bool PlayerCollision::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroE
 				arg_charaPos += output.m_normal * (std::fabs(output.m_distance - m_refPlayer->m_transform.GetScale().x) - OFFSET);
 
 			}
-			else if (arg_collisionData.m_stageType == StageParts::APPEARANCE) {
+			//動けない壁かフェンスだったら
+			else if (arg_collisionData.m_stageType == StageParts::APPEARANCE/* || arg_collisionData.m_stageType == StageParts::FENCE*/) {
 
 				arg_charaPos += output.m_normal * (std::fabs(output.m_distance - arg_rayLength) - OFFSET);
 				arg_collisionData.m_impactPoint.back().m_isAppearWall = true;
@@ -1612,5 +1685,42 @@ inline void PlayerCollision::CheckHitAllObject(Func arg_func, KuroEngine::Vec3<f
 			//=================================================
 		}
 	}
+
+	//プレイヤーが潜っていたら無視
+	if (m_refPlayer->GetIsUnderGround()) return;
+
+	////フェンスとの当たり判定
+	//for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
+	//{
+	//	//動く足場でない
+	//	if (terrian->GetType() != StageParts::APPEARANCE)continue;
+
+	//	//動く足場としてキャスト
+	//	auto ivyBlock = dynamic_pointer_cast<Appearance>(terrian);
+
+	//	//モデル情報取得
+	//	auto model = terrian->GetModel();
+	//	//情報を取得。
+	//	arg_castRayArgment.m_stageType = terrian->GetType();
+	//	//ステージ情報を保存。
+	//	arg_castRayArgment.m_stage = terrian;
+
+	//	//メッシュを走査
+	//	for (auto& modelMesh : model.lock()->m_meshes)
+	//	{
+	//		//メッシュ情報取得
+	//		auto& mesh = modelMesh.mesh;
+
+	//		//CastRayに渡す引数を更新。
+	//		arg_castRayArgment.m_mesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+
+	//		//判定↓============================================
+
+	//		//当たり判定を実行
+	//		(this->*arg_func)(arg_newPos, arg_from, arg_castRayArgment, arg_nowStage);
+
+	//		//=================================================
+	//	}
+	//}
 
 }
