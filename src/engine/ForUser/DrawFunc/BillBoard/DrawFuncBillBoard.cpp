@@ -133,7 +133,7 @@ void KuroEngine::DrawFuncBillBoard::Graph(Camera &Cam, const Vec3<float> &Pos, c
 			{Cam.GetBuff(),CBV},
 			{Tex,SRV}
 		},
-		Pos.z,
+		static_cast<int>(Pos.z),
 		true);
 
 	s_drawGraphCount++;

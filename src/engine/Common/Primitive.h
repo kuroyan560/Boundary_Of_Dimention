@@ -17,7 +17,7 @@ namespace KuroEngine
 		// ’†SÀ•W
 		Vec3<float> m_center = {};
 		// ”¼Œa
-		float m_radius = 1.0f;
+		float m_hitBoxRadius = 1.0f;
 
 		TYPE GetPrimitiveType()override { return SPHERE; }
 	};

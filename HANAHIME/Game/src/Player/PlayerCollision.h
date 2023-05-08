@@ -23,14 +23,15 @@ struct PlayerCollision {
 
 	Player* m_refPlayer;	//プレイヤーの参照
 
-	//レイとメッシュの当たり判定出力用構造体
-	struct MeshCollisionOutput {
-		bool m_isHit;						// レイがメッシュに当たったかどうか 当たったメッシュまでの距離は考慮されておらず、ただ当たったかどうかを判断する用。
-		float m_distance;					// レイがメッシュに当たった場合、衝突地点までの距離が入る。このパラメーターとm_isHitを組み合わせて正しい衝突判定を行う。
-		KuroEngine::Vec3<float> m_pos;		// レイの衝突地点の座標
-		KuroEngine::Vec3<float> m_normal;	// レイの衝突地点の法線
-		KuroEngine::Vec2<float> m_uv;		// レイの衝突地点のUV
-	};
+	//崖に当たっているか？元はローカル変数。
+	std::array<bool, 4> m_isHitCliff;
+	std::array<std::vector<KuroEngine::Vec3<float>>, 4> m_impactPoint;
+	KuroEngine::Vec3<float> m_impactPointBuff;	//座標一時保存用
+
+	//当たり判定用のレイの長さ。
+	float m_checkUnderRayLength;
+	float m_checkCliffRayLength;
+
 	//発射するレイのID
 	enum class RAY_ID {
 
@@ -52,20 +53,6 @@ struct PlayerCollision {
 		TOP,
 		BOTTOM,
 	};
-
-	/// <summary>
-	/// レイとメッシュの当たり判定
-	/// </summary>
-	/// <param name="arg_rayPos"> レイの射出地点 </param>
-	/// <param name="arg_rayDir"> レイの射出方向 </param>
-	/// <param name="arg_targetMesh"> 判定を行う対象のメッシュ </param>
-	/// <returns> 当たり判定結果 </returns>
-	MeshCollisionOutput MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, std::vector<TerrianHitPolygon>& arg_targetMesh);
-
-	/// <summary>
-	/// 重心座標を求める。
-	/// </summary>
-	KuroEngine::Vec3<float> CalBary(const KuroEngine::Vec3<float>& PosA, const KuroEngine::Vec3<float>& PosB, const KuroEngine::Vec3<float>& PosC, const KuroEngine::Vec3<float>& TargetPos);
 
 	//衝突点用構造体
 	struct ImpactPointData {
@@ -93,6 +80,10 @@ struct PlayerCollision {
 		std::array<bool, 6> m_checkDeathCounter;
 		std::array<bool, 4> m_checkHitAround;
 	};
+
+	//全てのオブジェクトを走査
+	template <typename Func>
+	void CheckHitAllObject(Func arg_func, KuroEngine::Vec3<float>& arg_newPos, const KuroEngine::Vec3<float>& arg_from, PlayerCollision::CastRayArgument& arg_castRayArgment, std::weak_ptr<Stage> arg_nowStage);
 
 	/// <summary>
 	/// レイを発射し、その後の一連の処理をまとめた関数
@@ -123,5 +114,15 @@ struct PlayerCollision {
 
 	//移動方向を正しくさせるための処理
 	void AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const KuroEngine::Vec3<float>& arg_nextUp);
+
+private:
+
+	/*===== 以下関数ポインタ用 =====*/
+
+	//当たり判定_(崖 四方から下方向にレイを飛ばす。)
+	void CheckHitCliff_Under(KuroEngine::Vec3<float>& arg_newPos, const KuroEngine::Vec3<float>& arg_from, PlayerCollision::CastRayArgument& arg_castRayArgment, std::weak_ptr<Stage> arg_nowStage);
+	void CheckHitCliff_SearchImpactPoint(KuroEngine::Vec3<float>& arg_newPos, const KuroEngine::Vec3<float>& arg_from, PlayerCollision::CastRayArgument& arg_castRayArgment, std::weak_ptr<Stage> arg_nowStage);
+	void CheckHitDeath_Around(KuroEngine::Vec3<float>& arg_newPos, const  KuroEngine::Vec3<float>& arg_from, PlayerCollision::CastRayArgument& arg_castRayArgment, std::weak_ptr<Stage> arg_nowStage);
+	void CheckHitAround_Around(KuroEngine::Vec3<float>& arg_newPos, const KuroEngine::Vec3<float>& arg_from, PlayerCollision::CastRayArgument& arg_castRayArgment, std::weak_ptr<Stage> arg_nowStage);
 
 };

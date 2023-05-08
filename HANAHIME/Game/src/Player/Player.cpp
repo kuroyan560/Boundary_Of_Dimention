@@ -205,12 +205,19 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_isUnderGround = false;
 	m_underGroundEaseTimer = 1.0f;
 
+	m_attackTimer = 0;
+
 	m_deathSpriteAnimNumber = 0;
 	m_deathSpriteAnimTimer = KuroEngine::Timer(DEATH_SPRITE_TIMER);
 
 	m_modelAnimator->Play(m_animNames[ANIM_PATTERN_WAIT], true, false);
 	m_animInterestCycleCounter = ANIM_INTEREST_CYCLE;
 	m_beforePlayerMoveStatus = m_playerMoveStatus;
+
+	//プレイヤーの球の判定
+	m_sphere.m_centerPos = &m_drawTransform.GetPos();
+	m_sphere.m_radius = &m_radius;
+	m_radius = 2.0f;
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
@@ -219,6 +226,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//トランスフォームを保存。
 	m_prevTransform = m_transform;
+
+	//ステージの参照を保存。
+	m_nowStage = arg_nowStage;
 
 	//ステージを保存。
 	m_stage = arg_nowStage;
@@ -256,7 +266,15 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		//地中に沈むフラグを更新。 イージングが終わっていたら。
 		if (1.0f <= m_underGroundEaseTimer) {
 
+			bool prevInInputUnderGround = m_isInputUnderGround;
 			m_isInputUnderGround = UsersInput::Instance()->KeyInput(DIK_SPACE) || UsersInput::Instance()->ControllerInput(0, KuroEngine::A);
+
+			//沈むフラグが離されたトリガーだったら。
+			if (prevInInputUnderGround && !m_isInputUnderGround) {
+
+				//攻撃する。
+				m_attackTimer = ATTACK_TIMER;
+			}
 
 			//イージングが終わっている時のみ地中に潜ったり出たりする判定を持たせる。
 			bool isInputOnOff = UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->KeyOffTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A) || UsersInput::Instance()->ControllerOffTrigger(0, KuroEngine::A);
@@ -270,6 +288,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			m_underGroundEaseTimer = std::clamp(m_underGroundEaseTimer + ADD_UNDERGROUND_EASE_TIMER, 0.0f, 1.0f);
 
 			if (1.0f <= m_underGroundEaseTimer) {
+
+				//地中にいる判定を更新。
 				m_isUnderGround = m_isInputUnderGround;
 			}
 
@@ -379,7 +399,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		//タイマーを更新。
 		m_jumpTimer = std::clamp(m_jumpTimer + JUMP_TIMER * TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, 1.0f);
 
-		float easeAmount = KuroEngine::Math::Ease(Out, Sine, m_jumpTimer, 0.0f, 1.0f);
+		float easeAmount = KuroEngine::Math::Ease(InOut, Sine, m_jumpTimer, 0.0f, 1.0f);
 
 		//カメラの回転を補間する。
 		m_cameraRotMove = m_cameraJumpLerpStorage + easeAmount * m_cameraJumpLerpAmount;
@@ -502,7 +522,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	else {
 		m_drawTransform.SetPos(m_transform.GetPos());
 	}
-	m_drawTransform.SetScale(m_transform.GetScale());
 	//回転は動いたときのみ適用させる。
 	if (0 < m_rowMoveVec.Length()) {
 		m_drawTransform.SetRotate(m_transform.GetRotate());
@@ -516,6 +535,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//動きのステータス記録
 	m_beforePlayerMoveStatus = m_playerMoveStatus;
+	//攻撃中タイマーを減らす。
+	m_attackTimer = std::clamp(m_attackTimer - 1, 0, ATTACK_TIMER);
+
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
@@ -527,12 +549,15 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		arg_cam);
 	*/
 
+	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
+	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 1.0f, 0.0f);
+
 	BasicDraw::Instance()->Draw_Player(
 		arg_cam,
 		arg_ligMgr,
 		m_model,
 		m_drawTransform,
-		IndividualDrawParameter::GetDefault(),
+		edgeColor,
 		KuroEngine::AlphaBlendMode_None,
 		m_modelAnimator->GetBoneMatBuff());
 
@@ -583,6 +608,39 @@ KuroEngine::Vec3<float> Player::CalculateBezierPoint(float arg_time, KuroEngine:
 
 	return KuroEngine::Vec3<float>(x, y, z);
 
+}
+
+void Player::Damage()
+{
+
+	//死んでいたら処理を飛ばす。
+	if (m_isDeath) return;
+
+	m_isDeath = true;
+
+}
+
+bool Player::CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, KuroEngine::Vec3<float> arg_enemyUp, float arg_enemySize)
+{
+
+	//攻撃状態じゃなかったら処理を戻す。
+	if (!GetIsAttack()) {
+		return false;
+	}
+
+	//まずは球の判定
+	float distance = (arg_enemyPos - m_transform.GetPosWorld()).Length();
+	bool isHit = distance < m_growPlantPtLig.m_influenceRange;
+
+	//当たっていなかったら処理を飛ばす。
+	if (!isHit) {
+		return false;
+	}
+
+	//プレイヤーから敵までのベクトルと敵の上ベクトルを内積して、その結果が0以下だったらライトが当たっている判定(草が当たっている判定。)
+	bool isLight = (arg_enemyPos - m_transform.GetPosWorld()).GetNormal().Dot(arg_enemyUp) < 0;
+
+	return true;
 }
 
 void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
@@ -771,6 +829,9 @@ void Player::UpdateDeath() {
 			}
 
 		}
+
+		//スケールを小さくしていく。
+		m_drawTransform.SetScale(m_drawTransform.GetScale() * 0.9f);
 
 		++m_deathEffectTimer;
 		if (DEATH_EFFECT_FINISH_TIMER <= m_deathEffectTimer) {

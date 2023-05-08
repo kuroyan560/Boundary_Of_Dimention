@@ -46,12 +46,12 @@ void StageManager::SetStage(int stage_num)
 	{
 		m_nowStage = m_stageArray[stage_num];
 	}
-	m_nowStage->GimmickInit();
+	m_nowStage->Init();
 }
 
 void StageManager::Update(Player& arg_player)
 {
-	m_nowStage->GimmickUpdate(arg_player);
+	m_nowStage->Update(arg_player);
 	Appearance::ModelsUpdate();
 }
 
@@ -95,7 +95,7 @@ void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 	//	arg_cam);
 
 
-	m_nowStage->TerrianDraw(arg_cam, arg_ligMgr);
+	m_nowStage->Draw(arg_cam, arg_ligMgr);
 }
 
 bool StageManager::IsClearNowStage() const

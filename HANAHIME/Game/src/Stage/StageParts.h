@@ -58,7 +58,24 @@ private:
 class StageParts
 {
 public:
-	enum STAGE_PARTS_TYPE { TERRIAN, START_POINT, GOAL_POINT, APPEARANCE, MOVE_SCAFFOLD, LEVER, IVY_ZIP_LINE, IVY_BLOCK, NUM, NONE };
+	enum STAGE_PARTS_TYPE
+	{
+		//地形など動的オブジェクト
+		TERRIAN,
+		START_POINT,
+		GOAL_POINT,
+		APPEARANCE,
+		MOVE_SCAFFOLD,
+		LEVER,
+		IVY_ZIP_LINE,
+		IVY_BLOCK,
+
+		//敵など静的オブジェクト
+		MINI_BUG,	//チビ虫
+		DOSSUN_RING,	//ドッスンリング
+
+		NUM, NONE
+	};
 	static const std::string& GetTypeKeyOnJson(STAGE_PARTS_TYPE arg_type);
 
 private:
@@ -73,9 +90,10 @@ protected:
 	const KuroEngine::Transform m_initializedTransform;
 	//トランスフォーム
 	KuroEngine::Transform m_transform;
+	//現在のフレームで移動した量。
+	KuroEngine::Vec3<float> m_moveAmount;
 
 	virtual void OnInit() {};
-
 public:
 	StageParts(STAGE_PARTS_TYPE arg_type, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent)
 		:m_type(arg_type), m_model(arg_model), m_initializedTransform(arg_initTransform), m_transform(arg_initTransform)
@@ -93,11 +111,12 @@ public:
 	const STAGE_PARTS_TYPE& GetType()const { return m_type; }
 
 	//トランスフォームゲッタ
-	const KuroEngine::Transform& GetTransform()const { return m_transform; }
+	KuroEngine::Transform& GetTransform() { return m_transform; }
 	void SetTransform(const KuroEngine::Transform& transform)
 	{
 		m_transform = transform;
 	}
+	KuroEngine::Vec3<float> GetMoveAmount() { return m_moveAmount; }
 
 	//ステージ情報のゲッタ
 	const std::weak_ptr<KuroEngine::Model>& GetModel()const { return m_model; }

@@ -11,6 +11,7 @@
 #include"FrameWork/UsersInput.h"
 #include"../SoundConfig.h"
 #include"PlayerCollision.h"
+#include"CollisionDetectionOfRayAndMesh.h"
 
 bool PlayerCollision::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo)
 {
@@ -44,11 +45,12 @@ bool PlayerCollision::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from,
 	CheckZipline(arg_newPos, arg_nowStage);
 
 	//死んでいたら処理を飛ばす。
-	m_refPlayer->m_isDeath = false;
-	m_refPlayer->m_isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::RIGHT)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::LEFT)]);
-	m_refPlayer->m_isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::TOP)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::BOTTOM)]);
-	m_refPlayer->m_isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::FRONT)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::BEHIND)]);
-	if (m_refPlayer->m_isDeath) {
+	bool isDeath = false;
+	isDeath = false;
+	isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::RIGHT)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::LEFT)]);
+	isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::TOP)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::BOTTOM)]);
+	isDeath |= (castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::FRONT)] && castRayArgument.m_checkDeathCounter[static_cast<int>(RAY_DIR_ID::BEHIND)]);
+	if (isDeath) {
 		++m_refPlayer->m_deathTimer;
 	}
 	else {
@@ -62,7 +64,6 @@ bool PlayerCollision::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from,
 
 	}
 
-	m_refPlayer->m_isDeath = false;
 	return true;
 }
 
@@ -71,385 +72,16 @@ void PlayerCollision::CheckDeath(const KuroEngine::Vec3<float> arg_from, KuroEng
 
 	const float DEATH_LENGTH = 1.0f;
 
-	//地形配列走査
-	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
-	{
-		//モデル情報取得
-		auto model = terrian.GetModel().lock();
-		//情報を取得。
-		arg_castRayArgment.m_stageType = StageParts::TERRIAN;
-
-		//メッシュを走査
-		for (auto& modelMesh : model->m_meshes)
-		{
-			//メッシュ情報取得
-			auto& mesh = modelMesh.mesh;
-
-			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
-
-			//判定↓============================================
-
-			//右方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, m_refPlayer->m_transform.GetRight(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::RIGHT);
-
-			//左方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, -m_refPlayer->m_transform.GetRight(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::LEFT);
-
-			//後ろ方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, -m_refPlayer->m_transform.GetFront(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::BEHIND);
-
-			//正面方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, m_refPlayer->m_transform.GetFront(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::FRONT);
-
-			//上方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, m_refPlayer->m_transform.GetUp(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::TOP);
-
-			//下方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, -m_refPlayer->m_transform.GetUp(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::BOTTOM);
-
-			//=================================================
-		}
-	}
-
-	//動く足場との当たり判定
-	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
-	{
-		//動く足場でない
-		if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)continue;
-
-		//動く足場としてキャスト
-		auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
-
-		//モデル情報取得
-		auto model = terrian->GetModel();
-		//情報を取得。
-		arg_castRayArgment.m_stageType = terrian->GetType();
-		//ステージ情報を保存。
-		arg_castRayArgment.m_stage = terrian;
-
-		//メッシュを走査
-		for (auto& modelMesh : model.lock()->m_meshes)
-		{
-			//メッシュ情報取得
-			auto& mesh = modelMesh.mesh;
-
-			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
-
-			//判定↓============================================
-
-			//移動した床がプレイヤーから離れる方向に動いていたら死亡判定を飛ばす。
-			float oldPosDistance = (arg_newPos - moveScaffold->GetOldPos()).Length();
-			float nowPosDistance = (arg_newPos - moveScaffold->GetNowPos()).Length();
-
-			if (oldPosDistance < nowPosDistance) {
-				continue;
-			}
-
-
-			//右方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, m_refPlayer->m_transform.GetRight(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::RIGHT);
-
-			//左方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, -m_refPlayer->m_transform.GetRight(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::LEFT);
-
-			//後ろ方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, -m_refPlayer->m_transform.GetFront(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::BEHIND);
-
-			//正面方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, m_refPlayer->m_transform.GetFront(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::FRONT);
-
-			//上方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, m_refPlayer->m_transform.GetUp(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::TOP);
-
-			//下方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, -m_refPlayer->m_transform.GetUp(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::BOTTOM);
-
-			//=================================================
-		}
-	}
-
-	//蔦ブロックとの当たり判定
-	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
-	{
-		//動く足場でない
-		if (terrian->GetType() != StageParts::IVY_BLOCK)continue;
-
-		//動く足場としてキャスト
-		auto ivyBlock = dynamic_pointer_cast<IvyBlock>(terrian);
-
-		//出現状態じゃなかったら処理を飛ばす。
-		if (!ivyBlock->GetIsAppear()) continue;
-
-		//モデル情報取得
-		auto model = terrian->GetModel();
-		//情報を取得。
-		arg_castRayArgment.m_stageType = terrian->GetType();
-		//ステージ情報を保存。
-		arg_castRayArgment.m_stage = terrian;
-
-		//メッシュを走査
-		for (auto& modelMesh : model.lock()->m_meshes)
-		{
-			//メッシュ情報取得
-			auto& mesh = modelMesh.mesh;
-
-			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
-
-			//判定↓============================================
-
-			//右方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, m_refPlayer->m_transform.GetRight(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::RIGHT);
-
-			//左方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, -m_refPlayer->m_transform.GetRight(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::LEFT);
-
-			//後ろ方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, -m_refPlayer->m_transform.GetFront(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::BEHIND);
-
-			//正面方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, m_refPlayer->m_transform.GetFront(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::FRONT);
-
-			//上方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, m_refPlayer->m_transform.GetUp(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::TOP);
-
-			//下方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, -m_refPlayer->m_transform.GetUp(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::BOTTOM);
-
-			//=================================================
-		}
-	}
-
-	//動けない壁との当たり判定
-	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
-	{
-		//動く足場でない
-		if (terrian->GetType() != StageParts::APPEARANCE)continue;
-
-		//動く足場としてキャスト
-		auto ivyBlock = dynamic_pointer_cast<Appearance>(terrian);
-
-		//モデル情報取得
-		auto model = terrian->GetModel();
-		//情報を取得。
-		arg_castRayArgment.m_stageType = terrian->GetType();
-		//ステージ情報を保存。
-		arg_castRayArgment.m_stage = terrian;
-
-		//メッシュを走査
-		for (auto& modelMesh : model.lock()->m_meshes)
-		{
-			//メッシュ情報取得
-			auto& mesh = modelMesh.mesh;
-
-			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
-
-			//判定↓============================================
-
-			//右方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, m_refPlayer->m_transform.GetRight(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::RIGHT);
-
-			//左方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, -m_refPlayer->m_transform.GetRight(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::LEFT);
-
-			//後ろ方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, -m_refPlayer->m_transform.GetFront(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::BEHIND);
-
-			//正面方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, m_refPlayer->m_transform.GetFront(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::FRONT);
-
-			//上方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, m_refPlayer->m_transform.GetUp(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::TOP);
-
-			//下方向にレイを飛ばす。
-			CastRay(arg_newPos, arg_newPos, -m_refPlayer->m_transform.GetUp(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::BOTTOM);
-
-			//=================================================
-		}
-	}
+	//全方向にレイを飛ばして死亡チェック。
+	CheckHitAllObject(&PlayerCollision::CheckHitDeath_Around, arg_newPos, arg_from, arg_castRayArgment, arg_nowStage);
 
 }
 
 void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo, PlayerCollision::CastRayArgument& arg_castRayArgment) {
 
-	//プレイヤーの回転を考慮しない、法線情報だけを見た場合のトランスフォーム。
-	KuroEngine::Transform localTrans;
-	localTrans.SetRotate(m_refPlayer->m_normalSpinQ);
 
-	//プレイヤーの回転を考慮しない回転行列からレイを飛ばす方向を取得する。
-	KuroEngine::Vec3<float> rightDir = localTrans.GetRight();
-	KuroEngine::Vec3<float> frontDir = localTrans.GetFront();
-
-	//地形配列走査
-	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
-	{
-		//モデル情報取得
-		auto model = terrian.GetModel().lock();
-		//情報を取得。
-		arg_castRayArgment.m_stageType = StageParts::TERRIAN;
-
-		//メッシュを走査
-		for (auto& modelMesh : model->m_meshes)
-		{
-			//メッシュ情報取得
-			auto& mesh = modelMesh.mesh;
-
-			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
-
-			//判定↓============================================
-
-			//右方向にレイを飛ばす。これは壁にくっつく用。
-			arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::RIGHT)] |= CastRay(arg_newPos, arg_from, rightDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
-
-			//左方向にレイを飛ばす。これは壁にくっつく用。
-			arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::LEFT)] |= CastRay(arg_newPos, arg_from, -rightDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
-
-			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
-			arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::BEHIND)] |= CastRay(arg_newPos, arg_from, -frontDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
-
-			//正面方向にレイを飛ばす。これは壁にくっつく用。
-			arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::FRONT)] |= CastRay(arg_newPos, arg_from, frontDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
-
-			//=================================================
-		}
-	}
-
-	//動く足場との当たり判定
-	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
-	{
-		//動く足場でない
-		if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)continue;
-
-		//動く足場としてキャスト
-		auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
-
-		//モデル情報取得
-		auto model = terrian->GetModel();
-		//情報を取得。
-		arg_castRayArgment.m_stageType = terrian->GetType();
-		//ステージ情報を保存。
-		arg_castRayArgment.m_stage = terrian;
-
-		//メッシュを走査
-		for (auto& modelMesh : model.lock()->m_meshes)
-		{
-			//メッシュ情報取得
-			auto& mesh = modelMesh.mesh;
-
-			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
-
-			//判定↓============================================
-
-			//右方向にレイを飛ばす。これは壁にくっつく用。
-			arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::RIGHT)] |= CastRay(arg_newPos, arg_from, rightDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
-
-			//左方向にレイを飛ばす。これは壁にくっつく用。
-			arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::LEFT)] |= CastRay(arg_newPos, arg_from, -rightDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
-
-			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
-			arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::BEHIND)] |= CastRay(arg_newPos, arg_from, -frontDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
-
-			//正面方向にレイを飛ばす。これは壁にくっつく用。
-			arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::FRONT)] |= CastRay(arg_newPos, arg_from, frontDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
-
-			//=================================================
-		}
-	}
-
-
-	//蔦ブロックとの当たり判定
-	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
-	{
-		//動く足場でない
-		if (terrian->GetType() != StageParts::IVY_BLOCK)continue;
-
-		//動く足場としてキャスト
-		auto ivyBlock = dynamic_pointer_cast<IvyBlock>(terrian);
-
-		//出現状態じゃなかったら処理を飛ばす。
-		if (!ivyBlock->GetIsAppear()) continue;
-
-		//モデル情報取得
-		auto model = terrian->GetModel();
-		//情報を取得。
-		arg_castRayArgment.m_stageType = terrian->GetType();
-		//ステージ情報を保存。
-		arg_castRayArgment.m_stage = terrian;
-
-		//メッシュを走査
-		for (auto& modelMesh : model.lock()->m_meshes)
-		{
-			//メッシュ情報取得
-			auto& mesh = modelMesh.mesh;
-
-			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
-
-			//判定↓============================================
-
-			//右方向にレイを飛ばす。これは壁にくっつく用。
-			arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::RIGHT)] |= CastRay(arg_newPos, arg_from, rightDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
-
-			//左方向にレイを飛ばす。これは壁にくっつく用。
-			arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::LEFT)] |= CastRay(arg_newPos, arg_from, -rightDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
-
-			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
-			arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::BEHIND)] |= CastRay(arg_newPos, arg_from, -frontDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
-
-			//正面方向にレイを飛ばす。これは壁にくっつく用。
-			arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::FRONT)] |= CastRay(arg_newPos, arg_from, frontDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
-
-			//=================================================
-		}
-	}
-
-	//見えない足場との当たり判定
-	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
-	{
-		//動く足場でない
-		if (terrian->GetType() != StageParts::APPEARANCE)continue;
-
-		//動く足場としてキャスト
-		auto appear = dynamic_pointer_cast<Appearance>(terrian);
-
-		//モデル情報取得
-		auto model = terrian->GetModel();
-		//情報を取得。
-		arg_castRayArgment.m_stageType = terrian->GetType();
-		//ステージ情報を保存。
-		arg_castRayArgment.m_stage = terrian;
-
-		//メッシュを走査
-		for (auto& modelMesh : model.lock()->m_meshes)
-		{
-			//メッシュ情報取得
-			auto& mesh = modelMesh.mesh;
-
-			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = appear->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
-
-			//判定↓============================================
-
-			//右方向にレイを飛ばす。これは壁にくっつく用。
-			arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::RIGHT)] |= CastRay(arg_newPos, arg_from, rightDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
-
-			//左方向にレイを飛ばす。これは壁にくっつく用。
-			arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::LEFT)] |= CastRay(arg_newPos, arg_from, -rightDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
-
-			//後ろ方向にレイを飛ばす。これは壁にくっつく用。
-			arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::BEHIND)] |= CastRay(arg_newPos, arg_from, -frontDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
-
-			//正面方向にレイを飛ばす。これは壁にくっつく用。
-			arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::FRONT)] |= CastRay(arg_newPos, arg_from, frontDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
-
-			//=================================================
-		}
-	}
+	//四方にレイを飛ばして押し戻し
+	CheckHitAllObject(&PlayerCollision::CheckHitAround_Around, arg_newPos, arg_from, arg_castRayArgment, arg_nowStage);
 
 	//周囲の衝突点があったら、それの最短距離を求めてジャンプ先を決める。
 	int impactPointSize = static_cast<int>(arg_castRayArgment.m_impactPoint.size());
@@ -549,6 +181,7 @@ void PlayerCollision::CheckHitGround(const KuroEngine::Vec3<float>arg_from, Kuro
 	KuroEngine::Transform localTrans;
 	localTrans.SetRotate(m_refPlayer->m_normalSpinQ);
 
+
 	//プレイヤーの回転を考慮しない回転行列からレイを飛ばす方向を取得する。
 	KuroEngine::Vec3<float> rightDir = localTrans.GetRight();
 	KuroEngine::Vec3<float> frontDir = localTrans.GetFront();
@@ -562,499 +195,28 @@ void PlayerCollision::CheckHitGround(const KuroEngine::Vec3<float>arg_from, Kuro
 	m_refPlayer->m_onGround = false;
 
 	//崖チェックで下方向にレイを伸ばす際のレイの長さ
-	const float CHECK_UNDERRAY_LENGTH = m_refPlayer->m_transform.GetScale().y * 2.0f;
-	const float CHECK_CLIFFRAY_LENGTH = m_refPlayer->m_transform.GetScale().y * 10.0f;
+	m_checkUnderRayLength = m_refPlayer->m_transform.GetScale().y * 2.0f;
+	m_checkCliffRayLength = m_refPlayer->m_transform.GetScale().y * 10.0f;
 
 	//崖判定用フラグ
-	std::array<bool, 4> isHitCliff = { false,false,false,false };
+	m_isHitCliff = { false,false,false,false };
 
-	//地形配列走査
-	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
-	{
-		//モデル情報取得
-		auto model = terrian.GetModel().lock();
-		//情報を取得。
-		arg_castRayArgment.m_stageType = StageParts::TERRIAN;
-
-		//メッシュを走査
-		for (auto& modelMesh : model->m_meshes)
-		{
-			//メッシュ情報取得
-			auto& mesh = modelMesh.mesh;
-
-			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
-
-			//判定↓============================================
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::RIGHT)]) {
-
-				//下方向にレイを飛ばしてそこが崖かをチェックする。
-				KuroEngine::Vec3<float> rayPos = arg_newPos + rightDir * m_refPlayer->WALL_JUMP_LENGTH;
-				isHitCliff[static_cast<int>(RAY_DIR_ID::RIGHT)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), CHECK_UNDERRAY_LENGTH, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
-
-			}
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::LEFT)]) {
-
-				//下方向にレイを飛ばしてそこが崖かをチェックする。
-				KuroEngine::Vec3<float> rayPos = arg_newPos - rightDir * m_refPlayer->WALL_JUMP_LENGTH;
-				isHitCliff[static_cast<int>(RAY_DIR_ID::LEFT)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), CHECK_UNDERRAY_LENGTH, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
-
-			}
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::FRONT)]) {
-
-				//下方向にレイを飛ばしてそこが崖かをチェックする。
-				KuroEngine::Vec3<float> rayPos = arg_newPos + frontDir * m_refPlayer->WALL_JUMP_LENGTH;
-				isHitCliff[static_cast<int>(RAY_DIR_ID::FRONT)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), CHECK_UNDERRAY_LENGTH, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
-
-			}
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::BEHIND)]) {
-
-				//下方向にレイを飛ばしてそこが崖かをチェックする。
-				KuroEngine::Vec3<float> rayPos = arg_newPos - frontDir * m_refPlayer->WALL_JUMP_LENGTH;
-				isHitCliff[static_cast<int>(RAY_DIR_ID::BEHIND)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), CHECK_UNDERRAY_LENGTH, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
-
-			}
-
-			//=================================================
-		}
-	}
-	//動く足場との当たり判定
-	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
-	{
-		//動く足場でない
-		if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)continue;
-
-		//動く足場としてキャスト
-		auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
-
-		//モデル情報取得
-		auto model = terrian->GetModel();
-		//情報を取得。
-		arg_castRayArgment.m_stageType = terrian->GetType();
-		//ステージ情報を保存。
-		arg_castRayArgment.m_stage = terrian;
-
-		//メッシュを走査
-		for (auto& modelMesh : model.lock()->m_meshes)
-		{
-			//メッシュ情報取得
-			auto& mesh = modelMesh.mesh;
-
-			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
-
-			//判定↓============================================
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::RIGHT)]) {
-
-				//下方向にレイを飛ばしてそこが崖かをチェックする。
-				KuroEngine::Vec3<float> rayPos = arg_newPos + rightDir * m_refPlayer->WALL_JUMP_LENGTH;
-				isHitCliff[static_cast<int>(RAY_DIR_ID::RIGHT)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), CHECK_UNDERRAY_LENGTH, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
-
-			}
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::LEFT)]) {
-
-				//下方向にレイを飛ばしてそこが崖かをチェックする。
-				KuroEngine::Vec3<float> rayPos = arg_newPos - rightDir * m_refPlayer->WALL_JUMP_LENGTH;
-				isHitCliff[static_cast<int>(RAY_DIR_ID::LEFT)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), CHECK_UNDERRAY_LENGTH, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
-
-			}
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::FRONT)]) {
-
-				//下方向にレイを飛ばしてそこが崖かをチェックする。
-				KuroEngine::Vec3<float> rayPos = arg_newPos + frontDir * m_refPlayer->WALL_JUMP_LENGTH;
-				isHitCliff[static_cast<int>(RAY_DIR_ID::FRONT)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), CHECK_UNDERRAY_LENGTH, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
-
-			}
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::BEHIND)]) {
-
-				//下方向にレイを飛ばしてそこが崖かをチェックする。
-				KuroEngine::Vec3<float> rayPos = arg_newPos - frontDir * m_refPlayer->WALL_JUMP_LENGTH;
-				isHitCliff[static_cast<int>(RAY_DIR_ID::BEHIND)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), CHECK_UNDERRAY_LENGTH, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
-
-			}
-
-			//=================================================
-		}
-	}
-
-	//蔦ブロックとの当たり判定
-	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
-	{
-		//動く足場でない
-		if (terrian->GetType() != StageParts::IVY_BLOCK)continue;
-
-		//動く足場としてキャスト
-		auto ivyBlock = dynamic_pointer_cast<IvyBlock>(terrian);
-
-		//出現状態じゃなかったら処理を飛ばす。
-		if (!ivyBlock->GetIsAppear()) continue;
-
-		//モデル情報取得
-		auto model = terrian->GetModel();
-		//情報を取得。
-		arg_castRayArgment.m_stageType = terrian->GetType();
-		//ステージ情報を保存。
-		arg_castRayArgment.m_stage = terrian;
-
-		//メッシュを走査
-		for (auto& modelMesh : model.lock()->m_meshes)
-		{
-			//メッシュ情報取得
-			auto& mesh = modelMesh.mesh;
-
-			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
-
-			//判定↓============================================
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::RIGHT)]) {
-
-				//下方向にレイを飛ばしてそこが崖かをチェックする。
-				KuroEngine::Vec3<float> rayPos = arg_newPos + rightDir * m_refPlayer->WALL_JUMP_LENGTH;
-				isHitCliff[static_cast<int>(RAY_DIR_ID::RIGHT)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), CHECK_UNDERRAY_LENGTH, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
-
-			}
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::LEFT)]) {
-
-				//下方向にレイを飛ばしてそこが崖かをチェックする。
-				KuroEngine::Vec3<float> rayPos = arg_newPos - rightDir * m_refPlayer->WALL_JUMP_LENGTH;
-				isHitCliff[static_cast<int>(RAY_DIR_ID::LEFT)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), CHECK_UNDERRAY_LENGTH, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
-
-			}
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::FRONT)]) {
-
-				//下方向にレイを飛ばしてそこが崖かをチェックする。
-				KuroEngine::Vec3<float> rayPos = arg_newPos + frontDir * m_refPlayer->WALL_JUMP_LENGTH;
-				isHitCliff[static_cast<int>(RAY_DIR_ID::FRONT)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), CHECK_UNDERRAY_LENGTH, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
-
-			}
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::BEHIND)]) {
-
-				//下方向にレイを飛ばしてそこが崖かをチェックする。
-				KuroEngine::Vec3<float> rayPos = arg_newPos - frontDir * m_refPlayer->WALL_JUMP_LENGTH;
-				isHitCliff[static_cast<int>(RAY_DIR_ID::BEHIND)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), CHECK_UNDERRAY_LENGTH, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
-
-			}
-
-			//=================================================
-		}
-	}
+	//四方から下方向にレイを飛ばして崖チェック。
+	CheckHitAllObject(&PlayerCollision::CheckHitCliff_Under, arg_newPos, arg_from, arg_castRayArgment, arg_nowStage);
 
 	//当たっていなかったらプレイヤー方向にレイを飛ばして衝突点を記録する。
-	std::array<std::vector<KuroEngine::Vec3<float>>, 4> impactPoint;
-	KuroEngine::Vec3<float> impactPointBuff;	//座標一時保存用
-	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
-	{
-		//モデル情報取得
-		auto model = terrian.GetModel().lock();
-		//情報を取得。
-		arg_castRayArgment.m_stageType = StageParts::TERRIAN;
-
-		//メッシュを走査
-		for (auto& modelMesh : model->m_meshes)
-		{
-			//メッシュ情報取得
-			auto& mesh = modelMesh.mesh;
-
-			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
-
-			//判定↓============================================
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!isHitCliff[static_cast<int>(RAY_DIR_ID::RIGHT)]) {
-
-				KuroEngine::Vec3<float> rayPos = arg_newPos + rightDir * m_refPlayer->WALL_JUMP_LENGTH;
-				if (CastRay(impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH, -rightDir, CHECK_CLIFFRAY_LENGTH, arg_castRayArgment, RAY_ID::CLIFF)) {
-					impactPoint[static_cast<int>(RAY_DIR_ID::RIGHT)].emplace_back(impactPointBuff);
-				}
-
-			}
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!isHitCliff[static_cast<int>(RAY_DIR_ID::LEFT)]) {
-
-				KuroEngine::Vec3<float> rayPos = arg_newPos - rightDir * m_refPlayer->WALL_JUMP_LENGTH;
-				if (CastRay(impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH, rightDir, CHECK_CLIFFRAY_LENGTH, arg_castRayArgment, RAY_ID::CLIFF)) {
-					impactPoint[static_cast<int>(RAY_DIR_ID::LEFT)].emplace_back(impactPointBuff);
-				}
-
-			}
-
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!isHitCliff[static_cast<int>(RAY_DIR_ID::FRONT)]) {
-
-				KuroEngine::Vec3<float> rayPos = arg_newPos + frontDir * m_refPlayer->WALL_JUMP_LENGTH;
-				if (CastRay(impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH, -frontDir, CHECK_CLIFFRAY_LENGTH, arg_castRayArgment, RAY_ID::CLIFF)) {
-					impactPoint[static_cast<int>(RAY_DIR_ID::FRONT)].emplace_back(impactPointBuff);
-				}
-
-			}
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!isHitCliff[static_cast<int>(RAY_DIR_ID::BEHIND)]) {
-
-				KuroEngine::Vec3<float> rayPos = arg_newPos - frontDir * m_refPlayer->WALL_JUMP_LENGTH;
-				if (CastRay(impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH, frontDir, CHECK_CLIFFRAY_LENGTH, arg_castRayArgment, RAY_ID::CLIFF)) {
-					impactPoint[static_cast<int>(RAY_DIR_ID::BEHIND)].emplace_back(impactPointBuff);
-				}
-
-			}
-
-			//=================================================
-		}
-	}
-	//動く足場との当たり判定
-	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
-	{
-		//動く足場でない
-		if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)continue;
-
-		//動く足場としてキャスト
-		auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
-
-		//モデル情報取得
-		auto model = terrian->GetModel();
-		//情報を取得。
-		arg_castRayArgment.m_stageType = terrian->GetType();
-		//ステージ情報を保存。
-		arg_castRayArgment.m_stage = terrian;
-
-		//メッシュを走査
-		for (auto& modelMesh : model.lock()->m_meshes)
-		{
-			//メッシュ情報取得
-			auto& mesh = modelMesh.mesh;
-
-			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
-
-			//判定↓============================================
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!isHitCliff[static_cast<int>(RAY_DIR_ID::RIGHT)]) {
-
-				KuroEngine::Vec3<float> rayPos = arg_newPos + rightDir * m_refPlayer->WALL_JUMP_LENGTH;
-				if (CastRay(impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH, -rightDir, CHECK_CLIFFRAY_LENGTH, arg_castRayArgment, RAY_ID::CLIFF)) {
-					impactPoint[static_cast<int>(RAY_DIR_ID::RIGHT)].emplace_back(impactPointBuff);
-				}
-
-			}
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!isHitCliff[static_cast<int>(RAY_DIR_ID::LEFT)]) {
-
-				KuroEngine::Vec3<float> rayPos = arg_newPos - rightDir * m_refPlayer->WALL_JUMP_LENGTH;
-				if (CastRay(impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH, rightDir, CHECK_CLIFFRAY_LENGTH, arg_castRayArgment, RAY_ID::CLIFF)) {
-					impactPoint[static_cast<int>(RAY_DIR_ID::LEFT)].emplace_back(impactPointBuff);
-				}
-
-			}
-
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!isHitCliff[static_cast<int>(RAY_DIR_ID::FRONT)]) {
-
-				KuroEngine::Vec3<float> rayPos = arg_newPos + frontDir * m_refPlayer->WALL_JUMP_LENGTH;
-				if (CastRay(impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH, -frontDir, CHECK_CLIFFRAY_LENGTH, arg_castRayArgment, RAY_ID::CLIFF)) {
-					impactPoint[static_cast<int>(RAY_DIR_ID::FRONT)].emplace_back(impactPointBuff);
-				}
-
-			}
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!isHitCliff[static_cast<int>(RAY_DIR_ID::BEHIND)]) {
-
-				KuroEngine::Vec3<float> rayPos = arg_newPos - frontDir * m_refPlayer->WALL_JUMP_LENGTH;
-				if (CastRay(impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH, frontDir, CHECK_CLIFFRAY_LENGTH, arg_castRayArgment, RAY_ID::CLIFF)) {
-					impactPoint[static_cast<int>(RAY_DIR_ID::BEHIND)].emplace_back(impactPointBuff);
-				}
-
-			}
-
-			//=================================================
-		}
-	}
-
-	//蔦ブロックとの当たり判定
-	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
-	{
-		//動く足場でない
-		if (terrian->GetType() != StageParts::IVY_BLOCK)continue;
-
-		//動く足場としてキャスト
-		auto ivyBlock = dynamic_pointer_cast<IvyBlock>(terrian);
-
-		//出現状態じゃなかったら処理を飛ばす。
-		if (!ivyBlock->GetIsAppear()) continue;
-
-		//モデル情報取得
-		auto model = terrian->GetModel();
-		//情報を取得。
-		arg_castRayArgment.m_stageType = terrian->GetType();
-		//ステージ情報を保存。
-		arg_castRayArgment.m_stage = terrian;
-
-		//メッシュを走査
-		for (auto& modelMesh : model.lock()->m_meshes)
-		{
-			//メッシュ情報取得
-			auto& mesh = modelMesh.mesh;
-
-			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
-
-			//判定↓============================================
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!isHitCliff[static_cast<int>(RAY_DIR_ID::RIGHT)]) {
-
-				KuroEngine::Vec3<float> rayPos = arg_newPos + rightDir * m_refPlayer->WALL_JUMP_LENGTH;
-				if (CastRay(impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH, -rightDir, CHECK_CLIFFRAY_LENGTH, arg_castRayArgment, RAY_ID::CLIFF)) {
-					impactPoint[static_cast<int>(RAY_DIR_ID::RIGHT)].emplace_back(impactPointBuff);
-				}
-
-			}
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!isHitCliff[static_cast<int>(RAY_DIR_ID::LEFT)]) {
-
-				KuroEngine::Vec3<float> rayPos = arg_newPos - rightDir * m_refPlayer->WALL_JUMP_LENGTH;
-				if (CastRay(impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH, rightDir, CHECK_CLIFFRAY_LENGTH, arg_castRayArgment, RAY_ID::CLIFF)) {
-					impactPoint[static_cast<int>(RAY_DIR_ID::LEFT)].emplace_back(impactPointBuff);
-				}
-
-			}
-
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!isHitCliff[static_cast<int>(RAY_DIR_ID::FRONT)]) {
-
-				KuroEngine::Vec3<float> rayPos = arg_newPos + frontDir * m_refPlayer->WALL_JUMP_LENGTH;
-				if (CastRay(impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH, -frontDir, CHECK_CLIFFRAY_LENGTH, arg_castRayArgment, RAY_ID::CLIFF)) {
-					impactPoint[static_cast<int>(RAY_DIR_ID::FRONT)].emplace_back(impactPointBuff);
-				}
-
-			}
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!isHitCliff[static_cast<int>(RAY_DIR_ID::BEHIND)]) {
-
-				KuroEngine::Vec3<float> rayPos = arg_newPos - frontDir * m_refPlayer->WALL_JUMP_LENGTH;
-				if (CastRay(impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH, frontDir, CHECK_CLIFFRAY_LENGTH, arg_castRayArgment, RAY_ID::CLIFF)) {
-					impactPoint[static_cast<int>(RAY_DIR_ID::BEHIND)].emplace_back(impactPointBuff);
-				}
-
-			}
-
-			//=================================================
-		}
-	}
-
-	//乗れない壁との当たり判定
-	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
-	{
-		//動く足場でない
-		if (terrian->GetType() != StageParts::APPEARANCE)continue;
-
-		//動く足場としてキャスト
-		auto ivyBlock = dynamic_pointer_cast<Appearance>(terrian);
-
-		//モデル情報取得
-		auto model = terrian->GetModel();
-		//情報を取得。
-		arg_castRayArgment.m_stageType = terrian->GetType();
-		//ステージ情報を保存。
-		arg_castRayArgment.m_stage = terrian;
-
-		//メッシュを走査
-		for (auto& modelMesh : model.lock()->m_meshes)
-		{
-			//メッシュ情報取得
-			auto& mesh = modelMesh.mesh;
-
-			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
-
-			//判定↓============================================
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!isHitCliff[static_cast<int>(RAY_DIR_ID::RIGHT)]) {
-
-				KuroEngine::Vec3<float> rayPos = arg_newPos + rightDir * m_refPlayer->WALL_JUMP_LENGTH;
-				if (CastRay(impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH, -rightDir, CHECK_CLIFFRAY_LENGTH, arg_castRayArgment, RAY_ID::CLIFF)) {
-					impactPoint[static_cast<int>(RAY_DIR_ID::RIGHT)].emplace_back(impactPointBuff);
-				}
-
-			}
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!isHitCliff[static_cast<int>(RAY_DIR_ID::LEFT)]) {
-
-				KuroEngine::Vec3<float> rayPos = arg_newPos - rightDir * m_refPlayer->WALL_JUMP_LENGTH;
-				if (CastRay(impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH, rightDir, CHECK_CLIFFRAY_LENGTH, arg_castRayArgment, RAY_ID::CLIFF)) {
-					impactPoint[static_cast<int>(RAY_DIR_ID::LEFT)].emplace_back(impactPointBuff);
-				}
-
-			}
-
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!isHitCliff[static_cast<int>(RAY_DIR_ID::FRONT)]) {
-
-				KuroEngine::Vec3<float> rayPos = arg_newPos + frontDir * m_refPlayer->WALL_JUMP_LENGTH;
-				if (CastRay(impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH, -frontDir, CHECK_CLIFFRAY_LENGTH, arg_castRayArgment, RAY_ID::CLIFF)) {
-					impactPoint[static_cast<int>(RAY_DIR_ID::FRONT)].emplace_back(impactPointBuff);
-				}
-
-			}
-
-			//右側の周囲のレイが当たっていなかったら。
-			if (!isHitCliff[static_cast<int>(RAY_DIR_ID::BEHIND)]) {
-
-				KuroEngine::Vec3<float> rayPos = arg_newPos - frontDir * m_refPlayer->WALL_JUMP_LENGTH;
-				if (CastRay(impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH, frontDir, CHECK_CLIFFRAY_LENGTH, arg_castRayArgment, RAY_ID::CLIFF)) {
-					impactPoint[static_cast<int>(RAY_DIR_ID::BEHIND)].emplace_back(impactPointBuff);
-				}
-
-			}
-
-			//=================================================
-		}
-	}
+	m_impactPoint = std::array<std::vector<KuroEngine::Vec3<float>>, 4>();
+	m_impactPointBuff = KuroEngine::Vec3<float>();	//座標一時保存用
+	CheckHitAllObject(&PlayerCollision::CheckHitCliff_SearchImpactPoint, arg_newPos, arg_from, arg_castRayArgment, arg_nowStage);
 
 	//求められた衝突点の中から各方向の一番近い衝突点を見つける。
 	std::vector<KuroEngine::Vec3<float>> nearPos;
 	std::vector<KuroEngine::Vec3<float>> nearestPos;
 	//まずは右から
-	for (auto& index : impactPoint[static_cast<int>(RAY_DIR_ID::RIGHT)]) {
+	for (auto& index : m_impactPoint[static_cast<int>(RAY_DIR_ID::RIGHT)]) {
 
 		float minLength = std::numeric_limits<float>().max();
-		KuroEngine::Vec3<float> castPos = arg_newPos + rightDir * m_refPlayer->WALL_JUMP_LENGTH - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH;
+		KuroEngine::Vec3<float> castPos = arg_newPos + rightDir * m_refPlayer->WALL_JUMP_LENGTH - m_refPlayer->m_transform.GetUp() * m_checkUnderRayLength;
 		float length = KuroEngine::Vec3<float>(castPos - index).Length();
 		if (length < minLength) {
 			minLength = length;
@@ -1065,10 +227,10 @@ void PlayerCollision::CheckHitGround(const KuroEngine::Vec3<float>arg_from, Kuro
 	if (0 < nearPos.size())nearestPos.emplace_back(nearPos.back());
 	nearPos.clear();
 	//次は左
-	for (auto& index : impactPoint[static_cast<int>(RAY_DIR_ID::LEFT)]) {
+	for (auto& index : m_impactPoint[static_cast<int>(RAY_DIR_ID::LEFT)]) {
 
 		float minLength = std::numeric_limits<float>().max();
-		KuroEngine::Vec3<float> castPos = arg_newPos - rightDir * m_refPlayer->WALL_JUMP_LENGTH - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH;
+		KuroEngine::Vec3<float> castPos = arg_newPos - rightDir * m_refPlayer->WALL_JUMP_LENGTH - m_refPlayer->m_transform.GetUp() * m_checkUnderRayLength;
 		float length = KuroEngine::Vec3<float>(castPos - index).Length();
 		if (length < minLength) {
 			minLength = length;
@@ -1079,10 +241,10 @@ void PlayerCollision::CheckHitGround(const KuroEngine::Vec3<float>arg_from, Kuro
 	if (0 < nearPos.size())nearestPos.emplace_back(nearPos.back());
 	nearPos.clear();
 	//次は前
-	for (auto& index : impactPoint[static_cast<int>(RAY_DIR_ID::FRONT)]) {
+	for (auto& index : m_impactPoint[static_cast<int>(RAY_DIR_ID::FRONT)]) {
 
 		float minLength = std::numeric_limits<float>().max();
-		KuroEngine::Vec3<float> castPos = arg_newPos + frontDir * m_refPlayer->WALL_JUMP_LENGTH - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH;
+		KuroEngine::Vec3<float> castPos = arg_newPos + frontDir * m_refPlayer->WALL_JUMP_LENGTH - m_refPlayer->m_transform.GetUp() * m_checkUnderRayLength;
 		float length = KuroEngine::Vec3<float>(castPos - index).Length();
 		if (length < minLength) {
 			minLength = length;
@@ -1092,10 +254,10 @@ void PlayerCollision::CheckHitGround(const KuroEngine::Vec3<float>arg_from, Kuro
 	if (0 < nearPos.size())nearestPos.emplace_back(nearPos.back());
 	nearPos.clear();
 	//最後に後ろ
-	for (auto& index : impactPoint[static_cast<int>(RAY_DIR_ID::BEHIND)]) {
+	for (auto& index : m_impactPoint[static_cast<int>(RAY_DIR_ID::BEHIND)]) {
 
 		float minLength = std::numeric_limits<float>().max();
-		KuroEngine::Vec3<float> castPos = arg_newPos - frontDir * m_refPlayer->WALL_JUMP_LENGTH - m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH;
+		KuroEngine::Vec3<float> castPos = arg_newPos - frontDir * m_refPlayer->WALL_JUMP_LENGTH - m_refPlayer->m_transform.GetUp() * m_checkUnderRayLength;
 		float length = KuroEngine::Vec3<float>(castPos - index).Length();
 		if (length < minLength) {
 			minLength = length;
@@ -1334,7 +496,7 @@ void PlayerCollision::CheckCliff(PlayerCollision::ImpactPointData& arg_impactPoi
 			std::vector<TerrianHitPolygon> mesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
 
 			//下方向にレイを飛ばす。
-			MeshCollisionOutput output = MeshCollision(arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * 0.5f, -m_refPlayer->m_transform.GetUp(), mesh);
+			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * 0.5f, -m_refPlayer->m_transform.GetUp(), mesh);
 
 			//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
@@ -1369,7 +531,7 @@ void PlayerCollision::CheckCliff(PlayerCollision::ImpactPointData& arg_impactPoi
 			std::vector<TerrianHitPolygon> mesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
 			//下方向にレイを飛ばす。
-			MeshCollisionOutput output = MeshCollision(arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * 0.5f, -m_refPlayer->m_transform.GetUp(), mesh);
+			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * 0.5f, -m_refPlayer->m_transform.GetUp(), mesh);
 
 			//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
@@ -1406,7 +568,7 @@ void PlayerCollision::CheckCliff(PlayerCollision::ImpactPointData& arg_impactPoi
 			std::vector<TerrianHitPolygon> mesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
 			//下方向にレイを飛ばす。
-			MeshCollisionOutput output = MeshCollision(arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * 0.5f, -m_refPlayer->m_transform.GetUp(), mesh);
+			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * 0.5f, -m_refPlayer->m_transform.GetUp(), mesh);
 
 			//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
@@ -1439,7 +601,7 @@ void PlayerCollision::CheckCliff(PlayerCollision::ImpactPointData& arg_impactPoi
 			std::vector<TerrianHitPolygon> mesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
 			//下方向にレイを飛ばす。
-			MeshCollisionOutput output = MeshCollision(arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * 0.5f, -m_refPlayer->m_transform.GetUp(), mesh);
+			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * 0.5f, -m_refPlayer->m_transform.GetUp(), mesh);
 
 			//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
@@ -1482,7 +644,7 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 			std::vector<TerrianHitPolygon> mesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
 
 			//下方向にレイを飛ばす。
-			MeshCollisionOutput output = MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
+			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
 
 			//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
@@ -1517,7 +679,7 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 			std::vector<TerrianHitPolygon> mesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
 			//下方向にレイを飛ばす。
-			MeshCollisionOutput output = MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
+			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
 
 			//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
@@ -1555,7 +717,7 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 			std::vector<TerrianHitPolygon> mesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
 			//下方向にレイを飛ばす。
-			MeshCollisionOutput output = MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
+			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
 
 			//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
@@ -1590,7 +752,7 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 			std::vector<TerrianHitPolygon> mesh = appearWall->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
 			//下方向にレイを飛ばす。
-			MeshCollisionOutput output = MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
+			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
 
 			//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
@@ -1609,189 +771,13 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 
 }
 
-PlayerCollision::MeshCollisionOutput PlayerCollision::MeshCollision(const KuroEngine::Vec3<float>& arg_rayPos, const KuroEngine::Vec3<float>& arg_rayDir, std::vector<TerrianHitPolygon>& arg_targetMesh) {
-
-
-	/*===== メッシュとレイの当たり判定 =====*/
-
-
-	/*-- ① ポリゴンを法線情報をもとにカリングする --*/
-
-	//法線とレイの方向の内積が0より大きかった場合、そのポリゴンは背面なのでカリングする。
-	for (auto& index : arg_targetMesh) {
-
-		index.m_isActive = true;
-
-		if (index.m_p1.normal.Dot(arg_rayDir) < -0.0001f) continue;
-
-		index.m_isActive = false;
-
-	}
-
-
-	/*-- ② ポリゴンとレイの当たり判定を行い、各情報を記録する --*/
-
-	// 記録用データ
-	std::vector<std::pair<MeshCollisionOutput, TerrianHitPolygon>> hitDataContainer;
-
-	for (auto& index : arg_targetMesh) {
-
-		//ポリゴンが無効化されていたら次の処理へ
-		if (!index.m_isActive) continue;
-
-		//レイの開始地点から平面におろした垂線の長さを求める
-		//KuroEngine::Vec3<float> planeNorm = -index.m_p0.normal;
-		KuroEngine::Vec3<float> planeNorm = KuroEngine::Vec3<float>(KuroEngine::Vec3<float>(index.m_p0.pos - index.m_p2.pos).GetNormal()).Cross(KuroEngine::Vec3<float>(index.m_p0.pos - index.m_p1.pos).GetNormal());
-		float rayToOriginLength = arg_rayPos.Dot(planeNorm);
-		float planeToOriginLength = index.m_p0.pos.Dot(planeNorm);
-		//視点から平面におろした垂線の長さ
-		float perpendicularLine = rayToOriginLength - planeToOriginLength;
-
-		//三角関数を利用して視点から衝突点までの距離を求める
-		float dist = planeNorm.Dot(arg_rayDir);
-		float impDistance = perpendicularLine / -dist;
-
-		if (std::isnan(impDistance))continue;
-
-		//衝突地点
-		KuroEngine::Vec3<float> impactPoint = arg_rayPos + arg_rayDir * impDistance;
-
-		/*----- 衝突点がポリゴンの内側にあるかを調べる -----*/
-
-		/* 辺1本目 */
-		KuroEngine::Vec3<float> P1ToImpactPos = (impactPoint - index.m_p0.pos).GetNormal();
-		KuroEngine::Vec3<float> P1ToP2 = (index.m_p1.pos - index.m_p0.pos).GetNormal();
-		KuroEngine::Vec3<float> P1ToP3 = (index.m_p2.pos - index.m_p0.pos).GetNormal();
-
-		//衝突点と辺1の内積
-		float impactDot = P1ToImpactPos.Dot(P1ToP2);
-		//点1と点3の内積
-		float P1Dot = P1ToP2.Dot(P1ToP3);
-
-		//衝突点と辺1の内積が点1と点3の内積より小さかったらアウト
-		if (impactDot < P1Dot) {
-			index.m_isActive = false;
-			continue;
-		}
-
-		/* 辺2本目 */
-		KuroEngine::Vec3<float> P2ToImpactPos = (impactPoint - index.m_p1.pos).GetNormal();
-		KuroEngine::Vec3<float> P2ToP3 = (index.m_p2.pos - index.m_p1.pos).GetNormal();
-		KuroEngine::Vec3<float> P2ToP1 = (index.m_p0.pos - index.m_p1.pos).GetNormal();
-
-		//衝突点と辺2の内積
-		impactDot = P2ToImpactPos.Dot(P2ToP3);
-		//点2と点1の内積
-		float P2Dot = P2ToP3.Dot(P2ToP1);
-
-		//衝突点と辺2の内積が点2と点1の内積より小さかったらアウト
-		if (impactDot < P2Dot) {
-			index.m_isActive = false;
-			continue;
-		}
-
-		/* 辺3本目 */
-		KuroEngine::Vec3<float> P3ToImpactPos = (impactPoint - index.m_p2.pos).GetNormal();
-		KuroEngine::Vec3<float> P3ToP1 = (index.m_p0.pos - index.m_p2.pos).GetNormal();
-		KuroEngine::Vec3<float> P3ToP2 = (index.m_p1.pos - index.m_p2.pos).GetNormal();
-
-		//衝突点と辺3の内積
-		impactDot = P3ToImpactPos.Dot(P3ToP1);
-		//点3と点2の内積
-		float P3Dot = P3ToP1.Dot(P3ToP2);
-
-		//衝突点と辺3の内積が点3と点2の内積より小さかったらアウト
-		if (impactDot < P3Dot) {
-			index.m_isActive = false;
-			continue;
-		}
-
-		/* ここまで来たらポリゴンに衝突してる！ */
-		MeshCollisionOutput data;
-		data.m_isHit = true;
-		data.m_pos = impactPoint;
-		data.m_distance = impDistance;
-		data.m_normal = index.m_p0.normal;
-		hitDataContainer.emplace_back(std::pair(data, index));
-
-	}
-
-
-	/*-- ③ 記録した情報から最終的な衝突点を求める --*/
-
-	//hitPorygonの値が1以上だったら距離が最小の要素を検索
-	if (0 < hitDataContainer.size()) {
-
-		//距離が最小の要素を検索
-		int min = 0;
-		float minDistance = std::numeric_limits<float>().max();
-		for (auto& index : hitDataContainer) {
-			if (fabs(index.first.m_distance) < fabs(minDistance)) {
-				minDistance = index.first.m_distance;
-				min = static_cast<int>(&index - &hitDataContainer[0]);
-			}
-		}
-
-		//重心座標を求める。
-		KuroEngine::Vec3<float> bary = CalBary(hitDataContainer[min].second.m_p0.pos, hitDataContainer[min].second.m_p1.pos, hitDataContainer[min].second.m_p2.pos, hitDataContainer[min].first.m_pos);
-
-		KuroEngine::Vec3<float> baryBuff = bary;
-
-		//UVWの値がずれるので修正。
-		bary.x = baryBuff.y;
-		bary.y = baryBuff.z;
-		bary.z = baryBuff.x;
-
-		KuroEngine::Vec2<float> uv = KuroEngine::Vec2<float>();
-
-		//重心座標からUVを求める。
-		uv.x += hitDataContainer[min].second.m_p0.uv.x * bary.x;
-		uv.x += hitDataContainer[min].second.m_p1.uv.x * bary.y;
-		uv.x += hitDataContainer[min].second.m_p2.uv.x * bary.z;
-
-		uv.y += hitDataContainer[min].second.m_p0.uv.y * bary.x;
-		uv.y += hitDataContainer[min].second.m_p1.uv.y * bary.y;
-		uv.y += hitDataContainer[min].second.m_p2.uv.y * bary.z;
-
-		hitDataContainer[min].first.m_uv = uv;
-
-		return hitDataContainer[min].first;
-	}
-	else {
-
-		return MeshCollisionOutput();
-
-	}
-
-
-}
-
-KuroEngine::Vec3<float> PlayerCollision::CalBary(const KuroEngine::Vec3<float>& PosA, const KuroEngine::Vec3<float>& PosB, const KuroEngine::Vec3<float>& PosC, const KuroEngine::Vec3<float>& TargetPos)
-{
-
-	/*===== 重心座標を求める =====*/
-
-	KuroEngine::Vec3<float> uvw = KuroEngine::Vec3<float>();
-
-	// 三角形の面積を求める。
-	float areaABC = (PosC - PosA).Cross(PosB - PosA).Length() / 2.0f;
-
-	// 重心座標を求める。
-	uvw.x = ((PosA - TargetPos).Cross(PosB - TargetPos).Length() / 2.0f) / areaABC;
-	uvw.y = ((PosB - TargetPos).Cross(PosC - TargetPos).Length() / 2.0f) / areaABC;
-	uvw.z = ((PosC - TargetPos).Cross(PosA - TargetPos).Length() / 2.0f) / areaABC;
-
-	return uvw;
-
-}
-
 bool PlayerCollision::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroEngine::Vec3<float>& arg_rayCastPos, const KuroEngine::Vec3<float>& arg_rayDir, float arg_rayLength, CastRayArgument& arg_collisionData, RAY_ID arg_rayID, RAY_DIR_ID arg_rayDirID)
 {
 
 	/*===== 当たり判定用のレイを撃つ =====*/
 
 	//レイを飛ばす。
-	MeshCollisionOutput output = MeshCollision(arg_rayCastPos, arg_rayDir, arg_collisionData.m_mesh);
+	CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_rayCastPos, arg_rayDir, arg_collisionData.m_mesh);
 
 	//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 	if (output.m_isHit && std::fabs(output.m_distance) < arg_rayLength) {
@@ -1845,8 +831,8 @@ bool PlayerCollision::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroE
 			arg_collisionData.m_bottomTerrianNormal = m_refPlayer->m_transform.GetUp();
 
 			//衝突地点から上方向に位置をずらす。
-			const float CHECK_UNDERRAY_LENGTH = m_refPlayer->m_transform.GetScale().y * 2.0f;
-			output.m_pos += m_refPlayer->m_transform.GetUp() * CHECK_UNDERRAY_LENGTH;
+			const float m_checkUnderRayLength = m_refPlayer->m_transform.GetScale().y * 2.0f;
+			output.m_pos += m_refPlayer->m_transform.GetUp() * m_checkUnderRayLength;
 
 			//押し戻した位置に座標を設定。
 			arg_charaPos = output.m_pos - (output.m_normal * m_refPlayer->m_transform.GetScale().x * (m_refPlayer->WALL_JUMP_LENGTH - OFFSET));
@@ -2336,6 +1322,295 @@ void PlayerCollision::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp,
 
 		}
 
+	}
+
+}
+
+void PlayerCollision::CheckHitCliff_Under(KuroEngine::Vec3<float>& arg_newPos, const KuroEngine::Vec3<float>& arg_from, PlayerCollision::CastRayArgument& arg_castRayArgment, std::weak_ptr<Stage> arg_nowStage)
+{
+
+	//プレイヤーの回転を考慮しない、法線情報だけを見た場合のトランスフォーム。
+	KuroEngine::Transform localTrans;
+	localTrans.SetRotate(m_refPlayer->m_normalSpinQ);
+
+	//プレイヤーの回転を考慮しない回転行列からレイを飛ばす方向を取得する。
+	KuroEngine::Vec3<float> rightDir = localTrans.GetRight();
+	KuroEngine::Vec3<float> frontDir = localTrans.GetFront();
+
+	//右側の周囲のレイが当たっていなかったら。
+	if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::RIGHT)]) {
+
+		//下方向にレイを飛ばしてそこが崖かをチェックする。
+		KuroEngine::Vec3<float> rayPos = arg_newPos + rightDir * m_refPlayer->WALL_JUMP_LENGTH;
+		m_isHitCliff[static_cast<int>(RAY_DIR_ID::RIGHT)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), m_checkUnderRayLength, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
+
+	}
+
+	//右側の周囲のレイが当たっていなかったら。
+	if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::LEFT)]) {
+
+		//下方向にレイを飛ばしてそこが崖かをチェックする。
+		KuroEngine::Vec3<float> rayPos = arg_newPos - rightDir * m_refPlayer->WALL_JUMP_LENGTH;
+		m_isHitCliff[static_cast<int>(RAY_DIR_ID::LEFT)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), m_checkUnderRayLength, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
+
+	}
+
+	//右側の周囲のレイが当たっていなかったら。
+	if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::FRONT)]) {
+
+		//下方向にレイを飛ばしてそこが崖かをチェックする。
+		KuroEngine::Vec3<float> rayPos = arg_newPos + frontDir * m_refPlayer->WALL_JUMP_LENGTH;
+		m_isHitCliff[static_cast<int>(RAY_DIR_ID::FRONT)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), m_checkUnderRayLength, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
+
+	}
+
+	//右側の周囲のレイが当たっていなかったら。
+	if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::BEHIND)]) {
+
+		//下方向にレイを飛ばしてそこが崖かをチェックする。
+		KuroEngine::Vec3<float> rayPos = arg_newPos - frontDir * m_refPlayer->WALL_JUMP_LENGTH;
+		m_isHitCliff[static_cast<int>(RAY_DIR_ID::BEHIND)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), m_checkUnderRayLength, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
+
+	}
+
+}
+
+void PlayerCollision::CheckHitCliff_SearchImpactPoint(KuroEngine::Vec3<float>& arg_newPos, const KuroEngine::Vec3<float>& arg_from, PlayerCollision::CastRayArgument& arg_castRayArgment, std::weak_ptr<Stage> arg_nowStage)
+{
+
+	//プレイヤーの回転を考慮しない、法線情報だけを見た場合のトランスフォーム。
+	KuroEngine::Transform localTrans;
+	localTrans.SetRotate(m_refPlayer->m_normalSpinQ);
+
+	//プレイヤーの回転を考慮しない回転行列からレイを飛ばす方向を取得する。
+	KuroEngine::Vec3<float> rightDir = localTrans.GetRight();
+	KuroEngine::Vec3<float> frontDir = localTrans.GetFront();
+
+	//右側の周囲のレイが当たっていなかったら。
+	if (!m_isHitCliff[static_cast<int>(RAY_DIR_ID::RIGHT)]) {
+
+		KuroEngine::Vec3<float> rayPos = arg_newPos + rightDir * m_refPlayer->WALL_JUMP_LENGTH;
+		if (CastRay(m_impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * m_checkUnderRayLength, -rightDir, m_checkCliffRayLength, arg_castRayArgment, RAY_ID::CLIFF)) {
+			m_impactPoint[static_cast<int>(RAY_DIR_ID::RIGHT)].emplace_back(m_impactPointBuff);
+		}
+
+	}
+
+	//右側の周囲のレイが当たっていなかったら。
+	if (!m_isHitCliff[static_cast<int>(RAY_DIR_ID::LEFT)]) {
+
+		KuroEngine::Vec3<float> rayPos = arg_newPos - rightDir * m_refPlayer->WALL_JUMP_LENGTH;
+		if (CastRay(m_impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * m_checkUnderRayLength, rightDir, m_checkCliffRayLength, arg_castRayArgment, RAY_ID::CLIFF)) {
+			m_impactPoint[static_cast<int>(RAY_DIR_ID::LEFT)].emplace_back(m_impactPointBuff);
+		}
+
+	}
+
+
+	//右側の周囲のレイが当たっていなかったら。
+	if (!m_isHitCliff[static_cast<int>(RAY_DIR_ID::FRONT)]) {
+
+		KuroEngine::Vec3<float> rayPos = arg_newPos + frontDir * m_refPlayer->WALL_JUMP_LENGTH;
+		if (CastRay(m_impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * m_checkUnderRayLength, -frontDir, m_checkCliffRayLength, arg_castRayArgment, RAY_ID::CLIFF)) {
+			m_impactPoint[static_cast<int>(RAY_DIR_ID::FRONT)].emplace_back(m_impactPointBuff);
+		}
+
+	}
+
+	//右側の周囲のレイが当たっていなかったら。
+	if (!m_isHitCliff[static_cast<int>(RAY_DIR_ID::BEHIND)]) {
+
+		KuroEngine::Vec3<float> rayPos = arg_newPos - frontDir * m_refPlayer->WALL_JUMP_LENGTH;
+		if (CastRay(m_impactPointBuff, rayPos - m_refPlayer->m_transform.GetUp() * m_checkUnderRayLength, frontDir, m_checkCliffRayLength, arg_castRayArgment, RAY_ID::CLIFF)) {
+			m_impactPoint[static_cast<int>(RAY_DIR_ID::BEHIND)].emplace_back(m_impactPointBuff);
+		}
+
+	}
+
+}
+
+void PlayerCollision::CheckHitDeath_Around(KuroEngine::Vec3<float>& arg_newPos, const KuroEngine::Vec3<float>& arg_from, PlayerCollision::CastRayArgument& arg_castRayArgment, std::weak_ptr<Stage> arg_nowStage)
+{
+
+	const float DEATH_LENGTH = 1.0f;
+
+	//右方向にレイを飛ばす。
+	CastRay(arg_newPos, arg_newPos, m_refPlayer->m_transform.GetRight(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::RIGHT);
+
+	//左方向にレイを飛ばす。
+	CastRay(arg_newPos, arg_newPos, -m_refPlayer->m_transform.GetRight(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::LEFT);
+
+	//後ろ方向にレイを飛ばす。
+	CastRay(arg_newPos, arg_newPos, -m_refPlayer->m_transform.GetFront(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::BEHIND);
+
+	//正面方向にレイを飛ばす。
+	CastRay(arg_newPos, arg_newPos, m_refPlayer->m_transform.GetFront(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::FRONT);
+
+	//上方向にレイを飛ばす。
+	CastRay(arg_newPos, arg_newPos, m_refPlayer->m_transform.GetUp(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::TOP);
+
+	//下方向にレイを飛ばす。
+	CastRay(arg_newPos, arg_newPos, -m_refPlayer->m_transform.GetUp(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::BOTTOM);
+
+}
+
+void PlayerCollision::CheckHitAround_Around(KuroEngine::Vec3<float>& arg_newPos, const KuroEngine::Vec3<float>& arg_from, PlayerCollision::CastRayArgument& arg_castRayArgment, std::weak_ptr<Stage> arg_nowStage)
+{
+
+	//プレイヤーの回転を考慮しない、法線情報だけを見た場合のトランスフォーム。
+	KuroEngine::Transform localTrans;
+	localTrans.SetRotate(m_refPlayer->m_normalSpinQ);
+
+	//プレイヤーの回転を考慮しない回転行列からレイを飛ばす方向を取得する。
+	KuroEngine::Vec3<float> rightDir = localTrans.GetRight();
+	KuroEngine::Vec3<float> frontDir = localTrans.GetFront();
+
+	//右方向にレイを飛ばす。これは壁にくっつく用。
+	arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::RIGHT)] |= CastRay(arg_newPos, arg_from, rightDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
+
+	//左方向にレイを飛ばす。これは壁にくっつく用。
+	arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::LEFT)] |= CastRay(arg_newPos, arg_from, -rightDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
+
+	//後ろ方向にレイを飛ばす。これは壁にくっつく用。
+	arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::BEHIND)] |= CastRay(arg_newPos, arg_from, -frontDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
+
+	//正面方向にレイを飛ばす。これは壁にくっつく用。
+	arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::FRONT)] |= CastRay(arg_newPos, arg_from, frontDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
+
+}
+
+template<typename Func>
+inline void PlayerCollision::CheckHitAllObject(Func arg_func, KuroEngine::Vec3<float>& arg_newPos, const KuroEngine::Vec3<float>& arg_from, PlayerCollision::CastRayArgument& arg_castRayArgment, std::weak_ptr<Stage> arg_nowStage)
+{
+	//地形配列走査
+	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
+	{
+		//モデル情報取得
+		auto model = terrian.GetModel().lock();
+		//情報を取得。
+		arg_castRayArgment.m_stageType = StageParts::TERRIAN;
+
+		//メッシュを走査
+		for (auto& modelMesh : model->m_meshes)
+		{
+			//メッシュ情報取得
+			auto& mesh = modelMesh.mesh;
+
+			//CastRayに渡す引数を更新。
+			arg_castRayArgment.m_mesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+
+			//判定↓============================================
+
+			//当たり判定を実行
+			(this->*arg_func)(arg_newPos, arg_from, arg_castRayArgment, arg_nowStage);
+
+			//=================================================
+		}
+	}
+
+	//動く足場との当たり判定
+	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
+	{
+		//動く足場でない
+		if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)continue;
+
+		//動く足場としてキャスト
+		auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
+
+		//モデル情報取得
+		auto model = terrian->GetModel();
+		//情報を取得。
+		arg_castRayArgment.m_stageType = terrian->GetType();
+		//ステージ情報を保存。
+		arg_castRayArgment.m_stage = terrian;
+
+		//メッシュを走査
+		for (auto& modelMesh : model.lock()->m_meshes)
+		{
+			//メッシュ情報取得
+			auto& mesh = modelMesh.mesh;
+
+			//CastRayに渡す引数を更新。
+			arg_castRayArgment.m_mesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+
+			//判定↓============================================
+
+			//当たり判定を実行
+			(this->*arg_func)(arg_newPos, arg_from, arg_castRayArgment, arg_nowStage);
+
+			//=================================================
+		}
+	}
+
+	//蔦ブロックとの当たり判定
+	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
+	{
+		//動く足場でない
+		if (terrian->GetType() != StageParts::IVY_BLOCK)continue;
+
+		//動く足場としてキャスト
+		auto ivyBlock = dynamic_pointer_cast<IvyBlock>(terrian);
+
+		//出現状態じゃなかったら処理を飛ばす。
+		if (!ivyBlock->GetIsAppear()) continue;
+
+		//モデル情報取得
+		auto model = terrian->GetModel();
+		//情報を取得。
+		arg_castRayArgment.m_stageType = terrian->GetType();
+		//ステージ情報を保存。
+		arg_castRayArgment.m_stage = terrian;
+
+		//メッシュを走査
+		for (auto& modelMesh : model.lock()->m_meshes)
+		{
+			//メッシュ情報取得
+			auto& mesh = modelMesh.mesh;
+
+			//CastRayに渡す引数を更新。
+			arg_castRayArgment.m_mesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+
+			//判定↓============================================
+
+			//当たり判定を実行
+			(this->*arg_func)(arg_newPos, arg_from, arg_castRayArgment, arg_nowStage);
+
+			//=================================================
+		}
+	}
+
+	//動けない壁との当たり判定
+	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
+	{
+		//動く足場でない
+		if (terrian->GetType() != StageParts::APPEARANCE)continue;
+
+		//動く足場としてキャスト
+		auto ivyBlock = dynamic_pointer_cast<Appearance>(terrian);
+
+		//モデル情報取得
+		auto model = terrian->GetModel();
+		//情報を取得。
+		arg_castRayArgment.m_stageType = terrian->GetType();
+		//ステージ情報を保存。
+		arg_castRayArgment.m_stage = terrian;
+
+		//メッシュを走査
+		for (auto& modelMesh : model.lock()->m_meshes)
+		{
+			//メッシュ情報取得
+			auto& mesh = modelMesh.mesh;
+
+			//CastRayに渡す引数を更新。
+			arg_castRayArgment.m_mesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+
+			//判定↓============================================
+
+			//当たり判定を実行
+			(this->*arg_func)(arg_newPos, arg_from, arg_castRayArgment, arg_nowStage);
+
+			//=================================================
+		}
 	}
 
 }

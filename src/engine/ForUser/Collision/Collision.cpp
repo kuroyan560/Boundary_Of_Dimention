@@ -142,7 +142,7 @@ void KuroEngine::CollisionSphere::DebugDraw(const bool& Hit,Camera& Cam, const M
 	}
 
 	ConstData constData;
-	constData.m_parent = XMMatrixScaling(m_radius, m_radius, m_radius) * XMMatrixTranslation(m_offset.x, m_offset.y, m_offset.z) * arg_parentMat;
+	constData.m_parent = XMMatrixScaling(m_hitBoxRadius, m_hitBoxRadius, m_hitBoxRadius) * XMMatrixTranslation(m_offset.x, m_offset.y, m_offset.z) * arg_parentMat;
 	constData.m_hit = Hit;
 	m_constBuff->Mapping(&constData);
 
@@ -167,7 +167,7 @@ bool KuroEngine::CollisionSphere::HitCheck(const Matrix& arg_myMat, const Matrix
 
 	// íÜêSì_ÇÃãóó£ÇÃÇQèÊ <= îºåaÇÃòaÇÃÇQèÊÇ»ÇÁåç∑
 	const float distSq = centerA.DistanceSq(centerB);
-	const float radius2 = pow(this->m_radius + arg_other->m_radius, 2.0f);
+	const float radius2 = pow(this->m_hitBoxRadius + arg_other->m_hitBoxRadius, 2.0f);
 
 	if (distSq <= radius2)
 	{
@@ -191,7 +191,7 @@ bool KuroEngine::CollisionSphere::HitCheck(const Matrix& arg_myMat, const Matrix
 	// ïΩñ ÇÃå¥ì_ãóó£Çå∏éZÇ∑ÇÈÇ±Ç∆Ç≈ÅAïΩñ Ç∆ãÖÇÃíÜêSÇ∆ÇÃãóó£Ç™èoÇÈ
 	float dist = XMVector3Dot(center, arg_other->m_normal).m128_f32[0] - arg_other->m_distance;
 	// ãóó£ÇÃê‚ëŒílÇ™îºåaÇÊÇËëÂÇ´ÇØÇÍÇŒìñÇΩÇ¡ÇƒÇ¢Ç»Ç¢
-	if (fabsf(dist) > this->m_radius)	return false;
+	if (fabsf(dist) > this->m_hitBoxRadius)	return false;
 
 	// ã[éóåì_ÇåvéZ
 	if (arg_info)
@@ -208,7 +208,7 @@ bool KuroEngine::CollisionSphere::HitCheck(const Matrix& arg_myMat, const Matrix
 	auto lineStart = arg_other->GetStartWorldPos(arg_otherMat);
 	XMVECTOR m = lineStart - this->GetCenter(arg_myMat);
 	float b = XMVector3Dot(m, arg_other->m_dir).m128_f32[0];
-	float c = XMVector3Dot(m, m).m128_f32[0] - static_cast<float>(pow(this->m_radius, 2));
+	float c = XMVector3Dot(m, m).m128_f32[0] - static_cast<float>(pow(this->m_hitBoxRadius, 2));
 	// layÇÃénì_Ç™sphereÇÃäOë§Ç…Ç†ÇË(c > 0)ÅAlayÇ™sphereÇ©ÇÁó£ÇÍÇƒÇ¢Ç≠ï˚å¸Ç
 	// ç∑ÇµÇƒÇ¢ÇÈèÍçá(b > 0)ÅAìñÇΩÇÁÇ»Ç¢
 	if (c > 0.0f && b > 0.0f) {
@@ -266,7 +266,7 @@ bool KuroEngine::CollisionSphere::HitCheck(const Matrix& arg_myMat, const Matrix
 	if (spCenter.z < ptMin.z)distSq += static_cast<float>(pow((spCenter.z - ptMin.z), 2));
 	if (ptMax.z < spCenter.z)distSq += static_cast<float>(pow((spCenter.z - ptMax.z), 2));
 
-	if (distSq <= pow(this->m_radius, 2))
+	if (distSq <= pow(this->m_hitBoxRadius, 2))
 	{
 		if (arg_info)
 		{
@@ -348,7 +348,7 @@ bool KuroEngine::CollisionSphere::HitCheck(const Matrix& arg_myMat, const Matrix
 		Vec3<float>v = closest - spCenter;
 		float distSq = v.Dot(v);
 
-		if (pow(this->m_radius, 2.0f) < distSq)continue;
+		if (pow(this->m_hitBoxRadius, 2.0f) < distSq)continue;
 
 		if (arg_info)
 		{

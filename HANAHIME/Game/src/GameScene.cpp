@@ -13,6 +13,8 @@
 #include"Plant/GrowPlantLight.h"
 #include"TimeScaleMgr.h"
 
+#include"FrameWork/Importer.h"
+
 GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_1flameStopTimer(30), m_goal(m_particleRender.GetStackBuffer())
 {
 	m_ddsTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.dds");
@@ -47,6 +49,37 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 	//音声の読み込み
 	SoundConfig::Instance();
 	CameraData::Instance()->RegistCameraData("");
+
+
+	std::vector<KuroEngine::Vec3<float>>posArray;
+
+	KuroEngine::Transform init;
+	init.SetPos({ 0.0f,10.0f,0.0f });
+	posArray.emplace_back(KuroEngine::Vec3<float>( 10.0f,5.0f, 10.0f));
+	posArray.emplace_back(KuroEngine::Vec3<float>(-55.0f,5.0f, 10.0f));
+	posArray.emplace_back(KuroEngine::Vec3<float>(-55.0f,5.0f,-55.0f));
+	posArray.emplace_back(KuroEngine::Vec3<float>(10.0f,5.0f, -55.0f));
+
+	m_enemyModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Enemy.glb");
+
+
+	miniBug = std::make_unique<MiniBug>
+		(
+			m_enemyModel,
+			init,
+			nullptr,
+			posArray
+			);
+
+
+	init.SetPos({ -50.0f,5.0f,-50.0f });
+	dossun = std::make_unique<DossunRing>
+		(
+			m_enemyModel,
+			init,
+			nullptr,
+			DossunRing::NORMAL
+		);
 }
 
 
@@ -137,7 +170,7 @@ void GameScene::OnUpdate()
 
 
 
-	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrassPosScatter(), m_waterPaintBlend);
+	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrowPlantLight().m_influenceRange, StageManager::Instance()->GetNowStage(), m_player.GetIsAttack());
 
 	//ホームでの処理----------------------------------------
 	if (!m_title.IsFinish() && !m_title.IsStartOP())
@@ -222,6 +255,9 @@ void GameScene::OnUpdate()
 
 	m_stageSelect.Update();
 
+	miniBug->Update(m_player);
+	dossun->Update(m_player);
+
 
 	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld(), *m_nowCam);
 
@@ -252,7 +288,7 @@ void GameScene::OnDraw()
 	if (m_title.IsFinish() || m_title.IsStartOP())
 	{
 		m_player.Draw(*m_nowCam, m_ligMgr, DebugController::Instance()->IsActive());
-		m_grass.Draw(*m_nowCam, m_ligMgr);
+		m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
 	}
 
 	//ステージ描画
@@ -261,10 +297,6 @@ void GameScene::OnDraw()
 	m_stageSelect.Draw(*m_nowCam, m_ligMgr);
 
 	//m_movieCamera.DebugDraw(*m_nowCam, m_ligMgr);
-
-
-	//m_canvasPostEffect.Execute();
-	BasicDraw::Instance()->DrawEdge(m_nowCam->GetViewMat(), m_nowCam->GetProjectionMat());
 
 	//KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 	//m_waterPaintBlend.Register(main, *nowCamera, ds);
@@ -275,6 +307,10 @@ void GameScene::OnDraw()
 		m_particleRender.Draw(*m_nowCam);
 	}
 
+	miniBug->Draw(*m_nowCam, m_ligMgr);
+	dossun->Draw(*m_nowCam, m_ligMgr);
+
+
 	//tutorial.Draw(*m_nowCam);
 
 	if (m_title.IsFinish() || m_title.IsStartOP())
@@ -282,10 +318,20 @@ void GameScene::OnDraw()
 		m_goal.Draw(*m_nowCam);
 	}
 
+
+	miniBug->DebugDraw(*m_nowCam);
+	dossun->DebugDraw(*m_nowCam);
+
+
+	//m_canvasPostEffect.Execute();
+	BasicDraw::Instance()->DrawEdge(m_nowCam->GetViewMat(), m_nowCam->GetProjectionMat());
+
+
 	m_fogPostEffect->Register(
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN),
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::DEPTH),
-		BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT)
+		BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT), 
+		m_title.IsFinish() || m_title.IsStartOP()
 	);
 
 	m_vignettePostEffect.Register(m_fogPostEffect->GetResultTex());

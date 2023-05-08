@@ -11,7 +11,8 @@
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
-	"Terrian","Start","Goal","Appearance","MoveScaffold","Lever","Ivy","IvyBlock"
+	"Terrian","Start","Goal","Appearance","MoveScaffold","Lever","Ivy","IvyBlock",
+	"MiniBug","DossunRing",
 };
 
 const std::string& StageParts::GetTypeKeyOnJson(STAGE_PARTS_TYPE arg_type)
@@ -318,17 +319,18 @@ void MoveScaffold::Update(Player& arg_player)
 	}
 
 	//次の地点へ向かって動かす。
-	m_transform.SetPos(m_transform.GetPos() + m_moveDir * moveSpeed);
-	m_nowPos = m_transform.GetPos() + m_moveDir * moveSpeed;
+	m_moveAmount = m_moveDir * moveSpeed;
+	m_transform.SetPos(m_transform.GetPos() + m_moveAmount);
+	m_nowPos = m_transform.GetPos() + m_moveAmount;
 
 	//プレイヤーも動かす。
 	if (arg_player.GetOnGimmick()) {
-		arg_player.SetGimmickVel(m_moveDir * moveSpeed);
+		arg_player.SetGimmickVel(m_moveAmount);
 	}
 
 	//プレイヤーがジャンプ中だったら、ジャンプ地点も動かす。
 	if (arg_player.GetIsJump()) {
-		arg_player.SetJumpEndPos(arg_player.GetJumpEndPos() + m_moveDir * moveSpeed);
+		arg_player.SetJumpEndPos(arg_player.GetJumpEndPos() + m_moveAmount);
 	}
 
 	//いろいろと初期化して次向かう方向を決める。
@@ -742,5 +744,3 @@ void IvyBlock::Disappear()
 	m_easingTimer = 0;
 
 }
-
-
