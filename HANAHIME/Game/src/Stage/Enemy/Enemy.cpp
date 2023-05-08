@@ -19,7 +19,6 @@ void MiniBug::OnInit()
 
 void MiniBug::Update(Player &arg_player)
 {
-
 	//‹¤’Êˆ—
 	if (m_deadFlag)
 	{

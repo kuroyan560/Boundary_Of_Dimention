@@ -185,7 +185,7 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		//ƒpƒ‰ƒ[ƒ^‚ª‚È‚¢
 		if (!CheckJsonKeyExist(arg_fileName, arg_json, "Loop"))return;
 
-		bool isLoopFlag = arg_json["Loop"].get<bool>();
+		bool isLoopFlag = arg_json["Loop"].get<int>();
 		if (LoadTranslationArray(arg_fileName, &translationArray, obj))
 		{
 			m_enemyArray.emplace_back(std::make_shared<MiniBug>(model, transform, arg_parent, translationArray, isLoopFlag));
