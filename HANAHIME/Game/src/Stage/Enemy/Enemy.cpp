@@ -435,7 +435,7 @@ void DossunRing::Update(Player &arg_player)
 			m_attackFlag = false;
 		}
 
-		if (Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_hitBox))
+		if (Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_hitBox) && !arg_player.GetIsUnderGround())
 		{
 			arg_player.Damage();
 		}

@@ -116,7 +116,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "MiniBug",
@@ -140,7 +141,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "MiniBug",
@@ -164,7 +166,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "MiniBug",
@@ -188,7 +191,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "MiniBug",
@@ -212,7 +216,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "MiniBug",
@@ -236,7 +241,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "MiniBug",
@@ -260,7 +266,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "SplatoonFence",
@@ -427,7 +434,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "MiniBug",
@@ -451,7 +459,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "MiniBug",
@@ -475,7 +484,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "MiniBug",
@@ -499,7 +509,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "MiniBug",
@@ -523,7 +534,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "MiniBug",
@@ -547,7 +559,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "MiniBug",
@@ -571,7 +584,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             }
         ]
     }

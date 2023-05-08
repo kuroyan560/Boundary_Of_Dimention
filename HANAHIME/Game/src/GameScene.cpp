@@ -55,10 +55,10 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 
 	KuroEngine::Transform init;
 	init.SetPos({ 0.0f,10.0f,0.0f });
-	posArray.emplace_back(KuroEngine::Vec3<float>( 10.0f,5.0f, 10.0f));
-	posArray.emplace_back(KuroEngine::Vec3<float>(-55.0f,5.0f, 10.0f));
-	posArray.emplace_back(KuroEngine::Vec3<float>(-55.0f,5.0f,-55.0f));
-	posArray.emplace_back(KuroEngine::Vec3<float>(10.0f,5.0f, -55.0f));
+	posArray.emplace_back(KuroEngine::Vec3<float>(10.0f, 5.0f, 10.0f));
+	posArray.emplace_back(KuroEngine::Vec3<float>(-55.0f, 5.0f, 10.0f));
+	posArray.emplace_back(KuroEngine::Vec3<float>(-55.0f, 5.0f, -55.0f));
+	posArray.emplace_back(KuroEngine::Vec3<float>(10.0f, 5.0f, -55.0f));
 
 	m_enemyModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Enemy.glb");
 
@@ -74,6 +74,15 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 
 	init.SetPos({ -50.0f,5.0f,-50.0f });
 	dossun = std::make_unique<DossunRing>
+		(
+			m_enemyModel,
+			init,
+			nullptr,
+			ENEMY_ATTACK_PATTERN_NORMAL
+			);
+
+	init.SetPos({ -25.0f,5.0f,-50.0f });
+	alwaysDossun = std::make_unique<DossunRing>
 		(
 			m_enemyModel,
 			init,
@@ -257,6 +266,7 @@ void GameScene::OnUpdate()
 
 	miniBug->Update(m_player);
 	dossun->Update(m_player);
+	alwaysDossun->Update(m_player);
 
 
 	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld(), *m_nowCam);
@@ -309,6 +319,7 @@ void GameScene::OnDraw()
 
 	miniBug->Draw(*m_nowCam, m_ligMgr);
 	dossun->Draw(*m_nowCam, m_ligMgr);
+	alwaysDossun->Draw(*m_nowCam, m_ligMgr);
 
 
 	//tutorial.Draw(*m_nowCam);
@@ -321,6 +332,7 @@ void GameScene::OnDraw()
 
 	miniBug->DebugDraw(*m_nowCam);
 	dossun->DebugDraw(*m_nowCam);
+	alwaysDossun->DebugDraw(*m_nowCam);
 
 
 	//m_canvasPostEffect.Execute();
@@ -330,7 +342,7 @@ void GameScene::OnDraw()
 	m_fogPostEffect->Register(
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN),
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::DEPTH),
-		BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT), 
+		BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT),
 		m_title.IsFinish() || m_title.IsStartOP()
 	);
 
