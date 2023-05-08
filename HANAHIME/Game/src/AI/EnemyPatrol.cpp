@@ -20,8 +20,10 @@ PatrolBasedOnControlPoint::PatrolBasedOnControlPoint(std::vector<KuroEngine::Vec
 			float endRadian = KuroEngine::Angle::ConvertToRadian(static_cast<float>(angle * (i + 1)));
 			float radius = 15.0f;
 
-			KuroEngine::Vec3<float>startPos(posArray[0].x + cosf(startRadian) * radius, 0.0f, posArray[0].z + sinf(startRadian) * radius);
-			KuroEngine::Vec3<float>endPos(posArray[0].x + cosf(endRadian) * radius, 0.0f, posArray[0].z + sinf(endRadian) * radius);
+			KuroEngine::Vec3<float>startPos(posArray[0].x + cosf(startRadian) * radius, posArray[0].y, posArray[0].z + sinf(startRadian) * radius);
+			KuroEngine::Vec3<float>endPos(posArray[0].x + cosf(endRadian) * radius, posArray[0].y, posArray[0].z + sinf(endRadian) * radius);
+
+			m_posLimitArray.emplace_back(startPos);
 
 			m_limitPosArray[i].m_startPos = startPos;
 			m_limitPosArray[i].m_endPos = endPos;

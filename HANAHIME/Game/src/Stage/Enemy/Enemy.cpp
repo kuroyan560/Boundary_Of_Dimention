@@ -92,8 +92,8 @@ void MiniBug::Update(Player &arg_player)
 			//プレイヤーが違う法線の面にいたら見ないようにする。
 			if (m_transform.GetUp().Dot(arg_player.GetTransform().GetUpWorld()) <= 0.5f) break;
 
-			m_patrol.Init(m_limitIndex);
-			m_pos = m_patrol.GetLimitPos(m_limitIndex);
+			m_patrol->Init(m_limitIndex);
+			m_pos = m_patrol->GetLimitPos(m_limitIndex);
 
 			break;
 		case MiniBug::ATTACK:
@@ -149,7 +149,7 @@ void MiniBug::Update(Player &arg_player)
 		//プレイヤーが違う法線の面にいたら見ないようにする。
 		//if (m_transform.GetUp().Dot(arg_player.GetTransform().GetUpWorld()) <= 0.5f) break;
 
-		vel = m_patrol.Update(m_pos);
+		vel = m_patrol->Update(m_pos);
 		m_dir = vel;
 
 		{
@@ -286,6 +286,7 @@ void MiniBug::Update(Player &arg_player)
 
 	KuroEngine::Vec3<float>frontVec(0.0f, 0.0f, 1.0f);
 
+	m_dir.y = 0.0f;
 	KuroEngine::Vec3<float>axis = frontVec.Cross(m_dir);
 	float rptaVel = acosf(frontVec.Dot(m_dir));
 
@@ -341,7 +342,7 @@ void MiniBug::DebugDraw(KuroEngine::Camera &camera)
 	switch (m_nowStatus)
 	{
 	case MiniBug::SEARCH:
-		m_patrol.DebugDraw();
+		m_patrol->DebugDraw();
 		break;
 	case MiniBug::ATTACK:
 		break;

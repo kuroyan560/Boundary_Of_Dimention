@@ -47,8 +47,12 @@ public:
 	{
 		return m_limitPosArray[index].m_startPos;
 	};
-
 	void DebugDraw();
+
+	std::vector<KuroEngine::Vec3<float>>GetLimitPosArray()
+	{
+		return m_posLimitArray;
+	}
 
 private:
 
@@ -73,4 +77,5 @@ private:
 
 	float m_speed;
 
+	std::vector<KuroEngine::Vec3<float>>m_posLimitArray;
 };

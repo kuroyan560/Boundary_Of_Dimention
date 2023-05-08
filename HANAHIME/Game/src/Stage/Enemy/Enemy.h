@@ -16,7 +16,7 @@ class MiniBug :public StageParts
 {
 public:
 	MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts *arg_parent, std::vector<KuroEngine::Vec3<float>>posArray, bool loopFlag)
-		:StageParts(MINI_BUG, arg_model, arg_initTransform, arg_parent), m_patrol(posArray, 0, loopFlag) , m_deadTimer(120)
+		:StageParts(MINI_BUG, arg_model, arg_initTransform, arg_parent), m_deadTimer(120)
 	{
 		m_sightArea.Init(&m_transform);
 		track.Init(0.01f);
@@ -43,6 +43,17 @@ public:
 
 		m_hitBoxSize = 3.0f;
 
+		if (posArray.size() == 0 || posArray.size() == 1)
+		{
+			std::vector<KuroEngine::Vec3<float>>limitPosArray;
+			limitPosArray.emplace_back(m_transform.GetPos());
+			m_patrol = std::make_unique<PatrolBasedOnControlPoint>(limitPosArray, 0, loopFlag);
+			m_posArray = m_patrol->GetLimitPosArray();
+		}
+		else
+		{
+			m_patrol = std::make_unique<PatrolBasedOnControlPoint>(posArray, 0, loopFlag);
+		}
 	}
 
 	void OnInit()override;
@@ -69,7 +80,7 @@ private:
 	KuroEngine::Vec3<float>m_pos, m_prevPos;
 	float m_scale;
 	KuroEngine::Vec3<float>m_dir;
-	PatrolBasedOnControlPoint m_patrol;
+	std::unique_ptr<PatrolBasedOnControlPoint> m_patrol;
 	SightSearch m_sightArea;
 	int m_limitIndex;
 
