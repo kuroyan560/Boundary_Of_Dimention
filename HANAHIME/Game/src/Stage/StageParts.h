@@ -436,7 +436,14 @@ public:
 class SplatoonFence : public StageParts
 {
 public:
+	TerrianMeshCollider m_collider;
+public:
 	SplatoonFence(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent)
-		:StageParts(SPLATOON_FENCE, arg_model, arg_initTransform, arg_parent) {}
+		:StageParts(SPLATOON_FENCE, arg_model, arg_initTransform, arg_parent) {
+		m_transform = arg_initTransform;
+		m_collider.BuilCollisionMesh(arg_model, arg_initTransform);
+	}
 	void Update(Player& arg_player)override;
+
+	const std::vector<std::vector<TerrianHitPolygon>>& GetCollisionMesh()const { return m_collider.GetCollisionMesh(); }
 };
