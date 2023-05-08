@@ -7,7 +7,7 @@
 #include"Switch.h"
 #include<optional>
 
-std::string Stage::s_terrianModelDir = "resource/user/model/terrian/";
+std::string Stage::s_stageModelDir = "resource/user/model/stage/";
 
 bool Stage::CheckJsonKeyExist(std::string arg_fileName, nlohmann::json arg_json, std::string arg_key)
 {
@@ -70,7 +70,7 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	//種別
 	auto typeKey = obj["type"].get<std::string>();
 	//モデル設定
-	auto model = Importer::Instance()->LoadModel(s_terrianModelDir, obj["file_name"].get<std::string>() + ".glb");
+	auto model = Importer::Instance()->LoadModel(s_stageModelDir, obj["file_name"].get<std::string>() + ".glb");
 
 	//トランスフォーム取得
 	auto transformObj = obj["transform"];
@@ -134,8 +134,8 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		if (LoadTranslationArray(arg_fileName, &translationArray, obj))
 		{
 			m_gimmickArray.emplace_back(std::make_shared<MoveScaffold>(model, transform, arg_parent, translationArray));
+			newPart = m_gimmickArray.back().get();
 		}
-		newPart = m_gimmickArray.back().get();
 	}
 	//レバー
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::LEVER))
@@ -153,8 +153,8 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		if (LoadTranslationArray(arg_fileName, &translationArray, obj))
 		{
 			m_gimmickArray.emplace_back(std::make_shared<IvyZipLine>(model, transform, arg_parent, translationArray));
+			newPart = m_gimmickArray.back().get();
 		}
-		newPart = m_gimmickArray.back().get();
 	}
 	//蔓ブロック
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::IVY_BLOCK))
@@ -172,17 +172,37 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		m_gimmickArray.emplace_back(std::make_shared<IvyBlock>(model, transform, arg_parent, leftTopFront, rightBottomBack));
 		newPart = m_gimmickArray.back().get();
 	}
+	//スプラトゥーン風フェンス
+	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::SPLATOON_FENCE))
+	{
+		m_gimmickArray.emplace_back(std::make_shared<SplatoonFence>(model, transform, arg_parent));
+		newPart = m_gimmickArray.back().get();
+	}
 	//チビ虫
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::MINI_BUG))
 	{
-		//m_enemyArray.emplace_back(std::make_shared<MiniBug>(model, transform, arg_parent));
-		//newPart = m_enemyArray.back().get();
+		std::vector<KuroEngine::Vec3<float>>translationArray;
+		if (LoadTranslationArray(arg_fileName, &translationArray, obj))
+		{
+			m_enemyArray.emplace_back(std::make_shared<MiniBug>(model, transform, arg_parent, translationArray));
+			newPart = m_enemyArray.back().get();
+		}
 	}
 	//ドッスンリング
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::DOSSUN_RING))
 	{
-		//m_enemyArray.emplace_back(std::make_shared<DossunRing>(model, transform, arg_parent));
-		//newPart = m_enemyArray.back().get();
+		//パラメータがない
+		if (!CheckJsonKeyExist(arg_fileName, arg_json, "AttackPattern"))return;
+
+		ENEMY_ATTACK_PATTERN attackPattern;
+
+		auto patternName = arg_json["AttackPattern"].get<std::string>();
+		if (patternName.compare("NORMAL") == 0)attackPattern = ENEMY_ATTACK_PATTERN_NORMAL;
+		else if (patternName.compare("ALWAYS") == 0)attackPattern = ENEMY_ATTACK_PATTERN_ALWAYS;
+		else KuroEngine::AppearMessageBox("Stage : GetAttackPattern() 失敗", "知らない攻撃パターン名\"" + patternName + "\"が含まれているよ。");
+
+		m_enemyArray.emplace_back(std::make_shared<DossunRing>(model, transform, arg_parent, attackPattern));
+		newPart = m_enemyArray.back().get();
 	}
 	else
 	{

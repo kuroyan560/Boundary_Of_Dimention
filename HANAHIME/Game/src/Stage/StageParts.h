@@ -69,6 +69,7 @@ public:
 		LEVER,
 		IVY_ZIP_LINE,
 		IVY_BLOCK,
+		SPLATOON_FENCE,
 
 		//敵など静的オブジェクト
 		MINI_BUG,	//チビ虫
@@ -429,4 +430,13 @@ public:
 	float GetHitScaleMax() { return HIT_SCALE_MAX; }
 
 	const std::vector<std::vector<TerrianHitPolygon>>& GetCollisionMesh()const { return m_collider.GetCollisionMesh(); }
+};
+
+//スプラトゥーン風フェンス（くぐって通る）
+class SplatoonFence : public StageParts
+{
+public:
+	SplatoonFence(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent)
+		:StageParts(SPLATOON_FENCE, arg_model, arg_initTransform, arg_parent) {}
+	void Update(Player& arg_player)override;
 };
