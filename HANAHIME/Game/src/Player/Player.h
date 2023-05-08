@@ -114,6 +114,8 @@ class Player : public KuroEngine::Debugger
 	//潜る関連
 	bool m_isInputUnderGround;			//沈む際の入力がされているかを判断する用。
 	bool m_isUnderGround;				//地中の状態か否か
+	bool m_canUnderGroundRelease;		//潜る状態が解除できるか。潜っているときに上にフェンスがあると潜りが解除できない。
+	bool m_canOldUnderGroundRelease;	//潜る状態が解除できるか。潜っているときに上にフェンスがあると潜りが解除できない。
 	const float UNDERGROUND_Y = 6.5f;	//沈む量。
 	float m_underGroundEaseTimer;		//沈むときや浮上するときに使用するイージングのタイマー
 	const float ADD_UNDERGROUND_EASE_TIMER = 0.04f;

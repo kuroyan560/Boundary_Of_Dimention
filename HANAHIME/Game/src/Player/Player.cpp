@@ -190,6 +190,8 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_isDeath = false;
 	m_canZip = false;
 	m_isCameraInvX = false;
+	m_canUnderGroundRelease = true;
+	m_canOldUnderGroundRelease = true;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 
 	m_growPlantPtLig.Register();
@@ -270,7 +272,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			m_isInputUnderGround = UsersInput::Instance()->KeyInput(DIK_SPACE) || UsersInput::Instance()->ControllerInput(0, KuroEngine::A);
 
 			//沈むフラグが離されたトリガーだったら。
-			if (prevInInputUnderGround && !m_isInputUnderGround) {
+			if ((prevInInputUnderGround && !m_isInputUnderGround) || (!m_canOldUnderGroundRelease && m_canUnderGroundRelease)) {
 
 				//攻撃する。
 				m_attackTimer = ATTACK_TIMER;
@@ -278,7 +280,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 			//イージングが終わっている時のみ地中に潜ったり出たりする判定を持たせる。
 			bool isInputOnOff = UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->KeyOffTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A) || UsersInput::Instance()->ControllerOffTrigger(0, KuroEngine::A);
-			if (isInputOnOff || (!m_isUnderGround && m_isInputUnderGround) || (m_isUnderGround && !m_isInputUnderGround)) {
+			if ((isInputOnOff || (!m_isUnderGround && m_isInputUnderGround) || (m_isUnderGround && !m_isInputUnderGround) ) && m_canUnderGroundRelease) {
 				m_underGroundEaseTimer = 0;
 			}
 
@@ -459,7 +461,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_growPlantPtLig.Active();
 
 	//地中にいるときはライトを変える。
-	if (m_isInputUnderGround) {
+	if (m_isInputUnderGround || !m_canUnderGroundRelease) {
 		m_growPlantPtLig.m_influenceRange = std::clamp(m_growPlantPtLig.m_influenceRange - SUB_INFLUENCE_RANGE, MIN_INFLUENCE_RANGE, MAX_INFLUENCE_RANGE);
 	}
 	else {

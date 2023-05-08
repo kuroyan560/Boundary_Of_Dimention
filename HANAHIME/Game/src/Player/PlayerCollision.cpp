@@ -80,6 +80,51 @@ void PlayerCollision::CheckDeath(const KuroEngine::Vec3<float> arg_from, KuroEng
 void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo, PlayerCollision::CastRayArgument& arg_castRayArgment) {
 
 
+	//プレイヤーが沈んでいるときは、上方向にレイを飛ばして上に柵がないかをチェックする。
+	m_refPlayer->m_canOldUnderGroundRelease = m_refPlayer->m_canUnderGroundRelease;
+	m_refPlayer->m_canUnderGroundRelease = true;
+	//フェンスとの当たり判定
+	for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
+	{
+		//動く足場でない
+		if (terrian->GetType() != StageParts::SPLATOON_FENCE)continue;
+
+		//動く足場としてキャスト
+		auto ivyBlock = dynamic_pointer_cast<SplatoonFence>(terrian);
+
+		//モデル情報取得
+		auto model = terrian->GetModel();
+
+		//メッシュを走査
+		for (auto& modelMesh : model.lock()->m_meshes)
+		{
+
+			//CastRayに渡す引数を更新。
+			auto hitmesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+
+			//判定↓============================================
+
+			//当たり判定を実行
+			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_refPlayer->GetNowPos(), m_refPlayer->GetTransform().GetUp(), hitmesh);
+
+			if (output.m_isHit && fabs(output.m_distance) < m_refPlayer->GetTransform().GetScale().x * 2.0f) {
+
+				m_refPlayer->m_canUnderGroundRelease = false;
+
+				//プレイヤーが地中に潜っていなかったら鎮める。
+				//if (!m_refPlayer->GetIsUnderGround()) {
+					m_refPlayer->m_isUnderGround = true;
+					m_refPlayer->m_underGroundEaseTimer = 1.0f;
+				//}
+
+			}
+
+			//=================================================
+		}
+	}
+
+
+
 	//四方にレイを飛ばして押し戻し
 	CheckHitAllObject(&PlayerCollision::CheckHitAround_Around, arg_newPos, arg_from, arg_castRayArgment, arg_nowStage);
 
@@ -716,7 +761,6 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 			//下方向にレイを飛ばす。
 			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
 
-			//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
 
 				//壁に当たった時点で崖ではないので処理を飛ばす。
@@ -1260,7 +1304,7 @@ void PlayerCollision::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp,
 
 
 	//プレイヤーが上の面に移動した瞬間。
-	if (arg_nowUp.y  < -0.9f && fabs(arg_nextUp.y) <= 0.5f) {
+	if (arg_nowUp.y < -0.9f && fabs(arg_nextUp.y) <= 0.5f) {
 		if (m_refPlayer->m_isCameraInvX) {
 			m_refPlayer->m_isCameraInvX = false;
 		}
@@ -1347,7 +1391,7 @@ void PlayerCollision::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp,
 
 		}
 		//上の壁に移動したら
-		if (arg_nextUp.y  <= -0.9f) {
+		if (arg_nextUp.y <= -0.9f) {
 
 			m_refPlayer->m_cameraJumpLerpAmount -= DirectX::XM_PI;
 			m_refPlayer->m_isCameraInvX = true;
@@ -1507,6 +1551,9 @@ void PlayerCollision::CheckHitDeath_Around(KuroEngine::Vec3<float>& arg_newPos, 
 
 	const float DEATH_LENGTH = 1.0f;
 
+	//スプラフェンスは死亡判定を行わない。
+	if (arg_castRayArgment.m_stageType == StageParts::SPLATOON_FENCE) return;
+
 	//右方向にレイを飛ばす。
 	CastRay(arg_newPos, arg_newPos, m_refPlayer->m_transform.GetRight(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::RIGHT);
 
@@ -1522,7 +1569,6 @@ void PlayerCollision::CheckHitDeath_Around(KuroEngine::Vec3<float>& arg_newPos, 
 	//上方向にレイを飛ばす。
 	CastRay(arg_newPos, arg_newPos, m_refPlayer->m_transform.GetUp(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::TOP);
 
-	//下方向にレイを飛ばす。
 	CastRay(arg_newPos, arg_newPos, -m_refPlayer->m_transform.GetUp(), DEATH_LENGTH, arg_castRayArgment, RAY_ID::CHECK_DEATH, RAY_DIR_ID::BOTTOM);
 
 }
