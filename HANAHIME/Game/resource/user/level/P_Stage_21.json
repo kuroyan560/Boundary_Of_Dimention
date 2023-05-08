@@ -1,0 +1,925 @@
+{
+    "stage": {
+        "name": "scene",
+        "objects": [
+            {
+                "type": "Terrian",
+                "name": "Stage21_0",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        -7.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Stage21"
+            },
+            {
+                "type": "Start",
+                "name": "Start_21",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        6.5
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Start"
+            },
+            {
+                "type": "Goal",
+                "name": "Goal_21",
+                "transform": {
+                    "translation": [
+                        130.0,
+                        -10.5,
+                        67.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Goal"
+            },
+            {
+                "type": "Ivy_Zipline",
+                "name": "Ivy_1",
+                "transform": {
+                    "translation": [
+                        120.0,
+                        -80.0,
+                        45.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "IvyZipBlock",
+                "translationArray": {
+                    "translation_0": [
+                        120.0,
+                        -80.0,
+                        45.0
+                    ],
+                    "translation_1": [
+                        120.0,
+                        -80.0,
+                        -79.0
+                    ]
+                },
+                "Ivy_Tag": "Normal_Ivy"
+            },
+            {
+                "type": "Ivy_Zipline",
+                "name": "Ivy_3",
+                "transform": {
+                    "translation": [
+                        60.0,
+                        0.0,
+                        -19.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "IvyZipBlock",
+                "translationArray": {
+                    "translation_0": [
+                        60.0,
+                        0.0,
+                        65.0
+                    ],
+                    "translation_1": [
+                        60.0,
+                        0.0,
+                        -19.0
+                    ]
+                },
+                "Ivy_Tag": "Normal_Ivy"
+            },
+            {
+                "type": "Ivy_Zipline",
+                "name": "Ivy_4",
+                "transform": {
+                    "translation": [
+                        60.0,
+                        0.0,
+                        65.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "IvyZipBlock",
+                "translationArray": {
+                    "translation_0": [
+                        60.0,
+                        0.0,
+                        65.0
+                    ],
+                    "translation_1": [
+                        60.0,
+                        0.0,
+                        -19.0
+                    ]
+                },
+                "Ivy_Tag": "Normal_Ivy"
+            },
+            {
+                "type": "Ivy_Zipline",
+                "name": "Ivy_2",
+                "transform": {
+                    "translation": [
+                        120.0,
+                        -80.0,
+                        -79.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "IvyZipBlock",
+                "translationArray": {
+                    "translation_0": [
+                        120.0,
+                        -80.0,
+                        45.0
+                    ],
+                    "translation_1": [
+                        120.0,
+                        -80.0,
+                        -79.0
+                    ]
+                },
+                "Ivy_Tag": "Normal_Ivy"
+            },
+            {
+                "type": "Fence",
+                "name": "Fence_0",
+                "transform": {
+                    "translation": [
+                        11.300000190734863,
+                        -30.0,
+                        4.300000190734863
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                },
+                "file_name": "Fence1"
+            },
+            {
+                "type": "Fence",
+                "name": "Fence_1",
+                "transform": {
+                    "translation": [
+                        91.30000305175781,
+                        -50.70309829711914,
+                        44.29999923706055
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                },
+                "file_name": "Fence2"
+            },
+            {
+                "type": "Fence",
+                "name": "Fence_2",
+                "transform": {
+                    "translation": [
+                        71.30000305175781,
+                        -90.70309448242188,
+                        -95.69999694824219
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                },
+                "file_name": "Fence2"
+            },
+            {
+                "type": "MoveScaffold",
+                "name": "MoveScaffoldStage21_0",
+                "transform": {
+                    "translation": [
+                        140.0,
+                        -50.0,
+                        -27.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        20.0,
+                        10.0
+                    ]
+                },
+                "file_name": "MoveScaffoldStages21",
+                "translationArray": {
+                    "translation_0": [
+                        140.0,
+                        -50.0,
+                        -27.0
+                    ],
+                    "translation_1": [
+                        180.0,
+                        -50.0,
+                        -27.0
+                    ]
+                }
+            },
+            {
+                "type": "Ivy_Zipline",
+                "name": "Ivy_5",
+                "transform": {
+                    "translation": [
+                        210.0,
+                        -50.0,
+                        -39.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "IvyZipBlock",
+                "translationArray": {
+                    "translation_0": [
+                        210.0,
+                        -50.0,
+                        -39.0
+                    ],
+                    "translation_1": [
+                        210.0,
+                        -50.0,
+                        -15.0
+                    ]
+                },
+                "Ivy_Tag": "Normal_Ivy"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_1",
+                "transform": {
+                    "translation": [
+                        30.0,
+                        -71.0,
+                        5.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_2",
+                "transform": {
+                    "translation": [
+                        29.0,
+                        -113.0,
+                        -54.0
+                    ],
+                    "rotation": [
+                        0.7071068286895752,
+                        0.0,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_3",
+                "transform": {
+                    "translation": [
+                        81.70435333251953,
+                        -113.0,
+                        -70.49839782714844
+                    ],
+                    "rotation": [
+                        0.5,
+                        -0.5,
+                        0.5,
+                        0.5
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_4",
+                "transform": {
+                    "translation": [
+                        81.55352783203125,
+                        -113.0,
+                        -83.80542755126953
+                    ],
+                    "rotation": [
+                        0.5,
+                        -0.5,
+                        0.5,
+                        0.5
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_5",
+                "transform": {
+                    "translation": [
+                        97.55352783203125,
+                        -113.0,
+                        -76.80542755126953
+                    ],
+                    "rotation": [
+                        0.5,
+                        -0.5,
+                        0.5,
+                        0.5
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_6",
+                "transform": {
+                    "translation": [
+                        90.55352783203125,
+                        -113.0,
+                        -17.80542755126953
+                    ],
+                    "rotation": [
+                        0.5,
+                        0.5,
+                        -0.5,
+                        0.5
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_7",
+                "transform": {
+                    "translation": [
+                        72.55352783203125,
+                        -120.0,
+                        13.194572448730469
+                    ],
+                    "rotation": [
+                        -0.7071068286895752,
+                        0.0,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug"
+            },
+            {
+                "type": "Ivy_Zipline",
+                "name": "Ivy_6",
+                "transform": {
+                    "translation": [
+                        210.0,
+                        -50.0,
+                        -15.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "IvyZipBlock",
+                "translationArray": {
+                    "translation_0": [
+                        210.0,
+                        -50.0,
+                        -39.0
+                    ],
+                    "translation_1": [
+                        210.0,
+                        -50.0,
+                        -15.0
+                    ]
+                },
+                "Ivy_Tag": "Normal_Ivy"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_8",
+                "transform": {
+                    "translation": [
+                        60.55352783203125,
+                        -120.0,
+                        25.19457244873047
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        2.5,
+                        2.5,
+                        2.5
+                    ]
+                },
+                "file_name": "MiniBug"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_9",
+                "transform": {
+                    "translation": [
+                        60.0,
+                        -40.0,
+                        25.0
+                    ],
+                    "rotation": [
+                        -0.0,
+                        -0.0,
+                        -1.0,
+                        4.371138828673793e-08
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug"
+            },
+            {
+                "type": "Fence",
+                "name": "Fence_3",
+                "transform": {
+                    "translation": [
+                        52.29999923706055,
+                        -110.0,
+                        -57.69999694824219
+                    ],
+                    "rotation": [
+                        0.5,
+                        0.5,
+                        -0.5,
+                        0.5
+                    ],
+                    "scaling": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                },
+                "file_name": "Fence1"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_10",
+                "transform": {
+                    "translation": [
+                        120.0,
+                        -40.0,
+                        45.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug"
+            },
+            {
+                "type": "DossunRing",
+                "name": "DossunRing_0",
+                "transform": {
+                    "translation": [
+                        49.998451232910156,
+                        -70.43495178222656,
+                        -77.54464721679688
+                    ],
+                    "rotation": [
+                        -0.0,
+                        -1.0,
+                        -0.0,
+                        4.371138828673793e-08
+                    ],
+                    "scaling": [
+                        3.0,
+                        3.0,
+                        1.0
+                    ]
+                },
+                "file_name": "DossunRing"
+            },
+            {
+                "type": "DossunRing",
+                "name": "DossunRing_1",
+                "transform": {
+                    "translation": [
+                        89.99845123291016,
+                        -69.43495178222656,
+                        -57.544647216796875
+                    ],
+                    "rotation": [
+                        -3.090862321641907e-08,
+                        -0.7071068286895752,
+                        -0.7071068286895752,
+                        3.090862321641907e-08
+                    ],
+                    "scaling": [
+                        3.0,
+                        3.0,
+                        1.0
+                    ]
+                },
+                "file_name": "DossunRing"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_11",
+                "transform": {
+                    "translation": [
+                        100.0,
+                        -41.0,
+                        -38.0
+                    ],
+                    "rotation": [
+                        0.7071068286895752,
+                        -0.7071068286895752,
+                        3.090862321641907e-08,
+                        3.090862321641907e-08
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_12",
+                "transform": {
+                    "translation": [
+                        100.0,
+                        -58.0,
+                        -38.0
+                    ],
+                    "rotation": [
+                        0.7071068286895752,
+                        -0.7071068286895752,
+                        3.090862321641907e-08,
+                        3.090862321641907e-08
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_13",
+                "transform": {
+                    "translation": [
+                        132.0,
+                        -80.0,
+                        -7.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.7071068286895752,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug"
+            },
+            {
+                "type": "DossunRing",
+                "name": "DossunRing_2",
+                "transform": {
+                    "translation": [
+                        130.38189697265625,
+                        -49.43964385986328,
+                        23.449142456054688
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.7071068286895752,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        3.0,
+                        3.0,
+                        1.0
+                    ]
+                },
+                "file_name": "DossunRing"
+            },
+            {
+                "type": "DossunRing",
+                "name": "DossunRing_3",
+                "transform": {
+                    "translation": [
+                        130.38189697265625,
+                        -89.43964385986328,
+                        -36.55085754394531
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.7071068286895752,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        3.0,
+                        3.0,
+                        1.0
+                    ]
+                },
+                "file_name": "DossunRing"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_14",
+                "transform": {
+                    "translation": [
+                        132.0,
+                        -49.0,
+                        -67.0
+                    ],
+                    "rotation": [
+                        -0.7071068286895752,
+                        -3.090862321641907e-08,
+                        -0.7071068286895752,
+                        3.090862321641907e-08
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_15",
+                "transform": {
+                    "translation": [
+                        132.0,
+                        -1.6835048198699951,
+                        -45.31559753417969
+                    ],
+                    "rotation": [
+                        -0.5000000596046448,
+                        0.4999999701976776,
+                        -0.5,
+                        0.5
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_16",
+                "transform": {
+                    "translation": [
+                        132.0,
+                        -17.683504104614258,
+                        -45.31559753417969
+                    ],
+                    "rotation": [
+                        -0.5000000596046448,
+                        0.4999999701976776,
+                        -0.5,
+                        0.5
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_17",
+                "transform": {
+                    "translation": [
+                        132.0,
+                        -9.683504104614258,
+                        -31.315597534179688
+                    ],
+                    "rotation": [
+                        -0.5000000596046448,
+                        0.4999999701976776,
+                        -0.5,
+                        0.5
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_18",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        -20.0
+                    ],
+                    "rotation": [
+                        -0.7071068286895752,
+                        -0.7071068286895752,
+                        -3.090862676913275e-08,
+                        3.090862321641907e-08
+                    ],
+                    "scaling": [
+                        2.5,
+                        2.5,
+                        2.5
+                    ]
+                },
+                "file_name": "MiniBug"
+            }
+        ]
+    }
+}
