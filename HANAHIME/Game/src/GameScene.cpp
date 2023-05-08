@@ -60,7 +60,7 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 	posArray.emplace_back(KuroEngine::Vec3<float>(-55.0f,5.0f,-55.0f));
 	posArray.emplace_back(KuroEngine::Vec3<float>(10.0f,5.0f, -55.0f));
 
-	m_enemyModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Player.glb");
+	m_enemyModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Enemy.glb");
 
 
 	miniBug = std::make_unique<MiniBug>
