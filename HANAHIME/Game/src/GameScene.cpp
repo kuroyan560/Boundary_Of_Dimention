@@ -56,9 +56,9 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 	KuroEngine::Transform init;
 	init.SetPos({ 0.0f,10.0f,0.0f });
 	posArray.emplace_back(KuroEngine::Vec3<float>( 10.0f,5.0f, 10.0f));
-	posArray.emplace_back(KuroEngine::Vec3<float>(-55.0f,5.0f, 10.0f));
-	posArray.emplace_back(KuroEngine::Vec3<float>(-55.0f,5.0f,-55.0f));
-	posArray.emplace_back(KuroEngine::Vec3<float>(10.0f,5.0f, -55.0f));
+	//posArray.emplace_back(KuroEngine::Vec3<float>(-55.0f,5.0f, 10.0f));
+	//posArray.emplace_back(KuroEngine::Vec3<float>(-55.0f,5.0f,-55.0f));
+	//posArray.emplace_back(KuroEngine::Vec3<float>(10.0f,5.0f, -55.0f));
 
 	m_enemyModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Enemy.glb");
 
@@ -68,7 +68,8 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 			m_enemyModel,
 			init,
 			nullptr,
-			posArray
+			posArray,
+			false
 			);
 
 

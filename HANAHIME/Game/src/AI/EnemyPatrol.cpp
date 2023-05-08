@@ -1,11 +1,36 @@
 #include"EnemyPatrol.h"
 
-PatrolBasedOnControlPoint::PatrolBasedOnControlPoint(std::vector<KuroEngine::Vec3<float>> posArray, int initLimitIndex) :
-	m_moveTimer(60), m_limitIndex(initLimitIndex)
+PatrolBasedOnControlPoint::PatrolBasedOnControlPoint(std::vector<KuroEngine::Vec3<float>> posArray, int initLimitIndex, bool loopFlag) :
+	m_moveTimer(60), m_limitIndex(initLimitIndex), m_loopFlag(loopFlag)
 {
-	m_loopFlag = false;
 	m_speed = 0.1f;
 	const int halfArraySize = static_cast<int>(posArray.size() - 1);
+
+	m_inverseFlag = false;
+
+	if (halfArraySize == 0)
+	{
+		int limitMaxNum = 36;
+		int angle = 360 / limitMaxNum;
+		for (int i = 0; i < limitMaxNum; ++i)
+		{
+			m_limitPosArray.emplace_back();
+
+			float startRadian = KuroEngine::Angle::ConvertToRadian(static_cast<float>(angle * i));
+			float endRadian = KuroEngine::Angle::ConvertToRadian(static_cast<float>(angle * (i + 1)));
+			float radius = 15.0f;
+
+			KuroEngine::Vec3<float>startPos(posArray[0].x + cosf(startRadian) * radius, 0.0f, posArray[0].z + sinf(startRadian) * radius);
+			KuroEngine::Vec3<float>endPos(posArray[0].x + cosf(endRadian) * radius, 0.0f, posArray[0].z + sinf(endRadian) * radius);
+
+			m_limitPosArray[i].m_startPos = startPos;
+			m_limitPosArray[i].m_endPos = endPos;
+			m_limitPosArray[i].m_speed = m_speed;
+			m_limitPosArray[i].m_moveToPoint.Init(startPos, endPos, m_speed);
+		}
+		m_loopFlag = true;
+		return;
+	}
 
 	//ç≈èâÇ©ÇÁç≈å„Ç‹Ç≈ÇÃÉãÅ[Ég
 	for (int i = 0; i < halfArraySize; ++i)
@@ -36,11 +61,10 @@ PatrolBasedOnControlPoint::PatrolBasedOnControlPoint(std::vector<KuroEngine::Vec
 		m_limitPosArray.back().m_speed = m_speed;
 		m_limitPosArray.back().m_moveToPoint.Init(m_limitPosArray[m_limitPosArray.size() - 2].m_endPos, m_limitPosArray[0].m_startPos, m_speed);
 	}
-	m_inverseFlag = false;
 
 }
 
-void PatrolBasedOnControlPoint::Init(int initLimitIndex, bool loopFlag)
+void PatrolBasedOnControlPoint::Init(int initLimitIndex)
 {
 	m_limitIndex = initLimitIndex;
 	m_moveTimer.Reset(60);

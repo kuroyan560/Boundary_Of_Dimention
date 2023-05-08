@@ -182,9 +182,13 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::MINI_BUG))
 	{
 		std::vector<KuroEngine::Vec3<float>>translationArray;
+		//ÉpÉâÉÅÅ[É^Ç™Ç»Ç¢
+		if (!CheckJsonKeyExist(arg_fileName, arg_json, "Loop"))return;
+
+		bool isLoopFlag = arg_json["Loop"].get<bool>();
 		if (LoadTranslationArray(arg_fileName, &translationArray, obj))
 		{
-			m_enemyArray.emplace_back(std::make_shared<MiniBug>(model, transform, arg_parent, translationArray));
+			m_enemyArray.emplace_back(std::make_shared<MiniBug>(model, transform, arg_parent, translationArray, isLoopFlag));
 			newPart = m_enemyArray.back().get();
 		}
 	}

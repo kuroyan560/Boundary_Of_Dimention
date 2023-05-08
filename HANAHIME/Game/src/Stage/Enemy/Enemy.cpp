@@ -15,7 +15,6 @@ void MiniBug::OnInit()
 
 	m_hitBox.m_centerPos = &m_pos;
 	m_hitBox.m_radius = &m_scale;
-
 }
 
 void MiniBug::Update(Player &arg_player)
@@ -93,7 +92,7 @@ void MiniBug::Update(Player &arg_player)
 			//プレイヤーが違う法線の面にいたら見ないようにする。
 			if (m_transform.GetUp().Dot(arg_player.GetTransform().GetUpWorld()) <= 0.5f) break;
 
-			m_patrol.Init(m_limitIndex, false);
+			m_patrol.Init(m_limitIndex);
 			m_pos = m_patrol.GetLimitPos(m_limitIndex);
 
 			break;
@@ -389,7 +388,15 @@ void DossunRing::Update(Player &arg_player)
 	}
 
 
-	if (m_sightArea.IsFind(arg_player.m_sphere))
+	//プレイヤーと敵の当たり判定の処理をここに書く
+	if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()))
+	{
+		m_startDeadMotionFlag = true;
+		return;
+	}
+
+
+	if (m_sightArea.IsFind(arg_player.m_sphere) && !arg_player.GetIsUnderGround())
 	{
 		m_findPlayerFlag = true;
 	}
@@ -435,18 +442,13 @@ void DossunRing::Update(Player &arg_player)
 			m_attackFlag = false;
 		}
 
-		if (Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_hitBox))
+		if (Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_hitBox) && !arg_player.GetIsUnderGround())
 		{
 			arg_player.Damage();
 		}
 	}
 
 
-	//プレイヤーと敵の当たり判定の処理をここに書く
-	if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()))
-	{
-		m_startDeadMotionFlag = true;
-	}
 }
 
 void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)

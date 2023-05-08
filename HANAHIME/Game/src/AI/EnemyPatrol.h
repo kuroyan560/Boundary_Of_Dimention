@@ -38,9 +38,9 @@ private:
 class PatrolBasedOnControlPoint
 {
 public:
-	PatrolBasedOnControlPoint(std::vector<KuroEngine::Vec3<float>>posArray, int initLimitIndex);
+	PatrolBasedOnControlPoint(std::vector<KuroEngine::Vec3<float>>posArray, int initLimitIndex, bool loopFlag);
 
-	void Init(int initLimitIndex, bool loopFlag);
+	void Init(int initLimitIndex);
 	KuroEngine::Vec3<float> Update(const KuroEngine::Vec3<float> &pos);
 
 	KuroEngine::Vec3<float>GetLimitPos(int index)

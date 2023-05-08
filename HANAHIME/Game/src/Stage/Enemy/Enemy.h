@@ -15,8 +15,8 @@ enum ENEMY_ATTACK_PATTERN
 class MiniBug :public StageParts
 {
 public:
-	MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts *arg_parent, std::vector<KuroEngine::Vec3<float>>posArray)
-		:StageParts(MINI_BUG, arg_model, arg_initTransform, arg_parent), m_patrol(posArray, 0), m_deadTimer(120)
+	MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts *arg_parent, std::vector<KuroEngine::Vec3<float>>posArray, bool loopFlag)
+		:StageParts(MINI_BUG, arg_model, arg_initTransform, arg_parent), m_patrol(posArray, 0, loopFlag) , m_deadTimer(120)
 	{
 		m_sightArea.Init(&m_transform);
 		track.Init(0.01f);
