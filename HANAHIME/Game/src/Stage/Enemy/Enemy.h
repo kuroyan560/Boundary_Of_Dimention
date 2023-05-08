@@ -5,6 +5,13 @@
 #include"../Grass.h"
 #include"ForUser/DrawFunc/BillBoard/DrawFuncBillBoard.h"
 
+enum ENEMY_ATTACK_PATTERN
+{
+	ENEMY_ATTACK_PATTERN_NORMAL,//プレイヤーを見つけたら攻撃開始
+	ENEMY_ATTACK_PATTERN_ALWAYS, //常に一定間隔で攻撃している
+	ENEMY_ATTACK_PATTERN_INVALID
+};
+
 class MiniBug :public StageParts
 {
 public:
@@ -267,13 +274,7 @@ private:
 class DossunRing : public StageParts
 {
 public:
-	enum Status
-	{
-		NORMAL,//プレイヤーを見つけたら攻撃開始
-		ALWAYS //常に一定間隔で攻撃している
-	};
-
-	DossunRing(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts *arg_parent, Status status)
+	DossunRing(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts *arg_parent, ENEMY_ATTACK_PATTERN status)
 		:StageParts(DOSSUN_RING, arg_model, arg_initTransform, arg_parent)
 	{
 		m_hitBoxRadiusMax = 10.0f;
@@ -315,7 +316,7 @@ public:
 
 private:
 
-	Status m_nowStatus;
+	ENEMY_ATTACK_PATTERN m_nowStatus;
 	float m_sightRange;
 
 

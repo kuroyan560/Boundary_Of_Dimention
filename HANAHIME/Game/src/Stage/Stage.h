@@ -36,7 +36,7 @@ private:
 
 //モデル
 	//地形モデルの存在するディレクトリ
-	static std::string s_terrianModelDir;
+	static std::string s_stageModelDir;
 	//スカイドーム
 	std::shared_ptr<KuroEngine::Model>m_skydomeModel;
 	//森林円柱

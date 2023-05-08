@@ -78,7 +78,7 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 			m_enemyModel,
 			init,
 			nullptr,
-			DossunRing::NORMAL
+			ENEMY_ATTACK_PATTERN_NORMAL
 		);
 }
 

@@ -11,7 +11,7 @@
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
-	"Terrian","Start","Goal","Appearance","MoveScaffold","Lever","Ivy_Zipline","IvyBlock",
+	"Terrian","Start","Goal","Appearance","MoveScaffold","Lever","Ivy_Zipline","IvyBlock","SplatoonFence",
 	"MiniBug","DossunRing",
 };
 
@@ -743,4 +743,8 @@ void IvyBlock::Disappear()
 	m_isAppear = false;
 	m_easingTimer = 0;
 
+}
+
+void SplatoonFence::Update(Player& arg_player)
+{
 }

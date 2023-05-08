@@ -402,7 +402,7 @@ void DossunRing::Update(Player &arg_player)
 	//ˆŸí‚Ìê‡‚Íí‚ÉUŒ‚‚·‚éƒ‚[ƒVƒ‡ƒ“‚ğ“ü‚ê‚é
 	switch (m_nowStatus)
 	{
-	case DossunRing::ALWAYS:
+	case ENEMY_ATTACK_PATTERN_ALWAYS:
 		m_findPlayerFlag = true;
 		break;
 	default:
