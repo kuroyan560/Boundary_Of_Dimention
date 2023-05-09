@@ -90,20 +90,30 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	transform.SetRotate(quaternion);
 	transform.SetScale(scaling * (arg_parent == nullptr ? m_terrianScaling : 1.0f));
 
+	//親がいるならトランスフォームの親子関係形成
+	if (arg_parent)transform.SetParent(&arg_parent->GetTransform());
+
+	//コリジョン判定用のモデルファイルが設定されているか
+	auto collisionModel = model;
+	if (obj.contains("CollisionModelFileName"))
+	{
+		collisionModel = Importer::Instance()->LoadModel(s_stageModelDir, obj["CollisionModelFileName"].get<std::string>() + ".glb");
+	}
+
 	StageParts* newPart = nullptr;
 
 	//種別に応じて変わるパラメータ
 		//通常の地形
 	if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::TERRIAN))
 	{
-		m_terrianArray.emplace_back(model, transform, arg_parent);
+		m_terrianArray.emplace_back(model, transform, collisionModel);
 		newPart = &m_terrianArray[static_cast<int>(m_terrianArray.size()) - 1];
 	}
 	//スタート地点
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::START_POINT))
 	{
 		transform.SetScale(1.0f);
-		m_startPoint = std::make_shared<StartPoint>(model, transform, arg_parent);
+		m_startPoint = std::make_shared<StartPoint>(model, transform);
 		newPart = m_startPoint.get();
 	}
 	//ゴール地点
@@ -117,14 +127,14 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		//目的地に到達することがクリア条件
 		else
 		{
-			m_goalPoint = std::make_shared<GoalPoint>(model, transform, arg_parent);
+			m_goalPoint = std::make_shared<GoalPoint>(model, transform);
 		}
 		newPart = m_goalPoint.get();
 	}
 	//見かけだけのオブジェクト
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::APPEARANCE))
 	{
-		m_gimmickArray.emplace_back(std::make_shared<Appearance>(model, transform, arg_parent));
+		m_gimmickArray.emplace_back(std::make_shared<Appearance>(model, transform, collisionModel));
 		newPart = m_gimmickArray.back().get();
 	}
 	//動く足場
@@ -133,7 +143,7 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		std::vector<KuroEngine::Vec3<float>>translationArray;
 		if (LoadTranslationArray(arg_fileName, &translationArray, obj))
 		{
-			m_gimmickArray.emplace_back(std::make_shared<MoveScaffold>(model, transform, arg_parent, translationArray));
+			m_gimmickArray.emplace_back(std::make_shared<MoveScaffold>(model, transform, translationArray, collisionModel));
 			newPart = m_gimmickArray.back().get();
 		}
 	}
@@ -143,7 +153,7 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		//必要なパラメータがない
 		if (!CheckJsonKeyExist(arg_fileName, arg_json, "id") || !CheckJsonKeyExist(arg_fileName, arg_json, "initFlg"))return;
 
-		m_gimmickArray.emplace_back(std::make_shared<Lever>(model, transform, arg_parent, arg_json["id"], arg_json["initFlg"]));
+		m_gimmickArray.emplace_back(std::make_shared<Lever>(model, transform, arg_json["id"], arg_json["initFlg"]));
 		newPart = m_gimmickArray.back().get();
 	}
 	//ジップライン蔓
@@ -152,7 +162,7 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		std::vector<KuroEngine::Vec3<float>>translationArray;
 		if (LoadTranslationArray(arg_fileName, &translationArray, obj))
 		{
-			m_gimmickArray.emplace_back(std::make_shared<IvyZipLine>(model, transform, arg_parent, translationArray));
+			m_gimmickArray.emplace_back(std::make_shared<IvyZipLine>(model, transform, translationArray));
 			newPart = m_gimmickArray.back().get();
 		}
 	}
@@ -169,13 +179,13 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		//右下奥
 		Vec3<float>rightBottomBack = GetConsiderCoordinate(arg_json["block"]["right_bottom_back_pos"]);
 
-		m_gimmickArray.emplace_back(std::make_shared<IvyBlock>(model, transform, arg_parent, leftTopFront, rightBottomBack));
+		m_gimmickArray.emplace_back(std::make_shared<IvyBlock>(model, transform, leftTopFront, rightBottomBack, collisionModel));
 		newPart = m_gimmickArray.back().get();
 	}
 	//スプラトゥーン風フェンス
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::SPLATOON_FENCE))
 	{
-		m_gimmickArray.emplace_back(std::make_shared<SplatoonFence>(model, transform, arg_parent));
+		m_gimmickArray.emplace_back(std::make_shared<SplatoonFence>(model, transform, collisionModel));
 		newPart = m_gimmickArray.back().get();
 	}
 	//チビ虫
@@ -188,7 +198,7 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		bool isLoopFlag = arg_json["Loop"].get<int>();
 		if (LoadTranslationArray(arg_fileName, &translationArray, obj))
 		{
-			m_enemyArray.emplace_back(std::make_shared<MiniBug>(model, transform, arg_parent, translationArray, isLoopFlag));
+			m_enemyArray.emplace_back(std::make_shared<MiniBug>(model, transform, translationArray, isLoopFlag));
 			newPart = m_enemyArray.back().get();
 		}
 	}
@@ -205,7 +215,7 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		else if (patternName.compare("ALWAYS") == 0)attackPattern = ENEMY_ATTACK_PATTERN_ALWAYS;
 		else KuroEngine::AppearMessageBox("Stage : GetAttackPattern() 失敗", "知らない攻撃パターン名\"" + patternName + "\"が含まれているよ。");
 
-		m_enemyArray.emplace_back(std::make_shared<DossunRing>(model, transform, arg_parent, attackPattern));
+		m_enemyArray.emplace_back(std::make_shared<DossunRing>(model, transform, attackPattern));
 		newPart = m_enemyArray.back().get();
 	}
 	else

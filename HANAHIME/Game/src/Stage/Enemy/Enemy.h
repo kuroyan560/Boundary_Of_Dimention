@@ -15,8 +15,8 @@ enum ENEMY_ATTACK_PATTERN
 class MiniBug :public StageParts
 {
 public:
-	MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts *arg_parent, std::vector<KuroEngine::Vec3<float>>posArray, bool loopFlag)
-		:StageParts(MINI_BUG, arg_model, arg_initTransform, arg_parent), m_deadTimer(120)
+	MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>posArray, bool loopFlag)
+		:StageParts(MINI_BUG, arg_model, arg_initTransform), m_deadTimer(120)
 	{
 		m_sightArea.Init(&m_transform);
 		track.Init(0.01f);
@@ -285,8 +285,8 @@ private:
 class DossunRing : public StageParts
 {
 public:
-	DossunRing(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, StageParts *arg_parent, ENEMY_ATTACK_PATTERN status)
-		:StageParts(DOSSUN_RING, arg_model, arg_initTransform, arg_parent)
+	DossunRing(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, ENEMY_ATTACK_PATTERN status)
+		:StageParts(DOSSUN_RING, arg_model, arg_initTransform)
 	{
 		m_hitBoxRadiusMax = 10.0f;
 		m_hitBoxRadius = 0.0f;

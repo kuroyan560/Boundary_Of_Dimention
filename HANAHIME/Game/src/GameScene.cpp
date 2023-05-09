@@ -67,7 +67,6 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 		(
 			m_enemyModel,
 			init,
-			nullptr,
 			posArray,
 			false
 			);
@@ -78,7 +77,6 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 		(
 			m_enemyModel,
 			init,
-			nullptr,
 			ENEMY_ATTACK_PATTERN_NORMAL
 			);
 
@@ -87,7 +85,6 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 		(
 			m_enemyModel,
 			init,
-			nullptr,
 			ENEMY_ATTACK_PATTERN_NORMAL
 		);
 }

@@ -22,23 +22,20 @@ const std::string& StageParts::GetTypeKeyOnJson(STAGE_PARTS_TYPE arg_type)
 
 void StageParts::Init()
 {
-	m_transform.SetPos(m_initializedTransform.GetPos());
-	m_transform.SetScale(m_initializedTransform.GetScale());
-	m_transform.SetRotate(m_initializedTransform.GetRotate());
+	//m_transform.SetPos(m_initializedTransform.GetPos());
+	//m_transform.SetScale(m_initializedTransform.GetScale());
+	//m_transform.SetRotate(m_initializedTransform.GetRotate());
+	m_transform = m_initializedTransform;
 	OnInit();
 }
 
 void StageParts::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
-	KuroEngine::Transform transform = m_transform;
-	transform.SetPos(m_transform.GetPosWorld()+ m_offset.GetPosWorld());
-	transform.SetScale(m_transform.GetScale()+ m_offset.GetScale());
-
 	BasicDraw::Instance()->Draw(
 		arg_cam,
 		arg_ligMgr,
 		m_model.lock(),
-		transform);
+		m_transform);
 }
 
 void TerrianMeshCollider::BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_transform)
@@ -83,24 +80,18 @@ void TerrianMeshCollider::BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_
 
 		/*-- ② ポリゴンをワールド変換する --*/
 		//ワールド行列
-		DirectX::XMMATRIX targetRotMat = DirectX::XMMatrixRotationQuaternion(arg_transform.GetRotate());
-		DirectX::XMMATRIX targetWorldMat = DirectX::XMMatrixIdentity();
-		targetWorldMat *= DirectX::XMMatrixScaling(arg_transform.GetScale().x, arg_transform.GetScale().y, arg_transform.GetScale().z);
-		targetWorldMat *= targetRotMat;
-		targetWorldMat.r[3].m128_f32[0] = arg_transform.GetPos().x;
-		targetWorldMat.r[3].m128_f32[1] = arg_transform.GetPos().y;
-		targetWorldMat.r[3].m128_f32[2] = arg_transform.GetPos().z;
+		DirectX::XMMATRIX targetWorldMat = arg_transform.GetMatWorld();
 		for (auto& index : m_collisionMesh[meshIdx]) {
 			//頂点を変換
 			index.m_p0.pos = KuroEngine::Math::TransformVec3(index.m_p0.pos, targetWorldMat);
 			index.m_p1.pos = KuroEngine::Math::TransformVec3(index.m_p1.pos, targetWorldMat);
 			index.m_p2.pos = KuroEngine::Math::TransformVec3(index.m_p2.pos, targetWorldMat);
 			//法線を回転行列分だけ変換
-			index.m_p0.normal = KuroEngine::Math::TransformVec3(index.m_p0.normal, targetRotMat);
+			index.m_p0.normal = KuroEngine::Math::TransformVec3(index.m_p0.normal, arg_transform.GetRotateWorld());
 			index.m_p0.normal.Normalize();
-			index.m_p1.normal = KuroEngine::Math::TransformVec3(index.m_p1.normal, targetRotMat);
+			index.m_p1.normal = KuroEngine::Math::TransformVec3(index.m_p1.normal, arg_transform.GetRotateWorld());
 			index.m_p1.normal.Normalize();
-			index.m_p2.normal = KuroEngine::Math::TransformVec3(index.m_p2.normal, targetRotMat);
+			index.m_p2.normal = KuroEngine::Math::TransformVec3(index.m_p2.normal, arg_transform.GetRotateWorld());
 			index.m_p2.normal.Normalize();
 		}
 	}
@@ -208,6 +199,20 @@ void GoalPoint::Update(Player& arg_player)
 	m_hitPlayer = (arg_player.GetTransform().GetPosWorld().Distance(m_transform.GetPosWorld() + -m_transform.GetUp() * HIT_OFFSET * m_transform.GetScale().x) < HIT_RADIUS);
 }
 
+void GoalPoint::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+{
+	using namespace KuroEngine;
+	Transform drawTransform;
+	drawTransform.SetPos(m_transform.GetPosWorld() + m_offset.GetPosWorld());
+	drawTransform.SetScale(m_transform.GetScaleWorld() + m_offset.GetScaleWorld());
+
+	BasicDraw::Instance()->Draw(
+		arg_cam,
+		arg_ligMgr,
+		m_model.lock(),
+		drawTransform);
+}
+
 std::map<std::string, std::weak_ptr<KuroEngine::Model>>Appearance::s_models;
 
 void Appearance::ModelsUpdate()
@@ -229,12 +234,12 @@ void Appearance::ModelsUpdate()
 	}
 }
 
-Appearance::Appearance(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent)
-	:StageParts(APPEARANCE, arg_model, arg_initTransform, arg_parent)
+Appearance::Appearance(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, std::weak_ptr<KuroEngine::Model>arg_collisionModel)
+	:StageParts(APPEARANCE, arg_model, arg_initTransform)
 {
 	if (!s_models.contains(arg_model.lock()->m_header.fileName))s_models[arg_model.lock()->m_header.fileName] = arg_model;
 
-	m_collider.BuilCollisionMesh(arg_model, arg_initTransform);
+	m_collider.BuilCollisionMesh(arg_collisionModel, arg_initTransform);
 }
 
 void MoveScaffold::OnInit()
@@ -258,7 +263,7 @@ void MoveScaffold::OnInit()
 	m_nowPos = m_translationArray[0];
 
 	//当たり判定構築。
-	m_collider.BuilCollisionMesh(m_model, m_transform);
+	ReBuildCollisionMesh();
 }
 
 void MoveScaffold::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
@@ -378,8 +383,7 @@ void MoveScaffold::Update(Player& arg_player)
 	}
 
 	//当たり判定を再構築。
-	m_collider.BuilCollisionMesh(m_model, m_transform);
-
+	ReBuildCollisionMesh();
 }
 
 void MoveScaffold::PushBack(KuroEngine::Vec3<float> arg_pushBack) {
@@ -390,8 +394,8 @@ void MoveScaffold::PushBack(KuroEngine::Vec3<float> arg_pushBack) {
 
 }
 
-void MoveScaffold::BuildCollisionMesh() {
-	m_collider.BuilCollisionMesh(m_model, m_transform);
+void MoveScaffold::ReBuildCollisionMesh() {
+	m_collider.BuilCollisionMesh(m_collisionModel, m_transform);
 }
 
 void MoveScaffold::OnPlayer() {
@@ -433,8 +437,8 @@ void MoveScaffold::OnPlayer() {
 const std::string Lever::TURN_ON_ANIM_NAME = "turn_on";
 const std::string Lever::TURN_OFF_ANIM_NAME = "turn_off";
 
-Lever::Lever(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent, int arg_id, bool arg_initFlg)
-	:StageParts(LEVER, arg_model, arg_initTransform, arg_parent), m_id(arg_id), m_initFlg(arg_initFlg)
+Lever::Lever(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, int arg_id, bool arg_initFlg)
+	:StageParts(LEVER, arg_model, arg_initTransform), m_id(arg_id), m_initFlg(arg_initFlg)
 {
 	auto& anims = arg_model.lock()->m_skelton->animations;
 	if (anims.find(TURN_OFF_ANIM_NAME) == anims.end() && anims.find(TURN_ON_ANIM_NAME) == anims.end())
@@ -657,8 +661,8 @@ void IvyZipLine::Update(Player& arg_player)
 
 }
 
-IvyBlock::IvyBlock(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, StageParts* arg_parent, KuroEngine::Vec3<float> arg_leftTopFront, KuroEngine::Vec3<float> arg_rightBottomBack)
-	:StageParts(IVY_BLOCK, arg_model, arg_initTransform, arg_parent), m_leftTopFront(arg_leftTopFront), m_rightBottomBack(arg_rightBottomBack) 
+IvyBlock::IvyBlock(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, KuroEngine::Vec3<float> arg_leftTopFront, KuroEngine::Vec3<float> arg_rightBottomBack, std::weak_ptr<KuroEngine::Model>arg_collisionModel)
+	:StageParts(IVY_BLOCK, arg_model, arg_initTransform), m_leftTopFront(arg_leftTopFront), m_rightBottomBack(arg_rightBottomBack) 
 {
 	m_nonExistModel = std::shared_ptr<KuroEngine::Model>(new KuroEngine::Model(*arg_model.lock()));
 	m_nonExistMaterial = std::shared_ptr<KuroEngine::Material>(new KuroEngine::Material(*arg_model.lock()->m_meshes[0].material));
@@ -667,6 +671,7 @@ IvyBlock::IvyBlock(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Trans
 	{
 		mesh.material = m_nonExistMaterial;
 	}
+	m_collisionModel = arg_collisionModel;
 	OnInit();
 }
 
@@ -678,8 +683,7 @@ void IvyBlock::Update(Player& arg_player)
 	//イージングタイマーを更新。
 	m_easingTimer = std::clamp(m_easingTimer + EASING_TIMER * TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, 1.0f);
 
-
-	m_collider.BuilCollisionMesh(m_model, m_transform);
+	ReuilCollisionMesh();
 
 	//出現中だったら。
 	if (m_isAppear) {
@@ -738,13 +742,12 @@ void IvyBlock::Appear()
 
 void IvyBlock::Disappear()
 {
-
 	m_onPlayer = false;
 	m_isAppear = false;
 	m_easingTimer = 0;
-
 }
 
-void SplatoonFence::Update(Player& arg_player)
+void SplatoonFence::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
+	StageParts::Draw(arg_cam, arg_ligMgr);
 }

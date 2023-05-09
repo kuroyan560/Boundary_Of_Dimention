@@ -71,18 +71,23 @@ namespace KuroEngine
 		const Vec3<float>& GetScale()const { return m_scale; }
 		const XMVECTOR& GetRotate()const { return m_rotate; }
 
-		//親の回転も考慮したクォータニオン
-		XMVECTOR GetRotateWorld()const
-		{
-			XMVECTOR parent = m_parent ? m_parent->GetRotateWorld() : XMQuaternionIdentity();
-			return XMQuaternionMultiply(parent, m_rotate);
-		}
 		//親のトランスフォームも考慮した座標
 		Vec3<float>GetPosWorld()
 		{
 			const auto& worldMat = GetMatWorld();
 			return { worldMat.r[3].m128_f32[0],worldMat.r[3].m128_f32[1],worldMat.r[3].m128_f32[2] };
-
+		}
+		//親のトランスフォームも考慮したスケーリング
+		Vec3<float>GetScaleWorld()
+		{
+			const auto& worldMat = GetMatWorld();
+			return { worldMat.r[0].m128_f32[0],worldMat.r[1].m128_f32[1],worldMat.r[2].m128_f32[2] };
+		}
+		//親の回転も考慮したクォータニオン
+		XMVECTOR GetRotateWorld()const
+		{
+			XMVECTOR parent = m_parent ? m_parent->GetRotateWorld() : XMQuaternionIdentity();
+			return XMQuaternionMultiply(parent, m_rotate);
 		}
 
 		//オイラー角で回転量取得
