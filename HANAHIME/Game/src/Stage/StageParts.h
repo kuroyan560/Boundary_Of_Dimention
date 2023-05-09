@@ -152,7 +152,12 @@ class GoalPoint : public StageParts
 
 public:
 	GoalPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
-		:StageParts(GOAL_POINT, arg_model, arg_initTransform) {}
+		:StageParts(GOAL_POINT, arg_model, arg_initTransform) {
+	}
+	void OnInit()override
+	{
+		m_offset.SetScale({ 0.0f, 0.0f, 0.0f });
+	}
 	void Update(Player& arg_player)override;
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 
