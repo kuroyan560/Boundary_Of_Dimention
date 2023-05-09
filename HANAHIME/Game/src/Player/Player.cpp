@@ -651,7 +651,7 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 	if (!m_onGround) {
 		m_rowMoveVec = KuroEngine::Vec3<float>();
 	}
-	m_moveSpeed = m_rowMoveVec * m_maxSpeed;
+	m_moveSpeed += m_rowMoveVec * m_moveAccel;
 
 	//移動速度をクランプ。
 	m_moveSpeed.x = std::clamp(m_moveSpeed.x, -m_maxSpeed, m_maxSpeed);
@@ -660,13 +660,13 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 	//入力された値が無かったら移動速度を減らす。
 	if (std::fabs(m_rowMoveVec.x) < 0.001f) {
 
-		m_moveSpeed.x = 0;
+		m_moveSpeed.x = std::clamp(std::fabs(m_moveSpeed.x) - m_brake, 0.0f, m_maxSpeed) * (std::signbit(m_moveSpeed.x) ? -1.0f : 1.0f);
 
 	}
 
 	if (std::fabs(m_rowMoveVec.z) < 0.001f) {
 
-		m_moveSpeed.z = 0;
+		m_moveSpeed.z = std::clamp(std::fabs(m_moveSpeed.z) - m_brake, 0.0f, m_maxSpeed) * (std::signbit(m_moveSpeed.z) ? -1.0f : 1.0f);
 
 	}
 
