@@ -57,6 +57,7 @@ public:
 		}
 
 		//アイテム生成処理
+		m_initItemFlag = false;
 		m_item = ItemOnGame::Instance()->Generate(ItemDatabase::Instance()->GetData(ITEM_HEAL));
 	}
 
@@ -259,6 +260,7 @@ private:
 
 
 	//アイテム情報
+	bool m_initItemFlag;
 	std::shared_ptr<ItemOnGame::ItemData> m_item;
 
 

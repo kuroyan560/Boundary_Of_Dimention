@@ -297,6 +297,7 @@ public:
 		default:
 			break;
 		}
+		itemData->m_enbaleToGetFlag = false;
 	};
 
 private:

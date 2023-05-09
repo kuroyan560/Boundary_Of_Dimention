@@ -238,7 +238,7 @@ void GameScene::OnUpdate()
 	int hitIndex = 0;
 	if (ItemOnGame::Instance()->Hit(m_player.m_sphere, &hitIndex))
 	{
-		ItemOnGame::Instance()->GetData(hitIndex);
+		m_player.GetItemEffect(ItemOnGame::Instance()->GetData(hitIndex));
 	}
 
 	ItemOnGame::Instance()->Update();
@@ -301,7 +301,7 @@ void GameScene::OnDraw()
 
 
 
-	ItemOnGame::Instance()->Draw();
+	ItemOnGame::Instance()->Draw(*m_nowCam);
 
 
 	//m_canvasPostEffect.Execute();

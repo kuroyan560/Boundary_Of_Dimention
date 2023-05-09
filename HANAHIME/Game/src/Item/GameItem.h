@@ -7,6 +7,8 @@
 #include"Common/Transform.h"
 #include"Common/Singleton.h"
 #include"../CollisionDetection.h"
+#include"DirectX12/D3D12App.h"
+#include"Render/RenderObject/Camera.h"
 
 enum ItemType
 {
@@ -18,7 +20,7 @@ enum ItemType
 
 struct HealData
 {
-	int m_heal;
+	int m_heal = 0;
 };
 
 class IDatabase
@@ -86,19 +88,29 @@ public:
 	/// <summary>
 	/// ゲーム内のアイテムの固有情報+アイテム情報
 	/// </summary>
-	struct ItemData
+	class ItemData
 	{
-		ItemType m_itemEnum;
-		bool m_enbaleToGetFlag;
-		KuroEngine::Transform m_transform;
-		float m_radius;
-		Sphere m_hitBox;
-		IDatabase *m_itemInfomation;
+	public:
+		ItemType m_itemEnum;				//アイテムの種類
+		bool m_enbaleToGetFlag;				//判定を有効にするかどうか
+		KuroEngine::Transform m_transform;	//座標
+		float m_radius;						//アイテムの判定
+		Sphere m_hitBox;					//アイテムの判定
+		IDatabase *m_itemInfomation;		//アイテム情報
+
 		ItemData(IDatabase *itemInfo, ItemType type) :m_itemInfomation(itemInfo), m_enbaleToGetFlag(false), m_itemEnum(type), m_radius(5.0f)
 		{
 			m_hitBox.m_centerPos = &m_transform.GetPos();
 			m_hitBox.m_radius = &m_radius;
+
+			m_itemTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/Find.png");
 		}
+
+		//アイテムの仮描画
+		std::shared_ptr<KuroEngine::TextureBuffer>m_itemTex;
+
+		void Update();
+		void Draw(KuroEngine::Camera &camera);
 	};
 
 	std::shared_ptr<ItemData>Generate(IDatabase *itemData)
@@ -134,12 +146,18 @@ public:
 
 	void Update()
 	{
-
+		for (auto &obj : m_itemArray)
+		{
+			obj->Update();
+		}
 	};
 
-	void Draw()
+	void Draw(KuroEngine::Camera &camera)
 	{
-
+		for (auto &obj : m_itemArray)
+		{
+			obj->Draw(camera);
+		}
 	};
 
 

@@ -15,6 +15,7 @@ void MiniBug::OnInit()
 
 	m_hitBox.m_centerPos = &m_pos;
 	m_hitBox.m_radius = &m_scale;
+	m_initItemFlag = false;
 }
 
 void MiniBug::Update(Player &arg_player)
@@ -23,6 +24,11 @@ void MiniBug::Update(Player &arg_player)
 	if (m_deadFlag)
 	{
 		m_reaction->Update(m_pos);
+		if (!m_initItemFlag)
+		{
+			m_item->m_enbaleToGetFlag = true;
+			m_initItemFlag = true;
+		}
 		return;
 	}
 
@@ -314,6 +320,8 @@ void MiniBug::Update(Player &arg_player)
 	m_larpPos = KuroEngine::Math::Lerp(m_larpPos, m_pos, 0.1f);
 
 	m_transform.SetPos(m_larpPos);
+
+	m_item->m_transform = m_transform;
 
 }
 
