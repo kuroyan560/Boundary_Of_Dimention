@@ -3,6 +3,7 @@
 #include"Common/Angle.h"
 #include"Common/Transform.h"
 #include"ForUser/Debugger.h"
+#include"../Stage/Stage.h"
 
 #include<memory>
 namespace KuroEngine
@@ -41,7 +42,8 @@ class CameraController : public KuroEngine::Debugger
 	//操作するカメラのポインタ
 	std::weak_ptr<KuroEngine::Camera>m_attachedCam;
 
-	KuroEngine::Transform m_camParentTransform;
+	KuroEngine::Transform m_cameraLocalTransform;	//カメラのローカルでの回転と移動を計算する用。
+	KuroEngine::Transform m_camParentTransform;		//プレイヤーの座標と回転を適応させる用。
 
 	//カメラの前方向座標移動のLerp値
 	float m_camForwardPosLerpRate = 0.8f;
@@ -66,4 +68,8 @@ public:
 	}
 
 	std::weak_ptr<KuroEngine::Camera> GetCamera() { return m_attachedCam; }
+
+	//地形との当たり判定
+	void TerrianMeshCollision(const std::weak_ptr<Stage>arg_nowStage);
+
 };

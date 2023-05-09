@@ -473,6 +473,10 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
 		m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_cameraRotYStorage, CAMERA_MODE[m_cameraMode]);
+
+		//カメラの当たり判定
+		m_camController.TerrianMeshCollision(arg_nowStage);
+
 		m_deathEffectCameraZ = CAMERA_MODE[m_cameraMode];
 		TimeScaleMgr::s_inGame.Set(1.0f);
 	}

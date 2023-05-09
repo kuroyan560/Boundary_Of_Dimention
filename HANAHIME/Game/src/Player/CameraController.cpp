@@ -1,5 +1,7 @@
 #include "CameraController.h"
 #include"Render/RenderObject/Camera.h"
+#include"../../../../src/engine/ForUser/Object/Model.h"
+#include"CollisionDetectionOfRayAndMesh.h"
 
 void CameraController::OnImguiItems()
 {
@@ -47,7 +49,7 @@ void CameraController::AttachCamera(std::shared_ptr<KuroEngine::Camera> arg_cam)
 	//操作対象となるカメラのポインタを保持
 	m_attachedCam = arg_cam;
 	//コントローラーのトランスフォームを親として設定
-	arg_cam->GetTransform().SetParent(&m_camParentTransform);
+	m_cameraLocalTransform.SetParent(&m_camParentTransform);
 }
 
 void CameraController::Init()
@@ -86,14 +88,70 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 
 	//操作するカメラのトランスフォーム（前後移動）更新
-	auto& transform = m_attachedCam.lock()->GetTransform();
 	Vec3<float> localPos = { 0,0,0 };
 	localPos.z = m_nowParam.m_posOffsetZ;
 	localPos.y = m_gazePointOffset.y + tan(-m_nowParam.m_xAxisAngle) * m_nowParam.m_posOffsetZ;
-	transform.SetPos(Math::Lerp(transform.GetPos(), localPos, m_camForwardPosLerpRate));
-	transform.SetRotate(Vec3<float>::GetXAxis(), m_nowParam.m_xAxisAngle);
+	m_cameraLocalTransform.SetPos(Math::Lerp(m_cameraLocalTransform.GetPos(), localPos, m_camForwardPosLerpRate));
+	m_cameraLocalTransform.SetRotate(Vec3<float>::GetXAxis(), m_nowParam.m_xAxisAngle);
 
 	//コントローラーのトランスフォーム（対象の周囲、左右移動）更新
 	m_camParentTransform.SetRotate(Vec3<float>::GetYAxis(), m_nowParam.m_yAxisAngle);
 	m_camParentTransform.SetPos(Math::Lerp(m_camParentTransform.GetPos(), arg_targetPos, m_camFollowLerpRate));
+
+
+
+
+
+
+	//使用するカメラに回転を適用。
+	auto local = m_cameraLocalTransform.GetRotate();
+	auto world = m_cameraLocalTransform.GetRotateWorld();
+	m_attachedCam.lock()->GetTransform().SetRotate(m_cameraLocalTransform.GetRotateWorld());
+
+	auto localScale = m_cameraLocalTransform.GetScaleWorld();
+	auto worldScale = m_cameraLocalTransform.GetScaleWorld();
+
+	auto eye = m_attachedCam.lock()->GetEye();
+
+	//使用するカメラの座標を補間して適用。
+	m_attachedCam.lock()->GetTransform().SetPos(m_cameraLocalTransform.GetPosWorld());
+
+	m_attachedCam.lock()->GetTransform() = m_cameraLocalTransform;
+
+}
+
+void CameraController::TerrianMeshCollision(const std::weak_ptr<Stage> arg_nowStage)
+{
+
+	//通常の地形を走査
+	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
+	{
+		//モデル情報取得
+		auto model = terrian.GetModel().lock();
+
+		//メッシュを走査
+		for (auto& modelMesh : model->m_meshes)
+		{
+
+			//当たり判定に使用するメッシュ
+			auto checkHitMesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+
+			//判定↓============================================
+
+			//当たり判定を実行
+			//auto eyePos = m_oldAttackCam.GetPosWorld();
+			//auto moveVec = m_attachedCam.lock()->GetTransform().GetPosWorld() - m_oldAttackCam.GetPosWorld();
+			//CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(eyePos, moveVec.GetNormal(), checkHitMesh);
+
+			//if (output.m_isHit && 0 < output.m_distance && output.m_distance < moveVec.Length()) {
+
+				//m_attachedCam.lock()->GetTransform() = m_oldAttackCam;
+				//m_camParentTransform = m_oldCamParentTransform;
+
+			//}
+
+			//=================================================
+		}
+	}
+
 }
