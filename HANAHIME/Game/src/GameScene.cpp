@@ -234,6 +234,14 @@ void GameScene::OnUpdate()
 
 	m_stageSelect.Update();
 
+	//アイテムとプレイヤーの判定
+	int hitIndex = 0;
+	if (ItemOnGame::Instance()->Hit(m_player.m_sphere, &hitIndex))
+	{
+		ItemOnGame::Instance()->GetData(hitIndex);
+	}
+
+	ItemOnGame::Instance()->Update();
 
 	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld(), *m_nowCam);
 
@@ -291,6 +299,9 @@ void GameScene::OnDraw()
 		m_goal.Draw(*m_nowCam);
 	}
 
+
+
+	ItemOnGame::Instance()->Draw();
 
 
 	//m_canvasPostEffect.Execute();

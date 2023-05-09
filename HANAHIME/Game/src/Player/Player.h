@@ -11,6 +11,8 @@
 #include"ForUser/Timer.h"
 #include"../AI/EnemySearch.h"
 #include<memory>
+#include"../Item/GameItem.h"
+
 namespace KuroEngine
 {
 	class Camera;
@@ -281,6 +283,21 @@ public:
 
 	Sphere m_sphere;
 	float m_radius;
+
+	void GetItemEffect(std::shared_ptr<ItemOnGame::ItemData> itemData)
+	{
+		HealData healData;
+		switch (itemData->m_itemEnum)
+		{
+		case ITEM_NONE:
+			break;
+		case ITEM_HEAL:
+			healData = dynamic_cast<ItemInterface<HealData>*>(itemData->m_itemInfomation)->m_itemData;
+			break;
+		default:
+			break;
+		}
+	};
 
 private:
 

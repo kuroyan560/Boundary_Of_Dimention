@@ -421,6 +421,9 @@
     <ClCompile Include="src\Item\GameItem.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\CollisionDetection.cpp">
+      <Filter>src\user</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -817,5 +820,8 @@
       <Filter>src\user\AI</Filter>
     </ClInclude>
     <ClInclude Include="src\Item\GameItem.h" />
+    <ClInclude Include="src\CollisionDetection.h">
+      <Filter>src\user</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

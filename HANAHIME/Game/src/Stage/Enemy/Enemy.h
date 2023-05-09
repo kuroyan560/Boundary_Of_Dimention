@@ -4,6 +4,7 @@
 #include"../../AI/EnemySearch.h"
 #include"../Grass.h"
 #include"ForUser/DrawFunc/BillBoard/DrawFuncBillBoard.h"
+#include"../../Item/GameItem.h"
 
 enum ENEMY_ATTACK_PATTERN
 {
@@ -54,6 +55,9 @@ public:
 		{
 			m_patrol = std::make_unique<PatrolBasedOnControlPoint>(posArray, 0, loopFlag);
 		}
+
+		//アイテム生成処理
+		m_item = ItemOnGame::Instance()->Generate(ItemDatabase::Instance()->GetData(ITEM_HEAL));
 	}
 
 	void OnInit()override;
@@ -253,6 +257,9 @@ private:
 
 	//リアクション表記---------------------------------------
 
+
+	//アイテム情報
+	std::shared_ptr<ItemOnGame::ItemData> m_item;
 
 
 	KuroEngine::Quaternion Lerp(const KuroEngine::Quaternion &a, const KuroEngine::Quaternion &b, float mul)

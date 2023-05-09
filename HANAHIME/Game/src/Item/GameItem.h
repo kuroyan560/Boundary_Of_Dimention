@@ -6,8 +6,9 @@
 #include<iostream>
 #include"Common/Transform.h"
 #include"Common/Singleton.h"
+#include"../CollisionDetection.h"
 
-enum Item
+enum ItemType
 {
 	ITEM_NONE = -1,
 	ITEM_HEAL,
@@ -34,6 +35,7 @@ public:
 		OWER_MAX
 	};
 
+	ItemType item;
 	OWNERSHIP ownerShip;
 };
 
@@ -42,12 +44,11 @@ template<typename T>
 class ItemInterface :public IDatabase
 {
 public:
-	ItemInterface()
+	ItemInterface(ItemType itemType)
 	{
-		m_className = typeid(T).name();
+		item = itemType;
 	};
 	T m_itemData;
-	std::string m_className;
 
 	void Get() {};
 };
@@ -62,10 +63,10 @@ public:
 	ItemDatabase()
 	{
 		m_itemArray.resize(ITEM_MAX);
-		m_itemArray[ITEM_HEAL] = std::make_unique<ItemInterface<HealData>>();
+		m_itemArray[ITEM_HEAL] = std::make_unique<ItemInterface<HealData>>(ITEM_HEAL);
 	}
 
-	IDatabase *GetData(Item Get)const
+	IDatabase *GetData(ItemType Get)const
 	{
 		return m_itemArray[Get].get();
 	};
@@ -87,22 +88,26 @@ public:
 	/// </summary>
 	struct ItemData
 	{
-		Item m_itemEnum;
+		ItemType m_itemEnum;
 		bool m_enbaleToGetFlag;
 		KuroEngine::Transform m_transform;
+		float m_radius;
+		Sphere m_hitBox;
 		IDatabase *m_itemInfomation;
-		ItemData(IDatabase *itemInfo, Item type) :m_itemInfomation(itemInfo), m_enbaleToGetFlag(false), m_itemEnum(type)
+		ItemData(IDatabase *itemInfo, ItemType type) :m_itemInfomation(itemInfo), m_enbaleToGetFlag(false), m_itemEnum(type), m_radius(5.0f)
 		{
+			m_hitBox.m_centerPos = &m_transform.GetPos();
+			m_hitBox.m_radius = &m_radius;
 		}
 	};
 
 	std::shared_ptr<ItemData>Generate(IDatabase *itemData)
 	{
-		m_itemArray.emplace_back(std::make_shared<ItemData>(itemData, ITEM_BUFF));
+		m_itemArray.emplace_back(std::make_shared<ItemData>(itemData, itemData->item));
 		return m_itemArray.back();
 	};
 
-	bool Hit(KuroEngine::Transform transform, int *hitIndex)
+	bool Hit(const Sphere &playerHitBox, int *hitIndex)
 	{
 		for (auto &obj : m_itemArray)
 		{
@@ -113,13 +118,28 @@ public:
 			}
 
 			//Õ“Ë”»’è
-			if (false)
+			if (Collision::Instance()->CheckCircleAndCircle(playerHitBox, obj->m_hitBox))
 			{
 				*hitIndex = static_cast<int>(&obj - &m_itemArray[0]);
 				return true;
 			}
 		}
 		return false;
+	};
+
+	std::shared_ptr<ItemData>GetData(int index)
+	{
+		return m_itemArray[index];
+	}
+
+	void Update()
+	{
+
+	};
+
+	void Draw()
+	{
+
 	};
 
 
