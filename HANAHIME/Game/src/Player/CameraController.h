@@ -55,6 +55,7 @@ class CameraController : public KuroEngine::Debugger
 	//現在の上下方向で操作しているもの
 	enum VERTICAL_MOVE { ANGLE, DIST }m_verticalControl = ANGLE;
 
+
 public:
 	//コンストラクタ
 	CameraController();

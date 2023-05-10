@@ -107,7 +107,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 
 	//使用するカメラの座標を補間して適用。
-	m_attachedCam.lock()->GetTransform().SetPos(m_cameraLocalTransform.GetPosWorldByMatrix());
+	Vec3<float> pushBackPos = m_cameraLocalTransform.GetPosWorldByMatrix();
 
 	//通常の地形を走査
 	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
@@ -124,19 +124,23 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 			//判定↓============================================
 
+
 			//当たり判定を実行
 			auto moveVec = m_cameraLocalTransform.GetPosWorldByMatrix() - arg_targetPos.GetPos();
 			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_targetPos.GetPos(), moveVec.GetNormal(), checkHitMesh);
 
 			if (output.m_isHit && 0 < output.m_distance && output.m_distance < moveVec.Length()) {
 
-				m_attachedCam.lock()->GetTransform().SetPos(output.m_pos + output.m_normal);
+				pushBackPos = output.m_pos + output.m_normal;
 
 			}
 
 			//=================================================
 		}
 	}
+
+	//補間する。
+	m_attachedCam.lock()->GetTransform().SetPos(KuroEngine::Math::Lerp(m_attachedCam.lock()->GetTransform().GetPos(), pushBackPos, 0.1f));
 
 	//現在の座標からプレイヤーに向かう回転を求める。
 	Vec3<float> axisZ = arg_targetPos.GetPos() - m_attachedCam.lock()->GetTransform().GetPosWorld();
