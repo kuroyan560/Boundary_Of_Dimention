@@ -56,6 +56,7 @@ class Player : public KuroEngine::Debugger
 	//ƒJƒƒ‰Š´“x
 	float m_camSensitivity = 1.0f;
 	int m_cameraMode;
+	KuroEngine::Vec3<float> m_scopeMoveAccel;
 	std::array<const float, 3> CAMERA_MODE = { 20.0f,40.0f,70.0f };
 
 	//A•¨‚ğ”ÉB‚³‚¹‚é“_ŒõŒ¹

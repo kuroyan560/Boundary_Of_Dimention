@@ -8,30 +8,11 @@ void CameraController::OnImguiItems()
 	ImGui::Text("NowParameter");
 	ImGui::SameLine();
 
-	//パラメータ初期化ボタン
-	if (ImGui::Button("Initialize"))
-	{
-		m_nowParam = m_initializedParam;
-	}
-
-	//現在のパラメータ表示
-	if (ImGui::BeginChild("NowParam"))
-	{
-		ImGui::Text("posOffsetZ : %.2f", m_nowParam.m_posOffsetZ);
-		float degree = static_cast<float>(KuroEngine::Angle::ConvertToDegree(m_nowParam.m_xAxisAngle));
-		ImGui::Text("xAxisAngle : %.2f", degree);
-		degree = static_cast<float>(KuroEngine::Angle::ConvertToDegree(m_nowParam.m_yAxisAngle));
-		ImGui::Text("yAxisAngle : %.2f", degree);
-		ImGui::EndChild();
-	}
-
 }
 
 CameraController::CameraController()
 	:KuroEngine::Debugger("CameraController", true, true)
 {
-	AddCustomParameter("posOffsetZ", { "InitializedParameter","posOffsetZ" }, PARAM_TYPE::FLOAT, &m_initializedParam.m_posOffsetZ, "InitializedParameter");
-	AddCustomParameter("xAxisAngle", { "InitializedParameter","xAxisAngle" }, PARAM_TYPE::FLOAT, &m_initializedParam.m_xAxisAngle, "InitializedParameter");
 
 	AddCustomParameter("gazePointOffset", { "gazePointOffset" }, PARAM_TYPE::FLOAT_VEC3, &m_gazePointOffset, "UpdateParameter");
 	AddCustomParameter("posOffsetDepthMin", { "posOffsetDepth","min" }, PARAM_TYPE::FLOAT, &m_posOffsetDepthMin, "UpdateParameter");
@@ -54,11 +35,11 @@ void CameraController::AttachCamera(std::shared_ptr<KuroEngine::Camera> arg_cam)
 
 void CameraController::Init()
 {
-	m_nowParam = m_initializedParam;
-	m_verticalControl = ANGLE;
+	m_angleX = 0;
+	m_oldAngleX = 0;
 }
 
-void CameraController::Update(KuroEngine::Transform arg_playerTransform, float arg_cameraZ)
+void CameraController::Update(KuroEngine::Vec3<float> arg_scopeMove, KuroEngine::Transform arg_playerTransform, float arg_cameraZ, const std::weak_ptr<Stage> arg_nowStage)
 {
 	using namespace KuroEngine;
 
@@ -66,108 +47,22 @@ void CameraController::Update(KuroEngine::Transform arg_playerTransform, float a
 	if (m_attachedCam.expired())return;
 
 	//トランスフォームを保存。
-	m_attachedCam.lock()->GetTransform() = arg_playerTransform;
+	m_distanceZ = arg_cameraZ;
+	m_playerTransform = arg_playerTransform;
+	m_baseTransform.SetRotate(m_playerTransform.GetRotateWorld());
 
-	//背後にずらすベクトル
-	const float Z_HEIGHT_OFFSET = 0.3f;
-	KuroEngine::Vec3<float> zOffsetVec = -arg_playerTransform.GetFront() + arg_playerTransform.GetUp() * Z_HEIGHT_OFFSET;
-	KuroEngine::Vec3<float> zOffset = zOffsetVec.GetNormal() * arg_cameraZ;
+	//カメラのX軸回転を保存。
+	const float SCOPE_SCALE = 0.3f;
+	m_oldAngleX = m_angleX;
+	m_angleX -= arg_scopeMove.y * SCOPE_SCALE;
 
-	//背後にずらす。
-	m_attachedCam.lock()->GetTransform().SetPos(arg_playerTransform.GetPos() + zOffset);
+	//補間先の位置と回転を設定
+	SetCameraPos();
 
-	//プレイヤーのちょっと上方向を向かせる。
-	const float UP_OFFSET = 3.0f;
-	Vec3<float> playerDir = arg_playerTransform.GetPos() + (arg_playerTransform.GetUp() * UP_OFFSET) - m_attachedCam.lock()->GetTransform().GetPos();
-	playerDir.Normalize();
-
-	//回転を持たせる。
-	Vec3<float> defVec = arg_playerTransform.GetFront();
-	defVec = defVec * (playerDir.Dot(defVec) / defVec.Dot(defVec));
-
-	//回転軸と角度を求める。
-	Vec3<float> axis = defVec.Cross(playerDir);
-	float angle = acosf(defVec.Dot(playerDir));
-
-	//回転軸があったら。
-	if (0.1f < axis.Length()) {
-
-		auto q = DirectX::XMQuaternionRotationAxis(axis, angle);
-		m_attachedCam.lock()->GetTransform().SetRotate(DirectX::XMQuaternionMultiply(m_attachedCam.lock()->GetTransform().GetRotate(), q));
-
-	}
-
-
-
-
-
-	//oldTransform = m_attachedCam.lock()->GetTransform();
-
-	////左右カメラ操作
-	//m_nowParam.m_yAxisAngle = arg_playerRotY;
-
-	////上下カメラ操作
-	//switch (m_verticalControl)
-	//{
-	//case ANGLE:
-	//	m_nowParam.m_xAxisAngle -= arg_scopeMove.y * 0.3f;
-	//	//if (m_nowParam.m_xAxisAngle <= m_xAxisAngleMin)m_verticalControl = DIST;
-	//	break;
-
-	//case DIST:
-	//	m_nowParam.m_posOffsetZ += arg_scopeMove.y * 6.0f;
-	//	if (m_nowParam.m_posOffsetZ <= m_posOffsetDepthMin)m_verticalControl = ANGLE;
-	//	break;
-	//}
-
-	////上限値超えないようにする
-	//m_nowParam.m_posOffsetZ = arg_cameraZ;
-	//m_nowParam.m_xAxisAngle = std::clamp(m_nowParam.m_xAxisAngle, m_xAxisAngleMin, m_xAxisAngleMax);
-
-
-	////操作するカメラのトランスフォーム（前後移動）更新
-	//Vec3<float> localPos = { 0,0,0 };
-	//localPos.z = m_nowParam.m_posOffsetZ;
-	//localPos.y = m_gazePointOffset.y + tan(-m_nowParam.m_xAxisAngle) * m_nowParam.m_posOffsetZ;
-	//m_attachedCam.lock()->GetTransform().SetPos(Math::Lerp(m_attachedCam.lock()->GetTransform().GetPos(), localPos, m_camForwardPosLerpRate));
-	//m_attachedCam.lock()->GetTransform().SetRotate(Vec3<float>::GetXAxis(), m_nowParam.m_xAxisAngle);
-
-	////コントローラーのトランスフォーム（対象の周囲、左右移動）更新
-	//m_camParentTransform.SetRotate(Vec3<float>::GetYAxis(), m_nowParam.m_yAxisAngle);
-	//m_camParentTransform.SetPos(Math::Lerp(m_camParentTransform.GetPos(), arg_targetPos, m_camFollowLerpRate));
-
-
-
-
-
-
-	////使用するカメラに回転を適用。
-	//XMVECTOR rotate, translation, scaling;
-	//DirectX::XMMatrixDecompose(&scaling, &rotate, &translation, m_cameraLocalTransform.GetMatWorld());
-
-	//rotate = DirectX::XMQuaternionNormalize(rotate);
-
-	//auto local = m_cameraLocalTransform.GetRotate();
-	//auto world = m_cameraLocalTransform.GetRotateWorld();
-	//m_attachedCam.lock()->GetTransform().SetRotate({ rotate.m128_f32[0], rotate .m128_f32[1], rotate .m128_f32[2]});
-
-	//auto localScale = m_cameraLocalTransform.GetScaleWorld();
-	//auto worldScale = m_cameraLocalTransform.GetScaleWorld();
-
-	//auto eye = m_attachedCam.lock()->GetEye();
-
-	////使用するカメラの座標を補間して適用。
-	//m_attachedCam.lock()->GetTransform().SetPos({ translation.m128_f32[0], translation.m128_f32[1], translation.m128_f32[2] });
-	//m_attachedCam.lock()->GetTransform().SetScale({ scaling.m128_f32[0], scaling.m128_f32[1], scaling.m128_f32[2] });
-
-	//m_attachedCam.lock()->GetTransform() = m_cameraLocalTransform;
-
-	//int a = 0;
-
-}
-
-void CameraController::TerrianMeshCollision(const std::weak_ptr<Stage> arg_nowStage)
-{
+	//一旦回転を適用。
+	m_oldPos = m_attachedCam.lock()->GetTransform().GetPos();
+	m_attachedCam.lock()->GetTransform().SetRotate(m_baseTransform.GetRotate());
+	m_attachedCam.lock()->GetTransform().SetPos(m_baseTransform.GetPos());
 
 	//通常の地形を走査
 	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
@@ -186,17 +81,77 @@ void CameraController::TerrianMeshCollision(const std::weak_ptr<Stage> arg_nowSt
 
 			//当たり判定を実行
 			auto eyePos = m_attachedCam.lock()->GetTransform().GetPosWorld();
-			auto moveVec = m_attachedCam.lock()->GetTransform().GetPosWorld() - oldTransform.GetPosWorld();
-			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(eyePos, moveVec.GetNormal(), checkHitMesh);
+			auto moveVec = m_attachedCam.lock()->GetTransform().GetPosWorld() - m_oldPos;
+			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_oldPos, moveVec.GetNormal(), checkHitMesh);
 
 			if (output.m_isHit && 0 < output.m_distance && output.m_distance < moveVec.Length()) {
 
-				//m_attachedCam.lock()->GetTransform().SetPos(m_attachedCam.lock()->GetTransform().GetPos() - moveVec.GetNormal() * moveVec.Length());
+				m_attachedCam.lock()->GetTransform().SetPos(output.m_pos + output.m_normal);
 
 			}
 
 			//=================================================
 		}
+	}
+
+	//現在の座標からプレイヤーに向かう回転を求める。
+	Vec3<float> playerDir = m_playerTransform.GetPos() - m_attachedCam.lock()->GetTransform().GetPosWorld();
+	playerDir.Normalize();
+
+	//プレイヤーの法線との外積から仮のXベクトルを得る。
+	Vec3<float> preAxisX = -playerDir.Cross(m_playerTransform.GetUp());
+
+	//仮のXベクトルから上ベクトルを得る。
+	Vec3<float> axisY = playerDir.Cross(preAxisX);
+
+	//本当のXベクトルを得る。
+	Vec3<float> axisX = -playerDir.Cross(axisY);
+
+	//姿勢を得る。
+	DirectX::XMMATRIX matWorld = DirectX::XMMatrixIdentity();
+	matWorld.r[0] = { axisX.x, axisX.y, axisX.z, 0.0f };
+	matWorld.r[1] = { axisY.x, axisY.y, axisY.z, 0.0f };
+	matWorld.r[2] = { playerDir.x, playerDir.y, playerDir.z, 0.0f };
+
+	XMVECTOR rotate, scale, position;
+	DirectX::XMMatrixDecompose(&scale, &rotate, &position, matWorld);
+
+	m_attachedCam.lock()->GetTransform().SetRotate(rotate);
+
+}
+
+void CameraController::SetCameraPos() {
+
+	using namespace KuroEngine;
+
+	//背後にずらすベクトル
+	const float Z_HEIGHT_OFFSET = 0.3f;
+	KuroEngine::Vec3<float> zOffsetVec = -m_playerTransform.GetFront() + m_playerTransform.GetUp() * m_angleX;
+	KuroEngine::Vec3<float> zOffset = zOffsetVec.GetNormal() * m_distanceZ;
+
+	//背後にずらす。
+	Vec3<float> cameraBasePos = m_playerTransform.GetPos() + zOffset;
+	m_baseTransform.SetPos(KuroEngine::Math::Lerp(m_baseTransform.GetPos(), cameraBasePos, 0.9f));
+
+	//プレイヤーのちょっと上方向を向かせる。
+	const float UP_OFFSET = 3.0f;
+	Vec3<float> playerDir = m_playerTransform.GetPos() + (m_playerTransform.GetUp() * UP_OFFSET) - m_baseTransform.GetPos();
+	playerDir.Normalize();
+
+	//回転を持たせる。
+	Vec3<float> defVec = m_playerTransform.GetFront();
+	defVec = defVec * (playerDir.Dot(defVec) / defVec.Dot(defVec));
+
+	//回転軸と角度を求める。
+	Vec3<float> axis = defVec.Cross(playerDir);
+	float angle = acosf(defVec.Dot(playerDir));
+
+	//回転軸があったら。
+	if (0.001f < axis.Length()) {
+
+		auto q = DirectX::XMQuaternionRotationAxis(axis, angle);
+		m_baseTransform.SetRotate(DirectX::XMQuaternionMultiply(m_baseTransform.GetRotate(), q));
+
 	}
 
 }

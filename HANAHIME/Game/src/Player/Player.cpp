@@ -180,6 +180,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_cameraQ = DirectX::XMQuaternionIdentity();
 	m_canJumpDelayTimer = 0;
 	m_deathTimer = 0;
+	m_scopeMoveAccel = {};
 
 	m_moveSpeed = KuroEngine::Vec3<float>();
 	m_gimmickVel = KuroEngine::Vec3<float>();
@@ -241,6 +242,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove() * TimeScaleMgr::s_inGame.GetTimeScale();
+	m_scopeMoveAccel = KuroEngine::Math::Lerp(m_scopeMoveAccel, scopeMove, 0.3f);
 
 	//ジャンプができるかどうか。	一定時間地形に引っ掛かってたらジャンプできる。
 	m_canJump = CAN_JUMP_DELAY <= m_canJumpDelayTimer;
@@ -304,7 +306,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_rowMoveVec = OperationConfig::Instance()->GetMoveVecFuna(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
 
 		//カメラの回転を保存。
-		m_cameraRotYStorage += scopeMove.x;
+		m_cameraRotYStorage += m_scopeMoveAccel.x;
 
 		//入力量が一定以下だったら0にする。
 		const float DEADLINE = 0.8f;
@@ -472,10 +474,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(m_cameraTransform, CAMERA_MODE[m_cameraMode]);
-
-		//カメラの当たり判定
-		m_camController.TerrianMeshCollision(arg_nowStage);
+		m_camController.Update(m_scopeMoveAccel, m_cameraTransform, CAMERA_MODE[m_cameraMode], arg_nowStage);
 
 		m_deathEffectCameraZ = CAMERA_MODE[m_cameraMode];
 		TimeScaleMgr::s_inGame.Set(1.0f);
@@ -486,7 +485,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_deathShake);
 
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
-		m_camController.Update(m_cameraTransform, m_deathEffectCameraZ);
+		m_camController.Update(m_scopeMoveAccel, m_cameraTransform, m_deathEffectCameraZ, arg_nowStage);
 
 		//シェイクを計算。
 		m_deathShake.x = KuroEngine::GetRand(-m_deathShakeAmount, m_deathShakeAmount);

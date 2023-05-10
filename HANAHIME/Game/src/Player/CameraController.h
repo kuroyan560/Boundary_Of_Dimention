@@ -24,30 +24,20 @@ class CameraController : public KuroEngine::Debugger
 	KuroEngine::Angle m_xAxisAngleMin = KuroEngine::Angle(10);
 	KuroEngine::Angle m_xAxisAngleMax = KuroEngine::Angle(20);
 
-	struct Parameter
-	{
-		//対象との相対的なZオフセット
-		float m_posOffsetZ = -10.0f;
-		//X軸角度（高さ傾き）
-		KuroEngine::Angle m_xAxisAngle = KuroEngine::Angle(20);
+	//カメラのX軸回転
+	float m_oldAngleX;
+	float m_angleX;
+	float m_distanceZ;
 
-		//Y軸角度
-		KuroEngine::Angle m_yAxisAngle = KuroEngine::Angle(0);
-	};
-	//パラメータの初期化値（デフォルト値）
-	Parameter m_initializedParam;
-	//現在のパラメータ
-	Parameter m_nowParam;
+	//理想的なカメラのトランスフォーム カメラはこの値に向かって補間する。
+	KuroEngine::Transform m_baseTransform;
 
 	//操作するカメラのポインタ
+	KuroEngine::Vec3<float> m_oldPos;
 	std::weak_ptr<KuroEngine::Camera>m_attachedCam;
 
-	KuroEngine::Transform oldTransform;	//カメラのローカルでの回転と移動を計算する用。
-
-	KuroEngine::Transform m_cameraLocalTransform;	//カメラのローカルでの回転と移動を計算する用。
-	KuroEngine::Transform m_camParentTransform;		//プレイヤーの座標と回転を適応させる用。
-
 	KuroEngine::Transform m_cameraMoveTransform;
+	KuroEngine::Transform m_playerTransform;
 
 	//カメラの前方向座標移動のLerp値
 	float m_camForwardPosLerpRate = 0.8f;
@@ -65,15 +55,13 @@ public:
 	void AttachCamera(std::shared_ptr<KuroEngine::Camera>arg_cam);
 
 	void Init();
-	void Update(KuroEngine::Transform arg_playerTransform, float arg_cameraZ);
-
-	const KuroEngine::Quaternion& GetPosRotate() {
-		return m_camParentTransform.GetRotate();
-	}
+	void Update(KuroEngine::Vec3<float> arg_scopeMove, KuroEngine::Transform arg_playerTransform, float arg_cameraZ, const std::weak_ptr<Stage> arg_nowStage);
 
 	std::weak_ptr<KuroEngine::Camera> GetCamera() { return m_attachedCam; }
 
-	//地形との当たり判定
-	void TerrianMeshCollision(const std::weak_ptr<Stage>arg_nowStage);
+private:
+
+	//カメラを定位置にセット。
+	void SetCameraPos();
 
 };
