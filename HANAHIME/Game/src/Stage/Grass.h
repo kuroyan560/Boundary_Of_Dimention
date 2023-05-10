@@ -50,7 +50,7 @@ class Grass
 	struct PlantGrass
 	{
 		KuroEngine::Vec3<float>m_localPos = { 0,0,0 };
-		int m_texIdx = 0;
+		int m_modelIdx = 0;
 		KuroEngine::Vec3<float>m_normal = { 0,1,0 };
 		float m_sineLength;
 		float m_appearY;		//出現エフェクトに使用する変数 Y軸をどこまで表示させるか。
@@ -70,7 +70,7 @@ class Grass
 		KuroEngine::Vec3<float>m_pos;
 		float m_sineLength;
 		KuroEngine::Vec3<float>m_up;
-		int m_texIdx;
+		int m_modelIdx;
 		int m_isAlive;
 		KuroEngine::Vec3<float>m_pad;
 	};

@@ -8,7 +8,7 @@ struct GrassInitializer
     float3 m_pos;
     float m_sineLength;
     float3 m_up;
-    int m_texIdx;
+    int m_modelIdx;
     int m_isAlive;
 };
 
@@ -65,7 +65,7 @@ void Appear(uint DTid : SV_DispatchThreadID)
     newGrass.m_worldPos = initializer.m_pos;
     newGrass.m_normal = initializer.m_up;
     newGrass.m_sineLength = initializer.m_sineLength;
-    newGrass.m_texIdx = initializer.m_texIdx;
+    newGrass.m_modelIdx = initializer.m_modelIdx;
     newGrass.m_appearYTimer = 0;
     newGrass.m_appearY = 0;
     newGrass.m_isAlive = 1;

@@ -2,7 +2,7 @@
 struct PlantGrass
 {
     float3 m_localPos;
-    int m_texIdx;
+    int m_modelIdx;
     float3 m_normal;
     float m_sineLength;
     float m_appearY;

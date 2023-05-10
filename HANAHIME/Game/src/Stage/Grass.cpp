@@ -457,7 +457,7 @@ void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Transform arg
 		m_grassInitializerArray.back().m_up = plantData[count].m_plantNormal;
 		//とりあえず乱数でテクスチャ決定
 		//m_vertices[m_deadVertexIdx].m_texIdx = KuroEngine::GetRand(s_textureNumMax - 1);
-		m_grassInitializerArray.back().m_texIdx = KuroEngine::GetRand(3 - 1);
+		m_grassInitializerArray.back().m_modelIdx = KuroEngine::GetRand(3 - 1);
 		m_grassInitializerArray.back().m_sineLength = KuroEngine::GetRand(40) / 100.0f;
 	}
 

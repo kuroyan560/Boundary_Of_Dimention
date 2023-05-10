@@ -88,7 +88,7 @@ void GSmain(
     grass.m_normal = normalize(grass.m_normal);
     
     GSOutput element;
-    element.texID = grass.m_texIdx;
+    element.texID = grass.m_modelIdx;
     element.normal = grass.m_normal;
     element.isAlive = grass.m_isAlive;
     float3 position = grass.m_worldPos;
