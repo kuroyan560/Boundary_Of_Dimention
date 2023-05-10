@@ -20,8 +20,14 @@ enum ItemType
 
 struct HealData
 {
-	int m_heal = 0;
+	int m_heal = 120;
 };
+
+struct BuffData
+{
+	int m_buff = 60;
+};
+
 
 class IDatabase
 {
@@ -61,11 +67,11 @@ public:
 class ItemDatabase :public KuroEngine::DesignPattern::Singleton<ItemDatabase>
 {
 public:
-
 	ItemDatabase()
 	{
 		m_itemArray.resize(ITEM_MAX);
 		m_itemArray[ITEM_HEAL] = std::make_unique<ItemInterface<HealData>>(ITEM_HEAL);
+		m_itemArray[ITEM_BUFF] = std::make_unique<ItemInterface<BuffData>>(ITEM_BUFF);
 	}
 
 	IDatabase *GetData(ItemType Get)const
@@ -103,7 +109,21 @@ public:
 			m_hitBox.m_centerPos = &m_transform.GetPos();
 			m_hitBox.m_radius = &m_radius;
 
-			m_itemTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/Find.png");
+			switch (m_itemEnum)
+			{
+			case ITEM_NONE:
+				break;
+			case ITEM_HEAL:
+				m_itemTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/Find.png");
+				break;
+			case ITEM_BUFF:
+				m_itemTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/hatena.png");
+				break;
+			case ITEM_MAX:
+				break;
+			default:
+				break;
+			}
 		}
 
 		//ƒAƒCƒeƒ€‚Ì‰¼•`‰æ

@@ -286,13 +286,17 @@ public:
 
 	void GetItemEffect(std::shared_ptr<ItemOnGame::ItemData> itemData)
 	{
-		HealData healData;
 		switch (itemData->m_itemEnum)
 		{
 		case ITEM_NONE:
 			break;
 		case ITEM_HEAL:
-			healData = dynamic_cast<ItemInterface<HealData>*>(itemData->m_itemInfomation)->m_itemData;
+			m_heal = dynamic_cast<ItemInterface<HealData>*>(itemData->m_itemInfomation)->m_itemData;
+			m_nowTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/Find.png");;
+			break;
+		case ITEM_BUFF:
+			m_buff = dynamic_cast<ItemInterface<BuffData>*>(itemData->m_itemInfomation)->m_itemData;
+			m_nowTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/hatena.png");;
 			break;
 		default:
 			break;
@@ -301,6 +305,13 @@ public:
 	};
 
 private:
+
+	bool m_itemGetFlag;
+	HealData m_heal;
+	BuffData m_buff;
+	//アイテムの仮描画
+	std::shared_ptr<KuroEngine::TextureBuffer>m_nowTex;
+
 
 	//移動させる。
 	void Move(KuroEngine::Vec3<float>& arg_newPos);

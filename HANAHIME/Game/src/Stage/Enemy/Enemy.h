@@ -13,6 +13,7 @@ enum ENEMY_ATTACK_PATTERN
 	ENEMY_ATTACK_PATTERN_INVALID
 };
 
+
 class MiniBug :public StageParts
 {
 public:
@@ -58,7 +59,16 @@ public:
 
 		//ƒAƒCƒeƒ€¶¬ˆ—
 		m_initItemFlag = false;
-		m_item = ItemOnGame::Instance()->Generate(ItemDatabase::Instance()->GetData(ITEM_HEAL));
+
+		if (num % 2 == 0)
+		{
+			m_item = ItemOnGame::Instance()->Generate(ItemDatabase::Instance()->GetData(ITEM_HEAL));
+		}
+		else
+		{
+			m_item = ItemOnGame::Instance()->Generate(ItemDatabase::Instance()->GetData(ITEM_BUFF));
+		}
+		++num;
 	}
 
 	void OnInit()override;
@@ -66,6 +76,8 @@ public:
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 
 	void DebugDraw(KuroEngine::Camera &camera);
+
+	static int num;
 
 private:
 	std::shared_ptr<KuroEngine::Model>m_enemyModel;

@@ -14,6 +14,7 @@
 #include"../TimeScaleMgr.h"
 #include"DirectX12/D3D12App.h"
 #include"Render/RenderObject/ModelInfo/ModelAnimator.h"
+#include"ForUser/DrawFunc/BillBoard/DrawFuncBillBoard.h"
 
 void Player::OnImguiItems()
 {
@@ -26,14 +27,14 @@ void Player::OnImguiItems()
 		auto pos = m_transform.GetPos();
 		auto angle = m_transform.GetRotateAsEuler();
 
-		if (ImGui::DragFloat3("Position", (float*)&pos, 0.5f))
+		if (ImGui::DragFloat3("Position", (float *)&pos, 0.5f))
 		{
 			m_transform.SetPos(pos);
 		}
 
 		//操作しやすいようにオイラー角に変換
 		KuroEngine::Vec3<float>eular = { angle.x.GetDegree(),angle.y.GetDegree(),angle.z.GetDegree() };
-		if (ImGui::DragFloat3("Eular", (float*)&eular, 0.5f))
+		if (ImGui::DragFloat3("Eular", (float *)&eular, 0.5f))
 		{
 			m_transform.SetRotate(Angle::ConvertToRadian(eular.x), Angle::ConvertToRadian(eular.y), Angle::ConvertToRadian(eular.z));
 		}
@@ -73,7 +74,7 @@ void Player::OnImguiItems()
 	}
 }
 
-void Player::AnimationSpecification(const KuroEngine::Vec3<float>& arg_beforePos, const KuroEngine::Vec3<float>& arg_newPos)
+void Player::AnimationSpecification(const KuroEngine::Vec3<float> &arg_beforePos, const KuroEngine::Vec3<float> &arg_newPos)
 {
 	//移動ステータス
 	if (m_playerMoveStatus == PLAYER_MOVE_STATUS::MOVE)
@@ -280,7 +281,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 			//イージングが終わっている時のみ地中に潜ったり出たりする判定を持たせる。
 			bool isInputOnOff = UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->KeyOffTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A) || UsersInput::Instance()->ControllerOffTrigger(0, KuroEngine::A);
-			if ((isInputOnOff || (!m_isUnderGround && m_isInputUnderGround) || (m_isUnderGround && !m_isInputUnderGround) ) && m_canUnderGroundRelease) {
+			if ((isInputOnOff || (!m_isUnderGround && m_isInputUnderGround) || (m_isUnderGround && !m_isInputUnderGround)) && m_canUnderGroundRelease) {
 				m_underGroundEaseTimer = 0;
 			}
 
@@ -542,7 +543,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 }
 
-void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
+void Player::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr, bool arg_cameraDraw)
 {
 	/*
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
@@ -550,6 +551,7 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		m_transform,
 		arg_cam);
 	*/
+
 
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 1.0f, 0.0f);
@@ -563,12 +565,12 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		KuroEngine::AlphaBlendMode_None,
 		m_modelAnimator->GetBoneMatBuff());
 
-	
+
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_axisModel,
 		m_drawTransform,
 		arg_cam);
-	
+
 
 	if (arg_cameraDraw)
 	{
@@ -578,6 +580,19 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 			camTransform.GetMatWorld(),
 			arg_cam);
 	}
+
+	//アイテム可視化用
+	if (0 < m_buff.m_buff)
+	{
+		KuroEngine::DrawFuncBillBoard::Graph(arg_cam, m_drawTransform.GetPos() + KuroEngine::Vec3<float>(0.0f, 10.0f, 5.0f), KuroEngine::Vec2<float>(5.0f, 5.0f), m_nowTex);
+		--m_buff.m_buff;
+	}
+	if (0 < m_heal.m_heal)
+	{
+		KuroEngine::DrawFuncBillBoard::Graph(arg_cam, m_drawTransform.GetPos() + KuroEngine::Vec3<float>(0.0f, 10.0f, 5.0f), KuroEngine::Vec2<float>(1.0f, 1.0f), m_nowTex);
+		--m_heal.m_heal;
+	}
+
 }
 
 void Player::DrawUI()
@@ -645,7 +660,7 @@ bool Player::CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, KuroEngin
 	return true;
 }
 
-void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
+void Player::Move(KuroEngine::Vec3<float> &arg_newPos) {
 
 	//落下中は入力を無効化。
 	if (!m_onGround) {

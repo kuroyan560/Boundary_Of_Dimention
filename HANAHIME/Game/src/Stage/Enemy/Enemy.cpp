@@ -3,6 +3,9 @@
 #include"FrameWork/UsersInput.h"
 #include"../../Graphics/BasicDraw.h"
 
+
+int MiniBug::num = 0;
+
 void MiniBug::OnInit()
 {
 	m_nowStatus = SEARCH;
@@ -16,6 +19,7 @@ void MiniBug::OnInit()
 	m_hitBox.m_centerPos = &m_pos;
 	m_hitBox.m_radius = &m_scale;
 	m_initItemFlag = false;
+	m_item->m_enbaleToGetFlag = false;
 }
 
 void MiniBug::Update(Player &arg_player)

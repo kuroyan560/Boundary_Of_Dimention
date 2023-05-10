@@ -288,7 +288,7 @@ void GameScene::OnDraw()
 
 	//if (m_title.IsStartOP())
 	{
-		m_particleRender.Draw(*m_nowCam);
+		//m_particleRender.Draw(*m_nowCam);
 	}
 
 
