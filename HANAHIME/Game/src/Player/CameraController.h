@@ -42,6 +42,7 @@ class CameraController : public KuroEngine::Debugger
 	//操作するカメラのポインタ
 	std::weak_ptr<KuroEngine::Camera>m_attachedCam;
 
+	KuroEngine::Vec3<float> m_oldCameraWorldPos;
 	KuroEngine::Transform m_cameraLocalTransform;	//カメラのローカルでの回転と移動を計算する用。
 	KuroEngine::Transform m_camParentTransform;		//プレイヤーの座標と回転を適応させる用。
 
@@ -61,7 +62,7 @@ public:
 	void AttachCamera(std::shared_ptr<KuroEngine::Camera>arg_cam);
 
 	void Init();
-	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Vec3<float>arg_targetPos, float arg_playerRotY, float arg_cameraZ);
+	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage);
 
 	const KuroEngine::Quaternion& GetPosRotate() {
 		return m_camParentTransform.GetRotate();

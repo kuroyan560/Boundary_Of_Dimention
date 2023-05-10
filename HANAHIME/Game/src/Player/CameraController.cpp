@@ -58,12 +58,15 @@ void CameraController::Init()
 	m_verticalControl = ANGLE;
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Vec3<float>arg_targetPos, float arg_playerRotY, float arg_cameraZ)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
 
 	//カメラがアタッチされていない
 	if (m_attachedCam.expired())return;
+
+	//トランスフォームを保存。
+	m_oldCameraWorldPos = m_cameraLocalTransform.GetPosWorldByMatrix();
 
 	//左右カメラ操作
 	m_nowParam.m_yAxisAngle = arg_playerRotY;
@@ -96,25 +99,71 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	//コントローラーのトランスフォーム（対象の周囲、左右移動）更新
 	m_camParentTransform.SetRotate(Vec3<float>::GetYAxis(), m_nowParam.m_yAxisAngle);
-	m_camParentTransform.SetPos(Math::Lerp(m_camParentTransform.GetPos(), arg_targetPos, m_camFollowLerpRate));
+	m_camParentTransform.SetPos(Math::Lerp(m_camParentTransform.GetPos(), arg_targetPos.GetPosWorld(), m_camFollowLerpRate));
 
 
 
 
 
-
-	//使用するカメラに回転を適用。
-	auto local = m_cameraLocalTransform.GetRotate();
-	auto world = m_cameraLocalTransform.GetRotateWorld();
-	m_attachedCam.lock()->GetTransform().SetRotate(m_cameraLocalTransform.GetRotateWorld());
-
-	auto localScale = m_cameraLocalTransform.GetScaleWorld();
-	auto worldScale = m_cameraLocalTransform.GetScaleWorld();
-
-	auto eye = m_attachedCam.lock()->GetEye();
 
 	//使用するカメラの座標を補間して適用。
 	m_attachedCam.lock()->GetTransform().SetPos(m_cameraLocalTransform.GetPosWorldByMatrix());
+
+	////通常の地形を走査
+	//for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
+	//{
+	//	//モデル情報取得
+	//	auto model = terrian.GetModel().lock();
+
+	//	//メッシュを走査
+	//	for (auto& modelMesh : model->m_meshes)
+	//	{
+
+	//		//当たり判定に使用するメッシュ
+	//		auto checkHitMesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+
+	//		//判定↓============================================
+
+	//		//当たり判定を実行
+	//		auto moveVec = m_cameraLocalTransform.GetPosWorldByMatrix() - arg_targetPos.GetPos();
+	//		CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_targetPos.GetPos(), moveVec.GetNormal(), checkHitMesh);
+
+	//		if (output.m_isHit && 0 < output.m_distance && output.m_distance < moveVec.Length()) {
+
+	//			m_attachedCam.lock()->GetTransform().SetPos(output.m_pos + output.m_normal);
+
+	//		}
+
+	//		//=================================================
+	//	}
+	//}
+
+	//現在の座標からプレイヤーに向かう回転を求める。
+	Vec3<float> playerDir = arg_targetPos.GetPos() - m_attachedCam.lock()->GetTransform().GetPosWorld();
+	playerDir.Normalize();
+
+	//仮のXベクトルから上ベクトルを得る。
+	Vec3<float> axisY = { 0,1,0 };
+
+	//プレイヤーの法線との外積から仮のXベクトルを得る。
+	Vec3<float> axisX = axisY.Cross(playerDir);
+
+	//本当のXベクトルを得る。
+	Vec3<float> axisZ = -axisY.Cross(axisX);
+
+	//姿勢を得る。
+	DirectX::XMMATRIX matWorld = DirectX::XMMatrixIdentity();
+	matWorld.r[0] = { axisX.x, axisX.y, axisX.z, 0.0f };
+	matWorld.r[1] = { axisY.x, axisY.y, axisY.z, 0.0f };
+	matWorld.r[2] = { axisZ.x, axisZ.y, axisZ.z, 0.0f };
+
+	XMVECTOR rotate, scale, position;
+	DirectX::XMMatrixDecompose(&scale, &rotate, &position, matWorld);
+	rotate = DirectX::XMQuaternionNormalize(rotate);
+
+	//回転を適用。
+	m_attachedCam.lock()->GetTransform().SetRotate(rotate);
+
 
 	//m_attachedCam.lock()->GetTransform() = m_cameraLocalTransform;
 
