@@ -1,6 +1,6 @@
 #include"../../engine/Math.hlsli"
-#include"Grass.hlsli"
 #include"../../engine/Camera.hlsli"
+#include"Grass.hlsli"
 
 //A‚¦‚é‘‚Ì‰Šú‰»’l
 struct GrassInitializer
@@ -26,9 +26,7 @@ RWStructuredBuffer<PlantGrass> aliveGrassBuffer : register(u0);
 ConsumeStructuredBuffer<PlantGrass> consumeAliveGrassBuffer : register(u0);
 AppendStructuredBuffer<PlantGrass> appendAliveGrassBuffer : register(u0);
 
-RWStructuredBuffer<int> sortAndDisappearNumBuffer : register(u1);
-
-RWStructuredBuffer<CheckResult> checkResultBuffer : register(u2);
+RWStructuredBuffer<CheckResult> checkResultBuffer : register(u1);
 
 StructuredBuffer<GrassInitializer> stackGrassInitializerBuffer : register(t0);
 Texture2D<float4> g_worldMap : register(t1);
@@ -43,6 +41,11 @@ cbuffer cbuff0 : register(b0)
 cbuffer cbuff1 : register(b1)
 {
     CommonGrassInfo commonInfo;
+}
+
+cbuffer cbuff2 : register(b2)
+{
+    int consumeNum;
 }
 
 [numthreads(1, 1, 1)]
@@ -125,49 +128,10 @@ void Update(uint DTid : SV_DispatchThreadID)
     aliveGrassBuffer[DTid] = grass;
 };
 
-void SwapGrass(inout PlantGrass a, inout PlantGrass b)
-{
-    PlantGrass tmp = a;
-    a = b;
-    b = tmp;
-}
-
-[numthreads(1, 1, 1)]
-void Sort(uint DTid : SV_DispatchThreadID)
-{
-    //sortAndDisappearNumBuffer‚É‚Í¶‚«‚Ä‚¢‚é‘‚ÌƒJƒEƒ“ƒg‚ªŠi”[‚³‚ê‚Ä‚¢‚é
-    uint aliveGrassCount = sortAndDisappearNumBuffer[0];
-    uint consumeCount = 0;
-    
-    for (int i = 0; i < aliveGrassCount; ++i)
-    {
-        PlantGrass grass = aliveGrassBuffer[i];
-        
-        //Šù‚É€‚ñ‚Å‚¢‚é‚à‚Ì‚¾‚Á‚½ê‡
-        if (grass.m_isAlive == 0)
-        {
-            //€‚ñ‚Å‚¢‚é‚à‚Ì‚ª––”ö‚É—ˆ‚é‚æ‚¤ŒğŠ·
-            for (int j = aliveGrassCount - 1; 0 <= j; --j)
-            {
-                if (i == j)
-                    break;
-                
-                if (aliveGrassBuffer[j].m_isAlive)
-                {
-                    SwapGrass(aliveGrassBuffer[i], aliveGrassBuffer[j]);
-                    break;
-                }
-            }
-            consumeCount++;
-        }
-    }
-    sortAndDisappearNumBuffer[0] = consumeCount;
-};
-
 [numthreads(1, 1, 1)]
 void Disappear(uint DTid : SV_DispatchThreadID)
 {
-    for (int i = 0; i < sortAndDisappearNumBuffer[0]; ++i)
+    for (int i = 0; i < consumeNum; ++i)
     {
         consumeAliveGrassBuffer.Consume();
     }

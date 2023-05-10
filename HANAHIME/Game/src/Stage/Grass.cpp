@@ -30,16 +30,12 @@ Grass::Grass()
 		auto cs_appear = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass.hlsl", "Appear", "cs_6_4");
 		m_cPipeline[APPEAR] = D3D12App::Instance()->GenerateComputePipeline(cs_appear, rootParam, { WrappedSampler(true,true) });
 
-		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, "ソートと削除で使うカウンタバッファ");
 		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "ワールド座標");
 		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "法線マップ");
 		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "光が当たっている範囲のマップ");
 		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "草むら以外のトランスフォームデータ");
 		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "全草むらで共通する定数バッファ");
-
-		//ソート用パイプライン（死んでいるものが先頭側に来るようソート）
-		auto cs_sort = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass.hlsl", "Sort", "cs_6_4");
-		m_cPipeline[SORT] = D3D12App::Instance()->GenerateComputePipeline(cs_sort, rootParam, { WrappedSampler(true,true) });
+		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "削除する草のカウント");
 
 		//削除用パイプライン
 		auto cs_disappear = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass.hlsl", "Disappear", "cs_6_4");
@@ -139,11 +135,13 @@ Grass::Grass()
 		"Grass - PlantGrass - RWStructuredBuffer");
 
 	//ソートと削除処理で使うunsigned int のバッファー
-	m_sortAndDisappearNumBuffer = D3D12App::Instance()->GenerateRWStructuredBuffer(
+	int initZero = 0;
+	m_consumeCountBuffer = D3D12App::Instance()->GenerateConstantBuffer(
 		sizeof(int),
 		1,
-		nullptr,
-		"Grass - SortAndDisappearNumber - RWStructuredBuffer");
+		&initZero,
+		"Grass - ConsumeCount - ConstantBuffer"
+	);
 
 	//判定結果の格納用バッファ
 	std::array<CheckResult, GRASSF_SEARCH_COUNT> checkResultInit;
@@ -242,6 +240,8 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 		{m_stackGrassInitializerBuffer, SRV},
 	};
 
+	//植えた草むらの配列のポインタ取得
+	auto aliveGrassArrayBufferPtr = m_plantGrassBuffer->GetResource()->GetBuffOnCpu<PlantGrass>();
 	//植えた草むらのカウントのポインタ取得
 	auto plantGrassCountPtr = m_plantGrassCounterBuffer->GetResource()->GetBuffOnCpu<int>();
 
@@ -280,34 +280,24 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 	if (*plantGrassCountPtr)
 	{
 
-		descData.emplace_back(m_sortAndDisappearNumBuffer, UAV);
 		descData.emplace_back(BasicDraw::Instance()->GetRenderTarget(BasicDraw::WORLD_POS), SRV);
 		descData.emplace_back(BasicDraw::Instance()->GetRenderTarget(BasicDraw::NORMAL_GRASS), SRV);
 		descData.emplace_back(BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT), SRV);
 		descData.emplace_back(m_otherTransformConstBuffer, CBV);
 		descData.emplace_back(m_constBuffer, CBV);
+		descData.emplace_back(m_consumeCountBuffer, CBV);
 
 		D3D12App::Instance()->DispathOneShot(
 			m_cPipeline[UPDATE],
 			{ *plantGrassCountPtr,1,1 },
 			descData);
 
-		m_sortAndDisappearNumBuffer->Mapping(plantGrassCountPtr);
-
-		//GPU上でソートしたら草消えるバグ置きたのでCPU側でソート。動けば勝ちや！！！！！！！！！！！
-		auto aliveGrassArrayBufferPtr = m_plantGrassBuffer->GetResource()->GetBuffOnCpu<PlantGrass>();
-		std::vector<PlantGrass>aliveGrassArray;
-		int consumeCount = 0;
-		//GPU上の草データをvectorにいれる。
-		for (int i = 0; i < *plantGrassCountPtr; ++i)
-		{
-			aliveGrassArray.emplace_back(aliveGrassArrayBufferPtr[i]);
-			if (aliveGrassArray.back().m_isAlive == 0)consumeCount++;
-		}
-
 		//下方向にレイを飛ばして、そこが動く足場だったら親子関係を結ぶ。
-		for (auto& index : aliveGrassArray) {
+		for (int grassIdx = 0; grassIdx < *plantGrassCountPtr;++grassIdx) 
+		{
+			auto& index = aliveGrassArrayBufferPtr[grassIdx];
 
+			if (!index.m_isAlive)continue;
 			if (index.m_isCheckGround) continue;
 
 			int terrianIdx = 0;
@@ -346,11 +336,8 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 
 
 			index.m_isCheckGround = true;
-		}
 
-		//草にトランスフォームを適応。
-		for (auto& index : aliveGrassArray) {
-
+			//草にトランスフォームを適応。
 			//Indexが-1だったら処理を飛ばす。
 			if (index.m_terrianIdx == -1) continue;
 
@@ -359,11 +346,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 
 			index.m_worldPos += terrian->get()->GetMoveAmount();
 
-		}
-
-		//原点付近に生える草は削除
-		for (auto& index : aliveGrassArray) {
-
+			//原点付近に生える草は削除
 			//攻撃中で、既定の範囲内だったらAppearYを超でかくする。
 			if (arg_isAttack && (arg_playerTransform.GetPos() - index.m_worldPos).Length() < arg_plantInfluenceRange) {
 				index.m_appearY = 10.0f;
@@ -373,22 +356,28 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 			index.m_isAlive = false;
 		}
 
-		//フラグがfalseになった草を最後尾へ
+		//GPU上でソートしたら草消えるバグ置きたのでCPU側でソート。動けば勝ちや！！！！！！！！！！！
+		std::vector<PlantGrass>aliveGrassArray;
+		//GPU上の草データをvectorにいれる。
+		aliveGrassArray.resize(*plantGrassCountPtr);
+		std::memcpy(aliveGrassArray.data(), aliveGrassArrayBufferPtr, sizeof(PlantGrass)* (*plantGrassCountPtr));
+
+		//削除する数のカウント
+		int consumeCount = static_cast<int>(std::count_if(aliveGrassArray.begin(), aliveGrassArray.end(), [](PlantGrass& grass)
+			{
+				return grass.m_isAlive == 0;
+			}));
+
+		//フラグがfalseになった草を最後尾へソート
 		std::sort(aliveGrassArray.begin(), aliveGrassArray.end(), [](PlantGrass& a, PlantGrass& b) {
 			return a.m_isAlive > b.m_isAlive;
 			});
 
-		//原点付近の草は削除
+		//GPUに送信
 		m_plantGrassBuffer->Mapping(aliveGrassArray.data(), *plantGrassCountPtr);
-		m_sortAndDisappearNumBuffer->Mapping(&consumeCount);
+		m_consumeCountBuffer->Mapping(&consumeCount);
 
-		//死んでいるものが先頭に来るようソート
-		/*D3D12App::Instance()->DispathOneShot(
-			m_cPipeline[SORT],
-			{ 1,1,1 },
-			descData);*/
-
-			//死んでいるものを削除
+		//死んでいるものを削除
 		D3D12App::Instance()->DispathOneShot(
 			m_cPipeline[DISAPPEAR],
 			{ 1,1,1 },
@@ -498,13 +487,13 @@ std::array<Grass::CheckResult, Grass::GRASSF_SEARCH_COUNT> Grass::SearchPlantPos
 	std::vector<RegisterDescriptorData>descData =
 	{
 		{m_plantGrassBuffer,UAV},
-		{m_plantGrassCounterBuffer,UAV},
 		{m_stackGrassInitializerBuffer,SRV},
 		{BasicDraw::Instance()->GetRenderTarget(BasicDraw::WORLD_POS),SRV},
 		{BasicDraw::Instance()->GetRenderTarget(BasicDraw::NORMAL),SRV},
 		{BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT),SRV},
 		{m_otherTransformConstBuffer,CBV},
 		{m_constBuffer,CBV},
+		{m_consumeCountBuffer,CBV},
 		{m_checkResultBuffer,UAV}
 	};
 

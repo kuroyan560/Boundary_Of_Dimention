@@ -62,7 +62,6 @@ class Grass
 	};
 	//植えた草の情報配列バッファ
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_plantGrassBuffer;
-	//植えた草のカウンタバッファ
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_plantGrassCounterBuffer;
 
 	//草むらのイニシャライザ情報
@@ -89,7 +88,7 @@ class Grass
 	static const int PLANT_ONCE_COUNT = 512;
 
 	//コンピュートパイプライン種別
-	enum COMPUTE_PHASE { INIT, SEARCH_PLANT_POS, APPEAR, UPDATE, SORT, DISAPPEAR, NUM };
+	enum COMPUTE_PHASE { INIT, SEARCH_PLANT_POS, APPEAR, UPDATE, DISAPPEAR, NUM };
 	//コンピュートパイプライン
 	std::array<std::shared_ptr<KuroEngine::ComputePipeline>, COMPUTE_PHASE::NUM>m_cPipeline;
 	//描画用グラフィックスパイプライン
@@ -146,7 +145,7 @@ class Grass
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_checkResultBuffer;
 
 	//ソートと削除処理で使うunsigned int のバッファー
-	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_sortAndDisappearNumBuffer;
+	std::shared_ptr<KuroEngine::ConstantBuffer>m_consumeCountBuffer;
 
 	//テクスチャ
 	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, s_textureNumMax>m_texBuffer;
