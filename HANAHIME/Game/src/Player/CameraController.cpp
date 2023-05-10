@@ -114,9 +114,9 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	auto eye = m_attachedCam.lock()->GetEye();
 
 	//使用するカメラの座標を補間して適用。
-	m_attachedCam.lock()->GetTransform().SetPos(m_cameraLocalTransform.GetPosWorld());
+	m_attachedCam.lock()->GetTransform().SetPos(m_cameraLocalTransform.GetPosWorldByMatrix());
 
-	m_attachedCam.lock()->GetTransform() = m_cameraLocalTransform;
+	//m_attachedCam.lock()->GetTransform() = m_cameraLocalTransform;
 
 }
 

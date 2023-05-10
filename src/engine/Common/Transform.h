@@ -74,11 +74,21 @@ namespace KuroEngine
 		//親のトランスフォームも考慮した座標
 		Vec3<float>GetPosWorld()
 		{
+			return m_pos + (m_parent ? m_parent->GetPosWorld() : Vec3<float>(0, 0, 0));
+		}
+		//親のトランスフォームも考慮した座標（ワールド行列より）
+		Vec3<float>GetPosWorldByMatrix()
+		{
 			const auto& worldMat = GetMatWorld();
 			return { worldMat.r[3].m128_f32[0],worldMat.r[3].m128_f32[1],worldMat.r[3].m128_f32[2] };
 		}
 		//親のトランスフォームも考慮したスケーリング
 		Vec3<float>GetScaleWorld()
+		{
+			return m_scale * (m_parent ? m_parent->GetScaleWorld() : Vec3<float>(1, 1, 1));
+		}
+		//親のトランスフォームも考慮したスケーリング(ワールド行列より)
+		Vec3<float>GetScaleWorldByMatrix()
 		{
 			const auto& worldMat = GetMatWorld();
 			return { worldMat.r[0].m128_f32[0],worldMat.r[1].m128_f32[1],worldMat.r[2].m128_f32[2] };
