@@ -24,19 +24,14 @@ class CameraController : public KuroEngine::Debugger
 	KuroEngine::Angle m_xAxisAngleMin = KuroEngine::Angle(10);
 	KuroEngine::Angle m_xAxisAngleMax = KuroEngine::Angle(20);
 
-	//カメラのX軸回転
-	float m_oldAngleX;
-	float m_angleX;
-	float m_distanceZ;
 
 	//理想的なカメラのトランスフォーム カメラはこの値に向かって補間する。
 	KuroEngine::Transform m_baseTransform;
 
 	//操作するカメラのポインタ
-	KuroEngine::Vec3<float> m_oldPos;
 	std::weak_ptr<KuroEngine::Camera>m_attachedCam;
 
-	KuroEngine::Transform m_cameraMoveTransform;
+	KuroEngine::Transform m_oldPlayerTransform;
 	KuroEngine::Transform m_playerTransform;
 
 	//カメラの前方向座標移動のLerp値
