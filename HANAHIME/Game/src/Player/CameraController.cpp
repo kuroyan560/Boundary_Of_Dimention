@@ -49,7 +49,7 @@ void CameraController::AttachCamera(std::shared_ptr<KuroEngine::Camera> arg_cam)
 	//操作対象となるカメラのポインタを保持
 	m_attachedCam = arg_cam;
 	//コントローラーのトランスフォームを親として設定
-	m_cameraLocalTransform.SetParent(&m_camParentTransform);
+	//m_attachedCam.lock()->GetTransform().SetParent(&m_camParentTransform);
 }
 
 void CameraController::Init()
@@ -58,65 +58,111 @@ void CameraController::Init()
 	m_verticalControl = ANGLE;
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Vec3<float>arg_targetPos, float arg_playerRotY, float arg_cameraZ)
+void CameraController::Update(KuroEngine::Transform arg_playerTransform, float arg_cameraZ)
 {
 	using namespace KuroEngine;
 
 	//カメラがアタッチされていない
 	if (m_attachedCam.expired())return;
 
-	//左右カメラ操作
-	m_nowParam.m_yAxisAngle = arg_playerRotY;
+	//トランスフォームを保存。
+	m_attachedCam.lock()->GetTransform() = arg_playerTransform;
 
-	//上下カメラ操作
-	switch (m_verticalControl)
-	{
-	case ANGLE:
-		m_nowParam.m_xAxisAngle -= arg_scopeMove.y * 0.3f;
-		//if (m_nowParam.m_xAxisAngle <= m_xAxisAngleMin)m_verticalControl = DIST;
-		break;
+	//背後にずらすベクトル
+	const float Z_HEIGHT_OFFSET = 0.3f;
+	KuroEngine::Vec3<float> zOffsetVec = -arg_playerTransform.GetFront() + arg_playerTransform.GetUp() * Z_HEIGHT_OFFSET;
+	KuroEngine::Vec3<float> zOffset = zOffsetVec.GetNormal() * arg_cameraZ;
 
-	case DIST:
-		m_nowParam.m_posOffsetZ += arg_scopeMove.y * 6.0f;
-		if (m_nowParam.m_posOffsetZ <= m_posOffsetDepthMin)m_verticalControl = ANGLE;
-		break;
+	//背後にずらす。
+	m_attachedCam.lock()->GetTransform().SetPos(arg_playerTransform.GetPos() + zOffset);
+
+	//プレイヤーのちょっと上方向を向かせる。
+	const float UP_OFFSET = 3.0f;
+	Vec3<float> playerDir = arg_playerTransform.GetPos() + (arg_playerTransform.GetUp() * UP_OFFSET) - m_attachedCam.lock()->GetTransform().GetPos();
+	playerDir.Normalize();
+
+	//回転を持たせる。
+	Vec3<float> defVec = arg_playerTransform.GetFront();
+	defVec = defVec * (playerDir.Dot(defVec) / defVec.Dot(defVec));
+
+	//回転軸と角度を求める。
+	Vec3<float> axis = defVec.Cross(playerDir);
+	float angle = acosf(defVec.Dot(playerDir));
+
+	//回転軸があったら。
+	if (0.1f < axis.Length()) {
+
+		auto q = DirectX::XMQuaternionRotationAxis(axis, angle);
+		m_attachedCam.lock()->GetTransform().SetRotate(DirectX::XMQuaternionMultiply(m_attachedCam.lock()->GetTransform().GetRotate(), q));
+
 	}
 
-	//上限値超えないようにする
-	m_nowParam.m_posOffsetZ = arg_cameraZ;
-	m_nowParam.m_xAxisAngle = std::clamp(m_nowParam.m_xAxisAngle, m_xAxisAngleMin, m_xAxisAngleMax);
-
-
-	//操作するカメラのトランスフォーム（前後移動）更新
-	Vec3<float> localPos = { 0,0,0 };
-	localPos.z = m_nowParam.m_posOffsetZ;
-	localPos.y = m_gazePointOffset.y + tan(-m_nowParam.m_xAxisAngle) * m_nowParam.m_posOffsetZ;
-	m_cameraLocalTransform.SetPos(Math::Lerp(m_cameraLocalTransform.GetPos(), localPos, m_camForwardPosLerpRate));
-	m_cameraLocalTransform.SetRotate(Vec3<float>::GetXAxis(), m_nowParam.m_xAxisAngle);
-
-	//コントローラーのトランスフォーム（対象の周囲、左右移動）更新
-	m_camParentTransform.SetRotate(Vec3<float>::GetYAxis(), m_nowParam.m_yAxisAngle);
-	m_camParentTransform.SetPos(Math::Lerp(m_camParentTransform.GetPos(), arg_targetPos, m_camFollowLerpRate));
 
 
 
 
+	//oldTransform = m_attachedCam.lock()->GetTransform();
+
+	////左右カメラ操作
+	//m_nowParam.m_yAxisAngle = arg_playerRotY;
+
+	////上下カメラ操作
+	//switch (m_verticalControl)
+	//{
+	//case ANGLE:
+	//	m_nowParam.m_xAxisAngle -= arg_scopeMove.y * 0.3f;
+	//	//if (m_nowParam.m_xAxisAngle <= m_xAxisAngleMin)m_verticalControl = DIST;
+	//	break;
+
+	//case DIST:
+	//	m_nowParam.m_posOffsetZ += arg_scopeMove.y * 6.0f;
+	//	if (m_nowParam.m_posOffsetZ <= m_posOffsetDepthMin)m_verticalControl = ANGLE;
+	//	break;
+	//}
+
+	////上限値超えないようにする
+	//m_nowParam.m_posOffsetZ = arg_cameraZ;
+	//m_nowParam.m_xAxisAngle = std::clamp(m_nowParam.m_xAxisAngle, m_xAxisAngleMin, m_xAxisAngleMax);
 
 
-	//使用するカメラに回転を適用。
-	auto local = m_cameraLocalTransform.GetRotate();
-	auto world = m_cameraLocalTransform.GetRotateWorld();
-	m_attachedCam.lock()->GetTransform().SetRotate(m_cameraLocalTransform.GetRotateWorld());
+	////操作するカメラのトランスフォーム（前後移動）更新
+	//Vec3<float> localPos = { 0,0,0 };
+	//localPos.z = m_nowParam.m_posOffsetZ;
+	//localPos.y = m_gazePointOffset.y + tan(-m_nowParam.m_xAxisAngle) * m_nowParam.m_posOffsetZ;
+	//m_attachedCam.lock()->GetTransform().SetPos(Math::Lerp(m_attachedCam.lock()->GetTransform().GetPos(), localPos, m_camForwardPosLerpRate));
+	//m_attachedCam.lock()->GetTransform().SetRotate(Vec3<float>::GetXAxis(), m_nowParam.m_xAxisAngle);
 
-	auto localScale = m_cameraLocalTransform.GetScaleWorld();
-	auto worldScale = m_cameraLocalTransform.GetScaleWorld();
+	////コントローラーのトランスフォーム（対象の周囲、左右移動）更新
+	//m_camParentTransform.SetRotate(Vec3<float>::GetYAxis(), m_nowParam.m_yAxisAngle);
+	//m_camParentTransform.SetPos(Math::Lerp(m_camParentTransform.GetPos(), arg_targetPos, m_camFollowLerpRate));
 
-	auto eye = m_attachedCam.lock()->GetEye();
 
-	//使用するカメラの座標を補間して適用。
-	m_attachedCam.lock()->GetTransform().SetPos(m_cameraLocalTransform.GetPosWorld());
 
-	m_attachedCam.lock()->GetTransform() = m_cameraLocalTransform;
+
+
+
+	////使用するカメラに回転を適用。
+	//XMVECTOR rotate, translation, scaling;
+	//DirectX::XMMatrixDecompose(&scaling, &rotate, &translation, m_cameraLocalTransform.GetMatWorld());
+
+	//rotate = DirectX::XMQuaternionNormalize(rotate);
+
+	//auto local = m_cameraLocalTransform.GetRotate();
+	//auto world = m_cameraLocalTransform.GetRotateWorld();
+	//m_attachedCam.lock()->GetTransform().SetRotate({ rotate.m128_f32[0], rotate .m128_f32[1], rotate .m128_f32[2]});
+
+	//auto localScale = m_cameraLocalTransform.GetScaleWorld();
+	//auto worldScale = m_cameraLocalTransform.GetScaleWorld();
+
+	//auto eye = m_attachedCam.lock()->GetEye();
+
+	////使用するカメラの座標を補間して適用。
+	//m_attachedCam.lock()->GetTransform().SetPos({ translation.m128_f32[0], translation.m128_f32[1], translation.m128_f32[2] });
+	//m_attachedCam.lock()->GetTransform().SetScale({ scaling.m128_f32[0], scaling.m128_f32[1], scaling.m128_f32[2] });
+
+	//m_attachedCam.lock()->GetTransform() = m_cameraLocalTransform;
+
+	//int a = 0;
 
 }
 
@@ -139,16 +185,15 @@ void CameraController::TerrianMeshCollision(const std::weak_ptr<Stage> arg_nowSt
 			//判定↓============================================
 
 			//当たり判定を実行
-			//auto eyePos = m_oldAttackCam.GetPosWorld();
-			//auto moveVec = m_attachedCam.lock()->GetTransform().GetPosWorld() - m_oldAttackCam.GetPosWorld();
-			//CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(eyePos, moveVec.GetNormal(), checkHitMesh);
+			auto eyePos = m_attachedCam.lock()->GetTransform().GetPosWorld();
+			auto moveVec = m_attachedCam.lock()->GetTransform().GetPosWorld() - oldTransform.GetPosWorld();
+			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(eyePos, moveVec.GetNormal(), checkHitMesh);
 
-			//if (output.m_isHit && 0 < output.m_distance && output.m_distance < moveVec.Length()) {
+			if (output.m_isHit && 0 < output.m_distance && output.m_distance < moveVec.Length()) {
 
-				//m_attachedCam.lock()->GetTransform() = m_oldAttackCam;
-				//m_camParentTransform = m_oldCamParentTransform;
+				//m_attachedCam.lock()->GetTransform().SetPos(m_attachedCam.lock()->GetTransform().GetPos() - moveVec.GetNormal() * moveVec.Length());
 
-			//}
+			}
 
 			//=================================================
 		}

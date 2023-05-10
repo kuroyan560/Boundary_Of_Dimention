@@ -1035,6 +1035,7 @@ void PlayerCollision::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine:
 
 	//カメラ方向でのクォータニオンを求める。進む方向などを判断するのに使用するのはこっち。Fの一番最初にこの値を入れることでplayerYSpinの回転を打ち消す。
 	m_refPlayer->m_cameraQ = DirectX::XMQuaternionMultiply(m_refPlayer->m_normalSpinQ, ySpin);
+	m_refPlayer->m_cameraTransform.SetRotate(m_refPlayer->m_cameraQ);
 
 	//プレイヤーの移動方向でY軸回転させるクォータニオンをカメラのクォータニオンにかけて、プレイヤーを移動方向に向かせる。
 	m_refPlayer->m_moveQ = DirectX::XMQuaternionMultiply(m_refPlayer->m_cameraQ, playerYSpin);

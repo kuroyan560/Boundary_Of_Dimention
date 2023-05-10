@@ -42,6 +42,7 @@ class Player : public KuroEngine::Debugger
 	KuroEngine::Transform m_transform;		//当たり判定や移動の際の方向の判定に使用するトランスフォーム
 	KuroEngine::Transform m_drawTransform;	//描画に使用するトランスフォーム プレイヤーを沈ませたり、カメラの方向を見ないようにするために使用する。
 	KuroEngine::Transform m_initTransform;
+	KuroEngine::Transform m_cameraTransform;
 
 	//移動量
 	KuroEngine::Vec3<float> m_rowMoveVec;
@@ -55,7 +56,7 @@ class Player : public KuroEngine::Debugger
 	//カメラ感度
 	float m_camSensitivity = 1.0f;
 	int m_cameraMode;
-	std::array<const float, 3> CAMERA_MODE = { -20.0f,-40.0f,-70.0f };
+	std::array<const float, 3> CAMERA_MODE = { 20.0f,40.0f,70.0f };
 
 	//植物を繁殖させる点光源
 	GrowPlantLight_Point m_growPlantPtLig;

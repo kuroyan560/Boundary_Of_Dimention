@@ -280,7 +280,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 			//イージングが終わっている時のみ地中に潜ったり出たりする判定を持たせる。
 			bool isInputOnOff = UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->KeyOffTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A) || UsersInput::Instance()->ControllerOffTrigger(0, KuroEngine::A);
-			if ((isInputOnOff || (!m_isUnderGround && m_isInputUnderGround) || (m_isUnderGround && !m_isInputUnderGround) ) && m_canUnderGroundRelease) {
+			if ((isInputOnOff || (!m_isUnderGround && m_isInputUnderGround) || (m_isUnderGround && !m_isInputUnderGround)) && m_canUnderGroundRelease) {
 				m_underGroundEaseTimer = 0;
 			}
 
@@ -472,7 +472,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_cameraRotYStorage, CAMERA_MODE[m_cameraMode]);
+		m_camController.Update(m_cameraTransform, CAMERA_MODE[m_cameraMode]);
 
 		//カメラの当たり判定
 		m_camController.TerrianMeshCollision(arg_nowStage);
@@ -486,7 +486,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_deathShake);
 
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
-		m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_cameraRotYStorage, m_deathEffectCameraZ);
+		m_camController.Update(m_cameraTransform, m_deathEffectCameraZ);
 
 		//シェイクを計算。
 		m_deathShake.x = KuroEngine::GetRand(-m_deathShakeAmount, m_deathShakeAmount);
@@ -533,6 +533,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_drawTransform.SetRotate(m_transform.GetRotate());
 	}
 
+	//カメラに使用するトランスフォームを更新。
+	m_cameraTransform = m_transform;
+
 	//アニメーション指定
 	AnimationSpecification(beforePos, newPos);
 
@@ -567,12 +570,11 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		KuroEngine::AlphaBlendMode_None,
 		m_modelAnimator->GetBoneMatBuff());
 
-	
+
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_axisModel,
 		m_drawTransform,
 		arg_cam);
-	
 
 	if (arg_cameraDraw)
 	{
