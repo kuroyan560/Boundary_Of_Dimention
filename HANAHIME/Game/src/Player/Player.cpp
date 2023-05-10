@@ -50,27 +50,6 @@ void Player::OnImguiItems()
 		ImGui::Text("OnGround : %d", m_onGround);
 
 	}
-
-	//移動
-	ImGui::SetNextItemOpen(true);
-	if (ImGui::TreeNode("Move")) {
-
-		ImGui::DragFloat("MoveAccel", &m_moveAccel, 0.01f);
-		ImGui::DragFloat("MaxSpeed", &m_maxSpeed, 0.01f);
-		ImGui::DragFloat("Brake", &m_brake, 0.01f);
-
-		ImGui::TreePop();
-	}
-
-	//カメラ
-	ImGui::SetNextItemOpen(true);
-	if (ImGui::TreeNode("Camera"))
-	{
-		// ImGui::DragFloat3("Target", (float*)&target, 0.5f);
-		ImGui::DragFloat("Sensitivity", &m_camSensitivity, 0.05f);
-
-		ImGui::TreePop();
-	}
 }
 
 void Player::AnimationSpecification(const KuroEngine::Vec3<float>& arg_beforePos, const KuroEngine::Vec3<float>& arg_newPos)
@@ -137,6 +116,12 @@ Player::Player()
 	:KuroEngine::Debugger("Player", true, true), m_growPlantPtLig(8.0f, &m_transform)
 {
 	AddCustomParameter("Sensitivity", { "camera", "sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity, "Camera");
+	AddCustomParameter("Default_AccelSpeed", { "move","default","accelSpeed"}, PARAM_TYPE::FLOAT, &m_defaultAccelSpeed, "Move");
+	AddCustomParameter("Default_MaxSpeed", { "move","default","maxSpeed"}, PARAM_TYPE::FLOAT, &m_defaultMaxSpeed, "Move");
+	AddCustomParameter("Default_Brake", { "move","default","brake" }, PARAM_TYPE::FLOAT, &m_defaultBrake, "Move");
+	AddCustomParameter("UnderGround_AccelSpeed", { "move","underGround","accelSpeed" }, PARAM_TYPE::FLOAT, &m_underGroundAccelSpeed, "Move");
+	AddCustomParameter("UnderGround_MaxSpeed", { "move","underGround","maxSpeed" }, PARAM_TYPE::FLOAT, &m_underGroundMaxSpeed, "Move");
+	AddCustomParameter("UnderGround_Brake", { "move","underGround","brake" }, PARAM_TYPE::FLOAT, &m_underGroundBrake, "Move");
 	LoadParameterLog();
 
 	//モデル読み込み
@@ -564,10 +549,10 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		m_modelAnimator->GetBoneMatBuff());
 
 	
-	KuroEngine::DrawFunc3D::DrawNonShadingModel(
-		m_axisModel,
-		m_drawTransform,
-		arg_cam);
+	//KuroEngine::DrawFunc3D::DrawNonShadingModel(
+	//	m_axisModel,
+	//	m_drawTransform,
+	//	arg_cam);
 	
 
 	if (arg_cameraDraw)
@@ -651,30 +636,29 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 	if (!m_onGround) {
 		m_rowMoveVec = KuroEngine::Vec3<float>();
 	}
-	m_moveSpeed += m_rowMoveVec * m_moveAccel;
 
-	//移動速度をクランプ。
-	m_moveSpeed.x = std::clamp(m_moveSpeed.x, -m_maxSpeed, m_maxSpeed);
-	m_moveSpeed.z = std::clamp(m_moveSpeed.z, -m_maxSpeed, m_maxSpeed);
+	float accelSpeed = m_defaultAccelSpeed;
+	float maxSpeed = m_defaultMaxSpeed;
+	float brake = m_defaultBrake;
 
-	//入力された値が無かったら移動速度を減らす。
-	if (std::fabs(m_rowMoveVec.x) < 0.001f) {
-
-		m_moveSpeed.x = std::clamp(std::fabs(m_moveSpeed.x) - m_brake, 0.0f, m_maxSpeed) * (std::signbit(m_moveSpeed.x) ? -1.0f : 1.0f);
-
+	if (m_isUnderGround)
+	{
+		accelSpeed = m_underGroundAccelSpeed;
+		maxSpeed = m_underGroundMaxSpeed;
+		brake = m_underGroundBrake;
 	}
+	auto accel = KuroEngine::Math::TransformVec3(m_rowMoveVec, m_transform.GetRotate()) * accelSpeed;
 
-	if (std::fabs(m_rowMoveVec.z) < 0.001f) {
+	m_moveSpeed += accel;
 
-		m_moveSpeed.z = std::clamp(std::fabs(m_moveSpeed.z) - m_brake, 0.0f, m_maxSpeed) * (std::signbit(m_moveSpeed.z) ? -1.0f : 1.0f);
-
+	//移動速度制限
+	if (maxSpeed < m_moveSpeed.Length())
+	{
+		m_moveSpeed = m_moveSpeed.GetNormal() * maxSpeed;
 	}
-
-	//ローカル軸の移動方向をプレイヤーの回転に合わせて動かす。
-	auto moveAmount = KuroEngine::Math::TransformVec3(m_moveSpeed, m_transform.GetRotate());
-
+	
 	//移動量加算
-	arg_newPos += moveAmount * TimeScaleMgr::s_inGame.GetTimeScale();
+	arg_newPos += m_moveSpeed * TimeScaleMgr::s_inGame.GetTimeScale();
 
 	//ギミックの移動量も加算。
 	arg_newPos += m_gimmickVel;
@@ -684,6 +668,9 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 		arg_newPos -= m_transform.GetUp() * (m_transform.GetScale().y / 2.0f);
 	}
 
+	//減速
+	if (m_rowMoveVec.IsZero())
+	m_moveSpeed = KuroEngine::Math::Lerp(m_moveSpeed, KuroEngine::Vec3<float>(0.0f, 0.0f, 0.0f), brake);
 }
 
 void Player::UpdateZipline() {

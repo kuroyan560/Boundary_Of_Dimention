@@ -216,7 +216,7 @@ namespace KuroEngine
 		}
 		bool IsZero() const
 		{
-			return x == 0 && y == 0 && z == 0;
+			return Length() < FLT_EPSILON;
 		}
 		void Max(const Vec3<T>& rhs)
 		{
