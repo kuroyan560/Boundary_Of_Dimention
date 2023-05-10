@@ -75,11 +75,6 @@ class GameScene : public KuroEngine::BaseScene
 
 	Goal m_goal;
 
-	//ŽG‹›“G•\Ž¦
-	std::unique_ptr<MiniBug> miniBug;
-	std::unique_ptr<DossunRing> dossun;
-	std::unique_ptr<DossunRing> alwaysDossun;
-	std::shared_ptr<KuroEngine::Model> m_enemyModel;
 
 
 	void GameInit();
