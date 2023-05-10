@@ -80,9 +80,8 @@ void CameraController::Update(KuroEngine::Vec3<float> arg_scopeMove, KuroEngine:
 			//判定↓============================================
 
 			//当たり判定を実行
-			auto eyePos = m_attachedCam.lock()->GetTransform().GetPosWorld();
-			auto moveVec = m_attachedCam.lock()->GetTransform().GetPosWorld() - m_oldPos;
-			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_oldPos, moveVec.GetNormal(), checkHitMesh);
+			auto moveVec = m_baseTransform.GetPos() - m_playerTransform.GetPos();
+			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_playerTransform.GetPos(), moveVec.GetNormal(), checkHitMesh);
 
 			if (output.m_isHit && 0 < output.m_distance && output.m_distance < moveVec.Length()) {
 
@@ -116,6 +115,7 @@ void CameraController::Update(KuroEngine::Vec3<float> arg_scopeMove, KuroEngine:
 	XMVECTOR rotate, scale, position;
 	DirectX::XMMatrixDecompose(&scale, &rotate, &position, matWorld);
 
+	//回転を適用。
 	m_attachedCam.lock()->GetTransform().SetRotate(rotate);
 
 }

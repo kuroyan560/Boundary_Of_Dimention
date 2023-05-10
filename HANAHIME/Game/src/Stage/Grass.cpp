@@ -498,8 +498,8 @@ std::array<Grass::CheckResult, Grass::GRASSF_SEARCH_COUNT> Grass::SearchPlantPos
 	std::vector<RegisterDescriptorData>descData =
 	{
 		{m_plantGrassBuffer,UAV},
-		{m_plantGrassCounterBuffer,UAV},
 		{m_stackGrassInitializerBuffer,SRV},
+		{m_plantGrassCounterBuffer,UAV},
 		{BasicDraw::Instance()->GetRenderTarget(BasicDraw::WORLD_POS),SRV},
 		{BasicDraw::Instance()->GetRenderTarget(BasicDraw::NORMAL),SRV},
 		{BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT),SRV},

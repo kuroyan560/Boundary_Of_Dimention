@@ -264,6 +264,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	case Player::PLAYER_MOVE_STATUS::MOVE:
 	{
 
+		//カメラに使用するトランスフォームを更新。
+		m_cameraTransform = m_transform;
+
 		//ジップライン
 		m_canZip = UsersInput::Instance()->KeyOnTrigger(DIK_LSHIFT);
 
@@ -474,7 +477,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(m_scopeMoveAccel, m_cameraTransform, CAMERA_MODE[m_cameraMode], arg_nowStage);
+		m_camController.Update(m_scopeMoveAccel, m_cameraTransform, CAMERA_MODE[m_cameraMode], arg_nowStage, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP);
 
 		m_deathEffectCameraZ = CAMERA_MODE[m_cameraMode];
 		TimeScaleMgr::s_inGame.Set(1.0f);
@@ -485,7 +488,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_deathShake);
 
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
-		m_camController.Update(m_scopeMoveAccel, m_cameraTransform, m_deathEffectCameraZ, arg_nowStage);
+		m_camController.Update(m_scopeMoveAccel, m_cameraTransform, m_deathEffectCameraZ, arg_nowStage, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP);
 
 		//シェイクを計算。
 		m_deathShake.x = KuroEngine::GetRand(-m_deathShakeAmount, m_deathShakeAmount);
@@ -531,9 +534,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	if (0 < m_rowMoveVec.Length()) {
 		m_drawTransform.SetRotate(m_transform.GetRotate());
 	}
-
-	//カメラに使用するトランスフォームを更新。
-	m_cameraTransform = m_transform;
 
 	//アニメーション指定
 	AnimationSpecification(beforePos, newPos);
