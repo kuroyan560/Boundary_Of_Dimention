@@ -271,7 +271,7 @@ void MiniBug::Update(Player &arg_player)
 
 
 	//‘‚Ì“–‚½‚è”»’è
-	if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()) && !m_startDeadMotionFlag)
+	if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()) != Player::CHECK_HIT_GRASS_STATUS::NOHIT && !m_startDeadMotionFlag)
 	{
 		m_reaction->Init(DEAD);
 		m_startDeadMotionFlag = true;
@@ -389,7 +389,7 @@ void DossunRing::Update(Player &arg_player)
 
 
 	//ƒvƒŒƒCƒ„[‚Æ“G‚Ì“–‚½‚è”»’è‚Ìˆ—‚ğ‚±‚±‚É‘‚­
-	if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()))
+	if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()) != Player::CHECK_HIT_GRASS_STATUS::NOHIT)
 	{
 		m_startDeadMotionFlag = true;
 		return;

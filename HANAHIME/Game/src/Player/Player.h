@@ -282,7 +282,13 @@ public:
 	}
 
 	//‘‚ğ¶‚â‚·‹…‚Æ‚Ì“–‚½‚è”»’è
-	bool CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, KuroEngine::Vec3<float> arg_enemyUp, float arg_enemySize);
+	const float PLAYER_HEAD_SIZE = 3.0f;
+	enum class CHECK_HIT_GRASS_STATUS {
+		NOHIT,	//“–‚½‚ç‚È‚©‚Á‚½
+		HEAD,	//“ª‚É“–‚½‚Á‚½
+		AROUND,	//üˆÍ‚É“–‚½‚Á‚½
+	};
+	CHECK_HIT_GRASS_STATUS CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, KuroEngine::Vec3<float> arg_enemyUp, float arg_enemySize);
 
 	Sphere m_sphere;
 	float m_radius;
