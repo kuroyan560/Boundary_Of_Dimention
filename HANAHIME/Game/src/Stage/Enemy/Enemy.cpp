@@ -19,6 +19,12 @@ void MiniBug::OnInit()
 
 void MiniBug::Update(Player &arg_player)
 {
+	//敵発見時(プレイヤーが視界に入った)
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_0))
+	{
+		OnInit();
+	}
+
 	//共通処理
 	if (m_deadFlag)
 	{
@@ -50,29 +56,48 @@ void MiniBug::Update(Player &arg_player)
 		return;
 	}
 
-	//敵発見時(プレイヤーが視界に入った)
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_1))
-	{
-		OnInit();
-	}
+	const bool AROUND_HIT_FLAG = arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()) == Player::CHECK_HIT_GRASS_STATUS::AROUND;
+	const bool HEAD_HIT_FLAG = arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()) == Player::CHECK_HIT_GRASS_STATUS::HEAD;
+	const bool HIT_FLAG = arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()) != Player::CHECK_HIT_GRASS_STATUS::NOHIT;
 
 	bool findFlag = m_sightArea.IsFind(arg_player.GetTransform().GetPos(), 180.0f);
 	//プレイヤーが違う法線の面にいたら見ないようにする。
 	bool isDifferentWall = m_transform.GetUp().Dot(arg_player.GetTransform().GetUpWorld()) <= 0.5f;
 	bool isPlayerWallChange = arg_player.GetIsJump();
 	bool isAttackOrNotice = m_nowStatus == MiniBug::ATTACK || m_nowStatus == MiniBug::NOTICE;
-	if ((isDifferentWall || isPlayerWallChange) && isAttackOrNotice) {
-		findFlag = false;
-		m_nowStatus = MiniBug::NOTICE;
-	}
-	const bool isMoveFlag = arg_player.GetNowPos() != arg_player.GetOldPos();
-	if (findFlag && arg_player.GetIsUnderGround() && m_nowStatus != MiniBug::RETURN && isMoveFlag)
+	const bool IS_MOVE_FLAG = arg_player.GetNowPos() != arg_player.GetOldPos();
+	if (m_nowStatus != MiniBug::KNOCK_BACK && m_nowStatus != MiniBug::HEAD_ATTACK)
 	{
-		m_nowStatus = MiniBug::NOTICE;
+		if ((isDifferentWall || isPlayerWallChange) && isAttackOrNotice) {
+			findFlag = false;
+			m_nowStatus = MiniBug::NOTICE;
+		}
+		if (findFlag && arg_player.GetIsUnderGround() && m_nowStatus != MiniBug::RETURN && IS_MOVE_FLAG)
+		{
+			m_nowStatus = MiniBug::NOTICE;
+		}
+		else if (findFlag && !arg_player.GetIsUnderGround() && !isDifferentWall)
+		{
+			m_nowStatus = MiniBug::ATTACK;
+		}
 	}
-	else if (findFlag && !arg_player.GetIsUnderGround() && !isDifferentWall)
+
+	if (AROUND_HIT_FLAG && m_nowStatus != MiniBug::HEAD_ATTACK)
 	{
-		m_nowStatus = MiniBug::ATTACK;
+		m_nowStatus = MiniBug::KNOCK_BACK;
+	}
+	if (HEAD_HIT_FLAG)
+	{
+		m_nowStatus = MiniBug::HEAD_ATTACK;
+	}
+
+	if (KuroEngine::UsersInput::Instance()->KeyInput(DIK_1))
+	{
+		m_nowStatus = MiniBug::KNOCK_BACK;
+	}
+	if (KuroEngine::UsersInput::Instance()->KeyInput(DIK_2))
+	{
+		m_nowStatus = MiniBug::HEAD_ATTACK;
 	}
 
 
@@ -128,6 +153,24 @@ void MiniBug::Update(Player &arg_player)
 
 			m_limitIndex = index;
 			break;
+
+		case MiniBug::KNOCK_BACK:
+		{
+			KuroEngine::Vec3<float>dir(m_pos - arg_player.GetTransform().GetPos());
+			dir.y = 0.0f;
+			dir.Normalize();
+			m_knockBack.Init(m_pos, dir);
+		}
+		break;
+
+		case MiniBug::HEAD_ATTACK:
+		{
+			KuroEngine::Vec3<float>dir(m_pos - arg_player.GetTransform().GetPos());
+			dir.y = arg_player.GetTransform().GetUp().Dot(arg_player.GetTransform().GetUpWorld());
+			dir.Normalize();
+			m_headAttack.Init({}, dir);
+		}
+		break;
 		default:
 			break;
 		}
@@ -247,7 +290,7 @@ void MiniBug::Update(Player &arg_player)
 			m_nowStatus = MiniBug::RETURN;
 		}
 		//動いたら注視する
-		if (isMoveFlag)
+		if (IS_MOVE_FLAG)
 		{
 			m_dir = KuroEngine::Vec3<float>(arg_player.GetTransform().GetPos() - m_pos).GetNormal();
 			m_thinkTimer.Reset(120);
@@ -264,17 +307,36 @@ void MiniBug::Update(Player &arg_player)
 			m_nowStatus = MiniBug::SEARCH;
 		}
 		break;
+
+	case MiniBug::KNOCK_BACK:
+		vel = m_knockBack.Update();
+		if (m_knockBack.IsDone())
+		{
+			m_nowStatus = MiniBug::RETURN;
+		}
+		break;
+	case MiniBug::HEAD_ATTACK:
+	{
+		HeadAttackData data = m_headAttack.Update();
+		vel = data.m_dir;
+		m_larpRotation = data.m_rotation;
+		if (m_headAttack.IsDone())
+		{
+			m_reaction->Init(DEAD);
+			m_startDeadMotionFlag = true;
+		}
+	}
+	break;
 	default:
 		break;
 	}
 	//更新処理---------------------------------------
 
-
 	//草の当たり判定
-	if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()) != Player::CHECK_HIT_GRASS_STATUS::NOHIT && !m_startDeadMotionFlag)
+	if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()) != Player::CHECK_HIT_GRASS_STATUS::AROUND && !m_startDeadMotionFlag)
 	{
-		m_reaction->Init(DEAD);
-		m_startDeadMotionFlag = true;
+		//m_reaction->Init(DEAD);
+		//m_startDeadMotionFlag = true;
 	}
 
 	m_reaction->Update(m_pos);
@@ -297,7 +359,7 @@ void MiniBug::Update(Player &arg_player)
 	else if ((isDifferentWall || isPlayerWallChange) && isAttackOrNotice) {
 
 	}
-	else
+	else if (m_nowStatus != MiniBug::HEAD_ATTACK)
 	{
 		DirectX::XMVECTOR dirVec = { axis.x,axis.y,axis.z,1.0f };
 		m_larpRotation = DirectX::XMQuaternionRotationAxis(dirVec, rptaVel);
@@ -310,8 +372,20 @@ void MiniBug::Update(Player &arg_player)
 		}
 		m_transform.SetRotate(rotation);
 	}
+	else if (m_nowStatus == MiniBug::HEAD_ATTACK)
+	{
+		KuroEngine::Quaternion rotation = DirectX::XMQuaternionSlerp(m_transform.GetRotate(), m_larpRotation, 0.1f);
+		m_transform.SetRotate(rotation);
+	}
 
-	m_larpPos = KuroEngine::Math::Lerp(m_larpPos, m_pos, 0.1f);
+	if (m_nowStatus == MiniBug::HEAD_ATTACK)
+	{
+		m_larpPos = KuroEngine::Math::Lerp(m_larpPos, m_pos, 1.0f);
+	}
+	else
+	{
+		m_larpPos = KuroEngine::Math::Lerp(m_larpPos, m_pos, 0.1f);
+	}
 
 	m_transform.SetPos(m_larpPos);
 

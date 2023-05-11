@@ -2,6 +2,7 @@
 #include"../StageParts.h"
 #include"../../AI/EnemyPatrol.h"
 #include"../../AI/EnemySearch.h"
+#include"../../AI/EnemyStatus.h"
 #include"../Grass.h"
 #include"ForUser/DrawFunc/BillBoard/DrawFuncBillBoard.h"
 
@@ -72,6 +73,8 @@ private:
 		ATTACK,//プレイヤーを追跡
 		NOTICE,//プレイヤーらしきものを見つけた
 		RETURN,//循環エリアに戻る
+		KNOCK_BACK,//ノックバック
+		HEAD_ATTACK//脳天攻撃
 	};
 
 	Status m_nowStatus;
@@ -168,6 +171,9 @@ private:
 	//移動処理---------------------------------------
 	KuroEngine::Vec3<float>m_larpPos;
 	KuroEngine::Quaternion m_larpRotation;
+
+	EnemyKnockBack m_knockBack;
+	EnemyHeadAttack m_headAttack;
 	//移動処理---------------------------------------
 
 	//死亡処理------------------------------------------------------------------------------
