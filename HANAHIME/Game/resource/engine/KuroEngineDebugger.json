@@ -198,13 +198,13 @@
     "move": {
       "default": {
         "accelSpeed": 1.0,
-        "brake": 0.30000001192092896,
-        "maxSpeed": 0.5
+        "brake": 0.4000000059604645,
+        "maxSpeed": 0.75
       },
       "underGround": {
         "accelSpeed": 0.05999999865889549,
         "brake": 0.05000000074505806,
-        "maxSpeed": 0.9800000190734863
+        "maxSpeed": 1.2000000476837158
       }
     }
   },
