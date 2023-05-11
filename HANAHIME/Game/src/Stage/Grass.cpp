@@ -145,13 +145,13 @@ Grass::Grass()
 		m_modelArray[modelIdx] = Importer::Instance()->LoadModel("resource/user/model/", fileName);
 
 		//草のインデックス配列バッファ
-		m_grassIndiciesBuffer[modelIdx] = D3D12App::Instance()->GenerateStructuredBuffer(
-			sizeof(int),
+		m_grassWorldMatriciesBuffer[modelIdx] = D3D12App::Instance()->GenerateStructuredBuffer(
+			sizeof(Matrix),
 			m_plantGrassMax,
 			nullptr,
 			"Grass - GrassIndicies - StructuredBuffer");
 
-		m_grassIndicies[modelIdx].reserve(m_plantGrassMax);
+		m_grassWorldMatricies[modelIdx].reserve(m_plantGrassMax);
 	}
 }
 
@@ -370,20 +370,23 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 			descData);
 
 		//草むらのインデックスの配列
-		for (auto& indicies : m_grassIndicies)
+		for (auto& indicies : m_grassWorldMatricies)
 		{
 			indicies.clear();
 		}
 		//モデルごとの草のインデックス配列作成
+		Transform grassTransform;
 		for (int grassIdx = 0; grassIdx < *plantGrassCountPtr; ++grassIdx)
 		{
 			auto& grass = aliveGrassArrayBufferPtr[grassIdx];
-			m_grassIndicies[grass.m_modelIdx].emplace_back(grassIdx);
+			grassTransform.SetPos(grass.m_worldPos);
+			grassTransform.SetUp(grass.m_normal);
+			m_grassWorldMatricies[grass.m_modelIdx].emplace_back(grassTransform.GetMatWorld());
 		}
 		//インデックス配列情報を送信
 		for (int modelIdx = 0; modelIdx < s_modelNumMax; ++modelIdx)
 		{
-			m_grassIndiciesBuffer[modelIdx]->Mapping(m_grassIndicies[modelIdx].data(), static_cast<int>(m_grassIndicies[modelIdx].size()));
+			m_grassWorldMatriciesBuffer[modelIdx]->Mapping(m_grassWorldMatricies[modelIdx].data(), static_cast<int>(m_grassWorldMatricies[modelIdx].size()));
 		}
 	}
 }
@@ -406,7 +409,7 @@ void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 				{m_otherTransformConstBuffer,CBV},
 				{mesh.material->texBuff[COLOR_TEX],SRV},
 				{mesh.material->buff,CBV},
-				{m_grassIndiciesBuffer[modelIdx],SRV},
+				{m_grassWorldMatriciesBuffer[modelIdx],SRV},
 			};
 
 			KuroEngineDevice::Instance()->Graphics().ObjectRender(
@@ -415,7 +418,7 @@ void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 				descData,
 				0,
 				true,
-				static_cast<int>(m_grassIndicies[modelIdx].size()));
+				static_cast<int>(m_grassWorldMatricies[modelIdx].size()));
 		}
 	}
 }

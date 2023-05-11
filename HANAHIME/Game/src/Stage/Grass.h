@@ -146,8 +146,8 @@ class Grass
 	//モデル
 	static const int s_modelNumMax = 3;
 	std::array<std::shared_ptr<KuroEngine::Model>, s_modelNumMax>m_modelArray;
-	std::array<std::shared_ptr<KuroEngine::StructuredBuffer>, s_modelNumMax>m_grassIndiciesBuffer;
-	std::array<std::vector<int>, s_modelNumMax>m_grassIndicies;
+	std::array<std::shared_ptr<KuroEngine::StructuredBuffer>, s_modelNumMax>m_grassWorldMatriciesBuffer;
+	std::array<std::vector<KuroEngine::Matrix>, s_modelNumMax>m_grassWorldMatricies;
 
 	//１フレーム前のプレイヤーの位置
 	KuroEngine::Vec3<float>m_oldPlayerPos;

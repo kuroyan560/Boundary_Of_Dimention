@@ -48,18 +48,15 @@ cbuffer cbuff3 : register(b3)
     Material material;
 }
 
-StructuredBuffer<int> grassIndiciesBuffer : register(t1);
+StructuredBuffer<matrix> worldMatricies : register(t1);
 
 //ÉTÉìÉvÉâÅ[
 SamplerState smp : register(s0);
     
 VSOutput VSmain(Vertex input, uint instanceID : SV_InstanceID)
 {
-    PlantGrass grass = aliveGrassBuffer[grassIndiciesBuffer[instanceID]];
-    
     VSOutput output;
-    float4 wpos = input.pos;
-    wpos.xyz += grass.m_worldPos;
+    float4 wpos = mul(worldMatricies[instanceID], input.pos);
     output.svpos = mul(cam.view, wpos);
     output.depthInView = output.svpos.z;
     output.svpos = mul(cam.proj, output.svpos);
