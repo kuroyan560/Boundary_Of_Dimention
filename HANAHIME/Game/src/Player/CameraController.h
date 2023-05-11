@@ -21,8 +21,8 @@ class CameraController : public KuroEngine::Debugger
 	float m_posOffsetDepthMin = -10.0f;
 	float m_posOffsetDepthMax = -0.1f;
 	//Xé≤äpìxÅiçÇÇ≥åXÇ´ÅjÇÃç≈è¨Ç∆ç≈ëÂ
-	KuroEngine::Angle m_xAxisAngleMin = KuroEngine::Angle(10);
-	KuroEngine::Angle m_xAxisAngleMax = KuroEngine::Angle(20);
+	KuroEngine::Angle m_xAxisAngleMin = KuroEngine::Angle(-5);
+	KuroEngine::Angle m_xAxisAngleMax = KuroEngine::Angle(40);
 
 	struct Parameter
 	{
