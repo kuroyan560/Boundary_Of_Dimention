@@ -457,7 +457,11 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_cameraRotYStorage, CAMERA_MODE[m_cameraMode]);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_MODE[m_cameraMode], arg_nowStage);
+
+		//カメラの当たり判定
+		m_camController.TerrianMeshCollision(arg_nowStage);
+
 		m_deathEffectCameraZ = CAMERA_MODE[m_cameraMode];
 		TimeScaleMgr::s_inGame.Set(1.0f);
 	}
@@ -467,7 +471,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_deathShake);
 
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
-		m_camController.Update(scopeMove, m_transform.GetPosWorld(), m_cameraRotYStorage, m_deathEffectCameraZ);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage);
 
 		//シェイクを計算。
 		m_deathShake.x = KuroEngine::GetRand(-m_deathShakeAmount, m_deathShakeAmount);
@@ -607,12 +611,12 @@ void Player::Damage()
 
 }
 
-bool Player::CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, KuroEngine::Vec3<float> arg_enemyUp, float arg_enemySize)
+Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, KuroEngine::Vec3<float> arg_enemyUp, float arg_enemySize)
 {
 
 	//攻撃状態じゃなかったら処理を戻す。
 	if (!GetIsAttack()) {
-		return false;
+		return Player::CHECK_HIT_GRASS_STATUS::NOHIT;
 	}
 
 	//まずは球の判定
@@ -621,13 +625,34 @@ bool Player::CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, KuroEngin
 
 	//当たっていなかったら処理を飛ばす。
 	if (!isHit) {
-		return false;
+		return Player::CHECK_HIT_GRASS_STATUS::NOHIT;
 	}
 
 	//プレイヤーから敵までのベクトルと敵の上ベクトルを内積して、その結果が0以下だったらライトが当たっている判定(草が当たっている判定。)
 	bool isLight = (arg_enemyPos - m_transform.GetPosWorld()).GetNormal().Dot(arg_enemyUp) < 0;
 
-	return true;
+	//ライトに当たっている判定
+	if (!isLight) {
+
+		//距離によって頭に当たっているかを判断
+		if (distance < PLAYER_HEAD_SIZE) {
+
+			return Player::CHECK_HIT_GRASS_STATUS::HEAD;
+
+		}
+		else {
+
+			return Player::CHECK_HIT_GRASS_STATUS::AROUND;
+
+		}
+
+	}
+	else {
+
+		return Player::CHECK_HIT_GRASS_STATUS::NOHIT;
+
+	}
+
 }
 
 void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {

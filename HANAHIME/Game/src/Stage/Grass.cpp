@@ -203,7 +203,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 	m_playerPos = arg_playerTransform.GetPos();
 
 	//if (m_plantTimer.IsTimeUp() && 0.01f < KuroEngine::Vec3<float>(m_oldPlayerPos - arg_playerTransform.GetPos()).Length())
-	if (true)
+	if (false)
 	{
 		//トランスフォームに流し込む
 		Transform grassTransform;
