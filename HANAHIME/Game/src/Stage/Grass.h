@@ -31,11 +31,10 @@ class Grass
 	static const int s_vertexMax = 1024;
 	//インスタンシング描画上限
 	static const int s_instanceMax = 1024;
-	//テクスチャの数
-	static const int s_textureNumMax = 5;
 
 	//草を生やすかチェックで使用する値
 	static const int GRASS_GROUP = 16;						//スレッドグループに含まれる草の数
+	//static const int GRASS_SPAN = 10;						//ピクセル単位で草を生やす間隔
 	static const int GRASS_SPAN = 10;						//ピクセル単位で草を生やす間隔
 	static const int GRASS_SEARCH_X = 1280 / GRASS_SPAN;	//草を生やす場所を探す際に走査する数X
 	static const int GRASS_SEARCH_Y = 720 / GRASS_SPAN;		//草を生やす場所を探す際に走査する数Y
@@ -94,9 +93,6 @@ class Grass
 	//描画用グラフィックスパイプライン
 	std::shared_ptr<KuroEngine::GraphicsPipeline>m_gPipeline;
 
-	//頂点バッファ
-	std::shared_ptr<KuroEngine::VertexBuffer>m_vertBuffer;
-
 	//専用の定数バッファに送るプレイヤーのトランスフォーム情報
 	struct TransformCBVData
 	{
@@ -147,9 +143,11 @@ class Grass
 	//ソートと削除処理で使うunsigned int のバッファー
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_consumeCountBuffer;
 
-	//テクスチャ
-	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, s_textureNumMax>m_texBuffer;
-	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, s_textureNumMax>m_normalTexBuffer;
+	//モデル
+	static const int s_modelNumMax = 3;
+	std::array<std::shared_ptr<KuroEngine::Model>, s_modelNumMax>m_modelArray;
+	std::array<std::shared_ptr<KuroEngine::StructuredBuffer>, s_modelNumMax>m_grassIndiciesBuffer;
+	std::array<std::vector<int>, s_modelNumMax>m_grassIndicies;
 
 	//１フレーム前のプレイヤーの位置
 	KuroEngine::Vec3<float>m_oldPlayerPos;
