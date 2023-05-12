@@ -193,7 +193,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 			m_plantGrassDataArray.back().m_normal = plantData[count].m_plantNormal;
 			m_plantGrassDataArray.back().m_sineLength = KuroEngine::GetRand(40) / 100.0f;
 			m_plantGrassDataArray.back().m_modelIdx = KuroEngine::GetRand(3 - 1);
-			m_plantGrassDataArray.back().m_appearY = 0.1f;
+			m_plantGrassDataArray.back().m_appearY = 0.1f;			//0で生やすとすぐ消えてしまう。
 			m_plantGrassDataArray.back().m_appearYTimer = 0.1f;
 
 			//生成した数のカウント
@@ -278,12 +278,16 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 	{
 		auto& grass = m_plantGrassDataArray[grassIdx];
 
-		KuroEngine::Vec3<float>appearOffset = { 0.0f,-0.5f,0.0f };
-		appearOffset *= (3.0f - grass.m_appearY * 3.0f);
-		grassTransform.SetPos(grass.m_pos + appearOffset);
+		if (grass.m_appearY != 1.0f) {
+			int a = 0;
+		}
+
+		float POSITION_SCALE = 3.0f;
+		float appear = (-(1.0f - grass.m_appearY) * POSITION_SCALE);
+		grassTransform.SetPos(grass.m_pos + grass.m_normal * appear);
 		grassTransform.SetUp(grass.m_normal);
 		m_grassWorldMatricies[grass.m_modelIdx].emplace_back(grassTransform.GetMatWorld());
-		m_plantGrassPosArray.emplace_back(grass.m_pos + appearOffset);
+		m_plantGrassPosArray.emplace_back(grass.m_pos + grass.m_normal * appear);
 	}
 
 	for (int modelIdx = 0; modelIdx < s_modelNumMax; ++modelIdx)

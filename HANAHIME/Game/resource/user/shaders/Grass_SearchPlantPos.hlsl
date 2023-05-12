@@ -50,7 +50,7 @@ void SearchPlantPos(uint3 GlobalID : SV_DispatchThreadID, uint3 GroupID : SV_Gro
     
     //ÉâÉìÉ_ÉÄÇ≈éUÇÁÇ∑ÅB
     uint randomScatter = 100;
-    uint2 random = uint2(RandomIntInRange(constData.m_seed * LocalID.x * GlobalID.y + screenPos.x) * (randomScatter * 2), RandomIntInRange(constData.m_seed * LocalID.y * GlobalID.x + screenPos.y) * (randomScatter * 2));
+    uint2 random = uint2(RandomIntInRange(constData.m_seed * LocalID.x * GlobalID.y) * (randomScatter * 2), RandomIntInRange(constData.m_seed * LocalID.y * GlobalID.x) * (randomScatter * 2));
     random -= uint2(randomScatter, randomScatter);
     screenPos += random;
     
@@ -74,7 +74,7 @@ void SearchPlantPos(uint3 GlobalID : SV_DispatchThreadID, uint3 GroupID : SV_Gro
     for (int grassIndex = 0; grassIndex < constData.m_grassCount; ++grassIndex)
     {
         float distance = length(result.m_plantPos - grassPosArrayBuffer[grassIndex]);
-        if (distance < 1.1f)
+        if (distance < 1.9f)
         {
             result.m_isSuccess = 0;
             break;
