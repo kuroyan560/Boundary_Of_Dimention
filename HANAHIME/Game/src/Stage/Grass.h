@@ -138,4 +138,7 @@ private:
 	/// <returns> t:¶‚¦‚Ä‚¢‚é  f:¶‚¦‚Ä‚¢‚È‚¢ </returns>
 	std::array<Grass::SearchPlantResult, GRASSF_SEARCH_COUNT> SearchPlantPos(KuroEngine::Transform arg_playerTransform);
 
+	void UpdateGrassEasing(Grass::GrassData& arg_grass, int arg_index);
+	void GrassCheckHit(Grass::GrassData& arg_grass, const std::weak_ptr<Stage>arg_nowStage);
+
 };

@@ -225,85 +225,18 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 
 		D3D12App::Instance()->DispathOneShot(
 			m_cPipeline[CHECK_IS_BRIGHT],
-			{ static_cast<int>(m_plantGrassDataArray.size()),1,1},
+			{ static_cast<int>(m_plantGrassDataArray.size()),1,1 },
 			descData);
 
-		//下方向にレイを飛ばして、そこが動く足場だったら親子関係を結ぶ。
 		for (int grassIdx = 0; grassIdx < static_cast<int>(m_plantGrassDataArray.size()); ++grassIdx)
 		{
 			auto grass = m_plantGrassDataArray[grassIdx];
 
-			//コンピュートシェーダーで計算した結果を取得
-			bool isBright = m_checkBrightResultBuffer->GetResource()->GetBuffOnCpu<int>()[grassIdx];
+			//草のイージングの更新処理
+			UpdateGrassEasing(grass, grassIdx);
 
-			//一旦距離によってカリング。
-			//isBright = KuroEngine::Vec3<float>(arg_playerTransform.GetPos() - m_plantGrassDataArray[grassIdx].m_pos).Length() < arg_plantInfluenceRange;
-
-			if (isBright)
-			{
-				static const float appearEaseSpeed = 0.05f;
-				//イージングタイマー更新
-				grass.m_appearYTimer = std::min(grass.m_appearYTimer + appearEaseSpeed, 1.0f);
-			}
-			else
-			{
-				static const float deadEaseSpeed = 0.03f;
-				//イージングタイマー更新
-				grass.m_appearYTimer = std::max(grass.m_appearYTimer - deadEaseSpeed, 0.0f);
-
-				//0以下になったらフラグを折る。
-				if (grass.m_appearYTimer <= FLT_EPSILON)
-				{
-					grass.m_isDead = true;
-					//continue;
-				}
-			}
-
-			//イージング量を求める
-			if (1.0f < grass.m_appearY)
-			{
-				grass.m_appearY += (1.0f - grass.m_appearY) / 10.0f;
-			}
-			else
-			{
-				grass.m_appearY = grass.m_appearYTimer;
-			}
-
-			if (!grass.m_isCheckGround) {
-
-				int terrianIdx = 0;
-				for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
-				{
-					//動く足場でない
-					if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)	continue;
-
-					//動く足場としてキャスト
-					auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
-					//モデル情報取得
-					auto model = terrian->GetModel();
-
-					//メッシュを走査
-					for (auto& modelMesh : model.lock()->m_meshes)
-					{
-
-						//当たり判定用メッシュ
-						auto checkHitMesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
-
-						CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(grass.m_pos, -grass.m_normal, checkHitMesh);
-
-						//当たっていたら
-						if (output.m_isHit && 0 < output.m_distance && output.m_distance <= 1.0f) {
-
-							//親子関係を持たせる。
-							grass.m_terrianIdx = terrianIdx;
-
-						}
-					}
-					++terrianIdx;
-				}
-				grass.m_isCheckGround = true;
-
-			}
+			//草の当たり判定
+			GrassCheckHit(grass, arg_nowStage);
 
 			//草にトランスフォームを適応。
 			//Indexが-1だったら処理を飛ばす。
@@ -317,15 +250,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 
 			}
 
-			//原点付近に生える草は削除
-			//攻撃中で、既定の範囲内だったらAppearYを超でかくする。
-			if (arg_isAttack && (arg_playerTransform.GetPos() - grass.m_pos).Length() < arg_plantInfluenceRange) {
-				//grass.m_appearY = 10.0f;
-			}
-
 			m_plantGrassDataArray[grassIdx] = grass;
-
-			if (5.0f <= grass.m_pos.Length())continue;
 
 			consumeCount++;
 		}
@@ -341,27 +266,27 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 
 	//if (consumeCount || generateCount)
 	//{
-		for (auto& worldMatricies : m_grassWorldMatricies)worldMatricies.clear();
-		m_plantGrassPosArray.clear();
+	for (auto& worldMatricies : m_grassWorldMatricies)worldMatricies.clear();
+	m_plantGrassPosArray.clear();
 
-		Transform grassTransform;
-		for (int grassIdx = 0; grassIdx < static_cast<int>(m_plantGrassDataArray.size()); ++grassIdx)
-		{
-			auto& grass = m_plantGrassDataArray[grassIdx];
+	Transform grassTransform;
+	for (int grassIdx = 0; grassIdx < static_cast<int>(m_plantGrassDataArray.size()); ++grassIdx)
+	{
+		auto& grass = m_plantGrassDataArray[grassIdx];
 
-			KuroEngine::Vec3<float>appearOffset = { 0.0f,-0.5f,0.0f };
-			appearOffset *= (1.0f - grass.m_appearY);
-			grassTransform.SetPos(grass.m_pos + appearOffset);
-			grassTransform.SetUp(grass.m_normal);
-			m_grassWorldMatricies[grass.m_modelIdx].emplace_back(grassTransform.GetMatWorld());
-			m_plantGrassPosArray.emplace_back(grass.m_pos + appearOffset);
-		}
+		KuroEngine::Vec3<float>appearOffset = { 0.0f,-0.5f,0.0f };
+		appearOffset *= (1.0f - grass.m_appearY);
+		grassTransform.SetPos(grass.m_pos + appearOffset);
+		grassTransform.SetUp(grass.m_normal);
+		m_grassWorldMatricies[grass.m_modelIdx].emplace_back(grassTransform.GetMatWorld());
+		m_plantGrassPosArray.emplace_back(grass.m_pos + appearOffset);
+	}
 
-		for (int modelIdx = 0; modelIdx < s_modelNumMax; ++modelIdx)
-		{
-			m_grassWorldMatriciesBuffer[modelIdx]->Mapping(m_grassWorldMatricies[modelIdx].data(), static_cast<int>(m_grassWorldMatricies[modelIdx].size()));
-		}
-		m_plantGrassPosArrayBuffer->Mapping(m_plantGrassPosArray.data(), static_cast<int>(m_plantGrassPosArray.size()));
+	for (int modelIdx = 0; modelIdx < s_modelNumMax; ++modelIdx)
+	{
+		m_grassWorldMatriciesBuffer[modelIdx]->Mapping(m_grassWorldMatricies[modelIdx].data(), static_cast<int>(m_grassWorldMatricies[modelIdx].size()));
+	}
+	m_plantGrassPosArrayBuffer->Mapping(m_plantGrassPosArray.data(), static_cast<int>(m_plantGrassPosArray.size()));
 	//}
 }
 
@@ -441,5 +366,83 @@ std::array<Grass::SearchPlantResult, Grass::GRASSF_SEARCH_COUNT> Grass::SearchPl
 	}
 
 	return result;
+
+}
+
+void Grass::UpdateGrassEasing(Grass::GrassData& arg_grass, int arg_index)
+{
+
+	//コンピュートシェーダーで計算した結果を取得
+	bool isBright = m_checkBrightResultBuffer->GetResource()->GetBuffOnCpu<int>()[arg_index];
+
+	if (isBright)
+	{
+		static const float appearEaseSpeed = 0.05f;
+		//イージングタイマー更新
+		arg_grass.m_appearYTimer = std::min(arg_grass.m_appearYTimer + appearEaseSpeed, 1.0f);
+	}
+	else
+	{
+		static const float deadEaseSpeed = 0.03f;
+		//イージングタイマー更新
+		arg_grass.m_appearYTimer = std::max(arg_grass.m_appearYTimer - deadEaseSpeed, 0.0f);
+
+		//0以下になったらフラグを折る。
+		if (arg_grass.m_appearYTimer <= FLT_EPSILON)
+		{
+			arg_grass.m_isDead = true;
+		}
+	}
+
+	//イージング量を求める
+	if (1.0f < arg_grass.m_appearY)
+	{
+		arg_grass.m_appearY += (1.0f - arg_grass.m_appearY) / 10.0f;
+	}
+	else
+	{
+		arg_grass.m_appearY = arg_grass.m_appearYTimer;
+	}
+
+}
+
+void Grass::GrassCheckHit(Grass::GrassData& arg_grass, const std::weak_ptr<Stage>arg_nowStage) {
+
+	if (!arg_grass.m_isCheckGround) {
+
+		//下方向にレイを飛ばして、そこが動く足場だったら親子関係を結ぶ。
+		int terrianIdx = 0;
+		for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
+		{
+			//動く足場でない
+			if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)	continue;
+
+			//動く足場としてキャスト
+			auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
+			//モデル情報取得
+			auto model = terrian->GetModel();
+
+			//メッシュを走査
+			for (auto& modelMesh : model.lock()->m_meshes)
+			{
+
+				//当たり判定用メッシュ
+				auto checkHitMesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+
+				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_grass.m_pos, -arg_grass.m_normal, checkHitMesh);
+
+				//当たっていたら
+				if (output.m_isHit && 0 < output.m_distance && output.m_distance <= 1.0f) {
+
+					//親子関係を持たせる。
+					arg_grass.m_terrianIdx = terrianIdx;
+
+				}
+			}
+			++terrianIdx;
+		}
+		arg_grass.m_isCheckGround = true;
+
+	}
 
 }
