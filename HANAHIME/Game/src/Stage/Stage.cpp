@@ -200,7 +200,7 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		int gateID = arg_json["GateID"].get<int>();
 		int destStageNum = arg_json["DestStageNum"].get<int>();
 		int destGateID = arg_json["DestGateID"].get<int>();
-		bool gateSceneChange = arg_json["GateSceneChange"].get<bool>();
+		bool gateSceneChange = arg_json["GateSceneChange"].get<int>();
 		m_gimmickArray.emplace_back(std::make_shared<Gate>(model, transform, gateID, destStageNum, destGateID, gateSceneChange));
 		newPart = m_gimmickArray.back().get();
 	}
