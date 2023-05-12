@@ -124,6 +124,9 @@ class Player : public KuroEngine::Debugger
 	float m_deathEffectCameraZ;	//死亡演出中のカメラ
 	const float DEATH_EFFECT_CAMERA_Z = -15.0f;
 	const float DEATH_EFFECT_TIMER_SCALE = 0.1f;
+	
+	//プレイヤーが天井にいるか
+	bool m_onCeiling;
 
 	//攻撃判定
 	int m_attackTimer;

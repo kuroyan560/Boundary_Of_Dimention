@@ -177,6 +177,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_isCameraInvX = false;
 	m_canUnderGroundRelease = true;
 	m_canOldUnderGroundRelease = true;
+	m_onCeiling = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 
 	m_growPlantPtLig.Register();
@@ -225,12 +226,20 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//ステージを保存。
 	m_stage = arg_nowStage;
 
+	//プレイヤーが天井にいるかを判断。
+	m_onCeiling = 0.5f < m_transform.GetUp().Dot({ 0, -1, 0 });
+
 	//位置情報関係
 	auto beforePos = m_transform.GetPos();
 	auto newPos = beforePos;
 
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove() * TimeScaleMgr::s_inGame.GetTimeScale();
+
+	//プレイヤーが天井にいたら左右のカメラ走査を反転。
+	if (m_onCeiling) {
+		scopeMove *= -1.0f;
+	}
 
 	//ジャンプができるかどうか。	一定時間地形に引っ掛かってたらジャンプできる。
 	m_canJump = CAN_JUMP_DELAY <= m_canJumpDelayTimer;
@@ -293,6 +302,12 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		//入力された移動量を取得
 		m_rowMoveVec = OperationConfig::Instance()->GetMoveVecFuna(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
 
+		//天井にいたらカメラの走査を反転。
+		if (m_onCeiling) {
+			m_rowMoveVec.x *= -1.0f;
+			m_rowMoveVec.z *= -1.0f;
+		}
+
 		//カメラの回転を保存。
 		m_cameraRotYStorage += scopeMove.x;
 
@@ -312,11 +327,11 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 				KuroEngine::Vec3<float> cameraDir = m_camController.GetCamera().lock()->GetTransform().GetPosWorld() - m_transform.GetPos();
 				cameraDir.Normalize();
 				if (m_transform.GetUp().Dot(cameraDir) < 0.1f) {
-					m_isCameraInvX = true;
-					m_rowMoveVec.z *= -1.0f;
+					m_isCameraInvX = false;
 				}
 				else {
-					m_isCameraInvX = false;
+					m_isCameraInvX = true;
+					m_rowMoveVec.z *= -1.0f;
 				}
 
 			}
@@ -329,11 +344,11 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 				KuroEngine::Vec3<float> cameraDir = m_camController.GetCamera().lock()->GetTransform().GetPosWorld() - m_transform.GetPos();
 				cameraDir.Normalize();
 				if (-0.1f < m_transform.GetUp().Dot(cameraDir)) {
-					m_isCameraInvX = true;
-					m_rowMoveVec.z *= -1.0f;
+					m_isCameraInvX = false;
 				}
 				else {
-					m_isCameraInvX = false;
+					m_isCameraInvX = true;
+					m_rowMoveVec.z *= -1.0f;
 				}
 
 			}
@@ -469,10 +484,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_MODE[m_cameraMode], arg_nowStage);
-
-		//カメラの当たり判定
-		m_camController.TerrianMeshCollision(arg_nowStage);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_MODE[m_cameraMode], arg_nowStage, m_onCeiling);
 
 		m_deathEffectCameraZ = CAMERA_MODE[m_cameraMode];
 	}
@@ -482,7 +494,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_shake);
 
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_onCeiling);
 
 	}
 	//シェイクを計算。
