@@ -193,6 +193,8 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 			m_plantGrassDataArray.back().m_normal = plantData[count].m_plantNormal;
 			m_plantGrassDataArray.back().m_sineLength = KuroEngine::GetRand(40) / 100.0f;
 			m_plantGrassDataArray.back().m_modelIdx = KuroEngine::GetRand(3 - 1);
+			m_plantGrassDataArray.back().m_appearY = 1;
+			m_plantGrassDataArray.back().m_appearYTimer = 1;
 
 			//ê∂ê¨ÇµÇΩêîÇÃÉJÉEÉìÉg
 			generateCount++;
@@ -250,9 +252,11 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 
 			}
 
-			m_plantGrassDataArray[grassIdx] = grass;
+			if (grass.m_isDead) {
+				consumeCount++;
+			}
 
-			consumeCount++;
+			m_plantGrassDataArray[grassIdx] = grass;
 		}
 
 		auto result = std::remove_if(m_plantGrassDataArray.begin(), m_plantGrassDataArray.end(), [](GrassData grass)

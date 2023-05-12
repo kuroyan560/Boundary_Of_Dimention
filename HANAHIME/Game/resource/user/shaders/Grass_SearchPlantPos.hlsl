@@ -46,6 +46,7 @@ void SearchPlantPos(uint3 GlobalID : SV_DispatchThreadID, uint3 GroupID : SV_Gro
     
     //’T‚·‰ñ”B
     uint2 screenPos = (GroupID.xy * uint2(16, 16) + LocalID.xy) * uint2(GRASS_SPAN, GRASS_SPAN);
+    //uint2 screenPos = uint2(1280 / 2, 720 / 2);
     
     //ƒ‰ƒ“ƒ_ƒ€‚Å‚¿‚å‚Á‚Æ‚¾‚¯U‚ç‚·B
     uint randomScatter = 10;
