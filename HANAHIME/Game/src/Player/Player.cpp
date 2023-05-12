@@ -325,6 +325,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			//“ü—Í‚ğ”½“]‚³‚¹‚é‚©H
 			if (m_isCameraInvX || (m_isCameraUpInverse && fabs(m_transform.GetUp().y) < 0.1f)) {
 
+				m_rowMoveVec.x *= -1.0f;
 				m_rowMoveVec.z *= -1.0f;
 
 			}
