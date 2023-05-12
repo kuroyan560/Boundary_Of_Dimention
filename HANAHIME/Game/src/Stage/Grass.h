@@ -27,10 +27,11 @@ class WaterPaintBlend;
 
 class Grass
 {
-	//頂点上限
-	static const int s_vertexMax = 1024;
 	//インスタンシング描画上限
 	static const int s_instanceMax = 1024;
+
+	//植えられる草の最大数
+	static const int s_plantGrassMax = 10000;
 
 	//草を生やすかチェックで使用する値
 	static const int GRASS_GROUP = 16;						//スレッドグループに含まれる草の数
@@ -46,90 +47,47 @@ class Grass
 	std::shared_ptr<KuroEngine::GraphicsPipeline>m_pipeline;
 
 	//植えた草の情報
-	struct PlantGrass
+	struct GrassData
 	{
-		KuroEngine::Vec3<float>m_localPos = { 0,0,0 };
-		int m_modelIdx = 0;
+		KuroEngine::Vec3<float>m_pos = { 0,0,0 };
 		KuroEngine::Vec3<float>m_normal = { 0,1,0 };
-		float m_sineLength;
-		float m_appearY;		//出現エフェクトに使用する変数 Y軸をどこまで表示させるか。
-		float m_appearYTimer;
-		int m_isAlive;
-		int m_isCheckGround;
-		int m_terrianIdx;
-		KuroEngine::Vec3<float> m_worldPos = { 0,0,0 };
+		int m_modelIdx = 0;
+		float m_sineLength = 0;
+		float m_appearY = 0;		//出現エフェクトに使用する変数 Y軸をどこまで表示させるか。
+		float m_appearYTimer = 0;
+		bool m_isCheckGround  = false;
+		int m_terrianIdx = -1;
+		bool m_isDead = false;
 	};
-	//植えた草の情報配列バッファ
-	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_plantGrassBuffer;
-	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_plantGrassCounterBuffer;
-
-	//草むらのイニシャライザ情報
-	struct GrassInitializer
-	{
-		KuroEngine::Vec3<float>m_pos;
-		float m_sineLength;
-		KuroEngine::Vec3<float>m_up;
-		int m_modelIdx;
-		int m_isAlive;
-		KuroEngine::Vec3<float>m_pad;
-	};
-	//一度に生成できる最大数
-	static const int GENERATE_MAX_ONCE = 2000;
-	//生成予定の草むらイニシャライザの配列
-	std::vector<GrassInitializer>m_grassInitializerArray;
-	//生成予定の草むらイニシャライザ配列バッファ
-	std::shared_ptr<KuroEngine::StructuredBuffer>m_stackGrassInitializerBuffer;
-
-	//植えられる草の最大数
-	int m_plantGrassMax = 10000;
-
-	//一度に植える草の数
-	static const int PLANT_ONCE_COUNT = 512;
+	std::vector<GrassData>m_plantGrassDataArray;
+	std::vector<KuroEngine::Matrix>m_plantGrassWorldMatArray;
 
 	//コンピュートパイプライン種別
-	enum COMPUTE_PHASE { INIT, SEARCH_PLANT_POS, APPEAR, UPDATE, DISAPPEAR, NUM };
+	enum COMPUTE_PHASE { SEARCH_PLANT_POS, CHECK_IS_BRIGHT, NUM };
 	//コンピュートパイプライン
 	std::array<std::shared_ptr<KuroEngine::ComputePipeline>, COMPUTE_PHASE::NUM>m_cPipeline;
+
 	//描画用グラフィックスパイプライン
 	std::shared_ptr<KuroEngine::GraphicsPipeline>m_gPipeline;
 
-	//専用の定数バッファに送るプレイヤーのトランスフォーム情報
-	struct TransformCBVData
+	//プレイヤーの情報を送る定数バッファ
+	struct PlayerInfo
 	{
-		KuroEngine::Vec3<float>m_camPos;
-		float m_seed;
-		KuroEngine::Vec3<float> m_playerPos;
-		int m_grassCount;
-		float m_playerPlantLightRange;
-		KuroEngine::Vec3<float> m_pad;
+		KuroEngine::Vec3<float>m_pos;
+		float m_plantLighrRante;
 	};
-	std::shared_ptr<KuroEngine::ConstantBuffer>m_otherTransformConstBuffer;
+	std::shared_ptr<KuroEngine::ConstantBuffer>m_playerInfoBuffer;
 
-	//行列以外のデータ用構造体（好きなの入れてね）
-	struct CBVdata
+	//生成位置を計算するのに使用する定数バッファ
+	struct SearchPlantPosConstData
 	{
-		KuroEngine::Matrix matView; // ビュー行列
-		KuroEngine::Matrix matProjection;	//プロジェクション行列
-		KuroEngine::Vec3<float> eye = { 0,0,0 }; // カメラ座標（ワールド座標）
-		//判定を飛ばす距離
-		float m_checkClipOffset = 2.0f;
-		//プレイヤーの座標
-		KuroEngine::Vec3<float> m_playerPos;
-		//周辺に既に草が生えているか確認する際の範囲
-		float m_checkRange = 0.5f;
-		//草むら登場時のイージング速度
-		float m_appearEaseSpeed = 0.2f;
-		//草むら死亡時のイージング速度
-		float m_deadEaseSpeed = 0.03f;
-		//草を揺らす際のSine量 つまり風
-		float m_sineWave = 0;
-		//草を枯らす距離
-		float m_deathDistance = 8.0f;
-	}m_constData;
-	std::shared_ptr<KuroEngine::ConstantBuffer>m_constBuffer;
+		int m_grassCount;
+		float m_seed;
+	};
+	std::shared_ptr<KuroEngine::ConstantBuffer>m_searchPlantPosConstBuffer;
 
 	//判定結果の格納データ
-	struct CheckResult
+	struct SearchPlantResult
 	{
 		//int m_aroundGrassCount = 0;
 		KuroEngine::Vec3<float> m_plantPos;
@@ -137,17 +95,25 @@ class Grass
 		KuroEngine::Vec3<float> m_plantNormal;
 		int m_pad;
 	};
-	//周辺に草むらがあるか確認した結果を格納するバッファ
-	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_checkResultBuffer;
-
-	//ソートと削除処理で使うunsigned int のバッファー
-	std::shared_ptr<KuroEngine::ConstantBuffer>m_consumeCountBuffer;
 
 	//モデル
 	static const int s_modelNumMax = 3;
 	std::array<std::shared_ptr<KuroEngine::Model>, s_modelNumMax>m_modelArray;
-	std::array<std::shared_ptr<KuroEngine::StructuredBuffer>, s_modelNumMax>m_grassWorldMatriciesBuffer;
+
+	//光っているかの判定結果の確報バッファ
+	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_checkBrightResultBuffer;
+	//生成位置探索の結果を格納するバッファ
+	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_searchPlantResultBuffer;
+
+	//草むらの座標配列バッファ
+	std::shared_ptr<KuroEngine::StructuredBuffer>m_plantGrassPosArrayBuffer;
+	std::vector<KuroEngine::Vec3<float>>m_plantGrassPosArray;
+
+	
+	//描画に使うモデルごとの草のワールド行列
 	std::array<std::vector<KuroEngine::Matrix>, s_modelNumMax>m_grassWorldMatricies;
+	//描画に使うモデルごとの草のワールド行列バッファ
+	std::array<std::shared_ptr<KuroEngine::StructuredBuffer>, s_modelNumMax>m_grassWorldMatriciesBuffer;
 
 	//１フレーム前のプレイヤーの位置
 	KuroEngine::Vec3<float>m_oldPlayerPos;
@@ -164,20 +130,12 @@ public:
 	void Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, float arg_plantInfluenceRange, const std::weak_ptr<Stage>arg_nowStage, bool arg_isAttack);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, float arg_plantInfluenceRange, bool arg_isAttack);
 
-	/// <summary>
-	/// 草を植える（ビルボード）
-	/// </summary>
-	/// <param name="arg_transform">座標</param>
-	/// <param name="arg_grassPosScatter">散らし具合</param>
-	/// <param name="arg_waterPaintBlend">水彩画風ブレンドポストエフェクト</param>
-	void Plant(KuroEngine::Transform arg_transform, KuroEngine::Transform arg_playerTransform);
-
 private:
 
 	/// <summary>
 	/// 草をはやす場所を取得する。
 	/// </summary>
 	/// <returns> t:生えている  f:生えていない </returns>
-	std::array<Grass::CheckResult, GRASSF_SEARCH_COUNT> SearchPlantPos(KuroEngine::Transform arg_playerTransform);
+	std::array<Grass::SearchPlantResult, GRASSF_SEARCH_COUNT> SearchPlantPos(KuroEngine::Transform arg_playerTransform);
 
 };

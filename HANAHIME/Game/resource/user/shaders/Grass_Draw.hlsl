@@ -21,7 +21,7 @@ struct PSOutput
     float4 edgeColor : SV_Target3;
 };
 
-RWStructuredBuffer<PlantGrass> aliveGrassBuffer : register(u0);
+StructuredBuffer<matrix> grassWorldMatArrayBuffer : register(t0);
 
 //定数バッファ（カメラ情報）
 cbuffer cbuff0 : register(b0)
@@ -29,26 +29,18 @@ cbuffer cbuff0 : register(b0)
     Camera cam;
 };
 
-//定数バッファ（好きなの入れてね）
 cbuffer cbuff1 : register(b1)
-{
-    CommonGrassInfo commonInfo;
-}
-
-cbuffer cbuff2 : register(b2)
-{
-    TransformData otherTransformData;
-}
-
-//テクスチャ
-Texture2D<float4> baseTex : register(t0);
-
-cbuffer cbuff3 : register(b3)
 {
     Material material;
 }
 
-StructuredBuffer<matrix> worldMatricies : register(t1);
+cbuffer cbuff2 : register(b2)
+{
+    PlayerInfo player;
+}
+
+//テクスチャ
+Texture2D<float4> baseTex : register(t1);
 
 //サンプラー
 SamplerState smp : register(s0);
@@ -56,7 +48,7 @@ SamplerState smp : register(s0);
 VSOutput VSmain(Vertex input, uint instanceID : SV_InstanceID)
 {
     VSOutput output;
-    float4 wpos = mul(worldMatricies[instanceID], input.pos);
+    float4 wpos = mul(grassWorldMatArrayBuffer[instanceID], input.pos);
     output.svpos = mul(cam.view, wpos);
     output.depthInView = output.svpos.z;
     output.svpos = mul(cam.proj, output.svpos);
@@ -75,10 +67,10 @@ PSOutput PSmain(VSOutput input)
     
     //プレイヤーと描画する座標のベクトル
     //float3 playerDir = normalize(input.worldPosition.xyz - commonInfo.m_playerPos);
-    float3 lightDir = normalize(commonInfo.m_playerPos - cam.eyePos);
+    float3 lightDir = normalize(player.m_pos - cam.eyePos);
     
     //距離を求める。
-    float distance = length(input.worldpos.xyz - commonInfo.m_playerPos);
+    float distance = length(input.worldpos.xyz - player.m_pos);
     
     //距離によって明るさの割合を変える。
     const float DISTANCE = 8.0f;

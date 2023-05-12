@@ -12,43 +12,39 @@ Grass::Grass()
 {
 	using namespace KuroEngine;
 
-	//コンピュートパイプライン生成
+	//光っているかの判定コンピュートパイプライン生成
 	{
 		//ルートパラメータ
 		std::vector<RootParam>rootParam =
 		{
-			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"生成した草のバッファ"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, "判定の結果を格納するバッファ"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "草の座標配列バッファ"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "光が当たっている範囲のマップ"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "カメラ情報"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "プレイヤー情報"),
 		};
 
-		//初期化用パイプライン
-		auto cs_init = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass.hlsl", "Init", "cs_6_4");
-		m_cPipeline[INIT] = D3D12App::Instance()->GenerateComputePipeline(cs_init, rootParam, { WrappedSampler(true,true) });
+		//光っているか
+		auto cs_checkBright = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass_CheckBright.hlsl", "CheckBright", "cs_6_4");
+		m_cPipeline[CHECK_IS_BRIGHT] = D3D12App::Instance()->GenerateComputePipeline(cs_checkBright, rootParam, { WrappedSampler(true,true) });
+	}
 
-		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "生成する予定のスタックしたイニシャライザ配列バッファー(StructuredBuffer)");
+	//生成位置計算コンピュートパイプライン生成
+	{
+		//ルートパラメータ
+		std::vector<RootParam>rootParam =
+		{
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, "判定の結果を格納するバッファ"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "草の座標配列バッファ"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "ワールド座標"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "法線マップ"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "光が当たっている範囲のマップ"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "定数バッファ"),
+		};
 
-		//生成用パイプライン
-		auto cs_appear = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass.hlsl", "Appear", "cs_6_4");
-		m_cPipeline[APPEAR] = D3D12App::Instance()->GenerateComputePipeline(cs_appear, rootParam, { WrappedSampler(true,true) });
-
-		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "ワールド座標");
-		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "法線マップ");
-		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "光が当たっている範囲のマップ");
-		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "草むら以外のトランスフォームデータ");
-		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "全草むらで共通する定数バッファ");
-		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "削除する草のカウント");
-
-		//削除用パイプライン
-		auto cs_disappear = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass.hlsl", "Disappear", "cs_6_4");
-		m_cPipeline[DISAPPEAR] = D3D12App::Instance()->GenerateComputePipeline(cs_disappear, rootParam, { WrappedSampler(true,true) });
-
-		//更新用パイプライン
-		auto cs_update = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass.hlsl", "Update", "cs_6_4");
-		m_cPipeline[UPDATE] = D3D12App::Instance()->GenerateComputePipeline(cs_update, rootParam, { WrappedSampler(true,true) });
-
-		rootParam.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, "判定の結果を格納するバッファ(RWStructuredBuffer)");
-		//判定用パイプライン
-		auto cs_check = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass.hlsl", "SearchPlantPos", "cs_6_4");
-		m_cPipeline[SEARCH_PLANT_POS] = D3D12App::Instance()->GenerateComputePipeline(cs_check, rootParam, { WrappedSampler(true,true) });
+		//生成位置判定用パイプライン
+		auto cs_searchPlant = D3D12App::Instance()->CompileShader("resource/user/shaders/Grass_SearchPlantPos.hlsl", "SearchPlantPos", "cs_6_4");
+		m_cPipeline[SEARCH_PLANT_POS] = D3D12App::Instance()->GenerateComputePipeline(cs_searchPlant, rootParam, { WrappedSampler(true,true) });
 	}
 
 	//描画用グラフィックスパイプラインパイプライン生成
@@ -64,13 +60,12 @@ Grass::Grass()
 		//ルートパラメータ
 		std::vector<RootParam>rootParam =
 		{
-			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"生成した草のバッファー(RWStructuredBuffer)"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"生成した草のワールド行列バッファー(StructuredBuffer)"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"カメラ情報"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"全草むらで共通する定数バッファ"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "草むら以外のトランスフォームデータ"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "テクスチャ"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "マテリアル"),
-			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, "草むらのインデックス配列"),
 		};
 
 		//レンダーターゲット描画先情報
@@ -92,51 +87,41 @@ Grass::Grass()
 			{ WrappedSampler(true,true) });
 	}
 
-	//プレイヤーのトランスフォーム情報用定数バッファ
-	m_otherTransformConstBuffer = D3D12App::Instance()->GenerateConstantBuffer(
-		sizeof(TransformCBVData),
+	//プレイヤー情報用定数バッファ
+	m_playerInfoBuffer = D3D12App::Instance()->GenerateConstantBuffer(
+		sizeof(PlayerInfo),
 		1,
 		nullptr,
-		"Grass - PlayerTransform - ConstantBuffer");
+		"Grass - PlayerInfo - ConstantBuffer");
 
-	//行列以外のデータ用構造体
-	m_constBuffer = D3D12App::Instance()->GenerateConstantBuffer(
-		sizeof(CBVdata),
+	//生成位置を計算するのに使用する定数バッファ
+	m_searchPlantPosConstBuffer = D3D12App::Instance()->GenerateConstantBuffer(
+		sizeof(SearchPlantPosConstData),
 		1,
-		&m_constData,
-		"Grass - Common - ConstantBuffer");
-
-	//生成予定の草むらのイニシャライザをスタックしておくバッファ
-	m_stackGrassInitializerBuffer = D3D12App::Instance()->GenerateStructuredBuffer(
-		sizeof(GrassInitializer),
-		GENERATE_MAX_ONCE,
 		nullptr,
-		"Grass - InitializerArray - StructuredBuffer");
+		"Grass - SearchPlantPos - ConstantBuffer");
 
-	//生成した草むらのバッファ
-	D3D12App::Instance()->GenerateRWStructuredBuffer(
-		&m_plantGrassBuffer, &m_plantGrassCounterBuffer,
-		sizeof(PlantGrass),
-		m_plantGrassMax,
-		nullptr,
-		"Grass - PlantGrass - RWStructuredBuffer");
-
-	//ソートと削除処理で使うunsigned int のバッファー
-	int initZero = 0;
-	m_consumeCountBuffer = D3D12App::Instance()->GenerateConstantBuffer(
-		sizeof(int),
-		1,
-		&initZero,
-		"Grass - ConsumeCount - ConstantBuffer"
-	);
-
-	//判定結果の格納用バッファ
-	std::array<CheckResult, GRASSF_SEARCH_COUNT> checkResultInit;
-	m_checkResultBuffer = D3D12App::Instance()->GenerateRWStructuredBuffer(
-		sizeof(CheckResult),
+	//生成位置探索の結果の格納用バッファ
+	m_searchPlantResultBuffer = D3D12App::Instance()->GenerateRWStructuredBuffer(
+		sizeof(SearchPlantResult),
 		GRASSF_SEARCH_COUNT,
-		checkResultInit.data(),
-		"Grass - CheckResult - RWStructuredBuffer");
+		nullptr,
+		"Grass - SearchPlantResult - RWStructuredBuffer");
+
+	//光っているかの判定結果の確報バッファ
+	m_checkBrightResultBuffer = D3D12App::Instance()->GenerateRWStructuredBuffer(
+		sizeof(bool),
+		s_plantGrassMax,
+		nullptr,
+		"Grass - CheckBrightResult - RWStructuredBuffer");
+
+	//GPU上の草データ
+	m_plantGrassPosArray.reserve(s_plantGrassMax);
+	m_plantGrassPosArrayBuffer = D3D12App::Instance()->GenerateStructuredBuffer(
+		sizeof(KuroEngine::Vec3<float>),
+		s_plantGrassMax,
+		nullptr,
+		"Grass - PlantGrassPosArray - StructuredBuffer");
 
 	//モデル
 	for (int modelIdx = 0; modelIdx < s_modelNumMax; ++modelIdx)
@@ -144,14 +129,14 @@ Grass::Grass()
 		std::string fileName = "Grass_" + std::to_string(modelIdx) + ".glb";
 		m_modelArray[modelIdx] = Importer::Instance()->LoadModel("resource/user/model/", fileName);
 
-		//草のインデックス配列バッファ
+		//草の描画用ワールド行列配列バッファ
 		m_grassWorldMatriciesBuffer[modelIdx] = D3D12App::Instance()->GenerateStructuredBuffer(
 			sizeof(Matrix),
-			m_plantGrassMax,
+			s_plantGrassMax,
 			nullptr,
 			"Grass - GrassIndicies - StructuredBuffer");
 
-		m_grassWorldMatricies[modelIdx].reserve(m_plantGrassMax);
+		m_grassWorldMatricies[modelIdx].reserve(s_plantGrassMax);
 	}
 }
 
@@ -159,19 +144,8 @@ void Grass::Init()
 {
 	using namespace KuroEngine;
 
-	//植えた草のカウント取得
-	auto plantGrassCount = *m_plantGrassCounterBuffer->GetResource()->GetBuffOnCpu<int>();
-
-	//草むらの初期化（全消し）
-	if (plantGrassCount)
-	{
-		D3D12App::Instance()->DispathOneShot(
-			m_cPipeline[INIT],
-			{ plantGrassCount,1,1 },
-			{
-				{m_plantGrassBuffer,UAV},
-			});
-	}
+	m_plantGrassDataArray.clear();
+	m_plantGrassWorldMatArray.clear();
 
 	m_oldPlayerPos = { -1000,-1000,-1000 };
 	m_plantTimer.Reset(0);
@@ -182,118 +156,83 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 	using namespace KuroEngine;
 
 	//トランスフォーム情報をGPUに送信
-	TransformCBVData transformData;
-	transformData.m_playerPos = arg_playerTransform.GetPos();
-	transformData.m_playerPlantLightRange = arg_plantInfluenceRange;
-	transformData.m_camPos = { arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[0],arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[1],arg_cam.lock()->GetTransform().GetMatWorld().r[3].m128_f32[2] };
-	m_otherTransformConstBuffer->Mapping(&transformData);
+	PlayerInfo playerInfo;
+	playerInfo.m_pos = arg_playerTransform.GetPos();
+	playerInfo.m_plantLighrRante = arg_plantInfluenceRange;
+	m_playerInfoBuffer->Mapping(&playerInfo);
 
 	//プレイヤーの座標を保存。
 	m_playerPos = arg_playerTransform.GetPos();
 
-	//if (m_plantTimer.IsTimeUp() && 0.01f < KuroEngine::Vec3<float>(m_oldPlayerPos - arg_playerTransform.GetPos()).Length())
-	if (true)
-	{
-		//トランスフォームに流し込む
-		Transform grassTransform;
-		grassTransform.SetPos(arg_playerTransform.GetPos());
-		grassTransform.SetRotate(arg_playerTransform.GetRotate());
-		grassTransform.SetScale({ 1.0f,1.0f,1.0f });
-
-		Plant(grassTransform, arg_playerTransform);
-		m_plantTimer.Reset(0);
-	}
-	m_plantTimer.UpdateTimer();
+	//生成した数
+	int generateCount = 0;
+	//削除した数
+	int consumeCount = 0;
 
 	m_oldPlayerPos = arg_playerTransform.GetPos();
 
-	//定数バッファ1の草の揺れ具合を更新。
-	m_constData.m_sineWave += 0.02f;
-	//座標を保存。
-	m_constData.m_playerPos = arg_playerTransform.GetPos() + arg_playerTransform.GetUp() * arg_playerTransform.GetScale().y;
-	//登場速度を設定。
-	m_constData.m_appearEaseSpeed = 0.1f;
-	//プレイヤーの座標を取得。
-	m_constData.m_playerPos = arg_playerTransform.GetPos();
-	//カメラの情報を入れる。
-	m_constData.matView = arg_cam.lock()->GetViewMat();
-	m_constData.matProjection = arg_cam.lock()->GetProjectionMat();
-	m_constData.eye = arg_cam.lock()->GetEye();
-	//定数バッファ1をGPUに転送。
-	m_constBuffer->Mapping(&m_constData);
-
-	//登録するディスクリプタの情報配列
-	std::vector<RegisterDescriptorData>descData =
-	{
-		{m_plantGrassBuffer,UAV},
-		{m_stackGrassInitializerBuffer, SRV},
-	};
-
-	//植えた草むらの配列のポインタ取得
-	auto aliveGrassArrayBufferPtr = m_plantGrassBuffer->GetResource()->GetBuffOnCpu<PlantGrass>();
-	//植えた草むらのカウントのポインタ取得
-	auto plantGrassCountPtr = m_plantGrassCounterBuffer->GetResource()->GetBuffOnCpu<int>();
-
-	//スタックしておいた草むらを生やす
-	if (!m_grassInitializerArray.empty())
-	{
-		//一度に生成できる量を超えてる
-		int generateNum = static_cast<int>(m_grassInitializerArray.size());
-		if (GENERATE_MAX_ONCE < generateNum)
-		{
-			AppearMessageBox("Grass : Update() 失敗", "一度に生成できる量を超えてるよ");
-			exit(1);
-		}
-
-		//イニシャライザ配列を送信
-		m_stackGrassInitializerBuffer->Mapping(m_grassInitializerArray.data(), generateNum);
-
-		//生成
-		D3D12App::Instance()->DispathOneShot(
-			m_cPipeline[APPEAR],
-			{ generateNum,1,1 },
-			descData);
-
-		//上限到達
-		if (m_plantGrassMax < *plantGrassCountPtr)
-		{
-			AppearMessageBox("Grass : Update() 失敗", "生成できる上限を超えたよ");
-			exit(1);
-		}
-
-		//スタックしたイニシャライザをリセット
-		m_grassInitializerArray.clear();
-	}
-
 	//植えた草むらの更新
-	if (*plantGrassCountPtr)
+	if (!m_plantGrassDataArray.empty())
 	{
-
-		descData.emplace_back(BasicDraw::Instance()->GetRenderTarget(BasicDraw::WORLD_POS), SRV);
-		descData.emplace_back(BasicDraw::Instance()->GetRenderTarget(BasicDraw::NORMAL_GRASS), SRV);
-		descData.emplace_back(BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT), SRV);
-		descData.emplace_back(m_otherTransformConstBuffer, CBV);
-		descData.emplace_back(m_constBuffer, CBV);
-		descData.emplace_back(m_consumeCountBuffer, CBV);
+		std::vector<RegisterDescriptorData>descData =
+		{
+			{m_checkBrightResultBuffer,UAV},
+			{m_plantGrassPosArrayBuffer,SRV},
+			{BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT),SRV},
+			{arg_cam.lock()->GetBuff(),CBV},
+			{m_playerInfoBuffer,CBV},
+		};
 
 		D3D12App::Instance()->DispathOneShot(
-			m_cPipeline[UPDATE],
-			{ *plantGrassCountPtr,1,1 },
+			m_cPipeline[CHECK_IS_BRIGHT],
+			{ static_cast<int>(m_plantGrassDataArray.size()),1,1},
 			descData);
 
 		//下方向にレイを飛ばして、そこが動く足場だったら親子関係を結ぶ。
-		for (int grassIdx = 0; grassIdx < *plantGrassCountPtr;++grassIdx) 
+		for (int grassIdx = 0; grassIdx < static_cast<int>(m_plantGrassDataArray.size()); ++grassIdx)
 		{
-			auto& index = aliveGrassArrayBufferPtr[grassIdx];
+			auto& grass = m_plantGrassDataArray[grassIdx];
 
-			if (!index.m_isAlive)continue;
-			if (index.m_isCheckGround) continue;
+			//コンピュートシェーダーで計算した結果を取得
+			bool isBright = m_checkBrightResultBuffer->GetResource()->GetBuffOnCpu<bool>()[grassIdx];
+
+			if (isBright)
+			{
+				static const float appearEaseSpeed = 0.05f;
+				//イージングタイマー更新
+				grass.m_appearYTimer = std::min(grass.m_appearYTimer + appearEaseSpeed, 1.0f);
+			}
+			else
+			{
+				static const float deadEaseSpeed = 0.03f;
+				//イージングタイマー更新
+				grass.m_appearYTimer = std::max(grass.m_appearYTimer - deadEaseSpeed, 0.0f);
+
+				//0以下になったらフラグを折る。
+				if (grass.m_appearYTimer <= FLT_EPSILON)
+				{
+					grass.m_isDead = true;
+					continue;
+				}
+			}
+
+			//イージング量を求める
+			if (1.0f < grass.m_appearY)
+			{
+				grass.m_appearY += (1.0f - grass.m_appearY) / 10.0f;
+			}
+			else
+			{
+				grass.m_appearY = grass.m_appearYTimer;
+			}
+
+			if (grass.m_isCheckGround)continue;
 
 			int terrianIdx = 0;
 			for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
 			{
 				//動く足場でない
-				if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)continue;
+				if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)	continue;
 
 				//動く足場としてキャスト
 				auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
@@ -307,87 +246,109 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 					//当たり判定用メッシュ
 					auto checkHitMesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
-					CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(index.m_worldPos, -index.m_normal, checkHitMesh);
+					CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(grass.m_pos, -grass.m_normal, checkHitMesh);
 
 					//当たっていたら
 					if (output.m_isHit && 0 < output.m_distance && output.m_distance <= 1.0f) {
 
 						//親子関係を持たせる。
-						index.m_terrianIdx = terrianIdx;
-
+						grass.m_terrianIdx = terrianIdx;
 					}
-
-
 				}
 				++terrianIdx;
 			}
-			index.m_isCheckGround = true;
+			grass.m_isCheckGround = true;
 
 			//草にトランスフォームを適応。
 			//Indexが-1だったら処理を飛ばす。
-			if (index.m_terrianIdx == -1) continue;
+			if (grass.m_terrianIdx == -1)continue;
 
 			auto terrian = arg_nowStage.lock()->GetGimmickArray().begin();
-			std::advance(terrian, index.m_terrianIdx);
+			std::advance(terrian, grass.m_terrianIdx);
 
-			index.m_worldPos += terrian->get()->GetMoveAmount();
+			grass.m_pos += terrian->get()->GetMoveAmount();
 
 			//原点付近に生える草は削除
 			//攻撃中で、既定の範囲内だったらAppearYを超でかくする。
-			if (arg_isAttack && (arg_playerTransform.GetPos() - index.m_worldPos).Length() < arg_plantInfluenceRange) {
-				index.m_appearY = 10.0f;
+			if (arg_isAttack && (arg_playerTransform.GetPos() - grass.m_pos).Length() < arg_plantInfluenceRange) {
+				grass.m_appearY = 10.0f;
 			}
 
-			if (5.0f <= index.m_worldPos.Length()) continue;
-			index.m_isAlive = false;
+			if (5.0f <= grass.m_pos.Length())continue;
+
+			consumeCount++;
 		}
 
-		//GPU上でソートしたら草消えるバグ置きたのでCPU側でソート。動けば勝ちや！！！！！！！！！！！
-		std::vector<PlantGrass>aliveGrassArray;
-		//GPU上の草データをvectorにいれる。
-		aliveGrassArray.resize(*plantGrassCountPtr);
-		std::memcpy(aliveGrassArray.data(), aliveGrassArrayBufferPtr, sizeof(PlantGrass)* (*plantGrassCountPtr));
-
-		//削除する数のカウント
-		int consumeCount = static_cast<int>(std::count_if(aliveGrassArray.begin(), aliveGrassArray.end(), [](PlantGrass& grass)
+		auto result = std::remove_if(m_plantGrassDataArray.begin(), m_plantGrassDataArray.end(), [](GrassData grass)
 			{
-				return grass.m_isAlive == 0;
-			}));
-
-		//フラグがfalseになった草を最後尾へソート
-		std::sort(aliveGrassArray.begin(), aliveGrassArray.end(), [](PlantGrass& a, PlantGrass& b) {
-			return a.m_isAlive > b.m_isAlive;
+				return grass.m_isDead;
 			});
+		consumeCount = static_cast<int>(std::distance(result, m_plantGrassDataArray.end()));
+		m_plantGrassDataArray.erase(result, m_plantGrassDataArray.end());
+	}
 
-		//GPUに送信
-		m_plantGrassBuffer->Mapping(aliveGrassArray.data(), *plantGrassCountPtr);
-		m_consumeCountBuffer->Mapping(&consumeCount);
-
-		//死んでいるものを削除
-		D3D12App::Instance()->DispathOneShot(
-			m_cPipeline[DISAPPEAR],
-			{ 1,1,1 },
-			descData);
-
-		//草むらのインデックスの配列
-		for (auto& indicies : m_grassWorldMatricies)
-		{
-			indicies.clear();
-		}
-		//モデルごとの草のインデックス配列作成
+	//if (m_plantTimer.IsTimeUp() && 0.01f < KuroEngine::Vec3<float>(m_oldPlayerPos - arg_playerTransform.GetPos()).Length())
+	if (true)
+	{
+		//トランスフォームに流し込む
 		Transform grassTransform;
-		for (int grassIdx = 0; grassIdx < *plantGrassCountPtr; ++grassIdx)
+		grassTransform.SetPos(arg_playerTransform.GetPos());
+		grassTransform.SetRotate(arg_playerTransform.GetRotate());
+		grassTransform.SetScale({ 1.0f,1.0f,1.0f });
+
+		//草をはやす場所を取得。
+		std::array<Grass::SearchPlantResult, Grass::GRASSF_SEARCH_COUNT> plantData = SearchPlantPos(arg_playerTransform);
+
+		for (int count = 0; count < GRASSF_SEARCH_COUNT; ++count)
 		{
-			auto& grass = aliveGrassArrayBufferPtr[grassIdx];
-			grassTransform.SetPos(grass.m_worldPos);
+			if (plantData[count].m_isSuccess == 0) continue;
+			if (plantData[count].m_plantNormal.Length() <= FLT_EPSILON)continue;
+
+			//草の生成
+			m_plantGrassDataArray.emplace_back();
+			m_plantGrassDataArray.back().m_pos = plantData[count].m_plantPos;
+			m_plantGrassDataArray.back().m_normal = plantData[count].m_plantNormal;
+			m_plantGrassDataArray.back().m_sineLength = KuroEngine::GetRand(40) / 100.0f;
+			m_plantGrassDataArray.back().m_modelIdx = KuroEngine::GetRand(3 - 1);
+
+			//生成した数のカウント
+			generateCount++;
+		}
+
+		//上限到達
+		if (s_plantGrassMax < m_plantGrassDataArray.size())
+		{
+			KuroEngine::AppearMessageBox("Grass : Update() 失敗", "生成できる上限を超えたよ");
+			exit(1);
+		}
+
+		m_plantTimer.Reset(0);
+	}
+	m_plantTimer.UpdateTimer();
+
+	if (consumeCount || generateCount)
+	{
+		for (auto& worldMatricies : m_grassWorldMatricies)worldMatricies.clear();
+		m_plantGrassPosArray.clear();
+
+		Transform grassTransform;
+		for (int grassIdx = 0; grassIdx < static_cast<int>(m_plantGrassDataArray.size()); ++grassIdx)
+		{
+			auto& grass = m_plantGrassDataArray[grassIdx];
+
+			KuroEngine::Vec3<float>appearOffset = { 0.0f,-0.5f,0.0f };
+			appearOffset *= (1.0f - grass.m_appearY);
+			grassTransform.SetPos(grass.m_pos + appearOffset);
 			grassTransform.SetUp(grass.m_normal);
 			m_grassWorldMatricies[grass.m_modelIdx].emplace_back(grassTransform.GetMatWorld());
+			m_plantGrassPosArray.emplace_back(grass.m_pos + appearOffset);
 		}
-		//インデックス配列情報を送信
+
 		for (int modelIdx = 0; modelIdx < s_modelNumMax; ++modelIdx)
 		{
 			m_grassWorldMatriciesBuffer[modelIdx]->Mapping(m_grassWorldMatricies[modelIdx].data(), static_cast<int>(m_grassWorldMatricies[modelIdx].size()));
 		}
+		m_plantGrassPosArrayBuffer->Mapping(m_plantGrassPosArray.data(), static_cast<int>(m_plantGrassPosArray.size()));
 	}
 }
 
@@ -403,13 +364,11 @@ void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 		{
 			std::vector<RegisterDescriptorData>descData =
 			{
-				{m_plantGrassBuffer,UAV},
-				{arg_cam.GetBuff(),CBV},
-				{m_constBuffer,CBV},
-				{m_otherTransformConstBuffer,CBV},
-				{mesh.material->texBuff[COLOR_TEX],SRV},
-				{mesh.material->buff,CBV},
 				{m_grassWorldMatriciesBuffer[modelIdx],SRV},
+				{arg_cam.GetBuff(),CBV},
+				{mesh.material->buff,CBV},
+				{m_playerInfoBuffer,CBV},
+				{mesh.material->texBuff[COLOR_TEX],SRV},
 			};
 
 			KuroEngineDevice::Instance()->Graphics().ObjectRender(
@@ -423,61 +382,30 @@ void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 	}
 }
 
-void Grass::Plant(KuroEngine::Transform arg_transform, KuroEngine::Transform arg_playerTransform)
-{
-
-	//草をはやす場所を取得。
-	std::array<Grass::CheckResult, Grass::GRASSF_SEARCH_COUNT> plantData = SearchPlantPos(arg_playerTransform);
-
-	for (int count = 0; count < GRASSF_SEARCH_COUNT; ++count)
-	{
-
-		if (plantData[count].m_isSuccess != 1) continue;
-
-		//イニシャライザのスタック
-		m_grassInitializerArray.emplace_back();
-		m_grassInitializerArray.back().m_pos = plantData[count].m_plantPos;
-		m_grassInitializerArray.back().m_up = plantData[count].m_plantNormal;
-		//とりあえず乱数でテクスチャ決定
-		//m_vertices[m_deadVertexIdx].m_texIdx = KuroEngine::GetRand(s_textureNumMax - 1);
-		m_grassInitializerArray.back().m_modelIdx = KuroEngine::GetRand(3 - 1);
-		m_grassInitializerArray.back().m_sineLength = KuroEngine::GetRand(40) / 100.0f;
-	}
-
-	//インクマスクを落とす
-	//arg_waterPaintBlend.DropMaskInk(arg_transform.GetPos() + KuroEngine::Vec3<float>(0.0f, 1.0f, 0.0f));
-}
-
-std::array<Grass::CheckResult, Grass::GRASSF_SEARCH_COUNT> Grass::SearchPlantPos(KuroEngine::Transform arg_playerTransform)
+std::array<Grass::SearchPlantResult, Grass::GRASSF_SEARCH_COUNT> Grass::SearchPlantPos(KuroEngine::Transform arg_playerTransform)
 {
 	using namespace KuroEngine;
 
-	//植えた草むらのカウント取得
-	int plantGrassCount = *m_plantGrassCounterBuffer->GetResource()->GetBuffOnCpu<int>();
-
 	//判定結果の初期化
-	auto checkResultPtr = m_checkResultBuffer->GetResource()->GetBuffOnCpu<CheckResult>();
+	auto checkResultPtr = m_searchPlantResultBuffer->GetResource()->GetBuffOnCpu<SearchPlantResult>();
 	checkResultPtr->m_plantPos = KuroEngine::Vec3<float>();
 
 	//必要なデータを送信
-	auto transformCBVPtr = m_otherTransformConstBuffer->GetResource()->GetBuffOnCpu<TransformCBVData>();
-	transformCBVPtr->m_seed = KuroEngine::GetRand(0, 100000) / 100.0f;
-	transformCBVPtr->m_grassCount = plantGrassCount;
-	transformCBVPtr->m_playerPos = arg_playerTransform.GetPosWorld();
+	SearchPlantPosConstData constData;
+	constData.m_grassCount = static_cast<int>(m_plantGrassDataArray.size());
+	constData.m_seed = KuroEngine::GetRand(0, 100000) / 100.0f;
+	m_searchPlantPosConstBuffer->Mapping(&constData);
 
 	//判定用コンピュートパイプライン実行
 	//登録するディスクリプタの情報配列
 	std::vector<RegisterDescriptorData>descData =
 	{
-		{m_plantGrassBuffer,UAV},
-		{m_stackGrassInitializerBuffer,SRV},
+		{m_searchPlantResultBuffer,UAV},
+		{m_plantGrassPosArrayBuffer,SRV},
 		{BasicDraw::Instance()->GetRenderTarget(BasicDraw::WORLD_POS),SRV},
 		{BasicDraw::Instance()->GetRenderTarget(BasicDraw::NORMAL),SRV},
 		{BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT),SRV},
-		{m_otherTransformConstBuffer,CBV},
-		{m_constBuffer,CBV},
-		{m_consumeCountBuffer,CBV},
-		{m_checkResultBuffer,UAV}
+		{m_searchPlantPosConstBuffer,CBV},
 	};
 
 	//生成してある草むらの数を取得
@@ -487,9 +415,9 @@ std::array<Grass::CheckResult, Grass::GRASSF_SEARCH_COUNT> Grass::SearchPlantPos
 		descData);
 
 	//判定結果の取得
-	std::array<Grass::CheckResult, Grass::GRASSF_SEARCH_COUNT> result;
+	std::array<Grass::SearchPlantResult, Grass::GRASSF_SEARCH_COUNT> result;
 
-	checkResultPtr = m_checkResultBuffer->GetResource()->GetBuffOnCpu<CheckResult>();
+	checkResultPtr = m_searchPlantResultBuffer->GetResource()->GetBuffOnCpu<SearchPlantResult>();
 
 	for (int index = 0; index < GRASSF_SEARCH_COUNT; ++index) {
 
