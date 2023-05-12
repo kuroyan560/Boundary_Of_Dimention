@@ -233,6 +233,7 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		std::vector<RenderTargetInfo>RENDER_TARGET_INFO =
 		{
 			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_None),	//通常描画
+			RenderTargetInfo(DXGI_FORMAT_R16_FLOAT, AlphaBlendMode_None),	//深度マップ
 		};
 		//パイプライン生成
 		m_edgePipeline = D3D12App::Instance()->GenerateGraphicsPipeline(
@@ -292,6 +293,12 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 			targetSize,
 			GetWideStrFromStr(("BasicDraw - " + targetNames[targetIdx])).c_str());
 	}
+
+	//デプスマップのクローン
+	m_depthMapClone = D3D12App::Instance()->GenerateTextureBuffer(
+		targetSize,
+		RENDER_TARGET_INFO[0][RENDER_TARGET_TYPE::DEPTH].m_format,
+		"DepthMap - Clone");
 }
 
 void BasicDraw::Update(KuroEngine::Vec3<float> arg_playerPos, KuroEngine::Camera& arg_cam)
@@ -556,9 +563,17 @@ void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightMan
 		arg_boneBuff);
 }
 
-void BasicDraw::DrawEdge(DirectX::XMMATRIX arg_camView, DirectX::XMMATRIX arg_camProj)
+void BasicDraw::DrawEdge(DirectX::XMMATRIX arg_camView, DirectX::XMMATRIX arg_camProj, std::weak_ptr<KuroEngine::DepthStencil>arg_ds)
 {
 	using namespace KuroEngine;
+
+	KuroEngineDevice::Instance()->Graphics().CopyTexture(m_depthMapClone, m_renderTargetArray[RENDER_TARGET_TYPE::DEPTH]);
+
+	std::vector<std::weak_ptr<RenderTarget>>rts;
+	rts.emplace_back(m_renderTargetArray[RENDER_TARGET_TYPE::MAIN]);
+	rts.emplace_back(m_renderTargetArray[RENDER_TARGET_TYPE::DEPTH]);
+
+	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(rts, arg_ds.lock());
 
 	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_edgePipeline);
 
@@ -569,7 +584,7 @@ void BasicDraw::DrawEdge(DirectX::XMMATRIX arg_camView, DirectX::XMMATRIX arg_ca
 	std::vector<RegisterDescriptorData>descDatas =
 	{
 		{KuroEngineDevice::Instance()->GetParallelMatProjBuff(),CBV},
-		{m_renderTargetArray[DEPTH],SRV},
+		{m_depthMapClone,SRV},
 		{m_renderTargetArray[BRIGHT],SRV},
 		{m_renderTargetArray[EDGE_COLOR],SRV},
 		{m_renderTargetArray[NORMAL],SRV},
@@ -577,4 +592,11 @@ void BasicDraw::DrawEdge(DirectX::XMMATRIX arg_camView, DirectX::XMMATRIX arg_ca
 		{m_edgeShaderParamBuff,CBV},
 	};
 	m_spriteMesh->Render(descDatas);
+
+	rts.clear();
+	for (int targetIdx = 0; targetIdx < RENDER_TARGET_TYPE::NUM; ++targetIdx)
+	{
+		rts.emplace_back(m_renderTargetArray[targetIdx]);
+	}
+	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(rts, arg_ds.lock());
 }

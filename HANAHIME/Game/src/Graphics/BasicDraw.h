@@ -88,6 +88,8 @@ private:
 	std::shared_ptr<KuroEngine::GraphicsPipeline>m_edgePipeline;
 	std::unique_ptr<KuroEngine::SpriteMesh>m_spriteMesh;
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_edgeShaderParamBuff;
+	//デプスマップの参照用クローン
+	std::shared_ptr<KuroEngine::TextureBuffer>m_depthMapClone;
 
 	std::array<std::shared_ptr<KuroEngine::RenderTarget>, RENDER_TARGET_TYPE::NUM>m_renderTargetArray;
 
@@ -206,7 +208,7 @@ public:
 		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr);
 
 	//エッジ描画
-	void DrawEdge(DirectX::XMMATRIX arg_camView, DirectX::XMMATRIX arg_camProj);
+	void DrawEdge(DirectX::XMMATRIX arg_camView, DirectX::XMMATRIX arg_camProj, std::weak_ptr<KuroEngine::DepthStencil>arg_ds);
 
 	//メインのレンダーターゲットゲッタ
 	std::shared_ptr<KuroEngine::RenderTarget>& GetRenderTarget(RENDER_TARGET_TYPE arg_type) { return m_renderTargetArray[arg_type]; }

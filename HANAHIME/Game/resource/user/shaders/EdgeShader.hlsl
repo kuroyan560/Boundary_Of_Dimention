@@ -40,8 +40,19 @@ VSOutput VSmain(float4 pos : POSITION, float2 uv : TEXCOORD)
     return output;
 }
 
-float4 PSmain(VSOutput input) : SV_TARGET
+struct PSOutput
+{
+    float4 color : SV_Target0;
+    float depth : SV_Target1;
+};
+
+PSOutput PSmain(VSOutput input) : SV_TARGET
 {   
+    PSOutput output;
+    output.color = float4(0, 0, 0, 0);
+    
+    // このピクセルの深度値を取得
+    float depth = g_depthMap.Sample(g_sampler, input.m_uv).x;
     
     // x->普通のアウトライン y->デフォルトの範囲の白いアウトライン z->プレイヤーのアウトライン w->敵のアウトライン
     
@@ -53,9 +64,6 @@ float4 PSmain(VSOutput input) : SV_TARGET
     float defBright = g_brightMap.Sample(g_sampler, input.m_uv).y; //デフォルトのライトの範囲
     float playerBright = g_brightMap.Sample(g_sampler, input.m_uv).z; //プレイヤー用アウトライン
     float enemyBright = g_brightMap.Sample(g_sampler, input.m_uv).w; //敵用アウトライン
-    
-    // このピクセルの深度値を取得
-    float depth = g_depthMap.Sample(g_sampler, input.m_uv).x;
 
     //一番近い（深度値が低い）ピクセルを記録
     float nearest = depth;
@@ -99,7 +107,9 @@ float4 PSmain(VSOutput input) : SV_TARGET
             float pickBright = g_brightMap.Sample(g_sampler, brihgtPickUv).z;
             if (pickBright != playerBright && !g_brightMap.Sample(g_sampler, brihgtPickUv).w)
             {
-                return float4(0.35f, 0.90f, 0.57f, 1.0f);
+                output.color = float4(0.35f, 0.90f, 0.57f, 1.0f);
+                output.depth = g_depthMap.Sample(g_sampler, brihgtPickUv);
+                return output;
             }
 
         }
@@ -113,7 +123,9 @@ float4 PSmain(VSOutput input) : SV_TARGET
             float pickBright = g_brightMap.Sample(g_sampler, brihgtPickUv).w;
             if (pickBright != enemyBright && !g_brightMap.Sample(g_sampler, brihgtPickUv).z)
             {
-                return float4(0.54f, 0.14f, 0.33f, 1.0f);
+                output.color = float4(0.54f, 0.14f, 0.33f, 1.0f);
+                output.depth = g_depthMap.Sample(g_sampler, brihgtPickUv);
+                return output;
             }
 
         }
@@ -128,7 +140,9 @@ float4 PSmain(VSOutput input) : SV_TARGET
             float isPlayer = g_brightMap.Sample(g_sampler, brihgtPickUv).z;
             if (pickBright != myBright && !isPlayer)
             {
-                return g_edgeColorMap.Sample(g_sampler, brihgtPickUv);
+                output.color = g_edgeColorMap.Sample(g_sampler, brihgtPickUv);
+                output.depth = g_depthMap.Sample(g_sampler, brihgtPickUv);
+                return output;
             }
 
         }
@@ -143,7 +157,9 @@ float4 PSmain(VSOutput input) : SV_TARGET
             float isPlayer = g_brightMap.Sample(g_sampler, brihgtPickUv).z;
             if (pickBright != defBright && !isPlayer)
             {
-                return float4(0.5f, 0.5f, 0.5f, 1.0f);
+                output.color = float4(0.5f, 0.5f, 0.5f, 1.0f);
+                output.depth = g_depthMap.Sample(g_sampler, brihgtPickUv);
+                return output;
             }
 
         }
@@ -175,9 +191,11 @@ float4 PSmain(VSOutput input) : SV_TARGET
     if (!sameNormal && m_edgeParam.m_depthThreshold <= depthDiffer && !playerBright && !enemyBright)
     {
         //一番手前側のエッジカラーを採用する
-        return g_edgeColorMap.Sample(g_sampler, nearestUv);
+        output.color = g_edgeColorMap.Sample(g_sampler, nearestUv);
+        output.depth = g_depthMap.Sample(g_sampler, nearestUv);
+        return output;
     }
     
     discard;
-    return float4(0.0f,0.0f,0.0f,0.0f);
+    return output;
 }
