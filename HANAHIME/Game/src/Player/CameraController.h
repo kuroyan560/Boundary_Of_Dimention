@@ -21,8 +21,14 @@ class CameraController : public KuroEngine::Debugger
 	float m_posOffsetDepthMin = -10.0f;
 	float m_posOffsetDepthMax = -0.1f;
 	//X軸角度（高さ傾き）の最小と最大
-	KuroEngine::Angle m_xAxisAngleMin = KuroEngine::Angle(-5);
+	KuroEngine::Angle m_xAxisAngleMin = KuroEngine::Angle(-40);
 	KuroEngine::Angle m_xAxisAngleMax = KuroEngine::Angle(40);
+	//カメラの角度 天井にいるときバージョン
+	KuroEngine::Angle m_xAxisAngleMinCeiling = KuroEngine::Angle(-40);
+	KuroEngine::Angle m_xAxisAngleMaxCeiling = KuroEngine::Angle(40);
+
+	//カメラをZ方向に回転させる量。
+	float m_rotateZ;
 
 	struct Parameter
 	{
@@ -63,15 +69,12 @@ public:
 	void AttachCamera(std::shared_ptr<KuroEngine::Camera>arg_cam);
 
 	void Init();
-	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage);
+	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse);
 
 	const KuroEngine::Quaternion& GetPosRotate() {
 		return m_camParentTransform.GetRotate();
 	}
 
 	std::weak_ptr<KuroEngine::Camera> GetCamera() { return m_attachedCam; }
-
-	//地形との当たり判定
-	void TerrianMeshCollision(const std::weak_ptr<Stage>arg_nowStage);
 
 };

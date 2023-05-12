@@ -43,6 +43,19 @@ class Player : public KuroEngine::Debugger
 	KuroEngine::Transform m_drawTransform;	//描画に使用するトランスフォーム プレイヤーを沈ませたり、カメラの方向を見ないようにするために使用する。
 	KuroEngine::Transform m_initTransform;
 
+	//プレイヤーのHP
+	const int DEFAULT_HP = 5;
+	int m_hp;
+	const int DAMAGE_HITSTOP_TIMER = 30;		//ヒットストップをかける時間
+	const int DAMAGE_HITSTOP_RETURN_TIMER = 10;	//ヒットストップで減ったTimeScaleを戻すための時間。 DAMAGE_HITSTOP_TIMERにこの定数を足した値をm_damageHitstopTimerに入れる。
+	int m_damageHitstopTimer;
+	const float NODAMAGE_TIMER = 180.0f;		//無敵時間
+	float m_nodamageTimer;
+	const float DAMAGE_SHAKE_AMOUNT = 1.0f;		//ダメージを受けた時のシェイク
+	const float SUB_DAMAGE_SHAKE_AMOUNT = 0.1f;	//ダメージを受けた時のシェイクを減らす量
+	float m_damageShakeAmount;					//ダメージを受けた時のシェイクの量だんだん減っていく
+
+
 	//移動量
 	KuroEngine::Vec3<float> m_rowMoveVec;
 
@@ -111,6 +124,10 @@ class Player : public KuroEngine::Debugger
 	float m_deathEffectCameraZ;	//死亡演出中のカメラ
 	const float DEATH_EFFECT_CAMERA_Z = -15.0f;
 	const float DEATH_EFFECT_TIMER_SCALE = 0.1f;
+	
+	//プレイヤーが天井にいるか
+	bool m_onCeiling;
+	bool m_isCameraUpInverse;
 
 	//攻撃判定
 	int m_attackTimer;
@@ -135,7 +152,8 @@ class Player : public KuroEngine::Debugger
 		JUMP,	//ジャンプ中(補間中)
 		ZIP,	//ジップライン移動中
 		DEATH,	//死亡中。
-	}m_playerMoveStatus;
+		DAMAGE,	//ダメージ演出中。
+	}m_playerMoveStatus, m_beforeDamageStatus;	//ダメージを受ける前のステータス
 	//１フレーム前の動きのステータス
 	PLAYER_MOVE_STATUS m_beforePlayerMoveStatus;
 
@@ -157,7 +175,7 @@ class Player : public KuroEngine::Debugger
 	const int DEATH_EFFECT_STAY_TIMER = 30;
 	const int DEATH_EFFECT_FINISH_TIMER = 150;
 	float m_deathShakeAmount;
-	KuroEngine::Vec3<float> m_deathShake;
+	KuroEngine::Vec3<float> m_shake;
 	const float DEATH_SHAKE_AMOUNT = 3.0f;
 	const float SUB_DEATH_SHAKE_AMOUNT = 0.2f;
 	bool m_isCameraInvX;
@@ -306,6 +324,9 @@ private:
 
 	//死亡中の更新処理
 	void UpdateDeath();
+
+	//ダメージ中の更新処理
+	void UpdateDamage();
 
 };
 

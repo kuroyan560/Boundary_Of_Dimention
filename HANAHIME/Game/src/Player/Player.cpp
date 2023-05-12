@@ -61,7 +61,7 @@ void Player::AnimationSpecification(const KuroEngine::Vec3<float>& arg_beforePos
 		if (m_modelAnimator->IsPlay(m_animNames[ANIM_PATTERN_JUMP]))return;
 
 		//動きに変動があった
-		if (FLT_EPSILON < arg_beforePos.Distance(arg_newPos))
+		if (0.01f < arg_beforePos.Distance(arg_newPos))
 		{
 			//既に歩きアニメーション再生中
 			if (m_modelAnimator->IsPlay(m_animNames[ANIM_PATTERN_WALK]))return;
@@ -116,8 +116,8 @@ Player::Player()
 	:KuroEngine::Debugger("Player", true, true), m_growPlantPtLig(8.0f, &m_transform)
 {
 	AddCustomParameter("Sensitivity", { "camera", "sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity, "Camera");
-	AddCustomParameter("Default_AccelSpeed", { "move","default","accelSpeed"}, PARAM_TYPE::FLOAT, &m_defaultAccelSpeed, "Move");
-	AddCustomParameter("Default_MaxSpeed", { "move","default","maxSpeed"}, PARAM_TYPE::FLOAT, &m_defaultMaxSpeed, "Move");
+	AddCustomParameter("Default_AccelSpeed", { "move","default","accelSpeed" }, PARAM_TYPE::FLOAT, &m_defaultAccelSpeed, "Move");
+	AddCustomParameter("Default_MaxSpeed", { "move","default","maxSpeed" }, PARAM_TYPE::FLOAT, &m_defaultMaxSpeed, "Move");
 	AddCustomParameter("Default_Brake", { "move","default","brake" }, PARAM_TYPE::FLOAT, &m_defaultBrake, "Move");
 	AddCustomParameter("UnderGround_AccelSpeed", { "move","underGround","accelSpeed" }, PARAM_TYPE::FLOAT, &m_underGroundAccelSpeed, "Move");
 	AddCustomParameter("UnderGround_MaxSpeed", { "move","underGround","maxSpeed" }, PARAM_TYPE::FLOAT, &m_underGroundMaxSpeed, "Move");
@@ -177,13 +177,16 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_isCameraInvX = false;
 	m_canUnderGroundRelease = true;
 	m_canOldUnderGroundRelease = true;
+	m_onCeiling = false;
+	m_isCameraUpInverse = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 
 	m_growPlantPtLig.Register();
 	//死亡演出のタイマーを初期化。
 	m_deathEffectTimer = 0;
 	m_deathShakeAmount = 0;
-	m_deathShake = KuroEngine::Vec3<float>();
+	m_damageShakeAmount = 0;
+	m_shake = KuroEngine::Vec3<float>();
 	m_deathStatus = DEATH_STATUS::APPROACH;
 	m_isFinishDeathAnimation = false;
 
@@ -196,6 +199,10 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 
 	m_deathSpriteAnimNumber = 0;
 	m_deathSpriteAnimTimer = KuroEngine::Timer(DEATH_SPRITE_TIMER);
+
+	m_hp = DEFAULT_HP;
+	m_damageHitstopTimer = 0;
+	m_nodamageTimer = 0;;
 
 	m_modelAnimator->Play(m_animNames[ANIM_PATTERN_WAIT], true, false);
 	m_animInterestCycleCounter = ANIM_INTEREST_CYCLE;
@@ -220,12 +227,20 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//ステージを保存。
 	m_stage = arg_nowStage;
 
+	//プレイヤーが天井にいるかを判断。
+	m_onCeiling = 0.5f < m_transform.GetUp().Dot({ 0, -1, 0 });
+
 	//位置情報関係
 	auto beforePos = m_transform.GetPos();
 	auto newPos = beforePos;
 
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove() * TimeScaleMgr::s_inGame.GetTimeScale();
+
+	//プレイヤーが天井にいたら左右のカメラ走査を反転。
+	if (m_onCeiling) {
+		scopeMove *= -1.0f;
+	}
 
 	//ジャンプができるかどうか。	一定時間地形に引っ掛かってたらジャンプできる。
 	m_canJump = CAN_JUMP_DELAY <= m_canJumpDelayTimer;
@@ -265,7 +280,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 			//イージングが終わっている時のみ地中に潜ったり出たりする判定を持たせる。
 			bool isInputOnOff = UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->KeyOffTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A) || UsersInput::Instance()->ControllerOffTrigger(0, KuroEngine::A);
-			if ((isInputOnOff || (!m_isUnderGround && m_isInputUnderGround) || (m_isUnderGround && !m_isInputUnderGround) ) && m_canUnderGroundRelease) {
+			if ((isInputOnOff || (!m_isUnderGround && m_isInputUnderGround) || (m_isUnderGround && !m_isInputUnderGround)) && m_canUnderGroundRelease) {
 				m_underGroundEaseTimer = 0;
 			}
 
@@ -288,6 +303,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		//入力された移動量を取得
 		m_rowMoveVec = OperationConfig::Instance()->GetMoveVecFuna(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
 
+
 		//カメラの回転を保存。
 		m_cameraRotYStorage += scopeMove.x;
 
@@ -297,70 +313,25 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			m_rowMoveVec = {};
 		}
 
-		//移動していなかったら方向反転フラグを切り替える。
-		if (m_rowMoveVec.Length() <= 0) {
+		//止まっていたら。
+		if (m_rowMoveVec.Length() <= 0.0f) {
 
-			//止まっているときは反転するかどうかの処理をリアルタイムで計算する。
-			if (0.9f < m_transform.GetUp().y) {
+			//止まっているときに移動方向を反転させるかのフラグを初期化する。
+			m_isCameraInvX = false;
 
-				//プレイヤーの法線とカメラまでの距離から、Z軸方向(ローカル)の移動方向を反転させるかを決める。
-				KuroEngine::Vec3<float> cameraDir = m_camController.GetCamera().lock()->GetTransform().GetPosWorld() - m_transform.GetPos();
-				cameraDir.Normalize();
-				if (m_transform.GetUp().Dot(cameraDir) < 0.1f) {
-					m_isCameraInvX = true;
-					m_rowMoveVec.z *= -1.0f;
-				}
-				else {
-					m_isCameraInvX = false;
-				}
-
-			}
-			//天井にいたら
-			else if (m_transform.GetUp().y < -0.9f) {
-				//Xの移動方向を反転
-				m_rowMoveVec.x *= -1.0f;
-
-				//プレイヤーの法線とカメラまでの距離から、Z軸方向(ローカル)の移動方向を反転させるかを決める。
-				KuroEngine::Vec3<float> cameraDir = m_camController.GetCamera().lock()->GetTransform().GetPosWorld() - m_transform.GetPos();
-				cameraDir.Normalize();
-				if (-0.1f < m_transform.GetUp().Dot(cameraDir)) {
-					m_isCameraInvX = true;
-					m_rowMoveVec.z *= -1.0f;
-				}
-				else {
-					m_isCameraInvX = false;
-				}
-
-			}
-			else {
-				m_isCameraInvX = false;
-			}
 		}
 		else {
 
-			if (0.9f < m_transform.GetUp().y) {
+			//入力を反転させるか？
+			if (m_isCameraInvX || (m_isCameraUpInverse && fabs(m_transform.GetUp().y) < 0.1f)) {
 
-				//プレイヤーの法線とカメラまでの距離から、Z軸方向(ローカル)の移動方向を反転させるかを決める。
-				if (m_isCameraInvX) {
-					m_rowMoveVec.z *= -1.0f;
-				}
-
-			}
-			//天井にいたら
-			else if (m_transform.GetUp().y < -0.9f) {
-				//Xの移動方向を反転
 				m_rowMoveVec.x *= -1.0f;
-
-				if (m_isCameraInvX) {
-					m_rowMoveVec.z *= -1.0f;
-				}
-
-			}
-			else if (m_isCameraInvX) {
 				m_rowMoveVec.z *= -1.0f;
+
 			}
 
 		}
+		
 
 		//移動させる。
 		if (!m_isDeath) {
@@ -432,10 +403,17 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	}
 	break;
+	case PLAYER_MOVE_STATUS::DAMAGE:
+	{
+
+		//ダメージを受けた時の更新処理
+		UpdateDamage();
+
+	}
+	break;
 	default:
 		break;
 	}
-
 
 	//座標変化適用
 	m_ptLig.SetPos(newPos);
@@ -457,30 +435,27 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_MODE[m_cameraMode], arg_nowStage);
-
-		//カメラの当たり判定
-		m_camController.TerrianMeshCollision(arg_nowStage);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_MODE[m_cameraMode], arg_nowStage, m_isCameraUpInverse);
 
 		m_deathEffectCameraZ = CAMERA_MODE[m_cameraMode];
-		TimeScaleMgr::s_inGame.Set(1.0f);
 	}
 	else {
 
 		//シェイクの分を戻す。
-		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_deathShake);
+		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_shake);
 
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse);
 
-		//シェイクを計算。
-		m_deathShake.x = KuroEngine::GetRand(-m_deathShakeAmount, m_deathShakeAmount);
-		m_deathShake.y = KuroEngine::GetRand(-m_deathShakeAmount, m_deathShakeAmount);
-		m_deathShake.z = KuroEngine::GetRand(-m_deathShakeAmount, m_deathShakeAmount);
-
-		//シェイクをかける。
-		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() + m_deathShake);
 	}
+	//シェイクを計算。
+	float timeScaleShakeAmount = m_deathShakeAmount * TimeScaleMgr::s_inGame.GetTimeScale() + m_damageShakeAmount;
+	m_shake.x = KuroEngine::GetRand(-timeScaleShakeAmount, timeScaleShakeAmount);
+	m_shake.y = KuroEngine::GetRand(-timeScaleShakeAmount, timeScaleShakeAmount);
+	m_shake.z = KuroEngine::GetRand(-timeScaleShakeAmount, timeScaleShakeAmount);
+
+	//シェイクをかける。
+	m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() + m_shake);
 
 	//描画用にトランスフォームを適用	
 	//地中に潜っている時と戻っているときのイージング中のトランスフォームを計算。
@@ -518,6 +493,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_drawTransform.SetRotate(m_transform.GetRotate());
 	}
 
+	//ダメージを受けないタイマーを更新。
+	m_nodamageTimer = std::clamp(m_nodamageTimer - 1.0f * TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, NODAMAGE_TIMER);
+
 	//アニメーション指定
 	AnimationSpecification(beforePos, newPos);
 
@@ -552,12 +530,12 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		KuroEngine::AlphaBlendMode_None,
 		m_modelAnimator->GetBoneMatBuff());
 
-	
+
 	//KuroEngine::DrawFunc3D::DrawNonShadingModel(
 	//	m_axisModel,
 	//	m_drawTransform,
 	//	arg_cam);
-	
+
 
 	if (arg_cameraDraw)
 	{
@@ -607,7 +585,30 @@ void Player::Damage()
 	//死んでいたら処理を飛ばす。
 	if (m_isDeath) return;
 
-	m_isDeath = true;
+	//HPを減らす。
+	m_hp = std::clamp(m_hp - 1, 0, std::numeric_limits<int>().max());
+
+	//死んだら
+	if (m_hp <= 0) {
+
+		m_isDeath = true;
+
+	}
+	else {
+
+		//各種タイマーを設定。
+		m_nodamageTimer = NODAMAGE_TIMER;
+		m_damageHitstopTimer = DAMAGE_HITSTOP_TIMER + DAMAGE_HITSTOP_RETURN_TIMER;
+
+		//シェイクをかける。
+		m_damageShakeAmount = DAMAGE_SHAKE_AMOUNT;
+
+		//プレイヤーの状態をダメージ中に
+		m_beforeDamageStatus = m_playerMoveStatus;
+		m_playerMoveStatus = PLAYER_MOVE_STATUS::DAMAGE;
+
+	}
+
 
 }
 
@@ -616,6 +617,11 @@ Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<floa
 
 	//攻撃状態じゃなかったら処理を戻す。
 	if (!GetIsAttack()) {
+		return Player::CHECK_HIT_GRASS_STATUS::NOHIT;
+	}
+
+	//ダメージを受けない状態だったら当たり判定を飛ばす。
+	if (0 < m_damageHitstopTimer) {
 		return Player::CHECK_HIT_GRASS_STATUS::NOHIT;
 	}
 
@@ -681,7 +687,7 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 	{
 		m_moveSpeed = m_moveSpeed.GetNormal() * maxSpeed;
 	}
-	
+
 	//移動量加算
 	arg_newPos += m_moveSpeed * TimeScaleMgr::s_inGame.GetTimeScale();
 
@@ -695,7 +701,7 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 
 	//減速
 	if (m_rowMoveVec.IsZero())
-	m_moveSpeed = KuroEngine::Math::Lerp(m_moveSpeed, KuroEngine::Vec3<float>(0.0f, 0.0f, 0.0f), brake);
+		m_moveSpeed = KuroEngine::Math::Lerp(m_moveSpeed, KuroEngine::Vec3<float>(0.0f, 0.0f, 0.0f), brake);
 }
 
 void Player::UpdateZipline() {
@@ -857,6 +863,45 @@ void Player::UpdateDeath() {
 	break;
 	default:
 		break;
+	}
+
+}
+
+void Player::UpdateDamage()
+{
+
+	//ヒットストップのタイマーが有効だったら
+	if (0 < m_damageHitstopTimer) {
+
+
+		//ヒットストップタイマーの残り時間がTimeScaleを戻すための時間より短かったら。
+		if (m_damageHitstopTimer < DAMAGE_HITSTOP_RETURN_TIMER) {
+
+			//ヒットストップを元に戻す。
+			TimeScaleMgr::s_inGame.Set(KuroEngine::Math::Lerp(TimeScaleMgr::s_inGame.GetTimeScale(), 1.0f, 0.9f));
+
+		}
+		else {
+
+			//ヒットストップをかける。
+			TimeScaleMgr::s_inGame.Set(KuroEngine::Math::Lerp(TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, 0.9f));
+
+		}
+
+		--m_damageHitstopTimer;
+
+		//シェイク量をへらす。
+		m_damageShakeAmount = std::clamp(m_damageShakeAmount - SUB_DAMAGE_SHAKE_AMOUNT, 0.0f, 100.0f);
+
+	}
+	else {
+
+		//ステータスを元に戻す。
+		m_playerMoveStatus = m_beforeDamageStatus;
+
+		//一応シェイク量を0にしておく。
+		m_damageShakeAmount = 0;
+
 	}
 
 }

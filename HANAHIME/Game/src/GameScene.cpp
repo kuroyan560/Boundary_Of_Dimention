@@ -294,7 +294,7 @@ void GameScene::OnDraw()
 
 
 	//m_canvasPostEffect.Execute();
-	BasicDraw::Instance()->DrawEdge(m_nowCam->GetViewMat(), m_nowCam->GetProjectionMat());
+	BasicDraw::Instance()->DrawEdge(m_nowCam->GetViewMat(), m_nowCam->GetProjectionMat(), ds);
 
 
 	m_fogPostEffect->Register(

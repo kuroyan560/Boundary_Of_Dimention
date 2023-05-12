@@ -113,8 +113,8 @@ void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, Kuro
 
 				//プレイヤーが地中に潜っていなかったら鎮める。
 				//if (!m_refPlayer->GetIsUnderGround()) {
-					m_refPlayer->m_isUnderGround = true;
-					m_refPlayer->m_underGroundEaseTimer = 1.0f;
+				m_refPlayer->m_isUnderGround = true;
+				m_refPlayer->m_underGroundEaseTimer = 1.0f;
 				//}
 
 			}
@@ -187,6 +187,25 @@ void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, Kuro
 				m_refPlayer->m_bezierCurveControlPos = m_refPlayer->m_jumpStartPos + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH;
 				m_refPlayer->m_jumpEndPos = arg_castRayArgment.m_impactPoint[minIndex].m_impactPos + arg_castRayArgment.m_impactPoint[minIndex].m_normal * (m_refPlayer->m_transform.GetScale().x / 2.0f);
 				m_refPlayer->m_jumpEndPos += m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH;
+
+				//プレイヤーの入力を反転させる。
+				bool isHitCeiling = arg_hitInfo->m_terrianNormal.y < -0.9f && !m_refPlayer->m_isCameraUpInverse;
+				bool isHitGround = 0.9f < arg_hitInfo->m_terrianNormal.y && m_refPlayer->m_isCameraUpInverse;
+				if (isHitCeiling || isHitGround) {
+					m_refPlayer->m_isCameraInvX = true;
+				}
+
+				//天井か床だったらカメラを反転させる。
+				if (arg_hitInfo->m_terrianNormal.y < -0.9f) {
+
+					m_refPlayer->m_isCameraUpInverse = true;
+
+				}
+				else if (0.9f < arg_hitInfo->m_terrianNormal.y) {
+
+					m_refPlayer->m_isCameraUpInverse = false;
+
+				}
 
 				//ジャンプしたのでタイマーを初期化
 				m_refPlayer->m_canJumpDelayTimer = 0;
@@ -1014,9 +1033,6 @@ void PlayerCollision::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine:
 		hitResult.m_terrianNormal = { 0,-1,0 };
 	}
 
-	//カメラを矯正する。
-	AdjustCaneraRotY(m_refPlayer->m_transform.GetUp(), hitResult.m_terrianNormal);
-
 	//法線方向を見るクォータニオン
 	m_refPlayer->m_normalSpinQ = KuroEngine::Math::GetLookAtQuaternion({ 0,1,0 }, hitResult.m_terrianNormal);
 
@@ -1235,9 +1251,6 @@ void PlayerCollision::FinishGimmickMove()
 		normal = { 0,-1,0 };
 	}
 
-	//カメラを矯正する。
-	AdjustCaneraRotY(m_refPlayer->m_transform.GetUp(), normal);
-
 	//法線方向を見るクォータニオン
 	m_refPlayer->m_normalSpinQ = KuroEngine::Math::GetLookAtQuaternion({ 0,1,0 }, normal);
 
@@ -1282,165 +1295,6 @@ void PlayerCollision::FinishGimmickMove()
 
 	//SEを鳴らす。
 	SoundConfig::Instance()->Play(SoundConfig::SE_ZIP_LINE_GET_ON);
-}
-
-void PlayerCollision::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const KuroEngine::Vec3<float>& arg_nextUp) {
-
-	// 移動方向を矯正するための苦肉の策
-
-	// メモ:この関数で書いてある方向は初期位置(法線(0,1,0)で(0,0,1)を向いている状態)でのものです。
-
-	//角度が変わってなかったら飛ばす。
-	if (0.9f <= arg_nowUp.Dot(arg_nextUp)) return;
-
-	//プレイヤーが上の面に移動した瞬間。
-	if (fabs(arg_nowUp.y) <= 0.5f && arg_nextUp.y < -0.9f) {
-		m_refPlayer->m_isCameraInvX = true;
-	}
-	////プレイヤーが下の面に移動した瞬間。
-	//if (fabs(arg_nextUp.y) <= 0.5f && arg_nowUp.y < -0.9f) {
-	//	m_refPlayer->m_isCameraInvX = true;
-	//}
-
-
-	//プレイヤーが上の面に移動した瞬間。
-	if (arg_nowUp.y < -0.9f && fabs(arg_nextUp.y) <= 0.5f) {
-		if (m_refPlayer->m_isCameraInvX) {
-			m_refPlayer->m_isCameraInvX = false;
-		}
-		else {
-			m_refPlayer->m_isCameraInvX = true;
-		}
-	}
-	////プレイヤーが下の面に移動した瞬間。
-	//if (0.9f < arg_nowUp.y && fabs(arg_nextUp.y) <= 0.5f) {
-	//	m_refPlayer->m_isCameraInvX = false;
-	//}
-
-	return;
-
-	//回転元の値を保存。
-	m_refPlayer->m_cameraJumpLerpStorage = m_refPlayer->m_cameraRotMove;
-
-	//角度が変わってなかったら飛ばす。
-	if (0.9f <= arg_nowUp.Dot(arg_nextUp)) return;
-
-	//プレイヤーが右側の壁にいる場合
-	if (arg_nowUp.x <= -0.9f) {
-
-		//上の壁に移動したら
-		if (arg_nextUp.y <= -0.9f) {
-
-			m_refPlayer->m_cameraJumpLerpAmount += DirectX::XM_PI;
-			m_refPlayer->m_isCameraInvX = true;
-
-		}
-		//正面の壁に移動したら
-		if (arg_nextUp.z <= -0.9f) {
-
-			m_refPlayer->m_cameraJumpLerpAmount -= DirectX::XM_PIDIV2;
-
-		}
-		//後ろの壁に移動したら
-		if (0.9f <= arg_nextUp.z) {
-
-			m_refPlayer->m_cameraJumpLerpAmount += DirectX::XM_PIDIV2;
-
-		}
-
-	}
-
-	//プレイヤーが左側の壁にいる場合
-	if (0.9f <= arg_nowUp.x) {
-
-		//上の壁に移動したら
-		if (arg_nextUp.y <= -0.9f) {
-
-			m_refPlayer->m_cameraJumpLerpAmount -= DirectX::XM_PI;
-			m_refPlayer->m_isCameraInvX = true;
-
-		}
-		//正面の壁に移動したら
-		if (arg_nextUp.z <= -0.9f) {
-
-			m_refPlayer->m_cameraJumpLerpAmount += DirectX::XM_PIDIV2;
-
-		}
-		//後ろの壁に移動したら
-		if (0.9f <= arg_nextUp.z) {
-
-			m_refPlayer->m_cameraJumpLerpAmount -= DirectX::XM_PIDIV2;
-
-		}
-
-	}
-
-	//プレイヤーが正面の壁にいる場合
-	if (arg_nowUp.z <= -0.9f) {
-
-		//右側の壁に移動したら
-		if (arg_nextUp.x <= -0.9f) {
-
-			m_refPlayer->m_cameraJumpLerpAmount += DirectX::XM_PIDIV2;
-
-		}
-		//左側の壁に移動したら
-		if (0.9f <= arg_nextUp.x) {
-
-			m_refPlayer->m_cameraJumpLerpAmount -= DirectX::XM_PIDIV2;
-
-		}
-		//上の壁に移動したら
-		if (arg_nextUp.y <= -0.9f) {
-
-			m_refPlayer->m_cameraJumpLerpAmount -= DirectX::XM_PI;
-			m_refPlayer->m_isCameraInvX = true;
-
-		}
-
-	}
-
-	//プレイヤーが後ろ側の壁にいる場合
-	if (0.9f <= arg_nowUp.z) {
-
-		//右側の壁に移動したら
-		if (arg_nextUp.x <= -0.9f) {
-
-			m_refPlayer->m_cameraJumpLerpAmount -= DirectX::XM_PIDIV2;
-
-		}
-		//左側の壁に移動したら
-		if (0.9f <= arg_nextUp.x) {
-
-			m_refPlayer->m_cameraJumpLerpAmount += DirectX::XM_PIDIV2;
-
-		}
-
-	}
-
-	//プレイヤーが上側の壁にいる場合
-	if (arg_nowUp.y <= -0.9f) {
-
-		//右側の壁に移動したら
-		if (arg_nextUp.x <= -0.9f) {
-
-			m_refPlayer->m_cameraJumpLerpAmount -= DirectX::XM_PI;
-
-		}
-		//左側の壁に移動したら
-		if (0.9f <= arg_nextUp.x) {
-
-			m_refPlayer->m_cameraJumpLerpAmount += DirectX::XM_PI;
-
-		}
-		if (arg_nextUp.z <= -0.9f) {
-
-			m_refPlayer->m_cameraJumpLerpAmount -= DirectX::XM_PI;
-
-		}
-
-	}
-
 }
 
 void PlayerCollision::CheckHitCliff_Under(KuroEngine::Vec3<float>& arg_newPos, const KuroEngine::Vec3<float>& arg_from, PlayerCollision::CastRayArgument& arg_castRayArgment, std::weak_ptr<Stage> arg_nowStage)

@@ -112,9 +112,6 @@ struct PlayerCollision {
 	//ギミックによる移動を終わらせる。
 	void FinishGimmickMove();
 
-	//移動方向を正しくさせるための処理
-	void AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp, const KuroEngine::Vec3<float>& arg_nextUp);
-
 private:
 
 	/*===== 以下関数ポインタ用 =====*/

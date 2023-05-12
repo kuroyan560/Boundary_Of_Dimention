@@ -56,9 +56,10 @@ void CameraController::Init()
 {
 	m_nowParam = m_initializedParam;
 	m_verticalControl = ANGLE;
+	m_rotateZ = 0;
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse)
 {
 	using namespace KuroEngine;
 
@@ -147,13 +148,10 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	axisZ.Normalize();
 
 	//プレイヤーの法線との外積から仮のXベクトルを得る。
-	Vec3<float> axisX = Vec3<float>(0,1,0).Cross(axisZ);
+	Vec3<float> axisX = Vec3<float>(0, 1, 0).Cross(axisZ);
 
 	//Xベクトルから上ベクトルを得る。
 	Vec3<float> axisY = axisZ.Cross(axisX);
-	//axisY.x = std::fabs(axisY.x);
-	//axisY.y = std::fabs(axisY.y);
-	//axisY.z = std::fabs(axisY.z);
 
 	//姿勢を得る。
 	DirectX::XMMATRIX matWorld = DirectX::XMMatrixIdentity();
@@ -163,6 +161,16 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	XMVECTOR rotate, scale, position;
 	DirectX::XMMatrixDecompose(&scale, &rotate, &position, matWorld);
+
+	//回転を反転させる。
+	if (arg_isCameraUpInverse) {
+		m_rotateZ = KuroEngine::Math::Lerp(m_rotateZ, DirectX::XM_PI, 0.2f);
+	}
+	else {
+		m_rotateZ = KuroEngine::Math::Lerp(m_rotateZ, 0.0f, 0.1f);
+	}
+	rotate = DirectX::XMQuaternionMultiply(rotate, DirectX::XMQuaternionRotationAxis(axisZ, m_rotateZ));
+
 	rotate = DirectX::XMQuaternionNormalize(rotate);
 
 	//回転を適用。
@@ -170,41 +178,5 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 
 	//m_attachedCam.lock()->GetTransform() = m_cameraLocalTransform;
-
-}
-
-void CameraController::TerrianMeshCollision(const std::weak_ptr<Stage> arg_nowStage)
-{
-
-	//通常の地形を走査
-	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
-	{
-		//モデル情報取得
-		auto model = terrian.GetModel().lock();
-
-		//メッシュを走査
-		for (auto& modelMesh : model->m_meshes)
-		{
-
-			//当たり判定に使用するメッシュ
-			auto checkHitMesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
-
-			//判定↓============================================
-
-			//当たり判定を実行
-			//auto eyePos = m_oldAttackCam.GetPosWorld();
-			//auto moveVec = m_attachedCam.lock()->GetTransform().GetPosWorld() - m_oldAttackCam.GetPosWorld();
-			//CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(eyePos, moveVec.GetNormal(), checkHitMesh);
-
-			//if (output.m_isHit && 0 < output.m_distance && output.m_distance < moveVec.Length()) {
-
-				//m_attachedCam.lock()->GetTransform() = m_oldAttackCam;
-				//m_camParentTransform = m_oldCamParentTransform;
-
-			//}
-
-			//=================================================
-		}
-	}
 
 }
