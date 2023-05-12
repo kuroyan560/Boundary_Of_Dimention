@@ -45,11 +45,11 @@ void SearchPlantPos(uint3 GlobalID : SV_DispatchThreadID, uint3 GroupID : SV_Gro
     CheckResult result = searchPlantResultBuffer[index];
     
     //探す回数。
-    uint2 screenPos = (GroupID.xy * uint2(16, 16) + LocalID.xy) * uint2(GRASS_SPAN, GRASS_SPAN);
-    //uint2 screenPos = uint2(1280 / 2, 720 / 2);
+    //uint2 screenPos = (GroupID.xy * uint2(16, 16) + LocalID.xy) * uint2(GRASS_SPAN, GRASS_SPAN);
+    uint2 screenPos = uint2(1280 / 2, 720 / 2);
     
-    //ランダムでちょっとだけ散らす。
-    uint randomScatter = 10;
+    //ランダムで散らす。
+    uint randomScatter = 100;
     uint2 random = uint2(RandomIntInRange(constData.m_seed * LocalID.x * GlobalID.y + screenPos.x) * (randomScatter * 2), RandomIntInRange(constData.m_seed * LocalID.y * GlobalID.x + screenPos.y) * (randomScatter * 2));
     random -= uint2(randomScatter, randomScatter);
     screenPos += random;
