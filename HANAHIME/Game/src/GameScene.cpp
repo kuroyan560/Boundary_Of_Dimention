@@ -161,7 +161,7 @@ void GameScene::OnUpdate()
 	int stageNum = -1;
 	if (m_title.IsFinish())
 	{
-		stageNum = m_stageSelect.GetStageNumber(m_player.GetTransform().GetPos());
+		//stageNum = m_stageSelect.GetStageNumber(m_player.GetTransform().GetPos());
 	}
 	else
 	{
@@ -231,10 +231,6 @@ void GameScene::OnUpdate()
 	m_movieCamera.Update();
 	m_fireFlyStage.ComputeUpdate();
 
-
-	m_stageSelect.Update();
-
-
 	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld(), *m_nowCam);
 
 }
@@ -269,8 +265,6 @@ void GameScene::OnDraw()
 
 	//ステージ描画
 	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
-
-	m_stageSelect.Draw(*m_nowCam, m_ligMgr);
 
 	//m_movieCamera.DebugDraw(*m_nowCam, m_ligMgr);
 

@@ -11,7 +11,7 @@
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
-	"Terrian","Start","Goal","Appearance","MoveScaffold","Lever","Ivy_Zipline","IvyBlock","SplatoonFence",
+	"Terrian","Start","Goal","Appearance","MoveScaffold","Lever","Ivy_Zipline","IvyBlock","SplatoonFence","Gate",
 	"MiniBug","DossunRing",
 };
 
@@ -750,4 +750,16 @@ void IvyBlock::Disappear()
 void SplatoonFence::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 	StageParts::Draw(arg_cam, arg_ligMgr);
+}
+
+void Gate::Update(Player& arg_player)
+{
+	std::array<KuroEngine::Vec3<float>, 2> size = { m_transform.GetScaleWorld(),m_transform.GetScaleWorld() };
+	KuroEngine::Vec3<float>distance = m_transform.GetPosWorld() - arg_player.GetNowPos();
+	const int square1 = 0;
+	const int square2 = 1;
+	bool isHitFlag =
+		fabs(distance.x) <= size[square1].x + size[square2].x &&
+		fabs(distance.y) <= size[square1].y + size[square2].y &&
+		fabs(distance.z) <= size[square1].z + size[square2].z;
 }

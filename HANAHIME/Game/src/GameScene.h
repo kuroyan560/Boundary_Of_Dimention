@@ -8,7 +8,6 @@
 #include"Stage/Grass.h"
 #include"Graphics/WaterPaintBlend.h"
 #include"ForUser/PostEffect/Fog.h"
-#include"Stage/HomeStageSelect.h"
 #include"Movie/StageChange.h"
 #include"Movie/MovieCamera.h"
 #include"OutGame/Title.h"
@@ -50,9 +49,6 @@ class GameScene : public KuroEngine::BaseScene
 
 	//水彩画風ブレンドポストエフェクト
 	WaterPaintBlend m_waterPaintBlend;
-
-	//ステージ選択画面
-	HomeStageSelect m_stageSelect;
 
 	int m_stageNum;
 	SceneChange m_gateSceneChange;

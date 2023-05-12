@@ -70,6 +70,7 @@ public:
 		IVY_ZIP_LINE,
 		IVY_BLOCK,
 		SPLATOON_FENCE,
+		GATE,
 
 		//敵など静的オブジェクト
 		MINI_BUG,	//チビ虫
@@ -461,4 +462,16 @@ public:
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 
 	const std::vector<std::vector<TerrianHitPolygon>>& GetCollisionMesh()const { return m_collider.GetCollisionMesh(); }
+};
+
+class Gate : public StageParts
+{
+	int m_id;
+	int m_destStageNum;
+	int m_destGateId;
+	bool m_isSceneChange;
+public:
+	Gate(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_id, int arg_destStageNum, int arg_destGateId, bool arg_isSceneChange)
+		:StageParts(GATE, arg_model, arg_initTransform), m_id(arg_id), m_destStageNum(arg_destStageNum), m_destGateId(arg_destGateId), m_isSceneChange(arg_isSceneChange) {}
+	void Update(Player& arg_player)override;
 };
