@@ -193,8 +193,8 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 			m_plantGrassDataArray.back().m_normal = plantData[count].m_plantNormal;
 			m_plantGrassDataArray.back().m_sineLength = KuroEngine::GetRand(40) / 100.0f;
 			m_plantGrassDataArray.back().m_modelIdx = KuroEngine::GetRand(3 - 1);
-			m_plantGrassDataArray.back().m_appearY = 1;
-			m_plantGrassDataArray.back().m_appearYTimer = 1;
+			m_plantGrassDataArray.back().m_appearY = 0.1f;
+			m_plantGrassDataArray.back().m_appearYTimer = 0.1f;
 
 			//ê∂ê¨ÇµÇΩêîÇÃÉJÉEÉìÉg
 			generateCount++;
@@ -279,7 +279,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 		auto& grass = m_plantGrassDataArray[grassIdx];
 
 		KuroEngine::Vec3<float>appearOffset = { 0.0f,-0.5f,0.0f };
-		appearOffset *= (1.0f - grass.m_appearY);
+		appearOffset *= (3.0f - grass.m_appearY * 3.0f);
 		grassTransform.SetPos(grass.m_pos + appearOffset);
 		grassTransform.SetUp(grass.m_normal);
 		m_grassWorldMatricies[grass.m_modelIdx].emplace_back(grassTransform.GetMatWorld());
