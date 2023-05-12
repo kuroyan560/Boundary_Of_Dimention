@@ -302,11 +302,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		//入力された移動量を取得
 		m_rowMoveVec = OperationConfig::Instance()->GetMoveVecFuna(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
 
-		//天井にいたらカメラの走査を反転。
-		if (m_onCeiling) {
-			m_rowMoveVec.x *= -1.0f;
-			m_rowMoveVec.z *= -1.0f;
-		}
 
 		//カメラの回転を保存。
 		m_cameraRotYStorage += scopeMove.x;
@@ -317,70 +312,95 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			m_rowMoveVec = {};
 		}
 
-		//移動していなかったら方向反転フラグを切り替える。
-		if (m_rowMoveVec.Length() <= 0) {
+		////天井にいたらカメラの走査を反転。
+		//if (m_onCeiling) {
+		//	m_rowMoveVec.x *= -1.0f;
+		//	m_rowMoveVec.z *= -1.0f;
+		//}
 
-			//止まっているときは反転するかどうかの処理をリアルタイムで計算する。
-			if (0.9f < m_transform.GetUp().y) {
+		////移動していなかったら方向反転フラグを切り替える。
+		//if (m_rowMoveVec.Length() <= 0) {
 
-				//プレイヤーの法線とカメラまでの距離から、Z軸方向(ローカル)の移動方向を反転させるかを決める。
-				KuroEngine::Vec3<float> cameraDir = m_camController.GetCamera().lock()->GetTransform().GetPosWorld() - m_transform.GetPos();
-				cameraDir.Normalize();
-				if (m_transform.GetUp().Dot(cameraDir) < 0.1f) {
-					m_isCameraInvX = false;
-				}
-				else {
-					m_isCameraInvX = true;
-					m_rowMoveVec.z *= -1.0f;
-				}
+		//	//止まっているときは反転するかどうかの処理をリアルタイムで計算する。
+		//	if (0.9f < m_transform.GetUp().y) {
 
-			}
-			//天井にいたら
-			else if (m_transform.GetUp().y < -0.9f) {
-				//Xの移動方向を反転
-				m_rowMoveVec.x *= -1.0f;
+		//		//プレイヤーの法線とカメラまでの距離から、Z軸方向(ローカル)の移動方向を反転させるかを決める。
+		//		KuroEngine::Vec3<float> cameraDir = m_camController.GetCamera().lock()->GetTransform().GetPosWorld() - m_transform.GetPos();
+		//		cameraDir.Normalize();
+		//		if (m_transform.GetUp().Dot(cameraDir) < 0.1f) {
+		//			m_isCameraInvX = true;
+		//			m_rowMoveVec.z *= -1.0f;
+		//		}
+		//		else {
+		//			m_isCameraInvX = false;
+		//		}
 
-				//プレイヤーの法線とカメラまでの距離から、Z軸方向(ローカル)の移動方向を反転させるかを決める。
-				KuroEngine::Vec3<float> cameraDir = m_camController.GetCamera().lock()->GetTransform().GetPosWorld() - m_transform.GetPos();
-				cameraDir.Normalize();
-				if (-0.1f < m_transform.GetUp().Dot(cameraDir)) {
-					m_isCameraInvX = false;
-				}
-				else {
-					m_isCameraInvX = true;
-					m_rowMoveVec.z *= -1.0f;
-				}
+		//	}
+		//	//天井にいたら
+		//	else if (m_transform.GetUp().y < -0.9f) {
+		//		//Xの移動方向を反転
+		//		m_rowMoveVec.x *= -1.0f;
 
-			}
-			else {
-				m_isCameraInvX = false;
-			}
+		//		//プレイヤーの法線とカメラまでの距離から、Z軸方向(ローカル)の移動方向を反転させるかを決める。
+		//		KuroEngine::Vec3<float> cameraDir = m_camController.GetCamera().lock()->GetTransform().GetPosWorld() - m_transform.GetPos();
+		//		cameraDir.Normalize();
+		//		if (-0.1f < m_transform.GetUp().Dot(cameraDir)) {
+		//			m_isCameraInvX = true;
+		//			m_rowMoveVec.z *= -1.0f;
+		//		}
+		//		else {
+		//			m_isCameraInvX = false;
+		//		}
+
+		//	}
+		//	else {
+		//		m_isCameraInvX = false;
+		//	}
+		//}
+		//else {
+
+		//	if (0.9f < m_transform.GetUp().y) {
+
+		//		//プレイヤーの法線とカメラまでの距離から、Z軸方向(ローカル)の移動方向を反転させるかを決める。
+		//		if (m_isCameraInvX) {
+		//			m_rowMoveVec.z *= -1.0f;
+		//		}
+
+		//	}
+		//	//天井にいたら
+		//	else if (m_transform.GetUp().y < -0.9f) {
+		//		//Xの移動方向を反転
+		//		m_rowMoveVec.x *= -1.0f;
+
+		//		if (m_isCameraInvX) {
+		//			m_rowMoveVec.z *= -1.0f;
+		//		}
+
+		//	}
+		//	else if (m_isCameraInvX) {
+		//		m_rowMoveVec.z *= -1.0f;
+		//	}
+
+		//}
+
+		//止まっていたら。
+		if (m_rowMoveVec.Length() <= 0.0f) {
+
+			//止まっているときに移動方向を反転させるかのフラグを初期化する。
+			m_isCameraInvX = false;
+
 		}
 		else {
 
-			if (0.9f < m_transform.GetUp().y) {
+			//入力を反転させるか？
+			if (m_isCameraInvX) {
 
-				//プレイヤーの法線とカメラまでの距離から、Z軸方向(ローカル)の移動方向を反転させるかを決める。
-				if (m_isCameraInvX) {
-					m_rowMoveVec.z *= -1.0f;
-				}
-
-			}
-			//天井にいたら
-			else if (m_transform.GetUp().y < -0.9f) {
-				//Xの移動方向を反転
-				m_rowMoveVec.x *= -1.0f;
-
-				if (m_isCameraInvX) {
-					m_rowMoveVec.z *= -1.0f;
-				}
-
-			}
-			else if (m_isCameraInvX) {
 				m_rowMoveVec.z *= -1.0f;
+
 			}
 
 		}
+		
 
 		//移動させる。
 		if (!m_isDeath) {

@@ -188,6 +188,11 @@ void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, Kuro
 				m_refPlayer->m_jumpEndPos = arg_castRayArgment.m_impactPoint[minIndex].m_impactPos + arg_castRayArgment.m_impactPoint[minIndex].m_normal * (m_refPlayer->m_transform.GetScale().x / 2.0f);
 				m_refPlayer->m_jumpEndPos += m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH;
 
+				//プレイヤーの入力を反転させる。
+				if (m_refPlayer->m_transform.GetUp().y < -0.9f || arg_hitInfo->m_terrianNormal.y < -0.9f) {
+					m_refPlayer->m_isCameraInvX = true;
+				}
+
 				//ジャンプしたのでタイマーを初期化
 				m_refPlayer->m_canJumpDelayTimer = 0;
 
@@ -1294,24 +1299,24 @@ void PlayerCollision::AdjustCaneraRotY(const KuroEngine::Vec3<float>& arg_nowUp,
 	if (0.9f <= arg_nowUp.Dot(arg_nextUp)) return;
 
 	//プレイヤーが上の面に移動した瞬間。
-	if (fabs(arg_nowUp.y) <= 0.5f && arg_nextUp.y < -0.9f) {
-		m_refPlayer->m_isCameraInvX = true;
-	}
+	////////////if (fabs(arg_nowUp.y) <= 0.5f && arg_nextUp.y < -0.9f) {
+	////////////	m_refPlayer->m_isCameraInvX = true;
+	////////////}
 	////プレイヤーが下の面に移動した瞬間。
 	//if (fabs(arg_nextUp.y) <= 0.5f && arg_nowUp.y < -0.9f) {
 	//	m_refPlayer->m_isCameraInvX = true;
 	//}
 
 
-	//プレイヤーが上の面に移動した瞬間。
-	if (arg_nowUp.y < -0.9f && fabs(arg_nextUp.y) <= 0.5f) {
-		if (m_refPlayer->m_isCameraInvX) {
-			m_refPlayer->m_isCameraInvX = false;
-		}
-		else {
-			m_refPlayer->m_isCameraInvX = true;
-		}
-	}
+	////////////プレイヤーが上の面に移動した瞬間。
+	//////////if (arg_nowUp.y < -0.9f && fabs(arg_nextUp.y) <= 0.5f) {
+	//////////	if (m_refPlayer->m_isCameraInvX) {
+	//////////		m_refPlayer->m_isCameraInvX = false;
+	//////////	}
+	//////////	else {
+	//////////		m_refPlayer->m_isCameraInvX = true;
+	//////////	}
+	//////////}
 	////プレイヤーが下の面に移動した瞬間。
 	//if (0.9f < arg_nowUp.y && fabs(arg_nextUp.y) <= 0.5f) {
 	//	m_refPlayer->m_isCameraInvX = false;
