@@ -3,13 +3,36 @@
         "name": "scene",
         "objects": [
             {
+                "type": "Terrian",
+                "name": "Stage4_0",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Stage4"
+            },
+            {
                 "type": "Start",
                 "name": "Start_4",
                 "transform": {
                     "translation": [
                         0.0,
                         0.0,
-                        6.5
+                        13.0
                     ],
                     "rotation": [
                         0.0,
@@ -26,37 +49,13 @@
                 "file_name": "Start"
             },
             {
-                "type": "Goal",
-                "name": "Goal_4",
+                "type": "Gate",
+                "name": "Gate_4",
                 "transform": {
                     "translation": [
+                        130.0,
                         0.0,
-                        0.0,
-                        -9.0
-                    ],
-                    "rotation": [
-                        -0.0,
-                        -1.0,
-                        -0.0,
-                        4.371138828673793e-08
-                    ],
-                    "scaling": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                },
-                "file_name": "Goal",
-                "leverID": -1
-            },
-            {
-                "type": "Terrian",
-                "name": "Stage4_0",
-                "transform": {
-                    "translation": [
-                        10.0,
-                        0.0,
-                        -1.0
+                        0.0
                     ],
                     "rotation": [
                         0.0,
@@ -65,12 +64,16 @@
                         1.0
                     ],
                     "scaling": [
-                        5.0,
-                        5.0,
-                        4.0
+                        1.0,
+                        1.0,
+                        1.0
                     ]
                 },
-                "file_name": "Stage4"
+                "file_name": "Gate",
+                "GateID": 0,
+                "DestStageNum": 5,
+                "DestGateID": 1,
+                "GateSceneChange": 0
             }
         ]
     }
