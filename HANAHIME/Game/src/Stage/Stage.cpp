@@ -188,6 +188,22 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		m_gimmickArray.emplace_back(std::make_shared<SplatoonFence>(model, transform, collisionModel));
 		newPart = m_gimmickArray.back().get();
 	}
+	//ゲート
+	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::GATE))
+	{
+		//必要なパラメータがない
+		if (!CheckJsonKeyExist(arg_fileName, arg_json, "GateID"))return;
+		if (!CheckJsonKeyExist(arg_fileName, arg_json, "DestStageNum"))return;
+		if (!CheckJsonKeyExist(arg_fileName, arg_json, "DestGateID"))return;
+		if (!CheckJsonKeyExist(arg_fileName, arg_json, "GateSceneChange"))return;
+
+		int gateID = arg_json["GateID"].get<int>();
+		int destStageNum = arg_json["DestStageNum"].get<int>();
+		int destGateID = arg_json["DestGateID"].get<int>();
+		bool gateSceneChange = arg_json["GateSceneChange"].get<bool>();
+		m_gimmickArray.emplace_back(std::make_shared<Gate>(model, transform, gateID, destStageNum, destGateID, gateSceneChange));
+		newPart = m_gimmickArray.back().get();
+	}
 	//チビ虫
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::MINI_BUG))
 	{
