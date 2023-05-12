@@ -61,7 +61,7 @@ void Player::AnimationSpecification(const KuroEngine::Vec3<float>& arg_beforePos
 		if (m_modelAnimator->IsPlay(m_animNames[ANIM_PATTERN_JUMP]))return;
 
 		//動きに変動があった
-		if (FLT_EPSILON < arg_beforePos.Distance(arg_newPos))
+		if (0.01f < arg_beforePos.Distance(arg_newPos))
 		{
 			//既に歩きアニメーション再生中
 			if (m_modelAnimator->IsPlay(m_animNames[ANIM_PATTERN_WALK]))return;
