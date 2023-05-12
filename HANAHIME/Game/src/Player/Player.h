@@ -127,6 +127,7 @@ class Player : public KuroEngine::Debugger
 	
 	//プレイヤーが天井にいるか
 	bool m_onCeiling;
+	bool m_isCameraUpInverse;
 
 	//攻撃判定
 	int m_attackTimer;

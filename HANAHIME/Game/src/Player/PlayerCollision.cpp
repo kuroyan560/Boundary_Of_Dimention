@@ -113,8 +113,8 @@ void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, Kuro
 
 				//プレイヤーが地中に潜っていなかったら鎮める。
 				//if (!m_refPlayer->GetIsUnderGround()) {
-					m_refPlayer->m_isUnderGround = true;
-					m_refPlayer->m_underGroundEaseTimer = 1.0f;
+				m_refPlayer->m_isUnderGround = true;
+				m_refPlayer->m_underGroundEaseTimer = 1.0f;
 				//}
 
 			}
@@ -189,8 +189,22 @@ void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, Kuro
 				m_refPlayer->m_jumpEndPos += m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH;
 
 				//プレイヤーの入力を反転させる。
-				if (m_refPlayer->m_transform.GetUp().y < -0.9f || arg_hitInfo->m_terrianNormal.y < -0.9f) {
+				bool isHitCeiling = arg_hitInfo->m_terrianNormal.y < -0.9f && !m_refPlayer->m_isCameraUpInverse;
+				bool isHitGround = 0.9f < arg_hitInfo->m_terrianNormal.y && m_refPlayer->m_isCameraUpInverse;
+				if (isHitCeiling || isHitGround) {
 					m_refPlayer->m_isCameraInvX = true;
+				}
+
+				//天井か床だったらカメラを反転させる。
+				if (arg_hitInfo->m_terrianNormal.y < -0.9f) {
+
+					m_refPlayer->m_isCameraUpInverse = true;
+
+				}
+				else if (0.9f < arg_hitInfo->m_terrianNormal.y) {
+
+					m_refPlayer->m_isCameraUpInverse = false;
+
 				}
 
 				//ジャンプしたのでタイマーを初期化

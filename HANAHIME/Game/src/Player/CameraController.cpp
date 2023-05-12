@@ -59,7 +59,7 @@ void CameraController::Init()
 	m_rotateZ = 0;
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_onCeiling)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse)
 {
 	using namespace KuroEngine;
 
@@ -88,13 +88,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	//上限値超えないようにする
 	m_nowParam.m_posOffsetZ = arg_cameraZ;
-	//天井にいるかいないかによって設定するカメラの上限を決める。
-	if (arg_onCeiling) {
-		m_nowParam.m_xAxisAngle = std::clamp(m_nowParam.m_xAxisAngle, m_xAxisAngleMinCeiling, m_xAxisAngleMaxCeiling);
-	}
-	else {
-		m_nowParam.m_xAxisAngle = std::clamp(m_nowParam.m_xAxisAngle, m_xAxisAngleMin, m_xAxisAngleMax);
-	}
+	m_nowParam.m_xAxisAngle = std::clamp(m_nowParam.m_xAxisAngle, m_xAxisAngleMin, m_xAxisAngleMax);
 
 
 	//操作するカメラのトランスフォーム（前後移動）更新
@@ -169,8 +163,8 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	DirectX::XMMatrixDecompose(&scale, &rotate, &position, matWorld);
 
 	//回転を反転させる。
-	if (arg_onCeiling) {
-		m_rotateZ = KuroEngine::Math::Lerp(m_rotateZ, DirectX::XM_PI, 0.1f);
+	if (arg_isCameraUpInverse) {
+		m_rotateZ = KuroEngine::Math::Lerp(m_rotateZ, DirectX::XM_PI, 0.2f);
 	}
 	else {
 		m_rotateZ = KuroEngine::Math::Lerp(m_rotateZ, 0.0f, 0.1f);
