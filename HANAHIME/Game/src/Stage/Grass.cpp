@@ -402,6 +402,11 @@ void Grass::UpdateGrassEasing(Grass::GrassData& arg_grass, int arg_index)
 		}
 	}
 
+	//原点付近の草は強制削除。
+	if (arg_grass.m_pos.Length() < 1.0f) {
+		arg_grass.m_isDead = true;
+	}
+
 	//イージング量を求める
 	if (1.0f < arg_grass.m_appearY)
 	{
