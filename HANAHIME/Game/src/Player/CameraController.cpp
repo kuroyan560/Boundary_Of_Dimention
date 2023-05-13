@@ -67,7 +67,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	if (m_attachedCam.expired())return;
 
 	//トランスフォームを保存。
-	m_oldCameraWorldPos = m_cameraLocalTransform.GetPosWorldByMatrix();
+	m_oldCameraWorldPos = m_attachedCam.lock()->GetTransform().GetPos();
 
 	//左右カメラ操作
 	m_nowParam.m_yAxisAngle = arg_playerRotY;
@@ -101,10 +101,6 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	//コントローラーのトランスフォーム（対象の周囲、左右移動）更新
 	m_camParentTransform.SetRotate(Vec3<float>::GetYAxis(), m_nowParam.m_yAxisAngle);
 	m_camParentTransform.SetPos(Math::Lerp(m_camParentTransform.GetPos(), arg_targetPos.GetPosWorld(), m_camFollowLerpRate));
-
-
-
-
 
 
 	//使用するカメラの座標を補間して適用。

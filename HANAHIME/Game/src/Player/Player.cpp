@@ -293,6 +293,19 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 				//地中にいる判定を更新。
 				m_isUnderGround = m_isInputUnderGround;
+
+				//地中にいたらコントローラーを振動させる。
+				if (m_isUnderGround) {
+					UsersInput::Instance()->ShakeController(0, 1.0f, 10);
+				}
+
+			}
+
+			//イージングタイマーが0でプレイヤーが地中にいないとき(地中から出る演出の開始直後)だったらコントローラーをシェイクさせる。
+			if (m_underGroundEaseTimer <= ADD_UNDERGROUND_EASE_TIMER && m_isUnderGround) {
+
+				UsersInput::Instance()->ShakeController(0, 1.0f, 10);
+
 			}
 
 		}
@@ -666,6 +679,13 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 	//落下中は入力を無効化。
 	if (!m_onGround) {
 		m_rowMoveVec = KuroEngine::Vec3<float>();
+	}
+
+	//移動しているときはシェイクさせる。
+	if (0 < m_rowMoveVec.Length() && m_isUnderGround) {
+
+		KuroEngine::UsersInput::Instance()->ShakeController(0, 0.2f, 10);
+
 	}
 
 	float accelSpeed = m_defaultAccelSpeed;
