@@ -15,15 +15,22 @@ void MiniBug::OnInit()
 
 	m_hitBox.m_centerPos = &m_pos;
 	m_hitBox.m_radius = &m_scale;
+
+	m_shadowInfluenceRange = SHADOW_INFLUENCE_RANGE;
 }
 
-void MiniBug::Update(Player &arg_player)
+void MiniBug::Update(Player& arg_player)
 {
 	//ã§í èàóù
 	if (m_deadFlag)
 	{
+
 		m_reaction->Update(m_pos);
+
 		return;
+	}
+	else {
+
 	}
 
 
@@ -32,6 +39,9 @@ void MiniBug::Update(Player &arg_player)
 	{
 		m_scale = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, m_deadTimer.GetTimeRate(), 1.0f, 0.0f);
 		m_transform.SetScale(m_scale);
+
+		//éÄÇÒÇ≈Ç¢ÇΩÇÁä€âeÇè¨Ç≥Ç≠Ç∑ÇÈÅB
+		m_shadowInfluenceRange = KuroEngine::Math::Lerp(m_shadowInfluenceRange, 0.0f, 0.01f);
 
 		if (m_deadTimer.UpdateTimer() && m_deadTimer.GetElaspedTime() != 0.0f)
 		{
@@ -49,6 +59,9 @@ void MiniBug::Update(Player &arg_player)
 
 		return;
 	}
+
+	//ê∂Ç´ÇƒÇ¢ÇΩÇÁä€âeÇå≥Ç…ñﬂÇ∑ÅB
+	m_shadowInfluenceRange = KuroEngine::Math::Lerp(m_shadowInfluenceRange, SHADOW_INFLUENCE_RANGE, 0.1f);
 
 	//ìGî≠å©éû(ÉvÉåÉCÉÑÅ[Ç™éãäEÇ…ì¸Ç¡ÇΩ)
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_1))
@@ -317,7 +330,7 @@ void MiniBug::Update(Player &arg_player)
 
 }
 
-void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
+void MiniBug::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
@@ -334,7 +347,7 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 
 }
 
-void MiniBug::DebugDraw(KuroEngine::Camera &camera)
+void MiniBug::DebugDraw(KuroEngine::Camera& camera)
 {
 #ifdef _DEBUG
 
@@ -359,10 +372,11 @@ void MiniBug::DebugDraw(KuroEngine::Camera &camera)
 
 }
 
-void DossunRing::Update(Player &arg_player)
+void DossunRing::Update(Player& arg_player)
 {
 	if (m_deadFlag)
 	{
+
 		return;
 	}
 
@@ -371,6 +385,9 @@ void DossunRing::Update(Player &arg_player)
 	{
 		m_scale = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, m_deadTimer.GetTimeRate(), 1.0f, 0.0f);
 		m_transform.SetScale(m_scale);
+
+		//éÄÇÒÇ≈Ç¢ÇΩÇÁä€âeÇè¨Ç≥Ç≠Ç∑ÇÈÅB
+		m_shadowInfluenceRange = KuroEngine::Math::Lerp(m_shadowInfluenceRange, 0.0f, 0.01f);
 
 		if (m_deadTimer.UpdateTimer() && m_deadTimer.GetElaspedTime() != 0.0f)
 		{
@@ -394,6 +411,9 @@ void DossunRing::Update(Player &arg_player)
 		m_startDeadMotionFlag = true;
 		return;
 	}
+
+	//ê∂Ç´ÇƒÇ¢ÇΩÇÁä€âeÇå≥Ç…ñﬂÇ∑ÅB
+	m_shadowInfluenceRange = KuroEngine::Math::Lerp(m_shadowInfluenceRange, SHADOW_INFLUENCE_RANGE, 0.1f);
 
 
 	if (m_sightArea.IsFind(arg_player.m_sphere) && !arg_player.GetIsUnderGround())
@@ -451,7 +471,7 @@ void DossunRing::Update(Player &arg_player)
 
 }
 
-void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
+void DossunRing::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
@@ -464,7 +484,7 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 		edgeColor);
 }
 
-void DossunRing::DebugDraw(KuroEngine::Camera &camera)
+void DossunRing::DebugDraw(KuroEngine::Camera& camera)
 {
 #ifdef _DEBUG
 	if (m_attackFlag)

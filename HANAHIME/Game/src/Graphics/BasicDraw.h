@@ -74,7 +74,7 @@ private:
 	//モデル描画
 	std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>m_drawPipeline;
 	std::shared_ptr<KuroEngine::GraphicsPipeline>m_drawPipeline_player;
-	std::shared_ptr<KuroEngine::GraphicsPipeline>m_drawPipeline_stage;
+	std::array < std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>m_drawPipeline_stage;
 	std::vector<std::shared_ptr<KuroEngine::ConstantBuffer>>m_drawTransformBuff;
 
 	//インスタンシグ描画で一度に描画できるインスタンス最大数

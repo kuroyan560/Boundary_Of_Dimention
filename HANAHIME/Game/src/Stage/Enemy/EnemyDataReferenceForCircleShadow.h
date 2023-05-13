@@ -16,6 +16,7 @@ public:
 	struct RefData {
 
 		const KuroEngine::Transform* m_refTransform;
+		const float* m_refShadowRadius;
 		const bool* m_refIsDead;
 
 	};
@@ -25,6 +26,7 @@ public:
 
 		KuroEngine::Vec3<float> m_pos;
 		KuroEngine::Vec3<float> m_up;
+		float m_shadowRadius;
 
 	};
 
@@ -48,7 +50,7 @@ public:
 	void Init();
 
 	//参照をセット。
-	void SetData(const KuroEngine::Transform* arg_refTransform, const bool* arg_refIsDead);
+	void SetData(const KuroEngine::Transform* arg_refTransform, const float* arg_refShadowRadius, const bool* arg_refIsDead);
 
 	//GPUに転送するデータを更新する。
 	void UpdateGPUData();

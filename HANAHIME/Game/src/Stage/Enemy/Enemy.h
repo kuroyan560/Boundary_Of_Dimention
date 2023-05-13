@@ -56,8 +56,10 @@ public:
 			m_patrol = std::make_unique<PatrolBasedOnControlPoint>(posArray, 0, loopFlag);
 		}
 
+		m_shadowInfluenceRange = SHADOW_INFLUENCE_RANGE;
+
 		//丸影用に敵のデータの参照を渡す。
-		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_deadFlag);
+		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_shadowInfluenceRange, &m_deadFlag);
 
 	}
 
@@ -90,6 +92,10 @@ private:
 	int m_limitIndex;
 
 	float m_hitBoxSize;
+
+	//丸影用
+	float m_shadowInfluenceRange;
+	const float SHADOW_INFLUENCE_RANGE = 6.0f;
 
 	class AttackMotion
 	{
@@ -324,8 +330,10 @@ public:
 		m_hitBoxModel =
 			KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "RedSphere.glb");
 
+		m_shadowInfluenceRange = SHADOW_INFLUENCE_RANGE;
+
 		//丸影用に敵のデータの参照を渡す。
-		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_deadFlag);
+		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_shadowInfluenceRange, &m_deadFlag);
 
 	}
 	void Update(Player &arg_player)override;
@@ -369,6 +377,10 @@ private:
 	KuroEngine::Vec3<float>m_larpPos;
 	KuroEngine::Quaternion m_larpRotation;
 	//移動処理---------------------------------------
+
+	//丸影用
+	float m_shadowInfluenceRange;
+	const float SHADOW_INFLUENCE_RANGE = 6.0f;
 
 
 	std::shared_ptr<KuroEngine::Model>m_hitBoxModel;

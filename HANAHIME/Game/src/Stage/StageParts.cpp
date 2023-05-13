@@ -762,6 +762,6 @@ void Terrian::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_li
 		arg_ligMgr,
 		m_model.lock(),
 		m_transform,
-		param);
+		IndividualDrawParameter::GetDefault());
 
 }

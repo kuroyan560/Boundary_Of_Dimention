@@ -137,7 +137,7 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 
 
 		//パイプライン生成
-		m_drawPipeline_stage = D3D12App::Instance()->GenerateGraphicsPipeline(
+		m_drawPipeline_stage[i] = D3D12App::Instance()->GenerateGraphicsPipeline(
 			PIPELINE_OPTION,
 			SHADERS,
 			ModelMesh::Vertex::GetInputLayout(),
@@ -442,7 +442,7 @@ void BasicDraw::Draw_Stage(KuroEngine::Camera& arg_cam, KuroEngine::LightManager
 {
 	using namespace KuroEngine;
 
-	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_drawPipeline_stage);
+	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_drawPipeline_stage[AlphaBlendMode_Trans]);
 
 	//トランスフォームバッファ送信
 	if (m_drawTransformBuff.size() < (m_drawCount + 1))
@@ -483,8 +483,8 @@ void BasicDraw::Draw_Stage(KuroEngine::Camera& arg_cam, KuroEngine::LightManager
 				{m_growPlantLigNumBuffer,CBV},
 				{m_growPlantPtLigBuffer,SRV},
 				{m_growPlantSpotLigBuffer,SRV},
-				{EnemyDataReferenceForCircleShadow::Instance()->GetGPUResourceBuffer(),SRV},
 				{EnemyDataReferenceForCircleShadow::Instance()->GetGPUResourceCountBuffer(),CBV},
+				{EnemyDataReferenceForCircleShadow::Instance()->GetGPUResourceBuffer(),SRV},
 			},
 			arg_layer,
 			arg_blendMode == AlphaBlendMode_Trans);
@@ -492,6 +492,7 @@ void BasicDraw::Draw_Stage(KuroEngine::Camera& arg_cam, KuroEngine::LightManager
 
 	m_drawCount++;
 	m_individualParamCount++;
+
 }
 
 void BasicDraw::Draw_Player(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform& arg_transform, const IndividualDrawParameter& arg_toonParam, const KuroEngine::AlphaBlendMode& arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff, int arg_layer)

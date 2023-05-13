@@ -24,12 +24,13 @@ void EnemyDataReferenceForCircleShadow::Init()
 	m_gpuData.clear();
 }
 
-void EnemyDataReferenceForCircleShadow::SetData(const KuroEngine::Transform* arg_refTransform, const bool* arg_refIsDead)
+void EnemyDataReferenceForCircleShadow::SetData(const KuroEngine::Transform* arg_refTransform, const float* arg_refShadowRadius, const bool* arg_refIsDead)
 {
 
 	RefData data;
 	data.m_refIsDead = arg_refIsDead;
 	data.m_refTransform = arg_refTransform;
+	data.m_refShadowRadius = arg_refShadowRadius;
 	m_refData.emplace_back(data);
 
 }
@@ -46,11 +47,12 @@ void EnemyDataReferenceForCircleShadow::UpdateGPUData()
 
 	for (auto& index : m_refData) {
 
-		if (index.m_refIsDead) continue;
+		if (*(index.m_refIsDead)) continue;
 
 		GPUData data;
 		data.m_pos = index.m_refTransform->GetPos();
 		data.m_up = index.m_refTransform->GetUp();
+		data.m_shadowRadius = *(index.m_refShadowRadius);
 
 		m_gpuData.emplace_back(data);
 

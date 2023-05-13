@@ -17,6 +17,7 @@ struct CircleShadowData
 {
     float3 pos;
     float3 up;
+    float shadowRadius;
 };
 StructuredBuffer<CircleShadowData> circleShadowData : register(t7);
 //敵丸影用 ===================================================
@@ -238,6 +239,30 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     
     //アルファ値適用
     result.w *= toonIndividualParam.m_alpha;
+    
+    
+    
+    
+    //ここでさらに敵用の丸影を出す。
+    for (int index = 0; index < circleShadowCount; ++index)
+    {
+    
+        //距離が一定以上離れていたら飛ばす。
+        float distance = length(input.worldpos - circleShadowData[index].pos);
+        if (circleShadowData[index].shadowRadius < distance)
+            continue;
+        
+        float distanceRate = distance / circleShadowData[index].shadowRadius;
+        
+        float bright = Easing_Cubic_In(distanceRate, 1.0f, 0.0f, 1.0f);
+        
+        result.xyz *=  bright;
+        
+        
+    }
+    
+    
+    
     
     PSOutput output;
     output.color = result;
