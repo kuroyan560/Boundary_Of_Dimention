@@ -3,60 +3,13 @@
         "name": "scene",
         "objects": [
             {
-                "type": "Start",
-                "name": "Start_2",
-                "transform": {
-                    "translation": [
-                        0.0,
-                        0.0,
-                        6.5
-                    ],
-                    "rotation": [
-                        -0.0,
-                        -0.0,
-                        -1.0,
-                        4.371138828673793e-08
-                    ],
-                    "scaling": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                },
-                "file_name": "Start"
-            },
-            {
-                "type": "Goal",
-                "name": "Goal_2",
-                "transform": {
-                    "translation": [
-                        0.0,
-                        0.0,
-                        -9.0
-                    ],
-                    "rotation": [
-                        -0.0,
-                        -1.0,
-                        -0.0,
-                        4.371138828673793e-08
-                    ],
-                    "scaling": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                },
-                "file_name": "Goal",
-                "leverID": -1
-            },
-            {
                 "type": "Terrian",
-                "name": "Stage2_0",
+                "name": "GateTerrian_1",
                 "transform": {
                     "translation": [
                         0.0,
                         0.0,
-                        -1.0
+                        0.0
                     ],
                     "rotation": [
                         0.0,
@@ -65,12 +18,66 @@
                         1.0
                     ],
                     "scaling": [
-                        5.0,
-                        5.0,
-                        4.0
+                        1.0,
+                        1.0,
+                        1.0
                     ]
                 },
-                "file_name": "Stage2"
+                "file_name": "GateTerrian_0"
+            },
+            {
+                "type": "Gate",
+                "name": "TestGate_1.001",
+                "transform": {
+                    "translation": [
+                        -41.50522994995117,
+                        3.5106003284454346,
+                        -0.4894123077392578
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "TestGate",
+                "GateID": 0,
+                "DestStageNum": 0,
+                "DestGateID": 0,
+                "GateSceneChange": 0
+            },
+            {
+                "type": "Gate",
+                "name": "TestGate_1.002",
+                "transform": {
+                    "translation": [
+                        -2.2011990547180176,
+                        44.64056396484375,
+                        7.011692523956299
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "TestGate",
+                "GateID": 1,
+                "DestStageNum": 2,
+                "DestGateID": 0,
+                "GateSceneChange": 1
             }
         ]
     }

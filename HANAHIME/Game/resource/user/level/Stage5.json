@@ -4,10 +4,33 @@
         "objects": [
             {
                 "type": "Terrian",
-                "name": "GateTerrian_0",
+                "name": "Stage5_0.001",
                 "transform": {
                     "translation": [
                         0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Stage5"
+            },
+            {
+                "type": "Gate",
+                "name": "Gate_5",
+                "transform": {
+                    "translation": [
+                        -10.0,
                         0.0,
                         0.0
                     ],
@@ -23,84 +46,38 @@
                         1.0
                     ]
                 },
-                "file_name": "GateTerrian_0"
-            },
-            {
-                "type": "Start",
-                "name": "Start",
-                "transform": {
-                    "translation": [
-                        -1.1607904434204102,
-                        -16.07328987121582,
-                        6.5
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                },
-                "file_name": "Start"
-            },
-            {
-                "type": "Gate",
-                "name": "TestGate_0.002",
-                "transform": {
-                    "translation": [
-                        -41.53350067138672,
-                        2.8059685230255127,
-                        -0.4894123077392578
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                },
-                "file_name": "TestGate",
+                "file_name": "Gate",
                 "GateID": 1,
-                "DestStageNum": 2,
-                "DestGateID": 1,
-                "GateSceneChange": 0
-            },
-            {
-                "type": "Gate",
-                "name": "TestGate_0.001",
-                "transform": {
-                    "translation": [
-                        39.96392059326172,
-                        2.8059685230255127,
-                        -0.4894123077392578
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                },
-                "file_name": "TestGate",
-                "GateID": 0,
-                "DestStageNum": 1,
+                "DestStageNum": 4,
                 "DestGateID": 0,
                 "GateSceneChange": 0
+            },
+            {
+                "type": "Gate",
+                "name": "Gate_5.001",
+                "transform": {
+                    "translation": [
+                        60.0,
+                        0.0,
+                        10.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Gate",
+                "GateID": 2,
+                "DestStageNum": 6,
+                "DestGateID": 3,
+                "GateSceneChange": 1
             }
         ]
     }
