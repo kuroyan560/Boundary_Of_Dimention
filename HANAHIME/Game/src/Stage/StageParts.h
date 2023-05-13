@@ -133,6 +133,7 @@ public:
 		m_collider.BuilCollisionMesh(arg_collisionModel, m_initializedTransform);
 	}
 	void Update(Player& arg_player)override {}
+	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 	const std::vector<std::vector<TerrianHitPolygon>>& GetCollisionMesh()const { return m_collider.GetCollisionMesh(); }
 };
 

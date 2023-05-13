@@ -74,6 +74,7 @@ private:
 	//モデル描画
 	std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>m_drawPipeline;
 	std::shared_ptr<KuroEngine::GraphicsPipeline>m_drawPipeline_player;
+	std::shared_ptr<KuroEngine::GraphicsPipeline>m_drawPipeline_stage;
 	std::vector<std::shared_ptr<KuroEngine::ConstantBuffer>>m_drawTransformBuff;
 
 	//インスタンシグ描画で一度に描画できるインスタンス最大数
@@ -136,6 +137,25 @@ public:
 	/// <param name="arg_layer">描画レイヤー</param>
 	/// <param name="arg_boneBuff">ボーンバッファ</param>
 	void Draw(KuroEngine::Camera& arg_cam,
+		KuroEngine::LightManager& arg_ligMgr,
+		std::weak_ptr<KuroEngine::Model>arg_model,
+		KuroEngine::Transform& arg_transform,
+		const IndividualDrawParameter& arg_toonParam,
+		const KuroEngine::AlphaBlendMode& arg_blendMode = KuroEngine::AlphaBlendMode_None,
+		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr,
+		int arg_layer = 0);
+
+	/// <summary>
+	/// 描画
+	/// </summary>
+	/// <param name="arg_cam">カメラ</param>
+	/// <param name="arg_ligMgr">ライトマネージャ</param>
+	/// <param name="arg_model">モデル</param>
+	/// <param name="arg_transform">トランスフォーム</param>
+	/// <param name="arg_toonParam">トゥーンのパラメータ</param>
+	/// <param name="arg_boneBuff">ボーンバッファ</param>
+	/// <param name="arg_layer">描画レイヤー</param>
+	void Draw_Stage(KuroEngine::Camera& arg_cam,
 		KuroEngine::LightManager& arg_ligMgr,
 		std::weak_ptr<KuroEngine::Model>arg_model,
 		KuroEngine::Transform& arg_transform,

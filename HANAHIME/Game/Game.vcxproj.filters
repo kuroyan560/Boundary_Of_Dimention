@@ -408,7 +408,7 @@
     </ClCompile>
     <ClCompile Include="src\Player\CollisionDetectionOfRayAndMesh.cpp">
       <Filter>src</Filter>
-	</ClCompile>
+    </ClCompile>
     <ClCompile Include="src\Stage\Enemy\Enemy.cpp">
       <Filter>src\user\Stage\Enemy</Filter>
     </ClCompile>
@@ -417,6 +417,9 @@
     </ClCompile>
     <ClCompile Include="src\AI\EnemySearch.cpp">
       <Filter>src\user\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Stage\Enemy\EnemyDataReferenceForCircleShadow.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -803,7 +806,7 @@
     </ClInclude>
     <ClInclude Include="src\Player\CollisionDetectionOfRayAndMesh.h">
       <Filter>src</Filter>
-	</ClInclude>
+    </ClInclude>
     <ClInclude Include="src\Stage\Enemy\Enemy.h">
       <Filter>src\user\Stage\Enemy</Filter>
     </ClInclude>
@@ -812,6 +815,9 @@
     </ClInclude>
     <ClInclude Include="src\AI\EnemySearch.h">
       <Filter>src\user\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\Enemy\EnemyDataReferenceForCircleShadow.h">
+      <Filter>src\user</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

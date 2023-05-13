@@ -4,6 +4,7 @@
 #include"../../AI/EnemySearch.h"
 #include"../Grass.h"
 #include"ForUser/DrawFunc/BillBoard/DrawFuncBillBoard.h"
+#include"EnemyDataReferenceForCircleShadow.h"
 
 enum ENEMY_ATTACK_PATTERN
 {
@@ -54,6 +55,10 @@ public:
 		{
 			m_patrol = std::make_unique<PatrolBasedOnControlPoint>(posArray, 0, loopFlag);
 		}
+
+		//ŠÛ‰e—p‚É“G‚Ìƒf[ƒ^‚ÌŽQÆ‚ð“n‚·B
+		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_deadFlag);
+
 	}
 
 	void OnInit()override;
@@ -318,6 +323,9 @@ public:
 
 		m_hitBoxModel =
 			KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "RedSphere.glb");
+
+		//ŠÛ‰e—p‚É“G‚Ìƒf[ƒ^‚ÌŽQÆ‚ð“n‚·B
+		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_deadFlag);
 
 	}
 	void Update(Player &arg_player)override;

@@ -751,3 +751,17 @@ void SplatoonFence::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& 
 {
 	StageParts::Draw(arg_cam, arg_ligMgr);
 }
+
+void Terrian::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+{
+
+	IndividualDrawParameter param = IndividualDrawParameter::GetDefault();
+
+	BasicDraw::Instance()->Draw_Stage(
+		arg_cam,
+		arg_ligMgr,
+		m_model.lock(),
+		m_transform,
+		param);
+
+}

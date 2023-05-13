@@ -14,6 +14,7 @@
 #include"TimeScaleMgr.h"
 
 #include"FrameWork/Importer.h"
+#include"Stage/Enemy/EnemyDataReferenceForCircleShadow.h"
 
 GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_1flameStopTimer(30), m_goal(m_particleRender.GetStackBuffer())
 {
@@ -236,6 +237,9 @@ void GameScene::OnUpdate()
 
 
 	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld(), *m_nowCam);
+
+	//“G—pŠÛ‰e‚ðXV
+	EnemyDataReferenceForCircleShadow::Instance()->UpdateGPUData();
 
 }
 
