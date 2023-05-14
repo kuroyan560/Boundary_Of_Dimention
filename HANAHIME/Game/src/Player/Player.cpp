@@ -274,6 +274,10 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_deathStatus = DEATH_STATUS::APPROACH;
 	m_isFinishDeathAnimation = false;
 
+	//被ダメージの点滅初期化
+	m_damageFlashTimer.Reset(6.0f);
+	m_damageFlash = false;
+
 	//地中に沈む関連
 	m_isInputUnderGround = false;
 	m_isUnderGround = false;
@@ -601,12 +605,31 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//攻撃中タイマーを減らす。
 	m_attackTimer = std::clamp(m_attackTimer - 1, 0, ATTACK_TIMER);
 
+	//被ダメージ点滅更新
+	{
+		//無敵状態中点滅
+		if (!m_nodamageTimer.IsTimeUp() && m_damageFlashTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale()))
+		{
+			m_damageFlash = !m_damageFlash;
+			m_damageFlashTimer.Reset();
+		}
+
+		//無敵状態終了と同時に通常描画に
+		if (m_nodamageTimer.IsTimeUpOnTrigger())
+		{
+			m_damageFlash = false;
+		}
+	}
+
+	//HPUI更新
 	HpUiUpdate(TimeScaleMgr::s_inGame.GetTimeScale());
 
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
 {
+	if (m_damageFlash)return;
+
 	/*
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_model,
@@ -614,15 +637,15 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		arg_cam);
 	*/
 
-	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
-	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 1.0f, 0.0f);
+	IndividualDrawParameter drawParam = IndividualDrawParameter::GetDefault();
+	drawParam.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 1.0f, 0.0f);
 
 	BasicDraw::Instance()->Draw_Player(
 		arg_cam,
 		arg_ligMgr,
 		m_model,
 		m_drawTransform,
-		edgeColor,
+		drawParam,
 		KuroEngine::AlphaBlendMode_None,
 		m_modelAnimator->GetBoneMatBuff());
 
@@ -757,6 +780,8 @@ void Player::Damage()
 
 	//ヒットストップ
 	TimeScaleMgr::s_inGame.Set(0.0f);
+
+	m_damageFlashTimer.Reset();
 }
 
 Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, KuroEngine::Vec3<float> arg_enemyUp, float arg_enemySize)
@@ -1028,11 +1053,13 @@ void Player::UpdateDamage()
 		//一応シェイク量を0にしておく。
 		m_damageShakeAmount = 0;
 
+		//ダメージ点滅開始
+		m_damageFlash = true;
+		m_damageFlashTimer.Reset();
 	}
 	else 
 	{
 		//シェイク量をへらす。
 		m_damageShakeAmount = std::clamp(m_damageShakeAmount - SUB_DAMAGE_SHAKE_AMOUNT, 0.0f, 100.0f);
 	}
-
 }

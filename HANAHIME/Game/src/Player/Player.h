@@ -49,11 +49,16 @@ class Player : public KuroEngine::Debugger
 	int m_hp;
 	const float DAMAGE_HITSTOP_TIMER = 30.0f;
 	KuroEngine::Timer m_damageHitStopTimer;
-	const float NODAMAGE_TIMER = 120.0f;		//無敵時間
+	const float NODAMAGE_TIMER = 100.0f;		//無敵時間
 	KuroEngine::Timer m_nodamageTimer;
 	const float DAMAGE_SHAKE_AMOUNT = 1.0f;		//ダメージを受けた時のシェイク
 	const float SUB_DAMAGE_SHAKE_AMOUNT = 0.1f;	//ダメージを受けた時のシェイクを減らす量
 	float m_damageShakeAmount;					//ダメージを受けた時のシェイクの量だんだん減っていく
+
+	//被ダメージのときの点滅タイマー
+	KuroEngine::Timer m_damageFlashTimer;
+	//被ダメージ点滅フラグ
+	bool m_damageFlash = false;
 
 	//HPUIの演出ステータス
 	enum HP_UI_STATUS { HP_UI_APPEAR, HP_UI_DRAW, HP_UI_DISAPPEAR, HP_UI_DAMAGE }m_hpUiStatus;
