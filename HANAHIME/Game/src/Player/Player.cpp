@@ -310,6 +310,25 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 				UsersInput::Instance()->ShakeController(0, 1.0f, 10);
 
+				//地中から出た瞬間に大量にパーティクルを出す。
+				for (int index = 0; index < 50; ++index) {
+
+					//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
+					auto upVec = m_transform.GetUp();
+
+					//各軸を回転させる量。 ラジアン 回転させるのはローカルのXZ平面のみで、Y軸は高さのパラメーターを持つ。
+					KuroEngine::Vec3<float> randomAngle = KuroEngine::GetRand(KuroEngine::Vec3<float>(-DirectX::XM_PIDIV2, -1.0f, -DirectX::XM_PIDIV2), KuroEngine::Vec3<float>(DirectX::XM_PIDIV2, 1.0f, DirectX::XM_PIDIV2));
+
+					//XZの回転量クォータニオン
+					auto xq = DirectX::XMQuaternionRotationAxis(m_transform.GetRight(), randomAngle.x);
+					auto zq = DirectX::XMQuaternionRotationAxis(m_transform.GetFront(), randomAngle.z);
+
+					//上ベクトルを回転させる。
+					upVec = KuroEngine::Math::TransformVec3(upVec, DirectX::XMMatrixRotationQuaternion(DirectX::XMQuaternionMultiply(xq, zq)));
+
+					m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), upVec.GetNormal() * m_growPlantPtLig.m_defInfluenceRange);
+				}
+
 			}
 
 		}
@@ -698,7 +717,7 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 		if (m_playerMoveParticleTimer.IsTimeUpOnTrigger()) {
 			for (int index = 0; index < PLAYER_MOVE_PARTICLE_COUNT; ++index) {
 				KuroEngine::Vec3<float> scatterVec = KuroEngine::GetRand(KuroEngine::Vec3<float>(-1,-1,-1), KuroEngine::Vec3<float>(1,1,1));
-				m_playerMoveParticle.Generate(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_influenceRange));
+				m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_influenceRange));
 			}
 			m_playerMoveParticleTimer.Reset();
 		}
