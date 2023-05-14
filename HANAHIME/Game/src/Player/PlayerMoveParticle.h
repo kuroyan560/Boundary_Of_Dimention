@@ -19,8 +19,8 @@ private:
 	};
 
 	//パーティクルの各状態のスケール
-	const float PARTICLE_SCALE = 0.2f;
-	const std::array<int, MAX> PARTICLE_STATUS_TIMER = { 30, 5, 60 };
+	const float PARTICLE_SCALE = 0.5f;
+	const std::array<int, MAX> PARTICLE_STATUS_TIMER = { 30, 20, 60 };
 
 	//パーティクル構造体
 	struct ParticleData
@@ -67,7 +67,7 @@ private:
 	/// </summary>
 	/// <param name="arg_pos"></param>
 	/// <returns> 移動量 </returns>
-	KuroEngine::Vec3<float> CurlNoise3D(const KuroEngine::Vec3<float>& arg_st, const KuroEngine::Vec3<float>& arg_pos);
+	KuroEngine::Vec3<float> CurlNoise3D(const KuroEngine::Vec3<float>& arg_st, const KuroEngine::Vec3<float>& arg_pos, bool arg_isExit);
 
 	//hlslのfrac関数 modfを用いて小数点を取得するようにしている。
 	float Frac(float arg_x);

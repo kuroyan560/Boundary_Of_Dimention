@@ -8,7 +8,7 @@
 PlayerMoveParticle::PlayerMoveParticle()
 {
 
-	m_model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "ParticleSphere.glb");
+	m_model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "MoveParticle.glb");
 
 }
 
@@ -32,7 +32,7 @@ void PlayerMoveParticle::Update()
 		if (!index.m_isAlive) continue;
 
 		//ノイズにより移動量を求める。
-		KuroEngine::Vec3<float> move = CurlNoise3D(index.m_st, index.m_transform.GetPos());
+		KuroEngine::Vec3<float> move = CurlNoise3D(index.m_st, index.m_transform.GetPos(), index.m_particleStatus == EXIT);
 
 		//移動させる。
 		index.m_transform.SetPos(index.m_transform.GetPos() + move);
@@ -50,7 +50,7 @@ void PlayerMoveParticle::Update()
 		{
 
 			//スケールを更新。
-			index.m_transform.SetScale(KuroEngine::Math::Ease(KuroEngine::In, KuroEngine::Sine, timerRate, 0.0f, 1.0f) * PARTICLE_SCALE);
+			index.m_transform.SetScale(KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, timerRate, 0.0f, 1.0f) * PARTICLE_SCALE);
 
 			//タイマーが終わったら次のステータスへ。
 			if (index.m_exitTimer.IsTimeUpOnTrigger()) {
@@ -119,14 +119,12 @@ void PlayerMoveParticle::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightMana
 
 		}
 
-		IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
-
 		mat.emplace_back(index.m_transform.GetMatWorld());
 
 	}
 
 	if (0 < static_cast<int>(mat.size())) {
-		BasicDraw::Instance()->InstancingDraw(arg_cam, arg_ligMgr, m_model, mat, true);
+		BasicDraw::Instance()->InstancingDraw_Particle(arg_cam, arg_ligMgr, m_model, mat, IndividualDrawParameter::GetDefault(), true, KuroEngine::AlphaBlendMode::AlphaBlendMode_Add);
 	}
 
 }
@@ -154,14 +152,14 @@ void PlayerMoveParticle::Generate(const KuroEngine::Vec3<float>& arg_playerPos, 
 
 }
 
-KuroEngine::Vec3<float> PlayerMoveParticle::CurlNoise3D(const KuroEngine::Vec3<float>& arg_st, const KuroEngine::Vec3<float>& arg_pos)
+KuroEngine::Vec3<float> PlayerMoveParticle::CurlNoise3D(const KuroEngine::Vec3<float>& arg_st, const KuroEngine::Vec3<float>& arg_pos, bool arg_isExit)
 {
 
 	const float epsilon = 0.01f;
 
-	int octaves = 4; // オクターブ数
-	float persistence = 0.5; // 持続度
-	float lacunarity = 1.7f; // ラクナリティ
+	int octaves = 4; //オクターブ数
+	float persistence = 0.5; //持続度
+	float lacunarity = 2.0f; //ラクナリティ
 
 	//ノイズの中心
 	float noiseCenter = PerlinNoise(arg_st, octaves, persistence, lacunarity, arg_pos);
@@ -182,7 +180,7 @@ KuroEngine::Vec3<float> PlayerMoveParticle::CurlNoise3D(const KuroEngine::Vec3<f
 	vel.y = dNoiseZ - dNoiseX;
 	vel.z = dNoiseX - dNoiseY;
 
-	return vel * 3.0f;
+	return vel * (1.5f + (arg_isExit ? 3.0f : 0.0f));
 
 }
 

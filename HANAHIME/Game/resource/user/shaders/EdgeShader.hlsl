@@ -48,6 +48,7 @@ struct PSOutput
 
 PSOutput PSmain(VSOutput input) : SV_TARGET
 {   
+    
     PSOutput output;
     output.color = float4(0, 0, 0, 0);
     

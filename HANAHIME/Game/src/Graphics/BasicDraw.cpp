@@ -206,6 +206,41 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		}
 	}
 
+	//インスタンシング描画パイプライン(アウトラインなしのパーティクル用)を生成
+	for (int writeDepth = 0; writeDepth < 2; ++writeDepth)
+	{
+		//通常描画パイプライン生成
+		for (int i = 0; i < AlphaBlendModeNum; ++i)
+		{
+			auto blendMode = (AlphaBlendMode)i;
+
+			//パイプライン設定
+			static PipelineInitializeOption PIPELINE_OPTION(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+			PIPELINE_OPTION.m_depthWriteMask = (writeDepth == WRITE_DEPTH);
+
+			std::vector<RenderTargetInfo> particleRendertargetList =
+			{
+				RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), (AlphaBlendMode)i),	//通常描画
+				RenderTargetInfo(DXGI_FORMAT_R32G32B32A32_FLOAT, AlphaBlendMode_Trans),	//エミッシブマップ
+				RenderTargetInfo(DXGI_FORMAT_R16_FLOAT, AlphaBlendMode_None),	//深度マップ
+			};
+
+			//シェーダー情報
+			static Shaders SHADERS;
+			SHADERS.m_vs = D3D12App::Instance()->CompileShader("resource/user/shaders/BasicShader_Huge_Particle.hlsl", "VSmain", "vs_6_4");
+			SHADERS.m_ps = D3D12App::Instance()->CompileShader("resource/user/shaders/BasicShader_Huge_Particle.hlsl", "PSmain", "ps_6_4");
+
+			//パイプライン生成
+			m_instancingDrawPipeline_particle[writeDepth][i] = D3D12App::Instance()->GenerateGraphicsPipeline(
+				PIPELINE_OPTION,
+				SHADERS,
+				ModelMesh::Vertex::GetInputLayout(),
+				ROOT_PARAMETER,
+				particleRendertargetList,
+				{ WrappedSampler(true, true) });
+		}
+	}
+
 	//トゥーンシェーダー用の共通のバッファを用意
 	m_toonCommonParamBuff = D3D12App::Instance()->GenerateConstantBuffer(
 		sizeof(m_toonCommonParam),
@@ -636,6 +671,71 @@ void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightMan
 	m_drawCountHuge++;
 	m_individualParamCount++;
 }
+
+void BasicDraw::InstancingDraw_Particle(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, std::vector<KuroEngine::Matrix>& arg_matArray, const IndividualDrawParameter& arg_toonParam, bool arg_depthWriteMask, const KuroEngine::AlphaBlendMode& arg_blendMode, int arg_layer, std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff)
+{
+	using namespace KuroEngine;
+
+	if (s_instanceMax < static_cast<int>(arg_matArray.size()))
+	{
+		KuroEngine::AppearMessageBox("BasicDraw : InstancingDraw() 失敗", "インスタンシング描画の最大数を超えてるよ");
+		exit(-1);
+	}
+	if (arg_matArray.empty())return;
+
+	using namespace KuroEngine;
+
+	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_instancingDrawPipeline_particle[arg_depthWriteMask ? WRITE_DEPTH : NOT_WRITE_DEPTH][arg_blendMode]);
+
+	//トランスフォームバッファ送信
+	if (m_drawTransformBuffHuge.size() < (m_drawCountHuge + 1))
+	{
+		m_drawTransformBuffHuge.emplace_back(D3D12App::Instance()->GenerateConstantBuffer(sizeof(Matrix), 1, nullptr, ("BasicDraw - InstancingDraw - Transform -" + std::to_string(m_drawCountHuge)).c_str()));
+	}
+	m_drawTransformBuffHuge[m_drawCountHuge]->Mapping(arg_matArray.data(), static_cast<int>(arg_matArray.size()));
+
+	//トゥーンの個別パラメータバッファ送信
+	if (m_toonIndividualParamBuff.size() < (m_individualParamCount + 1))
+	{
+		m_toonIndividualParamBuff.emplace_back(D3D12App::Instance()->GenerateConstantBuffer(sizeof(IndividualDrawParameter), 1, nullptr, ("BasicDraw - IndividualDrawParameter -" + std::to_string(m_individualParamCount)).c_str()));
+	}
+	m_toonIndividualParamBuff[m_individualParamCount]->Mapping(&arg_toonParam);
+
+	auto model = arg_model.lock();
+
+	for (int meshIdx = 0; meshIdx < model->m_meshes.size(); ++meshIdx)
+	{
+		const auto& mesh = model->m_meshes[meshIdx];
+		KuroEngineDevice::Instance()->Graphics().ObjectRender(
+			mesh.mesh->vertBuff,
+			mesh.mesh->idxBuff,
+			{
+				{arg_cam.GetBuff(),CBV},
+				{arg_ligMgr.GetLigNumInfo(),CBV},
+				{arg_ligMgr.GetLigInfo(Light::DIRECTION),SRV},
+				{arg_ligMgr.GetLigInfo(Light::POINT),SRV},
+				{arg_ligMgr.GetLigInfo(Light::SPOT),SRV},
+				{arg_ligMgr.GetLigInfo(Light::HEMISPHERE),SRV},
+				{m_drawTransformBuffHuge[m_drawCountHuge],CBV},
+				{arg_boneBuff,CBV},
+				{mesh.material->texBuff[COLOR_TEX],SRV},
+				{mesh.material->buff,CBV},
+				{m_toonCommonParamBuff,CBV},
+				{m_toonIndividualParamBuff[m_individualParamCount],CBV},
+				{m_playerInfoBuffer,CBV},
+				{m_growPlantLigNumBuffer,CBV},
+				{m_growPlantPtLigBuffer,SRV},
+				{m_growPlantSpotLigBuffer,SRV},
+			},
+			arg_layer,
+			arg_blendMode == AlphaBlendMode_Trans,
+			static_cast<int>(arg_matArray.size()));
+	}
+
+	m_drawCountHuge++;
+	m_individualParamCount++;
+}
+
 
 void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, std::vector<KuroEngine::Matrix>& arg_matArray, bool arg_depthWriteMask, const KuroEngine::AlphaBlendMode& arg_blendMode, int arg_layer, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff)
 {
