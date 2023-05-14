@@ -47,7 +47,7 @@ class Player : public KuroEngine::Debugger
 	//ÉvÉåÉCÉÑÅ[ÇÃHP
 	const int DEFAULT_HP = 5;
 	int m_hp;
-	const float DAMAGE_HITSTOP_TIMER = 30.0f;
+	const float DAMAGE_HITSTOP_TIMER = 20.0f;
 	KuroEngine::Timer m_damageHitStopTimer;
 	const float NODAMAGE_TIMER = 100.0f;		//ñ≥ìGéûä‘
 	KuroEngine::Timer m_nodamageTimer;
