@@ -1,4 +1,4 @@
-#include "Player.h"
+#include"Player.h"
 #include"Render/RenderObject/Camera.h"
 #include"../OperationConfig.h"
 #include"FrameWork/Importer.h"
@@ -310,11 +310,6 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
-
-	if (UsersInput::Instance()->KeyOnTrigger(DIK_G))
-	{
-		Damage();
-	}
 
 	//トランスフォームを保存。
 	m_prevTransform = m_transform;
@@ -782,6 +777,9 @@ void Player::Damage()
 	TimeScaleMgr::s_inGame.Set(0.0f);
 
 	m_damageFlashTimer.Reset();
+
+	//コントローラー振動
+	KuroEngine::UsersInput::Instance()->ShakeController(0, 1.0f, 10);
 }
 
 Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, KuroEngine::Vec3<float> arg_enemyUp, float arg_enemySize)
@@ -1056,6 +1054,9 @@ void Player::UpdateDamage()
 		//ダメージ点滅開始
 		m_damageFlash = true;
 		m_damageFlashTimer.Reset();
+
+		//コントローラー振動
+		KuroEngine::UsersInput::Instance()->ShakeController(0, 1.0f, 20);
 	}
 	else 
 	{
