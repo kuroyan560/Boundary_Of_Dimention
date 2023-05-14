@@ -19,8 +19,10 @@ private:
 	};
 
 	//パーティクルの各状態のスケール
-	const float PARTICLE_SCALE = 0.5f;
-	const std::array<int, MAX> PARTICLE_STATUS_TIMER = { 20, 30, 60 };
+	const float PARTICLE_SCALE = 0.4f;
+	const float RANDOM_PARTICLE_SCALE = 0.1f;//パーティクルの大きさをずらす量。
+	const std::array<int, MAX> DEFAULT_PARTICLE_STATUS_TIMER = { 20, 30, 60 };	//デフォルトの各ステータスのタイマー
+	const std::array<int, MAX> RANDOM_PARTICLE_STATUS_TIMER = { 5, 8, 15 };	//ランダムで各ステータスのタイマーをずらす量
 
 	//パーティクル構造体
 	struct ParticleData
@@ -28,8 +30,10 @@ private:
 
 		KuroEngine::Vec3<float> m_st;
 		KuroEngine::Transform m_transform;
-		KuroEngine::Timer m_exitTimer;	 //消えるまでのタイマー
+		KuroEngine::Timer m_statusTimer;	 //各ステータスのタイマー
+		std::array<int, MAX> m_statusTimerArray;
 		STATUS m_particleStatus;
+		float m_particleScale;
 		bool m_isAlive;
 
 		ParticleData() : m_isAlive(false), m_particleStatus(APPEAR) {};

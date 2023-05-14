@@ -18,7 +18,7 @@ void PlayerMoveParticle::Init()
 	for (auto& index : m_particle) {
 
 		index.m_isAlive = false;
-		index.m_exitTimer.Reset();
+		index.m_statusTimer.Reset();
 
 	}
 
@@ -38,10 +38,10 @@ void PlayerMoveParticle::Update()
 		index.m_transform.SetPos(index.m_transform.GetPos() + move);
 
 		//パーティクルの状態を変化させるタイマーを更新。
-		index.m_exitTimer.UpdateTimer();
+		index.m_statusTimer.UpdateTimer();
 
 		//現在のタイマーの割合。
-		float timerRate = index.m_exitTimer.GetTimeRate();
+		float timerRate = index.m_statusTimer.GetTimeRate();
 
 		//ステータスごとに更新。
 		switch (index.m_particleStatus)
@@ -50,35 +50,35 @@ void PlayerMoveParticle::Update()
 		{
 
 			//スケールを更新。
-			index.m_transform.SetScale(KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, timerRate, 0.0f, 1.0f) * PARTICLE_SCALE);
+			index.m_transform.SetScale(KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, timerRate, 0.0f, 1.0f) * index.m_particleScale);
 
 			//タイマーが終わったら次のステータスへ。
-			if (index.m_exitTimer.IsTimeUpOnTrigger()) {
+			if (index.m_statusTimer.IsTimeUpOnTrigger()) {
 				//次へ
 				index.m_particleStatus = STATUS::NORMAL;
 				//タイマーも初期化。
-				index.m_exitTimer.Reset(PARTICLE_STATUS_TIMER[index.m_particleStatus]);
+				index.m_statusTimer.Reset(index.m_statusTimerArray[index.m_particleStatus]);
 			}
 		}
 		break;
 		case STATUS::NORMAL:
 		{
 			//タイマーが終わったら次のステータスへ。
-			if (index.m_exitTimer.IsTimeUpOnTrigger()) {
+			if (index.m_statusTimer.IsTimeUpOnTrigger()) {
 				//次へ
 				index.m_particleStatus = STATUS::EXIT;
 				//タイマーも初期化。
-				index.m_exitTimer.Reset(PARTICLE_STATUS_TIMER[index.m_particleStatus]);
+				index.m_statusTimer.Reset(index.m_statusTimerArray[index.m_particleStatus]);
 			}
 		}
 		break;
 		case STATUS::EXIT:
 		{
 
-			index.m_transform.SetScale(PARTICLE_SCALE - KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Sine, timerRate, 0.0f, 1.0f) * PARTICLE_SCALE);
+			index.m_transform.SetScale(index.m_particleScale - KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Sine, timerRate, 0.0f, 1.0f) * index.m_particleScale);
 
 			//タイマーが終わったら次のステータスへ。
-			if (index.m_exitTimer.IsTimeUpOnTrigger()) {
+			if (index.m_statusTimer.IsTimeUpOnTrigger()) {
 				//終わり
 				index.m_isAlive = false;
 			}
@@ -124,7 +124,7 @@ void PlayerMoveParticle::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightMana
 	}
 
 	if (0 < static_cast<int>(mat.size())) {
-		BasicDraw::Instance()->InstancingDraw_Particle(arg_cam, arg_ligMgr, m_model, mat, IndividualDrawParameter::GetDefault(), true, KuroEngine::AlphaBlendMode::AlphaBlendMode_Add);
+		BasicDraw::Instance()->InstancingDraw_NoOutline(arg_cam, arg_ligMgr, m_model, mat, IndividualDrawParameter::GetDefault(), true, KuroEngine::AlphaBlendMode::AlphaBlendMode_Add);
 	}
 
 }
@@ -139,8 +139,16 @@ void PlayerMoveParticle::Generate(const KuroEngine::Vec3<float>& arg_playerPos, 
 		index.m_transform.SetPos(arg_playerPos + arg_scatter);
 		index.m_transform.SetScale(0.0f);
 		index.m_isAlive = true;
-		index.m_exitTimer.Reset(PARTICLE_STATUS_TIMER[APPEAR]);
+
+		//パーティクルの各ステータスのタイマーを設定。
+		index.m_statusTimerArray = DEFAULT_PARTICLE_STATUS_TIMER;
+		index.m_statusTimerArray[0] += KuroEngine::GetRand(-RANDOM_PARTICLE_STATUS_TIMER[0], RANDOM_PARTICLE_STATUS_TIMER[0]);
+		index.m_statusTimerArray[1] += KuroEngine::GetRand(-RANDOM_PARTICLE_STATUS_TIMER[1], RANDOM_PARTICLE_STATUS_TIMER[1]);
+		index.m_statusTimerArray[2] += KuroEngine::GetRand(-RANDOM_PARTICLE_STATUS_TIMER[2], RANDOM_PARTICLE_STATUS_TIMER[2]);
+
+		index.m_statusTimer.Reset(index.m_statusTimerArray[APPEAR]);
 		index.m_particleStatus = STATUS::APPEAR;
+		index.m_particleScale = PARTICLE_SCALE + KuroEngine::GetRand(-RANDOM_PARTICLE_SCALE, RANDOM_PARTICLE_SCALE);
 
 		//パーティクルをいい感じに散らばらせるために、それぞれに乱数を持たせる。
 		const float ST = 1024;

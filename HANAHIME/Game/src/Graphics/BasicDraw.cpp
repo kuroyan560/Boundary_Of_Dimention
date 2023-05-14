@@ -218,7 +218,7 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 			static PipelineInitializeOption PIPELINE_OPTION(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 			PIPELINE_OPTION.m_depthWriteMask = (writeDepth == WRITE_DEPTH);
 
-			std::vector<RenderTargetInfo> particleRendertargetList =
+			std::vector<RenderTargetInfo> noOutlineRendertargetList =
 			{
 				RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), (AlphaBlendMode)i),	//通常描画
 				RenderTargetInfo(DXGI_FORMAT_R32G32B32A32_FLOAT, AlphaBlendMode_Trans),	//エミッシブマップ
@@ -227,16 +227,16 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 
 			//シェーダー情報
 			static Shaders SHADERS;
-			SHADERS.m_vs = D3D12App::Instance()->CompileShader("resource/user/shaders/BasicShader_Huge_Particle.hlsl", "VSmain", "vs_6_4");
-			SHADERS.m_ps = D3D12App::Instance()->CompileShader("resource/user/shaders/BasicShader_Huge_Particle.hlsl", "PSmain", "ps_6_4");
+			SHADERS.m_vs = D3D12App::Instance()->CompileShader("resource/user/shaders/BasicShader_Huge_NoOutline.hlsl", "VSmain", "vs_6_4");
+			SHADERS.m_ps = D3D12App::Instance()->CompileShader("resource/user/shaders/BasicShader_Huge_NoOutline.hlsl", "PSmain", "ps_6_4");
 
 			//パイプライン生成
-			m_instancingDrawPipeline_particle[writeDepth][i] = D3D12App::Instance()->GenerateGraphicsPipeline(
+			m_instancingDrawPipeline_nooutline[writeDepth][i] = D3D12App::Instance()->GenerateGraphicsPipeline(
 				PIPELINE_OPTION,
 				SHADERS,
 				ModelMesh::Vertex::GetInputLayout(),
 				ROOT_PARAMETER,
-				particleRendertargetList,
+				noOutlineRendertargetList,
 				{ WrappedSampler(true, true) });
 		}
 	}
@@ -672,7 +672,7 @@ void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightMan
 	m_individualParamCount++;
 }
 
-void BasicDraw::InstancingDraw_Particle(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, std::vector<KuroEngine::Matrix>& arg_matArray, const IndividualDrawParameter& arg_toonParam, bool arg_depthWriteMask, const KuroEngine::AlphaBlendMode& arg_blendMode, int arg_layer, std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff)
+void BasicDraw::InstancingDraw_NoOutline(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, std::vector<KuroEngine::Matrix>& arg_matArray, const IndividualDrawParameter& arg_toonParam, bool arg_depthWriteMask, const KuroEngine::AlphaBlendMode& arg_blendMode, int arg_layer, std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff)
 {
 	using namespace KuroEngine;
 
@@ -685,7 +685,7 @@ void BasicDraw::InstancingDraw_Particle(KuroEngine::Camera& arg_cam, KuroEngine:
 
 	using namespace KuroEngine;
 
-	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_instancingDrawPipeline_particle[arg_depthWriteMask ? WRITE_DEPTH : NOT_WRITE_DEPTH][arg_blendMode]);
+	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_instancingDrawPipeline_nooutline[arg_depthWriteMask ? WRITE_DEPTH : NOT_WRITE_DEPTH][arg_blendMode]);
 
 	//トランスフォームバッファ送信
 	if (m_drawTransformBuffHuge.size() < (m_drawCountHuge + 1))

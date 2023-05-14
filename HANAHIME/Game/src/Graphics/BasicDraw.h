@@ -83,7 +83,7 @@ private:
 	enum INSTANCING_DRAW_MODE { WRITE_DEPTH, NOT_WRITE_DEPTH };
 	//モデル描画（インスタンシング描画）
 	std::array<std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>, 2>m_instancingDrawPipeline;
-	std::array<std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>, 2>m_instancingDrawPipeline_particle;	//アウトラインを描画しない。
+	std::array<std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>, 2>m_instancingDrawPipeline_nooutline;	//アウトラインを描画しない。
 	std::vector<std::shared_ptr<KuroEngine::ConstantBuffer>>m_drawTransformBuffHuge;
 
 	//エッジ出力＆描画
@@ -219,7 +219,7 @@ public:
 		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr);
 
 	//インスタンシング描画 パーティクル用 アウトラインなし
-	void InstancingDraw_Particle(KuroEngine::Camera& arg_cam,
+	void InstancingDraw_NoOutline(KuroEngine::Camera& arg_cam,
 		KuroEngine::LightManager& arg_ligMgr,
 		std::weak_ptr<KuroEngine::Model>arg_model,
 		std::vector<KuroEngine::Matrix>& arg_matArray,
