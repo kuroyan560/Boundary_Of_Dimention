@@ -195,6 +195,8 @@ void Player::AnimationSpecification(const KuroEngine::Vec3<float>& arg_beforePos
 Player::Player()
 	:KuroEngine::Debugger("Player", true, true), m_growPlantPtLig(8.0f, &m_transform), m_hpUiShake({ 1.0f,1.0f,1.0f })
 {
+	using namespace KuroEngine;
+
 	AddCustomParameter("Sensitivity", { "camera", "sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity, "Camera");
 	AddCustomParameter("Default_AccelSpeed", { "move","default","accelSpeed" }, PARAM_TYPE::FLOAT, &m_defaultAccelSpeed, "Move");
 	AddCustomParameter("Default_MaxSpeed", { "move","default","maxSpeed" }, PARAM_TYPE::FLOAT, &m_defaultMaxSpeed, "Move");
@@ -206,19 +208,19 @@ Player::Player()
 	LoadParameterLog();
 
 	//モデル読み込み
-	m_model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Player.glb");
-	m_axisModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Axis.glb");
-	m_camModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Camera.glb");
+	m_model = Importer::Instance()->LoadModel("resource/user/model/", "Player.glb");
+	m_axisModel = Importer::Instance()->LoadModel("resource/user/model/", "Axis.glb");
+	m_camModel = Importer::Instance()->LoadModel("resource/user/model/", "Camera.glb");
 
 	//カメラ生成
-	m_cam = std::make_shared<KuroEngine::Camera>("Player's Camera");
+	m_cam = std::make_shared<Camera>("Player's Camera");
 	//カメラのコントローラーにアタッチ
 	m_camController.AttachCamera(m_cam);
 
 	m_cameraRotY = 0;
 	m_cameraQ = DirectX::XMQuaternionIdentity();
 
-	m_moveSpeed = KuroEngine::Vec3<float>();
+	m_moveSpeed = Vec3<float>();
 	m_isFirstOnGround = false;
 	m_onGimmick = false;
 	m_prevOnGimmick = false;
@@ -226,13 +228,13 @@ Player::Player()
 	m_collision.m_refPlayer = this;
 
 	//死亡アニメーションを読み込み
-	KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(m_deathAnimSprite.data(), "resource/user/tex/Number.png", DEATH_SPRITE_ANIM_COUNT, KuroEngine::Vec2<int>(DEATH_SPRITE_ANIM_COUNT, 1));
+	D3D12App::Instance()->GenerateTextureBuffer(m_deathAnimSprite.data(), "resource/user/tex/Number.png", DEATH_SPRITE_ANIM_COUNT, KuroEngine::Vec2<int>(DEATH_SPRITE_ANIM_COUNT, 1));
 
 	//アニメーター生成
-	m_modelAnimator = std::make_shared<KuroEngine::ModelAnimator>(m_model);
+	m_modelAnimator = std::make_shared<ModelAnimator>(m_model);
 
-	m_hpTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/in_game/hp_leaf.png");
-	m_hpDamageTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/in_game/hp_leaf_damage.png");
+	m_hpTex = D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/in_game/hp_leaf.png");
+	m_hpDamageTex = D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/in_game/hp_leaf_damage.png");
 }
 
 void Player::Init(KuroEngine::Transform arg_initTransform)
@@ -310,6 +312,8 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
+
+	if (UsersInput::Instance()->KeyOnTrigger(DIK_G))Damage();
 
 	//トランスフォームを保存。
 	m_prevTransform = m_transform;
@@ -1057,6 +1061,9 @@ void Player::UpdateDamage()
 
 		//コントローラー振動
 		KuroEngine::UsersInput::Instance()->ShakeController(0, 1.0f, 20);
+
+		//SE再生
+		SoundConfig::Instance()->Play(SoundConfig::SE_PLAYER_DAMAGE);
 	}
 	else 
 	{

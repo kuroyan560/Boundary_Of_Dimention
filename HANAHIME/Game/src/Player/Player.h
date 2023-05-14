@@ -60,6 +60,7 @@ class Player : public KuroEngine::Debugger
 	//被ダメージ点滅フラグ
 	bool m_damageFlash = false;
 
+
 	//HPUIの演出ステータス
 	enum HP_UI_STATUS { HP_UI_APPEAR, HP_UI_DRAW, HP_UI_DISAPPEAR, HP_UI_DAMAGE }m_hpUiStatus;
 	//HPのUIテクスチャ

@@ -181,7 +181,7 @@
       "sensitivity": 1.0
     },
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.864130437374115,
@@ -214,7 +214,7 @@
   },
   "SoundConfig": {
     "debuggerSetting": {
-      "active": false,
+      "active": true,
       "customParamActive": true,
       "imageColor": [
         0.800000011920929,
@@ -244,6 +244,7 @@
         "lever_on": 1.0,
         "move_scaffold_start": 0.6000000238418579,
         "move_scaffold_stop": 1.0,
+        "player_damage": 0.6000000238418579,
         "select": 1.0,
         "shutdown": 1.0,
         "surface_jump": 0.5
