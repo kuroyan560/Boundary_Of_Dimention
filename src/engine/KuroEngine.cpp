@@ -280,8 +280,8 @@ KuroEngine::Vec3<float> KuroEngine::GetRand(Vec3<float> Max)
 
 int KuroEngine::GetRandPlusMinus()
 {
-	int r = GetRand(0, 1);
-	if (r)return 1;
+	int r = GetRand(1, 100);
+	if (50 <= r)return 1;
 	else return -1;
 }
 
@@ -783,29 +783,21 @@ KuroEngine::Vec4<float> KuroEngine::Math::Ease(EASE_CHANGE_TYPE EaseChangeType, 
 
 float KuroEngine::Math::Ease(EASE_CHANGE_TYPE EaseChangeType, EASING_TYPE EasingType, float Rate, float Min, float Max)
 {
-	if (Rate < 0.0f)assert(0);
-	if (1.0f < Rate)assert(0);
-	return Ease(EaseChangeType, EasingType, Rate, 1.0f, Min, Max);
+	return std::clamp(Ease(EaseChangeType, EasingType, Rate, 1.0f, Min, Max), std::min(Min, Max), std::max(Min, Max));
 }
 
 KuroEngine::Vec2<float> KuroEngine::Math::Ease(EASE_CHANGE_TYPE EaseChangeType, EASING_TYPE EasingType, float Rate, Vec2<float> Min, Vec2<float> Max)
 {
-	if (Rate < 0.0f)assert(0);
-	if (1.0f < Rate)assert(0);
 	return Ease(EaseChangeType, EasingType, Rate, 1.0f, Min, Max);
 }
 
 KuroEngine::Vec3<float> KuroEngine::Math::Ease(EASE_CHANGE_TYPE EaseChangeType, EASING_TYPE EasingType, float Rate, Vec3<float> Min, Vec3<float> Max)
 {
-	if (Rate < 0.0f)assert(0);
-	if (1.0f < Rate)assert(0);
 	return Ease(EaseChangeType, EasingType, Rate, 1.0f, Min, Max);
 }
 
 KuroEngine::Vec4<float> KuroEngine::Math::Ease(EASE_CHANGE_TYPE EaseChangeType, EASING_TYPE EasingType, float Rate, Vec4<float> Min, Vec4<float> Max)
 {
-	if (Rate < 0.0f)assert(0);
-	if (1.0f < Rate)assert(0);
 	return Ease(EaseChangeType, EasingType, Rate, 1.0f, Min, Max);
 }
 

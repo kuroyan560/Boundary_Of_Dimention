@@ -310,7 +310,6 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     
     
     
-    
     texCol.xyz += material.baseColor.xyz;
     float4 ligEffCol = texCol;
     ligEffCol.xyz = ((material.ambient * material.ambientFactor) + ligEffect) * ligEffCol.xyz;

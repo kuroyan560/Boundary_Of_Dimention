@@ -19,6 +19,10 @@ std::vector<int> SoundConfig::LoadSoundArray(std::string arg_dir, std::string ar
 SoundConfig::SoundConfig() : Debugger("SoundConfig")
 {
 	using namespace KuroEngine;
+
+	std::fill(m_seEachVol.begin(), m_seEachVol.end(), 1.0f);
+	std::fill(m_jingleEachVol.begin(), m_jingleEachVol.end(), 1.0f);
+	std::fill(m_bgmEachVol.begin(), m_bgmEachVol.end(), 1.0f);
 	
 	//SEのファイル名設定
 	std::array<std::string, SE_NUM>seFileName =
@@ -37,6 +41,7 @@ SoundConfig::SoundConfig() : Debugger("SoundConfig")
 		"grass",
 		"boot",
 		"shutdown",
+		"player_damage"
 	};
 	//ジングルのファイル名指定
 	std::array<std::string, JINGLE_NUM>jingleFileName =
@@ -68,6 +73,7 @@ SoundConfig::SoundConfig() : Debugger("SoundConfig")
 	m_seTable[SE_GRASS].Load(audioApp->LoadAudio(seDir + seFileName[SE_GRASS] + ".wav"));
 	m_seTable[SE_BOOT].Load(audioApp->LoadAudio(seDir + seFileName[SE_BOOT] + ".wav"));
 	m_seTable[SE_SHUT_DOWN].Load(audioApp->LoadAudio(seDir + seFileName[SE_SHUT_DOWN] + ".wav"));
+	m_seTable[SE_PLAYER_DAMAGE].Load(audioApp->LoadAudio(seDir + seFileName[SE_PLAYER_DAMAGE] + ".wav"));
 
 	//ジングル読み込み
 	std::string jingleDir = "resource/user/sound/jingle/";
