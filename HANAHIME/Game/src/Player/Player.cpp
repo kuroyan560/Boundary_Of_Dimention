@@ -697,8 +697,8 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 		m_playerMoveParticleTimer.UpdateTimer();
 		if (m_playerMoveParticleTimer.IsTimeUpOnTrigger()) {
 			for (int index = 0; index < PLAYER_MOVE_PARTICLE_COUNT; ++index) {
-				float scatter = 3.0f;
-				m_playerMoveParticle.Generate(m_transform.GetPos(), KuroEngine::Vec3<float>(scatter, scatter, scatter));
+				KuroEngine::Vec3<float> scatterVec = KuroEngine::GetRand(KuroEngine::Vec3<float>(-1,-1,-1), KuroEngine::Vec3<float>(1,1,1));
+				m_playerMoveParticle.Generate(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_influenceRange));
 			}
 			m_playerMoveParticleTimer.Reset();
 		}

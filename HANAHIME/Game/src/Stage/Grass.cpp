@@ -169,7 +169,6 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 	//íœ‚µ‚½”
 	int consumeCount = 0;
 
-
 	//if (m_plantTimer.IsTimeUp() && 0.01f < KuroEngine::Vec3<float>(m_oldPlayerPos - arg_playerTransform.GetPos()).Length())
 	if (true)
 	{

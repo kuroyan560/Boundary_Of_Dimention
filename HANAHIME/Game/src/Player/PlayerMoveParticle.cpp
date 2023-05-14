@@ -2,6 +2,8 @@
 #include "FrameWork/Importer.h"
 #include "../Graphics/BasicDraw.h"
 #include "../../../../src/engine/KuroEngine.h"
+#include "../../../../src/engine/Render/RenderObject/Camera.h"
+#include "../../../../src/engine/ForUser/DrawFunc/3D/DrawFunc3D.h"
 
 PlayerMoveParticle::PlayerMoveParticle()
 {
@@ -95,21 +97,36 @@ void PlayerMoveParticle::Update()
 
 void PlayerMoveParticle::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
+	std::vector<KuroEngine::Matrix> mat;
 
 	for (auto& index : m_particle) {
 
 		if (!index.m_isAlive) continue;
 
+		//ビルボードにする。
+		KuroEngine::Vec3<float> cameraDir = (arg_cam.GetTransform().GetPos() - index.m_transform.GetPos()).GetNormal();
+
+		//デフォルトの向きとの差分を回転させる。
+		KuroEngine::Vec3<float> defDir = { 0,1,0 };
+		KuroEngine::Vec3<float> axis = defDir.Cross(cameraDir);
+		float angle = std::acos(defDir.Dot(cameraDir));
+
+		//回転を求める。
+		if (0 < axis.Length()) {
+
+			auto q = DirectX::XMQuaternionRotationAxis(axis, angle);
+			index.m_transform.SetRotate(q);
+
+		}
+
 		IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 
-		BasicDraw::Instance()->Draw(
-			arg_cam,
-			arg_ligMgr,
-			m_model,
-			index.m_transform,
-			edgeColor,
-			KuroEngine::AlphaBlendMode_None);
+		mat.emplace_back(index.m_transform.GetMatWorld());
 
+	}
+
+	if (0 < static_cast<int>(mat.size())) {
+		BasicDraw::Instance()->InstancingDraw(arg_cam, arg_ligMgr, m_model, mat, true);
 	}
 
 }
@@ -121,17 +138,14 @@ void PlayerMoveParticle::Generate(const KuroEngine::Vec3<float>& arg_playerPos, 
 
 		if (index.m_isAlive) continue;
 
-		//プレイヤーのスケール分散らした位置にパーティクルを生成。
-		KuroEngine::Vec3<float> scatter = KuroEngine::GetRand(-arg_scatter, arg_scatter);
-
-		index.m_transform.SetPos(arg_playerPos + scatter);
+		index.m_transform.SetPos(arg_playerPos + arg_scatter);
 		index.m_transform.SetScale(0.0f);
 		index.m_isAlive = true;
 		index.m_exitTimer.Reset(PARTICLE_STATUS_TIMER[APPEAR]);
 		index.m_particleStatus = STATUS::APPEAR;
 
 		//パーティクルをいい感じに散らばらせるために、それぞれに乱数を持たせる。
-		const float ST = 256;
+		const float ST = 1024;
 		index.m_st = KuroEngine::GetRand(KuroEngine::Vec3<float>(ST, ST, ST));
 
 		break;
@@ -168,7 +182,7 @@ KuroEngine::Vec3<float> PlayerMoveParticle::CurlNoise3D(const KuroEngine::Vec3<f
 	vel.y = dNoiseZ - dNoiseX;
 	vel.z = dNoiseX - dNoiseY;
 
-	return vel;
+	return vel * 3.0f;
 
 }
 
@@ -245,7 +259,7 @@ float PlayerMoveParticle::PerlinNoise(KuroEngine::Vec3<float> arg_st, int arg_oc
 		frequency *= arg_lacunarity;
 	}
 
-	noiseValue = (sum / maxValue + 1.0) * 0.5; //ノイズ値を0.0から1.0の範囲に再マッピング
+	noiseValue = (sum / maxValue + 1.0f) * 0.5f; //ノイズ値を0.0から1.0の範囲に再マッピング
 
 
 	return noiseValue;
