@@ -214,6 +214,8 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_radius = 2.0f;
 
 	m_playerMoveParticle.Init();
+	m_playerMoveParticleTimer.Reset(PLAYER_MOVE_PARTICLE_SPAN);
+
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
@@ -346,7 +348,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			}
 
 		}
-		
+
 
 		//移動させる。
 		if (!m_isDeath) {
@@ -522,14 +524,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//攻撃中タイマーを減らす。
 	m_attackTimer = std::clamp(m_attackTimer - 1, 0, ATTACK_TIMER);
 
-	//プレイヤーが動いた時のパーティクルを生成。
-	float scatter = 3.0f;
-	if (UsersInput::Instance()->KeyOnTrigger(DIK_L)) {
-		for (int index = 0; index < 10; ++index) {
-			m_playerMoveParticle.Generate(m_transform.GetPos(), KuroEngine::Vec3<float>(scatter, scatter, scatter));
-		}
-	}
-
 	//プレイヤーが動いた時のパーティクル挙動
 	m_playerMoveParticle.Update();
 
@@ -697,10 +691,22 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 		m_rowMoveVec = KuroEngine::Vec3<float>();
 	}
 
-	//移動しているときはシェイクさせる。
-	if (0 < m_rowMoveVec.Length() && m_isUnderGround) {
+	if (0 < m_rowMoveVec.Length()) {
 
-		KuroEngine::UsersInput::Instance()->ShakeController(0, 0.2f, 10);
+		//プレイヤーが動いた時のパーティクルを生成。
+		m_playerMoveParticleTimer.UpdateTimer();
+		if (m_playerMoveParticleTimer.IsTimeUpOnTrigger()) {
+			for (int index = 0; index < PLAYER_MOVE_PARTICLE_COUNT; ++index) {
+				float scatter = 3.0f;
+				m_playerMoveParticle.Generate(m_transform.GetPos(), KuroEngine::Vec3<float>(scatter, scatter, scatter));
+			}
+			m_playerMoveParticleTimer.Reset();
+		}
+
+		//移動しているときはシェイクさせる。
+		if (m_isUnderGround) {
+			KuroEngine::UsersInput::Instance()->ShakeController(0, 0.2f, 10);
+		}
 
 	}
 

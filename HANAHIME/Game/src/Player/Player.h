@@ -62,6 +62,9 @@ class Player : public KuroEngine::Debugger
 
 	//プレイヤーの周囲のパーティクル
 	PlayerMoveParticle m_playerMoveParticle;
+	const int PLAYER_MOVE_PARTICLE_SPAN = 5;
+	const int PLAYER_MOVE_PARTICLE_COUNT = 5;
+	KuroEngine::Timer m_playerMoveParticleTimer;
 
 	//カメラインスタンス
 	std::shared_ptr<KuroEngine::Camera>m_cam;
@@ -128,7 +131,7 @@ class Player : public KuroEngine::Debugger
 	float m_deathEffectCameraZ;	//死亡演出中のカメラ
 	const float DEATH_EFFECT_CAMERA_Z = -15.0f;
 	const float DEATH_EFFECT_TIMER_SCALE = 0.1f;
-	
+
 	//プレイヤーが天井にいるか
 	bool m_onCeiling;
 	bool m_isCameraUpInverse;

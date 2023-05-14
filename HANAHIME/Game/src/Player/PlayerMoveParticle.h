@@ -11,21 +11,33 @@ class PlayerMoveParticle {
 
 private:
 
-	static const int EXIT_TIMER = 120;
+	enum STATUS {
+		APPEAR,	//出現
+		NORMAL,	//通常状態
+		EXIT,	//消滅
+		MAX,
+	};
+
+	//パーティクルの各状態のスケール
+	const float PARTICLE_SCALE = 0.2f;
+	const std::array<int, MAX> PARTICLE_STATUS_TIMER = { 10, 40, 20 };
+
+	//パーティクル構造体
 	struct ParticleData
 	{
 
 		KuroEngine::Vec3<float> m_st;
 		KuroEngine::Transform m_transform;
 		KuroEngine::Timer m_exitTimer;	 //消えるまでのタイマー
+		STATUS m_particleStatus;
 		bool m_isAlive;
 
-		ParticleData() : m_isAlive(false), m_exitTimer(120) {};
+		ParticleData() : m_isAlive(false), m_particleStatus(APPEAR) {};
 
 	};
 
 	static const int PARTICLE_COUNT = 256;
-	std::array<ParticleData, 256> m_particle;	//パーティクル本体
+	std::array<ParticleData, PARTICLE_COUNT> m_particle;	//パーティクル本体
 
 
 	std::shared_ptr<KuroEngine::Model> m_model;

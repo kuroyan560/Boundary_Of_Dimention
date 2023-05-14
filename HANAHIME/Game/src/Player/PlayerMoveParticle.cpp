@@ -1,11 +1,12 @@
 #include "PlayerMoveParticle.h"
 #include "FrameWork/Importer.h"
 #include "../Graphics/BasicDraw.h"
+#include "../../../../src/engine/KuroEngine.h"
 
 PlayerMoveParticle::PlayerMoveParticle()
 {
 
-	m_model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Shpere.glb");
+	m_model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "ParticleSphere.glb");
 
 }
 
@@ -34,15 +35,61 @@ void PlayerMoveParticle::Update()
 		//移動させる。
 		index.m_transform.SetPos(index.m_transform.GetPos() + move);
 
-		//タイマーを更新し、設定時間を超えていたら削除。
+		//パーティクルの状態を変化させるタイマーを更新。
 		index.m_exitTimer.UpdateTimer();
-		if (index.m_exitTimer.IsTimeUpOnTrigger()) {
 
-			index.m_isAlive = false;
+		//現在のタイマーの割合。
+		float timerRate = index.m_exitTimer.GetTimeRate();
 
+		//ステータスごとに更新。
+		switch (index.m_particleStatus)
+		{
+		case STATUS::APPEAR:
+		{
+
+			//スケールを更新。
+			index.m_transform.SetScale(KuroEngine::Math::Ease(KuroEngine::In, KuroEngine::Sine, timerRate, 0.0f, 1.0f) * PARTICLE_SCALE);
+
+			//タイマーが終わったら次のステータスへ。
+			if (index.m_exitTimer.IsTimeUpOnTrigger()) {
+				//次へ
+				index.m_particleStatus = STATUS::NORMAL;
+				//タイマーも初期化。
+				index.m_exitTimer.Reset(PARTICLE_STATUS_TIMER[index.m_particleStatus]);
+			}
+		}
+		break;
+		case STATUS::NORMAL:
+		{
+			//タイマーが終わったら次のステータスへ。
+			if (index.m_exitTimer.IsTimeUpOnTrigger()) {
+				//次へ
+				index.m_particleStatus = STATUS::EXIT;
+				//タイマーも初期化。
+				index.m_exitTimer.Reset(PARTICLE_STATUS_TIMER[index.m_particleStatus]);
+			}
+		}
+		break;
+		case STATUS::EXIT:
+		{
+
+			index.m_transform.SetScale(PARTICLE_SCALE - KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Sine, timerRate, 0.0f, 1.0f) * PARTICLE_SCALE);
+
+			//タイマーが終わったら次のステータスへ。
+			if (index.m_exitTimer.IsTimeUpOnTrigger()) {
+				//終わり
+				index.m_isAlive = false;
+			}
+		}
+		break;
+		default:
+			break;
 		}
 
+
 	}
+
+
 
 }
 
@@ -54,11 +101,8 @@ void PlayerMoveParticle::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightMana
 		if (!index.m_isAlive) continue;
 
 		IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
-		edgeColor.m_edgeColor = { 0,0,0,0 };
 
-		index.m_transform.SetScale(0.2f);
-
-		BasicDraw::Instance()->Draw_Player(
+		BasicDraw::Instance()->Draw(
 			arg_cam,
 			arg_ligMgr,
 			m_model,
@@ -81,9 +125,12 @@ void PlayerMoveParticle::Generate(const KuroEngine::Vec3<float>& arg_playerPos, 
 		KuroEngine::Vec3<float> scatter = KuroEngine::GetRand(-arg_scatter, arg_scatter);
 
 		index.m_transform.SetPos(arg_playerPos + scatter);
+		index.m_transform.SetScale(0.0f);
 		index.m_isAlive = true;
-		index.m_exitTimer.Reset();
+		index.m_exitTimer.Reset(PARTICLE_STATUS_TIMER[APPEAR]);
+		index.m_particleStatus = STATUS::APPEAR;
 
+		//パーティクルをいい感じに散らばらせるために、それぞれに乱数を持たせる。
 		const float ST = 256;
 		index.m_st = KuroEngine::GetRand(KuroEngine::Vec3<float>(ST, ST, ST));
 
