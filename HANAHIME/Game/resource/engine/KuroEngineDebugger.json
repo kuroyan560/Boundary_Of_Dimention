@@ -181,7 +181,7 @@
       "sensitivity": 1.0
     },
     "debuggerSetting": {
-      "active": false,
+      "active": true,
       "customParamActive": true,
       "imageColor": [
         0.864130437374115,
@@ -201,6 +201,14 @@
         "accelSpeed": 0.05999999865889549,
         "brake": 0.05000000074505806,
         "maxSpeed": 1.2000000476837158
+      }
+    },
+    "ui": {
+      "hp": {
+        "centerPos": [
+          100.0,
+          110.0
+        ]
       }
     }
   },
@@ -244,7 +252,7 @@
   },
   "StageManager": {
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.3099597990512848,

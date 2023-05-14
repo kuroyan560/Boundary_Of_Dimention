@@ -14,6 +14,7 @@
 #include"../TimeScaleMgr.h"
 #include"DirectX12/D3D12App.h"
 #include"Render/RenderObject/ModelInfo/ModelAnimator.h"
+#include"FrameWork/WinApp.h"
 
 void Player::OnImguiItems()
 {
@@ -122,6 +123,7 @@ Player::Player()
 	AddCustomParameter("UnderGround_AccelSpeed", { "move","underGround","accelSpeed" }, PARAM_TYPE::FLOAT, &m_underGroundAccelSpeed, "Move");
 	AddCustomParameter("UnderGround_MaxSpeed", { "move","underGround","maxSpeed" }, PARAM_TYPE::FLOAT, &m_underGroundMaxSpeed, "Move");
 	AddCustomParameter("UnderGround_Brake", { "move","underGround","brake" }, PARAM_TYPE::FLOAT, &m_underGroundBrake, "Move");
+	AddCustomParameter("HpCenterPos", { "ui","hp","centerPos" }, PARAM_TYPE::FLOAT_VEC2, &m_hpCenterPos, "UI");
 	LoadParameterLog();
 
 	//モデル読み込み
@@ -149,6 +151,8 @@ Player::Player()
 
 	//アニメーター生成
 	m_modelAnimator = std::make_shared<KuroEngine::ModelAnimator>(m_model);
+
+	m_hpTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/in_game/hp_leaf.png");
 }
 
 void Player::Init(KuroEngine::Transform arg_initTransform)
@@ -547,17 +551,44 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 	}
 }
 
-void Player::DrawUI()
+void Player::DrawUI(KuroEngine::Camera& arg_cam)
 {
+	using namespace KuroEngine;
+
 	//死んでいる かつ アニメーションが終わっていなかったら
 	bool isFinishAnimation = m_deathSpriteAnimNumber == DEATH_SPRITE_ANIM_COUNT && m_deathSpriteAnimTimer.IsTimeUp();
 	if (m_deathStatus == Player::DEATH_STATUS::LEAVE && !isFinishAnimation) {
 
-		KuroEngine::Vec2<float> winCenter = KuroEngine::Vec2<float>(1280.0f / 2.0f, 720.0f / 2.0f);
-		KuroEngine::Vec2<float> spriteSize = KuroEngine::Vec2<float>(512.0f, 512.0f);
+		Vec2<float> winCenter = WinApp::Instance()->GetExpandWinCenter();
+		Vec2<float> spriteSize = Vec2<float>(512.0f, 512.0f);
 
 		//KuroEngine::DrawFunc2D::DrawExtendGraph2D(winCenter - spriteSize, winCenter + spriteSize, m_deathAnimSprite[m_deathSpriteAnimNumber]);
 
+	}
+
+	//最大HPから配置の角度オフセットを求める
+	const Angle angleOffset = Angle::ROUND() / DEFAULT_HP;
+
+	//ウィンドウのサイズ取得
+	const auto winSize = WinApp::Instance()->GetExpandWinSize();
+
+	//HPUIの中心座標
+	//const auto hpCenterPos = ConvertWorldToScreen(m_transform.GetPosWorld(), arg_cam.GetViewMat(), arg_cam.GetProjectionMat(), winSize);
+
+	//HPUI画像の拡大率
+	const Vec2<float>hpTexExpand = { 1.2f,1.2f };
+
+	//HPUI円の半径
+	const auto hpRadius = m_hpTex->GetGraphSize().y * 0.5f * hpTexExpand.y;
+
+	//プレイヤーの２D座標
+	for (int hpIdx = m_hp - 1; 0 <= hpIdx; --hpIdx)
+	{
+		auto pos = m_hpCenterPos;
+		Angle angle = angleOffset * hpIdx - Angle::ConvertToRadian(90);
+		pos.x += cos(angle) * hpRadius;
+		pos.y += sin(angle) * hpRadius;
+		DrawFunc2D::DrawRotaGraph2D(pos, hpTexExpand, angle + Angle(90), m_hpTex);
 	}
 }
 

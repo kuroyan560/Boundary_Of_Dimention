@@ -55,6 +55,10 @@ class Player : public KuroEngine::Debugger
 	const float SUB_DAMAGE_SHAKE_AMOUNT = 0.1f;	//ダメージを受けた時のシェイクを減らす量
 	float m_damageShakeAmount;					//ダメージを受けた時のシェイクの量だんだん減っていく
 
+	//HPのUI
+	std::shared_ptr<KuroEngine::TextureBuffer>m_hpTex;
+	//HPUIの中心座標
+	KuroEngine::Vec2<float>m_hpCenterPos;
 
 	//移動量
 	KuroEngine::Vec3<float> m_rowMoveVec;
@@ -241,7 +245,7 @@ public:
 	void Init(KuroEngine::Transform arg_initTransform);
 	void Update(const std::weak_ptr<Stage>arg_nowStage);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw = false);
-	void DrawUI();
+	void DrawUI(KuroEngine::Camera& arg_cam);
 	void Finalize();
 
 	//当たり判定クラス

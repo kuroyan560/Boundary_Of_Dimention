@@ -310,8 +310,10 @@ void GameScene::OnDraw()
 
 	m_vignettePostEffect.Register(m_fogPostEffect->GetResultTex());
 
-	m_player.DrawUI();
-
+	if (m_title.IsFinish() || m_title.IsStartOP())
+	{
+		m_player.DrawUI(*m_nowCam);
+	}
 
 	m_title.Draw(*m_nowCam, m_ligMgr);
 
