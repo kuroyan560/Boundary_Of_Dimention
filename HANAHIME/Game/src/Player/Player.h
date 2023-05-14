@@ -212,9 +212,12 @@ class Player : public KuroEngine::Debugger
 	const int DEATH_EFFECT_STAY_TIMER = 30;
 	const int DEATH_EFFECT_FINISH_TIMER = 150;
 	float m_deathShakeAmount;
+	float m_underGroundShake;
 	KuroEngine::Vec3<float> m_shake;
 	const float DEATH_SHAKE_AMOUNT = 3.0f;
 	const float SUB_DEATH_SHAKE_AMOUNT = 0.2f;
+	const float UNDER_GROUND_SHAKE = 0.3f;
+	const float SUB_UNDER_GROUND_SHAKE = 0.1f;
 	bool m_isCameraInvX;
 
 	//プレイヤーのジャンプに関する変数

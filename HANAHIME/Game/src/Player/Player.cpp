@@ -284,6 +284,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_isInputUnderGround = false;
 	m_isUnderGround = false;
 	m_underGroundEaseTimer = 1.0f;
+	m_underGroundShake = 0;
 
 	m_attackTimer = 0;
 
@@ -398,6 +399,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 				//地中にいたらコントローラーを振動させる。
 				if (m_isUnderGround) {
 					UsersInput::Instance()->ShakeController(0, 1.0f, 10);
+
+					//画面を少しシェイク。
+					m_underGroundShake = UNDER_GROUND_SHAKE;
 				}
 
 			}
@@ -406,6 +410,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			if (m_underGroundEaseTimer <= ADD_UNDERGROUND_EASE_TIMER && m_isUnderGround) {
 
 				UsersInput::Instance()->ShakeController(0, 1.0f, 10);
+
+				//画面を少しシェイク。
+				m_underGroundShake = UNDER_GROUND_SHAKE;
 
 				//地中から出た瞬間に大量にパーティクルを出す。
 				for (int index = 0; index < 50; ++index) {
@@ -582,7 +589,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	}
 	//シェイクを計算。
-	float timeScaleShakeAmount = m_deathShakeAmount * TimeScaleMgr::s_inGame.GetTimeScale() + m_damageShakeAmount;
+	float timeScaleShakeAmount = m_deathShakeAmount * TimeScaleMgr::s_inGame.GetTimeScale() + m_damageShakeAmount + m_underGroundShake;
 	m_shake.x = KuroEngine::GetRand(-timeScaleShakeAmount, timeScaleShakeAmount);
 	m_shake.y = KuroEngine::GetRand(-timeScaleShakeAmount, timeScaleShakeAmount);
 	m_shake.z = KuroEngine::GetRand(-timeScaleShakeAmount, timeScaleShakeAmount);
@@ -655,6 +662,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			m_damageFlash = false;
 		}
 	}
+
+	//地中に潜ったときのシェイク量を減らす。
+	m_underGroundShake = std::clamp(m_underGroundShake - SUB_UNDER_GROUND_SHAKE, 0.0f, 100.0f);
 
 	//HPUI更新
 	HpUiUpdate(TimeScaleMgr::s_inGame.GetTimeScale());
