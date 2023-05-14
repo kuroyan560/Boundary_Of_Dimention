@@ -371,7 +371,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		if (1.0f <= m_underGroundEaseTimer) {
 
 			bool prevInInputUnderGround = m_isInputUnderGround;
-			m_isInputUnderGround = UsersInput::Instance()->KeyInput(DIK_SPACE) || UsersInput::Instance()->ControllerInput(0, KuroEngine::A);
+			m_isInputUnderGround = UsersInput::Instance()->KeyInput(DIK_SPACE) || UsersInput::Instance()->ControllerInput(0, KuroEngine::RB);
 
 			//沈むフラグが離されたトリガーだったら。
 			if ((prevInInputUnderGround && !m_isInputUnderGround) || (!m_canOldUnderGroundRelease && m_canUnderGroundRelease)) {
