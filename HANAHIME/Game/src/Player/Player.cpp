@@ -326,7 +326,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 					//上ベクトルを回転させる。
 					upVec = KuroEngine::Math::TransformVec3(upVec, DirectX::XMMatrixRotationQuaternion(DirectX::XMQuaternionMultiply(xq, zq)));
 
-					m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), upVec.GetNormal() * m_growPlantPtLig.m_defInfluenceRange);
+					m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), upVec.GetNormal() * m_growPlantPtLig.m_defInfluenceRange, m_moveSpeed);
 				}
 
 			}
@@ -710,25 +710,6 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 		m_rowMoveVec = KuroEngine::Vec3<float>();
 	}
 
-	if (0 < m_rowMoveVec.Length()) {
-
-		//プレイヤーが動いた時のパーティクルを生成。
-		m_playerMoveParticleTimer.UpdateTimer();
-		if (m_playerMoveParticleTimer.IsTimeUpOnTrigger()) {
-			for (int index = 0; index < PLAYER_MOVE_PARTICLE_COUNT; ++index) {
-				KuroEngine::Vec3<float> scatterVec = KuroEngine::GetRand(KuroEngine::Vec3<float>(-1,-1,-1), KuroEngine::Vec3<float>(1,1,1));
-				m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_influenceRange));
-			}
-			m_playerMoveParticleTimer.Reset();
-		}
-
-		//移動しているときはシェイクさせる。
-		if (m_isUnderGround) {
-			KuroEngine::UsersInput::Instance()->ShakeController(0, 0.2f, 10);
-		}
-
-	}
-
 	float accelSpeed = m_defaultAccelSpeed;
 	float maxSpeed = m_defaultMaxSpeed;
 	float brake = m_defaultBrake;
@@ -758,6 +739,36 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 	//地面に張り付ける用の重力。
 	if (!m_onGround) {
 		arg_newPos -= m_transform.GetUp() * (m_transform.GetScale().y / 2.0f);
+	}
+
+	//動いていて、地中状態切り替え中じゃなかったら。
+	const float PARTICLE_DEADLINE = 0.5f;
+	if (PARTICLE_DEADLINE < m_moveSpeed.Length() && 1.0f <= m_underGroundEaseTimer) {
+
+		//プレイヤーが動いた時のパーティクルを生成。
+		m_playerMoveParticleTimer.UpdateTimer();
+		if (m_playerMoveParticleTimer.IsTimeUpOnTrigger()) {
+			for (int index = 0; index < PLAYER_MOVE_PARTICLE_COUNT; ++index) {
+				KuroEngine::Vec3<float> scatterVec = KuroEngine::GetRand(KuroEngine::Vec3<float>(-1, -1, -1), KuroEngine::Vec3<float>(1, 1, 1));
+
+				//地中にいるかそうじゃないかでパーティクルを変える。
+				if (m_isUnderGround) {
+					const float SMOKE_SCATTER = 3.0f;
+					m_playerMoveParticle.GenerateSmoke(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(SMOKE_SCATTER));
+				}
+				else {
+					m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_influenceRange));
+				}
+
+			}
+			m_playerMoveParticleTimer.Reset();
+		}
+
+		//移動しているときはシェイクさせる。
+		if (m_isUnderGround) {
+			KuroEngine::UsersInput::Instance()->ShakeController(0, 0.2f, 10);
+		}
+
 	}
 
 	//減速

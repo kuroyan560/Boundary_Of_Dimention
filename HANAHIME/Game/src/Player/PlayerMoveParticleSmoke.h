@@ -5,7 +5,7 @@
 #include <array>
 #include <ForUser/Object/Model.h>
 
-class PlayerMoveParticleOrb {
+class PlayerMoveParticleSmoke {
 
 private:
 
@@ -17,8 +17,8 @@ private:
 	};
 
 	//パーティクルの各状態のスケール
-	const float PARTICLE_SCALE = 0.4f;
-	const float RANDOM_PARTICLE_SCALE = 0.1f;//パーティクルの大きさをずらす量。
+	const float PARTICLE_SCALE = 1.4f;
+	const float RANDOM_PARTICLE_SCALE = 0.3f;//パーティクルの大きさをずらす量。
 	const std::array<int, MAX> DEFAULT_PARTICLE_STATUS_TIMER = { 20, 30, 60 };	//デフォルトの各ステータスのタイマー
 	const std::array<int, MAX> RANDOM_PARTICLE_STATUS_TIMER = { 5, 8, 15 };	//ランダムで各ステータスのタイマーをずらす量
 
@@ -27,7 +27,6 @@ private:
 	{
 
 		KuroEngine::Vec3<float> m_st;
-		KuroEngine::Vec3<float> m_vel;	//移動量
 		KuroEngine::Transform m_transform;
 		KuroEngine::Timer m_statusTimer;	 //各ステータスのタイマー
 		std::array<int, MAX> m_statusTimerArray;
@@ -48,7 +47,7 @@ private:
 
 public:
 
-	PlayerMoveParticleOrb();
+	PlayerMoveParticleSmoke();
 
 	//初期化処理
 	void Init();
@@ -60,7 +59,7 @@ public:
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
 
 	//生成処理
-	void Generate(const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Vec3<float>& arg_scatter, const KuroEngine::Vec3<float>& arg_vel);
+	void Generate(const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Vec3<float>& arg_scatter);
 
 
 private:

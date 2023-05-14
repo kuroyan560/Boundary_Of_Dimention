@@ -3,6 +3,7 @@
 #include "../../../../src/engine/ForUser/Timer.h"
 #include "../../../../src/engine/Render/RenderObject/LightManager.h"
 #include "PlayerMoveParticleOrb.h"
+#include "PlayerMoveParticleSmoke.h"
 #include <array>
 #include <ForUser/Object/Model.h>
 
@@ -11,7 +12,8 @@ class PlayerMoveParticle {
 
 private:
 
-	PlayerMoveParticleOrb m_orb;	//移動時のパーティクル
+	PlayerMoveParticleOrb m_orb;		//移動時のパーティクル
+	PlayerMoveParticleSmoke m_smoke;	//移動時のパーティクル
 
 public:
 
@@ -27,7 +29,8 @@ public:
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
 
 	//生成処理
-	void GenerateOrb(const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Vec3<float>& arg_scatter);
+	void GenerateOrb(const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Vec3<float>& arg_scatter, const KuroEngine::Vec3<float>& arg_vel = {});
+	void GenerateSmoke(const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Vec3<float>& arg_scatter);
 
 
 };

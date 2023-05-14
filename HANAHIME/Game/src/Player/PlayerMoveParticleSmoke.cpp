@@ -1,18 +1,18 @@
-#include "PlayerMoveParticleOrb.h"
+#include "PlayerMoveParticleSmoke.h"
 #include "FrameWork/Importer.h"
 #include "../Graphics/BasicDraw.h"
 #include "../../../../src/engine/KuroEngine.h"
 #include "../../../../src/engine/Render/RenderObject/Camera.h"
 #include "../../../../src/engine/ForUser/DrawFunc/3D/DrawFunc3D.h"
 
-PlayerMoveParticleOrb::PlayerMoveParticleOrb()
+PlayerMoveParticleSmoke::PlayerMoveParticleSmoke()
 {
 
-	m_model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "MoveParticle.glb");
+	m_model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "SmokeParticle.glb");
 
 }
 
-void PlayerMoveParticleOrb::Init()
+void PlayerMoveParticleSmoke::Init()
 {
 
 	for (auto& index : m_particle) {
@@ -24,7 +24,7 @@ void PlayerMoveParticleOrb::Init()
 
 }
 
-void PlayerMoveParticleOrb::Update()
+void PlayerMoveParticleSmoke::Update()
 {
 
 	for (auto& index : m_particle) {
@@ -32,15 +32,10 @@ void PlayerMoveParticleOrb::Update()
 		if (!index.m_isAlive) continue;
 
 		//ノイズにより移動量を求める。
-		KuroEngine::Vec3<float> move = CurlNoise3D(index.m_st, index.m_transform.GetPos(), index.m_particleStatus == EXIT) + index.m_vel;
+		KuroEngine::Vec3<float> move = CurlNoise3D(index.m_st, index.m_transform.GetPos(), index.m_particleStatus == EXIT);
 
 		//移動させる。
 		index.m_transform.SetPos(index.m_transform.GetPos() + move);
-
-		//渡された移動量を減らす。
-		if (0.0f < index.m_vel.Length()) {
-			index.m_vel = KuroEngine::Math::Lerp(index.m_vel, KuroEngine::Vec3<float>(0, 0, 0), 0.06f);
-		}
 
 		//パーティクルの状態を変化させるタイマーを更新。
 		index.m_statusTimer.UpdateTimer();
@@ -100,7 +95,7 @@ void PlayerMoveParticleOrb::Update()
 
 }
 
-void PlayerMoveParticleOrb::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void PlayerMoveParticleSmoke::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 	std::vector<KuroEngine::Matrix> mat;
 
@@ -134,7 +129,7 @@ void PlayerMoveParticleOrb::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightM
 
 }
 
-void PlayerMoveParticleOrb::Generate(const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Vec3<float>& arg_scatter, const KuroEngine::Vec3<float>& arg_vel)
+void PlayerMoveParticleSmoke::Generate(const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Vec3<float>& arg_scatter)
 {
 
 	for (auto& index : m_particle) {
@@ -144,7 +139,6 @@ void PlayerMoveParticleOrb::Generate(const KuroEngine::Vec3<float>& arg_playerPo
 		index.m_transform.SetPos(arg_playerPos + arg_scatter);
 		index.m_transform.SetScale(0.0f);
 		index.m_isAlive = true;
-		index.m_vel = arg_vel;
 
 		//パーティクルの各ステータスのタイマーを設定。
 		index.m_statusTimerArray = DEFAULT_PARTICLE_STATUS_TIMER;
@@ -166,7 +160,7 @@ void PlayerMoveParticleOrb::Generate(const KuroEngine::Vec3<float>& arg_playerPo
 
 }
 
-KuroEngine::Vec3<float> PlayerMoveParticleOrb::CurlNoise3D(const KuroEngine::Vec3<float>& arg_st, const KuroEngine::Vec3<float>& arg_pos, bool arg_isExit)
+KuroEngine::Vec3<float> PlayerMoveParticleSmoke::CurlNoise3D(const KuroEngine::Vec3<float>& arg_st, const KuroEngine::Vec3<float>& arg_pos, bool arg_isExit)
 {
 
 	const float epsilon = 0.01f;
@@ -194,18 +188,18 @@ KuroEngine::Vec3<float> PlayerMoveParticleOrb::CurlNoise3D(const KuroEngine::Vec
 	vel.y = dNoiseZ - dNoiseX;
 	vel.z = dNoiseX - dNoiseY;
 
-	return vel * (1.5f + (arg_isExit ? 3.0f : 0.0f));
+	return vel * (1.0f + (arg_isExit ? 1.0f : 0.0f));
 
 }
 
-float PlayerMoveParticleOrb::Frac(float arg_x)
+float PlayerMoveParticleSmoke::Frac(float arg_x)
 {
 	float intpart;
 	float fracpart = std::modf(arg_x, &intpart);
 	return fracpart;
 }
 
-KuroEngine::Vec3<float> PlayerMoveParticleOrb::Random3D(KuroEngine::Vec3<float> arg_st)
+KuroEngine::Vec3<float> PlayerMoveParticleSmoke::Random3D(KuroEngine::Vec3<float> arg_st)
 {
 	KuroEngine::Vec3<float> seed =
 		KuroEngine::Vec3<float>(arg_st.Dot(KuroEngine::Vec3<float>(127.1f, 311.7f, 523.3f)),
@@ -214,7 +208,7 @@ KuroEngine::Vec3<float> PlayerMoveParticleOrb::Random3D(KuroEngine::Vec3<float> 
 	return KuroEngine::Vec3<float>(-1.0f + 2.0f * Frac(sinf(seed.x) * 43758.5453123f), -1.0f + 2.0f * Frac(sinf(seed.y) * 43758.5453123f), -1.0f + 2.0f * Frac(sinf(seed.z) * 43758.5453123f));
 }
 
-float PlayerMoveParticleOrb::Noise(KuroEngine::Vec3<float> arg_st)
+float PlayerMoveParticleSmoke::Noise(KuroEngine::Vec3<float> arg_st)
 {
 	KuroEngine::Vec3<float> intValue = { std::floor(arg_st.x) ,std::floor(arg_st.y) ,std::floor(arg_st.z) };
 	KuroEngine::Vec3<float> floatValue = { Frac(arg_st.x) ,Frac(arg_st.y) ,Frac(arg_st.z) };
@@ -247,7 +241,7 @@ float PlayerMoveParticleOrb::Noise(KuroEngine::Vec3<float> arg_st)
 	return Lerp(xy1, xy2, u.z);
 }
 
-float PlayerMoveParticleOrb::PerlinNoise(KuroEngine::Vec3<float> arg_st, int arg_octaves, float arg_persistence, float arg_lacunarity, KuroEngine::Vec3<float> arg_pos)
+float PlayerMoveParticleSmoke::PerlinNoise(KuroEngine::Vec3<float> arg_st, int arg_octaves, float arg_persistence, float arg_lacunarity, KuroEngine::Vec3<float> arg_pos)
 {
 
 	float amplitude = 1.0;
