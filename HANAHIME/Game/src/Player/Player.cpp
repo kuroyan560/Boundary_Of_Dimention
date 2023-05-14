@@ -16,6 +16,85 @@
 #include"Render/RenderObject/ModelInfo/ModelAnimator.h"
 #include"FrameWork/WinApp.h"
 
+void Player::SetHpUIStatus(HP_UI_STATUS arg_status)
+{
+	using namespace KuroEngine;
+
+	if (arg_status == HP_UI_APPEAR)
+	{
+		m_hpUiTimer.Reset(60);
+		m_hpUiStatus = HP_UI_APPEAR;
+	}
+	else if (arg_status == HP_UI_DRAW)
+	{
+		m_hpUiTimer.Reset(300);
+		m_hpUiStatus = HP_UI_DRAW;
+	}
+	else if (arg_status == HP_UI_DISAPPEAR && m_hpUiStatus == HP_UI_DRAW)
+	{
+		m_hpUiTimer.Reset(60);
+		m_hpUiStatus = HP_UI_DISAPPEAR;
+	}
+	else if (arg_status == HP_UI_DAMAGE)
+	{
+		m_hpUiTimer.Reset(30);
+		m_hpUiStatus = HP_UI_DAMAGE;
+		m_hpTexExpand = 1.0f;
+		m_hpCenterOffset = { 0,0 };
+		m_hpRadiusExpand = 1.0f;
+		m_hpAngle = Angle(0);
+		m_hpUiShake.Shake(30.0f, 1.0f, 32.0f, 64.0f);
+	}
+}
+
+void Player::HpUiUpdate(float arg_timeScale)
+{
+	using namespace KuroEngine;
+
+	m_hpUiTimer.UpdateTimer(arg_timeScale);
+
+	if (m_hpUiStatus == HP_UI_APPEAR)
+	{
+		m_hpRadiusExpand = Math::Ease(Out, Quart, m_hpUiTimer.GetTimeRate(), 0.5f, 1.0f);
+		m_hpTexExpand = Math::Ease(Out, Quart, m_hpUiTimer.GetTimeRate(0.7f), 0.0f, 1.0f);
+		m_hpAngle = Math::Ease(Out, Quart, m_hpUiTimer.GetTimeRate(), Angle(-360 * 2), 0.0f);
+		m_hpCenterOffset = Math::Ease(Out, Exp, m_hpUiTimer.GetTimeRate(0.8f), { -300.0f,0.0f }, { 0.0f,0.0f });
+		if (m_hpUiTimer.IsTimeUp())
+		{
+			SetHpUIStatus(HP_UI_DRAW);
+		}
+	}
+	else if (m_hpUiStatus == HP_UI_DAMAGE)
+	{
+		m_hpUiShake.Update(arg_timeScale);
+		if (m_hpUiTimer.IsTimeUp())
+		{
+			SetHpUIStatus(HP_UI_DRAW);
+		}
+	}
+	else if (m_hpUiStatus == HP_UI_DRAW)
+	{
+		//HPがMAXのときは消える
+		if (m_hpUiTimer.IsTimeUp() && DEFAULT_HP <= m_hp)
+		{
+			SetHpUIStatus(HP_UI_DISAPPEAR);
+		}
+	}
+	else if (m_hpUiStatus == HP_UI_DISAPPEAR)
+	{
+		m_hpRadiusExpand = Math::Ease(In, Quart, m_hpUiTimer.GetTimeRate(), 1.0f, 0.5f);
+		m_hpTexExpand = Math::Ease(In, Quart, m_hpUiTimer.GetTimeRate(0.7f), 1.0f, 0.0f);
+		m_hpAngle = Math::Ease(In, Quart, m_hpUiTimer.GetTimeRate(), 0.0f, Angle(-360 * 2));
+		m_hpCenterOffset = Math::Ease(In, Quart, m_hpUiTimer.GetTimeRate(0.8f), { 0.0f,0.0f }, { -300.0f,0.0f });
+	}
+
+	//心拍演出
+	if (m_hpUiBeatTimer.UpdateTimer(arg_timeScale))
+	{
+		m_hpUiBeatTimer.Reset(Math::Ease(InOut, Cubic, static_cast<float>(m_hp - 1) / (DEFAULT_HP - 1), 45.0f, 100.0f));
+	}
+}
+
 void Player::OnImguiItems()
 {
 	using namespace KuroEngine;
@@ -114,7 +193,7 @@ void Player::AnimationSpecification(const KuroEngine::Vec3<float>& arg_beforePos
 }
 
 Player::Player()
-	:KuroEngine::Debugger("Player", true, true), m_growPlantPtLig(8.0f, &m_transform)
+	:KuroEngine::Debugger("Player", true, true), m_growPlantPtLig(8.0f, &m_transform), m_hpUiShake({ 1.0f,1.0f,1.0f })
 {
 	AddCustomParameter("Sensitivity", { "camera", "sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity, "Camera");
 	AddCustomParameter("Default_AccelSpeed", { "move","default","accelSpeed" }, PARAM_TYPE::FLOAT, &m_defaultAccelSpeed, "Move");
@@ -153,6 +232,7 @@ Player::Player()
 	m_modelAnimator = std::make_shared<KuroEngine::ModelAnimator>(m_model);
 
 	m_hpTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/in_game/hp_leaf.png");
+	m_hpDamageTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/in_game/hp_leaf_damage.png");
 }
 
 void Player::Init(KuroEngine::Transform arg_initTransform)
@@ -205,8 +285,8 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_deathSpriteAnimTimer = KuroEngine::Timer(DEATH_SPRITE_TIMER);
 
 	m_hp = DEFAULT_HP;
-	m_damageHitstopTimer = 0;
-	m_nodamageTimer = 0;;
+	m_damageHitStopTimer.Reset(0.0f);
+	m_nodamageTimer.Reset(0.0f);
 
 	m_modelAnimator->Play(m_animNames[ANIM_PATTERN_WAIT], true, false);
 	m_animInterestCycleCounter = ANIM_INTEREST_CYCLE;
@@ -216,11 +296,21 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_sphere.m_centerPos = &m_drawTransform.GetPos();
 	m_sphere.m_radius = &m_radius;
 	m_radius = 2.0f;
+
+	//HPのUI初期化
+	m_hpUiShake.Init();
+	SetHpUIStatus(HP_UI_APPEAR);
+	m_hpUiBeatTimer.Reset(0.0f);
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
+
+	if (UsersInput::Instance()->KeyOnTrigger(DIK_G))
+	{
+		Damage();
+	}
 
 	//トランスフォームを保存。
 	m_prevTransform = m_transform;
@@ -498,7 +588,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	}
 
 	//ダメージを受けないタイマーを更新。
-	m_nodamageTimer = std::clamp(m_nodamageTimer - 1.0f * TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, NODAMAGE_TIMER);
+	m_nodamageTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
 
 	//アニメーション指定
 	AnimationSpecification(beforePos, newPos);
@@ -510,6 +600,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_beforePlayerMoveStatus = m_playerMoveStatus;
 	//攻撃中タイマーを減らす。
 	m_attackTimer = std::clamp(m_attackTimer - 1, 0, ATTACK_TIMER);
+
+	HpUiUpdate(TimeScaleMgr::s_inGame.GetTimeScale());
 
 }
 
@@ -566,6 +658,7 @@ void Player::DrawUI(KuroEngine::Camera& arg_cam)
 
 	}
 
+	//ダメージのヒットストップが効いていないときHPUI描画
 	//最大HPから配置の角度オフセットを求める
 	const Angle angleOffset = Angle::ROUND() / DEFAULT_HP;
 
@@ -573,22 +666,42 @@ void Player::DrawUI(KuroEngine::Camera& arg_cam)
 	const auto winSize = WinApp::Instance()->GetExpandWinSize();
 
 	//HPUIの中心座標
-	//const auto hpCenterPos = ConvertWorldToScreen(m_transform.GetPosWorld(), arg_cam.GetViewMat(), arg_cam.GetProjectionMat(), winSize);
+	const auto hpCenterPos = m_hpCenterPos + m_hpCenterOffset + (m_damageHitStopTimer.IsTimeUp() ? Vec2<float>(m_hpUiShake.GetOffset().x, m_hpUiShake.GetOffset().y) : Vec2<float>(0, 0));
+
+	//HPUI心拍演出の状態
+	const auto hpBeat = Math::Ease(Out, Elastic, m_hpUiBeatTimer.GetTimeRate(0.9f), 0.9f, 1.0f);
 
 	//HPUI画像の拡大率
-	const Vec2<float>hpTexExpand = { 1.2f,1.2f };
+	const Vec2<float>hpTexExpand = Vec2<float>(1.2f, 1.2f) * m_hpTexExpand * hpBeat;
 
 	//HPUI円の半径
-	const auto hpRadius = m_hpTex->GetGraphSize().y * 0.5f * hpTexExpand.y;
+	const auto hpRadius = m_hpTex->GetGraphSize().y * 0.5f * hpTexExpand.y * m_hpRadiusExpand * hpBeat;
 
 	//プレイヤーの２D座標
+	//HPのUI描画
 	for (int hpIdx = m_hp - 1; 0 <= hpIdx; --hpIdx)
 	{
-		auto pos = m_hpCenterPos;
-		Angle angle = angleOffset * hpIdx - Angle::ConvertToRadian(90);
+		auto pos = hpCenterPos;
+		Angle angle = angleOffset * hpIdx - Angle::ConvertToRadian(90) + m_hpAngle;
 		pos.x += cos(angle) * hpRadius;
 		pos.y += sin(angle) * hpRadius;
 		DrawFunc2D::DrawRotaGraph2D(pos, hpTexExpand, angle + Angle(90), m_hpTex);
+	}
+
+	//ダメージで減ったHP
+	if (!m_nodamageTimer.IsTimeUp())
+	{
+		int hpIdx = m_hp;
+		auto pos = hpCenterPos;
+		Angle angle = angleOffset * hpIdx - Angle::ConvertToRadian(90) + m_hpAngle;
+		auto damageHpRadius = hpRadius * Math::Lerp(1.0f, 0.8f, m_nodamageTimer.GetTimeRate());
+		pos.x += cos(angle) * damageHpRadius;
+		pos.y += sin(angle) * damageHpRadius;
+		DrawFunc2D::DrawRotaGraph2D(pos,
+			hpTexExpand * Math::Ease(Out, Circ, m_nodamageTimer.GetTimeRate(0.8f), 1.0f, 0.8f),
+			angle + Angle(90), 
+			m_hpDamageTex, 
+			Math::Ease(In, Circ, m_nodamageTimer.GetTimeRate(0.7f), 1.0f, 0.0f));
 	}
 }
 
@@ -619,6 +732,9 @@ void Player::Damage()
 	//HPを減らす。
 	m_hp = std::clamp(m_hp - 1, 0, std::numeric_limits<int>().max());
 
+	//HPUI演出
+	SetHpUIStatus(HP_UI_DAMAGE);
+
 	//死んだら
 	if (m_hp <= 0) {
 
@@ -628,8 +744,8 @@ void Player::Damage()
 	else {
 
 		//各種タイマーを設定。
-		m_nodamageTimer = NODAMAGE_TIMER;
-		m_damageHitstopTimer = DAMAGE_HITSTOP_TIMER + DAMAGE_HITSTOP_RETURN_TIMER;
+		m_nodamageTimer.Reset(NODAMAGE_TIMER);
+		m_damageHitStopTimer.Reset(DAMAGE_HITSTOP_TIMER);
 
 		//シェイクをかける。
 		m_damageShakeAmount = DAMAGE_SHAKE_AMOUNT;
@@ -637,10 +753,10 @@ void Player::Damage()
 		//プレイヤーの状態をダメージ中に
 		m_beforeDamageStatus = m_playerMoveStatus;
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DAMAGE;
-
 	}
 
-
+	//ヒットストップ
+	TimeScaleMgr::s_inGame.Set(0.0f);
 }
 
 Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, KuroEngine::Vec3<float> arg_enemyUp, float arg_enemySize)
@@ -652,7 +768,7 @@ Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<floa
 	}
 
 	//ダメージを受けない状態だったら当たり判定を飛ばす。
-	if (0 < m_damageHitstopTimer) {
+	if (!m_damageHitStopTimer.IsTimeUp()) {
 		return Player::CHECK_HIT_GRASS_STATUS::NOHIT;
 	}
 
@@ -900,32 +1016,11 @@ void Player::UpdateDeath() {
 
 void Player::UpdateDamage()
 {
-
-	//ヒットストップのタイマーが有効だったら
-	if (0 < m_damageHitstopTimer) {
-
-
-		//ヒットストップタイマーの残り時間がTimeScaleを戻すための時間より短かったら。
-		if (m_damageHitstopTimer < DAMAGE_HITSTOP_RETURN_TIMER) {
-
-			//ヒットストップを元に戻す。
-			TimeScaleMgr::s_inGame.Set(KuroEngine::Math::Lerp(TimeScaleMgr::s_inGame.GetTimeScale(), 1.0f, 0.9f));
-
-		}
-		else {
-
-			//ヒットストップをかける。
-			TimeScaleMgr::s_inGame.Set(KuroEngine::Math::Lerp(TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, 0.9f));
-
-		}
-
-		--m_damageHitstopTimer;
-
-		//シェイク量をへらす。
-		m_damageShakeAmount = std::clamp(m_damageShakeAmount - SUB_DAMAGE_SHAKE_AMOUNT, 0.0f, 100.0f);
-
-	}
-	else {
+	//ヒットストップのタイマー終了
+	if (m_damageHitStopTimer.UpdateTimer()) 
+	{
+		//通常のタイムスケールに戻す
+		TimeScaleMgr::s_inGame.Set(1.0f);
 
 		//ステータスを元に戻す。
 		m_playerMoveStatus = m_beforeDamageStatus;
@@ -933,6 +1028,11 @@ void Player::UpdateDamage()
 		//一応シェイク量を0にしておく。
 		m_damageShakeAmount = 0;
 
+	}
+	else 
+	{
+		//シェイク量をへらす。
+		m_damageShakeAmount = std::clamp(m_damageShakeAmount - SUB_DAMAGE_SHAKE_AMOUNT, 0.0f, 100.0f);
 	}
 
 }
