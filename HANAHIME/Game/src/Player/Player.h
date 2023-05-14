@@ -10,6 +10,7 @@
 #include"PlayerCollision.h"
 #include"ForUser/Timer.h"
 #include"../AI/EnemySearch.h"
+#include"PlayerMoveParticle.h"
 #include<memory>
 namespace KuroEngine
 {
@@ -58,6 +59,9 @@ class Player : public KuroEngine::Debugger
 
 	//移動量
 	KuroEngine::Vec3<float> m_rowMoveVec;
+
+	//プレイヤーの周囲のパーティクル
+	PlayerMoveParticle m_playerMoveParticle;
 
 	//カメラインスタンス
 	std::shared_ptr<KuroEngine::Camera>m_cam;

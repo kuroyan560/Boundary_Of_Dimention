@@ -212,6 +212,8 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_sphere.m_centerPos = &m_drawTransform.GetPos();
 	m_sphere.m_radius = &m_radius;
 	m_radius = 2.0f;
+
+	m_playerMoveParticle.Init();
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
@@ -520,6 +522,17 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//攻撃中タイマーを減らす。
 	m_attackTimer = std::clamp(m_attackTimer - 1, 0, ATTACK_TIMER);
 
+	//プレイヤーが動いた時のパーティクルを生成。
+	float scatter = 3.0f;
+	if (UsersInput::Instance()->KeyOnTrigger(DIK_L)) {
+		for (int index = 0; index < 10; ++index) {
+			m_playerMoveParticle.Generate(m_transform.GetPos(), KuroEngine::Vec3<float>(scatter, scatter, scatter));
+		}
+	}
+
+	//プレイヤーが動いた時のパーティクル挙動
+	m_playerMoveParticle.Update();
+
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
@@ -548,6 +561,9 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 	//	m_axisModel,
 	//	m_drawTransform,
 	//	arg_cam);
+
+	//プレイヤーが動いた時のパーティクル挙動
+	m_playerMoveParticle.Draw(arg_cam, arg_ligMgr);
 
 
 	if (arg_cameraDraw)
