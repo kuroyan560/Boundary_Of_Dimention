@@ -32,6 +32,7 @@ private:
 		std::array<int, MAX> m_statusTimerArray;
 		STATUS m_particleStatus;
 		float m_particleScale;
+		float m_alpha;
 		bool m_isAlive;
 
 		ParticleData() : m_isAlive(false), m_particleStatus(APPEAR) {};
@@ -43,6 +44,13 @@ private:
 
 
 	std::shared_ptr<KuroEngine::Model> m_model;
+	
+	struct SmokeInfo {
+		float smokeNoiseTimer;
+	}m_smokeInfo;
+	std::shared_ptr<KuroEngine::ConstantBuffer> m_smokeNoiseBuffer;
+	std::shared_ptr<KuroEngine::StructuredBuffer> m_smokeNoiseAlpha;
+	
 
 
 public:

@@ -753,7 +753,7 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 
 				//地中にいるかそうじゃないかでパーティクルを変える。
 				if (m_isUnderGround) {
-					const float SMOKE_SCATTER = 3.0f;
+					const float SMOKE_SCATTER = 5.0f;
 					m_playerMoveParticle.GenerateSmoke(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(SMOKE_SCATTER));
 				}
 				else {

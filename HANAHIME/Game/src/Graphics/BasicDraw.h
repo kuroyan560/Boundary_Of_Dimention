@@ -84,6 +84,7 @@ private:
 	//モデル描画（インスタンシング描画）
 	std::array<std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>, 2>m_instancingDrawPipeline;
 	std::array<std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>, 2>m_instancingDrawPipeline_nooutline;	//アウトラインを描画しない。
+	std::array<std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>, 2>m_instancingDrawPipeline_smokeNoise;	//煙をノイズで描画する。
 	std::vector<std::shared_ptr<KuroEngine::ConstantBuffer>>m_drawTransformBuffHuge;
 
 	//エッジ出力＆描画
@@ -225,6 +226,19 @@ public:
 		std::vector<KuroEngine::Matrix>& arg_matArray,
 		const IndividualDrawParameter& arg_toonParam,
 		bool arg_depthWriteMask,
+		const KuroEngine::AlphaBlendMode& arg_blendMode = KuroEngine::AlphaBlendMode_None,
+		int arg_layer = 0,
+		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr);
+
+	//インスタンシング描画 パーティクル用 アウトラインなし ノイズで煙を描画する。プレイヤーが動いた時専用。
+	void InstancingDraw_NoiseSmoke(KuroEngine::Camera& arg_cam,
+		KuroEngine::LightManager& arg_ligMgr,
+		std::weak_ptr<KuroEngine::Model>arg_model,
+		std::vector<KuroEngine::Matrix>& arg_matArray,
+		const IndividualDrawParameter& arg_toonParam,
+		bool arg_depthWriteMask,
+		std::shared_ptr < KuroEngine::ConstantBuffer> arg_smokeNoiseTimerBuffer,
+		std::shared_ptr < KuroEngine::StructuredBuffer> arg_smokeNoiseAlphaBuffer,
 		const KuroEngine::AlphaBlendMode& arg_blendMode = KuroEngine::AlphaBlendMode_None,
 		int arg_layer = 0,
 		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr);

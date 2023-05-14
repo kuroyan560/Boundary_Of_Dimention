@@ -4,11 +4,24 @@
 #include "../../../../src/engine/KuroEngine.h"
 #include "../../../../src/engine/Render/RenderObject/Camera.h"
 #include "../../../../src/engine/ForUser/DrawFunc/3D/DrawFunc3D.h"
+#include "../../../../src/engine/DirectX12/D3D12App.h"
 
 PlayerMoveParticleSmoke::PlayerMoveParticleSmoke()
 {
 
 	m_model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "SmokeParticle.glb");
+
+	m_smokeNoiseBuffer = KuroEngine::D3D12App::Instance()->GenerateConstantBuffer(
+		sizeof(SmokeInfo),
+		1,
+		nullptr,
+		"NoiseSmoke - Timer");
+
+	m_smokeNoiseAlpha = KuroEngine::D3D12App::Instance()->GenerateStructuredBuffer(
+		sizeof(float),
+		PARTICLE_COUNT,
+		nullptr,
+		"NoiseSmoke - Alpha");
 
 }
 
@@ -21,6 +34,8 @@ void PlayerMoveParticleSmoke::Init()
 		index.m_statusTimer.Reset();
 
 	}
+
+	m_smokeInfo.smokeNoiseTimer = 0;
 
 }
 
@@ -50,7 +65,9 @@ void PlayerMoveParticleSmoke::Update()
 		{
 
 			//スケールを更新。
-			index.m_transform.SetScale(KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, timerRate, 0.0f, 1.0f) * index.m_particleScale);
+			index.m_transform.SetScale(index.m_particleScale);
+
+			index.m_alpha = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, timerRate, 0.0f, 1.0f);
 
 			//タイマーが終わったら次のステータスへ。
 			if (index.m_statusTimer.IsTimeUpOnTrigger()) {
@@ -75,7 +92,9 @@ void PlayerMoveParticleSmoke::Update()
 		case STATUS::EXIT:
 		{
 
-			index.m_transform.SetScale(index.m_particleScale - KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Sine, timerRate, 0.0f, 1.0f) * index.m_particleScale);
+			//index.m_transform.SetScale(index.m_particleScale - KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Sine, timerRate, 0.0f, 1.0f) * index.m_particleScale);
+
+			index.m_alpha = 1.0f - KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Sine, timerRate, 0.0f, 1.0f);
 
 			//タイマーが終わったら次のステータスへ。
 			if (index.m_statusTimer.IsTimeUpOnTrigger()) {
@@ -91,13 +110,14 @@ void PlayerMoveParticleSmoke::Update()
 
 	}
 
-
+	m_smokeInfo.smokeNoiseTimer += 0.01f;
 
 }
 
 void PlayerMoveParticleSmoke::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 	std::vector<KuroEngine::Matrix> mat;
+	std::vector<float> alpha;
 
 	for (auto& index : m_particle) {
 
@@ -120,11 +140,14 @@ void PlayerMoveParticleSmoke::Draw(KuroEngine::Camera& arg_cam, KuroEngine::Ligh
 		}
 
 		mat.emplace_back(index.m_transform.GetMatWorld());
+		alpha.emplace_back(index.m_alpha);
 
 	}
 
+	m_smokeNoiseBuffer->Mapping(&m_smokeInfo);
 	if (0 < static_cast<int>(mat.size())) {
-		BasicDraw::Instance()->InstancingDraw_NoOutline(arg_cam, arg_ligMgr, m_model, mat, IndividualDrawParameter::GetDefault(), true, KuroEngine::AlphaBlendMode::AlphaBlendMode_Add);
+		m_smokeNoiseAlpha->Mapping(alpha.data(), static_cast<int>(alpha.size()));
+		BasicDraw::Instance()->InstancingDraw_NoiseSmoke(arg_cam, arg_ligMgr, m_model, mat, IndividualDrawParameter::GetDefault(), true, m_smokeNoiseBuffer, m_smokeNoiseAlpha, KuroEngine::AlphaBlendMode::AlphaBlendMode_Add);
 	}
 
 }
@@ -138,6 +161,7 @@ void PlayerMoveParticleSmoke::Generate(const KuroEngine::Vec3<float>& arg_player
 
 		index.m_transform.SetPos(arg_playerPos + arg_scatter);
 		index.m_transform.SetScale(0.0f);
+		index.m_alpha = 0.0f;
 		index.m_isAlive = true;
 
 		//パーティクルの各ステータスのタイマーを設定。
