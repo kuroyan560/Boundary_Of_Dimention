@@ -161,7 +161,7 @@ KuroEngine::Vec3<float> PlayerMoveParticle::CurlNoise3D(const KuroEngine::Vec3<f
 
 	int octaves = 4; // オクターブ数
 	float persistence = 0.5; // 持続度
-	float lacunarity = 1.0; // ラクナリティ
+	float lacunarity = 1.7f; // ラクナリティ
 
 	//ノイズの中心
 	float noiseCenter = PerlinNoise(arg_st, octaves, persistence, lacunarity, arg_pos);

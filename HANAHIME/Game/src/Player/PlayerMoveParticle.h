@@ -20,7 +20,7 @@ private:
 
 	//パーティクルの各状態のスケール
 	const float PARTICLE_SCALE = 0.2f;
-	const std::array<int, MAX> PARTICLE_STATUS_TIMER = { 10, 40, 20 };
+	const std::array<int, MAX> PARTICLE_STATUS_TIMER = { 30, 5, 60 };
 
 	//パーティクル構造体
 	struct ParticleData
@@ -36,7 +36,7 @@ private:
 
 	};
 
-	static const int PARTICLE_COUNT = 256;
+	static const int PARTICLE_COUNT = 1024;
 	std::array<ParticleData, PARTICLE_COUNT> m_particle;	//パーティクル本体
 
 
