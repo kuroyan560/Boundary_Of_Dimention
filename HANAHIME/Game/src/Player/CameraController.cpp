@@ -112,12 +112,12 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	}
 
 	//カメラを初期位置に戻す量が0以上だったらカメラの回転量を補間。
-	if (0 < m_rotateYLerpAmount) {
+	if (0 < fabs(m_rotateYLerpAmount)) {
 		float lerp = m_rotateYLerpAmount - KuroEngine::Math::Lerp(m_rotateYLerpAmount, 0.0f, 0.2f);
 		m_rotateYLerpAmount -= lerp;
 		arg_playerRotY += lerp;
 	}
-	if (0 < m_cameraXAngleLerpAmount) {
+	if (0 < fabs(m_cameraXAngleLerpAmount)) {
 		float lerp = m_cameraXAngleLerpAmount - KuroEngine::Math::Lerp(m_cameraXAngleLerpAmount, 0.0f, 0.2f);
 		m_cameraXAngleLerpAmount = (fabs(m_cameraXAngleLerpAmount) - fabs(lerp)) * (signbit(m_cameraXAngleLerpAmount) ? -1.0f : 1.0f);
 		m_nowParam.m_xAxisAngle += lerp;
