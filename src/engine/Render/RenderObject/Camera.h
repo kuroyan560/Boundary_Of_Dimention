@@ -25,7 +25,7 @@ namespace KuroEngine
 			Matrix billboardMatY = XMMatrixIdentity();
 			Vec3<float> eye = { 0,0,0 }; // カメラ座標（ワールド座標）
 			float nearClip = 0.1f;
-			float farClip = 3000.0f;
+			float farClip = 6000.0f;
 		}cameraInfo;
 		std::shared_ptr<ConstantBuffer>buff;
 
@@ -35,7 +35,7 @@ namespace KuroEngine
 		Transform m_transform;
 		Angle angleOfView = Angle(60);	//画角
 		float nearZ = 0.1f;
-		float farZ = 3000.0f;
+		float farZ = 6000.0f;
 		float aspect = 0.0f;
 
 		//平行投影用
