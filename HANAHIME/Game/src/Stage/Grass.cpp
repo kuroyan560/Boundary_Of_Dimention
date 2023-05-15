@@ -195,6 +195,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 			m_plantGrassDataArray.back().m_modelIdx = KuroEngine::GetRand(3 - 1);
 			m_plantGrassDataArray.back().m_appearY = 0.1f;			//0で生やすとすぐ消えてしまう。
 			m_plantGrassDataArray.back().m_appearYTimer = 0.1f;
+			m_plantGrassDataArray.back().m_isCheckNear = false;
 
 			//生成した数のカウント
 			generateCount++;
@@ -230,31 +231,39 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 			{ static_cast<int>(m_plantGrassDataArray.size()),1,1 },
 			descData);
 
-		for (int grassIdx = 0; grassIdx < static_cast<int>(m_plantGrassDataArray.size()); ++grassIdx)
-		{
+		for (auto& grassIdx : m_plantGrassDataArray) {
 
 			//死んでいたら処理を飛ばす。
-			if (m_plantGrassDataArray[grassIdx].m_isDead) continue;
+			if (grassIdx.m_isDead) continue;
 
-			//重なっている草を削除。
-			for (int nearGrass = 0; nearGrass < static_cast<int>(m_plantGrassDataArray.size()); ++nearGrass)
-			{
+			//近くに草がないか未確認だったら周囲の草をチェック。
+			if (!grassIdx.m_isCheckNear) {
 
-				if (m_plantGrassDataArray[nearGrass].m_isDead) continue;
-				if (grassIdx == nearGrass) continue;
+				//重なっている草を削除。
+				for (auto& nearGrass : m_plantGrassDataArray)
+				{
 
-				//距離を求める。
-				float distance = KuroEngine::Vec3<float>(m_plantGrassDataArray[grassIdx].m_pos - m_plantGrassDataArray[nearGrass].m_pos).Length();
-				if (1.0f < distance) continue;
+					if (nearGrass.m_isDead) continue;
+					if (static_cast<int>(&grassIdx - &m_plantGrassDataArray[0]) == static_cast<int>(&nearGrass - &m_plantGrassDataArray[0])) continue;
 
-				m_plantGrassDataArray[nearGrass].m_isDead = true;
+					float DEADLINE = 1.0f;
+
+					//距離を求める。
+					float distance = KuroEngine::Vec3<float>(grassIdx.m_pos - nearGrass.m_pos).Length();
+					if (DEADLINE < distance) continue;
+
+					nearGrass.m_isDead = true;
+
+				}
+
+				grassIdx.m_isCheckNear = true;
 
 			}
 
-			auto grass = m_plantGrassDataArray[grassIdx];
+			auto grass = grassIdx;
 
 			//草のイージングの更新処理
-			UpdateGrassEasing(grass, grassIdx);
+			UpdateGrassEasing(grass, static_cast<int>(&grassIdx - &m_plantGrassDataArray[0]));
 
 			//草の当たり判定
 			GrassCheckHit(grass, arg_nowStage);
@@ -275,7 +284,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 				consumeCount++;
 			}
 
-			m_plantGrassDataArray[grassIdx] = grass;
+			grassIdx = grass;
 		}
 
 		auto result = std::remove_if(m_plantGrassDataArray.begin(), m_plantGrassDataArray.end(), [](GrassData grass)
@@ -293,9 +302,9 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 	m_plantGrassPosArray.clear();
 
 	Transform grassTransform;
-	for (int grassIdx = 0; grassIdx < static_cast<int>(m_plantGrassDataArray.size()); ++grassIdx)
+	for (auto& grassIdx : m_plantGrassDataArray)
 	{
-		auto& grass = m_plantGrassDataArray[grassIdx];
+		auto& grass = grassIdx;
 
 		if (grass.m_appearY != 1.0f) {
 			int a = 0;
@@ -384,11 +393,12 @@ std::array<Grass::SearchPlantResult, Grass::GRASSF_SEARCH_COUNT> Grass::SearchPl
 
 	checkResultPtr = m_searchPlantResultBuffer->GetResource()->GetBuffOnCpu<SearchPlantResult>();
 
-	for (int index = 0; index < GRASSF_SEARCH_COUNT; ++index) {
+	for (auto& index : result) {
 
-		result[index].m_isSuccess = checkResultPtr[index].m_isSuccess;
-		result[index].m_plantNormal = checkResultPtr[index].m_plantNormal.GetNormal();
-		result[index].m_plantPos = checkResultPtr[index].m_plantPos + checkResultPtr[index].m_plantNormal;	//埋まってしまうので法線方向に少しだけ動かす。
+		int grassIndex = static_cast<int>(&index - &result[0]);
+		index.m_isSuccess = checkResultPtr[grassIndex].m_isSuccess;
+		index.m_plantNormal = checkResultPtr[grassIndex].m_plantNormal.GetNormal();
+		index.m_plantPos = checkResultPtr[grassIndex].m_plantPos + checkResultPtr[grassIndex].m_plantNormal;	//埋まってしまうので法線方向に少しだけ動かす。
 
 	}
 

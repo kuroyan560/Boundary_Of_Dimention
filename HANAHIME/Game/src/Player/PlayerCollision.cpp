@@ -931,6 +931,8 @@ bool PlayerCollision::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroE
 			//押し戻す。
 			arg_charaPos += output.m_normal * (std::fabs(output.m_distance - m_refPlayer->m_transform.GetScale().x) - OFFSET);
 
+			m_refPlayer->m_underRayHitPosition = output.m_pos;
+
 			break;
 
 		case RAY_ID::AROUND:
@@ -1038,7 +1040,7 @@ void PlayerCollision::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine:
 
 	//カメラの回転でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。m_refPlayer->m_cameraJumpLerpAmountは補間後のカメラに向かって補間するため。
 	DirectX::XMVECTOR ySpin;
-	if (hitResult.m_terrianNormal.y < -0.9f) {
+	if (m_refPlayer->m_isCameraUpInverse) {
 		ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, -(m_refPlayer->m_cameraRotMove + m_refPlayer->m_cameraJumpLerpAmount) + DirectX::XM_PI);
 	}
 	else {

@@ -6,7 +6,7 @@
 void MiniBug::OnInit()
 {
 	m_nowStatus = SEARCH;
-	m_prevStatus = NONE;
+	m_prevStatus = SEARCH;
 	m_limitIndex = 0;
 	m_deadFlag = false;
 	m_startDeadMotionFlag = false;
@@ -17,6 +17,9 @@ void MiniBug::OnInit()
 	m_hitBox.m_radius = &m_scale;
 
 	m_shadowInfluenceRange = SHADOW_INFLUENCE_RANGE;
+
+	m_patrol->Init(m_limitIndex);
+	m_pos = m_patrol->GetLimitPos(m_limitIndex);
 }
 
 void MiniBug::Update(Player& arg_player)
@@ -302,7 +305,7 @@ void MiniBug::Update(Player& arg_player)
 	KuroEngine::Vec3<float>axis = frontVec.Cross(m_dir);
 	float rptaVel = acosf(frontVec.Dot(m_dir));
 
-	if (axis.x == 0.0f && axis.y == 0.0f && axis.z == 0.0f)
+	if (axis.IsZero())
 	{
 		//m_larpRotation = DirectX::XMQuaternionIdentity();
 	}
@@ -321,7 +324,7 @@ void MiniBug::Update(Player& arg_player)
 		{
 			rotation = DirectX::XMQuaternionSlerp(m_transform.GetRotate(), m_larpRotation, 0.1f);
 		}
-		m_transform.SetRotate(rotation);
+		//m_transform.SetRotate(rotation);
 	}
 
 	m_larpPos = KuroEngine::Math::Lerp(m_larpPos, m_pos, 0.1f);

@@ -164,7 +164,7 @@ struct ParticlePSOutput
     float depth : SV_Target2;
 };
 
-PSOutput PSmain(VSOutput input) : SV_TARGET
+ParticlePSOutput PSmain(VSOutput input) : SV_TARGET
 {
     float3 normal = input.normal;
     float3 vnormal = normalize(mul(cam.view, normal));
@@ -364,7 +364,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     //アルファ値適用
     result.w *= toonIndividualParam.m_alpha;
     
-    PSOutput output;
+    ParticlePSOutput output;
     output.color = result;
     
     //明るさ計算
@@ -375,12 +375,6 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     output.emissive = float4(0, 0, 0, 0);
     
     //output.depth = input.depthInView;
-
-    output.normal.xyz = input.normal;
-        
-    output.edgeColor = toonIndividualParam.m_edgeColor;
-    
-    output.bright.x = isBright;
     
     return output;
 }

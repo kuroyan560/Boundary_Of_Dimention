@@ -128,6 +128,13 @@ void PlayerMoveParticleOrb::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightM
 
 	}
 
+	//サイズが0だったら。
+	if (static_cast<int>(mat.size()) <= 0) {
+
+		mat.emplace_back(KuroEngine::Matrix());
+
+	}
+
 	if (0 < static_cast<int>(mat.size())) {
 		BasicDraw::Instance()->InstancingDraw_NoOutline(arg_cam, arg_ligMgr, m_model, mat, IndividualDrawParameter::GetDefault(), true, KuroEngine::AlphaBlendMode::AlphaBlendMode_Add);
 	}

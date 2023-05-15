@@ -311,6 +311,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 
 	m_playerMoveParticle.Init();
 	m_playerMoveParticleTimer.Reset(PLAYER_MOVE_PARTICLE_SPAN);
+	m_playerIdleParticleTimer.Reset(PLAYER_IDLE_PARTICLE_SPAN);
 
 }
 
@@ -340,7 +341,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove() * TimeScaleMgr::s_inGame.GetTimeScale();
 
 	//プレイヤーが天井にいたら左右のカメラ走査を反転。
-	if (m_onCeiling) {
+	if (m_onCeiling || m_isCameraUpInverse) {
 		scopeMove *= -1.0f;
 	}
 
@@ -371,7 +372,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		if (1.0f <= m_underGroundEaseTimer) {
 
 			bool prevInInputUnderGround = m_isInputUnderGround;
-			m_isInputUnderGround = UsersInput::Instance()->KeyInput(DIK_SPACE) || UsersInput::Instance()->ControllerInput(0, KuroEngine::RB);
+			m_isInputUnderGround = UsersInput::Instance()->KeyInput(DIK_SPACE) || UsersInput::Instance()->ControllerInput(0, KuroEngine::RT);
 
 			//沈むフラグが離されたトリガーだったら。
 			if ((prevInInputUnderGround && !m_isInputUnderGround) || (!m_canOldUnderGroundRelease && m_canUnderGroundRelease)) {
@@ -381,7 +382,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			}
 
 			//イージングが終わっている時のみ地中に潜ったり出たりする判定を持たせる。
-			bool isInputOnOff = UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->KeyOffTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::RB) || UsersInput::Instance()->ControllerOffTrigger(0, KuroEngine::RB);
+			bool isInputOnOff = UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->KeyOffTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::RT) || UsersInput::Instance()->ControllerOffTrigger(0, KuroEngine::RT);
 			if ((isInputOnOff || (!m_isUnderGround && m_isInputUnderGround) || (m_isUnderGround && !m_isInputUnderGround)) && m_canUnderGroundRelease) {
 				m_underGroundEaseTimer = 0;
 			}
@@ -483,7 +484,20 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		else {
 
 			//入力を反転させるか？
-			if (m_isCameraInvX || (m_isCameraUpInverse && fabs(m_transform.GetUp().y) < 0.1f)) {
+
+			if (m_isCameraInvX && (m_isCameraUpInverse && (0.9f < m_transform.GetUp().y || m_transform.GetUp().y < -0.9f))) {
+
+				//m_rowMoveVec.x *= -1.0f;
+				m_rowMoveVec.z *= -1.0f;
+
+			}
+			else if (m_isCameraInvX && (!m_isCameraUpInverse && (0.9f < m_transform.GetUp().y || m_transform.GetUp().y < -0.9f))) {
+
+				//m_rowMoveVec.x *= -1.0f;
+				m_rowMoveVec.z *= -1.0f;
+
+			}
+			else if (m_isCameraInvX || (m_isCameraUpInverse && (0.9f < m_transform.GetUp().x || m_transform.GetUp().x < -0.9f))) {
 
 				m_rowMoveVec.x *= -1.0f;
 				m_rowMoveVec.z *= -1.0f;
@@ -592,10 +606,19 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	}
 	m_growPlantPtLig.m_defInfluenceRange = MAX_INFLUENCE_RANGE;
 
+	//カメラをデフォルトの位置に戻すか。
+	bool isCameraDefault = UsersInput::Instance()->ControllerOnTrigger(0, LT) || UsersInput::Instance()->KeyOnTrigger(DIK_R);
+	if (isCameraDefault) {
+
+		//SEを鳴らす。
+		SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
+
+	}
+
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_MODE[m_cameraMode], arg_nowStage, m_isCameraUpInverse);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_MODE[m_cameraMode], arg_nowStage, m_isCameraUpInverse, isCameraDefault);
 
 		m_deathEffectCameraZ = CAMERA_MODE[m_cameraMode];
 	}
@@ -605,7 +628,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_shake);
 
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse, isCameraDefault);
 
 	}
 	//シェイクを計算。
@@ -929,7 +952,10 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 		maxSpeed = m_underGroundMaxSpeed;
 		brake = m_underGroundBrake;
 	}
+
+	//移動量を回転させる
 	auto accel = KuroEngine::Math::TransformVec3(m_rowMoveVec, m_transform.GetRotate()) * accelSpeed;
+
 
 	m_moveSpeed += accel;
 
@@ -996,6 +1022,25 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 		//移動しているときはシェイクさせる。
 		if (m_isUnderGround) {
 			KuroEngine::UsersInput::Instance()->ShakeController(0, 0.2f, 10);
+		}
+
+	}
+	//動いていないときも適量のパーティクルを出す。
+	else {
+
+		m_playerIdleParticleTimer.UpdateTimer();
+		if (m_playerIdleParticleTimer.IsTimeUpOnTrigger()) {
+
+			//オーブを出す。
+			for (int index = 0; index < 1; ++index) {
+				KuroEngine::Vec3<float> scatterVec = KuroEngine::GetRand(KuroEngine::Vec3<float>(-1, -1, -1), KuroEngine::Vec3<float>(1, 1, 1));
+
+				const float SMOKE_SCATTER = 5.0f;
+				m_playerMoveParticle.GenerateIdle(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_influenceRange));
+			}
+
+			m_playerIdleParticleTimer.Reset();
+
 		}
 
 	}

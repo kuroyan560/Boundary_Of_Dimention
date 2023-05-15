@@ -58,6 +58,18 @@ void EnemyDataReferenceForCircleShadow::UpdateGPUData()
 
 	}
 
+	//サイズが0だったら。
+	if (static_cast<int>(m_gpuData.size()) <= 0) {
+
+		GPUData data;
+		data.m_pos = {};
+		data.m_up = {0,1,0};
+		data.m_shadowRadius = 1.0f;
+
+		m_gpuData.emplace_back(data);
+
+	}
+
 	m_gpuResourceCount = static_cast<int>(m_gpuData.size());
 
 	if (0 < m_gpuResourceCount) {
