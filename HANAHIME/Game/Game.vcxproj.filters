@@ -427,6 +427,9 @@
     <ClCompile Include="src\Player\PlayerMoveParticleIdle.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Stage\GateManager.cpp">
+      <Filter>src\user\Stage</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -824,6 +827,9 @@
     <ClInclude Include="src\Player\PlayerMoveParticleSmoke.h" />
     <ClInclude Include="src\Player\PlayerMoveParticleIdle.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\GateManager.h">
+      <Filter>src\user\Stage</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -201,6 +201,7 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		int destGateID = arg_json["DestGateID"].get<int>();
 		m_gimmickArray.emplace_back(std::make_shared<Gate>(model, transform, gateID, destStageNum, destGateID));
 		newPart = m_gimmickArray.back().get();
+		m_gateArray.emplace_back(std::dynamic_pointer_cast<Gate>(m_gimmickArray.back()));
 	}
 	//ƒ`ƒr’Ž
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::MINI_BUG))

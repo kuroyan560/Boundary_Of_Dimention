@@ -56,6 +56,8 @@ public:
 	/// <returns>視線移動角度（ラジアン）</returns>
 	KuroEngine::Vec3<float>GetScopeMove();
 
+	//決定ボタン
 	bool InputDone();
-	bool InputSelect();
+	//キャンセルボタン
+	bool InputCancel();
 };

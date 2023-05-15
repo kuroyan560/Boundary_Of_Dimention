@@ -8,6 +8,7 @@
 #include"../SoundConfig.h"
 #include"../Player/PlayerCollision.h"
 #include"../TimeScaleMgr.h"
+#include"GateManager.h"
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
@@ -776,4 +777,6 @@ void Gate::Update(Player& arg_player)
 		fabs(distance.x) <= size[square1].x + size[square2].x &&
 		fabs(distance.y) <= size[square1].y + size[square2].y &&
 		fabs(distance.z) <= size[square1].z + size[square2].z;
+
+	GateManager::Instance()->SetEnter(m_enter, m_destStageNum, m_destGateId);
 }

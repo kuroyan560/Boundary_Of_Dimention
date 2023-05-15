@@ -112,14 +112,12 @@ KuroEngine::Vec3<float> OperationConfig::GetScopeMove()
 
 bool OperationConfig::InputDone()
 {
-	if (!m_isActive)return false;
 	bool doneFlag = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::XBOX_BUTTON::A);
 	return doneFlag;
 }
 
-bool OperationConfig::InputSelect()
+bool OperationConfig::InputCancel()
 {
-	if (!m_isActive)return false;
-	bool doneFlag = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::XBOX_BUTTON::A);
-	return doneFlag;
+	bool cancelFlag = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_ESCAPE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::XBOX_BUTTON::B);
+	return cancelFlag;
 }

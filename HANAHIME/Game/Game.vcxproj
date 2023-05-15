@@ -213,6 +213,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\SoundConfig.cpp" />
     <ClCompile Include="src\Stage\Enemy\Enemy.cpp" />
     <ClCompile Include="src\Stage\Enemy\EnemyDataReferenceForCircleShadow.cpp" />
+    <ClCompile Include="src\Stage\GateManager.cpp" />
     <ClCompile Include="src\Stage\Goal.cpp" />
     <ClCompile Include="src\Stage\Grass.cpp" />
     <ClCompile Include="src\Stage\Stage.cpp" />
@@ -344,6 +345,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\SoundConfig.h" />
     <ClInclude Include="src\Stage\Enemy\Enemy.h" />
     <ClInclude Include="src\Stage\Enemy\EnemyDataReferenceForCircleShadow.h" />
+    <ClInclude Include="src\Stage\GateManager.h" />
     <ClInclude Include="src\Stage\Goal.h" />
     <ClInclude Include="src\Stage\Grass.h" />
     <ClInclude Include="src\Stage\Stage.h" />

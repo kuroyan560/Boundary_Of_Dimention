@@ -33,6 +33,8 @@ private:
 	std::shared_ptr<StartPoint>m_startPoint;
 	//ゴール地点
 	std::shared_ptr<GoalPoint>m_goalPoint;
+	//ゲート配列
+	std::vector<std::weak_ptr<Gate>>m_gateArray;
 
 //モデル
 	//地形モデルの存在するディレクトリ
@@ -81,6 +83,15 @@ public:
 	//通常の地形の配列取得
 	const std::vector<Terrian>& GetTerrianArray()const { return m_terrianArray; }
 	std::list<std::shared_ptr<StageParts>>& GetGimmickArray(){ return m_gimmickArray; }
+
+	KuroEngine::Transform GetGateTransform(int arg_gateID)const
+	{
+		for (auto& gate : m_gateArray)
+		{
+			if (gate.lock()->CheckID(arg_gateID))gate.lock()->GetTransform();
+		}
+		return KuroEngine::Transform();
+	}
 
 	//プレイヤーの初期化トランスフォーム
 	KuroEngine::Transform GetPlayerSpawnTransform()const

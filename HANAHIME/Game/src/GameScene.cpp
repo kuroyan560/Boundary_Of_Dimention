@@ -16,6 +16,8 @@
 #include"FrameWork/Importer.h"
 #include"Stage/Enemy/EnemyDataReferenceForCircleShadow.h"
 
+#include"Stage/GateManager.h"
+
 GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_1flameStopTimer(30), m_goal(m_particleRender.GetStackBuffer())
 {
 	m_ddsTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.dds");
@@ -68,7 +70,15 @@ void GameScene::GameInit()
 	SoundConfig::Instance()->Play(SoundConfig::BGM_IN_GAME);
 	GrowPlantLight::ResetRegisteredLight();
 	StageManager::Instance()->SetStage(m_stageNum);
-	m_player.Init(StageManager::Instance()->GetPlayerSpawnTransform());
+
+	if (GateManager::Instance()->IsEnter())
+	{
+		m_player.Init(StageManager::Instance()->GetNowStage().lock()->GetGateTransform(GateManager::Instance()->GetDestGateID()));
+	}
+	else
+	{
+		m_player.Init(StageManager::Instance()->GetPlayerSpawnTransform());
+	}
 	SoundConfig::Instance()->Init();
 }
 
@@ -157,9 +167,10 @@ void GameScene::OnUpdate()
 
 	//ステージ選択
 	int stageNum = -1;
-	if (m_title.IsFinish())
+	if (m_title.IsFinish() && GateManager::Instance()->IsEnter())
 	{
 		//stageNum = m_stageSelect.GetStageNumber(m_player.GetTransform().GetPos());
+		stageNum = GateManager::Instance()->GetDestStageNum();
 	}
 	else
 	{
