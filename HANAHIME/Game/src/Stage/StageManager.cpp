@@ -16,11 +16,12 @@ StageManager::StageManager()
 	//ステージのjsonファイルの所在
 	std::string stageDir = "resource/user/level/";
 
+	float terrianScaling = 1.5f;
+
 	//ホームステージ
 	m_homeStage = std::make_shared<Stage>();
-	m_homeStage->Load(0, stageDir, "New_Home.json", 5.0f, false);
-
-	float terrianScaling = 1.5f;
+	//m_homeStage->Load(0, stageDir, "New_Home.json", 5.0f, false);
+	m_homeStage->Load(0, stageDir, "P_Stage_1.json", terrianScaling, false);
 
 	//パズルステージ一括読み込み
 	int loadPazzleIdx = 1;

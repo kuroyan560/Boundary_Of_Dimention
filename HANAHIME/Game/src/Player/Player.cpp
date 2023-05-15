@@ -326,8 +326,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
 
-	if (UsersInput::Instance()->KeyOnTrigger(DIK_G))Damage();
-
 	//トランスフォームを保存。
 	m_prevTransform = m_transform;
 
@@ -776,6 +774,8 @@ void Player::DrawParticle(KuroEngine::Camera& arg_cam, KuroEngine::LightManager&
 void Player::DrawUI(KuroEngine::Camera& arg_cam)
 {
 	using namespace KuroEngine;
+
+	return;
 
 	//死んでいる かつ アニメーションが終わっていなかったら
 	bool isFinishAnimation = m_deathSpriteAnimNumber == DEATH_SPRITE_ANIM_COUNT && m_deathSpriteAnimTimer.IsTimeUp();
