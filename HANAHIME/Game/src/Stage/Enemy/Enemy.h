@@ -19,6 +19,9 @@ public:
 	MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>posArray, bool loopFlag)
 		:StageParts(MINI_BUG, arg_model, arg_initTransform), m_deadTimer(120)
 	{
+
+		return;
+
 		m_sightArea.Init(&m_transform);
 		track.Init(0.5f);
 		m_posArray = posArray;
@@ -299,6 +302,9 @@ public:
 	DossunRing(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, ENEMY_ATTACK_PATTERN status)
 		:StageParts(DOSSUN_RING, arg_model, arg_initTransform)
 	{
+
+		return;
+
 		m_hitBoxRadiusMax = 10.0f;
 		m_hitBoxRadius = 0.0f;
 		m_findPlayerFlag = false;
