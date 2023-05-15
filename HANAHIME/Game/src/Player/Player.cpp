@@ -745,7 +745,7 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		arg_cam,
 		arg_ligMgr,
 		m_model,
-		m_transform,
+		m_drawTransform,
 		drawParam,
 		KuroEngine::AlphaBlendMode_None,
 		m_modelAnimator->GetBoneMatBuff());
