@@ -3,19 +3,42 @@
         "name": "scene",
         "objects": [
             {
-                "type": "Terrian",
-                "name": "StageS1_0",
+                "type": "Start",
+                "name": "Start_0.001",
                 "transform": {
                     "translation": [
-                        -200.0,
+                        0.0,
+                        0.0,
+                        11.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Start"
+            },
+            {
+                "type": "Terrian",
+                "name": "HitStage2_0",
+                "transform": {
+                    "translation": [
+                        0.0,
                         0.0,
                         -2.0
                     ],
                     "rotation": [
                         0.0,
                         0.0,
-                        -0.7071068286895752,
-                        0.7071067094802856
+                        0.0,
+                        1.0
                     ],
                     "scaling": [
                         10.0,
@@ -245,7 +268,7 @@
                     ]
                 },
                 "file_name": "DossunRing",
-                "AttackPattern": "NORMAL"
+                "ATKPat": "NORMAL"
             },
             {
                 "type": "DossunRing",
@@ -269,7 +292,7 @@
                     ]
                 },
                 "file_name": "DossunRing",
-                "AttackPattern": "NORMAL"
+                "ATKPat": "NORMAL"
             },
             {
                 "type": "DossunRing",
@@ -293,7 +316,7 @@
                     ]
                 },
                 "file_name": "DossunRing",
-                "AttackPattern": "NORMAL"
+                "ATKPat": "NORMAL"
             },
             {
                 "type": "DossunRing",
@@ -317,7 +340,7 @@
                     ]
                 },
                 "file_name": "DossunRing",
-                "AttackPattern": "NORMAL"
+                "ATKPat": "NORMAL"
             },
             {
                 "type": "DossunRing",
@@ -341,7 +364,7 @@
                     ]
                 },
                 "file_name": "DossunRing",
-                "AttackPattern": "NORMAL"
+                "ATKPat": "NORMAL"
             },
             {
                 "type": "MiniBug",
@@ -663,13 +686,13 @@
                 "CollisionModelFileName": "SplatoonFence_Collision"
             },
             {
-                "type": "Start",
-                "name": "Start_0.001",
+                "type": "SplatoonFence",
+                "name": "Fence_S0.006",
                 "transform": {
                     "translation": [
-                        -183.0,
-                        1.0,
-                        11.0
+                        100.0,
+                        150.0,
+                        -2.0
                     ],
                     "rotation": [
                         0.0,
@@ -678,21 +701,2214 @@
                         1.0
                     ],
                     "scaling": [
-                        1.0,
-                        1.0,
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.007",
+                "transform": {
+                    "translation": [
+                        130.0,
+                        120.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.008",
+                "transform": {
+                    "translation": [
+                        200.0,
+                        50.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.009",
+                "transform": {
+                    "translation": [
+                        80.0,
+                        50.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.010",
+                "transform": {
+                    "translation": [
+                        120.0,
+                        150.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.011",
+                "transform": {
+                    "translation": [
+                        120.0,
+                        90.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.012",
+                "transform": {
+                    "translation": [
+                        80.0,
+                        90.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.013",
+                "transform": {
+                    "translation": [
+                        100.0,
+                        90.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.014",
+                "transform": {
+                    "translation": [
+                        130.0,
+                        140.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.015",
+                "transform": {
+                    "translation": [
+                        130.0,
+                        100.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.016",
+                "transform": {
+                    "translation": [
+                        130.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.017",
+                "transform": {
+                    "translation": [
+                        130.0,
+                        40.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.018",
+                "transform": {
+                    "translation": [
+                        100.0,
+                        -10.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.019",
+                "transform": {
+                    "translation": [
+                        80.0,
+                        -10.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.020",
+                "transform": {
+                    "translation": [
+                        120.0,
+                        -10.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.021",
+                "transform": {
+                    "translation": [
+                        120.0,
+                        50.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.022",
+                "transform": {
+                    "translation": [
+                        80.0,
+                        150.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.023",
+                "transform": {
+                    "translation": [
+                        130.0,
+                        20.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.024",
+                "transform": {
+                    "translation": [
+                        100.0,
+                        50.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.025",
+                "transform": {
+                    "translation": [
+                        70.0,
+                        100.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.026",
+                "transform": {
+                    "translation": [
+                        70.0,
+                        140.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.027",
+                "transform": {
+                    "translation": [
+                        70.0,
+                        120.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.028",
+                "transform": {
+                    "translation": [
+                        180.0,
+                        150.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.029",
+                "transform": {
+                    "translation": [
+                        200.0,
+                        90.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.030",
+                "transform": {
+                    "translation": [
+                        180.0,
+                        90.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.031",
+                "transform": {
+                    "translation": [
+                        220.0,
+                        90.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.032",
+                "transform": {
+                    "translation": [
+                        220.0,
+                        150.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.033",
+                "transform": {
+                    "translation": [
+                        200.0,
+                        150.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.034",
+                "transform": {
+                    "translation": [
+                        170.0,
+                        120.00000762939453,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.035",
+                "transform": {
+                    "translation": [
+                        170.0,
+                        140.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.036",
+                "transform": {
+                    "translation": [
+                        170.0,
+                        100.00000762939453,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.037",
+                "transform": {
+                    "translation": [
+                        230.0,
+                        100.00000762939453,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.038",
+                "transform": {
+                    "translation": [
+                        230.0,
+                        140.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.039",
+                "transform": {
+                    "translation": [
+                        230.0,
+                        120.00000762939453,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.040",
+                "transform": {
+                    "translation": [
+                        220.0,
+                        50.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.041",
+                "transform": {
+                    "translation": [
+                        220.0,
+                        -10.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.042",
+                "transform": {
+                    "translation": [
+                        180.0,
+                        -10.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.043",
+                "transform": {
+                    "translation": [
+                        200.0,
+                        -10.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.044",
+                "transform": {
+                    "translation": [
+                        180.0,
+                        50.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.045",
+                "transform": {
+                    "translation": [
+                        230.0,
+                        20.00000762939453,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.046",
+                "transform": {
+                    "translation": [
+                        230.0,
+                        40.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.047",
+                "transform": {
+                    "translation": [
+                        230.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.048",
+                "transform": {
+                    "translation": [
+                        170.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.049",
+                "transform": {
+                    "translation": [
+                        170.0,
+                        40.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.050",
+                "transform": {
+                    "translation": [
+                        170.0,
+                        20.00000762939453,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.051",
+                "transform": {
+                    "translation": [
+                        230.0,
+                        120.00000762939453,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.052",
+                "transform": {
+                    "translation": [
+                        230.0,
+                        140.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.053",
+                "transform": {
+                    "translation": [
+                        230.0,
+                        100.00000762939453,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.054",
+                "transform": {
+                    "translation": [
+                        170.0,
+                        100.00000762939453,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.055",
+                "transform": {
+                    "translation": [
+                        170.0,
+                        140.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.056",
+                "transform": {
+                    "translation": [
+                        170.0,
+                        120.00000762939453,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.057",
+                "transform": {
+                    "translation": [
+                        200.0,
+                        150.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.058",
+                "transform": {
+                    "translation": [
+                        220.0,
+                        150.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.059",
+                "transform": {
+                    "translation": [
+                        220.0,
+                        90.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.060",
+                "transform": {
+                    "translation": [
+                        180.0,
+                        90.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.061",
+                "transform": {
+                    "translation": [
+                        200.0,
+                        90.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.062",
+                "transform": {
+                    "translation": [
+                        180.0,
+                        150.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.063",
+                "transform": {
+                    "translation": [
+                        170.0,
+                        20.00000762939453,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.064",
+                "transform": {
+                    "translation": [
+                        170.0,
+                        40.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.065",
+                "transform": {
+                    "translation": [
+                        170.0,
+                        0.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.066",
+                "transform": {
+                    "translation": [
+                        230.0,
+                        0.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.067",
+                "transform": {
+                    "translation": [
+                        230.0,
+                        40.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.068",
+                "transform": {
+                    "translation": [
+                        230.0,
+                        20.00000762939453,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.069",
+                "transform": {
+                    "translation": [
+                        180.0,
+                        50.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.070",
+                "transform": {
+                    "translation": [
+                        200.0,
+                        -10.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.071",
+                "transform": {
+                    "translation": [
+                        180.0,
+                        -10.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.072",
+                "transform": {
+                    "translation": [
+                        220.0,
+                        -10.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.073",
+                "transform": {
+                    "translation": [
+                        220.0,
+                        50.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.074",
+                "transform": {
+                    "translation": [
+                        200.0,
+                        50.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.075",
+                "transform": {
+                    "translation": [
+                        70.0,
+                        120.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.076",
+                "transform": {
+                    "translation": [
+                        70.0,
+                        140.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.077",
+                "transform": {
+                    "translation": [
+                        70.0,
+                        100.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.078",
+                "transform": {
+                    "translation": [
+                        80.0,
+                        150.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.079",
+                "transform": {
+                    "translation": [
+                        130.0,
+                        100.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.080",
+                "transform": {
+                    "translation": [
+                        130.0,
+                        140.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.081",
+                "transform": {
+                    "translation": [
+                        100.0,
+                        90.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.082",
+                "transform": {
+                    "translation": [
+                        80.0,
+                        90.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.083",
+                "transform": {
+                    "translation": [
+                        120.0,
+                        90.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.084",
+                "transform": {
+                    "translation": [
+                        120.0,
+                        150.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.085",
+                "transform": {
+                    "translation": [
+                        130.0,
+                        120.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.086",
+                "transform": {
+                    "translation": [
+                        100.0,
+                        150.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_0.006",
+                "transform": {
+                    "translation": [
+                        100.0,
+                        20.0,
+                        -10.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_0.007",
+                "transform": {
+                    "translation": [
+                        99.99999237060547,
+                        120.0,
+                        -9.0
+                    ],
+                    "rotation": [
+                        -0.0,
+                        -0.0,
+                        -1.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        3.0,
+                        3.0,
+                        3.0
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_0.008",
+                "transform": {
+                    "translation": [
+                        200.0,
+                        120.00000762939453,
+                        -6.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        6.0,
+                        6.0,
+                        6.0
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_0.009",
+                "transform": {
+                    "translation": [
+                        200.0,
+                        20.00000762939453,
+                        -3.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        9.0,
+                        9.0,
+                        9.0
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "DossunRing",
+                "name": "DossunRing_0.003",
+                "transform": {
+                    "translation": [
+                        200.0,
+                        20.0,
+                        -33.000003814697266
+                    ],
+                    "rotation": [
+                        -0.0,
+                        -1.0,
+                        -0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        3.0,
+                        3.0,
                         1.0
                     ]
                 },
-                "file_name": "Start"
+                "file_name": "DossunRing",
+                "ATKPat": "NORMAL"
+            },
+            {
+                "type": "DossunRing",
+                "name": "DossunRing_0.004",
+                "transform": {
+                    "translation": [
+                        200.0,
+                        120.0,
+                        -34.000003814697266
+                    ],
+                    "rotation": [
+                        -0.0,
+                        -1.0,
+                        -0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        6.0,
+                        6.0,
+                        2.0
+                    ]
+                },
+                "file_name": "DossunRing",
+                "ATKPat": "NORMAL"
+            },
+            {
+                "type": "DossunRing",
+                "name": "DossunRing_0.005",
+                "transform": {
+                    "translation": [
+                        100.0,
+                        120.0,
+                        -34.999996185302734
+                    ],
+                    "rotation": [
+                        -0.0,
+                        -1.0,
+                        -0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        9.0,
+                        9.0,
+                        3.0
+                    ]
+                },
+                "file_name": "DossunRing",
+                "ATKPat": "NORMAL"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_0.010",
+                "transform": {
+                    "translation": [
+                        20.0,
+                        20.00000762939453,
+                        -34.0
+                    ],
+                    "rotation": [
+                        -0.7071068286895752,
+                        -0.7071068286895752,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_0.011",
+                "transform": {
+                    "translation": [
+                        40.0,
+                        35.00000762939453,
+                        -34.0
+                    ],
+                    "rotation": [
+                        -0.7071068286895752,
+                        -0.7071068286895752,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_0.012",
+                "transform": {
+                    "translation": [
+                        40.0,
+                        5.0,
+                        -34.0
+                    ],
+                    "rotation": [
+                        -0.7071068286895752,
+                        -0.7071068286895752,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_0.013",
+                "transform": {
+                    "translation": [
+                        30.0,
+                        -50.0,
+                        -75.00000762939453
+                    ],
+                    "rotation": [
+                        -1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        3.0,
+                        3.0,
+                        3.0
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "Gate",
-                "name": "Gate_1.002",
+                "name": "Gate_1.001",
                 "transform": {
                     "translation": [
-                        -170.0,
-                        1.0,
-                        11.0
+                        -20.0,
+                        0.0,
+                        8.0
                     ],
                     "rotation": [
                         0.0,
@@ -710,6 +2926,286 @@
                 "GateID": 2,
                 "DestStageNum": 1,
                 "DestGateID": 1
+            },
+            {
+                "type": "IvyBlock",
+                "name": "IvyBlock_0.008",
+                "transform": {
+                    "translation": [
+                        20.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "IvyBlock",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -1.0,
+                        -1.0
+                    ]
+                }
+            },
+            {
+                "type": "IvyBlock",
+                "name": "IvyBlock_0.009",
+                "transform": {
+                    "translation": [
+                        20.0,
+                        -60.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "IvyBlock",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -1.0,
+                        -1.0
+                    ]
+                }
+            },
+            {
+                "type": "IvyBlock",
+                "name": "IvyBlock_0.010",
+                "transform": {
+                    "translation": [
+                        60.0,
+                        -120.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "IvyBlock",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -1.0,
+                        -1.0
+                    ]
+                }
+            },
+            {
+                "type": "IvyBlock",
+                "name": "IvyBlock_0.011",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        -20.0,
+                        -42.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "IvyBlock",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -1.0,
+                        -1.0
+                    ]
+                }
+            },
+            {
+                "type": "IvyBlock",
+                "name": "IvyBlock_0.012",
+                "transform": {
+                    "translation": [
+                        240.0,
+                        0.27587890625,
+                        -22.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "IvyBlock",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -1.0,
+                        -1.0
+                    ]
+                }
+            },
+            {
+                "type": "IvyBlock",
+                "name": "IvyBlock_0.013",
+                "transform": {
+                    "translation": [
+                        260.0,
+                        0.27587890625,
+                        -22.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "IvyBlock",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -1.0,
+                        -1.0
+                    ]
+                }
+            },
+            {
+                "type": "IvyBlock",
+                "name": "IvyBlock_0.014",
+                "transform": {
+                    "translation": [
+                        260.0,
+                        40.27587890625,
+                        -22.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "IvyBlock",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -1.0,
+                        -1.0
+                    ]
+                }
+            },
+            {
+                "type": "IvyBlock",
+                "name": "IvyBlock_0.015",
+                "transform": {
+                    "translation": [
+                        240.0,
+                        40.27587890625,
+                        -22.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "IvyBlock",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -1.0,
+                        -1.0
+                    ]
+                }
             }
         ]
     }

@@ -249,7 +249,7 @@ ParticlePSOutput PSmain(VSOutput input) : SV_TARGET
     // if (1.0f < bright)
     //    output.emissive += result;
     // output.emissive.w = result.w;
-    output.emissive = float4(0,0,0,0);
+    output.emissive = output.color;
     
     //output.depth = input.depthInView;
     

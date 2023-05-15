@@ -5,6 +5,9 @@
 
 void MiniBug::OnInit()
 {
+
+	return;
+
 	m_nowStatus = SEARCH;
 	m_prevStatus = SEARCH;
 	m_limitIndex = 0;
@@ -24,6 +27,9 @@ void MiniBug::OnInit()
 
 void MiniBug::Update(Player& arg_player)
 {
+
+	return;
+	
 	//共通処理
 	if (m_deadFlag)
 	{
@@ -115,7 +121,7 @@ void MiniBug::Update(Player& arg_player)
 			m_attackIntervalTimer.Reset(120);
 			m_readyToGoToPlayerTimer.Reset(120);
 			m_sightArea.Init(&m_transform);
-			track.Init(0.1f);
+			track.Init(0.5f);
 
 			m_jumpMotion.Init(m_pos, m_pos + KuroEngine::Vec3<float>(0.0f, 5.0f, 0.0f), 0.5f);
 
@@ -225,11 +231,6 @@ void MiniBug::Update(Player& arg_player)
 		//攻撃予備動作が終わって攻撃を行った。
 		if (m_attackFlag && m_attackIntervalTimer.UpdateTimer())
 		{
-			//プレイヤーと敵の判定
-			if (Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_hitBox))
-			{
-				arg_player.Damage();
-			}
 
 			//プレイヤーと敵の当たり判定の処理をここに書く
 			m_attackIntervalTimer.Reset(120);
@@ -286,6 +287,12 @@ void MiniBug::Update(Player& arg_player)
 	//更新処理---------------------------------------
 
 
+	//プレイヤーと敵の判定
+	if (Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_hitBox))
+	{
+		arg_player.Damage();
+	}
+
 	//草の当たり判定
 	if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()) != Player::CHECK_HIT_GRASS_STATUS::NOHIT && !m_startDeadMotionFlag)
 	{
@@ -336,6 +343,8 @@ void MiniBug::Update(Player& arg_player)
 void MiniBug::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 
+	return;
+
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -353,6 +362,8 @@ void MiniBug::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_li
 void MiniBug::DebugDraw(KuroEngine::Camera& camera)
 {
 #ifdef _DEBUG
+
+	return;
 
 	switch (m_nowStatus)
 	{
@@ -377,6 +388,9 @@ void MiniBug::DebugDraw(KuroEngine::Camera& camera)
 
 void DossunRing::Update(Player& arg_player)
 {
+
+	return;
+
 	if (m_deadFlag)
 	{
 
@@ -476,6 +490,9 @@ void DossunRing::Update(Player& arg_player)
 
 void DossunRing::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
+
+	return;
+
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -490,6 +507,9 @@ void DossunRing::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg
 void DossunRing::DebugDraw(KuroEngine::Camera& camera)
 {
 #ifdef _DEBUG
+
+	return;
+
 	if (m_attackFlag)
 	{
 		KuroEngine::Transform transform;

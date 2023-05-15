@@ -31,8 +31,8 @@ void KuroEngine::LightBloomDevice::GeneratePipeline()
 		rootParams.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, "加工後エミッシブマップ");
 		rootParams.emplace_back(D3D12_DESCRIPTOR_RANGE_TYPE_CBV, "ライトブルーム設定"),
 
-		//パイプライン生成
-		s_combinePipeline = D3D12App::Instance()->GenerateComputePipeline(cs, rootParams, { WrappedSampler(false,true) });
+			//パイプライン生成
+			s_combinePipeline = D3D12App::Instance()->GenerateComputePipeline(cs, rootParams, { WrappedSampler(false,true) });
 	}
 }
 
@@ -85,7 +85,7 @@ void KuroEngine::LightBloomDevice::Draw(std::weak_ptr<RenderTarget>EmissiveMap, 
 
 	//結果を描画
 	KuroEngine::KuroEngineDevice::Instance()->Graphics().SetRenderTargets({ Target.lock() });
-	KuroEngine::DrawFunc2D::DrawGraph({ 0,0 }, m_processedEmissiveMap, 1.0f, AlphaBlendMode_Add);
+	KuroEngine::DrawFunc2D::DrawGraph({ 0,0 }, m_processedEmissiveMap, 1.0f, 1.0f, AlphaBlendMode_Add);
 }
 
 void KuroEngine::LightBloomDevice::SetOutputColorRate(const Vec3<float>& RGBrate)

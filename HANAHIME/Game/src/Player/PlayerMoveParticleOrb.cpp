@@ -214,11 +214,13 @@ float PlayerMoveParticleOrb::Frac(float arg_x)
 
 KuroEngine::Vec3<float> PlayerMoveParticleOrb::Random3D(KuroEngine::Vec3<float> arg_st)
 {
+
 	KuroEngine::Vec3<float> seed =
 		KuroEngine::Vec3<float>(arg_st.Dot(KuroEngine::Vec3<float>(127.1f, 311.7f, 523.3f)),
 			arg_st.Dot(KuroEngine::Vec3<float>(269.5f, 183.3f, 497.5f)),
 			arg_st.Dot(KuroEngine::Vec3<float>(419.2f, 371.9f, 251.6f)));
 	return KuroEngine::Vec3<float>(-1.0f + 2.0f * Frac(sinf(seed.x) * 43758.5453123f), -1.0f + 2.0f * Frac(sinf(seed.y) * 43758.5453123f), -1.0f + 2.0f * Frac(sinf(seed.z) * 43758.5453123f));
+
 }
 
 float PlayerMoveParticleOrb::Noise(KuroEngine::Vec3<float> arg_st)
