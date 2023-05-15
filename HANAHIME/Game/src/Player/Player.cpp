@@ -240,6 +240,7 @@ Player::Player()
 void Player::Init(KuroEngine::Transform arg_initTransform)
 {
 	m_initTransform = arg_initTransform;
+	m_prevTransform = arg_initTransform;
 	m_transform = arg_initTransform;
 	m_drawTransform = arg_initTransform;
 	m_camController.Init();
@@ -256,6 +257,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_gimmickVel = KuroEngine::Vec3<float>();
 	m_isFirstOnGround = false;
 	m_onGimmick = false;
+	m_onGround = false;
 	m_cameraMode = 1;
 	m_prevOnGimmick = false;
 	m_isDeath = false;
@@ -312,6 +314,11 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_playerMoveParticle.Init();
 	m_playerMoveParticleTimer.Reset(PLAYER_MOVE_PARTICLE_SPAN);
 	m_playerIdleParticleTimer.Reset(PLAYER_IDLE_PARTICLE_SPAN);
+
+	//天井から始まったらカメラを反転させる。
+	if (m_transform.GetUp().y <= -0.9f) {
+		m_isCameraUpInverse = true;
+	}
 
 }
 
@@ -459,7 +466,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		}
 
 		//プレイヤーの回転をカメラ基準にする。(移動方向の基準がカメラの角度なため)
-		m_transform.SetRotate(m_cameraQ);
+		if (m_onGround) {
+			m_transform.SetRotate(m_cameraQ);
+		}
 
 		//入力された移動量を取得
 		m_rowMoveVec = OperationConfig::Instance()->GetMoveVecFuna(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
@@ -740,7 +749,7 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		arg_cam,
 		arg_ligMgr,
 		m_model,
-		m_drawTransform,
+		m_transform,
 		drawParam,
 		KuroEngine::AlphaBlendMode_None,
 		m_modelAnimator->GetBoneMatBuff());

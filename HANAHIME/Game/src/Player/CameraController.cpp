@@ -98,10 +98,10 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 		//カメラが反転しているかしていないかによって入れる値を決める。
 		if (arg_isCameraUpInverse) {
-			m_cameraXAngleLerpAmount = m_xAxisAngleMin - m_nowParam.m_xAxisAngle;
+			m_cameraXAngleLerpAmount = m_xAxisAngleMin;
 		}
 		else {
-			m_cameraXAngleLerpAmount = m_xAxisAngleMax - m_nowParam.m_xAxisAngle;
+			m_cameraXAngleLerpAmount = m_xAxisAngleMax;
 		}
 
 		//地形に当たっていたら
