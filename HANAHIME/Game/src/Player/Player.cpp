@@ -608,6 +608,12 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//カメラをデフォルトの位置に戻すか。
 	bool isCameraDefault = UsersInput::Instance()->ControllerOnTrigger(0, LT) || UsersInput::Instance()->KeyOnTrigger(DIK_R);
+	if (isCameraDefault) {
+
+		//SEを鳴らす。
+		SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
+
+	}
 
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {

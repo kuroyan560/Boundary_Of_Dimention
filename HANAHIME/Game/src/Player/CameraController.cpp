@@ -58,9 +58,11 @@ void CameraController::Init()
 	m_nowParam = m_initializedParam;
 	m_verticalControl = ANGLE;
 	m_rotateZ = 0;
+	m_rotateYLerpAmount = 0;
+	m_cameraXAngleLerpAmount = 0;
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos)
 {
 	using namespace KuroEngine;
 
@@ -96,12 +98,29 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 		//カメラが反転しているかしていないかによって入れる値を決める。
 		if (arg_isCameraUpInverse) {
-			m_nowParam.m_xAxisAngle = m_xAxisAngleMin;
+			m_cameraXAngleLerpAmount = m_xAxisAngleMin - m_nowParam.m_xAxisAngle;
 		}
 		else {
-			m_nowParam.m_xAxisAngle = m_xAxisAngleMax;
+			m_cameraXAngleLerpAmount = m_xAxisAngleMax - m_nowParam.m_xAxisAngle;
 		}
 
+		//地形に当たっていたら
+		if (m_isHitTerrian) {
+			m_rotateYLerpAmount += DirectX::XM_PI;
+		}
+
+	}
+
+	//カメラを初期位置に戻す量が0以上だったらカメラの回転量を補間。
+	if (0 < m_rotateYLerpAmount) {
+		float lerp = m_rotateYLerpAmount - KuroEngine::Math::Lerp(m_rotateYLerpAmount, 0.0f, 0.2f);
+		m_rotateYLerpAmount -= lerp;
+		arg_playerRotY += lerp;
+	}
+	if (0 < m_cameraXAngleLerpAmount) {
+		float lerp = m_cameraXAngleLerpAmount - KuroEngine::Math::Lerp(m_cameraXAngleLerpAmount, 0.0f, 0.2f);
+		m_cameraXAngleLerpAmount = (fabs(m_cameraXAngleLerpAmount) - fabs(lerp)) * (signbit(m_cameraXAngleLerpAmount) ? -1.0f : 1.0f);
+		m_nowParam.m_xAxisAngle += lerp;
 	}
 
 	//操作するカメラのトランスフォーム（前後移動）更新
@@ -120,6 +139,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	Vec3<float> pushBackPos = m_cameraLocalTransform.GetPosWorldByMatrix();
 
 	//通常の地形を走査
+	m_isHitTerrian = false;
 	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
 	{
 		//モデル情報取得
@@ -142,6 +162,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 			if (output.m_isHit && 0 < output.m_distance && output.m_distance < moveVec.Length()) {
 
 				pushBackPos = output.m_pos + output.m_normal;
+				m_isHitTerrian = true;
 
 			}
 
@@ -153,9 +174,11 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	m_attachedCam.lock()->GetTransform().SetPos(KuroEngine::Math::Lerp(m_attachedCam.lock()->GetTransform().GetPos(), pushBackPos, 0.3f));
 
 	//距離を求める。
+	const float PUSHBACK = 20.0f;
 	float distance = KuroEngine::Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_targetPos.GetPos()).Length();
-	if (distance <= 20.0f) {
-		m_attachedCam.lock()->GetTransform().SetPos(arg_targetPos.GetPos() + KuroEngine::Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_targetPos.GetPos()).GetNormal() * 20.0f);
+	if (distance <= PUSHBACK) {
+		float pushBackDistance = PUSHBACK - distance;
+		m_attachedCam.lock()->GetTransform().SetPos(m_attachedCam.lock()->GetTransform().GetPos() + KuroEngine::Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_targetPos.GetPos()).GetNormal() * pushBackDistance);
 	}
 
 	//現在の座標からプレイヤーに向かう回転を求める。
