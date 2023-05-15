@@ -117,15 +117,6 @@ void GameScene::OnUpdate()
 {
 	m_particleRender.InitCount();
 
-	//デバッグ用
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_I) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::START) || m_player.GetIsFinishDeathAnimation())
-	{
-		m_eTitleMode = TITLE_PAZZLE;
-		SoundConfig::Instance()->Play(SoundConfig::BGM_TITLE);
-		this->Finalize();
-		this->Initialize();
-	}
-
 	//デバッグモード更新
 	DebugController::Instance()->Update();
 
@@ -184,10 +175,20 @@ void GameScene::OnUpdate()
 		stageNum = 1;
 	}
 
-	//ステージ移動時の初期化
-	if (stageNum != -1)
+	//デバッグ用
+	bool isRetry = false;
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_I) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::START) || m_player.GetIsFinishDeathAnimation())
 	{
-		m_stageNum = stageNum;
+
+		isRetry = true;
+
+
+	}
+
+	//ステージ移動時の初期化
+	if (stageNum != -1 || isRetry)
+	{
+		m_stageNum = isRetry ? m_stageNum : stageNum;
 		m_gateSceneChange.Start();
 	}
 
