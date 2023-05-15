@@ -265,9 +265,6 @@ void GameScene::OnDraw()
 		transform,
 		*m_nowCam);
 
-	//ステージ描画
-	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
-
 	m_stageSelect.Draw(*m_nowCam, m_ligMgr);
 
 	//m_movieCamera.DebugDraw(*m_nowCam, m_ligMgr);
@@ -287,15 +284,18 @@ void GameScene::OnDraw()
 	if (m_title.IsFinish() || m_title.IsStartOP())
 	{
 		m_goal.Draw(*m_nowCam);
-	}
-
-	if (m_title.IsFinish() || m_title.IsStartOP())
-	{
 		m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
 		m_player.Draw(*m_nowCam, m_ligMgr, DebugController::Instance()->IsActive());
 	}
 
+	//ステージ描画
+	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
 
+	//プレイヤーのパーティクル描画
+	if (m_title.IsFinish() || m_title.IsStartOP())
+	{
+		m_player.DrawParticle(*m_nowCam, m_ligMgr);
+	}
 
 	//m_canvasPostEffect.Execute();
 	BasicDraw::Instance()->DrawEdge(m_nowCam->GetViewMat(), m_nowCam->GetProjectionMat(), ds);

@@ -727,9 +727,6 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		arg_cam);
 	*/
 
-	//プレイヤーが動いた時のパーティクル挙動
-	m_playerMoveParticle.Draw(arg_cam, arg_ligMgr);
-
 	if (m_damageFlash)return;
 
 	IndividualDrawParameter drawParam = IndividualDrawParameter::GetDefault();
@@ -759,6 +756,12 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 			camTransform.GetMatWorld(),
 			arg_cam);
 	}
+}
+
+void Player::DrawParticle(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+{
+	//プレイヤーが動いた時のパーティクル挙動
+	m_playerMoveParticle.Draw(arg_cam, arg_ligMgr);
 }
 
 void Player::DrawUI(KuroEngine::Camera& arg_cam)
