@@ -14,6 +14,7 @@
 #include"TimeScaleMgr.h"
 
 #include"FrameWork/Importer.h"
+#include"Stage/Enemy/EnemyDataReferenceForCircleShadow.h"
 
 GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_1flameStopTimer(30), m_goal(m_particleRender.GetStackBuffer())
 {
@@ -233,6 +234,9 @@ void GameScene::OnUpdate()
 
 	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld(), *m_nowCam);
 
+	//敵用丸影を更新
+	EnemyDataReferenceForCircleShadow::Instance()->UpdateGPUData();
+
 }
 
 void GameScene::OnDraw()
@@ -257,12 +261,6 @@ void GameScene::OnDraw()
 		transform,
 		*m_nowCam);
 
-	if (m_title.IsFinish() || m_title.IsStartOP())
-	{
-		m_player.Draw(*m_nowCam, m_ligMgr, DebugController::Instance()->IsActive());
-		m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
-	}
-
 	//ステージ描画
 	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
 
@@ -285,6 +283,12 @@ void GameScene::OnDraw()
 		m_goal.Draw(*m_nowCam);
 	}
 
+	if (m_title.IsFinish() || m_title.IsStartOP())
+	{
+		m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
+		m_player.Draw(*m_nowCam, m_ligMgr, DebugController::Instance()->IsActive());
+	}
+
 
 
 	//m_canvasPostEffect.Execute();
@@ -300,8 +304,10 @@ void GameScene::OnDraw()
 
 	m_vignettePostEffect.Register(m_fogPostEffect->GetResultTex());
 
-	m_player.DrawUI();
-
+	if (m_title.IsFinish() || m_title.IsStartOP())
+	{
+		m_player.DrawUI(*m_nowCam);
+	}
 
 	m_title.Draw(*m_nowCam, m_ligMgr);
 

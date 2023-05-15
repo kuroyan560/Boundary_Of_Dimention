@@ -25,6 +25,7 @@ public:
 		SE_GRASS,	//草の音
 		SE_BOOT,	//起動
 		SE_SHUT_DOWN,	//シャットダウン
+		SE_PLAYER_DAMAGE,	//プレイヤーの被ダメージ
 		SE_NUM
 	};
 	//ジングル（現在再生中かの確認なども行う、ループ再生しない）
@@ -90,9 +91,9 @@ private:
 	std::array<int, BGM_NUM>m_bgmTable = { INVALID_SOUND };
 
 	//各音声の個別のボリューム
-	std::array<float, SE_NUM>m_seEachVol = { 1.0f };
-	std::array<float, JINGLE_NUM>m_jingleEachVol = { 1.0f };
-	std::array<float, BGM_NUM>m_bgmEachVol = { 1.0f };
+	std::array<float, SE_NUM>m_seEachVol;
+	std::array<float, JINGLE_NUM>m_jingleEachVol;
+	std::array<float, BGM_NUM>m_bgmEachVol;
 
 	//現在再生中のBGMのハンドル
 	int m_nowPlayBGMHandle = INVALID_SOUND;

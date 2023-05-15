@@ -21,10 +21,9 @@ namespace KuroEngine
 		const bool& IsTimeUpOnTrigger()const { return m_onTimeUpTrigger; }
 
 		//経過時間 / 設定時間
-		float GetTimeRate()const
+		float GetTimeRate(float arg_rate = 1.0f)const
 		{
-			if (IsTimeUp())return 1.0f;
-			return m_elaspedTime / m_intervalTime;
+			return std::clamp(m_elaspedTime / (m_intervalTime * arg_rate), 0.0f, 1.0f);
 		}
 
 		//タイマースタートした瞬間

@@ -10,7 +10,9 @@
 #include"PlayerCollision.h"
 #include"ForUser/Timer.h"
 #include"../AI/EnemySearch.h"
+#include"PlayerMoveParticle.h"
 #include<memory>
+#include"ForUser/ImpactShake.h"
 namespace KuroEngine
 {
 	class Camera;
@@ -46,18 +48,53 @@ class Player : public KuroEngine::Debugger
 	//プレイヤーのHP
 	const int DEFAULT_HP = 5;
 	int m_hp;
-	const int DAMAGE_HITSTOP_TIMER = 30;		//ヒットストップをかける時間
-	const int DAMAGE_HITSTOP_RETURN_TIMER = 10;	//ヒットストップで減ったTimeScaleを戻すための時間。 DAMAGE_HITSTOP_TIMERにこの定数を足した値をm_damageHitstopTimerに入れる。
-	int m_damageHitstopTimer;
-	const float NODAMAGE_TIMER = 180.0f;		//無敵時間
-	float m_nodamageTimer;
+	const float DAMAGE_HITSTOP_TIMER = 20.0f;
+	KuroEngine::Timer m_damageHitStopTimer;
+	const float NODAMAGE_TIMER = 100.0f;		//無敵時間
+	KuroEngine::Timer m_nodamageTimer;
 	const float DAMAGE_SHAKE_AMOUNT = 1.0f;		//ダメージを受けた時のシェイク
 	const float SUB_DAMAGE_SHAKE_AMOUNT = 0.1f;	//ダメージを受けた時のシェイクを減らす量
 	float m_damageShakeAmount;					//ダメージを受けた時のシェイクの量だんだん減っていく
 
+	//被ダメージのときの点滅タイマー
+	KuroEngine::Timer m_damageFlashTimer;
+	//被ダメージ点滅フラグ
+	bool m_damageFlash = false;
+
+
+	//HPUIの演出ステータス
+	enum HP_UI_STATUS { HP_UI_APPEAR, HP_UI_DRAW, HP_UI_DISAPPEAR, HP_UI_DAMAGE }m_hpUiStatus;
+	//HPのUIテクスチャ
+	std::shared_ptr<KuroEngine::TextureBuffer>m_hpTex;
+	std::shared_ptr<KuroEngine::TextureBuffer>m_hpDamageTex;
+	//HPUIの中心座標
+	KuroEngine::Vec2<float>m_hpCenterPos;
+	//HPUIの中心座標オフセット
+	KuroEngine::Vec2<float>m_hpCenterOffset;
+	//HPUIの半径拡大率
+	float m_hpRadiusExpand = 1.0f;
+	//HPUIの画像の拡大率
+	float m_hpTexExpand = 1.0f;
+	//HPUIの回転角度
+	KuroEngine::Angle m_hpAngle = KuroEngine::Angle(0);
+	//HPUIの登場演出タイマー
+	KuroEngine::Timer m_hpUiTimer;
+	//HPUIの振動
+	KuroEngine::ImpactShake m_hpUiShake;
+	//HPUIの心拍演出タイマー
+	KuroEngine::Timer m_hpUiBeatTimer;
+
+	void SetHpUIStatus(HP_UI_STATUS arg_status);
+	void HpUiUpdate(float arg_timeScale);
 
 	//移動量
 	KuroEngine::Vec3<float> m_rowMoveVec;
+
+	//プレイヤーの周囲のパーティクル
+	PlayerMoveParticle m_playerMoveParticle;
+	const int PLAYER_MOVE_PARTICLE_SPAN = 5;
+	const int PLAYER_MOVE_PARTICLE_COUNT = 5;
+	KuroEngine::Timer m_playerMoveParticleTimer;
 
 	//カメラインスタンス
 	std::shared_ptr<KuroEngine::Camera>m_cam;
@@ -124,7 +161,7 @@ class Player : public KuroEngine::Debugger
 	float m_deathEffectCameraZ;	//死亡演出中のカメラ
 	const float DEATH_EFFECT_CAMERA_Z = -15.0f;
 	const float DEATH_EFFECT_TIMER_SCALE = 0.1f;
-	
+
 	//プレイヤーが天井にいるか
 	bool m_onCeiling;
 	bool m_isCameraUpInverse;
@@ -175,9 +212,12 @@ class Player : public KuroEngine::Debugger
 	const int DEATH_EFFECT_STAY_TIMER = 30;
 	const int DEATH_EFFECT_FINISH_TIMER = 150;
 	float m_deathShakeAmount;
+	float m_underGroundShake;
 	KuroEngine::Vec3<float> m_shake;
 	const float DEATH_SHAKE_AMOUNT = 3.0f;
 	const float SUB_DEATH_SHAKE_AMOUNT = 0.2f;
+	const float UNDER_GROUND_SHAKE = 0.4f;
+	const float SUB_UNDER_GROUND_SHAKE = 0.1f;
 	bool m_isCameraInvX;
 
 	//プレイヤーのジャンプに関する変数
@@ -241,7 +281,7 @@ public:
 	void Init(KuroEngine::Transform arg_initTransform);
 	void Update(const std::weak_ptr<Stage>arg_nowStage);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw = false);
-	void DrawUI();
+	void DrawUI(KuroEngine::Camera& arg_cam);
 	void Finalize();
 
 	//当たり判定クラス

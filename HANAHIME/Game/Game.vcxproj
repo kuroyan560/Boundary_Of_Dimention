@@ -206,8 +206,12 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Player\CollisionDetectionOfRayAndMesh.cpp" />
     <ClCompile Include="src\Player\Player.cpp" />
     <ClCompile Include="src\Player\PlayerCollision.cpp" />
+    <ClCompile Include="src\Player\PlayerMoveParticle.cpp" />
+    <ClCompile Include="src\Player\PlayerMoveParticleOrb.cpp" />
+    <ClCompile Include="src\Player\PlayerMoveParticleSmoke.cpp" />
     <ClCompile Include="src\SoundConfig.cpp" />
     <ClCompile Include="src\Stage\Enemy\Enemy.cpp" />
+    <ClCompile Include="src\Stage\Enemy\EnemyDataReferenceForCircleShadow.cpp" />
     <ClCompile Include="src\Stage\Goal.cpp" />
     <ClCompile Include="src\Stage\Grass.cpp" />
     <ClCompile Include="src\Stage\Stage.cpp" />
@@ -332,8 +336,12 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Player\CollisionDetectionOfRayAndMesh.h" />
     <ClInclude Include="src\Player\Player.h" />
     <ClInclude Include="src\Player\PlayerCollision.h" />
+    <ClInclude Include="src\Player\PlayerMoveParticle.h" />
+    <ClInclude Include="src\Player\PlayerMoveParticleOrb.h" />
+    <ClInclude Include="src\Player\PlayerMoveParticleSmoke.h" />
     <ClInclude Include="src\SoundConfig.h" />
     <ClInclude Include="src\Stage\Enemy\Enemy.h" />
+    <ClInclude Include="src\Stage\Enemy\EnemyDataReferenceForCircleShadow.h" />
     <ClInclude Include="src\Stage\Goal.h" />
     <ClInclude Include="src\Stage\Grass.h" />
     <ClInclude Include="src\Stage\Stage.h" />

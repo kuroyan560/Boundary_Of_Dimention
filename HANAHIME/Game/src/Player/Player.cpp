@@ -1,4 +1,4 @@
-#include "Player.h"
+#include"Player.h"
 #include"Render/RenderObject/Camera.h"
 #include"../OperationConfig.h"
 #include"FrameWork/Importer.h"
@@ -14,6 +14,86 @@
 #include"../TimeScaleMgr.h"
 #include"DirectX12/D3D12App.h"
 #include"Render/RenderObject/ModelInfo/ModelAnimator.h"
+#include"FrameWork/WinApp.h"
+
+void Player::SetHpUIStatus(HP_UI_STATUS arg_status)
+{
+	using namespace KuroEngine;
+
+	if (arg_status == HP_UI_APPEAR)
+	{
+		m_hpUiTimer.Reset(60);
+		m_hpUiStatus = HP_UI_APPEAR;
+	}
+	else if (arg_status == HP_UI_DRAW)
+	{
+		m_hpUiTimer.Reset(300);
+		m_hpUiStatus = HP_UI_DRAW;
+	}
+	else if (arg_status == HP_UI_DISAPPEAR && m_hpUiStatus == HP_UI_DRAW)
+	{
+		m_hpUiTimer.Reset(60);
+		m_hpUiStatus = HP_UI_DISAPPEAR;
+	}
+	else if (arg_status == HP_UI_DAMAGE)
+	{
+		m_hpUiTimer.Reset(30);
+		m_hpUiStatus = HP_UI_DAMAGE;
+		m_hpTexExpand = 1.0f;
+		m_hpCenterOffset = { 0,0 };
+		m_hpRadiusExpand = 1.0f;
+		m_hpAngle = Angle(0);
+		m_hpUiShake.Shake(30.0f, 1.0f, 32.0f, 64.0f);
+	}
+}
+
+void Player::HpUiUpdate(float arg_timeScale)
+{
+	using namespace KuroEngine;
+
+	m_hpUiTimer.UpdateTimer(arg_timeScale);
+
+	if (m_hpUiStatus == HP_UI_APPEAR)
+	{
+		m_hpRadiusExpand = Math::Ease(Out, Quart, m_hpUiTimer.GetTimeRate(), 0.5f, 1.0f);
+		m_hpTexExpand = Math::Ease(Out, Quart, m_hpUiTimer.GetTimeRate(0.7f), 0.0f, 1.0f);
+		m_hpAngle = Math::Ease(Out, Quart, m_hpUiTimer.GetTimeRate(), Angle(-360 * 2), 0.0f);
+		m_hpCenterOffset = Math::Ease(Out, Exp, m_hpUiTimer.GetTimeRate(0.8f), { -300.0f,0.0f }, { 0.0f,0.0f });
+		if (m_hpUiTimer.IsTimeUp())
+		{
+			SetHpUIStatus(HP_UI_DRAW);
+		}
+	}
+	else if (m_hpUiStatus == HP_UI_DAMAGE)
+	{
+		m_hpUiShake.Update(arg_timeScale);
+		if (m_hpUiTimer.IsTimeUp())
+		{
+			SetHpUIStatus(HP_UI_DRAW);
+		}
+	}
+	else if (m_hpUiStatus == HP_UI_DRAW)
+	{
+		//HPがMAXのときは消える
+		if (m_hpUiTimer.IsTimeUp() && DEFAULT_HP <= m_hp)
+		{
+			SetHpUIStatus(HP_UI_DISAPPEAR);
+		}
+	}
+	else if (m_hpUiStatus == HP_UI_DISAPPEAR)
+	{
+		m_hpRadiusExpand = Math::Ease(In, Quart, m_hpUiTimer.GetTimeRate(), 1.0f, 0.5f);
+		m_hpTexExpand = Math::Ease(In, Quart, m_hpUiTimer.GetTimeRate(0.7f), 1.0f, 0.0f);
+		m_hpAngle = Math::Ease(In, Quart, m_hpUiTimer.GetTimeRate(), 0.0f, Angle(-360 * 2));
+		m_hpCenterOffset = Math::Ease(In, Quart, m_hpUiTimer.GetTimeRate(0.8f), { 0.0f,0.0f }, { -300.0f,0.0f });
+	}
+
+	//心拍演出
+	if (m_hpUiBeatTimer.UpdateTimer(arg_timeScale))
+	{
+		m_hpUiBeatTimer.Reset(Math::Ease(InOut, Cubic, static_cast<float>(m_hp - 1) / (DEFAULT_HP - 1), 45.0f, 100.0f));
+	}
+}
 
 void Player::OnImguiItems()
 {
@@ -113,8 +193,10 @@ void Player::AnimationSpecification(const KuroEngine::Vec3<float>& arg_beforePos
 }
 
 Player::Player()
-	:KuroEngine::Debugger("Player", true, true), m_growPlantPtLig(8.0f, &m_transform)
+	:KuroEngine::Debugger("Player", true, true), m_growPlantPtLig(8.0f, &m_transform), m_hpUiShake({ 1.0f,1.0f,1.0f })
 {
+	using namespace KuroEngine;
+
 	AddCustomParameter("Sensitivity", { "camera", "sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity, "Camera");
 	AddCustomParameter("Default_AccelSpeed", { "move","default","accelSpeed" }, PARAM_TYPE::FLOAT, &m_defaultAccelSpeed, "Move");
 	AddCustomParameter("Default_MaxSpeed", { "move","default","maxSpeed" }, PARAM_TYPE::FLOAT, &m_defaultMaxSpeed, "Move");
@@ -122,22 +204,23 @@ Player::Player()
 	AddCustomParameter("UnderGround_AccelSpeed", { "move","underGround","accelSpeed" }, PARAM_TYPE::FLOAT, &m_underGroundAccelSpeed, "Move");
 	AddCustomParameter("UnderGround_MaxSpeed", { "move","underGround","maxSpeed" }, PARAM_TYPE::FLOAT, &m_underGroundMaxSpeed, "Move");
 	AddCustomParameter("UnderGround_Brake", { "move","underGround","brake" }, PARAM_TYPE::FLOAT, &m_underGroundBrake, "Move");
+	AddCustomParameter("HpCenterPos", { "ui","hp","centerPos" }, PARAM_TYPE::FLOAT_VEC2, &m_hpCenterPos, "UI");
 	LoadParameterLog();
 
 	//モデル読み込み
-	m_model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Player.glb");
-	m_axisModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Axis.glb");
-	m_camModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Camera.glb");
+	m_model = Importer::Instance()->LoadModel("resource/user/model/", "Player.glb");
+	m_axisModel = Importer::Instance()->LoadModel("resource/user/model/", "Axis.glb");
+	m_camModel = Importer::Instance()->LoadModel("resource/user/model/", "Camera.glb");
 
 	//カメラ生成
-	m_cam = std::make_shared<KuroEngine::Camera>("Player's Camera");
+	m_cam = std::make_shared<Camera>("Player's Camera");
 	//カメラのコントローラーにアタッチ
 	m_camController.AttachCamera(m_cam);
 
 	m_cameraRotY = 0;
 	m_cameraQ = DirectX::XMQuaternionIdentity();
 
-	m_moveSpeed = KuroEngine::Vec3<float>();
+	m_moveSpeed = Vec3<float>();
 	m_isFirstOnGround = false;
 	m_onGimmick = false;
 	m_prevOnGimmick = false;
@@ -145,10 +228,13 @@ Player::Player()
 	m_collision.m_refPlayer = this;
 
 	//死亡アニメーションを読み込み
-	KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(m_deathAnimSprite.data(), "resource/user/tex/Number.png", DEATH_SPRITE_ANIM_COUNT, KuroEngine::Vec2<int>(DEATH_SPRITE_ANIM_COUNT, 1));
+	D3D12App::Instance()->GenerateTextureBuffer(m_deathAnimSprite.data(), "resource/user/tex/Number.png", DEATH_SPRITE_ANIM_COUNT, KuroEngine::Vec2<int>(DEATH_SPRITE_ANIM_COUNT, 1));
 
 	//アニメーター生成
-	m_modelAnimator = std::make_shared<KuroEngine::ModelAnimator>(m_model);
+	m_modelAnimator = std::make_shared<ModelAnimator>(m_model);
+
+	m_hpTex = D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/in_game/hp_leaf.png");
+	m_hpDamageTex = D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/in_game/hp_leaf_damage.png");
 }
 
 void Player::Init(KuroEngine::Transform arg_initTransform)
@@ -190,10 +276,15 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_deathStatus = DEATH_STATUS::APPROACH;
 	m_isFinishDeathAnimation = false;
 
+	//被ダメージの点滅初期化
+	m_damageFlashTimer.Reset(6.0f);
+	m_damageFlash = false;
+
 	//地中に沈む関連
 	m_isInputUnderGround = false;
 	m_isUnderGround = false;
 	m_underGroundEaseTimer = 1.0f;
+	m_underGroundShake = 0;
 
 	m_attackTimer = 0;
 
@@ -201,8 +292,8 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_deathSpriteAnimTimer = KuroEngine::Timer(DEATH_SPRITE_TIMER);
 
 	m_hp = DEFAULT_HP;
-	m_damageHitstopTimer = 0;
-	m_nodamageTimer = 0;;
+	m_damageHitStopTimer.Reset(0.0f);
+	m_nodamageTimer.Reset(0.0f);
 
 	m_modelAnimator->Play(m_animNames[ANIM_PATTERN_WAIT], true, false);
 	m_animInterestCycleCounter = ANIM_INTEREST_CYCLE;
@@ -212,11 +303,22 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_sphere.m_centerPos = &m_drawTransform.GetPos();
 	m_sphere.m_radius = &m_radius;
 	m_radius = 2.0f;
+
+	//HPのUI初期化
+	m_hpUiShake.Init();
+	SetHpUIStatus(HP_UI_APPEAR);
+	m_hpUiBeatTimer.Reset(0.0f);
+
+	m_playerMoveParticle.Init();
+	m_playerMoveParticleTimer.Reset(PLAYER_MOVE_PARTICLE_SPAN);
+
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
+
+	if (UsersInput::Instance()->KeyOnTrigger(DIK_G))Damage();
 
 	//トランスフォームを保存。
 	m_prevTransform = m_transform;
@@ -269,7 +371,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		if (1.0f <= m_underGroundEaseTimer) {
 
 			bool prevInInputUnderGround = m_isInputUnderGround;
-			m_isInputUnderGround = UsersInput::Instance()->KeyInput(DIK_SPACE) || UsersInput::Instance()->ControllerInput(0, KuroEngine::A);
+			m_isInputUnderGround = UsersInput::Instance()->KeyInput(DIK_SPACE) || UsersInput::Instance()->ControllerInput(0, KuroEngine::RB);
 
 			//沈むフラグが離されたトリガーだったら。
 			if ((prevInInputUnderGround && !m_isInputUnderGround) || (!m_canOldUnderGroundRelease && m_canUnderGroundRelease)) {
@@ -279,7 +381,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			}
 
 			//イージングが終わっている時のみ地中に潜ったり出たりする判定を持たせる。
-			bool isInputOnOff = UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->KeyOffTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A) || UsersInput::Instance()->ControllerOffTrigger(0, KuroEngine::A);
+			bool isInputOnOff = UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->KeyOffTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::RB) || UsersInput::Instance()->ControllerOffTrigger(0, KuroEngine::RB);
 			if ((isInputOnOff || (!m_isUnderGround && m_isInputUnderGround) || (m_isUnderGround && !m_isInputUnderGround)) && m_canUnderGroundRelease) {
 				m_underGroundEaseTimer = 0;
 			}
@@ -293,6 +395,64 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 				//地中にいる判定を更新。
 				m_isUnderGround = m_isInputUnderGround;
+
+				//地中にいたらコントローラーを振動させる。
+				if (m_isUnderGround) {
+					UsersInput::Instance()->ShakeController(0, 1.0f, 10);
+
+					//画面を少しシェイク。
+					m_underGroundShake = UNDER_GROUND_SHAKE;
+
+					//地中から出た瞬間に大量にパーティクルを出す。
+					for (int index = 0; index < 50; ++index) {
+
+						//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
+						auto upVec = m_transform.GetUp();
+
+						//各軸を回転させる量。 ラジアン 回転させるのはローカルのXZ平面のみで、Y軸は高さのパラメーターを持つ。
+						KuroEngine::Vec3<float> randomAngle = KuroEngine::GetRand(KuroEngine::Vec3<float>(-DirectX::XM_PIDIV2, -1.0f, -DirectX::XM_PIDIV2), KuroEngine::Vec3<float>(DirectX::XM_PIDIV2, 1.0f, DirectX::XM_PIDIV2));
+
+						//XZの回転量クォータニオン
+						auto xq = DirectX::XMQuaternionRotationAxis(m_transform.GetRight(), randomAngle.x);
+						auto zq = DirectX::XMQuaternionRotationAxis(m_transform.GetFront(), randomAngle.z);
+
+						//上ベクトルを回転させる。
+						upVec = KuroEngine::Math::TransformVec3(upVec, DirectX::XMMatrixRotationQuaternion(DirectX::XMQuaternionMultiply(xq, zq)));
+
+						m_playerMoveParticle.GenerateSmoke(m_transform.GetPos(), upVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_defInfluenceRange));
+					}
+
+				}
+
+			}
+
+			//イージングタイマーが0でプレイヤーが地中にいないとき(地中から出る演出の開始直後)だったらコントローラーをシェイクさせる。
+			if (m_underGroundEaseTimer <= ADD_UNDERGROUND_EASE_TIMER && m_isUnderGround) {
+
+				UsersInput::Instance()->ShakeController(0, 1.0f, 10);
+
+				//画面を少しシェイク。
+				m_underGroundShake = UNDER_GROUND_SHAKE;
+
+				//地中から出た瞬間に大量にパーティクルを出す。
+				for (int index = 0; index < 50; ++index) {
+
+					//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
+					auto upVec = m_transform.GetUp();
+
+					//各軸を回転させる量。 ラジアン 回転させるのはローカルのXZ平面のみで、Y軸は高さのパラメーターを持つ。
+					KuroEngine::Vec3<float> randomAngle = KuroEngine::GetRand(KuroEngine::Vec3<float>(-DirectX::XM_PIDIV2, -1.0f, -DirectX::XM_PIDIV2), KuroEngine::Vec3<float>(DirectX::XM_PIDIV2, 1.0f, DirectX::XM_PIDIV2));
+
+					//XZの回転量クォータニオン
+					auto xq = DirectX::XMQuaternionRotationAxis(m_transform.GetRight(), randomAngle.x);
+					auto zq = DirectX::XMQuaternionRotationAxis(m_transform.GetFront(), randomAngle.z);
+
+					//上ベクトルを回転させる。
+					upVec = KuroEngine::Math::TransformVec3(upVec, DirectX::XMMatrixRotationQuaternion(DirectX::XMQuaternionMultiply(xq, zq)));
+
+					m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), upVec.GetNormal() * m_growPlantPtLig.m_defInfluenceRange, m_moveSpeed);
+				}
+
 			}
 
 		}
@@ -331,7 +491,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			}
 
 		}
-		
+
 
 		//移動させる。
 		if (!m_isDeath) {
@@ -449,7 +609,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	}
 	//シェイクを計算。
-	float timeScaleShakeAmount = m_deathShakeAmount * TimeScaleMgr::s_inGame.GetTimeScale() + m_damageShakeAmount;
+	float timeScaleShakeAmount = m_deathShakeAmount * TimeScaleMgr::s_inGame.GetTimeScale() + m_damageShakeAmount + m_underGroundShake;
 	m_shake.x = KuroEngine::GetRand(-timeScaleShakeAmount, timeScaleShakeAmount);
 	m_shake.y = KuroEngine::GetRand(-timeScaleShakeAmount, timeScaleShakeAmount);
 	m_shake.z = KuroEngine::GetRand(-timeScaleShakeAmount, timeScaleShakeAmount);
@@ -494,7 +654,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	}
 
 	//ダメージを受けないタイマーを更新。
-	m_nodamageTimer = std::clamp(m_nodamageTimer - 1.0f * TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, NODAMAGE_TIMER);
+	m_nodamageTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
 
 	//アニメーション指定
 	AnimationSpecification(beforePos, newPos);
@@ -507,10 +667,42 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//攻撃中タイマーを減らす。
 	m_attackTimer = std::clamp(m_attackTimer - 1, 0, ATTACK_TIMER);
 
+	//被ダメージ点滅更新
+	{
+		//無敵状態中点滅
+		if (!m_nodamageTimer.IsTimeUp() && m_damageFlashTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale()))
+		{
+			m_damageFlash = !m_damageFlash;
+			m_damageFlashTimer.Reset();
+		}
+
+		//無敵状態終了と同時に通常描画に
+		if (m_nodamageTimer.IsTimeUpOnTrigger())
+		{
+			m_damageFlash = false;
+		}
+	}
+
+	//地中に潜ったときのシェイク量を減らす。
+	m_underGroundShake = std::clamp(m_underGroundShake - SUB_UNDER_GROUND_SHAKE, 0.0f, 100.0f);
+
+	//HPUI更新
+	HpUiUpdate(TimeScaleMgr::s_inGame.GetTimeScale());
+
+	//プレイヤーが動いた時のパーティクル挙動
+	m_playerMoveParticle.Update();
+
+
+	if (UsersInput::Instance()->KeyOnTrigger(DIK_L)) {
+		Damage();
+	}
+
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
 {
+	if (m_damageFlash)return;
+
 	/*
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
 		m_model,
@@ -518,15 +710,15 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		arg_cam);
 	*/
 
-	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
-	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 1.0f, 0.0f);
+	IndividualDrawParameter drawParam = IndividualDrawParameter::GetDefault();
+	drawParam.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 1.0f, 0.0f);
 
 	BasicDraw::Instance()->Draw_Player(
 		arg_cam,
 		arg_ligMgr,
 		m_model,
 		m_drawTransform,
-		edgeColor,
+		drawParam,
 		KuroEngine::AlphaBlendMode_None,
 		m_modelAnimator->GetBoneMatBuff());
 
@@ -535,6 +727,9 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 	//	m_axisModel,
 	//	m_drawTransform,
 	//	arg_cam);
+
+	//プレイヤーが動いた時のパーティクル挙動
+	m_playerMoveParticle.Draw(arg_cam, arg_ligMgr);
 
 
 	if (arg_cameraDraw)
@@ -547,17 +742,65 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 	}
 }
 
-void Player::DrawUI()
+void Player::DrawUI(KuroEngine::Camera& arg_cam)
 {
+	using namespace KuroEngine;
+
 	//死んでいる かつ アニメーションが終わっていなかったら
 	bool isFinishAnimation = m_deathSpriteAnimNumber == DEATH_SPRITE_ANIM_COUNT && m_deathSpriteAnimTimer.IsTimeUp();
 	if (m_deathStatus == Player::DEATH_STATUS::LEAVE && !isFinishAnimation) {
 
-		KuroEngine::Vec2<float> winCenter = KuroEngine::Vec2<float>(1280.0f / 2.0f, 720.0f / 2.0f);
-		KuroEngine::Vec2<float> spriteSize = KuroEngine::Vec2<float>(512.0f, 512.0f);
+		Vec2<float> winCenter = WinApp::Instance()->GetExpandWinCenter();
+		Vec2<float> spriteSize = Vec2<float>(512.0f, 512.0f);
 
 		//KuroEngine::DrawFunc2D::DrawExtendGraph2D(winCenter - spriteSize, winCenter + spriteSize, m_deathAnimSprite[m_deathSpriteAnimNumber]);
 
+	}
+
+	//ダメージのヒットストップが効いていないときHPUI描画
+	//最大HPから配置の角度オフセットを求める
+	const Angle angleOffset = Angle::ROUND() / DEFAULT_HP;
+
+	//ウィンドウのサイズ取得
+	const auto winSize = WinApp::Instance()->GetExpandWinSize();
+
+	//HPUIの中心座標
+	const auto hpCenterPos = m_hpCenterPos + m_hpCenterOffset + (m_damageHitStopTimer.IsTimeUp() ? Vec2<float>(m_hpUiShake.GetOffset().x, m_hpUiShake.GetOffset().y) : Vec2<float>(0, 0));
+
+	//HPUI心拍演出の状態
+	const auto hpBeat = Math::Ease(Out, Elastic, m_hpUiBeatTimer.GetTimeRate(0.9f), 0.9f, 1.0f);
+
+	//HPUI画像の拡大率
+	const Vec2<float>hpTexExpand = Vec2<float>(1.2f, 1.2f) * m_hpTexExpand * hpBeat;
+
+	//HPUI円の半径
+	const auto hpRadius = m_hpTex->GetGraphSize().y * 0.5f * hpTexExpand.y * m_hpRadiusExpand * hpBeat;
+
+	//プレイヤーの２D座標
+	//HPのUI描画
+	for (int hpIdx = m_hp - 1; 0 <= hpIdx; --hpIdx)
+	{
+		auto pos = hpCenterPos;
+		Angle angle = angleOffset * hpIdx - Angle::ConvertToRadian(90) + m_hpAngle;
+		pos.x += cos(angle) * hpRadius;
+		pos.y += sin(angle) * hpRadius;
+		DrawFunc2D::DrawRotaGraph2D(pos, hpTexExpand, angle + Angle(90), m_hpTex);
+	}
+
+	//ダメージで減ったHP
+	if (!m_nodamageTimer.IsTimeUp())
+	{
+		int hpIdx = m_hp;
+		auto pos = hpCenterPos;
+		Angle angle = angleOffset * hpIdx - Angle::ConvertToRadian(90) + m_hpAngle;
+		auto damageHpRadius = hpRadius * Math::Lerp(1.0f, 0.8f, m_nodamageTimer.GetTimeRate());
+		pos.x += cos(angle) * damageHpRadius;
+		pos.y += sin(angle) * damageHpRadius;
+		DrawFunc2D::DrawRotaGraph2D(pos,
+			hpTexExpand * Math::Ease(Out, Circ, m_nodamageTimer.GetTimeRate(0.8f), 1.0f, 0.8f),
+			angle + Angle(90),
+			m_hpDamageTex,
+			Math::Ease(In, Circ, m_nodamageTimer.GetTimeRate(0.7f), 1.0f, 0.0f));
 	}
 }
 
@@ -588,6 +831,9 @@ void Player::Damage()
 	//HPを減らす。
 	m_hp = std::clamp(m_hp - 1, 0, std::numeric_limits<int>().max());
 
+	//HPUI演出
+	SetHpUIStatus(HP_UI_DAMAGE);
+
 	//死んだら
 	if (m_hp <= 0) {
 
@@ -597,8 +843,8 @@ void Player::Damage()
 	else {
 
 		//各種タイマーを設定。
-		m_nodamageTimer = NODAMAGE_TIMER;
-		m_damageHitstopTimer = DAMAGE_HITSTOP_TIMER + DAMAGE_HITSTOP_RETURN_TIMER;
+		m_nodamageTimer.Reset(NODAMAGE_TIMER);
+		m_damageHitStopTimer.Reset(DAMAGE_HITSTOP_TIMER);
 
 		//シェイクをかける。
 		m_damageShakeAmount = DAMAGE_SHAKE_AMOUNT;
@@ -606,10 +852,15 @@ void Player::Damage()
 		//プレイヤーの状態をダメージ中に
 		m_beforeDamageStatus = m_playerMoveStatus;
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DAMAGE;
-
 	}
 
+	//ヒットストップ
+	TimeScaleMgr::s_inGame.Set(0.0f);
 
+	m_damageFlashTimer.Reset();
+
+	//コントローラー振動
+	KuroEngine::UsersInput::Instance()->ShakeController(0, 1.0f, 10);
 }
 
 Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, KuroEngine::Vec3<float> arg_enemyUp, float arg_enemySize)
@@ -621,7 +872,7 @@ Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<floa
 	}
 
 	//ダメージを受けない状態だったら当たり判定を飛ばす。
-	if (0 < m_damageHitstopTimer) {
+	if (!m_damageHitStopTimer.IsTimeUp()) {
 		return Player::CHECK_HIT_GRASS_STATUS::NOHIT;
 	}
 
@@ -697,6 +948,56 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 	//地面に張り付ける用の重力。
 	if (!m_onGround) {
 		arg_newPos -= m_transform.GetUp() * (m_transform.GetScale().y / 2.0f);
+	}
+
+	//動いていて、地中状態切り替え中じゃなかったら。
+	const float PARTICLE_DEADLINE = 0.5f;
+	if (PARTICLE_DEADLINE < m_moveSpeed.Length() && 1.0f <= m_underGroundEaseTimer) {
+
+		//プレイヤーが動いた時のパーティクルを生成。
+		m_playerMoveParticleTimer.UpdateTimer();
+		if (m_playerMoveParticleTimer.IsTimeUpOnTrigger()) {
+			//地中にいるかそうじゃないかでパーティクルを変える。
+			if (m_isUnderGround) {
+				//煙パーティクル。
+				for (int index = 0; index < PLAYER_MOVE_PARTICLE_COUNT; ++index) {
+					KuroEngine::Vec3<float> scatterVec = KuroEngine::GetRand(KuroEngine::Vec3<float>(-1, -1, -1), KuroEngine::Vec3<float>(1, 1, 1));
+
+					const float SMOKE_SCATTER = 5.0f;
+					m_playerMoveParticle.GenerateSmoke(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(SMOKE_SCATTER));
+				}
+				//オーブもちょっとだけ出す。
+				for (int index = 0; index < 2; ++index) {
+					KuroEngine::Vec3<float> scatterVec = KuroEngine::GetRand(KuroEngine::Vec3<float>(-1, -1, -1), KuroEngine::Vec3<float>(1, 1, 1));
+
+					const float SMOKE_SCATTER = 5.0f;
+					m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_defInfluenceRange));
+				}
+			}
+			else {
+				//オーブを出す。
+				for (int index = 0; index < PLAYER_MOVE_PARTICLE_COUNT; ++index) {
+					KuroEngine::Vec3<float> scatterVec = KuroEngine::GetRand(KuroEngine::Vec3<float>(-1, -1, -1), KuroEngine::Vec3<float>(1, 1, 1));
+
+					const float SMOKE_SCATTER = 5.0f;
+					m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_influenceRange));
+				}
+				//煙もちょっとだけ出す。
+				for (int index = 0; index < 2; ++index) {
+					KuroEngine::Vec3<float> scatterVec = KuroEngine::GetRand(KuroEngine::Vec3<float>(-1, -1, -1), KuroEngine::Vec3<float>(1, 1, 1));
+
+					const float SMOKE_SCATTER = 5.0f;
+					m_playerMoveParticle.GenerateSmoke(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_defInfluenceRange));
+				}
+			}
+			m_playerMoveParticleTimer.Reset();
+		}
+
+		//移動しているときはシェイクさせる。
+		if (m_isUnderGround) {
+			KuroEngine::UsersInput::Instance()->ShakeController(0, 0.2f, 10);
+		}
+
 	}
 
 	//減速
@@ -869,32 +1170,11 @@ void Player::UpdateDeath() {
 
 void Player::UpdateDamage()
 {
-
-	//ヒットストップのタイマーが有効だったら
-	if (0 < m_damageHitstopTimer) {
-
-
-		//ヒットストップタイマーの残り時間がTimeScaleを戻すための時間より短かったら。
-		if (m_damageHitstopTimer < DAMAGE_HITSTOP_RETURN_TIMER) {
-
-			//ヒットストップを元に戻す。
-			TimeScaleMgr::s_inGame.Set(KuroEngine::Math::Lerp(TimeScaleMgr::s_inGame.GetTimeScale(), 1.0f, 0.9f));
-
-		}
-		else {
-
-			//ヒットストップをかける。
-			TimeScaleMgr::s_inGame.Set(KuroEngine::Math::Lerp(TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, 0.9f));
-
-		}
-
-		--m_damageHitstopTimer;
-
-		//シェイク量をへらす。
-		m_damageShakeAmount = std::clamp(m_damageShakeAmount - SUB_DAMAGE_SHAKE_AMOUNT, 0.0f, 100.0f);
-
-	}
-	else {
+	//ヒットストップのタイマー終了
+	if (m_damageHitStopTimer.UpdateTimer())
+	{
+		//通常のタイムスケールに戻す
+		TimeScaleMgr::s_inGame.Set(1.0f);
 
 		//ステータスを元に戻す。
 		m_playerMoveStatus = m_beforeDamageStatus;
@@ -902,6 +1182,19 @@ void Player::UpdateDamage()
 		//一応シェイク量を0にしておく。
 		m_damageShakeAmount = 0;
 
-	}
+		//ダメージ点滅開始
+		m_damageFlash = true;
+		m_damageFlashTimer.Reset();
 
+		//コントローラー振動
+		KuroEngine::UsersInput::Instance()->ShakeController(0, 1.0f, 20);
+
+		//SE再生
+		SoundConfig::Instance()->Play(SoundConfig::SE_PLAYER_DAMAGE);
+	}
+	else
+	{
+		//シェイク量をへらす。
+		m_damageShakeAmount = std::clamp(m_damageShakeAmount - SUB_DAMAGE_SHAKE_AMOUNT, 0.0f, 100.0f);
+	}
 }

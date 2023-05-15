@@ -74,6 +74,7 @@ private:
 	//モデル描画
 	std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>m_drawPipeline;
 	std::shared_ptr<KuroEngine::GraphicsPipeline>m_drawPipeline_player;
+	std::array < std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>m_drawPipeline_stage;
 	std::vector<std::shared_ptr<KuroEngine::ConstantBuffer>>m_drawTransformBuff;
 
 	//インスタンシグ描画で一度に描画できるインスタンス最大数
@@ -82,6 +83,8 @@ private:
 	enum INSTANCING_DRAW_MODE { WRITE_DEPTH, NOT_WRITE_DEPTH };
 	//モデル描画（インスタンシング描画）
 	std::array<std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>, 2>m_instancingDrawPipeline;
+	std::array<std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>, 2>m_instancingDrawPipeline_nooutline;	//アウトラインを描画しない。
+	std::array<std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>, 2>m_instancingDrawPipeline_smokeNoise;	//煙をノイズで描画する。
 	std::vector<std::shared_ptr<KuroEngine::ConstantBuffer>>m_drawTransformBuffHuge;
 
 	//エッジ出力＆描画
@@ -154,6 +157,25 @@ public:
 	/// <param name="arg_toonParam">トゥーンのパラメータ</param>
 	/// <param name="arg_boneBuff">ボーンバッファ</param>
 	/// <param name="arg_layer">描画レイヤー</param>
+	void Draw_Stage(KuroEngine::Camera& arg_cam,
+		KuroEngine::LightManager& arg_ligMgr,
+		std::weak_ptr<KuroEngine::Model>arg_model,
+		KuroEngine::Transform& arg_transform,
+		const IndividualDrawParameter& arg_toonParam,
+		const KuroEngine::AlphaBlendMode& arg_blendMode = KuroEngine::AlphaBlendMode_None,
+		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr,
+		int arg_layer = 0);
+
+	/// <summary>
+	/// 描画
+	/// </summary>
+	/// <param name="arg_cam">カメラ</param>
+	/// <param name="arg_ligMgr">ライトマネージャ</param>
+	/// <param name="arg_model">モデル</param>
+	/// <param name="arg_transform">トランスフォーム</param>
+	/// <param name="arg_toonParam">トゥーンのパラメータ</param>
+	/// <param name="arg_boneBuff">ボーンバッファ</param>
+	/// <param name="arg_layer">描画レイヤー</param>
 	void Draw_Player(KuroEngine::Camera& arg_cam,
 		KuroEngine::LightManager& arg_ligMgr,
 		std::weak_ptr<KuroEngine::Model>arg_model,
@@ -194,6 +216,30 @@ public:
 		const IndividualDrawParameter& arg_toonParam,
 		bool arg_depthWriteMask,
 		const KuroEngine::AlphaBlendMode& arg_blendMode = KuroEngine::AlphaBlendMode_None, 
+		int arg_layer = 0,
+		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr);
+
+	//インスタンシング描画 パーティクル用 アウトラインなし
+	void InstancingDraw_NoOutline(KuroEngine::Camera& arg_cam,
+		KuroEngine::LightManager& arg_ligMgr,
+		std::weak_ptr<KuroEngine::Model>arg_model,
+		std::vector<KuroEngine::Matrix>& arg_matArray,
+		const IndividualDrawParameter& arg_toonParam,
+		bool arg_depthWriteMask,
+		const KuroEngine::AlphaBlendMode& arg_blendMode = KuroEngine::AlphaBlendMode_None,
+		int arg_layer = 0,
+		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr);
+
+	//インスタンシング描画 パーティクル用 アウトラインなし ノイズで煙を描画する。プレイヤーが動いた時専用。
+	void InstancingDraw_NoiseSmoke(KuroEngine::Camera& arg_cam,
+		KuroEngine::LightManager& arg_ligMgr,
+		std::weak_ptr<KuroEngine::Model>arg_model,
+		std::vector<KuroEngine::Matrix>& arg_matArray,
+		const IndividualDrawParameter& arg_toonParam,
+		bool arg_depthWriteMask,
+		std::shared_ptr < KuroEngine::ConstantBuffer> arg_smokeNoiseTimerBuffer,
+		std::shared_ptr < KuroEngine::StructuredBuffer> arg_smokeNoiseAlphaBuffer,
+		const KuroEngine::AlphaBlendMode& arg_blendMode = KuroEngine::AlphaBlendMode_None,
 		int arg_layer = 0,
 		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr);
 

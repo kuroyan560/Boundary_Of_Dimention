@@ -2,9 +2,10 @@
 #include"../../engine/ColorProcess.hlsli"
 #include"BasicDraw.hlsli"
 
+static const int MAX_NUM = 1024;
 cbuffer cbuff2 : register(b2)
 {
-    matrix world;
+    matrix world[MAX_NUM];
 }
 
 struct VSOutput
@@ -16,17 +17,7 @@ struct VSOutput
     float depthInView : CAM_Z;
 };
 
-struct PSOutput_Player
-{
-    float4 color : SV_Target0;
-    float4 emissive : SV_Target1;
-    float depth : SV_Target2;
-    float4 edgeColor : SV_Target3;
-    float4 bright : SV_Target4;
-    float4 normal : SV_Target5;
-};
-
-VSOutput VSmain(Vertex input)
+VSOutput VSmain(Vertex input, uint instanceID : SV_InstanceID)
 {
     float4 resultPos = input.pos;
 	
@@ -67,39 +58,48 @@ VSOutput VSmain(Vertex input)
     }
 	
     VSOutput output;
-    float4 wpos = mul(world, resultPos); //ワールド変換
+    float4 wpos = mul(world[instanceID], resultPos); //ワールド変換
     output.svpos = mul(cam.view, wpos); //ビュー変換
-    output.depthInView = output.svpos.z; //カメラから見たZ
+    output.depthInView = output.svpos.z;    //カメラから見たZ
     output.svpos = mul(cam.proj, output.svpos); //プロジェクション変換
     output.worldpos = wpos;
-    output.normal = normalize(mul(world, input.normal));
+    output.normal = normalize(mul(world[instanceID], float4(input.normal, 1))).xyz;
     output.uv = input.uv;
     return output;
 }
 
-PSOutput_Player PSmain(VSOutput input) : SV_TARGET
+struct ParticlePSOutput
+{
+    float4 color : SV_Target0;
+    float4 emissive : SV_Target1;
+    float depth : SV_Target2;
+};
+
+PSOutput PSmain(VSOutput input) : SV_TARGET
 {
     float3 normal = input.normal;
     float3 vnormal = normalize(mul(cam.view, normal));
     
     //ライトの影響
     float3 diffuseEf = { 0, 0, 0 };
+    float3 specularEf = { 0, 0, 0 };
+    float3 limEf = { 0, 0, 0 };
     
     //ディレクションライト
     for (int i = 0; i < ligNum.dirLigNum; ++i)
     {
-        if (!dirLight[i].active)
-            continue;
+        if (!dirLight[i].active)continue;
         
         float3 dir = dirLight[i].direction;
         float3 ligCol = dirLight[i].color.xyz * dirLight[i].color.w;
         diffuseEf += CalcLambertDiffuse(dir, ligCol, normal) * (material.diffuse * material.diffuseFactor);
+        specularEf += CalcPhongSpecular(dir, ligCol, normal, input.worldpos, cam.eyePos) * (material.specular * material.specularFactor);
+        limEf += CalcLimLight(dir, ligCol, normal, vnormal);
     }
     //ポイントライト
     for (int i = 0; i < ligNum.ptLigNum; ++i)
     {
-        if (!pointLight[i].active)
-            continue;
+        if (!pointLight[i].active)continue;
         
         float3 dir = input.worldpos - pointLight[i].pos;
         dir = normalize(dir);
@@ -107,6 +107,7 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
         
         //減衰なし状態
         float3 diffPoint = CalcLambertDiffuse(dir, ligCol, normal);
+        float3 specPoint = CalcPhongSpecular(dir, ligCol, normal, input.worldpos, cam.eyePos);
         
         //距離による減衰
         float3 distance = length(input.worldpos - pointLight[i].pos);
@@ -118,14 +119,16 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
 		//影響を指数関数的にする
         affect = pow(affect, 3.0f);
         diffPoint *= affect;
+        specPoint *= affect;
         
         diffuseEf += diffPoint * (material.diffuse * material.diffuseFactor);
+        specularEf += specPoint * (material.specular * material.specularFactor);
+        limEf += CalcLimLight(dir, ligCol, normal, vnormal);
     }
     //スポットライト
     for (int i = 0; i < ligNum.spotLigNum; ++i)
     {
-        if (!spotLight[i].active)
-            continue;
+        if (!spotLight[i].active)continue;
         
         float3 ligDir = input.worldpos - spotLight[i].pos;
         ligDir = normalize(ligDir);
@@ -133,6 +136,7 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
         
         //減衰なし状態
         float3 diffSpotLight = CalcLambertDiffuse(ligDir, ligCol, normal);
+        float3 specSpotLight = CalcPhongSpecular(ligDir, ligCol, normal, input.worldpos, cam.eyePos);
         
         //スポットライトとの距離を計算
         float3 distance = length(input.worldpos - spotLight[i].pos);
@@ -144,6 +148,7 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
     //影響を指数関数的にする
         affect = pow(affect, 3.0f);
         diffSpotLight *= affect;
+        specSpotLight *= affect;
     
         float3 spotlim = CalcLimLight(ligDir, ligCol, normal, vnormal) * affect;
         
@@ -156,12 +161,13 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
         affect = pow(affect, 0.5f);
         
         diffuseEf += diffSpotLight * affect * (material.diffuse * material.diffuseFactor);
+        specularEf += specSpotLight * affect * (material.specular * material.specularFactor);
+        limEf += spotlim * affect;
     }
     //天球
     for (int i = 0; i < ligNum.hemiSphereNum; ++i)
     {
-        if (!hemiSphereLight[i].active)
-            continue;
+        if (!hemiSphereLight[i].active)continue;
         
         float t = dot(normal.xyz, hemiSphereLight[i].groundNormal);
         t = (t + 1.0f) / 2.0f;
@@ -169,9 +175,16 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
         diffuseEf += hemiLight;
     }
     
-    float3 ligEffect = diffuseEf;
+    float3 ligEffect = diffuseEf + specularEf + limEf;
     
     float4 texCol = baseTex.Sample(smp, input.uv);
+    
+    //アルファチェック
+    if (texCol.w <= 0)
+    {
+        discard;
+    }
+    
     texCol.xyz += material.baseColor.xyz;
     float4 ligEffCol = texCol;
     ligEffCol.xyz = ((material.ambient * material.ambientFactor) + ligEffect) * ligEffCol.xyz;
@@ -198,7 +211,6 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
     result.xyz = toonIndividualParam.m_fillColor.xyz * toonIndividualParam.m_fillColor.w + result.xyz * (1.0f - toonIndividualParam.m_fillColor.w);
     
     int isBright = 0;
-    int isBrightDefRange = 0; //デフォルトのライトの影響度の範囲
     
     //植物を繁殖させるポイントライト
     for (int i = 0; i < ligNum_Plant.ptLigNum; ++i)
@@ -211,7 +223,6 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
         //-1 ~ 1 から 0 ~ 1の範囲に収める
         bright = saturate(bright);
         isBright += 1.0f - step(pointLight_Plant[i].m_influenceRange, length(ligRay) * int(bright == 0 ? pointLight_Plant[i].m_influenceRange : 1));
-        isBrightDefRange += 1.0f - step(pointLight_Plant[i].m_defInfluenceRange, length(ligRay) * int(bright == 0 ? pointLight_Plant[i].m_defInfluenceRange : 1));
         
     }
     //植物を繁殖させるスポットライト
@@ -221,11 +232,8 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
             continue;
     }
     
-    float3 albedo = result;
-    
     isBright = min(isBright, 1);
-    isBrightDefRange = min(isBrightDefRange, 1);
-    result.xyz *= lerp(0.7f, 1.0f, saturate(isBright + isBrightDefRange));
+    result.xyz *= lerp(0.5f, 1.0f, isBright);
     
     //光が当たっていないならモノクロ化
     result.xyz = lerp(lerp(result.xyz, Monochrome(result.xyz), toonCommonParam.m_monochromeRate), result.xyz, isBright);
@@ -233,7 +241,7 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
     //アルファ値適用
     result.w *= toonIndividualParam.m_alpha;
     
-    PSOutput_Player output;
+    PSOutput output;
     output.color = result;
     
     //明るさ計算
@@ -241,19 +249,20 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
     // if (1.0f < bright)
     //    output.emissive += result;
     // output.emissive.w = result.w;
-    output.emissive = float4(0, 0, 0, 0);
+    output.emissive = float4(0,0,0,0);
     
-    output.depth = input.depthInView;
+    //output.depth = input.depthInView;
 
-    output.edgeColor = toonIndividualParam.m_edgeColor * lerp(0.2f, 1.0f, isBright);
-    
-    output.bright.x = 0;
-    output.bright.y = toonIndividualParam.m_edgeColor.w ? 0 : 1;
-    output.bright.z = toonIndividualParam.m_edgeColor.z;
-    output.bright.w = toonIndividualParam.m_edgeColor.w;
-    
     output.normal.xyz = input.normal;
-
+        
+    output.edgeColor = toonIndividualParam.m_edgeColor;
+    
+    output.bright.x = isBright;
+    
     return output;
+}
 
+float4 main( float4 pos : POSITION ) : SV_POSITION
+{
+	return pos;
 }

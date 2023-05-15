@@ -7,6 +7,21 @@ cbuffer cbuff2 : register(b2)
     matrix world;
 }
 
+
+//敵丸影用 ===================================================
+cbuffer cbuff9 : register(b9)
+{
+    uint circleShadowCount;
+}
+struct CircleShadowData
+{
+    float3 pos;
+    float3 up;
+    float shadowRadius;
+};
+StructuredBuffer<CircleShadowData> circleShadowData : register(t7);
+//敵丸影用 ===================================================
+
 struct VSOutput
 {
     float4 svpos : SV_POSITION;
@@ -14,16 +29,6 @@ struct VSOutput
     float3 normal : NORMAL;
     float2 uv : TEXCOORD;
     float depthInView : CAM_Z;
-};
-
-struct PSOutput_Player
-{
-    float4 color : SV_Target0;
-    float4 emissive : SV_Target1;
-    float depth : SV_Target2;
-    float4 edgeColor : SV_Target3;
-    float4 bright : SV_Target4;
-    float4 normal : SV_Target5;
 };
 
 VSOutput VSmain(Vertex input)
@@ -77,7 +82,7 @@ VSOutput VSmain(Vertex input)
     return output;
 }
 
-PSOutput_Player PSmain(VSOutput input) : SV_TARGET
+PSOutput PSmain(VSOutput input) : SV_TARGET
 {
     float3 normal = input.normal;
     float3 vnormal = normalize(mul(cam.view, normal));
@@ -174,23 +179,25 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
     float4 texCol = baseTex.Sample(smp, input.uv);
     texCol.xyz += material.baseColor.xyz;
     float4 ligEffCol = texCol;
-    ligEffCol.xyz = ((material.ambient * material.ambientFactor) + ligEffect) * ligEffCol.xyz;
+    //ligEffCol.xyz = ((material.ambient * material.ambientFactor) + ligEffect) * ligEffCol.xyz;
+    ligEffCol.xyz = ligEffect * ligEffCol.xyz;
     ligEffCol.w *= (1.0f - material.transparent);
     
     //アニメ風トゥーン加工========================================================
     
-    //トゥーンによる色
-    float4 toonCol = ligEffCol;
+    ////トゥーンによる色
+    //float4 toonCol = ligEffCol;
     
-    //明るさ算出（照明影響より）
-    float lightEffectBright = GetColorBright(ligEffect.xyz);
+    ////明るさ算出（照明影響より）
+    //float lightEffectBright = GetColorBright(ligEffect.xyz);
 
-    //明るさのしきい値に応じて色を決める
-    float thresholdResult = smoothstep(toonCommonParam.m_brightThresholdLow, toonCommonParam.m_brightThresholdLow + toonCommonParam.m_brightThresholdRange, lightEffectBright);
-    float4 brightCol = texCol * toonIndividualParam.m_brightMulColor * thresholdResult;
-    float4 darkCol = texCol * toonIndividualParam.m_darkMulColor * (1.0f - thresholdResult);
-    toonCol.xyz = brightCol + darkCol;
-    float4 result = toonCol;
+    ////明るさのしきい値に応じて色を決める
+    //float thresholdResult = smoothstep(toonCommonParam.m_brightThresholdLow, toonCommonParam.m_brightThresholdLow + toonCommonParam.m_brightThresholdRange, lightEffectBright);
+    //float4 brightCol = texCol * toonIndividualParam.m_brightMulColor * thresholdResult;
+    //float4 darkCol = texCol * toonIndividualParam.m_darkMulColor * (1.0f - thresholdResult);
+    //toonCol.xyz = brightCol + darkCol;
+    //float4 result = toonCol;
+    float4 result = ligEffCol;
 
     //=========================================================================
 
@@ -233,7 +240,31 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
     //アルファ値適用
     result.w *= toonIndividualParam.m_alpha;
     
-    PSOutput_Player output;
+    
+    
+    
+    //ここでさらに敵用の丸影を出す。
+    for (int index = 0; index < circleShadowCount; ++index)
+    {
+    
+        //距離が一定以上離れていたら飛ばす。
+        float distance = length(input.worldpos - circleShadowData[index].pos);
+        if (circleShadowData[index].shadowRadius < distance)
+            continue;
+        
+        float distanceRate = distance / circleShadowData[index].shadowRadius;
+        
+        float bright = Easing_Cubic_In(distanceRate, 1.0f, 0.0f, 1.0f);
+        
+        result.xyz *=  bright;
+        
+        
+    }
+    
+    
+    
+    
+    PSOutput output;
     output.color = result;
     
     //明るさ計算
@@ -247,13 +278,13 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
 
     output.edgeColor = toonIndividualParam.m_edgeColor * lerp(0.2f, 1.0f, isBright);
     
-    output.bright.x = 0;
-    output.bright.y = toonIndividualParam.m_edgeColor.w ? 0 : 1;
-    output.bright.z = toonIndividualParam.m_edgeColor.z;
-    output.bright.w = toonIndividualParam.m_edgeColor.w;
+    output.bright.x = isBright;
+    output.bright.y = saturate(isBright + isBrightDefRange);
+    
+    output.worldPos = float4(input.worldpos, 1.0f);
     
     output.normal.xyz = input.normal;
+    output.normalGrass.xyz = input.normal;
 
     return output;
-
 }
