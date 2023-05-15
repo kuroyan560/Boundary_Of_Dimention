@@ -204,6 +204,7 @@ void GoalPoint::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_
 	using namespace KuroEngine;
 	Transform drawTransform;
 	drawTransform.SetPos(m_transform.GetPosWorld() + m_offset.GetPosWorld());
+	drawTransform.SetRotate(m_transform.GetRotate());
 	drawTransform.SetScale(m_transform.GetScaleWorld() + m_offset.GetScaleWorld());
 
 	BasicDraw::Instance()->Draw(

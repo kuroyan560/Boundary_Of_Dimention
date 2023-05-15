@@ -253,7 +253,7 @@
   },
   "StageManager": {
     "debuggerSetting": {
-      "active": false,
+      "active": true,
       "customParamActive": true,
       "imageColor": [
         0.3099597990512848,
@@ -266,8 +266,8 @@
     "scaling": {
       "skydome": 5000.0,
       "woods": {
-        "height": 1000.0,
-        "radius": 1200.0
+        "height": 3000.0,
+        "radius": 3000.0
       }
     }
   },
