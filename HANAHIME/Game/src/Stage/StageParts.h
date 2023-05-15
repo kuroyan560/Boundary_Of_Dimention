@@ -473,15 +473,7 @@ class Gate : public StageParts
 	bool m_enter = false;
 	void OnInit()override { m_enter = false; }
 public:
-	static const int NON_STAGE_ENTER_NUM = -1;
-
 	Gate(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_id, int arg_destStageNum, int arg_destGateId)
 		:StageParts(GATE, arg_model, arg_initTransform), m_id(arg_id), m_destStageNum(arg_destStageNum), m_destGateId(arg_destGateId) {}
 	void Update(Player& arg_player)override;
-
-	int IsEnter()
-	{
-		if (m_enter)return m_destStageNum;
-		return NON_STAGE_ENTER_NUM;
-	}
 };

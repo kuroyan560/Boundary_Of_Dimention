@@ -8,7 +8,7 @@
 #include"Stage/Grass.h"
 #include"Graphics/WaterPaintBlend.h"
 #include"ForUser/PostEffect/Fog.h"
-#include"Movie/StageChange.h"
+#include"Movie/SceneChange.h"
 #include"Movie/MovieCamera.h"
 #include"OutGame/Title.h"
 #include"GPUParticle/GPUParticleRender.h"

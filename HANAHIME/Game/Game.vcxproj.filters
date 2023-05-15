@@ -334,7 +334,7 @@
     <ClCompile Include="src\Movie\MovieCamera.cpp">
       <Filter>src\user\Movie</Filter>
     </ClCompile>
-    <ClCompile Include="src\Movie\StageChange.cpp">
+    <ClCompile Include="src\Movie\SceneChange.cpp">
       <Filter>src\user\Movie</Filter>
     </ClCompile>
     <ClCompile Include="src\OutGame\Title.cpp">
@@ -728,7 +728,7 @@
     <ClInclude Include="src\Movie\MovieCamera.h">
       <Filter>src\user\Movie</Filter>
     </ClInclude>
-    <ClInclude Include="src\Movie\StageChange.h">
+    <ClInclude Include="src\Movie\SceneChange.h">
       <Filter>src\user\Movie</Filter>
     </ClInclude>
     <ClInclude Include="src\OutGame\Title.h">

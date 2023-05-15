@@ -196,7 +196,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\GameScene.cpp" />
     <ClCompile Include="src\Movie\CameraData.cpp" />
     <ClCompile Include="src\Movie\MovieCamera.cpp" />
-    <ClCompile Include="src\Movie\StageChange.cpp" />
+    <ClCompile Include="src\Movie\SceneChange.cpp" />
     <ClCompile Include="src\OperationConfig.cpp" />
     <ClCompile Include="src\OutGame\PazzleStageSelect.cpp" />
     <ClCompile Include="src\OutGame\Select.cpp" />
@@ -327,7 +327,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Graphics\WaterPaintBlend.h" />
     <ClInclude Include="src\Movie\CameraData.h" />
     <ClInclude Include="src\Movie\MovieCamera.h" />
-    <ClInclude Include="src\Movie\StageChange.h" />
+    <ClInclude Include="src\Movie\SceneChange.h" />
     <ClInclude Include="src\OperationConfig.h" />
     <ClInclude Include="src\OutGame\PazzleStageSelect.h" />
     <ClInclude Include="src\OutGame\Select.h" />
