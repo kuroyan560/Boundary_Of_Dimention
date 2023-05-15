@@ -98,6 +98,8 @@ class Player : public KuroEngine::Debugger
 	const int PLAYER_MOVE_PARTICLE_SPAN = 5;
 	const int PLAYER_MOVE_PARTICLE_COUNT = 5;
 	KuroEngine::Timer m_playerMoveParticleTimer;
+	const int PLAYER_IDLE_PARTICLE_SPAN = 10;
+	KuroEngine::Timer m_playerIdleParticleTimer;
 
 	//カメラインスタンス
 	std::shared_ptr<KuroEngine::Camera>m_cam;

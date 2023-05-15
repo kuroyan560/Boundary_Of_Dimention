@@ -421,6 +421,18 @@
     <ClCompile Include="src\Stage\Enemy\EnemyDataReferenceForCircleShadow.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Player\PlayerMoveParticle.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Player\PlayerMoveParticleOrb.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Player\PlayerMoveParticleSmoke.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Player\PlayerMoveParticleIdle.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -818,6 +830,12 @@
     </ClInclude>
     <ClInclude Include="src\Stage\Enemy\EnemyDataReferenceForCircleShadow.h">
       <Filter>src\user</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Player\PlayerMoveParticle.h" />
+    <ClInclude Include="src\Player\PlayerMoveParticleOrb.h" />
+    <ClInclude Include="src\Player\PlayerMoveParticleSmoke.h" />
+    <ClInclude Include="src\Player\PlayerMoveParticleIdle.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
