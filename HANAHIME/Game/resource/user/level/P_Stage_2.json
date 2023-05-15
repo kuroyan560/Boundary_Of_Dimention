@@ -268,7 +268,7 @@
                     ]
                 },
                 "file_name": "DossunRing",
-                "AttackPattern": "NORMAL"
+                "ATKPat": "NORMAL"
             },
             {
                 "type": "DossunRing",
@@ -292,7 +292,7 @@
                     ]
                 },
                 "file_name": "DossunRing",
-                "AttackPattern": "NORMAL"
+                "ATKPat": "NORMAL"
             },
             {
                 "type": "DossunRing",
@@ -316,7 +316,7 @@
                     ]
                 },
                 "file_name": "DossunRing",
-                "AttackPattern": "NORMAL"
+                "ATKPat": "NORMAL"
             },
             {
                 "type": "DossunRing",
@@ -340,7 +340,7 @@
                     ]
                 },
                 "file_name": "DossunRing",
-                "AttackPattern": "NORMAL"
+                "ATKPat": "NORMAL"
             },
             {
                 "type": "DossunRing",
@@ -364,7 +364,7 @@
                     ]
                 },
                 "file_name": "DossunRing",
-                "AttackPattern": "NORMAL"
+                "ATKPat": "NORMAL"
             },
             {
                 "type": "MiniBug",
@@ -2651,7 +2651,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "MiniBug",
@@ -2675,7 +2676,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "MiniBug",
@@ -2699,7 +2701,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "MiniBug",
@@ -2723,7 +2726,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "DossunRing",
@@ -2746,7 +2750,8 @@
                         1.0
                     ]
                 },
-                "file_name": "DossunRing"
+                "file_name": "DossunRing",
+                "ATKPat": "NORMAL"
             },
             {
                 "type": "DossunRing",
@@ -2769,7 +2774,8 @@
                         2.0
                     ]
                 },
-                "file_name": "DossunRing"
+                "file_name": "DossunRing",
+                "ATKPat": "NORMAL"
             },
             {
                 "type": "DossunRing",
@@ -2792,7 +2798,8 @@
                         3.0
                     ]
                 },
-                "file_name": "DossunRing"
+                "file_name": "DossunRing",
+                "ATKPat": "NORMAL"
             },
             {
                 "type": "MiniBug",
@@ -2816,7 +2823,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "MiniBug",
@@ -2840,7 +2848,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "MiniBug",
@@ -2864,7 +2873,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "MiniBug",
@@ -2888,7 +2898,8 @@
                     ]
                 },
                 "file_name": "MiniBug",
-                "translationArray": {}
+                "translationArray": {},
+                "Loop": 1
             },
             {
                 "type": "Gate",
