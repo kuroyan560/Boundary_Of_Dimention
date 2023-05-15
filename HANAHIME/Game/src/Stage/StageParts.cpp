@@ -192,12 +192,11 @@ std::optional<AABB::CollisionInfo> AABB::CheckAABBCollision(const AABB& arg_aabb
 
 void GoalPoint::Update(Player& arg_player)
 {
-	static const float HIT_RADIUS = 3.0f;
-	static const float HIT_OFFSET = 5.0f;
+	const float HIT_RADIUS = 10.0f;
 
 	//ÉvÉåÉCÉÑÅ[Ç∆ÇÃìñÇΩÇËîªíË
-	//if (!m_hitPlayer)
-	m_hitPlayer = (arg_player.GetTransform().GetPosWorld().Distance(m_transform.GetPosWorld() + -m_transform.GetUp() * HIT_OFFSET * m_transform.GetScale().x) < HIT_RADIUS);
+	float dist = arg_player.GetTransform().GetPosWorld().Distance(m_transform.GetPosWorld() + (-m_transform.GetUpWorld() * HIT_RADIUS));
+	if (!m_hitPlayer)m_hitPlayer = (dist < HIT_RADIUS);
 }
 
 void GoalPoint::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
