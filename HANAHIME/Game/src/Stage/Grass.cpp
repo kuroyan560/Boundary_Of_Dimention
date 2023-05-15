@@ -231,6 +231,25 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 
 		for (int grassIdx = 0; grassIdx < static_cast<int>(m_plantGrassDataArray.size()); ++grassIdx)
 		{
+
+			//死んでいたら処理を飛ばす。
+			if (m_plantGrassDataArray[grassIdx].m_isDead) continue;
+
+			//重なっている草を削除。
+			for (int nearGrass = 0; nearGrass < static_cast<int>(m_plantGrassDataArray.size()); ++nearGrass)
+			{
+
+				if (m_plantGrassDataArray[nearGrass].m_isDead) continue;
+				if (grassIdx == nearGrass) continue;
+
+				//距離を求める。
+				float distance = KuroEngine::Vec3<float>(m_plantGrassDataArray[grassIdx].m_pos - m_plantGrassDataArray[nearGrass].m_pos).Length();
+				if (1.0f < distance) continue;
+
+				m_plantGrassDataArray[nearGrass].m_isDead = true;
+
+			}
+
 			auto grass = m_plantGrassDataArray[grassIdx];
 
 			//草のイージングの更新処理
