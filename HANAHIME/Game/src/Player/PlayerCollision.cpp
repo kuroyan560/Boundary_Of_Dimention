@@ -1038,7 +1038,7 @@ void PlayerCollision::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine:
 
 	//カメラの回転でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。m_refPlayer->m_cameraJumpLerpAmountは補間後のカメラに向かって補間するため。
 	DirectX::XMVECTOR ySpin;
-	if (hitResult.m_terrianNormal.y < -0.9f) {
+	if (m_refPlayer->m_isCameraUpInverse) {
 		ySpin = DirectX::XMQuaternionRotationNormal(hitResult.m_terrianNormal, -(m_refPlayer->m_cameraRotMove + m_refPlayer->m_cameraJumpLerpAmount) + DirectX::XM_PI);
 	}
 	else {
@@ -1061,7 +1061,7 @@ void PlayerCollision::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine:
 		//ジャンプ後に回転するようにする。
 
 		//クォータニオンを保存。
-		m_refPlayer->m_jumpEndQ = m_refPlayer->m_moveQ;
+		m_refPlayer->m_jumpEndQ = m_refPlayer->m_cameraQ;
 		m_refPlayer->m_jumpStartQ = m_refPlayer->m_prevTransform.GetRotate();
 		m_refPlayer->m_transform.SetRotate(m_refPlayer->m_prevTransform.GetRotate());
 
@@ -1069,7 +1069,7 @@ void PlayerCollision::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine:
 	else {
 
 		//当たった面基準の回転にする。
-		m_refPlayer->m_transform.SetRotate(m_refPlayer->m_moveQ);
+		m_refPlayer->m_transform.SetRotate(m_refPlayer->m_cameraQ);
 
 	}
 

@@ -483,7 +483,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		else {
 
 			//入力を反転させるか？
-			if (m_isCameraInvX || (m_isCameraUpInverse && fabs(m_transform.GetUp().y) < 0.1f)) {
+			if (m_isCameraInvX) {
 
 				m_rowMoveVec.x *= -1.0f;
 				m_rowMoveVec.z *= -1.0f;
@@ -649,9 +649,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_drawTransform.SetPos(m_transform.GetPos());
 	}
 	//回転は動いたときのみ適用させる。
-	if (0 < m_rowMoveVec.Length()) {
-		m_drawTransform.SetRotate(m_transform.GetRotate());
-	}
+	//if (0 < m_rowMoveVec.Length()) {
+	m_drawTransform.SetRotate(m_transform.GetRotate());
+	//}
 
 	//ダメージを受けないタイマーを更新。
 	m_nodamageTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
@@ -930,7 +930,16 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 		brake = m_underGroundBrake;
 	}
 
-	auto accel = KuroEngine::Math::TransformVec3(m_rowMoveVec, m_transform.GetRotate()) * accelSpeed;
+	//移動量を回転させる姿勢
+	KuroEngine::Transform moveRotTransform = m_transform;
+	if (m_isCameraUpInverse && -0.9f < m_transform.GetUp().y) {
+
+		//カメラをZ軸回転
+		//moveRotTransform.SetRotate(DirectX::XMQuaternionMultiply(moveRotTransform.GetRotate(), DirectX::XMQuaternionRotationAxis(moveRotTransform.GetUp(), DirectX::XM_PI)));
+
+	}
+	auto accel = KuroEngine::Math::TransformVec3(m_rowMoveVec, moveRotTransform.GetRotate()) * accelSpeed;
+
 
 	m_moveSpeed += accel;
 
