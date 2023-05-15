@@ -405,7 +405,7 @@ class IvyBlock : public StageParts
 
 	const float HIT_SCALE_MIN = 7.5f * 2.0f;
 	const float HIT_SCALE_MAX = 15.5f * 2.0f;
-	const float SCALE_DEF = 7.5f;
+	const float SCALE_DEF = 15.0f;
 
 	std::weak_ptr<KuroEngine::Model>m_collisionModel;
 
