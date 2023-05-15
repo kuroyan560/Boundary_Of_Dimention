@@ -719,7 +719,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
 {
-	if (m_damageFlash)return;
 
 	/*
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
@@ -727,6 +726,11 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		m_transform,
 		arg_cam);
 	*/
+
+	//プレイヤーが動いた時のパーティクル挙動
+	m_playerMoveParticle.Draw(arg_cam, arg_ligMgr);
+
+	if (m_damageFlash)return;
 
 	IndividualDrawParameter drawParam = IndividualDrawParameter::GetDefault();
 	drawParam.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 1.0f, 0.0f);
@@ -745,9 +749,6 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 	//	m_axisModel,
 	//	m_drawTransform,
 	//	arg_cam);
-
-	//プレイヤーが動いた時のパーティクル挙動
-	m_playerMoveParticle.Draw(arg_cam, arg_ligMgr);
 
 
 	if (arg_cameraDraw)
