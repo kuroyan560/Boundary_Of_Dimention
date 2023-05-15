@@ -931,6 +931,8 @@ bool PlayerCollision::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroE
 			//押し戻す。
 			arg_charaPos += output.m_normal * (std::fabs(output.m_distance - m_refPlayer->m_transform.GetScale().x) - OFFSET);
 
+			m_refPlayer->m_underRayHitPosition = output.m_pos;
+
 			break;
 
 		case RAY_ID::AROUND:
@@ -1061,7 +1063,7 @@ void PlayerCollision::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine:
 		//ジャンプ後に回転するようにする。
 
 		//クォータニオンを保存。
-		m_refPlayer->m_jumpEndQ = m_refPlayer->m_cameraQ;
+		m_refPlayer->m_jumpEndQ = m_refPlayer->m_moveQ;
 		m_refPlayer->m_jumpStartQ = m_refPlayer->m_prevTransform.GetRotate();
 		m_refPlayer->m_transform.SetRotate(m_refPlayer->m_prevTransform.GetRotate());
 
@@ -1069,7 +1071,7 @@ void PlayerCollision::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine:
 	else {
 
 		//当たった面基準の回転にする。
-		m_refPlayer->m_transform.SetRotate(m_refPlayer->m_cameraQ);
+		m_refPlayer->m_transform.SetRotate(m_refPlayer->m_moveQ);
 
 	}
 

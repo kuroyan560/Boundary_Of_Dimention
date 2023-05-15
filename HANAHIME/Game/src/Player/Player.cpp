@@ -649,9 +649,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_drawTransform.SetPos(m_transform.GetPos());
 	}
 	//回転は動いたときのみ適用させる。
-	//if (0 < m_rowMoveVec.Length()) {
-	m_drawTransform.SetRotate(m_transform.GetRotate());
-	//}
+	if (0 < m_rowMoveVec.Length()) {
+		m_drawTransform.SetRotate(m_transform.GetRotate());
+	}
 
 	//ダメージを受けないタイマーを更新。
 	m_nodamageTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
@@ -930,15 +930,8 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 		brake = m_underGroundBrake;
 	}
 
-	//移動量を回転させる姿勢
-	KuroEngine::Transform moveRotTransform = m_transform;
-	if (m_isCameraUpInverse && -0.9f < m_transform.GetUp().y) {
-
-		//カメラをZ軸回転
-		//moveRotTransform.SetRotate(DirectX::XMQuaternionMultiply(moveRotTransform.GetRotate(), DirectX::XMQuaternionRotationAxis(moveRotTransform.GetUp(), DirectX::XM_PI)));
-
-	}
-	auto accel = KuroEngine::Math::TransformVec3(m_rowMoveVec, moveRotTransform.GetRotate()) * accelSpeed;
+	//移動量を回転させる
+	auto accel = KuroEngine::Math::TransformVec3(m_rowMoveVec, m_transform.GetRotate()) * accelSpeed;
 
 
 	m_moveSpeed += accel;
@@ -1006,6 +999,25 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 		//移動しているときはシェイクさせる。
 		if (m_isUnderGround) {
 			KuroEngine::UsersInput::Instance()->ShakeController(0, 0.2f, 10);
+		}
+
+	}
+	//動いていないときも適量のパーティクルを出す。
+	else {
+
+		m_playerMoveParticleTimer.UpdateTimer();
+		if (m_playerMoveParticleTimer.IsTimeUpOnTrigger()) {
+
+			//オーブを出す。
+			for (int index = 0; index < PLAYER_MOVE_PARTICLE_COUNT; ++index) {
+				KuroEngine::Vec3<float> scatterVec = KuroEngine::GetRand(KuroEngine::Vec3<float>(-1, -1, -1), KuroEngine::Vec3<float>(1, 1, 1));
+
+				const float SMOKE_SCATTER = 5.0f;
+				m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_influenceRange));
+			}
+
+			m_playerMoveParticleTimer.Reset();
+
 		}
 
 	}

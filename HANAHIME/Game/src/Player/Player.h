@@ -45,6 +45,9 @@ class Player : public KuroEngine::Debugger
 	KuroEngine::Transform m_drawTransform;	//描画に使用するトランスフォーム プレイヤーを沈ませたり、カメラの方向を見ないようにするために使用する。
 	KuroEngine::Transform m_initTransform;
 
+	//プレイヤーの下方向のレイの衝突地点
+	KuroEngine::Vec3<float> m_underRayHitPosition;
+
 	//プレイヤーのHP
 	const int DEFAULT_HP = 5;
 	int m_hp;
