@@ -106,7 +106,9 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
             //–¾‚é‚³Žæ“¾
             float2 brihgtPickUv = input.m_uv + playerEdgeOffsetUV[i];
             float pickBright = g_brightMap.Sample(g_sampler, brihgtPickUv).z;
-            if (pickBright != playerBright && !g_brightMap.Sample(g_sampler, brihgtPickUv).w)
+            float pickDepth = g_depthMap.Sample(g_sampler, brihgtPickUv).x;
+            bool isDepthCheck = pickDepth < depth;
+            if (pickBright != playerBright && !g_brightMap.Sample(g_sampler, brihgtPickUv).w && isDepthCheck)
             {
                 output.color = float4(0.35f, 0.90f, 0.57f, 1.0f);
                 output.depth = g_depthMap.Sample(g_sampler, brihgtPickUv);
@@ -122,7 +124,9 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
             //–¾‚é‚³Žæ“¾
             float2 brihgtPickUv = input.m_uv + playerEdgeOffsetUV[i];
             float pickBright = g_brightMap.Sample(g_sampler, brihgtPickUv).w;
-            if (pickBright != enemyBright && !g_brightMap.Sample(g_sampler, brihgtPickUv).z)
+            float pickDepth = g_depthMap.Sample(g_sampler, brihgtPickUv).x;
+            bool isDepthCheck = pickDepth < depth;
+            if (pickBright != enemyBright && !g_brightMap.Sample(g_sampler, brihgtPickUv).z && isDepthCheck)
             {
                 output.color = float4(0.54f, 0.14f, 0.33f, 1.0f);
                 output.depth = g_depthMap.Sample(g_sampler, brihgtPickUv);
