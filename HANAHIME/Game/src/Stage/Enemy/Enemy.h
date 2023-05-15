@@ -20,7 +20,7 @@ public:
 		:StageParts(MINI_BUG, arg_model, arg_initTransform), m_deadTimer(120)
 	{
 		m_sightArea.Init(&m_transform);
-		track.Init(0.01f);
+		track.Init(0.5f);
 		m_posArray = posArray;
 
 		m_nowStatus = SEARCH;

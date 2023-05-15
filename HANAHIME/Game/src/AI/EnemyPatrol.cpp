@@ -3,7 +3,7 @@
 PatrolBasedOnControlPoint::PatrolBasedOnControlPoint(std::vector<KuroEngine::Vec3<float>> posArray, int initLimitIndex, bool loopFlag) :
 	m_moveTimer(60), m_limitIndex(initLimitIndex), m_loopFlag(loopFlag)
 {
-	m_speed = 0.1f;
+	m_speed = 0.2f;
 	const int halfArraySize = static_cast<int>(posArray.size() - 1);
 
 	m_inverseFlag = false;
@@ -193,7 +193,7 @@ TrackEndPoint::TrackEndPoint()
 
 void TrackEndPoint::Init(float speed)
 {
-	m_speed = speed;
+ 	m_speed = speed;
 }
 
 KuroEngine::Vec3<float> TrackEndPoint::Update(const KuroEngine::Vec3<float> &aPos, const KuroEngine::Vec3<float> &bPos)

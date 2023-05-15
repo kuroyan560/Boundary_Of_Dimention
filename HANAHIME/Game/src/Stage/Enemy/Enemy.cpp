@@ -115,7 +115,7 @@ void MiniBug::Update(Player& arg_player)
 			m_attackIntervalTimer.Reset(120);
 			m_readyToGoToPlayerTimer.Reset(120);
 			m_sightArea.Init(&m_transform);
-			track.Init(0.1f);
+			track.Init(0.5f);
 
 			m_jumpMotion.Init(m_pos, m_pos + KuroEngine::Vec3<float>(0.0f, 5.0f, 0.0f), 0.5f);
 
