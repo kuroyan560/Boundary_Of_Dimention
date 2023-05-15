@@ -2,6 +2,7 @@
 #include"Render/RenderObject/Camera.h"
 #include"../../../../src/engine/ForUser/Object/Model.h"
 #include"CollisionDetectionOfRayAndMesh.h"
+#include"FrameWork/UsersInput.h"
 
 void CameraController::OnImguiItems()
 {
@@ -59,7 +60,7 @@ void CameraController::Init()
 	m_rotateZ = 0;
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos)
 {
 	using namespace KuroEngine;
 
@@ -89,7 +90,19 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	//上限値超えないようにする
 	m_nowParam.m_posOffsetZ = arg_cameraZ;
 	m_nowParam.m_xAxisAngle = std::clamp(m_nowParam.m_xAxisAngle, m_xAxisAngleMin, m_xAxisAngleMax);
+	
+	//カメラを初期位置に戻すか。
+	if (arg_isCameraDefaultPos) {
 
+		//カメラが反転しているかしていないかによって入れる値を決める。
+		if (arg_isCameraUpInverse) {
+			m_nowParam.m_xAxisAngle = m_xAxisAngleMin;
+		}
+		else {
+			m_nowParam.m_xAxisAngle = m_xAxisAngleMax;
+		}
+
+	}
 
 	//操作するカメラのトランスフォーム（前後移動）更新
 	Vec3<float> localPos = { 0,0,0 };
