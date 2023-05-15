@@ -225,11 +225,6 @@ void MiniBug::Update(Player& arg_player)
 		//攻撃予備動作が終わって攻撃を行った。
 		if (m_attackFlag && m_attackIntervalTimer.UpdateTimer())
 		{
-			//プレイヤーと敵の判定
-			if (Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_hitBox))
-			{
-				arg_player.Damage();
-			}
 
 			//プレイヤーと敵の当たり判定の処理をここに書く
 			m_attackIntervalTimer.Reset(120);
@@ -285,6 +280,12 @@ void MiniBug::Update(Player& arg_player)
 	}
 	//更新処理---------------------------------------
 
+
+	//プレイヤーと敵の判定
+	if (Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_hitBox))
+	{
+		arg_player.Damage();
+	}
 
 	//草の当たり判定
 	if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()) != Player::CHECK_HIT_GRASS_STATUS::NOHIT && !m_startDeadMotionFlag)

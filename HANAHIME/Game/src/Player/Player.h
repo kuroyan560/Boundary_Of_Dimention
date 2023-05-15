@@ -116,7 +116,6 @@ class Player : public KuroEngine::Debugger
 	GrowPlantLight_Point m_growPlantPtLig;
 	const float MAX_INFLUENCE_RANGE = 8.0f;
 	const float MIN_INFLUENCE_RANGE = 1.0f;
-	const float ATTACK_INFLUENCE_RANGE = 3.0f;
 	const float SUB_INFLUENCE_RANGE = 0.05f;
 	const float ADD_INFLUENCE_RANGE = 0.3f;
 
