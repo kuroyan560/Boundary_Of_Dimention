@@ -206,11 +206,11 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::DOSSUN_RING))
 	{
 		//パラメータがない
-		if (!CheckJsonKeyExist(arg_fileName, arg_json, "AttackPattern"))return;
+		if (!CheckJsonKeyExist(arg_fileName, arg_json, "ATKPat"))return;
 
 		ENEMY_ATTACK_PATTERN attackPattern;
 
-		auto patternName = arg_json["AttackPattern"].get<std::string>();
+		auto patternName = arg_json["ATKPat"].get<std::string>();
 		if (patternName.compare("NORMAL") == 0)attackPattern = ENEMY_ATTACK_PATTERN_NORMAL;
 		else if (patternName.compare("ALWAYS") == 0)attackPattern = ENEMY_ATTACK_PATTERN_ALWAYS;
 		else KuroEngine::AppearMessageBox("Stage : GetAttackPattern() 失敗", "知らない攻撃パターン名\"" + patternName + "\"が含まれているよ。");
