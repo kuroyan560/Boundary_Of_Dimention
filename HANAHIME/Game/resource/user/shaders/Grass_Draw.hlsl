@@ -19,6 +19,7 @@ struct PSOutput
     float4 emissive : SV_Target1;
     float depth : SV_Target2;
     float4 edgeColor : SV_Target3;
+    float4 bright : SV_Target4;
 };
 
 StructuredBuffer<matrix> grassWorldMatArrayBuffer : register(t0);
@@ -96,6 +97,7 @@ PSOutput PSmain(VSOutput input)
     output.color = color;
 
     output.emissive = float4(0, 0, 0, 0);
+    output.bright = float4(0, 0, 0, 0);
     output.depth = input.depthInView;
     output.edgeColor = float4(0.13, 0.53, 0.40, 1);
  

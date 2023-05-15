@@ -17,7 +17,7 @@ private:
 	};
 
 	//パーティクルの各状態のスケール
-	const float PARTICLE_SCALE = 1.4f;
+	const float PARTICLE_SCALE = 2.0f;
 	const float RANDOM_PARTICLE_SCALE = 0.3f;//パーティクルの大きさをずらす量。
 	const std::array<int, MAX> DEFAULT_PARTICLE_STATUS_TIMER = { 20, 30, 60 };	//デフォルトの各ステータスのタイマー
 	const std::array<int, MAX> RANDOM_PARTICLE_STATUS_TIMER = { 5, 8, 15 };	//ランダムで各ステータスのタイマーをずらす量

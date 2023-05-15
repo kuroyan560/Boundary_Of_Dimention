@@ -381,7 +381,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			}
 
 			//イージングが終わっている時のみ地中に潜ったり出たりする判定を持たせる。
-			bool isInputOnOff = UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->KeyOffTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A) || UsersInput::Instance()->ControllerOffTrigger(0, KuroEngine::A);
+			bool isInputOnOff = UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->KeyOffTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::RB) || UsersInput::Instance()->ControllerOffTrigger(0, KuroEngine::RB);
 			if ((isInputOnOff || (!m_isUnderGround && m_isInputUnderGround) || (m_isUnderGround && !m_isInputUnderGround)) && m_canUnderGroundRelease) {
 				m_underGroundEaseTimer = 0;
 			}
@@ -402,6 +402,26 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 					//画面を少しシェイク。
 					m_underGroundShake = UNDER_GROUND_SHAKE;
+
+					//地中から出た瞬間に大量にパーティクルを出す。
+					for (int index = 0; index < 50; ++index) {
+
+						//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
+						auto upVec = m_transform.GetUp();
+
+						//各軸を回転させる量。 ラジアン 回転させるのはローカルのXZ平面のみで、Y軸は高さのパラメーターを持つ。
+						KuroEngine::Vec3<float> randomAngle = KuroEngine::GetRand(KuroEngine::Vec3<float>(-DirectX::XM_PIDIV2, -1.0f, -DirectX::XM_PIDIV2), KuroEngine::Vec3<float>(DirectX::XM_PIDIV2, 1.0f, DirectX::XM_PIDIV2));
+
+						//XZの回転量クォータニオン
+						auto xq = DirectX::XMQuaternionRotationAxis(m_transform.GetRight(), randomAngle.x);
+						auto zq = DirectX::XMQuaternionRotationAxis(m_transform.GetFront(), randomAngle.z);
+
+						//上ベクトルを回転させる。
+						upVec = KuroEngine::Math::TransformVec3(upVec, DirectX::XMMatrixRotationQuaternion(DirectX::XMQuaternionMultiply(xq, zq)));
+
+						m_playerMoveParticle.GenerateSmoke(m_transform.GetPos(), upVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_defInfluenceRange));
+					}
+
 				}
 
 			}
@@ -773,8 +793,8 @@ void Player::DrawUI(KuroEngine::Camera& arg_cam)
 		pos.y += sin(angle) * damageHpRadius;
 		DrawFunc2D::DrawRotaGraph2D(pos,
 			hpTexExpand * Math::Ease(Out, Circ, m_nodamageTimer.GetTimeRate(0.8f), 1.0f, 0.8f),
-			angle + Angle(90), 
-			m_hpDamageTex, 
+			angle + Angle(90),
+			m_hpDamageTex,
 			Math::Ease(In, Circ, m_nodamageTimer.GetTimeRate(0.7f), 1.0f, 0.0f));
 	}
 }
@@ -932,18 +952,31 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 		//プレイヤーが動いた時のパーティクルを生成。
 		m_playerMoveParticleTimer.UpdateTimer();
 		if (m_playerMoveParticleTimer.IsTimeUpOnTrigger()) {
-			for (int index = 0; index < PLAYER_MOVE_PARTICLE_COUNT; ++index) {
-				KuroEngine::Vec3<float> scatterVec = KuroEngine::GetRand(KuroEngine::Vec3<float>(-1, -1, -1), KuroEngine::Vec3<float>(1, 1, 1));
+			//地中にいるかそうじゃないかでパーティクルを変える。
+			if (m_isUnderGround) {
+				//煙パーティクル。
+				for (int index = 0; index < PLAYER_MOVE_PARTICLE_COUNT; ++index) {
+					KuroEngine::Vec3<float> scatterVec = KuroEngine::GetRand(KuroEngine::Vec3<float>(-1, -1, -1), KuroEngine::Vec3<float>(1, 1, 1));
 
-				//地中にいるかそうじゃないかでパーティクルを変える。
-				if (m_isUnderGround) {
 					const float SMOKE_SCATTER = 5.0f;
 					m_playerMoveParticle.GenerateSmoke(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(SMOKE_SCATTER));
 				}
-				else {
+				//オーブもちょっとだけ出す。
+				for (int index = 0; index < 2; ++index) {
+					KuroEngine::Vec3<float> scatterVec = KuroEngine::GetRand(KuroEngine::Vec3<float>(-1, -1, -1), KuroEngine::Vec3<float>(1, 1, 1));
+
+					const float SMOKE_SCATTER = 5.0f;
+					m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_defInfluenceRange));
+				}
+			}
+			else {
+				//オーブを出す。
+				for (int index = 0; index < PLAYER_MOVE_PARTICLE_COUNT; ++index) {
+					KuroEngine::Vec3<float> scatterVec = KuroEngine::GetRand(KuroEngine::Vec3<float>(-1, -1, -1), KuroEngine::Vec3<float>(1, 1, 1));
+
+					const float SMOKE_SCATTER = 5.0f;
 					m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_influenceRange));
 				}
-
 			}
 			m_playerMoveParticleTimer.Reset();
 		}
@@ -1126,7 +1159,7 @@ void Player::UpdateDeath() {
 void Player::UpdateDamage()
 {
 	//ヒットストップのタイマー終了
-	if (m_damageHitStopTimer.UpdateTimer()) 
+	if (m_damageHitStopTimer.UpdateTimer())
 	{
 		//通常のタイムスケールに戻す
 		TimeScaleMgr::s_inGame.Set(1.0f);
@@ -1147,7 +1180,7 @@ void Player::UpdateDamage()
 		//SE再生
 		SoundConfig::Instance()->Play(SoundConfig::SE_PLAYER_DAMAGE);
 	}
-	else 
+	else
 	{
 		//シェイク量をへらす。
 		m_damageShakeAmount = std::clamp(m_damageShakeAmount - SUB_DAMAGE_SHAKE_AMOUNT, 0.0f, 100.0f);

@@ -47,10 +47,10 @@ void PlayerMoveParticleSmoke::Update()
 		if (!index.m_isAlive) continue;
 
 		//ノイズにより移動量を求める。
-		KuroEngine::Vec3<float> move = CurlNoise3D(index.m_st, index.m_transform.GetPos(), index.m_particleStatus == EXIT);
+		//KuroEngine::Vec3<float> move = CurlNoise3D(index.m_st, index.m_transform.GetPos(), index.m_particleStatus == EXIT);
 
 		//移動させる。
-		index.m_transform.SetPos(index.m_transform.GetPos() + move);
+		//index.m_transform.SetPos(index.m_transform.GetPos() + move);
 
 		//パーティクルの状態を変化させるタイマーを更新。
 		index.m_statusTimer.UpdateTimer();
@@ -110,7 +110,7 @@ void PlayerMoveParticleSmoke::Update()
 
 	}
 
-	m_smokeInfo.smokeNoiseTimer += 0.01f;
+	m_smokeInfo.smokeNoiseTimer += 0.02f;
 
 }
 
