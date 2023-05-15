@@ -114,10 +114,10 @@ class Player : public KuroEngine::Debugger
 
 	//植物を繁殖させる点光源
 	GrowPlantLight_Point m_growPlantPtLig;
-	const float MAX_INFLUENCE_RANGE = 8.0f;
+	const float MAX_INFLUENCE_RANGE = 15.0f;
 	const float MIN_INFLUENCE_RANGE = 1.0f;
 	const float SUB_INFLUENCE_RANGE = 0.05f;
-	const float ADD_INFLUENCE_RANGE = 0.3f;
+	const float ADD_INFLUENCE_RANGE = 0.05f;
 
 	//ステージの参照
 	std::weak_ptr<Stage> m_stage;
