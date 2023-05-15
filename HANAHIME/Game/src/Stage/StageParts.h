@@ -112,6 +112,8 @@ public:
 
 	//トランスフォームゲッタ
 	KuroEngine::Transform& GetTransform() { return m_transform; }
+	const KuroEngine::Transform& GetInitTransform() { return m_initializedTransform; }
+
 	void SetTransform(const KuroEngine::Transform& transform)
 	{
 		m_transform = transform;
@@ -404,8 +406,9 @@ class IvyBlock : public StageParts
 	float m_easingTimer;
 	const float EASING_TIMER = 0.03f;
 
-	const float HIT_SCALE_MIN = 7.5f;
-	const float HIT_SCALE_MAX = 15.5f;
+	const float HIT_SCALE_MIN = 7.5f * 2.0f;
+	const float HIT_SCALE_MAX = 15.5f * 2.0f;
+	const float SCALE_DEF = 15.0f;
 
 	std::weak_ptr<KuroEngine::Model>m_collisionModel;
 
@@ -472,8 +475,6 @@ class Gate : public StageParts
 	int m_id;
 	int m_destStageNum;
 	int m_destGateId;
-	bool m_enter = false;
-	void OnInit()override { m_enter = false; }
 public:
 	Gate(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_id, int arg_destStageNum, int arg_destGateId)
 		:StageParts(GATE, arg_model, arg_initTransform), m_id(arg_id), m_destStageNum(arg_destStageNum), m_destGateId(arg_destGateId) {}

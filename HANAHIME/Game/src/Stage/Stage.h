@@ -88,7 +88,8 @@ public:
 	{
 		for (auto& gate : m_gateArray)
 		{
-			if (gate.lock()->CheckID(arg_gateID))gate.lock()->GetTransform();
+			if (!gate.lock()->CheckID(arg_gateID))continue;
+			return gate.lock()->GetInitTransform();
 		}
 		return KuroEngine::Transform();
 	}

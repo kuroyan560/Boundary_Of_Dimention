@@ -17,6 +17,8 @@ public:
 	void Start();
 	bool IsHide();
 
+	const bool& IsActive()const { return m_startFlag; }
+
 private:
 	bool m_startFlag;	//開始フラグ
 	bool m_blackOutFlag;//暗転した瞬間

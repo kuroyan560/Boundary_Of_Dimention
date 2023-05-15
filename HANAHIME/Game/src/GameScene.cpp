@@ -80,6 +80,7 @@ void GameScene::GameInit()
 		m_player.Init(StageManager::Instance()->GetPlayerSpawnTransform());
 	}
 	SoundConfig::Instance()->Init();
+	GateManager::Instance()->Init();
 }
 
 void GameScene::OnInitialize()
@@ -167,7 +168,7 @@ void GameScene::OnUpdate()
 
 	//ステージ選択
 	int stageNum = -1;
-	if (m_title.IsFinish() && GateManager::Instance()->IsEnter())
+	if (m_title.IsFinish() && GateManager::Instance()->IsEnter() && !m_gateSceneChange.IsActive())
 	{
 		//stageNum = m_stageSelect.GetStageNumber(m_player.GetTransform().GetPos());
 		stageNum = GateManager::Instance()->GetDestStageNum();

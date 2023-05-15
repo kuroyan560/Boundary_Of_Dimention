@@ -9,6 +9,12 @@ class GateManager : public KuroEngine::DesignPattern::Singleton<GateManager>
 	friend class KuroEngine::DesignPattern::Singleton<GateManager>;
 	GateManager() {}
 public:
+	void Init()
+	{
+		m_enterGate = false;
+		m_destStageNum = -1;
+		m_destGateID = -1;
+	}
 	void SetEnter(bool arg_enter, int arg_destStageNum, int arg_destGateID);
 	const bool& IsEnter()const { return m_enterGate; }
 	const int& GetDestStageNum()const { return m_destStageNum; }

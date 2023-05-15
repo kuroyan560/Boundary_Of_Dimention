@@ -57,8 +57,6 @@ public:
 	//プレイヤーの初期化トランスフォーム
 	KuroEngine::Transform GetPlayerSpawnTransform()const;
 
-	//ゲート情報取得
-
 
 	KuroEngine::Transform GetGoalTransform()const;
 

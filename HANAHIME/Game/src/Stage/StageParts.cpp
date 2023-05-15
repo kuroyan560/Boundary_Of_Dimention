@@ -693,7 +693,7 @@ void IvyBlock::Update(Player& arg_player)
 		easingValue = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, easingValue, 0.0f, 1.0f);
 
 		//スケーリング
-		auto scale = HIT_SCALE_MIN * easingValue;
+		auto scale = SCALE_DEF * easingValue;
 		m_transform.SetScale(scale);
 
 		m_nonExistDrawParam.m_alpha = easingValue;
@@ -704,7 +704,7 @@ void IvyBlock::Update(Player& arg_player)
 		easingValue = KuroEngine::Math::Ease(KuroEngine::In, KuroEngine::Back, easingValue, 0.0f, 1.0f);
 
 		//スケーリング
-		auto scale = HIT_SCALE_MIN - HIT_SCALE_MIN * easingValue;
+		auto scale = SCALE_DEF - SCALE_DEF * easingValue;
 		m_transform.SetScale(scale);
 
 		m_nonExistDrawParam.m_alpha = easingValue;
@@ -721,7 +721,7 @@ void IvyBlock::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_l
 		m_transform);
 	
 	KuroEngine::Transform invisibleTrans = m_transform;
-	invisibleTrans.SetScale(HIT_SCALE_MIN);
+	invisibleTrans.SetScale(SCALE_DEF);
 	BasicDraw::Instance()->Draw(
 		arg_cam,
 		arg_ligMgr,
@@ -769,14 +769,7 @@ void Terrian::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_li
 
 void Gate::Update(Player& arg_player)
 {
-	std::array<KuroEngine::Vec3<float>, 2> size = { m_transform.GetScaleWorld(),m_transform.GetScaleWorld() };
-	KuroEngine::Vec3<float>distance = m_transform.GetPosWorld() - arg_player.GetNowPos();
-	const int square1 = 0;
-	const int square2 = 1;
-	m_enter =
-		fabs(distance.x) <= size[square1].x + size[square2].x &&
-		fabs(distance.y) <= size[square1].y + size[square2].y &&
-		fabs(distance.z) <= size[square1].z + size[square2].z;
-
-	GateManager::Instance()->SetEnter(m_enter, m_destStageNum, m_destGateId);
+	float dist = m_transform.GetPosWorld().Distance(arg_player.GetNowPos());
+	bool enter = dist < 5.0f;
+	GateManager::Instance()->SetEnter(enter, m_destStageNum, m_destGateId);
 }
