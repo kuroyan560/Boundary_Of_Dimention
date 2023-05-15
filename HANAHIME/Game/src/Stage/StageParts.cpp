@@ -692,7 +692,7 @@ void IvyBlock::Update(Player& arg_player)
 		easingValue = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, easingValue, 0.0f, 1.0f);
 
 		//スケーリング
-		auto scale = HIT_SCALE_MIN * easingValue;
+		auto scale = SCALE_DEF * easingValue;
 		m_transform.SetScale(scale);
 
 		m_nonExistDrawParam.m_alpha = easingValue;
@@ -703,7 +703,7 @@ void IvyBlock::Update(Player& arg_player)
 		easingValue = KuroEngine::Math::Ease(KuroEngine::In, KuroEngine::Back, easingValue, 0.0f, 1.0f);
 
 		//スケーリング
-		auto scale = HIT_SCALE_MIN - HIT_SCALE_MIN * easingValue;
+		auto scale = SCALE_DEF - SCALE_DEF * easingValue;
 		m_transform.SetScale(scale);
 
 		m_nonExistDrawParam.m_alpha = easingValue;
@@ -720,7 +720,7 @@ void IvyBlock::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_l
 		m_transform);
 	
 	KuroEngine::Transform invisibleTrans = m_transform;
-	invisibleTrans.SetScale(HIT_SCALE_MIN);
+	invisibleTrans.SetScale(SCALE_DEF);
 	BasicDraw::Instance()->Draw(
 		arg_cam,
 		arg_ligMgr,
