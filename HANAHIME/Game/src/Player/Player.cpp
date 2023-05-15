@@ -602,7 +602,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_growPlantPtLig.m_influenceRange = std::clamp(m_growPlantPtLig.m_influenceRange - SUB_INFLUENCE_RANGE, MIN_INFLUENCE_RANGE, MAX_INFLUENCE_RANGE);
 	}
 	else {
-		m_growPlantPtLig.m_influenceRange = std::clamp(m_growPlantPtLig.m_influenceRange + ADD_INFLUENCE_RANGE, ATTACK_INFLUENCE_RANGE, MAX_INFLUENCE_RANGE);
+		m_growPlantPtLig.m_influenceRange = std::clamp(m_growPlantPtLig.m_influenceRange + ADD_INFLUENCE_RANGE, 0.0f, MAX_INFLUENCE_RANGE);
 	}
 	m_growPlantPtLig.m_defInfluenceRange = MAX_INFLUENCE_RANGE;
 
@@ -715,16 +715,10 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//プレイヤーが動いた時のパーティクル挙動
 	m_playerMoveParticle.Update();
 
-
-	if (UsersInput::Instance()->KeyOnTrigger(DIK_L)) {
-		Damage();
-	}
-
 }
 
 void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
 {
-	if (m_damageFlash)return;
 
 	/*
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(
@@ -732,6 +726,8 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 		m_transform,
 		arg_cam);
 	*/
+
+	if (m_damageFlash)return;
 
 	IndividualDrawParameter drawParam = IndividualDrawParameter::GetDefault();
 	drawParam.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 1.0f, 0.0f);
@@ -751,9 +747,6 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 	//	m_drawTransform,
 	//	arg_cam);
 
-	//プレイヤーが動いた時のパーティクル挙動
-	m_playerMoveParticle.Draw(arg_cam, arg_ligMgr);
-
 
 	if (arg_cameraDraw)
 	{
@@ -763,6 +756,12 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 			camTransform.GetMatWorld(),
 			arg_cam);
 	}
+}
+
+void Player::DrawParticle(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+{
+	//プレイヤーが動いた時のパーティクル挙動
+	m_playerMoveParticle.Draw(arg_cam, arg_ligMgr);
 }
 
 void Player::DrawUI(KuroEngine::Camera& arg_cam)
@@ -850,6 +849,9 @@ void Player::Damage()
 
 	//死んでいたら処理を飛ばす。
 	if (m_isDeath) return;
+
+	//無敵中。
+	if (!m_nodamageTimer.IsTimeUp()) return;
 
 	//HPを減らす。
 	m_hp = std::clamp(m_hp - 1, 0, std::numeric_limits<int>().max());

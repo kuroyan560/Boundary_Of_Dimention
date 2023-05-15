@@ -16,7 +16,7 @@ void KuroEngine::D3D12App::Initialize(const HWND& Hwnd, const Vec2<int>& ScreenS
 	ComPtr<ID3D12Debug> spDebugController0;
 	if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&spDebugController0))))
 	{
-		//spDebugController0->EnableDebugLayer();
+		spDebugController0->EnableDebugLayer();
 	}
 	ComPtr<ID3D12Debug1> spDebugController1;
 	spDebugController0->QueryInterface(IID_PPV_ARGS(&spDebugController1));
@@ -850,7 +850,9 @@ std::shared_ptr<KuroEngine::TextureBuffer> KuroEngine::D3D12App::GenerateTexture
 
 	//テクスチャ用リソースバッファの生成
 	ComPtr<ID3D12Resource1>buff;
-	CD3DX12_HEAP_PROPERTIES heapPropForTex(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK, D3D12_MEMORY_POOL_L0);
+	D3D12_HEAP_PROPERTIES heapPropForTex = D3D12_HEAP_PROPERTIES{
+		D3D12_HEAP_TYPE_DEFAULT, D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 1, 1
+	};
 	auto hr = m_device->CreateCommittedResource(
 		&heapPropForTex,
 		D3D12_HEAP_FLAG_NONE,

@@ -49,7 +49,7 @@ void SearchPlantPos(uint3 GlobalID : SV_DispatchThreadID, uint3 GroupID : SV_Gro
     uint2 screenPos = uint2(1280 / 2, 720 / 2);
     
     //ƒ‰ƒ“ƒ_ƒ€‚ÅU‚ç‚·B
-    uint randomScatter = 100;
+    uint randomScatter = 200;
     uint2 random = uint2(RandomIntInRange(constData.m_seed * LocalID.x * GlobalID.y) * (randomScatter * 2), RandomIntInRange(constData.m_seed * LocalID.y * GlobalID.x) * (randomScatter * 2));
     random -= uint2(randomScatter, randomScatter);
     screenPos += random;

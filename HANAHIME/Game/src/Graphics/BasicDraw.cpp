@@ -464,7 +464,7 @@ void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_
 {
 	using namespace KuroEngine;
 
-	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_drawPipeline[AlphaBlendMode_Trans]);
+	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_drawPipeline[arg_blendMode]);
 
 	//トランスフォームバッファ送信
 	if (m_drawTransformBuff.size() < (m_drawCount + 1))

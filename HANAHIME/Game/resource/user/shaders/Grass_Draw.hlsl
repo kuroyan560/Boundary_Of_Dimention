@@ -74,7 +74,7 @@ PSOutput PSmain(VSOutput input)
     float distance = length(input.worldpos.xyz - player.m_pos);
     
     //距離によって明るさの割合を変える。
-    const float DISTANCE = 8.0f;
+    const float DISTANCE = 15.0f;
     const float OFFSET_DISTANCE_LUMI = 0.2f; //距離が遠く離れていてもある程度明るさを出すためのオフセット。
     float distanceRate = clamp(step(distance, DISTANCE), OFFSET_DISTANCE_LUMI, 1.0f);
     
@@ -96,10 +96,14 @@ PSOutput PSmain(VSOutput input)
     color.xyz *= lumi;
     output.color = color;
 
-    output.emissive = float4(0, 0, 0, 0);
     output.bright = float4(0, 0, 0, 0);
     output.depth = input.depthInView;
     output.edgeColor = float4(0.13, 0.53, 0.40, 1);
+    output.emissive = float4(0, 0, 0, 0);
+    if (distance < DISTANCE)
+    {
+        output.emissive = output.color / 3.0f;
+    }
  
     return output;
 }
