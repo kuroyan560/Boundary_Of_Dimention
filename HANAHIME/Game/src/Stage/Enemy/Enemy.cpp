@@ -6,7 +6,7 @@
 void MiniBug::OnInit()
 {
 	m_nowStatus = SEARCH;
-	m_prevStatus = NONE;
+	m_prevStatus = SEARCH;
 	m_limitIndex = 0;
 	m_deadFlag = false;
 	m_startDeadMotionFlag = false;
@@ -17,6 +17,9 @@ void MiniBug::OnInit()
 	m_hitBox.m_radius = &m_scale;
 
 	m_shadowInfluenceRange = SHADOW_INFLUENCE_RANGE;
+
+	m_patrol->Init(m_limitIndex);
+	m_pos = m_patrol->GetLimitPos(m_limitIndex);
 }
 
 void MiniBug::Update(Player& arg_player)

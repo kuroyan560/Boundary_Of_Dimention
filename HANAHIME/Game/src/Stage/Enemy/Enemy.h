@@ -47,7 +47,7 @@ public:
 		if (posArray.size() == 0 || posArray.size() == 1)
 		{
 			std::vector<KuroEngine::Vec3<float>>limitPosArray;
-			limitPosArray.emplace_back(m_transform.GetPos());
+			limitPosArray.emplace_back(arg_initTransform.GetPos());
 			m_patrol = std::make_unique<PatrolBasedOnControlPoint>(limitPosArray, 0, loopFlag);
 			m_posArray = m_patrol->GetLimitPosArray();
 		}
