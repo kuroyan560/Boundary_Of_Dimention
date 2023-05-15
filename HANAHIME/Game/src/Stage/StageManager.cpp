@@ -18,7 +18,7 @@ StageManager::StageManager()
 
 	//ホームステージ
 	m_homeStage = std::make_shared<Stage>();
-	m_homeStage->Load(stageDir, "New_Home.json", 5.0f, false);
+	m_homeStage->Load(0, stageDir, "New_Home.json", 5.0f, false);
 
 	float terrianScaling = 1.5f;
 
@@ -27,7 +27,7 @@ StageManager::StageManager()
 	while (KuroEngine::ExistFile(stageDir + "P_Stage_" + std::to_string(loadPazzleIdx) + ".json"))
 	{
 		m_stageArray.emplace_back(std::make_shared<Stage>());
-		m_stageArray.back()->Load(stageDir, "P_Stage_" + std::to_string(loadPazzleIdx++) + ".json", terrianScaling);
+		m_stageArray.back()->Load(loadPazzleIdx, stageDir, "P_Stage_" + std::to_string(loadPazzleIdx++) + ".json", terrianScaling, false);
 	}
 
 	//現在のステージ指定（デフォルトはホーム用ステージ）

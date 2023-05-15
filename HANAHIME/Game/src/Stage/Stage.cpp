@@ -195,13 +195,11 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		if (!CheckJsonKeyExist(arg_fileName, arg_json, "GateID"))return;
 		if (!CheckJsonKeyExist(arg_fileName, arg_json, "DestStageNum"))return;
 		if (!CheckJsonKeyExist(arg_fileName, arg_json, "DestGateID"))return;
-		if (!CheckJsonKeyExist(arg_fileName, arg_json, "GateSceneChange"))return;
 
 		int gateID = arg_json["GateID"].get<int>();
 		int destStageNum = arg_json["DestStageNum"].get<int>();
 		int destGateID = arg_json["DestGateID"].get<int>();
-		bool gateSceneChange = arg_json["GateSceneChange"].get<int>();
-		m_gimmickArray.emplace_back(std::make_shared<Gate>(model, transform, gateID, destStageNum, destGateID, gateSceneChange));
+		m_gimmickArray.emplace_back(std::make_shared<Gate>(model, transform, gateID, destStageNum, destGateID));
 		newPart = m_gimmickArray.back().get();
 	}
 	//チビ虫
@@ -399,7 +397,7 @@ bool Stage::IsClear() const
 	return false;
 }
 
-void Stage::Load(std::string arg_dir, std::string arg_fileName, float arg_terrianScaling, bool arg_hasGoal)
+void Stage::Load(int arg_ownStageIdx, std::string arg_dir, std::string arg_fileName, float arg_terrianScaling, bool arg_hasGoal)
 {
 	using namespace KuroEngine;
 
@@ -421,7 +419,7 @@ void Stage::Load(std::string arg_dir, std::string arg_fileName, float arg_terria
 	}
 
 	//スタート地点があるか
-	if (!m_startPoint)
+	if (arg_ownStageIdx == 0 && !m_startPoint)
 	{
 		AppearMessageBox("Stage : Load() 警告", arg_fileName + " にスタート地点の情報がないよ。");
 	}

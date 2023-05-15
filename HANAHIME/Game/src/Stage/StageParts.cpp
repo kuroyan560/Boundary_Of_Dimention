@@ -772,7 +772,7 @@ void Gate::Update(Player& arg_player)
 	KuroEngine::Vec3<float>distance = m_transform.GetPosWorld() - arg_player.GetNowPos();
 	const int square1 = 0;
 	const int square2 = 1;
-	bool isHitFlag =
+	m_enter =
 		fabs(distance.x) <= size[square1].x + size[square2].x &&
 		fabs(distance.y) <= size[square1].y + size[square2].y &&
 		fabs(distance.z) <= size[square1].z + size[square2].z;

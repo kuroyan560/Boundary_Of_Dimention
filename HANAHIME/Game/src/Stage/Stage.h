@@ -76,7 +76,7 @@ public:
 	bool IsClear()const;
 
 	//ステージ情報読み込み
-	void Load(std::string arg_dir, std::string arg_fileName, float arg_terrianScaling, bool arg_hasGoal = true);
+	void Load(int arg_ownStageIdx, std::string arg_dir, std::string arg_fileName, float arg_terrianScaling, bool arg_hasGoal = true);
 
 	//通常の地形の配列取得
 	const std::vector<Terrian>& GetTerrianArray()const { return m_terrianArray; }

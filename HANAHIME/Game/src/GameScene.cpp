@@ -147,9 +147,6 @@ void GameScene::OnUpdate()
 		m_nowCam = m_debugCam;
 	}
 
-
-
-
 	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrowPlantLight().m_influenceRange, StageManager::Instance()->GetNowStage(), m_player.GetIsAttack());
 
 	//ƒz[ƒ€‚Å‚Ìˆ—----------------------------------------
