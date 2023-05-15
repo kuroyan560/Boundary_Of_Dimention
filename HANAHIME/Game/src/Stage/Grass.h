@@ -58,6 +58,7 @@ class Grass
 		bool m_isCheckGround  = false;
 		int m_terrianIdx = -1;
 		bool m_isDead = false;
+		bool m_isCheckNear = false;	//Š®—¹Ï‚İ‚©
 	};
 	std::vector<GrassData>m_plantGrassDataArray;
 	std::vector<KuroEngine::Matrix>m_plantGrassWorldMatArray;
