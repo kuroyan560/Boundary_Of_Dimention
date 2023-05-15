@@ -341,7 +341,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//プレイヤーが天井にいたら左右のカメラ走査を反転。
 	if (m_onCeiling) {
-		scopeMove *= -1.0f;
+		//scopeMove *= -1.0f;
 	}
 
 	//ジャンプができるかどうか。	一定時間地形に引っ掛かってたらジャンプできる。
@@ -691,6 +691,11 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//プレイヤーが動いた時のパーティクル挙動
 	m_playerMoveParticle.Update();
+
+
+	if (UsersInput::Instance()->KeyOnTrigger(DIK_L)) {
+		Damage();
+	}
 
 }
 
