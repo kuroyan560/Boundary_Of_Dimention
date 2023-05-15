@@ -216,7 +216,7 @@ class Player : public KuroEngine::Debugger
 	KuroEngine::Vec3<float> m_shake;
 	const float DEATH_SHAKE_AMOUNT = 3.0f;
 	const float SUB_DEATH_SHAKE_AMOUNT = 0.2f;
-	const float UNDER_GROUND_SHAKE = 0.3f;
+	const float UNDER_GROUND_SHAKE = 0.4f;
 	const float SUB_UNDER_GROUND_SHAKE = 0.1f;
 	bool m_isCameraInvX;
 

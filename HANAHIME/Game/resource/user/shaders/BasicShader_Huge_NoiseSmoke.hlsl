@@ -277,27 +277,25 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     
     float4 texCol = baseTex.Sample(smp, input.uv);
     
-    float3 st = float3(input.uv, 0.5f) * 1.0; // スケール調整
+    float3 st = float3(input.uv, 0.5f) * 1.0f; // スケール調整
     int octaves = 4; // オクターブ数
-    float persistence = 0.8; // 持続度
-    float lacunarity = 1.5; // ラクナリティ
-    float speed = 0.08; // 流れる速さ
+    float persistence = 0.8f; // 持続度
+    float lacunarity = 2.5f; // ラクナリティ
+    float speed = 0.05f; // 流れる速さ
     
 
-    float3 perlinValue = PerlinNoiseWithWind(st, octaves, persistence, lacunarity, 1.0f, speed, noiseTimer, input.worldpos + float3(input.instanceIndex, input.instanceIndex, input.instanceIndex), 1.0f - smokeAlpha[input.instanceIndex]) * 0.5f;
+    float3 perlinValue = PerlinNoiseWithWind(st, octaves, persistence, lacunarity, 0.1f, speed, noiseTimer, input.worldpos + float3(input.instanceIndex, input.instanceIndex, input.instanceIndex), clamp(1.0f - smokeAlpha[input.instanceIndex], 0.0f, 0.2f)) * 0.15f;
 
     // テクスチャの中心からの距離を計算
-    float3 dist = st - float3(0.5, 0.5, 0.5);
-    float radius = length(dist);
+    float2 dist = input.uv - float2(0.5f, 0.5f);
+    float radius = length(dist) / 0.5f;
 
     // 距離に応じてノイズの強度を減少させる
-    float falloff = max(0.0, 1.0 - radius * 2);
+    float falloff = 1.0f - Easing_Cubic_In(radius, 1.0f, 0.0f, 1.0f);
     perlinValue *= falloff;
 
-    float3 weights = float3(0.5f, 0.3f, 0.2f); // 各ノイズの重み
+    float3 weights = float3(0.6f, 0.2f, 0.2f); // 各ノイズの重み
     float fogDensity = dot(perlinValue, weights);
-    
-    fogDensity = clamp(fogDensity, 0.0f, 0.5f);
     
     //色を緑にする。
     texCol.xyz = float3(fogDensity, fogDensity, fogDensity) * float3(0.35f, 0.90f, 0.57f);
