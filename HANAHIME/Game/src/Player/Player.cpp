@@ -484,7 +484,20 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		else {
 
 			//“ü—Í‚ğ”½“]‚³‚¹‚é‚©H
-			if (m_isCameraInvX || (m_isCameraUpInverse && (0.9f < m_transform.GetUp().x || m_transform.GetUp().x < -0.9f))) {
+
+			if (m_isCameraInvX && (m_isCameraUpInverse && (0.9f < m_transform.GetUp().y || m_transform.GetUp().y < -0.9f))) {
+
+				//m_rowMoveVec.x *= -1.0f;
+				m_rowMoveVec.z *= -1.0f;
+
+			}
+			else if (m_isCameraInvX && (!m_isCameraUpInverse && (0.9f < m_transform.GetUp().y || m_transform.GetUp().y < -0.9f))) {
+
+				//m_rowMoveVec.x *= -1.0f;
+				m_rowMoveVec.z *= -1.0f;
+
+			}
+			else if (m_isCameraInvX || (m_isCameraUpInverse && (0.9f < m_transform.GetUp().x || m_transform.GetUp().x < -0.9f))) {
 
 				m_rowMoveVec.x *= -1.0f;
 				m_rowMoveVec.z *= -1.0f;
