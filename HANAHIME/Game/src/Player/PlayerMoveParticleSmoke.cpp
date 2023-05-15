@@ -146,6 +146,14 @@ void PlayerMoveParticleSmoke::Draw(KuroEngine::Camera& arg_cam, KuroEngine::Ligh
 		mat.emplace_back(index.m_transform.GetMatWorld());
 		alpha.emplace_back(index.m_alpha);
 
+	}	
+	
+	//サイズが0だったら。
+	if (static_cast<int>(mat.size()) <= 0) {
+
+		mat.emplace_back(KuroEngine::Matrix());
+		alpha.emplace_back(0.0f);
+
 	}
 
 	m_smokeNoiseBuffer->Mapping(&m_smokeInfo);
