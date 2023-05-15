@@ -606,10 +606,13 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	}
 	m_growPlantPtLig.m_defInfluenceRange = MAX_INFLUENCE_RANGE;
 
+	//カメラをデフォルトの位置に戻すか。
+	bool isCameraDefault = UsersInput::Instance()->ControllerOnTrigger(0, LT) || UsersInput::Instance()->KeyOnTrigger(DIK_R);
+
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_MODE[m_cameraMode], arg_nowStage, m_isCameraUpInverse);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_MODE[m_cameraMode], arg_nowStage, m_isCameraUpInverse, isCameraDefault);
 
 		m_deathEffectCameraZ = CAMERA_MODE[m_cameraMode];
 	}
@@ -619,7 +622,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_shake);
 
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse, isCameraDefault);
 
 	}
 	//シェイクを計算。
