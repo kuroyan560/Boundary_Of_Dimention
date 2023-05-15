@@ -83,7 +83,8 @@ void CPULoucusEmitter::Draw(KuroEngine::Camera &camera)
 
 CPULoucusEmitter::CPUParticle::CPUParticle():m_initFlag(false)
 {
-	m_tex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/GreenOrb.png");
+	//m_tex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/GreenOrb.png");
+	m_tex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(KuroEngine::Color(1.0f, 1.0f, 1.0f, 1.0f), 256);
 }
 
 void CPULoucusEmitter::CPUParticle::Init(const KuroEngine::Vec3<float> &pos, float scale, int time)
