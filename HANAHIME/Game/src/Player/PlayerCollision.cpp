@@ -89,6 +89,11 @@ void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, Kuro
 		//動く足場でない
 		if (terrian->GetType() != StageParts::SPLATOON_FENCE)continue;
 
+		//距離によってカリング
+		const float DEADLINE = terrian->GetTransform().GetScale().Length() * 2.0f;
+		float distance = KuroEngine::Vec3<float>(terrian->GetTransform().GetPosWorld() - m_refPlayer->m_transform.GetPosWorld()).Length();
+		if (DEADLINE < distance) continue;
+
 		//動く足場としてキャスト
 		auto ivyBlock = dynamic_pointer_cast<SplatoonFence>(terrian);
 
@@ -384,6 +389,11 @@ void PlayerCollision::CheckHitGround(const KuroEngine::Vec3<float>arg_from, Kuro
 		//動く足場でない
 		if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)continue;
 
+		//距離によってカリング
+		const float DEADLINE = terrian->GetTransform().GetScale().Length() * 100.0f;
+		float distance = KuroEngine::Vec3<float>(terrian->GetTransform().GetPosWorld() - m_refPlayer->m_transform.GetPosWorld()).Length();
+		if (DEADLINE < distance) continue;
+
 		//動く足場としてキャスト
 		auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
 
@@ -440,6 +450,11 @@ void PlayerCollision::CheckHitGround(const KuroEngine::Vec3<float>arg_from, Kuro
 	{
 		//動く足場でない
 		if (terrian->GetType() != StageParts::IVY_BLOCK)continue;
+
+		//距離によってカリング
+		const float DEADLINE = terrian->GetTransform().GetScale().x * 2.0f;
+		float distance = KuroEngine::Vec3<float>(terrian->GetTransform().GetPosWorld() - m_refPlayer->m_transform.GetPosWorld()).Length();
+		if (DEADLINE < distance) continue;
 
 		//動く足場としてキャスト
 		auto ivyBlock = dynamic_pointer_cast<IvyBlock>(terrian);
@@ -580,6 +595,11 @@ void PlayerCollision::CheckCliff(PlayerCollision::ImpactPointData& arg_impactPoi
 		//動く足場でない
 		if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)continue;
 
+		//距離によってカリング
+		const float DEADLINE = terrian->GetTransform().GetScale().Length() * 100.0f;
+		float distance = KuroEngine::Vec3<float>(terrian->GetTransform().GetPosWorld() - m_refPlayer->m_transform.GetPosWorld()).Length();
+		if (DEADLINE < distance) continue;
+
 		//動く足場としてキャスト
 		auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
 
@@ -614,6 +634,11 @@ void PlayerCollision::CheckCliff(PlayerCollision::ImpactPointData& arg_impactPoi
 	{
 		//動く足場でない
 		if (terrian->GetType() != StageParts::IVY_BLOCK)continue;
+
+		//距離によってカリング
+		const float DEADLINE = terrian->GetTransform().GetScale().x * 2.0f;
+		float distance = KuroEngine::Vec3<float>(terrian->GetTransform().GetPosWorld() - m_refPlayer->m_transform.GetPosWorld()).Length();
+		if (DEADLINE < distance) continue;
 
 		//動く足場としてキャスト
 		auto ivyBlock = dynamic_pointer_cast<IvyBlock>(terrian);
@@ -678,12 +703,17 @@ void PlayerCollision::CheckCliff(PlayerCollision::ImpactPointData& arg_impactPoi
 		}
 	}
 
-	////フェンスとの当たり判定
+	//フェンスとの当たり判定
 	if (!m_refPlayer->GetIsUnderGround()) {
 		for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
 		{
 			//動く足場でない
 			if (terrian->GetType() != StageParts::SPLATOON_FENCE)continue;
+
+			//距離によってカリング
+			const float DEADLINE = terrian->GetTransform().GetScale().Length() * 2.0f;
+			float distance = KuroEngine::Vec3<float>(terrian->GetTransform().GetPosWorld() - m_refPlayer->m_transform.GetPosWorld()).Length();
+			if (DEADLINE < distance) continue;
 
 			//動く足場としてキャスト
 			auto ivyBlock = dynamic_pointer_cast<SplatoonFence>(terrian);
@@ -763,6 +793,11 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 		//動く足場でない
 		if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)continue;
 
+		//距離によってカリング
+		const float DEADLINE = terrian->GetTransform().GetScale().Length() * 100.0f;
+		float distance = KuroEngine::Vec3<float>(terrian->GetTransform().GetPosWorld() - m_refPlayer->m_transform.GetPosWorld()).Length();
+		if (DEADLINE < distance) continue;
+
 		//動く足場としてキャスト
 		auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
 
@@ -796,6 +831,11 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 	{
 		//動く足場でない
 		if (terrian->GetType() != StageParts::IVY_BLOCK)continue;
+
+		//距離によってカリング
+		const float DEADLINE = terrian->GetTransform().GetScale().Length() * 2.0f;
+		float distance = KuroEngine::Vec3<float>(terrian->GetTransform().GetPosWorld() - m_refPlayer->m_transform.GetPosWorld()).Length();
+		if (DEADLINE < distance) continue;
 
 		//動く足場としてキャスト
 		auto ivyBlock = dynamic_pointer_cast<IvyBlock>(terrian);
@@ -835,6 +875,11 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 		//動く足場でない
 		if (terrian->GetType() != StageParts::APPEARANCE)continue;
 
+		//距離によってカリング
+		const float DEADLINE = terrian->GetTransform().GetScale().Length() * 100.0f;
+		float distance = KuroEngine::Vec3<float>(terrian->GetTransform().GetPosWorld() - m_refPlayer->m_transform.GetPosWorld()).Length();
+		if (DEADLINE < distance) continue;
+
 		//見えない壁としてキャスト
 		auto appearWall = dynamic_pointer_cast<Appearance>(terrian);
 
@@ -870,6 +915,11 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 		{
 			//動く足場でない
 			if (terrian->GetType() != StageParts::SPLATOON_FENCE)continue;
+
+			//距離によってカリング
+			const float DEADLINE = terrian->GetTransform().GetScale().Length() * 2.0f;
+			float distance = KuroEngine::Vec3<float>(terrian->GetTransform().GetPosWorld() - m_refPlayer->m_transform.GetPosWorld()).Length();
+			if (DEADLINE < distance) continue;
 
 			//見えない壁としてキャスト
 			auto appearWall = dynamic_pointer_cast<SplatoonFence>(terrian);
@@ -1489,6 +1539,11 @@ inline void PlayerCollision::CheckHitAllObject(Func arg_func, KuroEngine::Vec3<f
 		//動く足場でない
 		if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)continue;
 
+		//距離によってカリング
+		const float DEADLINE = terrian->GetTransform().GetScale().Length() * 100.0f;
+		float distance = KuroEngine::Vec3<float>(terrian->GetTransform().GetPosWorld() - m_refPlayer->m_transform.GetPosWorld()).Length();
+		if (DEADLINE < distance) continue;
+
 		//動く足場としてキャスト
 		auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);
 
@@ -1522,6 +1577,11 @@ inline void PlayerCollision::CheckHitAllObject(Func arg_func, KuroEngine::Vec3<f
 	{
 		//動く足場でない
 		if (terrian->GetType() != StageParts::IVY_BLOCK)continue;
+
+		//距離によってカリング
+		const float DEADLINE = terrian->GetTransform().GetScale().x * 2.0f;
+		float distance = KuroEngine::Vec3<float>(terrian->GetTransform().GetPosWorld() - m_refPlayer->m_transform.GetPosWorld()).Length();
+		if (DEADLINE < distance) continue;
 
 		//動く足場としてキャスト
 		auto ivyBlock = dynamic_pointer_cast<IvyBlock>(terrian);
@@ -1596,6 +1656,11 @@ inline void PlayerCollision::CheckHitAllObject(Func arg_func, KuroEngine::Vec3<f
 	{
 		//動く足場でない
 		if (terrian->GetType() != StageParts::SPLATOON_FENCE)continue;
+
+		//距離によってカリング
+		const float DEADLINE = terrian->GetTransform().GetScale().Length() * 2.0f;
+		float distance = KuroEngine::Vec3<float>(terrian->GetTransform().GetPosWorld() - m_refPlayer->m_transform.GetPosWorld()).Length();
+		if (DEADLINE < distance) continue;
 
 		//動く足場としてキャスト
 		auto ivyBlock = dynamic_pointer_cast<SplatoonFence>(terrian);
