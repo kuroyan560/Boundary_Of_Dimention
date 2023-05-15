@@ -33,7 +33,7 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 	m_dirLigArray.back().SetDir(dir.GetNormal());
 	m_dirLigArray.back().SetColor(KuroEngine::Color(0.8f, 0.8f, 0.8f, 1.0f));
 
-	for (auto &dirLig : m_dirLigArray)
+	for (auto& dirLig : m_dirLigArray)
 	{
 		m_ligMgr.RegisterDirLight(&dirLig);
 	}
@@ -193,7 +193,6 @@ void GameScene::OnUpdate()
 
 	if (m_gateSceneChange.IsHide())
 	{
-		GameInit();
 		//パズル画面からシーンチェンジしたらカメラモードを切り替える
 		if (!m_title.IsFinish())
 		{
@@ -204,8 +203,9 @@ void GameScene::OnUpdate()
 		{
 			//タイトル画面に戻る
 			SoundConfig::Instance()->Play(SoundConfig::BGM_TITLE);
-			StageManager::Instance()->SetStage();
+			StageManager::Instance()->SetStage(std::clamp(GateManager::Instance()->GetDestStageNum() - 1, 0, 1000));
 		}
+		GameInit();
 
 		m_goal.Init(StageManager::Instance()->GetGoalTransform(), StageManager::Instance()->GetGoalModel());
 
