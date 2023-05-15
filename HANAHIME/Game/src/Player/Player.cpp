@@ -340,7 +340,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove() * TimeScaleMgr::s_inGame.GetTimeScale();
 
 	//プレイヤーが天井にいたら左右のカメラ走査を反転。
-	if (m_onCeiling) {
+	if (m_onCeiling || m_isCameraUpInverse) {
 		scopeMove *= -1.0f;
 	}
 
@@ -929,6 +929,7 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 		maxSpeed = m_underGroundMaxSpeed;
 		brake = m_underGroundBrake;
 	}
+
 	auto accel = KuroEngine::Math::TransformVec3(m_rowMoveVec, m_transform.GetRotate()) * accelSpeed;
 
 	m_moveSpeed += accel;
