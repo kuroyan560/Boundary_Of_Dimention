@@ -197,7 +197,7 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		if (!CheckJsonKeyExist(arg_fileName, arg_json, "DestGateID"))return;
 
 		int gateID = arg_json["GateID"].get<int>();
-		int destStageNum = arg_json["DestStageNum"].get<int>();
+		int destStageNum = arg_json["DestStageNum"].get<int>() - 1;
 		int destGateID = arg_json["DestGateID"].get<int>();
 		m_gimmickArray.emplace_back(std::make_shared<Gate>(model, transform, gateID, destStageNum, destGateID));
 		newPart = m_gimmickArray.back().get();
@@ -454,4 +454,14 @@ void Stage::Load(int arg_ownStageIdx, std::string arg_dir, std::string arg_fileN
 		}
 	}
 
+}
+
+KuroEngine::Transform Stage::GetGateTransform(int arg_gateID) const
+{
+	for (auto& gate : m_gateArray)
+	{
+		if (!gate.lock()->CheckID(arg_gateID))continue;
+		return gate.lock()->GetInitTransform();
+	}
+	return KuroEngine::Transform();
 }

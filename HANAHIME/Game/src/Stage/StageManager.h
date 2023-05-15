@@ -46,6 +46,9 @@ public:
 
 	//現在のステージのゲッタ
 	std::weak_ptr<Stage>GetNowStage() { return m_nowStage; }
+
+	KuroEngine::Transform GetGateTransform(int arg_stageIdx, int arg_gateID)const;
+
 	int GetAllStageNum()
 	{
 		return static_cast<int>(m_stageArray.size());

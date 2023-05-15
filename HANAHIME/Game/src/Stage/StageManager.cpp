@@ -98,6 +98,11 @@ void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 	m_nowStage->Draw(arg_cam, arg_ligMgr);
 }
 
+KuroEngine::Transform StageManager::GetGateTransform(int arg_stageIdx, int arg_gateID) const
+{
+	return m_stageArray[arg_stageIdx]->GetGateTransform(arg_gateID);
+}
+
 bool StageManager::IsClearNowStage() const
 {
 	return m_nowStage->IsClear();

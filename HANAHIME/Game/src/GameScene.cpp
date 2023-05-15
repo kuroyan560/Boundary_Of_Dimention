@@ -73,7 +73,7 @@ void GameScene::GameInit()
 
 	if (GateManager::Instance()->IsEnter())
 	{
-		m_player.Init(StageManager::Instance()->GetNowStage().lock()->GetGateTransform(GateManager::Instance()->GetDestGateID()));
+		m_player.Init(StageManager::Instance()->GetGateTransform(GateManager::Instance()->GetDestStageNum(), GateManager::Instance()->GetDestGateID()));
 	}
 	else
 	{
@@ -246,6 +246,7 @@ void GameScene::OnUpdate()
 	//“G—pŠÛ‰e‚ðXV
 	EnemyDataReferenceForCircleShadow::Instance()->UpdateGPUData();
 
+	GateManager::Instance()->FrameEnd();
 }
 
 void GameScene::OnDraw()

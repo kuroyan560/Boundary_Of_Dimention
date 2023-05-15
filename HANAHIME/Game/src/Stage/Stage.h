@@ -84,15 +84,7 @@ public:
 	const std::vector<Terrian>& GetTerrianArray()const { return m_terrianArray; }
 	std::list<std::shared_ptr<StageParts>>& GetGimmickArray(){ return m_gimmickArray; }
 
-	KuroEngine::Transform GetGateTransform(int arg_gateID)const
-	{
-		for (auto& gate : m_gateArray)
-		{
-			if (!gate.lock()->CheckID(arg_gateID))continue;
-			return gate.lock()->GetInitTransform();
-		}
-		return KuroEngine::Transform();
-	}
+	KuroEngine::Transform GetGateTransform(int arg_gateID)const;
 
 	//プレイヤーの初期化トランスフォーム
 	KuroEngine::Transform GetPlayerSpawnTransform()const

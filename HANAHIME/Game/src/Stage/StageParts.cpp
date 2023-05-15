@@ -773,3 +773,8 @@ void Gate::Update(Player& arg_player)
 	bool enter = dist < 5.0f;
 	GateManager::Instance()->SetEnter(enter, m_destStageNum, m_destGateId);
 }
+
+bool Gate::CheckID(int arg_id)
+{
+	return m_id == arg_id;
+}

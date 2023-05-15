@@ -481,7 +481,7 @@ public:
 
 	void Update(Player& arg_player)override;
 
-	bool CheckID(int arg_id) { return m_id == arg_id; }
+	bool CheckID(int arg_id);
 	const int& GetDestStageNum()const { return m_destStageNum; }
 	const int& GetDestGateID()const { return m_destGateId; }
 };
