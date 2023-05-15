@@ -850,7 +850,9 @@ std::shared_ptr<KuroEngine::TextureBuffer> KuroEngine::D3D12App::GenerateTexture
 
 	//テクスチャ用リソースバッファの生成
 	ComPtr<ID3D12Resource1>buff;
-	CD3DX12_HEAP_PROPERTIES heapPropForTex(D3D12_CPU_PAGE_PROPERTY_WRITE_BACK, D3D12_MEMORY_POOL_L0);
+	D3D12_HEAP_PROPERTIES heapPropForTex = D3D12_HEAP_PROPERTIES{
+		D3D12_HEAP_TYPE_DEFAULT, D3D12_CPU_PAGE_PROPERTY_UNKNOWN, D3D12_MEMORY_POOL_UNKNOWN, 1, 1
+	};
 	auto hr = m_device->CreateCommittedResource(
 		&heapPropForTex,
 		D3D12_HEAP_FLAG_NONE,

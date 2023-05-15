@@ -268,11 +268,11 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     output.color = result;
     
     //–¾‚é‚³ŒvŽZ
-    // float bright = dot(result.xyz, float3(0.2125f, 0.7154f, 0.0721f));
-    // if (1.0f < bright)
-    //    output.emissive += result;
-    // output.emissive.w = result.w;
     output.emissive = float4(0, 0, 0, 0);
+    float bright = dot(result.xyz, float3(0.2125f, 0.7154f, 0.0721f));
+    if (1.0f < bright)
+        output.emissive += result;
+    output.emissive.w = result.w;
     
     output.depth = input.depthInView;
 
