@@ -452,7 +452,7 @@ void PlayerCollision::CheckHitGround(const KuroEngine::Vec3<float>arg_from, Kuro
 		if (terrian->GetType() != StageParts::IVY_BLOCK)continue;
 
 		//距離によってカリング
-		const float DEADLINE = terrian->GetTransform().GetScale().x * 2.0f;
+		const float DEADLINE = 100.0f;
 		float distance = KuroEngine::Vec3<float>(terrian->GetTransform().GetPosWorld() - m_refPlayer->m_transform.GetPosWorld()).Length();
 		if (DEADLINE < distance) continue;
 
@@ -636,7 +636,7 @@ void PlayerCollision::CheckCliff(PlayerCollision::ImpactPointData& arg_impactPoi
 		if (terrian->GetType() != StageParts::IVY_BLOCK)continue;
 
 		//距離によってカリング
-		const float DEADLINE = terrian->GetTransform().GetScale().x * 2.0f;
+		const float DEADLINE = terrian->GetTransform().GetScale().Length() * 5.0f;
 		float distance = KuroEngine::Vec3<float>(terrian->GetTransform().GetPosWorld() - m_refPlayer->m_transform.GetPosWorld()).Length();
 		if (DEADLINE < distance) continue;
 
@@ -833,7 +833,7 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 		if (terrian->GetType() != StageParts::IVY_BLOCK)continue;
 
 		//距離によってカリング
-		const float DEADLINE = terrian->GetTransform().GetScale().Length() * 2.0f;
+		const float DEADLINE = terrian->GetTransform().GetScale().Length() * 5.0f;
 		float distance = KuroEngine::Vec3<float>(terrian->GetTransform().GetPosWorld() - m_refPlayer->m_transform.GetPosWorld()).Length();
 		if (DEADLINE < distance) continue;
 
@@ -1579,7 +1579,7 @@ inline void PlayerCollision::CheckHitAllObject(Func arg_func, KuroEngine::Vec3<f
 		if (terrian->GetType() != StageParts::IVY_BLOCK)continue;
 
 		//距離によってカリング
-		const float DEADLINE = terrian->GetTransform().GetScale().x * 2.0f;
+		const float DEADLINE = terrian->GetTransform().GetScale().Length() * 5.0f;
 		float distance = KuroEngine::Vec3<float>(terrian->GetTransform().GetPosWorld() - m_refPlayer->m_transform.GetPosWorld()).Length();
 		if (DEADLINE < distance) continue;
 
