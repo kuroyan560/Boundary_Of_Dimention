@@ -326,8 +326,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
 
-	if (UsersInput::Instance()->KeyOnTrigger(DIK_G))Damage();
-
 	//トランスフォームを保存。
 	m_prevTransform = m_transform;
 
