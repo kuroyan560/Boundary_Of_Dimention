@@ -284,7 +284,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     float speed = 0.05f; // 流れる速さ
     
 
-    float3 perlinValue = PerlinNoiseWithWind(st, octaves, persistence, lacunarity, 0.1f, speed, noiseTimer, input.worldpos + float3(input.instanceIndex, input.instanceIndex, input.instanceIndex), clamp(1.0f - smokeAlpha[input.instanceIndex], 0.0f, 0.2f)) * 0.15f;
+    float3 perlinValue = PerlinNoiseWithWind(st, octaves, persistence, lacunarity, 0.1f, speed, noiseTimer, input.worldpos + float3(input.instanceIndex, input.instanceIndex, input.instanceIndex), clamp(1.0f - smokeAlpha[input.instanceIndex], 0.0f, 0.2f)) * 0.3f;
 
     // テクスチャの中心からの距離を計算
     float2 dist = input.uv - float2(0.5f, 0.5f);
