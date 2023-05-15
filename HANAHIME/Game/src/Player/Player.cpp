@@ -977,6 +977,13 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 					const float SMOKE_SCATTER = 5.0f;
 					m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_influenceRange));
 				}
+				//âåÇ‡ÇøÇÂÇ¡Ç∆ÇæÇØèoÇ∑ÅB
+				for (int index = 0; index < 2; ++index) {
+					KuroEngine::Vec3<float> scatterVec = KuroEngine::GetRand(KuroEngine::Vec3<float>(-1, -1, -1), KuroEngine::Vec3<float>(1, 1, 1));
+
+					const float SMOKE_SCATTER = 5.0f;
+					m_playerMoveParticle.GenerateSmoke(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_defInfluenceRange));
+				}
 			}
 			m_playerMoveParticleTimer.Reset();
 		}
