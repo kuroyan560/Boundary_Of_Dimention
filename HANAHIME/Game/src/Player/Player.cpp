@@ -311,6 +311,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 
 	m_playerMoveParticle.Init();
 	m_playerMoveParticleTimer.Reset(PLAYER_MOVE_PARTICLE_SPAN);
+	m_playerIdleParticleTimer.Reset(PLAYER_IDLE_PARTICLE_SPAN);
 
 }
 
@@ -1005,18 +1006,18 @@ void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 	//動いていないときも適量のパーティクルを出す。
 	else {
 
-		m_playerMoveParticleTimer.UpdateTimer();
-		if (m_playerMoveParticleTimer.IsTimeUpOnTrigger()) {
+		m_playerIdleParticleTimer.UpdateTimer();
+		if (m_playerIdleParticleTimer.IsTimeUpOnTrigger()) {
 
 			//オーブを出す。
-			for (int index = 0; index < PLAYER_MOVE_PARTICLE_COUNT; ++index) {
+			for (int index = 0; index < 1; ++index) {
 				KuroEngine::Vec3<float> scatterVec = KuroEngine::GetRand(KuroEngine::Vec3<float>(-1, -1, -1), KuroEngine::Vec3<float>(1, 1, 1));
 
 				const float SMOKE_SCATTER = 5.0f;
-				m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_influenceRange));
+				m_playerMoveParticle.GenerateIdle(m_transform.GetPos(), scatterVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_influenceRange));
 			}
 
-			m_playerMoveParticleTimer.Reset();
+			m_playerIdleParticleTimer.Reset();
 
 		}
 

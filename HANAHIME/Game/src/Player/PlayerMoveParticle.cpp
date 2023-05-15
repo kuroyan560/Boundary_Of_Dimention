@@ -14,6 +14,7 @@ void PlayerMoveParticle::Init()
 {
 
 	m_orb.Init();
+	m_idleOrb.Init();
 	m_smoke.Init();
 
 }
@@ -22,6 +23,7 @@ void PlayerMoveParticle::Update()
 {
 
 	m_orb.Update();
+	m_idleOrb.Update();
 	m_smoke.Update();
 
 }
@@ -30,6 +32,7 @@ void PlayerMoveParticle::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightMana
 {
 	
 	m_orb.Draw(arg_cam, arg_ligMgr);
+	m_idleOrb.Draw(arg_cam, arg_ligMgr);
 	m_smoke.Draw(arg_cam, arg_ligMgr);
 
 }
@@ -38,6 +41,13 @@ void PlayerMoveParticle::GenerateOrb(const KuroEngine::Vec3<float>& arg_playerPo
 {
 
 	m_orb.Generate(arg_playerPos, arg_scatter, arg_vel);
+
+}
+
+void PlayerMoveParticle::GenerateIdle(const KuroEngine::Vec3<float>& arg_playerPos, const KuroEngine::Vec3<float>& arg_scatter)
+{
+
+	m_idleOrb.Generate(arg_playerPos, arg_scatter);
 
 }
 
