@@ -320,6 +320,7 @@ void GameScene::OnDraw()
 	if (m_title.IsFinish() || m_title.IsStartOP())
 	{
 		m_player.DrawUI(*m_nowCam);
+		StageManager::Instance()->DrawUI(*m_nowCam);
 	}
 
 	m_title.Draw(*m_nowCam, m_ligMgr);
