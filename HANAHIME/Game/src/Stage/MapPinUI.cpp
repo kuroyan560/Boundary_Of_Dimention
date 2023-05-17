@@ -16,7 +16,11 @@ MapPinUI::MapPinUI()
 	m_largeSquare = std::make_shared<Content>(texDirPath + "large_square.png", &m_canvasTransform);
 
 	//矢印ピン
-	m_arrowPin = std::make_shared<Content>(texDirPath + "arrow.png", &m_canvasTransform);
+	for (auto& arrow : m_arrowPinArray)
+	{
+		arrow = std::make_shared<Content>(texDirPath + "arrow.png", &m_canvasTransform);
+	}
+	m_arrowAlphaTimer.Reset(ARROW_ALPHA_EFFECT_TIME);
 
 	//距離の数字のテクスチャ読み込み
 	D3D12App::Instance()->GenerateTextureBuffer(m_numTex.data(), texDirPath + "num.png", 10, Vec2<int>(10, 1));
@@ -39,10 +43,10 @@ MapPinUI::MapPinUI()
 	m_mapPinUI[PIN_MODE_IN_SCREEN].emplace_back(m_middleSquare);
 
 	//画面内に目標地点が映っていないときのUI
-	m_mapPinUI[PIN_MODE_OUT_SCREEN].emplace_back(m_arrowPin);
+	for(auto& arrow : m_arrowPinArray)m_mapPinUI[PIN_MODE_OUT_SCREEN].emplace_back(arrow);
 }
 
-void MapPinUI::UpdateDistance(PIN_MODE arg_pinMode, float arg_distance)
+void MapPinUI::UpdateDistance(PIN_STACK_STATUS arg_pinStackStatus, PIN_MODE arg_pinMode, float arg_distance)
 {
 	//小数点切り捨て
 	int dist = static_cast<int>(arg_distance);
@@ -70,6 +74,8 @@ void MapPinUI::UpdateDistance(PIN_MODE arg_pinMode, float arg_distance)
 	//座標オフセットY
 	float offsetY = arg_pinMode == PIN_MODE_IN_SCREEN ? m_largeSquare->m_tex->GetGraphSize().y * 0.5f : m_smallSquare->m_tex->GetGraphSize().y * 1.5f;
 	offsetY += m_meterDrawOffsetY;
+	//マップピンが下端に引っかかっていた場合のみ、距離表記をピンの上側に表示
+	if (arg_pinStackStatus == PIN_POS_BOTTOM_STACK)offsetY *= -0.8f;
 
 	for (int digitIdx = 0; digitIdx < NUM_DIGIT_MAX; ++digitIdx)
 	{
@@ -94,36 +100,39 @@ void MapPinUI::UpdateDistance(PIN_MODE arg_pinMode, float arg_distance)
 	m_meter->m_transform.SetPos({ leftPosX + m_meterStrDrawSpace + meterTexWidth * 0.5f,offsetY });
 }
 
-void MapPinUI::UpdateArrowDir(KuroEngine::Vec2<float> arg_destPos2D, KuroEngine::Vec2<float>arg_winSize, float arg_clampOffset)
+void MapPinUI::UpdateArrowDir(PIN_STACK_STATUS arg_pinStackStatus)
 {
 	float destAngle = 0.0f;
 	KuroEngine::Vec2<float>offset;
 	float pinSizeHalf = m_smallSquare->m_tex->GetGraphSize().x * 0.5f;
 
-	if (abs(arg_clampOffset - arg_destPos2D.x) < FLT_EPSILON)	//左向き
+	switch (arg_pinStackStatus)
 	{
-		destAngle = KuroEngine::Angle::PI();
-		offset.x = -pinSizeHalf - m_arrowDrawOffset;
+		case PIN_POS_LEFT_STACK:	//左向き
+			destAngle = KuroEngine::Angle::PI();
+			offset.x = -pinSizeHalf - m_arrowDrawOffset;
+			break;
+		case PIN_POS_RIGHT_STACK:	//右向き
+			destAngle = 0.0f;
+			offset.x = pinSizeHalf + m_arrowDrawOffset;
+			break;
+		case PIN_POS_UP_STACK:		//上向き
+			destAngle = -KuroEngine::Angle::PI() * 0.5f;
+			offset.y = -pinSizeHalf - m_arrowDrawOffset;
+			break;
+		case PIN_POS_BOTTOM_STACK:		//下向き
+			destAngle = KuroEngine::Angle::PI() * 0.5f;
+			offset.y = pinSizeHalf + m_arrowDrawOffset;
+			break;
+		default:
+			break;
 	}
-	else if (abs((arg_winSize.x - arg_clampOffset) - arg_destPos2D.x) < FLT_EPSILON)	//右向き
-	{
-		destAngle = 0.0f;	
-		offset.x = pinSizeHalf + m_arrowDrawOffset;
 
-	}
-	else if (abs(arg_clampOffset - arg_destPos2D.y) < FLT_EPSILON)	//上向き
+	for (int arrowIdx = 0; arrowIdx < ARROW_NUM; ++arrowIdx)
 	{
-		destAngle = -KuroEngine::Angle::PI() * 0.5f;	
-		offset.y = -pinSizeHalf - m_arrowDrawOffset;
+		m_arrowPinArray[arrowIdx]->m_angle = destAngle;
+		m_arrowPinArray[arrowIdx]->m_transform.SetPos(offset + (offset.GetNormal() * m_arrowDrawSpace * static_cast<float>(arrowIdx)));
 	}
-	else if (abs((arg_winSize.y - arg_clampOffset) - arg_destPos2D.y) < FLT_EPSILON)	//下向き
-	{
-		destAngle = KuroEngine::Angle::PI() * 0.5f;
-		offset.y = pinSizeHalf + m_arrowDrawOffset;
-	}
-
-	m_arrowPin->m_angle = destAngle;
-	m_arrowPin->m_transform.SetPos(offset);
 }
 
 void MapPinUI::Draw(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float> arg_destinationPos, KuroEngine::Vec3<float>arg_playerPos)
@@ -141,10 +150,6 @@ void MapPinUI::Draw(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float> arg_des
 	//カメラが反対向き
 	if (camDist < 0.0f)
 	{
-		//Yのみ補正
-		/*if (destPos2D.y < winCenter.y)destPos2D.y = 0.0f;
-		else destPos2D.y = winSize.y;*/
-
 		//Xのみ補正
 		if (destPos2D.x < winCenter.x)destPos2D.x = 0.0f;
 		else destPos2D.x = winSize.x;
@@ -160,6 +165,13 @@ void MapPinUI::Draw(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float> arg_des
 	destPos2D.x = std::clamp(destPos2D.x, clampOffset, winSize.x - clampOffset);
 	destPos2D.y = std::clamp(destPos2D.y, clampOffset, winSize.y - clampOffset);
 
+	//ピンが引っかかってるいるか
+	PIN_STACK_STATUS pinStackState = PIN_POS_NON_STACK;
+	if (abs(clampOffset - destPos2D.x) < FLT_EPSILON)pinStackState = PIN_POS_LEFT_STACK;
+	else if (abs((winSize.x - clampOffset) - destPos2D.x) < FLT_EPSILON)pinStackState = PIN_POS_RIGHT_STACK;
+	else if (abs(clampOffset - destPos2D.y) < FLT_EPSILON)pinStackState = PIN_POS_UP_STACK;
+	else if (abs((winSize.y - clampOffset) - destPos2D.y) < FLT_EPSILON)pinStackState = PIN_POS_BOTTOM_STACK;
+
 	//UI全体の中心座標を設定
 	m_canvasTransform.SetPos(destPos2D);
 
@@ -167,10 +179,10 @@ void MapPinUI::Draw(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float> arg_des
 	PIN_MODE mode = isOutOfScreen ? PIN_MODE_OUT_SCREEN : PIN_MODE_IN_SCREEN;
 
 	//距離の数字更新
-	UpdateDistance(mode, arg_destinationPos.Distance(arg_playerPos));
+	UpdateDistance(pinStackState, mode, arg_destinationPos.Distance(arg_playerPos));
 
 	//矢印ピンの向き更新
-	UpdateArrowDir(destPos2D, winSize, clampOffset);
+	UpdateArrowDir(pinStackState);
 
 	//UI描画
 	for (auto& uiPtr : m_mapPinUI[mode])
