@@ -366,7 +366,6 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		//パイプライン設定
 		static PipelineInitializeOption s_pipelineOption(D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT, D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 		s_pipelineOption.m_calling = D3D12_CULL_MODE_NONE;
-		//s_pipelineOption.m_depthWriteMask = false;
 
 		//シェーダー情報
 		static KuroEngine::Shaders s_shaders;
@@ -968,7 +967,7 @@ void BasicDraw::DrawEdge(DirectX::XMMATRIX arg_camView, DirectX::XMMATRIX arg_ca
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(rts, arg_ds.lock());
 }
 
-void BasicDraw::DrawBillBoard(KuroEngine::Camera &arg_cam, KuroEngine::Transform &arg_transform, std::shared_ptr<KuroEngine::TextureBuffer>Tex, float alpha, const KuroEngine::AlphaBlendMode &arg_blendMode)
+void BasicDraw::DrawBillBoard(KuroEngine::Camera &arg_cam, KuroEngine::Transform &arg_transform, std::shared_ptr<KuroEngine::TextureBuffer>Tex, const KuroEngine::Color &color, const KuroEngine::AlphaBlendMode &arg_blendMode)
 {
 	using namespace KuroEngine;
 
@@ -979,7 +978,7 @@ void BasicDraw::DrawBillBoard(KuroEngine::Camera &arg_cam, KuroEngine::Transform
 		s_graphVertBuff.emplace_back(D3D12App::Instance()->GenerateVertexBuffer(sizeof(Vertex), 1, nullptr, ("DrawGraphBillBoard -" + std::to_string(m_drawBillboardCount)).c_str()));
 	}
 
-	Vertex vertex(arg_transform.GetPos(), { arg_transform.GetScale().x,arg_transform.GetScale().y }, Color(1.0f, 1.0f, 1.0f, alpha));
+	Vertex vertex(arg_transform.GetPos(), { arg_transform.GetScale().x,arg_transform.GetScale().y }, color);
 	s_graphVertBuff[m_drawBillboardCount]->Mapping(&vertex);
 
 	KuroEngineDevice::Instance()->Graphics().ObjectRender(

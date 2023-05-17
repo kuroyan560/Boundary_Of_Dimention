@@ -139,8 +139,8 @@ private:
 		KuroEngine::Vec2<float>m_upSize;
 		KuroEngine::Vec2<float>m_downSize;
 		KuroEngine::Color m_col;
-		RectVertex(const KuroEngine::Vec3<float> &Pos, const KuroEngine::Vec2<float> &UpSize, const KuroEngine::Vec2<float> &DownSize,const KuroEngine::Color &Color)
-			:m_pos(Pos), m_upSize(UpSize),m_downSize(DownSize), m_col(Color) {}
+		RectVertex(const KuroEngine::Vec3<float> &Pos, const KuroEngine::Vec2<float> &UpSize, const KuroEngine::Vec2<float> &DownSize, const KuroEngine::Color &Color)
+			:m_pos(Pos), m_upSize(UpSize), m_downSize(DownSize), m_col(Color) {}
 	};
 	std::vector<std::shared_ptr<KuroEngine::VertexBuffer>>s_billBoardRectVertBuff;
 	std::shared_ptr<KuroEngine::GraphicsPipeline>m_drawRectBillBoardPipeline;
@@ -295,6 +295,6 @@ public:
 	std::shared_ptr<KuroEngine::RenderTarget> &GetRenderTarget(RENDER_TARGET_TYPE arg_type) { return m_renderTargetArray[arg_type]; }
 
 
-	void DrawBillBoard(KuroEngine::Camera &arg_cam, KuroEngine::Transform &arg_transform, std::shared_ptr<KuroEngine::TextureBuffer>Tex, float alpha = 1.0f, const KuroEngine::AlphaBlendMode &arg_blendMode = KuroEngine::AlphaBlendMode_None);
+	void DrawBillBoard(KuroEngine::Camera &arg_cam, KuroEngine::Transform &arg_transform, std::shared_ptr<KuroEngine::TextureBuffer>Tex, const KuroEngine::Color &color, const KuroEngine::AlphaBlendMode &arg_blendMode = KuroEngine::AlphaBlendMode_None);
 	void DrawBillBoard(KuroEngine::Camera &arg_cam, const KuroEngine::Vec3<float> &pos, const KuroEngine::Vec2<float> &upSize, const KuroEngine::Vec2<float> &downSize, std::shared_ptr<KuroEngine::TextureBuffer>Tex, float alpha = 1.0f, const KuroEngine::AlphaBlendMode &arg_blendMode = KuroEngine::AlphaBlendMode_None);
 };

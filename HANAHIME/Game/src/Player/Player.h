@@ -14,6 +14,7 @@
 #include<memory>
 #include"ForUser/ImpactShake.h"
 #include"../Stage/Enemy/Enemy.h"
+#include"../CPUParticle/DashEffect.h"
 
 
 namespace KuroEngine
@@ -379,6 +380,6 @@ private:
 
 	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_tex;
 	std::unique_ptr<MiniBug::Reaction> m_reaction;
-
+	DashEffect m_dashEffect;
 };
 

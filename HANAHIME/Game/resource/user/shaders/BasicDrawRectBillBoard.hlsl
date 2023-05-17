@@ -99,7 +99,6 @@ PSOutput PSmain(GSOutput input) : SV_TARGET
     output.color = input.col * texCol;
     output.emissive = float4(0,0,0,0);
     output.depth = input.depthInView;
-
     if(output.color.a <= 0.9f)
     {
         discard;

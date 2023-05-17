@@ -236,7 +236,7 @@ public:
 			m_appearFlag = true;
 			m_scaleTimer.Reset(5);
 
-			m_baseScale = { 5.0f,5.0f };
+			m_baseScale = { 2.0f,5.0f };
 			m_downScale = m_baseScale;
 		}
 

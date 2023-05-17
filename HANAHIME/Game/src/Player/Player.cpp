@@ -106,14 +106,14 @@ void Player::OnImguiItems()
 		auto pos = m_transform.GetPos();
 		auto angle = m_transform.GetRotateAsEuler();
 
-		if (ImGui::DragFloat3("Position", (float*)&pos, 0.5f))
+		if (ImGui::DragFloat3("Position", (float *)&pos, 0.5f))
 		{
 			m_transform.SetPos(pos);
 		}
 
 		//操作しやすいようにオイラー角に変換
 		KuroEngine::Vec3<float>eular = { angle.x.GetDegree(),angle.y.GetDegree(),angle.z.GetDegree() };
-		if (ImGui::DragFloat3("Eular", (float*)&eular, 0.5f))
+		if (ImGui::DragFloat3("Eular", (float *)&eular, 0.5f))
 		{
 			m_transform.SetRotate(Angle::ConvertToRadian(eular.x), Angle::ConvertToRadian(eular.y), Angle::ConvertToRadian(eular.z));
 		}
@@ -132,7 +132,7 @@ void Player::OnImguiItems()
 	}
 }
 
-void Player::AnimationSpecification(const KuroEngine::Vec3<float>& arg_beforePos, const KuroEngine::Vec3<float>& arg_newPos)
+void Player::AnimationSpecification(const KuroEngine::Vec3<float> &arg_beforePos, const KuroEngine::Vec3<float> &arg_newPos)
 {
 	//移動ステータス
 	if (m_playerMoveStatus == PLAYER_MOVE_STATUS::MOVE)
@@ -345,6 +345,10 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	}
 
 	m_reaction->Update(m_drawTransform.GetPos());
+
+	KuroEngine::Vec3<float>dir(GetOldPos() - GetNowPos());
+	dir.Normalize();
+	m_dashEffect.Update(m_drawTransform.GetPos(), dir, GetNowPos() != GetOldPos());
 
 
 	//トランスフォームを保存。
@@ -745,7 +749,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 }
 
-void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
+void Player::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr, bool arg_cameraDraw)
 {
 
 	/*
@@ -775,9 +779,6 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 	//	m_drawTransform,
 	//	arg_cam);
 
-	m_reaction->Draw(arg_cam);
-
-
 	if (arg_cameraDraw)
 	{
 		auto camTransform = m_cam->GetTransform();
@@ -788,13 +789,16 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 	}
 }
 
-void Player::DrawParticle(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void Player::DrawParticle(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 	//プレイヤーが動いた時のパーティクル挙動
 	m_playerMoveParticle.Draw(arg_cam, arg_ligMgr);
+
+	m_reaction->Draw(arg_cam);
+	m_dashEffect.Draw(arg_cam);
 }
 
-void Player::DrawUI(KuroEngine::Camera& arg_cam)
+void Player::DrawUI(KuroEngine::Camera &arg_cam)
 {
 	using namespace KuroEngine;
 
@@ -969,7 +973,7 @@ Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<floa
 
 }
 
-void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
+void Player::Move(KuroEngine::Vec3<float> &arg_newPos) {
 
 	//落下中は入力を無効化。
 	if (!m_onGround) {
