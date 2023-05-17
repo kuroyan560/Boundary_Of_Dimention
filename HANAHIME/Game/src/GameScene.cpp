@@ -240,7 +240,7 @@ void GameScene::OnUpdate()
 
 	m_gateSceneChange.Update();
 	m_movieCamera.Update();
-	m_fireFlyStage.ComputeUpdate();
+	m_fireFlyStage.ComputeUpdate(m_player.GetTransform().GetPos());
 
 	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld(), *m_nowCam);
 
@@ -280,7 +280,6 @@ void GameScene::OnDraw()
 
 	//if (m_title.IsStartOP())
 	{
-		m_particleRender.Draw(*m_nowCam);
 	}
 
 
@@ -301,6 +300,8 @@ void GameScene::OnDraw()
 	{
 		m_player.DrawParticle(*m_nowCam, m_ligMgr);
 	}
+
+	m_particleRender.Draw(*m_nowCam);
 
 	//m_canvasPostEffect.Execute();
 	BasicDraw::Instance()->DrawEdge(m_nowCam->GetViewMat(), m_nowCam->GetProjectionMat(), ds);
