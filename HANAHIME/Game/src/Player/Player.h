@@ -13,6 +13,9 @@
 #include"PlayerMoveParticle.h"
 #include<memory>
 #include"ForUser/ImpactShake.h"
+#include"../Stage/Enemy/Enemy.h"
+
+
 namespace KuroEngine
 {
 	class Camera;
@@ -372,6 +375,10 @@ private:
 
 	//ダメージ中の更新処理
 	void UpdateDamage();
+
+
+	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_tex;
+	std::unique_ptr<MiniBug::Reaction> m_reaction;
 
 };
 

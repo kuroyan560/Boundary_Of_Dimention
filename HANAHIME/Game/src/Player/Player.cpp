@@ -235,6 +235,15 @@ Player::Player()
 
 	m_hpTex = D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/in_game/hp_leaf.png");
 	m_hpDamageTex = D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/in_game/hp_leaf_damage.png");
+
+
+	m_tex.resize(MiniBug::MAX);
+	m_tex[MiniBug::FIND] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/Find.png");
+	m_tex[MiniBug::HIT] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/Attack.png");
+	m_tex[MiniBug::LOOK] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/hatena.png");
+	m_tex[MiniBug::FAR_AWAY] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/hatena.png");
+	m_tex[MiniBug::DEAD] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/dead.png");
+	m_reaction = std::make_unique<MiniBug::Reaction>(m_tex);
 }
 
 void Player::Init(KuroEngine::Transform arg_initTransform)
@@ -325,6 +334,18 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
+
+	if (UsersInput::Instance()->KeyOnTrigger(DIK_0))
+	{
+		m_reaction->Init(MiniBug::FIND);
+	}
+	if (UsersInput::Instance()->KeyOnTrigger(DIK_1))
+	{
+		m_reaction->Init(MiniBug::LOOK);
+	}
+
+	m_reaction->Update(m_drawTransform.GetPos());
+
 
 	//トランスフォームを保存。
 	m_prevTransform = m_transform;
@@ -753,6 +774,8 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 	//	m_axisModel,
 	//	m_drawTransform,
 	//	arg_cam);
+
+	m_reaction->Draw(arg_cam);
 
 
 	if (arg_cameraDraw)

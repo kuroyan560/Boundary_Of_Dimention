@@ -5,6 +5,7 @@
 #include"../Grass.h"
 #include"ForUser/DrawFunc/BillBoard/DrawFuncBillBoard.h"
 #include"EnemyDataReferenceForCircleShadow.h"
+#include"../../../src/Graphics/BasicDraw.h"
 
 enum ENEMY_ATTACK_PATTERN
 {
@@ -20,7 +21,7 @@ public:
 		:StageParts(MINI_BUG, arg_model, arg_initTransform), m_deadTimer(120)
 	{
 
-		return;
+		//return;
 
 		m_sightArea.Init(&m_transform);
 		track.Init(0.5f);
@@ -68,7 +69,7 @@ public:
 
 	void OnInit()override;
 	void Update(Player &arg_player)override;
-	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
+	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
 
 	void DebugDraw(KuroEngine::Camera &camera);
 
@@ -206,6 +207,7 @@ private:
 
 	//ÉäÉAÉNÉVÉáÉìï\ãL---------------------------------------
 
+public:
 	enum ReactionEnum
 	{
 		FIND,
@@ -230,19 +232,31 @@ private:
 		{
 			m_index = index;
 			m_timer.Reset(120);
+			finishFlag = false;
+			m_appearFlag = true;
+			m_scaleTimer.Reset(5);
+
+			m_baseScale = { 5.0f,5.0f };
+			m_downScale = m_baseScale;
 		}
 
 		void Update(const KuroEngine::Vec3<float> &pos)
 		{
-			m_pos = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, m_timer.GetTimeRate(), pos, pos + KuroEngine::Vec3<float>(0.0f, 10.0f, 0.0f));
+			m_pos = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, 1.0f, pos, pos + KuroEngine::Vec3<float>(0.0f, 10.0f, 0.0f));
 			m_timer.UpdateTimer();
+
+			Find();
+			m_scaleTimer.UpdateTimer();
 		}
 
 		void Draw(KuroEngine::Camera &camera)
 		{
-			if (!m_timer.IsTimeUp())
+			if (!finishFlag)
 			{
-				KuroEngine::DrawFuncBillBoard::Graph(camera, m_pos, { 5.0f,5.0f }, m_tex[m_index]);
+				KuroEngine::Transform transform;
+				transform.SetPos(m_pos);
+				transform.SetScale({ m_upScale.x,m_upScale.y,1.0f });
+				BasicDraw::Instance()->DrawBillBoard(camera, m_pos, m_upScale, m_downScale, m_tex[m_index]);
 			}
 			else
 			{
@@ -252,15 +266,84 @@ private:
 
 		bool Done()
 		{
-			return m_timer.IsTimeUp();
+			return finishFlag;
 		}
 
 	private:
 		int m_index;
 		KuroEngine::Vec3<float>m_pos;
+		KuroEngine::Vec2<float>m_upScale;
+		KuroEngine::Vec2<float>m_downScale;
+		KuroEngine::Vec2<float>m_baseScale;
 		KuroEngine::Timer m_timer;
 		std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_tex;
+
+
+		KuroEngine::Timer m_scaleTimer;
+		bool m_appearFlag;			//ìoèÍ
+		bool m_showEffectFlag;		//âΩÇ™ãNÇ´ÇΩÇÃÇ©ÇµÇ¡Ç©ÇËå©ÇπÇÈ
+		bool m_preDissappearFlag;	//è¡Ç¶ÇÈèÄîı
+		bool m_disappearFlag;		//è¡ñ≈
+
+		bool finishFlag;
+
+		void Find()
+		{
+			KuroEngine::Vec2<float>appearScale(1.5f, 0.0f);
+			KuroEngine::Vec2<float>showScale(1.0f, 1.0f);
+			KuroEngine::Vec2<float>preDisappearScale(1.5f, 0.0f);
+			KuroEngine::Vec2<float>disappearScale(0.0f, 1.0f);
+
+			//ìoèÍ
+			if (m_appearFlag)
+			{
+				m_upScale = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Circ, m_scaleTimer.GetTimeRate(), { 1.5f,-m_baseScale.y }, showScale * m_baseScale);
+				if (m_scaleTimer.IsTimeUp())
+				{
+					m_appearFlag = false;
+					m_showEffectFlag = true;
+					m_scaleTimer.Reset(30);
+				}
+			}
+			//ébÇ≠å©ÇπÇÈ
+			if (m_showEffectFlag)
+			{
+				//m_upScale = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Circ, m_scaleTimer.GetTimeRate(), appearScale * baseScale, showScale * baseScale);
+				if (m_scaleTimer.IsTimeUp())
+				{
+					m_showEffectFlag = false;
+					m_preDissappearFlag = true;
+					m_scaleTimer.Reset(5);
+				}
+			}
+			//âBÇÍÇÈê°ëO
+			if (m_preDissappearFlag)
+			{
+				m_upScale = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Circ, m_scaleTimer.GetTimeRate(), showScale * m_baseScale, preDisappearScale * m_baseScale);
+				m_downScale.x = m_upScale.x;
+				if (m_scaleTimer.IsTimeUp())
+				{
+					m_preDissappearFlag = false;
+					m_disappearFlag = true;
+					m_scaleTimer.Reset(5);
+				}
+			}
+			//è¡ñ≈
+			if (m_disappearFlag)
+			{
+				m_upScale = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Circ, m_scaleTimer.GetTimeRate(), preDisappearScale * m_baseScale, disappearScale * m_baseScale);
+				m_downScale.x = m_upScale.x;
+				if (m_scaleTimer.IsTimeUp())
+				{
+					m_disappearFlag = false;
+					m_scaleTimer.Reset(60);
+				}
+			}
+		}
 	};
+
+private:
+
 	std::unique_ptr<Reaction> m_reaction;
 
 	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_tex;
@@ -302,8 +385,7 @@ public:
 	DossunRing(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, ENEMY_ATTACK_PATTERN status)
 		:StageParts(DOSSUN_RING, arg_model, arg_initTransform)
 	{
-
-		return;
+		//return;
 
 		m_hitBoxRadiusMax = 10.0f;
 		m_hitBoxRadius = 0.0f;

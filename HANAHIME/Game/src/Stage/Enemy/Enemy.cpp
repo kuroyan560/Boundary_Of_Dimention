@@ -6,7 +6,7 @@
 void MiniBug::OnInit()
 {
 
-	return;
+	//return;
 
 	m_nowStatus = SEARCH;
 	m_prevStatus = SEARCH;
@@ -28,14 +28,12 @@ void MiniBug::OnInit()
 void MiniBug::Update(Player& arg_player)
 {
 
-	return;
+	//return;
 	
 	//‹¤’Êˆ—
 	if (m_deadFlag)
 	{
-
 		m_reaction->Update(m_pos);
-
 		return;
 	}
 	else {
@@ -343,7 +341,7 @@ void MiniBug::Update(Player& arg_player)
 void MiniBug::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 
-	return;
+	//return;
 
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
@@ -363,7 +361,7 @@ void MiniBug::DebugDraw(KuroEngine::Camera& camera)
 {
 #ifdef _DEBUG
 
-	return;
+	//return;
 
 	switch (m_nowStatus)
 	{
@@ -388,12 +386,10 @@ void MiniBug::DebugDraw(KuroEngine::Camera& camera)
 
 void DossunRing::Update(Player& arg_player)
 {
-
-	return;
+	//return;
 
 	if (m_deadFlag)
 	{
-
 		return;
 	}
 
@@ -491,7 +487,7 @@ void DossunRing::Update(Player& arg_player)
 void DossunRing::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 
-	return;
+	//return;
 
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
@@ -508,7 +504,7 @@ void DossunRing::DebugDraw(KuroEngine::Camera& camera)
 {
 #ifdef _DEBUG
 
-	return;
+	//return;
 
 	if (m_attackFlag)
 	{
