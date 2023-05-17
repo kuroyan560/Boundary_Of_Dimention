@@ -15,16 +15,13 @@ MapPinUI::MapPinUI()
 	m_middleSquare = std::make_shared<Content>(texDirPath + "middle_square.png", &m_canvasTransform);
 	m_largeSquare = std::make_shared<Content>(texDirPath + "large_square.png", &m_canvasTransform);
 
+	//矢印ピン
+	m_arrowPin = std::make_shared<Content>(texDirPath + "arrow.png", &m_canvasTransform);
+
 	//距離の数字のテクスチャ読み込み
 	D3D12App::Instance()->GenerateTextureBuffer(m_numTex.data(), texDirPath + "num.png", 10, Vec2<int>(10, 1));
 	for (auto& distNum : m_distanceNum)distNum = std::make_shared<Content>(m_numTex[0], &m_canvasTransform);
 	m_meter = std::make_shared<Content>(texDirPath + "meter.png", &m_canvasTransform);
-
-	//画面内に目標地点が映っているときのUI
-	m_mapPinUI[PIN_MODE_IN_SCREEN].emplace_back(m_largeSquare);
-	m_mapPinUI[PIN_MODE_IN_SCREEN].emplace_back(m_middleSquare);
-
-	//画面内に目標地点が映っていないときのUI
 
 	//共通
 	for (int pinMode = 0; pinMode < PIN_MODE_NUM; ++pinMode)
@@ -36,6 +33,13 @@ MapPinUI::MapPinUI()
 		}
 		m_mapPinUI[pinMode].emplace_back(m_meter);
 	}
+
+	//画面内に目標地点が映っているときのUI
+	m_mapPinUI[PIN_MODE_IN_SCREEN].emplace_back(m_largeSquare);
+	m_mapPinUI[PIN_MODE_IN_SCREEN].emplace_back(m_middleSquare);
+
+	//画面内に目標地点が映っていないときのUI
+	m_mapPinUI[PIN_MODE_OUT_SCREEN].emplace_back(m_arrowPin);
 }
 
 void MapPinUI::UpdateDistance(PIN_MODE arg_pinMode, float arg_distance)
@@ -90,6 +94,38 @@ void MapPinUI::UpdateDistance(PIN_MODE arg_pinMode, float arg_distance)
 	m_meter->m_transform.SetPos({ leftPosX + m_meterStrDrawSpace + meterTexWidth * 0.5f,offsetY });
 }
 
+void MapPinUI::UpdateArrowDir(KuroEngine::Vec2<float> arg_destPos2D, KuroEngine::Vec2<float>arg_winSize, float arg_clampOffset)
+{
+	float destAngle = 0.0f;
+	KuroEngine::Vec2<float>offset;
+	float pinSizeHalf = m_smallSquare->m_tex->GetGraphSize().x * 0.5f;
+
+	if (abs(arg_clampOffset - arg_destPos2D.x) < FLT_EPSILON)	//左向き
+	{
+		destAngle = KuroEngine::Angle::PI();
+		offset.x = -pinSizeHalf - m_arrowDrawOffset;
+	}
+	else if (abs((arg_winSize.x - arg_clampOffset) - arg_destPos2D.x) < FLT_EPSILON)	//右向き
+	{
+		destAngle = 0.0f;	
+		offset.x = pinSizeHalf + m_arrowDrawOffset;
+
+	}
+	else if (abs(arg_clampOffset - arg_destPos2D.y) < FLT_EPSILON)	//上向き
+	{
+		destAngle = -KuroEngine::Angle::PI() * 0.5f;	
+		offset.y = -pinSizeHalf - m_arrowDrawOffset;
+	}
+	else if (abs((arg_winSize.y - arg_clampOffset) - arg_destPos2D.y) < FLT_EPSILON)	//下向き
+	{
+		destAngle = KuroEngine::Angle::PI() * 0.5f;
+		offset.y = pinSizeHalf + m_arrowDrawOffset;
+	}
+
+	m_arrowPin->m_angle = destAngle;
+	m_arrowPin->m_transform.SetPos(offset);
+}
+
 void MapPinUI::Draw(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float> arg_destinationPos, KuroEngine::Vec3<float>arg_playerPos)
 {
 	using namespace KuroEngine;
@@ -106,8 +142,12 @@ void MapPinUI::Draw(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float> arg_des
 	if (camDist < 0.0f)
 	{
 		//Yのみ補正
-		if (destPos2D.y < winCenter.y)destPos2D.y = 0.0f;
-		else destPos2D.y = winSize.y;
+		/*if (destPos2D.y < winCenter.y)destPos2D.y = 0.0f;
+		else destPos2D.y = winSize.y;*/
+
+		//Xのみ補正
+		if (destPos2D.x < winCenter.x)destPos2D.x = 0.0f;
+		else destPos2D.x = winSize.x;
 	}
 
 	//画面外か（正確にはピンUIが画面内に入るかも考慮している）
@@ -129,13 +169,16 @@ void MapPinUI::Draw(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float> arg_des
 	//距離の数字更新
 	UpdateDistance(mode, arg_destinationPos.Distance(arg_playerPos));
 
+	//矢印ピンの向き更新
+	UpdateArrowDir(destPos2D, winSize, clampOffset);
+
 	//UI描画
 	for (auto& uiPtr : m_mapPinUI[mode])
 	{
 		auto& ui = uiPtr.lock();
 		if (!ui->m_active)continue;
 		auto& transform = uiPtr.lock()->m_transform;
-		DrawFunc2D::DrawRotaGraph2D(transform.GetPosWorld(), transform.GetScaleWorld(), 0.0f, ui->m_tex, ui->m_alpha);
+		DrawFunc2D::DrawRotaGraph2D(transform.GetPosWorld(), transform.GetScaleWorld(), ui->m_angle, ui->m_tex, ui->m_alpha);
 	}
 }
 
