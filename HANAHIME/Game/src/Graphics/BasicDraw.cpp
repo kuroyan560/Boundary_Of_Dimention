@@ -23,7 +23,7 @@ BasicDraw::BasicDraw() :KuroEngine::Debugger("BasicDraw")
 	AddCustomParameter("DepthDifferenceThreshold", { "Edge","DepthDifferenceThreshold" }, PARAM_TYPE::FLOAT,
 		&m_edgeShaderParam.m_depthThreshold, "Edge");
 
-	auto& defaultParam = IndividualDrawParameter::GetDefault();
+	auto &defaultParam = IndividualDrawParameter::GetDefault();
 	AddCustomParameter("FillColor", { "DefaultDrawParam","FillColor" }, PARAM_TYPE::COLOR,
 		&defaultParam.m_fillColor, "DefaultDrawParam");
 	AddCustomParameter("BrightMulColor", { "DefaultDrawParam","BrightMulColor" }, PARAM_TYPE::COLOR,
@@ -351,6 +351,79 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 			{ WrappedSampler(false, true) });
 	}
 
+	//ビルボード生成用の処理---------------------------------------
+	{
+		std::vector<RenderTargetInfo> playerRenderTargetInfo =
+		{
+			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), (AlphaBlendMode)AlphaBlendMode_Trans),	//通常描画
+			RenderTargetInfo(DXGI_FORMAT_R32G32B32A32_FLOAT, AlphaBlendMode_Trans),	//エミッシブマップ
+			RenderTargetInfo(DXGI_FORMAT_R16_FLOAT, AlphaBlendMode_None),	//深度マップ
+			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_None),	//エッジカラーマップ
+			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//草むらマップ
+			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//ノーマルマップ
+		};
+
+		//パイプライン設定
+		static PipelineInitializeOption s_pipelineOption(D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT, D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
+		s_pipelineOption.m_calling = D3D12_CULL_MODE_NONE;
+		//s_pipelineOption.m_depthWriteMask = false;
+
+		//シェーダー情報
+		static KuroEngine::Shaders s_shaders;
+		s_shaders.m_vs = D3D12App::Instance()->CompileShader("resource/user/shaders/BasicDrawBillBoard.hlsl", "VSmain", "vs_6_4");
+		s_shaders.m_gs = D3D12App::Instance()->CompileShader("resource/user/shaders/BasicDrawBillBoard.hlsl", "GSmain", "gs_6_4");
+		s_shaders.m_ps = D3D12App::Instance()->CompileShader("resource/user/shaders/BasicDrawBillBoard.hlsl", "PSmain", "ps_6_4");
+
+		//インプットレイアウト
+		static std::vector<InputLayoutParam>s_inputLayOut =
+		{
+			InputLayoutParam("POS",DXGI_FORMAT_R32G32B32_FLOAT),
+			InputLayoutParam("SIZE",DXGI_FORMAT_R32G32_FLOAT),
+			InputLayoutParam("COLOR",DXGI_FORMAT_R32G32B32A32_FLOAT),
+		};
+
+		//ルートパラメータ
+		static std::vector<RootParam>s_rootParams =
+		{
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"カメラ情報バッファ"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"テクスチャ"),
+		};
+
+		//パイプライン生成
+		m_drawBillBoardPipeline = D3D12App::Instance()->GenerateGraphicsPipeline(
+			s_pipelineOption,
+			s_shaders,
+			s_inputLayOut,
+			s_rootParams,
+			playerRenderTargetInfo,
+			{ WrappedSampler(false, false) }
+		);
+
+
+		static std::vector<InputLayoutParam>s_inputRectLayout =
+		{
+			InputLayoutParam("POS",DXGI_FORMAT_R32G32B32_FLOAT),
+			InputLayoutParam("UP_SIZE",DXGI_FORMAT_R32G32_FLOAT),
+			InputLayoutParam("DOWN_SIZE",DXGI_FORMAT_R32G32_FLOAT),
+			InputLayoutParam("COLOR",DXGI_FORMAT_R32G32B32A32_FLOAT),
+		};
+
+		//シェーダー情報
+		static KuroEngine::Shaders s_rectShaders;
+		s_rectShaders.m_vs = D3D12App::Instance()->CompileShader("resource/user/shaders/BasicDrawRectBillBoard.hlsl", "VSmain", "vs_6_4");
+		s_rectShaders.m_gs = D3D12App::Instance()->CompileShader("resource/user/shaders/BasicDrawRectBillBoard.hlsl", "GSmain", "gs_6_4");
+		s_rectShaders.m_ps = D3D12App::Instance()->CompileShader("resource/user/shaders/BasicDrawRectBillBoard.hlsl", "PSmain", "ps_6_4");
+
+		m_drawRectBillBoardPipeline = D3D12App::Instance()->GenerateGraphicsPipeline(
+			s_pipelineOption,
+			s_rectShaders,
+			s_inputRectLayout,
+			s_rootParams,
+			playerRenderTargetInfo,
+			{ WrappedSampler(false, false) }
+		);
+	}
+
 	//エッジ出力用のバッファを用意
 	m_edgeShaderParamBuff = D3D12App::Instance()->GenerateConstantBuffer(
 		sizeof(m_edgeShaderParam),
@@ -407,7 +480,7 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		"DepthMap - Clone");
 }
 
-void BasicDraw::Update(KuroEngine::Vec3<float> arg_playerPos, KuroEngine::Camera& arg_cam)
+void BasicDraw::Update(KuroEngine::Vec3<float> arg_playerPos, KuroEngine::Camera &arg_cam)
 {
 	using namespace KuroEngine;
 
@@ -424,18 +497,18 @@ void BasicDraw::Update(KuroEngine::Vec3<float> arg_playerPos, KuroEngine::Camera
 	GrowPlantLightNum ligNum;
 	std::vector<GrowPlantLight_Point::ConstData>ptLigConstData;
 	std::vector<GrowPlantLight_Spot::ConstData>spotLigConstData;
-	for (auto& lig : GrowPlantLight::GrowPlantLightArray())
+	for (auto &lig : GrowPlantLight::GrowPlantLightArray())
 	{
 		auto type = lig->GetType();
 
 		if (type == GrowPlantLight::TYPE::POINT)
 		{
-			ptLigConstData.emplace_back(((GrowPlantLight_Point*)lig)->GetSendData());
+			ptLigConstData.emplace_back(((GrowPlantLight_Point *)lig)->GetSendData());
 			if (ligNum.m_ptLig < GROW_PLANT_LIGHT_MAX_NUM)ligNum.m_ptLig++;
 		}
 		else if (type == GrowPlantLight::TYPE::SPOT)
 		{
-			spotLigConstData.emplace_back(((GrowPlantLight_Spot*)lig)->GetSendData());
+			spotLigConstData.emplace_back(((GrowPlantLight_Spot *)lig)->GetSendData());
 			if (ligNum.m_spotLig < GROW_PLANT_LIGHT_MAX_NUM)ligNum.m_spotLig++;
 		}
 	}
@@ -460,7 +533,7 @@ void BasicDraw::RenderTargetsClearAndSet(std::weak_ptr<KuroEngine::DepthStencil>
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(rts, arg_ds.lock());
 }
 
-void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform& arg_transform, const IndividualDrawParameter& arg_toonParam, const KuroEngine::AlphaBlendMode& arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff, int arg_layer)
+void BasicDraw::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform &arg_transform, const IndividualDrawParameter &arg_toonParam, const KuroEngine::AlphaBlendMode &arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff, int arg_layer)
 {
 	using namespace KuroEngine;
 
@@ -484,7 +557,7 @@ void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_
 
 	for (int meshIdx = 0; meshIdx < model->m_meshes.size(); ++meshIdx)
 	{
-		const auto& mesh = model->m_meshes[meshIdx];
+		const auto &mesh = model->m_meshes[meshIdx];
 		KuroEngineDevice::Instance()->Graphics().ObjectRender(
 			mesh.mesh->vertBuff,
 			mesh.mesh->idxBuff,
@@ -514,7 +587,7 @@ void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_
 	m_individualParamCount++;
 }
 
-void BasicDraw::Draw_Stage(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform& arg_transform, const IndividualDrawParameter& arg_toonParam, const KuroEngine::AlphaBlendMode& arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff, int arg_layer)
+void BasicDraw::Draw_Stage(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr, std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform &arg_transform, const IndividualDrawParameter &arg_toonParam, const KuroEngine::AlphaBlendMode &arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff, int arg_layer)
 {
 	using namespace KuroEngine;
 
@@ -538,7 +611,7 @@ void BasicDraw::Draw_Stage(KuroEngine::Camera& arg_cam, KuroEngine::LightManager
 
 	for (int meshIdx = 0; meshIdx < model->m_meshes.size(); ++meshIdx)
 	{
-		const auto& mesh = model->m_meshes[meshIdx];
+		const auto &mesh = model->m_meshes[meshIdx];
 		KuroEngineDevice::Instance()->Graphics().ObjectRender(
 			mesh.mesh->vertBuff,
 			mesh.mesh->idxBuff,
@@ -571,7 +644,7 @@ void BasicDraw::Draw_Stage(KuroEngine::Camera& arg_cam, KuroEngine::LightManager
 
 }
 
-void BasicDraw::Draw_Player(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform& arg_transform, const IndividualDrawParameter& arg_toonParam, const KuroEngine::AlphaBlendMode& arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff, int arg_layer)
+void BasicDraw::Draw_Player(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform &arg_transform, const IndividualDrawParameter &arg_toonParam, const KuroEngine::AlphaBlendMode &arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff, int arg_layer)
 {
 
 	using namespace KuroEngine;
@@ -596,7 +669,7 @@ void BasicDraw::Draw_Player(KuroEngine::Camera& arg_cam, KuroEngine::LightManage
 
 	for (int meshIdx = 0; meshIdx < model->m_meshes.size(); ++meshIdx)
 	{
-		const auto& mesh = model->m_meshes[meshIdx];
+		const auto &mesh = model->m_meshes[meshIdx];
 		KuroEngineDevice::Instance()->Graphics().ObjectRender(
 			mesh.mesh->vertBuff,
 			mesh.mesh->idxBuff,
@@ -627,12 +700,12 @@ void BasicDraw::Draw_Player(KuroEngine::Camera& arg_cam, KuroEngine::LightManage
 
 }
 
-void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform& arg_transform, const KuroEngine::AlphaBlendMode& arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff, int arg_layer)
+void BasicDraw::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform &arg_transform, const KuroEngine::AlphaBlendMode &arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff, int arg_layer)
 {
 	BasicDraw::Draw(arg_cam, arg_ligMgr, arg_model, arg_transform, IndividualDrawParameter::GetDefault(), arg_blendMode, arg_boneBuff, arg_layer);
 }
 
-void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, const std::weak_ptr<KuroEngine::ModelObject> arg_modelObj, const IndividualDrawParameter& arg_toonParam, const KuroEngine::AlphaBlendMode& arg_blendMode, int arg_layer)
+void BasicDraw::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr, const std::weak_ptr<KuroEngine::ModelObject> arg_modelObj, const IndividualDrawParameter &arg_toonParam, const KuroEngine::AlphaBlendMode &arg_blendMode, int arg_layer)
 {
 	using namespace KuroEngine;
 
@@ -644,12 +717,12 @@ void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_
 	Draw(arg_cam, arg_ligMgr, model, obj->m_transform, arg_toonParam, arg_blendMode, boneBuff, arg_layer);
 }
 
-void BasicDraw::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, const std::weak_ptr<KuroEngine::ModelObject> arg_modelObj, const KuroEngine::AlphaBlendMode& arg_blendMode, int arg_layer)
+void BasicDraw::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr, const std::weak_ptr<KuroEngine::ModelObject> arg_modelObj, const KuroEngine::AlphaBlendMode &arg_blendMode, int arg_layer)
 {
 	Draw(arg_cam, arg_ligMgr, arg_modelObj, IndividualDrawParameter::GetDefault(), arg_blendMode, arg_layer);
 }
 
-void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, std::vector<KuroEngine::Matrix>& arg_matArray, const IndividualDrawParameter& arg_toonParam, bool arg_depthWriteMask, const KuroEngine::AlphaBlendMode& arg_blendMode, int arg_layer, std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff)
+void BasicDraw::InstancingDraw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, std::vector<KuroEngine::Matrix> &arg_matArray, const IndividualDrawParameter &arg_toonParam, bool arg_depthWriteMask, const KuroEngine::AlphaBlendMode &arg_blendMode, int arg_layer, std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff)
 {
 	using namespace KuroEngine;
 
@@ -682,7 +755,7 @@ void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightMan
 
 	for (int meshIdx = 0; meshIdx < model->m_meshes.size(); ++meshIdx)
 	{
-		const auto& mesh = model->m_meshes[meshIdx];
+		const auto &mesh = model->m_meshes[meshIdx];
 		KuroEngineDevice::Instance()->Graphics().ObjectRender(
 			mesh.mesh->vertBuff,
 			mesh.mesh->idxBuff,
@@ -713,7 +786,7 @@ void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightMan
 	m_individualParamCount++;
 }
 
-void BasicDraw::InstancingDraw_NoOutline(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, std::vector<KuroEngine::Matrix>& arg_matArray, const IndividualDrawParameter& arg_toonParam, bool arg_depthWriteMask, const KuroEngine::AlphaBlendMode& arg_blendMode, int arg_layer, std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff)
+void BasicDraw::InstancingDraw_NoOutline(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, std::vector<KuroEngine::Matrix> &arg_matArray, const IndividualDrawParameter &arg_toonParam, bool arg_depthWriteMask, const KuroEngine::AlphaBlendMode &arg_blendMode, int arg_layer, std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff)
 {
 	using namespace KuroEngine;
 
@@ -746,7 +819,7 @@ void BasicDraw::InstancingDraw_NoOutline(KuroEngine::Camera& arg_cam, KuroEngine
 
 	for (int meshIdx = 0; meshIdx < model->m_meshes.size(); ++meshIdx)
 	{
-		const auto& mesh = model->m_meshes[meshIdx];
+		const auto &mesh = model->m_meshes[meshIdx];
 		KuroEngineDevice::Instance()->Graphics().ObjectRender(
 			mesh.mesh->vertBuff,
 			mesh.mesh->idxBuff,
@@ -777,7 +850,7 @@ void BasicDraw::InstancingDraw_NoOutline(KuroEngine::Camera& arg_cam, KuroEngine
 	m_individualParamCount++;
 }
 
-void BasicDraw::InstancingDraw_NoiseSmoke(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, std::vector<KuroEngine::Matrix>& arg_matArray, const IndividualDrawParameter& arg_toonParam, bool arg_depthWriteMask, std::shared_ptr<KuroEngine::ConstantBuffer> arg_smokeNoiseTimerBuffer, std::shared_ptr < KuroEngine::StructuredBuffer> arg_smokeNoiseAlphaBuffer, const KuroEngine::AlphaBlendMode& arg_blendMode, int arg_layer, std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff)
+void BasicDraw::InstancingDraw_NoiseSmoke(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, std::vector<KuroEngine::Matrix> &arg_matArray, const IndividualDrawParameter &arg_toonParam, bool arg_depthWriteMask, std::shared_ptr<KuroEngine::ConstantBuffer> arg_smokeNoiseTimerBuffer, std::shared_ptr < KuroEngine::StructuredBuffer> arg_smokeNoiseAlphaBuffer, const KuroEngine::AlphaBlendMode &arg_blendMode, int arg_layer, std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff)
 {
 	using namespace KuroEngine;
 
@@ -810,7 +883,7 @@ void BasicDraw::InstancingDraw_NoiseSmoke(KuroEngine::Camera& arg_cam, KuroEngin
 
 	for (int meshIdx = 0; meshIdx < model->m_meshes.size(); ++meshIdx)
 	{
-		const auto& mesh = model->m_meshes[meshIdx];
+		const auto &mesh = model->m_meshes[meshIdx];
 		KuroEngineDevice::Instance()->Graphics().ObjectRender(
 			mesh.mesh->vertBuff,
 			mesh.mesh->idxBuff,
@@ -844,7 +917,7 @@ void BasicDraw::InstancingDraw_NoiseSmoke(KuroEngine::Camera& arg_cam, KuroEngin
 }
 
 
-void BasicDraw::InstancingDraw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, std::vector<KuroEngine::Matrix>& arg_matArray, bool arg_depthWriteMask, const KuroEngine::AlphaBlendMode& arg_blendMode, int arg_layer, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff)
+void BasicDraw::InstancingDraw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, std::vector<KuroEngine::Matrix> &arg_matArray, bool arg_depthWriteMask, const KuroEngine::AlphaBlendMode &arg_blendMode, int arg_layer, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff)
 {
 	InstancingDraw(arg_cam,
 		arg_ligMgr,
@@ -893,4 +966,56 @@ void BasicDraw::DrawEdge(DirectX::XMMATRIX arg_camView, DirectX::XMMATRIX arg_ca
 		rts.emplace_back(m_renderTargetArray[targetIdx]);
 	}
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(rts, arg_ds.lock());
+}
+
+void BasicDraw::DrawBillBoard(KuroEngine::Camera &arg_cam, KuroEngine::Transform &arg_transform, std::shared_ptr<KuroEngine::TextureBuffer>Tex, float alpha, const KuroEngine::AlphaBlendMode &arg_blendMode)
+{
+	using namespace KuroEngine;
+
+	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_drawBillBoardPipeline);
+
+	if (s_graphVertBuff.size() < (m_drawBillboardCount + 1))
+	{
+		s_graphVertBuff.emplace_back(D3D12App::Instance()->GenerateVertexBuffer(sizeof(Vertex), 1, nullptr, ("DrawGraphBillBoard -" + std::to_string(m_drawBillboardCount)).c_str()));
+	}
+
+	Vertex vertex(arg_transform.GetPos(), { arg_transform.GetScale().x,arg_transform.GetScale().y }, Color(1.0f, 1.0f, 1.0f, alpha));
+	s_graphVertBuff[m_drawBillboardCount]->Mapping(&vertex);
+
+	KuroEngineDevice::Instance()->Graphics().ObjectRender(
+		s_graphVertBuff[m_drawBillboardCount],
+		{
+			{arg_cam.GetBuff(),CBV},
+			{Tex,SRV}
+		},
+		0,
+		arg_blendMode == AlphaBlendMode_Trans);
+
+	m_drawBillboardCount++;
+}
+
+void BasicDraw::DrawBillBoard(KuroEngine::Camera &arg_cam, const KuroEngine::Vec3<float> &pos, const KuroEngine::Vec2<float> &upSize, const KuroEngine::Vec2<float> &downSize, std::shared_ptr<KuroEngine::TextureBuffer>Tex, float alpha, const KuroEngine::AlphaBlendMode &arg_blendMode)
+{
+	using namespace KuroEngine;
+
+	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_drawRectBillBoardPipeline);
+
+	if (s_billBoardRectVertBuff.size() < (m_drawRectBillboardCount + 1))
+	{
+		s_billBoardRectVertBuff.emplace_back(D3D12App::Instance()->GenerateVertexBuffer(sizeof(RectVertex), 1, nullptr, ("DrawGraphRectBillBoard -" + std::to_string(m_drawRectBillboardCount)).c_str()));
+	}
+
+	RectVertex vertex(pos, upSize, downSize, Color(1.0f, 1.0f, 1.0f, alpha));
+	s_billBoardRectVertBuff[m_drawRectBillboardCount]->Mapping(&vertex);
+
+	KuroEngineDevice::Instance()->Graphics().ObjectRender(
+		s_billBoardRectVertBuff[m_drawRectBillboardCount],
+		{
+			{arg_cam.GetBuff(),CBV},
+			{Tex,SRV}
+		},
+		0,
+		arg_blendMode == AlphaBlendMode_Trans);
+
+	m_drawRectBillboardCount++;
 }
