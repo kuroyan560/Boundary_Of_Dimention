@@ -50,9 +50,8 @@ void InitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 
     FireFlyParticleData outputMat;
     outputMat.pos = pos;
 
-    float scale = 5.0f;
+    float scale = Rand(index,3.0f,1.0f);
     outputMat.scale = float2(scale,scale);
-
     outputMat.color = color;
     outputMat.flashTimer = uint2(Rand(index,50,0),1);
     fireFlyDataBuffer[index] = outputMat;
