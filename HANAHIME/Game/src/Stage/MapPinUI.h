@@ -39,9 +39,6 @@ class MapPinUI
 	//矢印ピン
 	static const int ARROW_NUM = 3;
 	std::array<std::shared_ptr<Content>, ARROW_NUM>m_arrowPinArray;
-	static const int ARROW_ALPHA_EFFECT_TIME = 120;
-	//矢印のアルファ演出用タイマー
-	KuroEngine::Timer m_arrowAlphaTimer;
 
 	//距離の数字
 	std::array<std::shared_ptr	<KuroEngine::TextureBuffer>, 10>m_numTex;
@@ -79,11 +76,22 @@ class MapPinUI
 	//距離とmの字間
 	float m_meterStrDrawSpace = 3.0f;
 
+	//マップピンの図形演出
+	static const int MAP_PIN_EFFECT_TIME = 30;
+	KuroEngine::Timer m_mapPinEffectTimer;
+	static const int MAP_PIN_EFFECT_INTERVAL_TIME = 60;
+	KuroEngine::Timer m_mapPinEffectIntervalTimer;
+
+	//矢印のアルファ演出用タイマー
+	static const int ARROW_ALPHA_EFFECT_TIME = 120;
+	KuroEngine::Timer m_arrowAlphaTimer;
+
 	//UI全体のトランスフォーム
 	KuroEngine::Transform2D m_canvasTransform;
 
+	void UpdateMapPin();
 	void UpdateDistance(PIN_STACK_STATUS arg_pinStackStatus, PIN_MODE arg_pinMode, float arg_distance);
-	void UpdateArrowDir(PIN_STACK_STATUS arg_pinStackStatus);
+	void UpdateArrow(PIN_STACK_STATUS arg_pinStackStatus);
 
 public:
 	MapPinUI();

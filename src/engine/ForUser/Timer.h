@@ -26,6 +26,13 @@ namespace KuroEngine
 			return std::clamp(m_elaspedTime / (m_intervalTime * arg_rate), 0.0f, 1.0f);
 		}
 
+		//
+		float GetTimeRate(float arg_startTimeRate, float arg_endTimeRate)const
+		{
+			auto timeRate = GetTimeRate();
+			return std::clamp((timeRate - arg_startTimeRate) / (arg_endTimeRate - arg_startTimeRate), 0.0f, 1.0f);
+		}
+
 		//タイマースタートした瞬間
 		bool IsTimeStartOnTrigger()const { return GetTimeRate() == 0.0f; }
 

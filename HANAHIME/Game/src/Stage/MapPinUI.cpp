@@ -20,7 +20,6 @@ MapPinUI::MapPinUI()
 	{
 		arrow = std::make_shared<Content>(texDirPath + "arrow.png", &m_canvasTransform);
 	}
-	m_arrowAlphaTimer.Reset(ARROW_ALPHA_EFFECT_TIME);
 
 	//距離の数字のテクスチャ読み込み
 	D3D12App::Instance()->GenerateTextureBuffer(m_numTex.data(), texDirPath + "num.png", 10, Vec2<int>(10, 1));
@@ -44,6 +43,58 @@ MapPinUI::MapPinUI()
 
 	//画面内に目標地点が映っていないときのUI
 	for(auto& arrow : m_arrowPinArray)m_mapPinUI[PIN_MODE_OUT_SCREEN].emplace_back(arrow);
+
+	//演出系
+	m_mapPinEffectTimer.Reset(MAP_PIN_EFFECT_TIME);
+	m_mapPinEffectIntervalTimer.Reset(MAP_PIN_EFFECT_INTERVAL_TIME);
+	m_arrowAlphaTimer.Reset(ARROW_ALPHA_EFFECT_TIME);
+}
+
+void MapPinUI::UpdateMapPin()
+{
+	using namespace KuroEngine;
+	const float expandScaleMax = 0.8f;
+	const float expandScaleMin = 0.6f;
+	const float timeRateThreshold = 0.2f;
+	const float alphaMax = 1.0f;
+	const float alphaMin = 0.6f;
+
+	float middleScale = 1.0f;
+	float largeScale = 1.0f;
+	float alpha = 1.0f;
+
+	m_mapPinEffectTimer.UpdateTimer();
+	m_mapPinEffectIntervalTimer.UpdateTimer();
+
+	if (m_mapPinEffectTimer.IsTimeUpOnTrigger())m_mapPinEffectIntervalTimer.Reset(100);
+	if (m_mapPinEffectIntervalTimer.IsTimeUpOnTrigger())m_mapPinEffectTimer.Reset(30);
+
+	//拡大
+	if(m_mapPinEffectTimer.GetTimeRate() <= timeRateThreshold)
+	{
+		float middleRate = m_mapPinEffectTimer.GetTimeRate(0.0f, timeRateThreshold * 0.5f);
+		middleScale = Math::Ease(Out, Quart, middleRate, expandScaleMin, expandScaleMax);
+		float largeRate = m_mapPinEffectTimer.GetTimeRate(0.0f, timeRateThreshold);
+		largeScale = Math::Ease(Out, Quart, largeRate, expandScaleMin, expandScaleMax);
+	}
+	//縮小
+	else
+	{
+		float rate = m_mapPinEffectTimer.GetTimeRate(timeRateThreshold, 1.0f);
+		rate *= rate;
+		middleScale = Math::Ease(Out, Elastic, rate, expandScaleMax, expandScaleMin);
+		largeScale = Math::Ease(Out, Elastic, rate, expandScaleMax, expandScaleMin);
+		alpha = Math::Ease(Out, Circ, rate, alphaMax, alphaMin);
+	}
+
+	if (m_mapPinEffectTimer.IsTimeUp())
+		alpha = Math::Lerp(alphaMin, alphaMax, m_mapPinEffectIntervalTimer.GetTimeRate(0.2f));
+
+	m_middleSquare->m_transform.SetScale(middleScale);
+	m_largeSquare->m_transform.SetScale(largeScale);
+	m_middleSquare->m_alpha = alpha;
+	m_largeSquare->m_alpha = alpha;
+	m_smallSquare->m_alpha = alpha;
 }
 
 void MapPinUI::UpdateDistance(PIN_STACK_STATUS arg_pinStackStatus, PIN_MODE arg_pinMode, float arg_distance)
@@ -100,7 +151,7 @@ void MapPinUI::UpdateDistance(PIN_STACK_STATUS arg_pinStackStatus, PIN_MODE arg_
 	m_meter->m_transform.SetPos({ leftPosX + m_meterStrDrawSpace + meterTexWidth * 0.5f,offsetY });
 }
 
-void MapPinUI::UpdateArrowDir(PIN_STACK_STATUS arg_pinStackStatus)
+void MapPinUI::UpdateArrow(PIN_STACK_STATUS arg_pinStackStatus)
 {
 	float destAngle = 0.0f;
 	KuroEngine::Vec2<float>offset;
@@ -128,10 +179,19 @@ void MapPinUI::UpdateArrowDir(PIN_STACK_STATUS arg_pinStackStatus)
 			break;
 	}
 
+	//アルファ演出タイマー更新
+	if (m_arrowAlphaTimer.UpdateTimer())m_arrowAlphaTimer.Reset(45);
+	float timeRateOffset = 1.0f / (ARROW_NUM + 1);
+
 	for (int arrowIdx = 0; arrowIdx < ARROW_NUM; ++arrowIdx)
 	{
+		float timeRate = m_arrowAlphaTimer.GetTimeRate() - timeRateOffset * static_cast<float>(arrowIdx);
+		if (timeRate < 0.0f)timeRate += 1.0f;
+		else if (1.0f < timeRate)timeRate -= 1.0f;
+
 		m_arrowPinArray[arrowIdx]->m_angle = destAngle;
 		m_arrowPinArray[arrowIdx]->m_transform.SetPos(offset + (offset.GetNormal() * m_arrowDrawSpace * static_cast<float>(arrowIdx)));
+		m_arrowPinArray[arrowIdx]->m_alpha = std::max(cos(timeRate * KuroEngine::Angle::PI()), 0.3f);
 	}
 }
 
@@ -182,7 +242,10 @@ void MapPinUI::Draw(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float> arg_des
 	UpdateDistance(pinStackState, mode, arg_destinationPos.Distance(arg_playerPos));
 
 	//矢印ピンの向き更新
-	UpdateArrowDir(pinStackState);
+	UpdateArrow(pinStackState);
+
+	//マップピンの図形演出更新
+	UpdateMapPin();
 
 	//UI描画
 	for (auto& uiPtr : m_mapPinUI[mode])
