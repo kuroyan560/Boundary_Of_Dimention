@@ -22,8 +22,8 @@ namespace KuroEngine
 
 	void GetDivideStr(const std::string& Str, std::string* Dir, std::string* FileName);
 
-	Vec2<float> ConvertWorldToScreen(Vec3<float> WorldPos,
-		const Matrix& ViewMat, const Matrix& ProjMat, const Vec2<float>&WinSize);
+    Vec2<float> ConvertWorldToScreen(Vec3<float> WorldPos,
+        const Matrix& ViewMat, const Matrix& ProjMat, const Vec2<float>& WinSize, float* CamDist = nullptr);
 	Vec3<float> ConvertScreenToWorld(Vec2<float> ScreenPos, float Z,
 		const Matrix& ViewMat, const Matrix& ProjMat, const Vec2<int>&WinSize);
 
