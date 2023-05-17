@@ -99,11 +99,11 @@ void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 	m_nowStage->Draw(arg_cam, arg_ligMgr);
 }
 
-void StageManager::DrawUI(KuroEngine::Camera& arg_cam)
+void StageManager::DrawUI(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float>arg_playerPos)
 {
 	//デバッグ用にスタート地点を目標地点とする
 	auto destPos = m_nowStage->GetPlayerSpawnTransform().GetPosWorld();
-	m_mapPinUI.Draw(arg_cam, destPos);
+	m_mapPinUI.Draw(arg_cam, destPos, arg_playerPos);
 }
 
 KuroEngine::Transform StageManager::GetGateTransform(int arg_stageIdx, int arg_gateID) const

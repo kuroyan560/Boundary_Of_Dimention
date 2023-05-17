@@ -47,7 +47,7 @@ public:
 
 	void Update(Player& arg_player);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
-	void DrawUI(KuroEngine::Camera& arg_cam);
+	void DrawUI(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float>arg_playerPos);
 
 	//現在のステージのゲッタ
 	std::weak_ptr<Stage>GetNowStage() { return m_nowStage; }
