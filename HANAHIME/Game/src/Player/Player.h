@@ -111,6 +111,7 @@ class Player : public KuroEngine::Debugger
 	float m_camSensitivity = 1.0f;
 	int m_cameraMode;
 	std::array<const float, 3> CAMERA_MODE = { -20.0f,-40.0f,-70.0f };
+	bool m_isHitUnderGroundCamera;
 
 	//A•¨‚ğ”ÉB‚³‚¹‚é“_ŒõŒ¹
 	GrowPlantLight_Point m_growPlantPtLig;

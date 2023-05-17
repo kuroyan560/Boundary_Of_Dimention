@@ -267,6 +267,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_canOldUnderGroundRelease = true;
 	m_onCeiling = false;
 	m_isCameraUpInverse = false;
+	m_isHitUnderGroundCamera = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 
 	m_growPlantPtLig.Register();
@@ -349,6 +350,14 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	if (m_onCeiling || m_isCameraUpInverse) {
 		scopeMove *= -1.0f;
 	}
+
+	//カメラが地上にあたっているとき、プレイヤーの居る面によってカメラの回転を打ち消す。(注視点をずらすモードのときに向きたい方向以外を向けないようにするため。)
+	//if (m_isHitUnderGroundCamera && 0.9f < fabs(m_transform.GetUp().y)) {
+	//	scopeMove.x = 0;
+	//}
+	//else if (m_isHitUnderGroundCamera) {
+	//	scopeMove.y = 0;
+	//}
 
 	//ジャンプができるかどうか。	一定時間地形に引っ掛かってたらジャンプできる。
 	m_canJump = CAN_JUMP_DELAY <= m_canJumpDelayTimer;
@@ -622,10 +631,13 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	}
 
+	//プレイヤーが動いているか。
+	bool isMovePlayer = 0.1f < m_moveSpeed.Length();
+
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_MODE[m_cameraMode], arg_nowStage, m_isCameraUpInverse, isCameraDefault);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_MODE[m_cameraMode], arg_nowStage, m_isCameraUpInverse, isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer);
 
 		m_deathEffectCameraZ = CAMERA_MODE[m_cameraMode];
 	}
@@ -635,7 +647,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_shake);
 
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse, isCameraDefault);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse, isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer);
 
 	}
 	//シェイクを計算。

@@ -48,6 +48,19 @@ class CameraController : public KuroEngine::Debugger
 	//地形に当たっているか
 	bool m_isHitTerrian;
 
+	//下側の地形に当たっているか。当たっていたら注視点をずらすやつをやる。
+	bool m_isOldHitUnderGroundTerrian;
+	bool m_isHitUnderGroundTerrian;
+
+	//プレイヤーのY軸回転を保存しておく変数。プレイヤーが横の壁に居るときは注視点の移動をY軸回転で行うので、注視点移動が終わったら動かした量を戻すため。
+	float m_playerRotYStorage;
+	float m_playerRotYLerp;
+	const float PLAYER_TARGET_MOVE_SIDE = 0.8f;		//プレイヤーの横面の注視点移動のときの動かせる限界。
+
+	//上下の壁にあたったときに、X軸回転量は保存したままY軸回転をするための変数。
+	float m_cameraRotXStorage;
+	float m_cameraRotYStorage;
+
 	float m_rotateYLerpAmount;
 	float m_cameraXAngleLerpAmount;
 
@@ -75,7 +88,7 @@ public:
 	void AttachCamera(std::shared_ptr<KuroEngine::Camera>arg_cam);
 
 	void Init();
-	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos);
+	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer);
 
 	const KuroEngine::Quaternion& GetPosRotate() {
 		return m_camParentTransform.GetRotate();
