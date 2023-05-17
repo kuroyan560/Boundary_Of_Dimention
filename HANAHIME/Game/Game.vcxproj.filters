@@ -430,6 +430,9 @@
     <ClCompile Include="src\Stage\GateManager.cpp">
       <Filter>src\user\Stage</Filter>
     </ClCompile>
+    <ClCompile Include="src\Stage\MapPinUI.cpp">
+      <Filter>src\user\Stage</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -829,6 +832,9 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Stage\GateManager.h">
+      <Filter>src\user\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\MapPinUI.h">
       <Filter>src\user\Stage</Filter>
     </ClInclude>
   </ItemGroup>

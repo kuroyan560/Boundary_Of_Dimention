@@ -3,6 +3,7 @@
 #include"ForUser/Debugger.h"
 #include"Common/Transform.h"
 #include"StageParts.h"
+#include"MapPinUI.h"
 
 #include<memory>
 namespace KuroEngine
@@ -38,11 +39,15 @@ class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>, 
 	//現在のステージ
 	std::shared_ptr<Stage>m_nowStage;
 
+	//マップのUI
+	MapPinUI m_mapPinUI;
+
 public:
 	void SetStage(int stage_num = -1);
 
 	void Update(Player& arg_player);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
+	void DrawUI(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float>arg_playerPos);
 
 	//現在のステージのゲッタ
 	std::weak_ptr<Stage>GetNowStage() { return m_nowStage; }

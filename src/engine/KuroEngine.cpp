@@ -68,13 +68,14 @@ void KuroEngine::GetDivideStr(const std::string& Str, std::string* Dir, std::str
 }
 
 
-KuroEngine::Vec2<float> KuroEngine::ConvertWorldToScreen(Vec3<float> WorldPos, const Matrix& ViewMat, const Matrix& ProjMat, const Vec2<float>& WinSize)
+KuroEngine::Vec2<float> KuroEngine::ConvertWorldToScreen(Vec3<float> WorldPos, const Matrix& ViewMat, const Matrix& ProjMat, const Vec2<float>& WinSize, float* CamDist)
 {
 	//ビュー行列適応
 	auto pos = Math::TransformVec3(WorldPos, ViewMat);
 	//プロジェクション行列適応
 	pos = Math::TransformVec3(pos, ProjMat);
-	pos /= pos.z;
+	if (CamDist)*CamDist = pos.z;
+	pos /= abs(pos.z);
 
 	//ビューポート行列
 	Matrix viewPortMat = XMMatrixIdentity();

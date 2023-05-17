@@ -72,6 +72,18 @@ namespace KuroEngine
 			return Vec3<float>(quat.m128_f32[0], quat.m128_f32[1], quat.m128_f32[2]);
 		}
 
+		//親のトランスフォームも考慮したゲッタ
+		Vec2<float>GetPosWorld()
+		{
+			auto worldMat = GetMatWorld();
+			return { worldMat.r[3].m128_f32[0],worldMat.r[3].m128_f32[1] };
+		}
+		Vec2<float>GetScaleWorld()
+		{
+			const auto& worldMat = GetMatWorld();
+			return { worldMat.r[0].m128_f32[0],worldMat.r[1].m128_f32[1] };
+		}
+
 		//セッタ
 		void SetPos(const Vec2<float> Pos) {
 			if (m_pos == Pos)return;

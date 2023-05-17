@@ -139,9 +139,9 @@ void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam)
 	bool selectFlag = false;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_D) || isInputRightController)
 	{
-		//++m_nowStageNum.x;
-		//selectFlag = true;
-		//m_cameraLength = FAR_CAMERA_LENGTH;
+		++m_nowStageNum.x;
+		selectFlag = true;
+		m_cameraLength = FAR_CAMERA_LENGTH;
 		m_arrowSineLengthNow[RIGHT] = ARROW_SINE_INIT_LENGTH_ADD;
 		m_arrowSinTimerAddNow[RIGHT] = ARROW_SINE_TIMER_ADD;
 		SoundConfig::Instance()->Play(SoundConfig::SE_CANCEL);

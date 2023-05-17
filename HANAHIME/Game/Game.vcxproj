@@ -216,6 +216,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Stage\GateManager.cpp" />
     <ClCompile Include="src\Stage\Goal.cpp" />
     <ClCompile Include="src\Stage\Grass.cpp" />
+    <ClCompile Include="src\Stage\MapPinUI.cpp" />
     <ClCompile Include="src\Stage\Stage.cpp" />
     <ClCompile Include="src\Stage\StageManager.cpp" />
     <ClCompile Include="src\Stage\StageParts.cpp" />
@@ -348,6 +349,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Stage\GateManager.h" />
     <ClInclude Include="src\Stage\Goal.h" />
     <ClInclude Include="src\Stage\Grass.h" />
+    <ClInclude Include="src\Stage\MapPinUI.h" />
     <ClInclude Include="src\Stage\Stage.h" />
     <ClInclude Include="src\Stage\StageInfomation.h" />
     <ClInclude Include="src\Stage\StageManager.h" />
