@@ -64,26 +64,15 @@ class MapPinUI
 
 	//矢印全体を描画するための座標クランプ量
 	float m_arrowClampOffset = 65.0f;
-	//矢印の描画オフセット
-	float m_arrowDrawOffset = 4.0f;
-	//矢印同士の隙間
-	float m_arrowDrawSpace = 10.0f;
-
-	//距離表記の描画オフセットY
-	float m_meterDrawOffsetY = 16.0f;
-	//距離の数字の字間オフセット
-	float m_distStrDrawSpace = -2.0f;
-	//距離とmの字間
-	float m_meterStrDrawSpace = 3.0f;
 
 	//マップピンの図形演出
 	static const int MAP_PIN_EFFECT_TIME = 30;
 	KuroEngine::Timer m_mapPinEffectTimer;
-	static const int MAP_PIN_EFFECT_INTERVAL_TIME = 60;
+	static const int MAP_PIN_EFFECT_INTERVAL_TIME = 100;
 	KuroEngine::Timer m_mapPinEffectIntervalTimer;
 
 	//矢印のアルファ演出用タイマー
-	static const int ARROW_ALPHA_EFFECT_TIME = 120;
+	static const int ARROW_ALPHA_EFFECT_TIME = 45;
 	KuroEngine::Timer m_arrowAlphaTimer;
 
 	//UI全体のトランスフォーム

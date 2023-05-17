@@ -46,18 +46,18 @@ MapPinUI::MapPinUI()
 
 	//演出系
 	m_mapPinEffectTimer.Reset(MAP_PIN_EFFECT_TIME);
-	m_mapPinEffectIntervalTimer.Reset(MAP_PIN_EFFECT_INTERVAL_TIME);
+	m_mapPinEffectIntervalTimer.Reset(0.0f);
 	m_arrowAlphaTimer.Reset(ARROW_ALPHA_EFFECT_TIME);
 }
 
 void MapPinUI::UpdateMapPin()
 {
 	using namespace KuroEngine;
-	const float expandScaleMax = 0.8f;
-	const float expandScaleMin = 0.6f;
-	const float timeRateThreshold = 0.2f;
-	const float alphaMax = 1.0f;
-	const float alphaMin = 0.6f;
+	static const float expandScaleMax = 0.8f;
+	static const float expandScaleMin = 0.6f;
+	static const float timeRateThreshold = 0.2f;
+	static const float alphaMax = 1.0f;
+	static const float alphaMin = 0.6f;
 
 	float middleScale = 1.0f;
 	float largeScale = 1.0f;
@@ -66,8 +66,8 @@ void MapPinUI::UpdateMapPin()
 	m_mapPinEffectTimer.UpdateTimer();
 	m_mapPinEffectIntervalTimer.UpdateTimer();
 
-	if (m_mapPinEffectTimer.IsTimeUpOnTrigger())m_mapPinEffectIntervalTimer.Reset(100);
-	if (m_mapPinEffectIntervalTimer.IsTimeUpOnTrigger())m_mapPinEffectTimer.Reset(30);
+	if (m_mapPinEffectTimer.IsTimeUpOnTrigger())m_mapPinEffectIntervalTimer.Reset(MAP_PIN_EFFECT_INTERVAL_TIME);
+	if (m_mapPinEffectIntervalTimer.IsTimeUpOnTrigger())m_mapPinEffectTimer.Reset(MAP_PIN_EFFECT_TIME);
 
 	//拡大
 	if(m_mapPinEffectTimer.GetTimeRate() <= timeRateThreshold)
@@ -99,6 +99,13 @@ void MapPinUI::UpdateMapPin()
 
 void MapPinUI::UpdateDistance(PIN_STACK_STATUS arg_pinStackStatus, PIN_MODE arg_pinMode, float arg_distance)
 {
+	//距離表記の描画オフセットY
+	static const float meterDrawOffsetY = 16.0f;
+	//距離の数字の字間オフセット
+	static const float distStrDrawSpace = -2.0f;
+	//距離とmの字間
+	static const float meterStrDrawSpace = 3.0f;
+
 	//小数点切り捨て
 	int dist = static_cast<int>(arg_distance);
 
@@ -119,12 +126,12 @@ void MapPinUI::UpdateDistance(PIN_STACK_STATUS arg_pinStackStatus, PIN_MODE arg_
 	auto numTexWidth = m_numTex[0]->GetGraphSize().x;
 	auto meterTexWidth = m_meter->m_tex->GetGraphSize().x;
 	//距離表記の左端
-	float leftPosX = digit * numTexWidth + (digit - 1) * m_distStrDrawSpace + m_meterStrDrawSpace + m_meter->m_tex->GetGraphSize().x;
+	float leftPosX = digit * numTexWidth + (digit - 1) * distStrDrawSpace + meterStrDrawSpace + m_meter->m_tex->GetGraphSize().x;
 	leftPosX *= -0.5f;
 
 	//座標オフセットY
 	float offsetY = arg_pinMode == PIN_MODE_IN_SCREEN ? m_largeSquare->m_tex->GetGraphSize().y * 0.5f : m_smallSquare->m_tex->GetGraphSize().y * 1.5f;
-	offsetY += m_meterDrawOffsetY;
+	offsetY += meterDrawOffsetY;
 	//マップピンが下端に引っかかっていた場合のみ、距離表記をピンの上側に表示
 	if (arg_pinStackStatus == PIN_POS_BOTTOM_STACK)offsetY *= -0.8f;
 
@@ -144,15 +151,20 @@ void MapPinUI::UpdateDistance(PIN_STACK_STATUS arg_pinStackStatus, PIN_MODE arg_
 		//座標セット
 		m_distanceNum[digitIdx]->m_transform.SetPos({ leftPosX + numTexWidth * 0.5f, offsetY });
 		//Xずらし
-		leftPosX += numTexWidth + m_distStrDrawSpace;
+		leftPosX += numTexWidth + distStrDrawSpace;
 	}
 
 	//m表記
-	m_meter->m_transform.SetPos({ leftPosX + m_meterStrDrawSpace + meterTexWidth * 0.5f,offsetY });
+	m_meter->m_transform.SetPos({ leftPosX + meterStrDrawSpace + meterTexWidth * 0.5f,offsetY });
 }
 
 void MapPinUI::UpdateArrow(PIN_STACK_STATUS arg_pinStackStatus)
 {
+	//矢印の描画オフセット
+	static const float arrowDrawOffset = 4.0f;
+	//矢印同士の隙間
+	static const float arrowDrawSpace = 10.0f;
+
 	float destAngle = 0.0f;
 	KuroEngine::Vec2<float>offset;
 	float pinSizeHalf = m_smallSquare->m_tex->GetGraphSize().x * 0.5f;
@@ -161,26 +173,26 @@ void MapPinUI::UpdateArrow(PIN_STACK_STATUS arg_pinStackStatus)
 	{
 		case PIN_POS_LEFT_STACK:	//左向き
 			destAngle = KuroEngine::Angle::PI();
-			offset.x = -pinSizeHalf - m_arrowDrawOffset;
+			offset.x = -pinSizeHalf - arrowDrawOffset;
 			break;
 		case PIN_POS_RIGHT_STACK:	//右向き
 			destAngle = 0.0f;
-			offset.x = pinSizeHalf + m_arrowDrawOffset;
+			offset.x = pinSizeHalf + arrowDrawOffset;
 			break;
 		case PIN_POS_UP_STACK:		//上向き
 			destAngle = -KuroEngine::Angle::PI() * 0.5f;
-			offset.y = -pinSizeHalf - m_arrowDrawOffset;
+			offset.y = -pinSizeHalf - arrowDrawOffset;
 			break;
 		case PIN_POS_BOTTOM_STACK:		//下向き
 			destAngle = KuroEngine::Angle::PI() * 0.5f;
-			offset.y = pinSizeHalf + m_arrowDrawOffset;
+			offset.y = pinSizeHalf + arrowDrawOffset;
 			break;
 		default:
 			break;
 	}
 
 	//アルファ演出タイマー更新
-	if (m_arrowAlphaTimer.UpdateTimer())m_arrowAlphaTimer.Reset(45);
+	if (m_arrowAlphaTimer.UpdateTimer())m_arrowAlphaTimer.Reset(ARROW_ALPHA_EFFECT_TIME);
 	float timeRateOffset = 1.0f / (ARROW_NUM + 1);
 
 	for (int arrowIdx = 0; arrowIdx < ARROW_NUM; ++arrowIdx)
@@ -190,7 +202,7 @@ void MapPinUI::UpdateArrow(PIN_STACK_STATUS arg_pinStackStatus)
 		else if (1.0f < timeRate)timeRate -= 1.0f;
 
 		m_arrowPinArray[arrowIdx]->m_angle = destAngle;
-		m_arrowPinArray[arrowIdx]->m_transform.SetPos(offset + (offset.GetNormal() * m_arrowDrawSpace * static_cast<float>(arrowIdx)));
+		m_arrowPinArray[arrowIdx]->m_transform.SetPos(offset + (offset.GetNormal() * arrowDrawSpace * static_cast<float>(arrowIdx)));
 		m_arrowPinArray[arrowIdx]->m_alpha = std::max(cos(timeRate * KuroEngine::Angle::PI()), 0.3f);
 	}
 }
