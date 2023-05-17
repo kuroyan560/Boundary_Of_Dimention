@@ -66,13 +66,13 @@ class MapPinUI
 	float m_arrowClampOffset = 65.0f;
 
 	//マップピンの図形演出
-	static const int MAP_PIN_EFFECT_TIME = 30;
+	static const int MAP_PIN_EFFECT_TIME = 60;
 	KuroEngine::Timer m_mapPinEffectTimer;
-	static const int MAP_PIN_EFFECT_INTERVAL_TIME = 100;
+	static const int MAP_PIN_EFFECT_INTERVAL_TIME = 180;
 	KuroEngine::Timer m_mapPinEffectIntervalTimer;
 
 	//矢印のアルファ演出用タイマー
-	static const int ARROW_ALPHA_EFFECT_TIME = 45;
+	static const int ARROW_ALPHA_EFFECT_TIME = 90;
 	KuroEngine::Timer m_arrowAlphaTimer;
 
 	//UI全体のトランスフォーム
