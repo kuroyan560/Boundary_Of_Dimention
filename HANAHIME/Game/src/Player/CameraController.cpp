@@ -60,10 +60,7 @@ void CameraController::Init()
 	m_rotateZ = 0;
 	m_rotateYLerpAmount = 0;
 	m_cameraXAngleLerpAmount = 0;
-	m_cameraRotXStorage = 0;
-	m_cameraRotYStorage = 0;
 	m_isHitUnderGroundTerrian = false;
-	m_isOldHitUnderGroundTerrian = false;
 }
 
 void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer)
@@ -185,47 +182,12 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 		m_nowParam.m_xAxisAngle += lerp;
 	}
 
-
-
-	//X軸回転に計算する角度を決める。
-	float useXAngle = m_nowParam.m_xAxisAngle;
-
-	//カメラが地形にあたっているとき。
-	if (m_isHitUnderGroundTerrian) {
-
-		//プレイヤーが下のかべに居るとき。
-		if (0.9f < arg_targetPos.GetUp().y) {
-
-			//保存してある回転量より現在の回転量が下回っていたら戻す。
-			float xAngle = m_nowParam.m_xAxisAngle;
-			if (xAngle < m_cameraRotXStorage) {
-
-				useXAngle = m_cameraRotXStorage;
-
-			}
-
-		}
-		//プレイヤーが下のかべに居るとき。
-		else if (arg_targetPos.GetUp().y < 0.9f) {
-
-			//保存してある回転量より現在の回転量が上回っていたら戻す。
-			float xAngle = m_nowParam.m_xAxisAngle;
-			if (m_cameraRotXStorage < xAngle) {
-
-				useXAngle = m_cameraRotXStorage;
-
-			}
-
-		}
-
-	}
-
 	//操作するカメラのトランスフォーム（前後移動）更新
 	Vec3<float> localPos = { 0,0,0 };
 	localPos.z = m_nowParam.m_posOffsetZ;
-	localPos.y = m_gazePointOffset.y + tan(-useXAngle) * m_nowParam.m_posOffsetZ;
+	localPos.y = m_gazePointOffset.y + tan(-m_nowParam.m_xAxisAngle) * m_nowParam.m_posOffsetZ;
 	m_cameraLocalTransform.SetPos(Math::Lerp(m_cameraLocalTransform.GetPos(), localPos, m_camForwardPosLerpRate));
-	m_cameraLocalTransform.SetRotate(Vec3<float>::GetXAxis(), useXAngle);
+	m_cameraLocalTransform.SetRotate(Vec3<float>::GetXAxis(), m_nowParam.m_xAxisAngle);
 
 	//コントローラーのトランスフォーム（対象の周囲、左右移動）更新
 	m_camParentTransform.SetRotate(Vec3<float>::GetYAxis(), m_nowParam.m_yAxisAngle);
@@ -240,7 +202,6 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	//通常の地形を走査
 	m_isHitTerrian = false;
-	m_isOldHitUnderGroundTerrian = m_isHitUnderGroundTerrian;
 	m_isHitUnderGroundTerrian = false;
 	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
 	{
@@ -278,47 +239,32 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 		}
 	}
 
-	//地形に当たったトリガーだったら
-	if (!m_isOldHitUnderGroundTerrian && m_isHitUnderGroundTerrian) {
-
-		//上下の壁にいたら
-		if (0.9f < fabs(arg_targetPos.GetUp().y)) {
-
-			//その時点のX軸回転を保存。
-			m_cameraRotXStorage = m_nowParam.m_xAxisAngle;
-
-		}
-		//左右の壁にいたら。
-		else {
-
-			m_cameraRotYStorage = m_nowParam.m_yAxisAngle;
-
-		}
-
-	}
-
 	//地上にあたっていたら地形と押し戻す前の座標からの回転を求めることで、注視点を上に向ける。
 	if (m_isHitUnderGroundTerrian) {
 
+		//カメラまでのベクトル。
+		KuroEngine::Vec3<float> cameraDir = (m_attachedCam.lock()->GetTransform().GetPos() - arg_targetPos.GetPosWorld()).GetNormal();
 
-		//補間する。
-		m_attachedCam.lock()->GetTransform().SetPos(KuroEngine::Math::Lerp(m_attachedCam.lock()->GetTransform().GetPos(), pushBackPos, 0.3f));
+		//カメラが動いた量回転させる。
 
-		Vec3<float> localPos = { 0,0,0 };
-		localPos.z = m_nowParam.m_posOffsetZ;
-		localPos.y = m_gazePointOffset.y + tan(-m_nowParam.m_xAxisAngle) * m_nowParam.m_posOffsetZ;
-		KuroEngine::Transform local;
-		local.SetPos(Math::Lerp(local.GetPos(), localPos, m_camForwardPosLerpRate));
-		local.SetRotate(Vec3<float>::GetXAxis(), m_nowParam.m_xAxisAngle);
+		//下の面にいる場合
+		if (0.9f < arg_targetPos.GetUp().y) {
+			cameraDir = KuroEngine::Math::TransformVec3(cameraDir, DirectX::XMQuaternionRotationAxis(arg_targetPos.GetUp(), arg_scopeMove.x));
+		}
+		//上の面にいる場合
+		else if (arg_targetPos.GetUp().y < -0.9f) {
+			cameraDir = KuroEngine::Math::TransformVec3(cameraDir, DirectX::XMQuaternionRotationAxis(arg_targetPos.GetUp(), -arg_scopeMove.x));
+		}
+		//横の面にいる場合
+		if (0.9f < arg_targetPos.GetUp().y) {
+			cameraDir = KuroEngine::Math::TransformVec3(cameraDir, DirectX::XMQuaternionRotationAxis(arg_targetPos.GetUp(), arg_scopeMove.y));
+		}
 
-		//コントローラーのトランスフォーム（対象の周囲、左右移動）更新
-		KuroEngine::Transform world;
-		world.SetRotate(Vec3<float>::GetYAxis(), m_nowParam.m_yAxisAngle);
-		world.SetPos(Math::Lerp(world.GetPos(), arg_targetPos.GetPosWorld(), m_camFollowLerpRate));
-		local.SetParent(&world);
+		//座標を動かす。
+		m_attachedCam.lock()->GetTransform().SetPos(arg_targetPos.GetPosWorld() + cameraDir * fabs(arg_cameraZ));
 
 		//現在の座標からプレイヤーに向かう回転を求める。
-		Vec3<float> axisZ = arg_targetPos.GetPos() - local.GetPosWorldByMatrix();
+		Vec3<float> axisZ = arg_targetPos.GetPos() - m_cameraLocalTransform.GetPosWorldByMatrix();
 		axisZ.Normalize();
 
 		//プレイヤーの法線との外積から仮のXベクトルを得る。
