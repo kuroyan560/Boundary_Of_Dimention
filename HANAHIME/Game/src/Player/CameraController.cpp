@@ -150,8 +150,12 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 		//カメラの正面ベクトル
 		KuroEngine::Vec3<float> cameraDir = (arg_targetPos.GetPosWorld() - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
 
+		//目標地点 いい感じの視点にするために、注視点を少し下にずらす。
+		const float VIEW_OFFSET = 5.0f;
+		KuroEngine::Vec3<float> targetPos = arg_nowStage.lock()->GetPlayerSpawnTransform().GetPosWorld() - arg_nowStage.lock()->GetPlayerSpawnTransform().GetUp() * VIEW_OFFSET;
+
 		//目標地点までのベクトル
-		KuroEngine::Vec3<float> targetDir = (Vec3<float>(0, 0, 0) - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
+		KuroEngine::Vec3<float> targetDir = (targetPos - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
 
 		//各ベクトル間の法線を求める。法線が存在しなかったら補間する必要はない。
 		KuroEngine::Vec3<float> upVec = cameraDir.Cross(targetDir);

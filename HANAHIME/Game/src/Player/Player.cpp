@@ -351,14 +351,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		scopeMove *= -1.0f;
 	}
 
-	//カメラが地上にあたっているとき、プレイヤーの居る面によってカメラの回転を打ち消す。(注視点をずらすモードのときに向きたい方向以外を向けないようにするため。)
-	//if (m_isHitUnderGroundCamera && 0.9f < fabs(m_transform.GetUp().y)) {
-	//	scopeMove.x = 0;
-	//}
-	//else if (m_isHitUnderGroundCamera) {
-	//	scopeMove.y = 0;
-	//}
-
 	//ジャンプができるかどうか。	一定時間地形に引っ掛かってたらジャンプできる。
 	m_canJump = CAN_JUMP_DELAY <= m_canJumpDelayTimer;
 
@@ -623,7 +615,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_growPlantPtLig.m_defInfluenceRange = MAX_INFLUENCE_RANGE;
 
 	//カメラをデフォルトの位置に戻すか。
-	bool isCameraDefault = UsersInput::Instance()->ControllerOnTrigger(0, LT) || UsersInput::Instance()->KeyOnTrigger(DIK_R);
+	bool isCameraDefault = UsersInput::Instance()->ControllerInput(0, LT) || UsersInput::Instance()->KeyInput(DIK_R);
 	if (isCameraDefault) {
 
 		//SEを鳴らす。
