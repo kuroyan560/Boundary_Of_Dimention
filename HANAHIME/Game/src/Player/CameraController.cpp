@@ -151,7 +151,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 		KuroEngine::Vec3<float> cameraDir = (arg_targetPos.GetPosWorld() - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
 
 		//目標地点 いい感じの視点にするために、注視点を少し下にずらす。
-		const float VIEW_OFFSET = 5.0f;
+		const float VIEW_OFFSET = 0.0f;
 		KuroEngine::Vec3<float> targetPos = arg_nowStage.lock()->GetPlayerSpawnTransform().GetPosWorld() - arg_nowStage.lock()->GetPlayerSpawnTransform().GetUp() * VIEW_OFFSET;
 
 		//目標地点までのベクトル
@@ -161,41 +161,37 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 		KuroEngine::Vec3<float> upVec = cameraDir.Cross(targetDir);
 		if (0 < upVec.Length()) {
 
+			//カメラ基準のプレイヤーの姿勢を求める。
+			KuroEngine::Vec3<float> upVec(0, 1, 0);
+
+			//プレイヤーの法線との外積からXベクトルを得る。
+			Vec3<float> axisX = upVec.Cross(cameraDir);
+
+			//プレイヤーのZ座標
+			Vec3<float> axisZ = axisX.Cross(upVec);
+
 			//まずはY軸回転を求める。
-			Vec2<float> cameraDir2DY = Project3Dto2D(cameraDir, arg_targetPos.GetRight(), arg_targetPos.GetFront());
+			Vec2<float> cameraDir2DY = Project3Dto2D(cameraDir, axisX, axisZ);
 			cameraDir2DY.Normalize();
-			Vec2<float> targetDir2DY = Project3Dto2D(targetDir, arg_targetPos.GetRight(), arg_targetPos.GetFront());
+			Vec2<float> targetDir2DY = Project3Dto2D(targetDir, axisX, axisZ);
 			targetDir2DY.Normalize();
 
 			//回転量を求める。
-			float angle = acos(cameraDir2DY.Dot(targetDir2DY)) * 1.0f;
+			float angle = acos(cameraDir2DY.Dot(targetDir2DY));
 			float cross = cameraDir2DY.Cross(targetDir2DY);
 			m_rotateYLerpAmount = angle * (cross < 0 ? 1.0f : -1.0f);
 
-			//次にX軸軸回転を求める。
-			Vec2<float> cameraDir2DX = Project3Dto2D(cameraDir, arg_targetPos.GetUp(), arg_targetPos.GetFront());
-			cameraDir2DX.Normalize();
-			Vec2<float> targetDir2DX = Project3Dto2D(targetDir, arg_targetPos.GetUp(), arg_targetPos.GetFront());
-			targetDir2DX.Normalize();
+			////次にX軸軸回転を求める。
+			//Vec2<float> cameraDir2DX = Project3Dto2D(cameraDir, axisX, axisZ);
+			//cameraDir2DX.Normalize();
+			//Vec2<float> targetDir2DX = Project3Dto2D(targetDir, axisX, axisZ);
+			//targetDir2DX.Normalize();
 
-			//回転量を求める。
-			angle = acos(cameraDir2DX.Dot(targetDir2DX)) * 1.0f;
-			cross = cameraDir2DX.Cross(targetDir2DX);
-			m_cameraXAngleLerpAmount = angle * (cross < 0 ? -1.0f : 1.0f);
+			////回転量を求める。
+			//angle = acos(cameraDir2DX.Dot(targetDir2DX)) * 1.0f;
+			//cross = cameraDir2DX.Cross(targetDir2DX);
+			//m_cameraXAngleLerpAmount = angle * (cross < 0 ? -1.0f : 1.0f);
 			
-			////カメラが反転しているかしていないかによって入れる値を決める。
-			//if (arg_isCameraUpInverse) {
-			//	m_cameraXAngleLerpAmount = m_xAxisAngleMin;
-			//}
-			//else {
-			//	m_cameraXAngleLerpAmount = m_xAxisAngleMax;
-			//}
-
-			////地形に当たっていたら
-			//if (m_isHitTerrian) {
-			//	m_rotateYLerpAmount += DirectX::XM_PI;
-			//}
-
 		}
 
 	}
