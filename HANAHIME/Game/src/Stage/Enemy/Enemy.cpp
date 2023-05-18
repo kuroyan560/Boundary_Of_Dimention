@@ -538,21 +538,21 @@ Battery::Battery(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transfo
 	if (m_posArray.empty())
 	{
 		m_posArray.emplace_back(arg_initTransform.GetPosWorld());
+		m_pos = m_transform.GetPos();
 	}
 	else if (2 <= m_posArray.size())
 	{
 		m_patrol = std::make_unique<PatrolBasedOnControlPoint>(m_posArray, 0, true);
 		m_patrol->Init(0);
+		m_pos = m_posArray[0];
 	}
+	m_transform = arg_initTransform;
+	m_transform.SetPos(m_pos);
 
 	m_upVec = arg_initTransform.GetUp();
 
 	m_bulletDir = arg_initTransform.GetFront();
 	m_bulletManager.Init(&m_pos, 5.0f, &m_bulletDir, 120.0f);
-
-	m_transform = arg_initTransform;
-	m_pos = m_transform.GetPos();
-
 
 	m_radius = m_transform.GetScale().x;
 	m_hitBox.m_centerPos = &m_pos;
