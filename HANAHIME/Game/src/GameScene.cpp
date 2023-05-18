@@ -296,7 +296,7 @@ void GameScene::OnDraw()
 	if (m_title.IsFinish() || m_title.IsStartOP())
 	{
 		m_goal.Draw(*m_nowCam);
-		//m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
+		m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
 		m_player.Draw(*m_nowCam, m_ligMgr, DebugController::Instance()->IsActive());
 	}
 

@@ -115,6 +115,7 @@ class Player : public KuroEngine::Debugger
 	float m_camSensitivity = 1.0f;
 	int m_cameraMode;
 	std::array<const float, 3> CAMERA_MODE = { -20.0f,-40.0f,-70.0f };
+	bool m_isHitUnderGroundCamera;
 
 	//植物を繁殖させる点光源
 	GrowPlantLight_Point m_growPlantPtLig;
@@ -173,6 +174,10 @@ class Player : public KuroEngine::Debugger
 	//プレイヤーが天井にいるか
 	bool m_onCeiling;
 	bool m_isCameraUpInverse;
+
+	//カメラをデフォルトの位置に戻すか。
+	bool m_isCameraDefault;
+	bool m_isOldCameraDefault;
 
 	//攻撃判定
 	int m_attackTimer;
