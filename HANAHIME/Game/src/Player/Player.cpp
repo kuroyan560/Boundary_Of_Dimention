@@ -582,6 +582,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 			m_cameraJumpLerpAmount = 0;
 
+			//ˆÚ“®—Ê‚ð0‚É‚·‚éB
+			m_moveSpeed = {};
+
 			//–ÊˆÚ“®SE‚ð–Â‚ç‚·B
 			SoundConfig::Instance()->Play(SoundConfig::SE_SURFACE_JUMP);
 
