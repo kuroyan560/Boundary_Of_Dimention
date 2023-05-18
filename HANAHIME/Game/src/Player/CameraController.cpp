@@ -269,6 +269,38 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 			}
 
+
+			//コの字型の通路対策のために、上方向にレイを飛ばす。
+			output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_attachedCam.lock()->GetTransform().GetPos(), {0,1,0}, checkHitMesh);
+
+			const float CHECK_HIT_TOP = 13.0f;
+			const float PUSH_BACK_ANGLE_X = 0.05f;
+			if (output.m_isHit && 0 < output.m_distance && output.m_distance < fabs(CHECK_HIT_TOP)) {
+
+				//当たった面とプレイヤーの上ベクトルが同じだったら当たり判定を無効化。
+				if (output.m_normal.Dot(arg_targetPos.GetUp()) < 0.9f) {
+
+					m_cameraXAngleLerpAmount -= PUSH_BACK_ANGLE_X;
+
+				}
+
+			}
+
+
+			//コの字型の通路対策のために、下方向にレイを飛ばす。
+			output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_attachedCam.lock()->GetTransform().GetPos(), { 0,-1,0 }, checkHitMesh);
+
+			if (output.m_isHit && 0 < output.m_distance && output.m_distance < fabs(CHECK_HIT_TOP)) {
+
+				//当たった面とプレイヤーの上ベクトルが同じだったら当たり判定を無効化。
+				if (output.m_normal.Dot(arg_targetPos.GetUp()) < 0.9f) {
+
+					m_cameraXAngleLerpAmount += PUSH_BACK_ANGLE_X;
+
+				}
+
+			}
+
 			//=================================================
 		}
 	}
