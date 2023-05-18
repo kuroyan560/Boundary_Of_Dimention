@@ -11,7 +11,7 @@ class DashEffect
 {
 public:
 	DashEffect();
-	void Update(const KuroEngine::Vec3<float> &pos, const KuroEngine::Vec3<float> &vel, bool activeFlag);
+	void Update(const KuroEngine::Vec3<float> &pos, bool activeFlag);
 	void Draw(KuroEngine::Camera &camera);
 
 private:
@@ -23,7 +23,7 @@ private:
 		Particle() :m_isAliveFlag(false), m_tex(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Cloud.png"))
 		{};
 
-		void Init(const KuroEngine::Vec3<float> &pos, const KuroEngine::Vec3<float> &vel)
+		void Init(const KuroEngine::Vec3<float> &pos)
 		{
 			m_pos = pos;
 			m_vel = KuroEngine::GetRand({ -1.0f,-1.0f,-1.0f }, { 1.0f,1.0f,1.0f });
@@ -58,7 +58,7 @@ private:
 			KuroEngine::Transform transform;
 			transform.SetPos(m_pos);
 			transform.SetScale({ m_scale.x,m_scale.y ,1.0f });
-			KuroEngine::Color color(1.0f, 0.0f, 0.0f, 1.0f);
+			KuroEngine::Color color(0.8f, 0.0f, 0.0f, 1.0f);
 			BasicDraw::Instance()->DrawBillBoard(camera, transform, m_tex, color);
 		}
 

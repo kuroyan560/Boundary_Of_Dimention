@@ -6,6 +6,7 @@
 #include"ForUser/DrawFunc/BillBoard/DrawFuncBillBoard.h"
 #include"EnemyDataReferenceForCircleShadow.h"
 #include"../../../src/Graphics/BasicDraw.h"
+#include"../../CPUParticle/DashEffect.h"
 
 enum ENEMY_ATTACK_PATTERN
 {
@@ -206,6 +207,9 @@ private:
 
 
 	//リアクション表記---------------------------------------
+
+	DashEffect m_dashEffect;
+
 
 public:
 	enum ReactionEnum

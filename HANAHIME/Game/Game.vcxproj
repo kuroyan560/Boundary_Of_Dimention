@@ -317,6 +317,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\CPUParticle\DashEffect.h" />
     <ClInclude Include="src\CPUParticle\GlitterEmitter.h" />
     <ClInclude Include="src\DebugController.h" />
+    <ClInclude Include="src\Effect\EnemyEyeEffect.h" />
     <ClInclude Include="src\GameScene.h" />
     <ClInclude Include="src\GPUParticle\DrawExcuteIndirect.h" />
     <ClInclude Include="src\GPUParticle\FireFlyOutStage.h" />

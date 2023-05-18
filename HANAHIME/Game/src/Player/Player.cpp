@@ -348,7 +348,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	KuroEngine::Vec3<float>dir(GetOldPos() - GetNowPos());
 	dir.Normalize();
-	m_dashEffect.Update(m_drawTransform.GetPos(), dir, GetNowPos() != GetOldPos());
+	m_dashEffect.Update(m_drawTransform.GetPos(), GetNowPos() != GetOldPos());
 
 
 	//トランスフォームを保存。

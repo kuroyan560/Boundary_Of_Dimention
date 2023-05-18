@@ -29,7 +29,8 @@ void MiniBug::Update(Player& arg_player)
 {
 
 	//return;
-	
+	m_dashEffect.Update(m_pos, m_nowStatus == MiniBug::ATTACK);
+
 	//‹¤’Êˆ—
 	if (m_deadFlag)
 	{
@@ -354,6 +355,8 @@ void MiniBug::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_li
 		edgeColor);
 
 	m_reaction->Draw(arg_cam);
+
+	m_dashEffect.Draw(arg_cam);
 
 }
 
