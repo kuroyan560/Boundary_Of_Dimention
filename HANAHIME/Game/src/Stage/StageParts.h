@@ -75,6 +75,7 @@ public:
 		//敵など静的オブジェクト
 		MINI_BUG,	//チビ虫
 		DOSSUN_RING,	//ドッスンリング
+		BATTERY,	//砲台
 
 		NUM, NONE
 	};

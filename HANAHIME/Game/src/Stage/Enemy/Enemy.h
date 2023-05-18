@@ -9,11 +9,20 @@
 #include"../../CPUParticle/DashEffect.h"
 #include"../../Effect/EnemyEyeEffect.h"
 
+//敵の攻撃パターン
 enum ENEMY_ATTACK_PATTERN
 {
 	ENEMY_ATTACK_PATTERN_NORMAL,//プレイヤーを見つけたら攻撃開始
 	ENEMY_ATTACK_PATTERN_ALWAYS, //常に一定間隔で攻撃している
 	ENEMY_ATTACK_PATTERN_INVALID
+};
+
+//敵の射撃パターン
+enum ENEMY_BARREL_PATTERN
+{
+	ENEMY_BARREL_PATTERN_FIXED,		//方向固定
+	ENEMY_BARREL_PATTERN_ROCKON,	//プレイヤーに向かって
+	ENEMY_BARREL_PATTERN_INVALID
 };
 
 class MiniBug :public StageParts
@@ -430,10 +439,10 @@ public:
 		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_shadowInfluenceRange, &m_deadFlag);
 
 	}
-	void Update(Player &arg_player)override;
-	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
+	void Update(Player& arg_player)override;
+	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 
-	void DebugDraw(KuroEngine::Camera &camera);
+	void DebugDraw(KuroEngine::Camera& camera);
 
 private:
 
@@ -478,5 +487,16 @@ private:
 
 
 	std::shared_ptr<KuroEngine::Model>m_hitBoxModel;
+};
 
+class Battery : public StageParts
+{
+public:
+	Battery(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>arg_posArray, float arg_bulletScale, ENEMY_BARREL_PATTERN arg_barrelPattern);
+	void Update(Player& arg_player)override;
+
+private:
+	std::vector<KuroEngine::Vec3<float>>m_posArray;
+	float m_bulletScale;
+	ENEMY_BARREL_PATTERN m_barrelPattern;
 };

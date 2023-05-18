@@ -206,9 +206,10 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	//チビ虫
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::MINI_BUG))
 	{
-		std::vector<KuroEngine::Vec3<float>>translationArray;
 		//パラメータがない
 		if (!CheckJsonKeyExist(arg_fileName, arg_json, "Loop"))return;
+
+		std::vector<KuroEngine::Vec3<float>>translationArray;
 
 		bool isLoopFlag = arg_json["Loop"].get<int>();
 		if (LoadTranslationArray(arg_fileName, &translationArray, obj))
@@ -232,6 +233,28 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 
 		m_enemyArray.emplace_back(std::make_shared<DossunRing>(model, transform, attackPattern));
 		newPart = m_enemyArray.back().get();
+	}
+	//砲台敵
+	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::BATTERY))
+	{
+		//パラメータがない
+		if (!CheckJsonKeyExist(arg_fileName, arg_json, "BarrelPat"))return;
+		if (!CheckJsonKeyExist(arg_fileName, arg_json, "BulletScale"))return;
+
+		ENEMY_BARREL_PATTERN barrelPattern;
+		auto patternName = arg_json["BarrelPat"].get<std::string>();
+		if (patternName.compare("FIXED") == 0)barrelPattern = ENEMY_BARREL_PATTERN_FIXED;
+		else if (patternName.compare("ROCKON") == 0)barrelPattern = ENEMY_BARREL_PATTERN_ROCKON;
+		else KuroEngine::AppearMessageBox("Stage : GetBarrelPattern() 失敗", "知らない射撃パターン名\"" + patternName + "\"が含まれているよ。");
+
+		float bulletScale = arg_json["BulletScale"].get<float>();
+
+		std::vector<KuroEngine::Vec3<float>>translationArray;
+		if (LoadTranslationArray(arg_fileName, &translationArray, obj))
+		{
+			m_enemyArray.emplace_back(std::make_shared<Battery>(model, transform, translationArray, bulletScale, barrelPattern));
+			newPart = m_enemyArray.back().get();
+		}
 	}
 	else
 	{
