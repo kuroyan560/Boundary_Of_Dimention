@@ -1113,7 +1113,7 @@ void PlayerCollision::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine:
 		//ジャンプ後に回転するようにする。
 
 		//クォータニオンを保存。
-		m_refPlayer->m_jumpEndQ = m_refPlayer->m_moveQ;
+		m_refPlayer->m_jumpEndQ = m_refPlayer->m_cameraQ;
 		m_refPlayer->m_jumpStartQ = m_refPlayer->m_prevTransform.GetRotate();
 		m_refPlayer->m_transform.SetRotate(m_refPlayer->m_prevTransform.GetRotate());
 
@@ -1121,7 +1121,7 @@ void PlayerCollision::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine:
 	else {
 
 		//当たった面基準の回転にする。
-		m_refPlayer->m_transform.SetRotate(m_refPlayer->m_moveQ);
+		m_refPlayer->m_transform.SetRotate(m_refPlayer->m_cameraQ);
 
 	}
 
