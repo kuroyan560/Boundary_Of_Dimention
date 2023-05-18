@@ -92,4 +92,20 @@ public:
 
 	std::weak_ptr<KuroEngine::Camera> GetCamera() { return m_attachedCam; }
 
+private:
+
+	//3次元ベクトルを2次元に射影する関数
+	KuroEngine::Vec2<float> Project3Dto2D(KuroEngine::Vec3<float> arg_vector3D, KuroEngine::Vec3<float> arg_basis1, KuroEngine::Vec3<float> arg_basis2) {
+		
+		//基底ベクトルを正規化
+		arg_basis1.Normalize();
+		arg_basis2.Normalize();
+
+		//3次元ベクトルを2次元ベクトルに射影
+		float x = arg_vector3D.Dot(arg_basis1);
+		float y = arg_vector3D.Dot(arg_basis2);
+
+		return KuroEngine::Vec2<float>(x, y);
+	}
+
 };

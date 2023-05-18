@@ -130,7 +130,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 		}
 		//上下の壁にいたら
-		else if(0.9f < fabs(arg_targetPos.GetUp().y)) {
+		else if (0.9f < fabs(arg_targetPos.GetUp().y)) {
 
 			//カメラが反転しているかしていないかによって入れる値を決める。
 			if (arg_isCameraUpInverse) {
@@ -144,23 +144,57 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	}
 
-	////カメラを初期位置に戻すか。
-	//if (arg_isCameraDefaultPos) {
+	//カメラを初期位置に戻すか。
+	if (arg_isCameraDefaultPos) {
 
-	//	//カメラが反転しているかしていないかによって入れる値を決める。
-	//	if (arg_isCameraUpInverse) {
-	//		m_cameraXAngleLerpAmount = m_xAxisAngleMin;
-	//	}
-	//	else {
-	//		m_cameraXAngleLerpAmount = m_xAxisAngleMax;
-	//	}
+		//カメラの正面ベクトル
+		KuroEngine::Vec3<float> cameraDir = (arg_targetPos.GetPosWorld() - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
 
-	//	//地形に当たっていたら
-	//	if (m_isHitTerrian) {
-	//		m_rotateYLerpAmount += DirectX::XM_PI;
-	//	}
+		//目標地点までのベクトル
+		KuroEngine::Vec3<float> targetDir = (Vec3<float>(0, 0, 0) - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
 
-	//}
+		//各ベクトル間の法線を求める。法線が存在しなかったら補間する必要はない。
+		KuroEngine::Vec3<float> upVec = cameraDir.Cross(targetDir);
+		if (0 < upVec.Length()) {
+
+			//まずはY軸回転を求める。
+			Vec2<float> cameraDir2DY = Project3Dto2D(cameraDir, arg_targetPos.GetRight(), arg_targetPos.GetFront());
+			cameraDir2DY.Normalize();
+			Vec2<float> targetDir2DY = Project3Dto2D(targetDir, arg_targetPos.GetRight(), arg_targetPos.GetFront());
+			targetDir2DY.Normalize();
+
+			//回転量を求める。
+			float angle = acos(cameraDir2DY.Dot(targetDir2DY)) * 1.0f;
+			float cross = cameraDir2DY.Cross(targetDir2DY);
+			m_rotateYLerpAmount = angle * (cross < 0 ? 1.0f : -1.0f);
+
+			//次にX軸軸回転を求める。
+			Vec2<float> cameraDir2DX = Project3Dto2D(cameraDir, arg_targetPos.GetUp(), arg_targetPos.GetFront());
+			cameraDir2DX.Normalize();
+			Vec2<float> targetDir2DX = Project3Dto2D(targetDir, arg_targetPos.GetUp(), arg_targetPos.GetFront());
+			targetDir2DX.Normalize();
+
+			//回転量を求める。
+			angle = acos(cameraDir2DX.Dot(targetDir2DX)) * 1.0f;
+			cross = cameraDir2DX.Cross(targetDir2DX);
+			m_cameraXAngleLerpAmount = angle * (cross < 0 ? -1.0f : 1.0f);
+			
+			////カメラが反転しているかしていないかによって入れる値を決める。
+			//if (arg_isCameraUpInverse) {
+			//	m_cameraXAngleLerpAmount = m_xAxisAngleMin;
+			//}
+			//else {
+			//	m_cameraXAngleLerpAmount = m_xAxisAngleMax;
+			//}
+
+			////地形に当たっていたら
+			//if (m_isHitTerrian) {
+			//	m_rotateYLerpAmount += DirectX::XM_PI;
+			//}
+
+		}
+
+	}
 
 	//Y軸補間量があったらいい感じに補間する。
 	if (0 < fabs(m_playerRotYLerp)) {
