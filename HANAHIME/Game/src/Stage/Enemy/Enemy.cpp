@@ -535,9 +535,130 @@ Battery::Battery(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transfo
 	:StageParts(BATTERY, arg_model, arg_initTransform), m_posArray(arg_posArray), m_barrelPattern(arg_barrelPattern)
 {
 	//座標配列が空ならその場にとどまる
-	if (m_posArray.empty())m_posArray.emplace_back(arg_initTransform.GetPosWorld());
+	if (m_posArray.empty())
+	{
+		m_posArray.emplace_back(arg_initTransform.GetPosWorld());
+	}
+	else if (2 <= m_posArray.size())
+	{
+		m_patrol = std::make_unique<PatrolBasedOnControlPoint>(m_posArray, 0, true);
+		m_patrol->Init(0);
+	}
+
+	m_upVec = arg_initTransform.GetUp();
+
+	m_bulletDir = arg_initTransform.GetFront();
+	m_bulletManager.Init(&m_pos, 5.0f, &m_bulletDir, 120.0f);
+
+	m_transform = arg_initTransform;
+	m_pos = m_transform.GetPos();
+
+
+	m_radius = m_transform.GetScale().x;
+	m_hitBox.m_centerPos = &m_pos;
+	m_hitBox.m_radius = &m_radius;
+
+	m_startDeadMotionFlag = false;
+	m_deadFlag = false;
+
 }
 
-void Battery::Update(Player& arg_player)
+void Battery::Update(Player &arg_player)
 {
+	if (m_deadFlag)
+	{
+		return;
+	}
+	if (m_startDeadMotionFlag)
+	{
+		m_deadFlag = true;
+	}
+
+	KuroEngine::Vec3<float>vel = {};
+	//制御点が二つ以上ある場合は交互に動く
+	if (m_patrol)
+	{
+		vel = m_patrol->Update(m_transform.GetPos());
+	}
+
+	KuroEngine::Vec3<float>dir(arg_player.GetTransform().GetPos() - m_transform.GetPos());
+	float distance = arg_player.GetTransform().GetPos().Distance(m_transform.GetPos());
+
+	m_bulletManager.Update(120.0f, arg_player.m_sphere, distance <= 50.0f && !arg_player.GetIsUnderGround());
+
+	//敵と弾の判定
+	if (m_bulletManager.IsHit())
+	{
+		arg_player.Damage();
+	}
+	//敵とプレイヤーの判定
+	if (Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_hitBox) && !arg_player.GetIsUnderGround())
+	{
+		arg_player.Damage();
+	}
+	//草の当たり判定
+	if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()) != Player::CHECK_HIT_GRASS_STATUS::NOHIT && !m_startDeadMotionFlag)
+	{
+		m_startDeadMotionFlag = true;
+	}
+
+	switch (m_barrelPattern)
+	{
+	case ENEMY_BARREL_PATTERN_FIXED:
+		//方向固定
+		break;
+	case ENEMY_BARREL_PATTERN_ROCKON:
+		//地面に居ない時にプレイヤーの方向を見る------
+		if (!arg_player.GetIsUnderGround() && distance <= 50.0f)
+		{
+			//敵の方向を向く処理
+			dir.Normalize();
+			KuroEngine::Vec3<float>frontVec(0.0f, 0.0f, 1.0f);
+			dir.y = 0.0f;
+			KuroEngine::Vec3<float>axis = frontVec.Cross(dir);
+			float rptaVel = acosf(frontVec.Dot(dir));
+
+			DirectX::XMVECTOR dirVec = { axis.x,axis.y,axis.z,1.0f };
+			m_rotation = DirectX::XMQuaternionRotationAxis(dirVec, rptaVel);
+
+			m_bulletDir = dir;
+		}
+		//地面に居ない時にプレイヤーの方向を見る------
+		//見つからない時は別方向を見る------
+		else
+		{
+			m_larpRotation = {};
+		}
+		m_larpRotation = DirectX::XMQuaternionSlerp(m_transform.GetRotate(), m_rotation, 0.1f);
+
+		break;
+	case ENEMY_BARREL_PATTERN_INVALID:
+		break;
+	default:
+		break;
+	}
+
+	m_pos += vel;
+	m_transform.SetPos(m_pos);
+	m_transform.SetRotate(m_larpRotation);
+}
+
+void Battery::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
+{
+	if (m_deadFlag)
+	{
+		return;
+	}
+
+	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
+	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
+
+	BasicDraw::Instance()->Draw_Player(
+		arg_cam,
+		arg_ligMgr,
+		m_model,
+		m_transform,
+		edgeColor);
+
+	m_bulletManager.Draw(arg_cam);
 }

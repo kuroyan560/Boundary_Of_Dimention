@@ -8,6 +8,7 @@
 #include"../../../src/Graphics/BasicDraw.h"
 #include"../../CPUParticle/DashEffect.h"
 #include"../../Effect/EnemyEyeEffect.h"
+#include"../../AI/EnemyAttack.h"
 
 //“G‚ÌUŒ‚ƒpƒ^[ƒ“
 enum ENEMY_ATTACK_PATTERN
@@ -439,10 +440,10 @@ public:
 		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_shadowInfluenceRange, &m_deadFlag);
 
 	}
-	void Update(Player& arg_player)override;
-	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
+	void Update(Player &arg_player)override;
+	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
 
-	void DebugDraw(KuroEngine::Camera& camera);
+	void DebugDraw(KuroEngine::Camera &camera);
 
 private:
 
@@ -493,10 +494,30 @@ class Battery : public StageParts
 {
 public:
 	Battery(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>arg_posArray, float arg_bulletScale, ENEMY_BARREL_PATTERN arg_barrelPattern);
-	void Update(Player& arg_player)override;
+	void Update(Player &arg_player)override;
+	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
 
 private:
+	//ˆÚ“®
+	KuroEngine::Vec3<float>m_pos;
 	std::vector<KuroEngine::Vec3<float>>m_posArray;
+	std::unique_ptr<PatrolBasedOnControlPoint> m_patrol;
+
+	//Šp“x
+	KuroEngine::Vec3<float>m_upVec;
+	KuroEngine::Quaternion m_rotation, m_larpRotation;
+
+	//’e
+	KuroEngine::Vec3<float>m_bulletDir;
 	float m_bulletScale;
 	ENEMY_BARREL_PATTERN m_barrelPattern;
+	BulletManager m_bulletManager;
+
+	//”»’è
+	float m_radius;
+	Sphere m_hitBox;
+
+	//Ž€–S
+	bool m_startDeadMotionFlag;
+	bool m_deadFlag;
 };

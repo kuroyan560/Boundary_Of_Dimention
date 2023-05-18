@@ -58,16 +58,20 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 
 	KuroEngine::Transform init;
 	init.SetPos({ 0.0f,10.0f,0.0f });
-	//posArray.emplace_back(KuroEngine::Vec3<float>( 10.0f,5.0f, 10.0f));
-	//posArray.emplace_back(KuroEngine::Vec3<float>(-55.0f,5.0f, 10.0f));
+	posArray.emplace_back(KuroEngine::Vec3<float>(-58.0f, 18.0f, -5.0f));
+	posArray.emplace_back(KuroEngine::Vec3<float>(-58.0f, 18.0f, 5.0f));
 	//posArray.emplace_back(KuroEngine::Vec3<float>(-55.0f,5.0f,-55.0f)); 
 	//posArray.emplace_back(KuroEngine::Vec3<float>(10.0f,5.0f, -55.0f));
 
 	KuroEngine::Transform enemyTrans = m_player.GetTransform();
 	enemyTrans.SetPos(KuroEngine::Vec3<float>(-58.0f, 18.0f, 0.0f));
-	enemyTrans.SetScale(1.0f);
-	auto model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/stage/", +"MiniBug.glb");
-	m_bug = std::make_unique<MiniBug>(model, enemyTrans, posArray, false);
+	enemyTrans.SetScale(3.0f);
+
+ 	DirectX::XMVECTOR dirVec = { 0.0f,1.0f,0.0f,1.0f };
+	KuroEngine::Quaternion rotate = DirectX::XMQuaternionRotationAxis(dirVec, KuroEngine::Angle::ConvertToRadian(90.0f));
+	enemyTrans.SetRotate(rotate);
+	auto model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/stage/","MiniBug.glb");
+	m_bug = std::make_unique<Battery>(model, enemyTrans, posArray, 1.0f, ENEMY_BARREL_PATTERN_ROCKON);
 	m_bug->Init();
 }
 

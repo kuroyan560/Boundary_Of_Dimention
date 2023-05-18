@@ -20,8 +20,6 @@ public:
 		float sumRadist = *sphereA.m_radius + *sphereB.m_radius;
 		return (distance <= sumRadist);
 	}
-
-
 };
 
 //ü•ª‚Æ“_‚Ì”»’è
