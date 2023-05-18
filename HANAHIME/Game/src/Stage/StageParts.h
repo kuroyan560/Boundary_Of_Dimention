@@ -5,6 +5,7 @@
 #include"Common/Transform.h"
 #include"Render/RenderObject/ModelInfo/ModelMesh.h"
 #include"../Graphics/BasicDrawParameters.h"
+#include"ForUser/Timer.h"
 
 namespace KuroEngine
 {
@@ -202,6 +203,10 @@ private:
 	float m_nowMoveLength;		//移動している現在量
 	KuroEngine::Vec3<float> m_moveDir;	//移動方向
 	bool m_isOder;				//順番に移動
+
+	//プレイヤーが乗ってから動き出すまでのタイマー
+	KuroEngine::Timer m_moveStartTimer;
+	const float MOVE_START_TIMER = 30.0f;
 
 	//有効化フラグ
 	bool m_isActive;

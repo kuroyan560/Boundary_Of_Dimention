@@ -258,6 +258,8 @@ void MoveScaffold::OnInit()
 	m_moveLength = KuroEngine::Vec3<float>(m_translationArray[m_nextTranslationIndex] - m_translationArray[m_nowTranslationIndex]).Length();
 	m_nowMoveLength = 0;
 
+	m_moveStartTimer = KuroEngine::Timer(MOVE_START_TIMER);
+
 	m_transform.SetPos(m_translationArray[0]);
 
 	m_oldPos = m_translationArray[0];
@@ -286,6 +288,10 @@ void MoveScaffold::Update(Player& arg_player)
 
 	//フラグを保存。
 	m_prevOnPlayer = m_onPlayer;
+
+	if (!m_onPlayer) {
+		m_moveStartTimer.Reset();
+	}
 
 	//SEの処理
 	if ((!m_isOldActive && m_isActive) || (!m_isOldStop && m_isStop)) {
@@ -380,6 +386,8 @@ void MoveScaffold::Update(Player& arg_player)
 		m_moveLength = KuroEngine::Vec3<float>(m_translationArray[m_nextTranslationIndex] - m_translationArray[m_nowTranslationIndex]).Length();
 		m_nowMoveLength = 0;
 
+		m_moveStartTimer.Reset();
+
 
 	}
 
@@ -403,8 +411,17 @@ void MoveScaffold::OnPlayer() {
 
 	m_onPlayer = true;
 
-	//乗ったトリガーだったら有効化する。
-	if (!m_prevOnPlayer && m_onPlayer) {
+	//乗ったトリガーの時にタイマーを起動。
+	if (m_onPlayer && !m_prevOnPlayer) {
+		m_moveStartTimer.UpdateTimer();
+	}
+
+	//そしてタイマーが動いていたらタイマーを動かす。(ゴールしてても乗ったままでずっと動き続けるのを避けるために、乗った瞬間しかタイマーを動かせないようにしている。)
+	if (0.0f < m_moveStartTimer.GetTimeRate()) {
+		m_moveStartTimer.UpdateTimer();
+	}
+
+	if (m_moveStartTimer.IsTimeUp()) {
 
 		//一時停止中だったら
 		if (m_isStop) {
@@ -663,7 +680,7 @@ void IvyZipLine::Update(Player& arg_player)
 }
 
 IvyBlock::IvyBlock(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, KuroEngine::Vec3<float> arg_leftTopFront, KuroEngine::Vec3<float> arg_rightBottomBack, std::weak_ptr<KuroEngine::Model>arg_collisionModel)
-	:StageParts(IVY_BLOCK, arg_model, arg_initTransform), m_leftTopFront(arg_leftTopFront), m_rightBottomBack(arg_rightBottomBack) 
+	:StageParts(IVY_BLOCK, arg_model, arg_initTransform), m_leftTopFront(arg_leftTopFront), m_rightBottomBack(arg_rightBottomBack)
 {
 	m_nonExistModel = std::shared_ptr<KuroEngine::Model>(new KuroEngine::Model(*arg_model.lock()));
 	m_nonExistMaterial = std::shared_ptr<KuroEngine::Material>(new KuroEngine::Material(*arg_model.lock()->m_meshes[0].material));
@@ -719,7 +736,7 @@ void IvyBlock::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_l
 		arg_ligMgr,
 		m_model.lock(),
 		m_transform);
-	
+
 	KuroEngine::Transform invisibleTrans = m_transform;
 	invisibleTrans.SetScale(SCALE_DEF);
 	BasicDraw::Instance()->Draw(
