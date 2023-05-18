@@ -3,6 +3,7 @@
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"../Graphics/BasicDraw.h"
 #include"../Movie/CameraData.h"
+#include"../Player/Player.h"
 
 StageManager::StageManager()
 	:KuroEngine::Debugger("StageManager", true, true)
@@ -48,12 +49,34 @@ void StageManager::SetStage(int stage_num)
 		m_nowStage = m_stageArray[stage_num];
 	}
 	m_nowStage->Init();
+
+	m_nowMapPinPointIdx = 0;
 }
 
 void StageManager::Update(Player& arg_player)
 {
 	m_nowStage->Update(arg_player);
 	Appearance::ModelsUpdate();
+
+	//マップピンが示す目的地との当たり判定
+	const auto& mapPinPointArray = m_nowStage->GetMapPinPointArray();
+	//マップピンインデックスが範囲外でない
+	if (!(m_nowMapPinPointIdx < 0 || static_cast<int>(mapPinPointArray.size()) <= m_nowMapPinPointIdx))
+	{
+		//目的地点座標取得
+		const auto destPos = mapPinPointArray[m_nowMapPinPointIdx].lock()->GetTransform().GetPosWorld();
+		//マップピンの当たり判定半径
+		const float MAP_PIN_RADIUS = 10.0f;
+		if (destPos.DistanceSq(arg_player.GetTransform().GetPosWorld()) < MAP_PIN_RADIUS * MAP_PIN_RADIUS)
+		{
+			//マップピンを次の目的地に変更
+			m_nowMapPinPointIdx++;
+
+			//全ての目的地を巡回完了
+			if (static_cast<int>(mapPinPointArray.size()) <= m_nowMapPinPointIdx)m_nowStage->SetCompleteMapPinFlg(true);
+		}
+	}
+	
 }
 
 void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
@@ -95,14 +118,18 @@ void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 	//	transform,
 	//	arg_cam);
 
-
 	m_nowStage->Draw(arg_cam, arg_ligMgr);
 }
 
 void StageManager::DrawUI(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float>arg_playerPos)
 {
+	//全ての目的地巡回済
+	if (m_nowStage->GetCompleteMapPin())return;
+
+	const auto& mapPinPointArray = m_nowStage->GetMapPinPointArray();
+
 	//デバッグ用にスタート地点を目標地点とする
-	auto destPos = m_nowStage->GetPlayerSpawnTransform().GetPosWorld();
+	auto destPos = mapPinPointArray[m_nowMapPinPointIdx].lock()->GetTransform().GetPosWorld();
 	m_mapPinUI.Draw(arg_cam, destPos, arg_playerPos);
 }
 

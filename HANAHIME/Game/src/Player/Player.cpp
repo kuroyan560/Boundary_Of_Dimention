@@ -248,6 +248,9 @@ Player::Player()
 
 void Player::Init(KuroEngine::Transform arg_initTransform)
 {
+	//ÉXÉPÅ[Éãë≈Çøè¡Çµ
+	arg_initTransform.SetScale(1.0f);
+
 	m_initTransform = arg_initTransform;
 	m_prevTransform = arg_initTransform;
 	m_transform = arg_initTransform;

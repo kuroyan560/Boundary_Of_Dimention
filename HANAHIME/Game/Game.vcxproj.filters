@@ -439,6 +439,9 @@
     <ClCompile Include="src\Effect\EnemyEyeEffect.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Player\PlayerMoveParticleTarget.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -845,5 +848,7 @@
     </ClInclude>
     <ClInclude Include="src\CPUParticle\DashEffect.h" />
     <ClInclude Include="src\Effect\EnemyEyeEffect.h" />
+    <ClInclude Include="src\Player\PlayerMoveParticleTarget.h" />
+    <ClInclude Include="src\Player\PlayerMoveParticleTargetEmitter.h" />
   </ItemGroup>
 </Project>

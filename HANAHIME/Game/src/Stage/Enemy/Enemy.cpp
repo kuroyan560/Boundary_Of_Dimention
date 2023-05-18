@@ -520,3 +520,14 @@ void DossunRing::DebugDraw(KuroEngine::Camera &camera)
 #endif // _DEBUG
 
 }
+
+Battery::Battery(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>> arg_posArray, float arg_bulletScale, ENEMY_BARREL_PATTERN arg_barrelPattern)
+	:StageParts(BATTERY, arg_model, arg_initTransform), m_posArray(arg_posArray), m_barrelPattern(arg_barrelPattern)
+{
+	//ç¿ïWîzóÒÇ™ãÛÇ»ÇÁÇªÇÃèÍÇ…Ç∆Ç«Ç‹ÇÈ
+	if (m_posArray.empty())m_posArray.emplace_back(arg_initTransform.GetPosWorld());
+}
+
+void Battery::Update(Player& arg_player)
+{
+}

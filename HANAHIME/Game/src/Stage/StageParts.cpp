@@ -12,8 +12,8 @@
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
-	"Terrian","Start","Goal","Appearance","MoveScaffold","Lever","Ivy_Zipline","IvyBlock","SplatoonFence","Gate",
-	"MiniBug","DossunRing",
+	"Terrian","Start","Goal","Appearance","MoveScaffold","Lever","Ivy_Zipline","IvyBlock","SplatoonFence","Gate","CheckPoint","StarCoin",
+	"MiniBug","DossunRing","Battery",
 };
 
 const std::string& StageParts::GetTypeKeyOnJson(STAGE_PARTS_TYPE arg_type)
@@ -794,4 +794,58 @@ void Gate::Update(Player& arg_player)
 bool Gate::CheckID(int arg_id)
 {
 	return m_id == arg_id;
+}
+
+void CheckPoint::Update(Player& arg_player)
+{
+	//‹N“®Ï‚È‚ç“Á‚É‰½‚à‚µ‚È‚¢
+	if (m_touched)return;
+
+	bool isHit = false;
+	//ƒvƒŒƒCƒ„[‚Æ‚Ì“–‚½‚è”»’è
+	
+	//
+	m_touched = isHit;
+}
+
+void StarCoin::OnInit()
+{
+	m_touched = false;
+}
+
+void StarCoin::Update(Player& arg_player)
+{
+	//E‚í‚ê‚½‚È‚ç‰½‚à‚µ‚È‚¢
+	if (m_touched)return;
+
+	bool isHit = false;
+	//ƒvƒŒƒCƒ„[‚Æ‚Ì“–‚½‚è”»’è
+
+	//
+	m_touched = isHit;
+	if (isHit)m_get = true;
+}
+
+void StarCoin::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+{
+	//E‚í‚ê‚½‚ç•`‰æ‚µ‚È‚¢
+	if (m_touched)return;
+
+	//“üŽè‚µ‚½‚±‚Æ‚ª‚È‚¢‚È‚ç’Êí•`‰æ
+	if (!m_get)
+	{
+		StageParts::Draw(arg_cam, arg_ligMgr);
+	}
+	//“üŽè‚µ‚½‚±‚Æ‚ª‚ ‚é‚È‚ç”¼“§–¾
+	else
+	{
+		static IndividualDrawParameter halfAlphaParam;
+		halfAlphaParam.m_alpha = 0.5f;
+		BasicDraw::Instance()->Draw(
+			arg_cam,
+			arg_ligMgr,
+			m_model.lock(),
+			m_transform,
+			halfAlphaParam);
+	}
 }
