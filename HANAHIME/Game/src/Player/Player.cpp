@@ -106,14 +106,14 @@ void Player::OnImguiItems()
 		auto pos = m_transform.GetPos();
 		auto angle = m_transform.GetRotateAsEuler();
 
-		if (ImGui::DragFloat3("Position", (float*)&pos, 0.5f))
+		if (ImGui::DragFloat3("Position", (float *)&pos, 0.5f))
 		{
 			m_transform.SetPos(pos);
 		}
 
 		//操作しやすいようにオイラー角に変換
 		KuroEngine::Vec3<float>eular = { angle.x.GetDegree(),angle.y.GetDegree(),angle.z.GetDegree() };
-		if (ImGui::DragFloat3("Eular", (float*)&eular, 0.5f))
+		if (ImGui::DragFloat3("Eular", (float *)&eular, 0.5f))
 		{
 			m_transform.SetRotate(Angle::ConvertToRadian(eular.x), Angle::ConvertToRadian(eular.y), Angle::ConvertToRadian(eular.z));
 		}
@@ -132,7 +132,7 @@ void Player::OnImguiItems()
 	}
 }
 
-void Player::AnimationSpecification(const KuroEngine::Vec3<float>& arg_beforePos, const KuroEngine::Vec3<float>& arg_newPos)
+void Player::AnimationSpecification(const KuroEngine::Vec3<float> &arg_beforePos, const KuroEngine::Vec3<float> &arg_newPos)
 {
 	//移動ステータス
 	if (m_playerMoveStatus == PLAYER_MOVE_STATUS::MOVE)
@@ -235,6 +235,15 @@ Player::Player()
 
 	m_hpTex = D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/in_game/hp_leaf.png");
 	m_hpDamageTex = D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/in_game/hp_leaf_damage.png");
+
+
+	m_tex.resize(MiniBug::MAX);
+	m_tex[MiniBug::FIND] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/Find.png");
+	m_tex[MiniBug::HIT] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/Attack.png");
+	m_tex[MiniBug::LOOK] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/hatena.png");
+	m_tex[MiniBug::FAR_AWAY] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/hatena.png");
+	m_tex[MiniBug::DEAD] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/dead.png");
+	m_reaction = std::make_unique<MiniBug::Reaction>(m_tex);
 }
 
 void Player::Init(KuroEngine::Transform arg_initTransform)
@@ -325,6 +334,22 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
+
+	if (UsersInput::Instance()->KeyOnTrigger(DIK_0))
+	{
+		m_reaction->Init(MiniBug::FIND);
+	}
+	if (UsersInput::Instance()->KeyOnTrigger(DIK_1))
+	{
+		m_reaction->Init(MiniBug::LOOK);
+	}
+
+	m_reaction->Update(m_drawTransform.GetPos());
+
+	KuroEngine::Vec3<float>dir(GetOldPos() - GetNowPos());
+	dir.Normalize();
+	//m_dashEffect.Update(m_drawTransform.GetPos(), GetNowPos() != GetOldPos());
+
 
 	//トランスフォームを保存。
 	m_prevTransform = m_transform;
@@ -724,7 +749,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 }
 
-void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
+void Player::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr, bool arg_cameraDraw)
 {
 
 	/*
@@ -754,7 +779,6 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 	//	m_drawTransform,
 	//	arg_cam);
 
-
 	if (arg_cameraDraw)
 	{
 		auto camTransform = m_cam->GetTransform();
@@ -765,13 +789,16 @@ void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_lig
 	}
 }
 
-void Player::DrawParticle(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void Player::DrawParticle(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 	//プレイヤーが動いた時のパーティクル挙動
 	m_playerMoveParticle.Draw(arg_cam, arg_ligMgr);
+
+	m_reaction->Draw(arg_cam);
+	//m_dashEffect.Draw(arg_cam);
 }
 
-void Player::DrawUI(KuroEngine::Camera& arg_cam)
+void Player::DrawUI(KuroEngine::Camera &arg_cam)
 {
 	using namespace KuroEngine;
 
@@ -946,7 +973,7 @@ Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<floa
 
 }
 
-void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
+void Player::Move(KuroEngine::Vec3<float> &arg_newPos) {
 
 	//落下中は入力を無効化。
 	if (!m_onGround) {

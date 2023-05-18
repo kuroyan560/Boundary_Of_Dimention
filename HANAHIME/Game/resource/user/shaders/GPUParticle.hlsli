@@ -74,6 +74,16 @@ matrix SetPosInMatrix(matrix mat,float3 pos)
     return result;
 };
 
+matrix SetScaleInMatrix(float3 scale)
+{
+    matrix matScale;
+    matScale[0] = float4(scale.x, 0.0f, 0.0f, 0.0f);
+    matScale[1] = float4(0.0f, scale.y, 0.0f, 0.0f);
+    matScale[2] = float4(0.0f, 0.0f, scale.z, 0.0f);
+    matScale[3] = float4(0.0f, 0.0f, 0.0f, 1.0f);
+    return matScale;
+};
+
 uint GetIndex(uint3 groupID,uint3 groupThreadID)
 {
     uint index = (groupThreadID.y * 1204) + groupThreadID.x + groupThreadID.z;
@@ -84,6 +94,13 @@ uint GetIndex(uint3 groupID,uint3 groupThreadID)
 float3 Larp(float3 BASE_POS,float3 POS,float MUL)
 {
     float3 distance = BASE_POS - POS;
+    distance *= MUL;
+    return POS + distance;
+}
+
+float2 LarpFloat2(float2 BASE_POS,float2 POS,float MUL)
+{
+    float2 distance = BASE_POS - POS;
     distance *= MUL;
     return POS + distance;
 }

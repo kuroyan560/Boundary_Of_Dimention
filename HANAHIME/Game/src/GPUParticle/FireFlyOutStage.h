@@ -10,7 +10,7 @@ public:
 	FireFlyOutStage(std::shared_ptr<KuroEngine::RWStructuredBuffer> particle_buffer);
 
 	void ComputeInit();
-	void ComputeUpdate();
+	void ComputeUpdate(const KuroEngine::Vec3<float> &pos);
 
 private:
 	static const int FIRE_FLY_MAX = 1024;
@@ -20,6 +20,7 @@ private:
 	struct FireFlyData
 	{
 		DirectX::XMFLOAT3 pos;
+		DirectX::XMFLOAT2 scale;
 		DirectX::XMFLOAT4 color;
 		DirectX::XMUINT2 timer;
 	};
@@ -27,6 +28,7 @@ private:
 	std::shared_ptr<KuroEngine::RWStructuredBuffer> m_fireFlyParticleCounterData;
 
 	std::shared_ptr<KuroEngine::ConstantBuffer> m_scaleRotateData;
+	std::shared_ptr<KuroEngine::ConstantBuffer> m_playerData;
 
 	std::shared_ptr<KuroEngine::RWStructuredBuffer> m_particleData;
 };

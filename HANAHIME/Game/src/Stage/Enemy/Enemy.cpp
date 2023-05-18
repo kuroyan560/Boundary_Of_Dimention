@@ -6,7 +6,7 @@
 void MiniBug::OnInit()
 {
 
-	return;
+	//return;
 
 	m_nowStatus = SEARCH;
 	m_prevStatus = SEARCH;
@@ -25,17 +25,17 @@ void MiniBug::OnInit()
 	m_pos = m_patrol->GetLimitPos(m_limitIndex);
 }
 
-void MiniBug::Update(Player& arg_player)
+void MiniBug::Update(Player &arg_player)
 {
 
-	return;
-	
+	//return;
+	m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());
+	m_eyeEffect.Update(m_larpPos);
+
 	//‹¤’Êˆ—
 	if (m_deadFlag)
 	{
-
 		m_reaction->Update(m_pos);
-
 		return;
 	}
 	else {
@@ -340,10 +340,10 @@ void MiniBug::Update(Player& arg_player)
 
 }
 
-void MiniBug::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 
-	return;
+	//return;
 
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
@@ -357,13 +357,16 @@ void MiniBug::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_li
 
 	m_reaction->Draw(arg_cam);
 
+	m_dashEffect.Draw(arg_cam);
+	m_eyeEffect.Draw(arg_cam);
+
 }
 
-void MiniBug::DebugDraw(KuroEngine::Camera& camera)
+void MiniBug::DebugDraw(KuroEngine::Camera &camera)
 {
 #ifdef _DEBUG
 
-	return;
+	//return;
 
 	switch (m_nowStatus)
 	{
@@ -386,14 +389,12 @@ void MiniBug::DebugDraw(KuroEngine::Camera& camera)
 
 }
 
-void DossunRing::Update(Player& arg_player)
+void DossunRing::Update(Player &arg_player)
 {
-
-	return;
+	//return;
 
 	if (m_deadFlag)
 	{
-
 		return;
 	}
 
@@ -488,10 +489,10 @@ void DossunRing::Update(Player& arg_player)
 
 }
 
-void DossunRing::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 
-	return;
+	//return;
 
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
@@ -504,11 +505,11 @@ void DossunRing::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg
 		edgeColor);
 }
 
-void DossunRing::DebugDraw(KuroEngine::Camera& camera)
+void DossunRing::DebugDraw(KuroEngine::Camera &camera)
 {
 #ifdef _DEBUG
 
-	return;
+	//return;
 
 	if (m_attackFlag)
 	{

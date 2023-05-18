@@ -73,6 +73,11 @@ void GlitterEmitter::Particle::Init(const KuroEngine::Vec3<float> &pos, const Ku
 
 void GlitterEmitter::Particle::Update()
 {
+	if (!m_initFlag)
+	{
+		return;
+	}
+
 	m_pos = KuroEngine::Math::Lerp(m_pos, m_vel, 0.1f);
 	m_timer.UpdateTimer();
 
@@ -84,5 +89,9 @@ void GlitterEmitter::Particle::Update()
 
 void GlitterEmitter::Particle::Draw(KuroEngine::Camera &camera)
 {
+	if (!m_initFlag)
+	{
+		return;
+	}
 	KuroEngine::DrawFuncBillBoard::Graph(camera, m_pos, { 1.0f,1.0f }, m_buffer, m_timer.GetInverseTimeRate());
 }
