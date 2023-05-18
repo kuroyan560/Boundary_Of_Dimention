@@ -779,12 +779,6 @@ void Player::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_lig
 		KuroEngine::AlphaBlendMode_None,
 		m_modelAnimator->GetBoneMatBuff());
 
-
-	KuroEngine::Vec3<float> castPos = m_transform.GetPos() + m_transform.GetRight() * 8.0f;
-	KuroEngine::DrawFunc3D::DrawLine(arg_cam, castPos, castPos + (KuroEngine::Vec3<float>(arg_cam.GetTransform().GetPos() - castPos).GetNormal()) * 5.0f, KuroEngine::Color(255, 0, 0, 255), 1.1f);
-	castPos = m_transform.GetPos() - m_transform.GetRight() * 8.0f;
-	KuroEngine::DrawFunc3D::DrawLine(arg_cam, castPos, castPos + (KuroEngine::Vec3<float>(arg_cam.GetTransform().GetPos() - castPos).GetNormal()) * 5.0f, KuroEngine::Color(0, 255, 0, 255), 1.1f);
-
 	//KuroEngine::DrawFunc3D::DrawNonShadingModel(
 	//	m_axisModel,
 	//	m_drawTransform,
