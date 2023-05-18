@@ -84,7 +84,7 @@ void MiniBug::Update(Player &arg_player)
 		findFlag = false;
 		m_nowStatus = MiniBug::NOTICE;
 	}
-	const bool isMoveFlag = arg_player.GetNowPos() != arg_player.GetOldPos();
+	const bool isMoveFlag = 0.1f < KuroEngine::Vec3<float>(arg_player.GetNowPos() - arg_player.GetOldPos()).Length();
 	if (findFlag && arg_player.GetIsUnderGround() && m_nowStatus != MiniBug::RETURN && isMoveFlag)
 	{
 		m_nowStatus = MiniBug::NOTICE;
