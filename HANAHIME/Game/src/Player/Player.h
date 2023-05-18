@@ -171,6 +171,10 @@ class Player : public KuroEngine::Debugger
 	bool m_onCeiling;
 	bool m_isCameraUpInverse;
 
+	//カメラをデフォルトの位置に戻すか。
+	bool m_isCameraDefault;
+	bool m_isOldCameraDefault;
+
 	//攻撃判定
 	int m_attackTimer;
 	const int ATTACK_TIMER = 30;

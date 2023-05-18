@@ -116,7 +116,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	m_nowParam.m_xAxisAngle = std::clamp(m_nowParam.m_xAxisAngle, m_xAxisAngleMin, m_xAxisAngleMax);
 
 	//床にカメラが当たっているときにプレイヤーが動いていたら、床がカメラに当たらないようにX軸回転を元に戻す。
-	if ((m_isHitUnderGroundTerrian && arg_isMovePlayer)) {
+	if ((m_isHitUnderGroundTerrian && arg_isMovePlayer) || (m_isHitUnderGroundTerrian && arg_isCameraDefaultPos)) {
 
 		//横の壁にいたら 
 		if (fabs(arg_targetPos.GetUp().y) < 0.9f && fabs(m_playerRotYLerp) < 0.1f) {
@@ -145,7 +145,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	}
 
 	//カメラを初期位置に戻すか。
-	if (arg_isCameraDefaultPos) {
+	if (arg_isCameraDefaultPos && !m_isHitUnderGroundTerrian) {
 
 		//カメラの正面ベクトル
 		KuroEngine::Vec3<float> cameraDir = (arg_targetPos.GetPosWorld() - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
@@ -318,7 +318,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 		//回転を反転させる。
 		if (arg_isCameraUpInverse) {
-			m_rotateZ = KuroEngine::Math::Lerp(m_rotateZ, DirectX::XM_PI, 0.2f);
+			m_rotateZ = KuroEngine::Math::Lerp(m_rotateZ, DirectX::XM_PI, 0.08f);
 		}
 		else {
 			m_rotateZ = KuroEngine::Math::Lerp(m_rotateZ, 0.0f, 0.1f);
@@ -373,7 +373,6 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	//地上にあたっているフラグを保存。これがtrueだと注視点モードになるので、プレイヤーが居る面によってカメラの回転を打ち消す。
 	arg_isHitUnderGround = m_isHitUnderGroundTerrian;
-
 
 	//距離を求める。
 	//const float PUSHBACK = 20.0f;

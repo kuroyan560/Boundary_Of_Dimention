@@ -210,6 +210,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Player\PlayerMoveParticleIdle.cpp" />
     <ClCompile Include="src\Player\PlayerMoveParticleOrb.cpp" />
     <ClCompile Include="src\Player\PlayerMoveParticleSmoke.cpp" />
+    <ClCompile Include="src\Player\PlayerMoveParticleTarget.cpp" />
     <ClCompile Include="src\SoundConfig.cpp" />
     <ClCompile Include="src\Stage\Enemy\Enemy.cpp" />
     <ClCompile Include="src\Stage\Enemy\EnemyDataReferenceForCircleShadow.cpp" />
@@ -343,6 +344,8 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Player\PlayerMoveParticleIdle.h" />
     <ClInclude Include="src\Player\PlayerMoveParticleOrb.h" />
     <ClInclude Include="src\Player\PlayerMoveParticleSmoke.h" />
+    <ClInclude Include="src\Player\PlayerMoveParticleTarget.h" />
+    <ClInclude Include="src\Player\PlayerMoveParticleTargetEmitter.h" />
     <ClInclude Include="src\SoundConfig.h" />
     <ClInclude Include="src\Stage\Enemy\Enemy.h" />
     <ClInclude Include="src\Stage\Enemy\EnemyDataReferenceForCircleShadow.h" />
