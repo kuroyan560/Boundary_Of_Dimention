@@ -224,7 +224,6 @@ void MiniBug::Update(Player &arg_player)
 		if (m_attackCoolTimer.UpdateTimer() && distance <= 5.0f && !m_attackFlag)
 		{
 			m_attackFlag = true;
-			m_reaction->Init(HIT);
 			m_attackMotion.Init(m_pos, m_pos + KuroEngine::Vec3<float>(0.0f, 2.0f, 0.0f), 0.5f);
 		}
 
