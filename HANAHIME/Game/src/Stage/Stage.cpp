@@ -488,10 +488,10 @@ void Stage::Load(int arg_ownStageIdx, std::string arg_dir, std::string arg_fileN
 		});
 
 	//マップピン地点を記録
-	for (int pinIdx = 0; pinIdx < static_cast<int>(mapPinPointDataArray.size()) - 1; ++pinIdx)
+	for (int pinIdx = 0; pinIdx < static_cast<int>(mapPinPointDataArray.size()); ++pinIdx)
 	{
 		//数字に被りがある場合警告
-		if (mapPinPointDataArray[pinIdx].m_order == mapPinPointDataArray[pinIdx + 1].m_order)
+		if (pinIdx != static_cast<int>(mapPinPointDataArray.size()) - 1 && mapPinPointDataArray[pinIdx].m_order == mapPinPointDataArray[pinIdx + 1].m_order)
 		{
 			AppearMessageBox("Stage : Load() 警告", arg_fileName + "の CheckPointOrder の数字が被ってるけど大丈夫？");
 		}

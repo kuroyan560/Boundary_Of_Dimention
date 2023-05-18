@@ -115,7 +115,7 @@ public:
 		return m_goalPoint;
 	}
 
-	bool SetCompleteMapPinFlg(bool arg_flg) { m_isCompleteMapPin = arg_flg; }
+	void SetCompleteMapPinFlg(bool arg_flg) { m_isCompleteMapPin = arg_flg; }
 	const bool& GetCompleteMapPin()const { return m_isCompleteMapPin; }
 
 //ƒ‚ƒfƒ‹‚ÌƒQƒbƒ^

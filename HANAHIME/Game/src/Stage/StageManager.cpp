@@ -118,7 +118,6 @@ void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 	//	transform,
 	//	arg_cam);
 
-
 	m_nowStage->Draw(arg_cam, arg_ligMgr);
 }
 
