@@ -348,7 +348,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	KuroEngine::Vec3<float>dir(GetOldPos() - GetNowPos());
 	dir.Normalize();
-	m_dashEffect.Update(m_drawTransform.GetPos(), GetNowPos() != GetOldPos());
+	//m_dashEffect.Update(m_drawTransform.GetPos(), GetNowPos() != GetOldPos());
 
 
 	//トランスフォームを保存。
@@ -795,7 +795,7 @@ void Player::DrawParticle(KuroEngine::Camera &arg_cam, KuroEngine::LightManager 
 	m_playerMoveParticle.Draw(arg_cam, arg_ligMgr);
 
 	m_reaction->Draw(arg_cam);
-	m_dashEffect.Draw(arg_cam);
+	//m_dashEffect.Draw(arg_cam);
 }
 
 void Player::DrawUI(KuroEngine::Camera &arg_cam)

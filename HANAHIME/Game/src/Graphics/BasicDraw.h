@@ -295,6 +295,6 @@ public:
 	std::shared_ptr<KuroEngine::RenderTarget> &GetRenderTarget(RENDER_TARGET_TYPE arg_type) { return m_renderTargetArray[arg_type]; }
 
 
-	void DrawBillBoard(KuroEngine::Camera &arg_cam, KuroEngine::Transform &arg_transform, std::shared_ptr<KuroEngine::TextureBuffer>Tex, const KuroEngine::Color &color, const KuroEngine::AlphaBlendMode &arg_blendMode = KuroEngine::AlphaBlendMode_None);
+	void DrawBillBoard(KuroEngine::Camera &arg_cam, KuroEngine::Transform &arg_transform, std::shared_ptr<KuroEngine::TextureBuffer>Tex, const KuroEngine::Color &color = KuroEngine::Color(1.0f, 1.0f, 1.0f, 1.0f), const KuroEngine::AlphaBlendMode &arg_blendMode = KuroEngine::AlphaBlendMode_None);
 	void DrawBillBoard(KuroEngine::Camera &arg_cam, const KuroEngine::Vec3<float> &pos, const KuroEngine::Vec2<float> &upSize, const KuroEngine::Vec2<float> &downSize, std::shared_ptr<KuroEngine::TextureBuffer>Tex, float alpha = 1.0f, const KuroEngine::AlphaBlendMode &arg_blendMode = KuroEngine::AlphaBlendMode_None);
 };

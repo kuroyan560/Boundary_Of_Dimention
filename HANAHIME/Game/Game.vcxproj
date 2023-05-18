@@ -183,6 +183,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\CPUParticle\DashEffect.cpp" />
     <ClCompile Include="src\CPUParticle\GlitterEmitter.cpp" />
     <ClCompile Include="src\DebugController.cpp" />
+    <ClCompile Include="src\Effect\EnemyEyeEffect.cpp" />
     <ClCompile Include="src\GPUParticle\DrawExcuteIndirect.cpp" />
     <ClCompile Include="src\GPUParticle\FireFlyOutStage.cpp" />
     <ClCompile Include="src\GPUParticle\FireWorkParticle.cpp" />

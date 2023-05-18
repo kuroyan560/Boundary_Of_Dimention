@@ -20,10 +20,10 @@ private:
 	class Particle
 	{
 	public:
-		Particle() :m_isAliveFlag(false), m_tex(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Cloud.png"))
+		Particle() :m_isAliveFlag(false)
 		{};
 
-		void Init(const KuroEngine::Vec3<float> &pos)
+		void Init(const KuroEngine::Vec3<float> &pos, std::shared_ptr<KuroEngine::TextureBuffer>tex)
 		{
 			m_pos = pos;
 			m_vel = KuroEngine::GetRand({ -1.0f,-1.0f,-1.0f }, { 1.0f,1.0f,1.0f });
@@ -32,6 +32,8 @@ private:
 			m_isAliveFlag = true;
 			m_appearTimer.Reset(15);
 			m_disappearTimer.Reset(60);
+
+			m_tex = tex;
 		};
 
 		void Update()
@@ -78,6 +80,7 @@ private:
 
 	static const int RESET_TIMER = 2;
 	KuroEngine::Timer m_timer;
+	std::shared_ptr<KuroEngine::TextureBuffer>m_tex;
 	std::array<Particle, 100>m_particleArray;
 
 };

@@ -25,11 +25,12 @@ void MiniBug::OnInit()
 	m_pos = m_patrol->GetLimitPos(m_limitIndex);
 }
 
-void MiniBug::Update(Player& arg_player)
+void MiniBug::Update(Player &arg_player)
 {
 
 	//return;
-	m_dashEffect.Update(m_pos, m_nowStatus == MiniBug::ATTACK);
+	m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());
+	m_eyeEffect.Update(m_larpPos);
 
 	//‹¤’Êˆ—
 	if (m_deadFlag)
@@ -339,7 +340,7 @@ void MiniBug::Update(Player& arg_player)
 
 }
 
-void MiniBug::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 
 	//return;
@@ -357,10 +358,11 @@ void MiniBug::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_li
 	m_reaction->Draw(arg_cam);
 
 	m_dashEffect.Draw(arg_cam);
+	m_eyeEffect.Draw(arg_cam);
 
 }
 
-void MiniBug::DebugDraw(KuroEngine::Camera& camera)
+void MiniBug::DebugDraw(KuroEngine::Camera &camera)
 {
 #ifdef _DEBUG
 
@@ -387,7 +389,7 @@ void MiniBug::DebugDraw(KuroEngine::Camera& camera)
 
 }
 
-void DossunRing::Update(Player& arg_player)
+void DossunRing::Update(Player &arg_player)
 {
 	//return;
 
@@ -487,7 +489,7 @@ void DossunRing::Update(Player& arg_player)
 
 }
 
-void DossunRing::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 
 	//return;
@@ -503,7 +505,7 @@ void DossunRing::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg
 		edgeColor);
 }
 
-void DossunRing::DebugDraw(KuroEngine::Camera& camera)
+void DossunRing::DebugDraw(KuroEngine::Camera &camera)
 {
 #ifdef _DEBUG
 

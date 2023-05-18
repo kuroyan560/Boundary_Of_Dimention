@@ -7,6 +7,7 @@
 #include"EnemyDataReferenceForCircleShadow.h"
 #include"../../../src/Graphics/BasicDraw.h"
 #include"../../CPUParticle/DashEffect.h"
+#include"../../Effect/EnemyEyeEffect.h"
 
 enum ENEMY_ATTACK_PATTERN
 {
@@ -19,7 +20,7 @@ class MiniBug :public StageParts
 {
 public:
 	MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>posArray, bool loopFlag)
-		:StageParts(MINI_BUG, arg_model, arg_initTransform), m_deadTimer(120)
+		:StageParts(MINI_BUG, arg_model, arg_initTransform), m_deadTimer(120), m_eyeEffect(&m_transform)
 	{
 
 		//return;
@@ -206,9 +207,10 @@ private:
 	std::vector<KuroEngine::Vec3<float>>m_posArray;
 
 
-	//リアクション表記---------------------------------------
-
+	//演出回り------------------------------------------------------------------------------
 	DashEffect m_dashEffect;
+	EnemyEyeEffect m_eyeEffect;
+
 
 
 public:

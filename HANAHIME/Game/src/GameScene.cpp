@@ -65,7 +65,7 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 
 	KuroEngine::Transform enemyTrans = m_player.GetTransform();
 	enemyTrans.SetPos(KuroEngine::Vec3<float>(-58.0f, 18.0f, 0.0f));
-
+	enemyTrans.SetScale(1.0f);
 	auto model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/stage/", +"MiniBug.glb");
 	m_bug = std::make_unique<MiniBug>(model, enemyTrans, posArray, false);
 	m_bug->Init();
