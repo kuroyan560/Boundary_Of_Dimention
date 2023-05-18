@@ -3,29 +3,6 @@
         "name": "scene",
         "objects": [
             {
-                "type": "Start",
-                "name": "Start_0.001",
-                "transform": {
-                    "translation": [
-                        0.0,
-                        0.0,
-                        11.0
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                },
-                "file_name": "Start"
-            },
-            {
                 "type": "Terrian",
                 "name": "HitStage2_0",
                 "transform": {
@@ -69,7 +46,8 @@
                         3.0
                     ]
                 },
-                "file_name": "Goal"
+                "file_name": "Goal",
+                "CheckPointOrder": 6
             },
             {
                 "type": "MiniBug",
@@ -3206,6 +3184,123 @@
                         -1.0
                     ]
                 }
+            },
+            {
+                "type": "CheckPoint",
+                "name": "CheckPoint_0.004",
+                "transform": {
+                    "translation": [
+                        260.0,
+                        20.0,
+                        -8.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "CheckPoint",
+                "CheckPointOrder": 4
+            },
+            {
+                "type": "CheckPoint",
+                "name": "CheckPoint_0.005",
+                "transform": {
+                    "translation": [
+                        -200.0,
+                        5.0,
+                        12.0
+                    ],
+                    "rotation": [
+                        -0.0,
+                        -0.0,
+                        -1.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "CheckPoint",
+                "CheckPointOrder": 5
+            },
+            {
+                "type": "StarCoin",
+                "name": "StarCoin_0.004",
+                "transform": {
+                    "translation": [
+                        30.0,
+                        -160.0,
+                        -46.99999237060547
+                    ],
+                    "rotation": [
+                        0.7071068286895752,
+                        0.0,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ]
+                },
+                "file_name": "StarCoin"
+            },
+            {
+                "type": "StarCoin",
+                "name": "StarCoin_0.005",
+                "transform": {
+                    "translation": [
+                        -165.0,
+                        -60.0,
+                        60.0000114440918
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ]
+                },
+                "file_name": "StarCoin"
+            },
+            {
+                "type": "StarCoin",
+                "name": "StarCoin_0.006",
+                "transform": {
+                    "translation": [
+                        -180.0,
+                        55.0,
+                        -2.999988555908203
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.7071068286895752,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ]
+                },
+                "file_name": "StarCoin"
             }
         ]
     }

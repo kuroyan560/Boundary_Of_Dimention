@@ -81,10 +81,10 @@
                         -151.0
                     ],
                     "rotation": [
-                        1.0,
                         0.0,
                         0.0,
-                        0.0
+                        0.0,
+                        1.0
                     ],
                     "scaling": [
                         1.0,
@@ -95,7 +95,125 @@
                 "file_name": "Gate",
                 "GateID": 1,
                 "DestStageNum": 2,
-                "DestGateID": 2
+                "DestGateID": 2,
+                "CheckPointOrder": 3
+            },
+            {
+                "type": "CheckPoint",
+                "name": "CheckPoint_0.001",
+                "transform": {
+                    "translation": [
+                        70.0,
+                        -120.0,
+                        -75.0
+                    ],
+                    "rotation": [
+                        -0.7071068286895752,
+                        -0.7071068286895752,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "CheckPoint",
+                "CheckPointOrder": 1
+            },
+            {
+                "type": "CheckPoint",
+                "name": "CheckPoint_0.002",
+                "transform": {
+                    "translation": [
+                        130.0,
+                        110.00000762939453,
+                        -134.99996948242188
+                    ],
+                    "rotation": [
+                        -0.7071068286895752,
+                        -0.7071068286895752,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "CheckPoint",
+                "CheckPointOrder": 2
+            },
+            {
+                "type": "StarCoin",
+                "name": "StarCoin_0.001",
+                "transform": {
+                    "translation": [
+                        14.999996185302734,
+                        -40.0,
+                        -80.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ]
+                },
+                "file_name": "StarCoin"
+            },
+            {
+                "type": "StarCoin",
+                "name": "StarCoin_0.002",
+                "transform": {
+                    "translation": [
+                        60.0,
+                        -236.0,
+                        -122.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.7071068286895752,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ]
+                },
+                "file_name": "StarCoin"
+            },
+            {
+                "type": "StarCoin",
+                "name": "StarCoin_0.003",
+                "transform": {
+                    "translation": [
+                        130.9018096923828,
+                        -70.0,
+                        -106.0
+                    ],
+                    "rotation": [
+                        -0.5,
+                        0.5,
+                        0.5,
+                        0.5
+                    ],
+                    "scaling": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ]
+                },
+                "file_name": "StarCoin"
             },
             {
                 "type": "SplatoonFence",

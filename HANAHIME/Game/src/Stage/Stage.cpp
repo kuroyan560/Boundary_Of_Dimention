@@ -203,6 +203,22 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		newPart = m_gimmickArray.back().get();
 		m_gateArray.emplace_back(std::dynamic_pointer_cast<Gate>(m_gimmickArray.back()));
 	}
+	//チェックポイント
+	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::CHECK_POINT))
+	{
+		//必要なパラメータがない
+		if (!CheckJsonKeyExist(arg_fileName, arg_json, "CheckPointOrder"))return;
+
+		int order = arg_json["CheckPointOrder"].get<int>();
+		m_gimmickArray.emplace_back(std::make_shared<CheckPoint>(model, transform, order));
+		newPart = m_gimmickArray.back().get();
+	}
+	//スターコイン
+	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::STAR_COIN))
+	{
+		m_gimmickArray.emplace_back(std::make_shared<StarCoin>(model, transform));
+		newPart = m_gimmickArray.back().get();
+	}
 	//チビ虫
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::MINI_BUG))
 	{

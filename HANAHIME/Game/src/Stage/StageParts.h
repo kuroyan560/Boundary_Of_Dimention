@@ -71,6 +71,8 @@ public:
 		IVY_BLOCK,
 		SPLATOON_FENCE,
 		GATE,
+		CHECK_POINT,
+		STAR_COIN,
 
 		//敵など静的オブジェクト
 		MINI_BUG,	//チビ虫
@@ -485,4 +487,30 @@ public:
 	bool CheckID(int arg_id);
 	const int& GetDestStageNum()const { return m_destStageNum; }
 	const int& GetDestGateID()const { return m_destGateId; }
+};
+
+class CheckPoint : public StageParts
+{
+	int m_order;
+	bool m_touched = false;
+
+public:
+	CheckPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_order)
+		:StageParts(CHECK_POINT, arg_model, arg_initTransform), m_order(arg_order) {}
+
+	void Update(Player& arg_player)override;
+};
+
+class StarCoin : public StageParts
+{
+	bool m_get = false;
+	bool m_touched = false;
+
+	void OnInit()override;
+public:
+	StarCoin(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
+		:StageParts(CHECK_POINT, arg_model, arg_initTransform) {}
+
+	void Update(Player& arg_player)override;
+	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 };
