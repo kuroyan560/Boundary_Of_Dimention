@@ -582,6 +582,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 			m_cameraJumpLerpAmount = 0;
 
+			//移動量を0にする。
+			m_moveSpeed = {};
+
 			//面移動SEを鳴らす。
 			SoundConfig::Instance()->Play(SoundConfig::SE_SURFACE_JUMP);
 
@@ -656,7 +659,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_MODE[m_cameraMode], arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_MODE[m_cameraMode], arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP);
 
 		m_deathEffectCameraZ = CAMERA_MODE[m_cameraMode];
 	}
@@ -666,7 +669,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_shake);
 
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP);
 
 	}
 	//シェイクを計算。
@@ -778,7 +781,6 @@ void Player::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_lig
 		drawParam,
 		KuroEngine::AlphaBlendMode_None,
 		m_modelAnimator->GetBoneMatBuff());
-
 
 	//KuroEngine::DrawFunc3D::DrawNonShadingModel(
 	//	m_axisModel,

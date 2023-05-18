@@ -5,9 +5,6 @@
 
 void MiniBug::OnInit()
 {
-
-	//return;
-
 	m_nowStatus = SEARCH;
 	m_prevStatus = SEARCH;
 	m_limitIndex = 0;
@@ -23,15 +20,15 @@ void MiniBug::OnInit()
 
 	m_patrol->Init(m_limitIndex);
 	m_pos = m_patrol->GetLimitPos(m_limitIndex);
+
+	m_dashEffect.Finalize();
 }
 
 void MiniBug::Update(Player &arg_player)
 {
-
-	//return;
 	m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());
 	m_eyeEffect.Update(m_larpPos);
-
+	
 	//ã§í èàóù
 	if (m_deadFlag)
 	{
@@ -87,7 +84,7 @@ void MiniBug::Update(Player &arg_player)
 		findFlag = false;
 		m_nowStatus = MiniBug::NOTICE;
 	}
-	const bool isMoveFlag = arg_player.GetNowPos() != arg_player.GetOldPos();
+	const bool isMoveFlag = 0.1f < KuroEngine::Vec3<float>(arg_player.GetNowPos() - arg_player.GetOldPos()).Length();
 	if (findFlag && arg_player.GetIsUnderGround() && m_nowStatus != MiniBug::RETURN && isMoveFlag)
 	{
 		m_nowStatus = MiniBug::NOTICE;
@@ -96,8 +93,6 @@ void MiniBug::Update(Player &arg_player)
 	{
 		m_nowStatus = MiniBug::ATTACK;
 	}
-
-
 
 	//èâä˙âª---------------------------------------------------
 	if (m_nowStatus != m_prevStatus)
@@ -390,8 +385,6 @@ void MiniBug::DebugDraw(KuroEngine::Camera &camera)
 
 void DossunRing::Update(Player &arg_player)
 {
-	//return;
-
 	if (m_deadFlag)
 	{
 		return;
@@ -490,9 +483,6 @@ void DossunRing::Update(Player &arg_player)
 
 void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
-
-	//return;
-
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
