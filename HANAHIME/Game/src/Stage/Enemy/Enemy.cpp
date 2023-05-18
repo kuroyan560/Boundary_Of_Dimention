@@ -584,7 +584,14 @@ void Battery::Update(Player &arg_player)
 	KuroEngine::Vec3<float>dir(arg_player.GetTransform().GetPos() - m_transform.GetPos());
 	float distance = arg_player.GetTransform().GetPos().Distance(m_transform.GetPos());
 
-	m_bulletManager.Update(120.0f, arg_player.m_sphere, distance <= 50.0f && !arg_player.GetIsUnderGround());
+	bool isDiffrentWallFlag = m_transform.GetUp().Dot(arg_player.GetTransform().GetUpWorld()) <= 0.5f;
+
+	//ŽË’ö”ÍˆÍ“àA’n–Ê‚Éö‚Á‚Ä‚È‚¢A“¯‚¶–Ê‚É‚¢‚é
+	m_bulletManager.Update(120.0f, arg_player.m_sphere,
+		distance <= 50.0f &&
+		!arg_player.GetIsUnderGround() &&
+		!isDiffrentWallFlag
+	);
 
 	//“G‚Æ’e‚Ì”»’è
 	if (m_bulletManager.IsHit())
@@ -613,8 +620,7 @@ void Battery::Update(Player &arg_player)
 		{
 			//“G‚Ì•ûŒü‚ðŒü‚­ˆ—
 			dir.Normalize();
-			KuroEngine::Vec3<float>frontVec(0.0f, 0.0f, 1.0f);
-			dir.y = 0.0f;
+			KuroEngine::Vec3<float>frontVec(m_transform.GetFront());
 			KuroEngine::Vec3<float>axis = frontVec.Cross(dir);
 			float rptaVel = acosf(frontVec.Dot(dir));
 
@@ -640,7 +646,7 @@ void Battery::Update(Player &arg_player)
 
 	m_pos += vel;
 	m_transform.SetPos(m_pos);
-	m_transform.SetRotate(m_larpRotation);
+	//m_transform.SetRotate(m_larpRotation);
 }
 
 void Battery::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)

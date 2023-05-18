@@ -73,7 +73,6 @@ class GameScene : public KuroEngine::BaseScene
 	Goal m_goal;
 
 	KuroEngine::LightBloomDevice m_lightBloomDevice;
-	std::unique_ptr<Battery>m_bug;
 
 
 	void GameInit();

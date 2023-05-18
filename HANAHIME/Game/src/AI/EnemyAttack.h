@@ -98,7 +98,8 @@ private:
 		{
 			if (Collision::Instance()->CheckCircleAndCircle(m_sphere, arg_hitbox))
 			{
-				m_deadTiemr.Reset(5);
+				m_deadTiemr.Reset(0);
+				m_timer.Reset(0);
 				m_deadFlag = true;
 				return true;
 			}

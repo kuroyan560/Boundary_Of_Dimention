@@ -53,26 +53,6 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 	SoundConfig::Instance();
 	CameraData::Instance()->RegistCameraData("");
 
-
-	std::vector<KuroEngine::Vec3<float>>posArray;
-
-	KuroEngine::Transform init;
-	init.SetPos({ 0.0f,10.0f,0.0f });
-	posArray.emplace_back(KuroEngine::Vec3<float>(-58.0f, 18.0f, -5.0f));
-	posArray.emplace_back(KuroEngine::Vec3<float>(-58.0f, 18.0f, 5.0f));
-	//posArray.emplace_back(KuroEngine::Vec3<float>(-55.0f,5.0f,-55.0f)); 
-	//posArray.emplace_back(KuroEngine::Vec3<float>(10.0f,5.0f, -55.0f));
-
-	KuroEngine::Transform enemyTrans = m_player.GetTransform();
-	enemyTrans.SetPos(KuroEngine::Vec3<float>(-58.0f, 18.0f, 0.0f));
-	enemyTrans.SetScale(3.0f);
-
- 	DirectX::XMVECTOR dirVec = { 0.0f,1.0f,0.0f,1.0f };
-	KuroEngine::Quaternion rotate = DirectX::XMQuaternionRotationAxis(dirVec, KuroEngine::Angle::ConvertToRadian(90.0f));
-	enemyTrans.SetRotate(rotate);
-	auto model = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/stage/","MiniBug.glb");
-	m_bug = std::make_unique<Battery>(model, enemyTrans, posArray, 1.0f, ENEMY_BARREL_PATTERN_ROCKON);
-	m_bug->Init();
 }
 
 
@@ -249,7 +229,6 @@ void GameScene::OnUpdate()
 		m_player.DisactiveLight();
 	}
 
-	m_bug->Update(m_player);
 	m_gateSceneChange.Update();
 	m_movieCamera.Update();
 	m_fireFlyStage.ComputeUpdate(m_player.GetTransform().GetPos());
@@ -303,8 +282,6 @@ void GameScene::OnDraw()
 		m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
 		m_player.Draw(*m_nowCam, m_ligMgr, DebugController::Instance()->IsActive());
 	}
-
-	m_bug->Draw(*m_nowCam, m_ligMgr);
 
 	//ステージ描画
 	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
