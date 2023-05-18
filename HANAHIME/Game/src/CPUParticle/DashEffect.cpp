@@ -6,6 +6,14 @@ DashEffect::DashEffect()
 	m_tex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Cloud.png");
 }
 
+void DashEffect::Finalize()
+{
+	for (auto &obj : m_particleArray)
+	{
+		obj.Finalize();
+	}
+}
+
 void DashEffect::Update(const KuroEngine::Vec3<float> &pos, bool activeFlag)
 {
 	for (auto &obj : m_particleArray)

@@ -11,6 +11,7 @@ class DashEffect
 {
 public:
 	DashEffect();
+	void Finalize();
 	void Update(const KuroEngine::Vec3<float> &pos, bool activeFlag);
 	void Draw(KuroEngine::Camera &camera);
 
@@ -35,7 +36,10 @@ private:
 
 			m_tex = tex;
 		};
-
+		void Finalize()
+		{
+			m_isAliveFlag = false;
+		}
 		void Update()
 		{
 			if (!m_isAliveFlag)

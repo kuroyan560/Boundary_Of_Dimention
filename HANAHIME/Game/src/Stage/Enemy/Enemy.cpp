@@ -5,9 +5,6 @@
 
 void MiniBug::OnInit()
 {
-
-	//return;
-
 	m_nowStatus = SEARCH;
 	m_prevStatus = SEARCH;
 	m_limitIndex = 0;
@@ -23,6 +20,9 @@ void MiniBug::OnInit()
 
 	m_patrol->Init(m_limitIndex);
 	m_pos = m_patrol->GetLimitPos(m_limitIndex);
+
+	m_dashEffect.Finalize();
+
 }
 
 void MiniBug::Update(Player &arg_player)
@@ -31,7 +31,7 @@ void MiniBug::Update(Player &arg_player)
 	//return;
 	m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());
 	m_eyeEffect.Update(m_larpPos);
-
+	
 	//ã§í èàóù
 	if (m_deadFlag)
 	{
@@ -96,8 +96,6 @@ void MiniBug::Update(Player &arg_player)
 	{
 		m_nowStatus = MiniBug::ATTACK;
 	}
-
-
 
 	//èâä˙âª---------------------------------------------------
 	if (m_nowStatus != m_prevStatus)
