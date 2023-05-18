@@ -44,6 +44,8 @@ private:
 	};
 	//マップピンを指すパーツのデータ配列
 	std::vector<std::weak_ptr<StageParts>>m_mapPinPoint;
+	//全ての目的地を巡回済
+	bool m_isCompleteMapPin = false;
 
 //モデル
 	//地形モデルの存在するディレクトリ
@@ -113,6 +115,9 @@ public:
 		return m_goalPoint;
 	}
 
+	bool SetCompleteMapPinFlg(bool arg_flg) { m_isCompleteMapPin = arg_flg; }
+	const bool& GetCompleteMapPin()const { return m_isCompleteMapPin; }
+
 //モデルのゲッタ
 	//スカイドーム
 	std::weak_ptr<KuroEngine::Model>GetSkydomeModel() { return m_skydomeModel; }
@@ -120,6 +125,9 @@ public:
 	std::weak_ptr<KuroEngine::Model>GetWoodsCylinderModel() { return m_woodsCylinderModel; }
 	//地面
 	std::weak_ptr<KuroEngine::TextureBuffer>GetGroundTex() { return m_groundTex; }
+
+	//マップピンを指すパーツの配列
+	std::vector<std::weak_ptr<StageParts>>GetMapPinPointArray()const { return m_mapPinPoint; }
 
 
 };

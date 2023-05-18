@@ -39,8 +39,10 @@ class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>, 
 	//現在のステージ
 	std::shared_ptr<Stage>m_nowStage;
 
-	//マップのUI
+	//マップピンUI
 	MapPinUI m_mapPinUI;
+	//現在マップピンが指す地点のインデックス
+	int m_nowMapPinPointIdx;
 
 public:
 	void SetStage(int stage_num = -1);
