@@ -30,21 +30,6 @@ class CameraController : public KuroEngine::Debugger
 	//カメラをZ方向に回転させる量。
 	float m_rotateZ;
 
-	struct Parameter
-	{
-		//対象との相対的なZオフセット
-		float m_posOffsetZ = -10.0f;
-		//X軸角度（高さ傾き）
-		KuroEngine::Angle m_xAxisAngle = KuroEngine::Angle(20);
-
-		//Y軸角度
-		KuroEngine::Angle m_yAxisAngle = KuroEngine::Angle(0);
-	};
-	//パラメータの初期化値（デフォルト値）
-	Parameter m_initializedParam;
-	//現在のパラメータ
-	Parameter m_nowParam;
-
 	//地形に当たっているか
 	bool m_isHitTerrian;
 
@@ -60,21 +45,13 @@ class CameraController : public KuroEngine::Debugger
 	float m_rotateYLerpAmount;
 	float m_cameraXAngleLerpAmount;
 
+	//カメラの回転を制御するクォータニオン
+	KuroEngine::Quaternion m_cameraQ;
+
 	//操作するカメラのポインタ
 	std::weak_ptr<KuroEngine::Camera>m_attachedCam;
 
 	KuroEngine::Vec3<float> m_oldCameraWorldPos;
-	KuroEngine::Transform m_cameraLocalTransform;	//カメラのローカルでの回転と移動を計算する用。
-	KuroEngine::Transform m_camParentTransform;		//プレイヤーの座標と回転を適応させる用。
-
-	//カメラの前方向座標移動のLerp値
-	float m_camForwardPosLerpRate = 0.8f;
-
-	//カメラの座標追従のLerp値
-	float m_camFollowLerpRate = 0.8f;
-
-	//現在の上下方向で操作しているもの
-	enum VERTICAL_MOVE { ANGLE, DIST }m_verticalControl = ANGLE;
 
 
 public:
@@ -83,20 +60,18 @@ public:
 
 	void AttachCamera(std::shared_ptr<KuroEngine::Camera>arg_cam);
 
-	void Init();
+	void Init(const KuroEngine::Vec3<float>& arg_up, float arg_rotateY);
 	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer);
 
-	const KuroEngine::Quaternion& GetPosRotate() {
-		return m_camParentTransform.GetRotate();
-	}
-
 	std::weak_ptr<KuroEngine::Camera> GetCamera() { return m_attachedCam; }
+
+	KuroEngine::Quaternion GetCameraQ() { return m_cameraQ; }
 
 private:
 
 	//3次元ベクトルを2次元に射影する関数
 	KuroEngine::Vec2<float> Project3Dto2D(KuroEngine::Vec3<float> arg_vector3D, KuroEngine::Vec3<float> arg_basis1, KuroEngine::Vec3<float> arg_basis2) {
-		
+
 		//基底ベクトルを正規化
 		arg_basis1.Normalize();
 		arg_basis2.Normalize();

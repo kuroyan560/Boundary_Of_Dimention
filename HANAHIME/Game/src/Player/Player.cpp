@@ -252,9 +252,9 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_prevTransform = arg_initTransform;
 	m_transform = arg_initTransform;
 	m_drawTransform = arg_initTransform;
-	m_camController.Init();
 	m_cameraRotY = 0;
 	m_cameraRotYStorage = arg_initTransform.GetRotateAsEuler().x;
+	m_camController.Init(arg_initTransform.GetUp(), m_cameraRotYStorage);
 	m_cameraRotMove = 0;
 	m_cameraJumpLerpAmount = 0;
 	m_cameraJumpLerpStorage = 0;
@@ -372,6 +372,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//入力された視線移動角度量を取得
 	auto scopeMove = OperationConfig::Instance()->GetScopeMove() * TimeScaleMgr::s_inGame.GetTimeScale();
+
+	//感度調整。
+	scopeMove *= 0.5f;
 
 	//プレイヤーが天井にいたら左右のカメラ走査を反転。
 	if (m_onCeiling || m_isCameraUpInverse) {
@@ -710,9 +713,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_drawTransform.SetPos(m_transform.GetPos());
 	}
 	//回転は動いたときのみ適用させる。
-	if (0 < m_rowMoveVec.Length()) {
+	//if (0 < m_rowMoveVec.Length()) {
 		m_drawTransform.SetRotate(m_transform.GetRotate());
-	}
+	//}
 
 	//ダメージを受けないタイマーを更新。
 	m_nodamageTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
@@ -995,8 +998,20 @@ void Player::Move(KuroEngine::Vec3<float> &arg_newPos) {
 		brake = m_underGroundBrake;
 	}
 
+	//カメラ基準で移動方向を回転させるための回転を求める。
+	KuroEngine::Vec3<float> frontDir = (m_camController.GetCamera().lock()->GetTransform().GetFront() - m_transform.GetUp() * (m_camController.GetCamera().lock()->GetTransform().GetFront().Dot(m_transform.GetUp()))).GetNormal();
+	KuroEngine::Vec3<float> rightDir = m_transform.GetUp().Cross(frontDir).GetNormal();
+
+	//姿勢を得る。
+	DirectX::XMMATRIX matWorld = DirectX::XMMatrixIdentity();
+	matWorld.r[0] = { rightDir.x, rightDir.y, rightDir.z, 0.0f };
+	matWorld.r[1] = { m_transform.GetUp().x, m_transform.GetUp().y, m_transform.GetUp().z, 0.0f };
+	matWorld.r[2] = { frontDir.x, frontDir.y, frontDir.z, 0.0f };
+	XMVECTOR rotate, scale, position;
+	DirectX::XMMatrixDecompose(&scale, &rotate, &position, matWorld);
+
 	//移動量を回転させる
-	auto accel = KuroEngine::Math::TransformVec3(m_rowMoveVec, m_transform.GetRotate()) * accelSpeed;
+	auto accel = KuroEngine::Math::TransformVec3(m_rowMoveVec, rotate) * accelSpeed;
 
 
 	m_moveSpeed += accel;
