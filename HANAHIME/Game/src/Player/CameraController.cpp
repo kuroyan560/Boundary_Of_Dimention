@@ -89,6 +89,11 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	}
 
+	//カメラが地上に当たっているときに感度を下げる。
+	if (m_isHitUnderGroundTerrian) {
+		arg_scopeMove *= 0.8f;
+	}
+
 	//左右カメラ操作
 	m_nowParam.m_yAxisAngle = arg_playerRotY;
 
