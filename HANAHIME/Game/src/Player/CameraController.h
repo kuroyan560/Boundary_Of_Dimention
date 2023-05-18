@@ -48,6 +48,15 @@ class CameraController : public KuroEngine::Debugger
 	//地形に当たっているか
 	bool m_isHitTerrian;
 
+	//下側の地形に当たっているか。当たっていたら注視点をずらすやつをやる。
+	bool m_isHitUnderGroundTerrian;
+
+	//プレイヤーのY軸回転を保存しておく変数。プレイヤーが横の壁に居るときは注視点の移動をY軸回転で行うので、注視点移動が終わったら動かした量を戻すため。
+	float m_playerRotYStorage;
+	float m_playerRotYLerp;
+	const float PLAYER_TARGET_MOVE_SIDE = 0.8f;		//プレイヤーの横面の注視点移動のときの動かせる限界。
+
+
 	float m_rotateYLerpAmount;
 	float m_cameraXAngleLerpAmount;
 
@@ -75,12 +84,28 @@ public:
 	void AttachCamera(std::shared_ptr<KuroEngine::Camera>arg_cam);
 
 	void Init();
-	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos);
+	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer);
 
 	const KuroEngine::Quaternion& GetPosRotate() {
 		return m_camParentTransform.GetRotate();
 	}
 
 	std::weak_ptr<KuroEngine::Camera> GetCamera() { return m_attachedCam; }
+
+private:
+
+	//3次元ベクトルを2次元に射影する関数
+	KuroEngine::Vec2<float> Project3Dto2D(KuroEngine::Vec3<float> arg_vector3D, KuroEngine::Vec3<float> arg_basis1, KuroEngine::Vec3<float> arg_basis2) {
+		
+		//基底ベクトルを正規化
+		arg_basis1.Normalize();
+		arg_basis2.Normalize();
+
+		//3次元ベクトルを2次元ベクトルに射影
+		float x = arg_vector3D.Dot(arg_basis1);
+		float y = arg_vector3D.Dot(arg_basis2);
+
+		return KuroEngine::Vec2<float>(x, y);
+	}
 
 };

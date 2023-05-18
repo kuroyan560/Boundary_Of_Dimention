@@ -276,6 +276,9 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_canOldUnderGroundRelease = true;
 	m_onCeiling = false;
 	m_isCameraUpInverse = false;
+	m_isHitUnderGroundCamera = false;
+	m_isCameraDefault = false;
+	m_isOldCameraDefault = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 
 	m_growPlantPtLig.Register();
@@ -639,18 +642,21 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_growPlantPtLig.m_defInfluenceRange = MAX_INFLUENCE_RANGE;
 
 	//カメラをデフォルトの位置に戻すか。
-	bool isCameraDefault = UsersInput::Instance()->ControllerOnTrigger(0, LT) || UsersInput::Instance()->KeyOnTrigger(DIK_R);
-	if (isCameraDefault) {
+	m_isCameraDefault = UsersInput::Instance()->ControllerOnTrigger(0, LT) || UsersInput::Instance()->KeyOnTrigger(DIK_R);
+	if (m_isCameraDefault) {
 
 		//SEを鳴らす。
 		SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
 
 	}
 
+	//プレイヤーが動いているか。
+	bool isMovePlayer = 0.1f < m_moveSpeed.Length();
+
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_MODE[m_cameraMode], arg_nowStage, m_isCameraUpInverse, isCameraDefault);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_MODE[m_cameraMode], arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer);
 
 		m_deathEffectCameraZ = CAMERA_MODE[m_cameraMode];
 	}
@@ -660,7 +666,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_shake);
 
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse, isCameraDefault);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer);
 
 	}
 	//シェイクを計算。
@@ -801,8 +807,6 @@ void Player::DrawParticle(KuroEngine::Camera &arg_cam, KuroEngine::LightManager 
 void Player::DrawUI(KuroEngine::Camera &arg_cam)
 {
 	using namespace KuroEngine;
-
-	return;
 
 	//死んでいる かつ アニメーションが終わっていなかったら
 	bool isFinishAnimation = m_deathSpriteAnimNumber == DEATH_SPRITE_ANIM_COUNT && m_deathSpriteAnimTimer.IsTimeUp();
