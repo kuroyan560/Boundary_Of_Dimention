@@ -831,6 +831,10 @@ std::shared_ptr<KuroEngine::TextureBuffer> KuroEngine::D3D12App::GenerateTexture
 	} while (fence->GetCompletedValue() != expectValue);
 	m_oneshotCommandAllocator->Reset();
 
+	m_loadImgTextures.emplace_back();
+	m_loadImgTextures.back().m_path = LoadImgFilePath;
+	m_loadImgTextures.back().m_textures.emplace_back(result);
+
 	return result;
 }
 
@@ -1037,8 +1041,27 @@ void KuroEngine::D3D12App::GenerateTextureBuffer(std::shared_ptr<TextureBuffer>*
 
 void KuroEngine::D3D12App::GenerateTextureBuffer(std::shared_ptr<KuroEngine::TextureBuffer>* Array, const std::string& LoadImgFilePath, const int& AllNum, const Vec2<int>& SplitNum)
 {
+	for (auto& itr : m_loadImgTextures)
+	{
+		if (itr.m_path.compare(LoadImgFilePath) == 0)
+		{
+			for (int texIdx = 0; texIdx < static_cast<int>(itr.m_textures.size()); ++texIdx)
+			{
+				Array[texIdx] = itr.m_textures[texIdx];
+			}
+			return;
+		}
+	}
+
 	auto sourceTexture = GenerateTextureBuffer(LoadImgFilePath);
 	GenerateTextureBuffer(Array, sourceTexture, AllNum, SplitNum, LoadImgFilePath);
+
+	m_loadImgTextures.emplace_back();
+	m_loadImgTextures.back().m_path = LoadImgFilePath;
+	for (int texIdx = 0; texIdx < AllNum; ++texIdx)
+	{
+		m_loadImgTextures.back().m_textures.emplace_back(Array[texIdx]);
+	}
 }
 
 std::shared_ptr<KuroEngine::IndirectCommandBuffer> KuroEngine::D3D12App::GenerateIndirectCommandBuffer(const EXCUTE_INDIRECT_TYPE& IndirectType, const int& MaxCommandCount, const int& GpuAddressNum, const bool& CounterBuffer, const void* InitCommandData, const char* Name)
