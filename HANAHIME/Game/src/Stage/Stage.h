@@ -36,6 +36,15 @@ private:
 	//ゲート配列
 	std::vector<std::weak_ptr<Gate>>m_gateArray;
 
+	//マップピンを指すパーツのデータの一時格納用
+	struct MapPinPointData
+	{
+		std::weak_ptr<StageParts>m_part;
+		int m_order;	//順番
+	};
+	//マップピンを指すパーツのデータ配列
+	std::vector<std::weak_ptr<StageParts>>m_mapPinPoint;
+
 //モデル
 	//地形モデルの存在するディレクトリ
 	static std::string s_stageModelDir;
@@ -65,7 +74,7 @@ private:
 		nlohmann::json arg_json);
 
 	//種別に応じて読み込みを分岐させる
-	void LoadWithType(std::string arg_fileName, nlohmann::json arg_json, StageParts* arg_parent);
+	void LoadWithType(std::string arg_fileName, nlohmann::json arg_json, StageParts* arg_parent, std::vector<MapPinPointData>& arg_mapPinDataArray);
 
 public:
 	Stage();

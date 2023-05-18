@@ -51,7 +51,7 @@ bool Stage::LoadTranslationArray(std::string arg_fileName, std::vector<KuroEngin
 	return true;
 }
 
-void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, StageParts* arg_parent)
+void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, StageParts* arg_parent, std::vector<MapPinPointData>& arg_mapPinDataArray)
 {
 	using namespace KuroEngine;
 
@@ -119,6 +119,8 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	//ゴール地点
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::GOAL_POINT))
 	{
+		if (!CheckJsonKeyExist(arg_fileName, arg_json, "CheckPointOrder"))return;
+
 		//全てのレバーをオンにすることがクリア条件
 		if (obj.contains("leverID") && obj["leverID"] != -1)
 		{
@@ -130,6 +132,11 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 			m_goalPoint = std::make_shared<GoalPoint>(model, transform);
 		}
 		newPart = m_goalPoint.get();
+
+		//マップピンデータに追加
+		arg_mapPinDataArray.emplace_back();
+		arg_mapPinDataArray.back().m_order = arg_json["CheckPointOrder"].get<int>();
+		arg_mapPinDataArray.back().m_part = m_goalPoint;
 	}
 	//見かけだけのオブジェクト
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::APPEARANCE))
@@ -202,6 +209,14 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		m_gimmickArray.emplace_back(std::make_shared<Gate>(model, transform, gateID, destStageNum, destGateID));
 		newPart = m_gimmickArray.back().get();
 		m_gateArray.emplace_back(std::dynamic_pointer_cast<Gate>(m_gimmickArray.back()));
+
+		//マップピンデータに追加
+		if (arg_json.contains("CheckPointOrder"))
+		{
+			arg_mapPinDataArray.emplace_back();
+			arg_mapPinDataArray.back().m_order = arg_json["CheckPointOrder"].get<int>();
+			arg_mapPinDataArray.back().m_part = m_gimmickArray.back();
+		}
 	}
 	//チェックポイント
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::CHECK_POINT))
@@ -212,6 +227,11 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		int order = arg_json["CheckPointOrder"].get<int>();
 		m_gimmickArray.emplace_back(std::make_shared<CheckPoint>(model, transform, order));
 		newPart = m_gimmickArray.back().get();
+
+		//マップピンデータに追加
+		arg_mapPinDataArray.emplace_back();
+		arg_mapPinDataArray.back().m_order = order;
+		arg_mapPinDataArray.back().m_part = m_gimmickArray.back();
 	}
 	//スターコイン
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::STAR_COIN))
@@ -282,7 +302,7 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	{
 		for (auto child : obj["children"])
 		{
-			LoadWithType(arg_fileName, child, newPart);
+			LoadWithType(arg_fileName, child, newPart, arg_mapPinDataArray);
 		}
 	}
 }
@@ -452,10 +472,30 @@ void Stage::Load(int arg_ownStageIdx, std::string arg_dir, std::string arg_fileN
 	//ステージ情報でない
 	if (!CheckJsonKeyExist(arg_fileName, jsonData.m_jsonData, "stage"))return;
 
+	//マップピンを指す地点のデータ配列
+	std::vector<MapPinPointData>mapPinPointDataArray;
+
 	auto stageJsonData = jsonData.m_jsonData["stage"];
 	for (auto& obj : stageJsonData["objects"])
 	{
-		LoadWithType(arg_fileName, obj, nullptr);
+		LoadWithType(arg_fileName, obj, nullptr, mapPinPointDataArray);
+	}
+
+	//マップピンデータ配列を順番通りにソート
+	std::sort(mapPinPointDataArray.begin(), mapPinPointDataArray.end(), [](MapPinPointData& a, MapPinPointData& b)
+		{
+			return a.m_order < b.m_order;
+		});
+
+	//マップピン地点を記録
+	for (int pinIdx = 0; pinIdx < static_cast<int>(mapPinPointDataArray.size()) - 1; ++pinIdx)
+	{
+		//数字に被りがある場合警告
+		if (mapPinPointDataArray[pinIdx].m_order == mapPinPointDataArray[pinIdx + 1].m_order)
+		{
+			AppearMessageBox("Stage : Load() 警告", arg_fileName + "の CheckPointOrder の数字が被ってるけど大丈夫？");
+		}
+		m_mapPinPoint.emplace_back(mapPinPointDataArray[pinIdx].m_part);
 	}
 
 	//スタート地点があるか
