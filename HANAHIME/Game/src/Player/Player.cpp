@@ -566,6 +566,15 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	case Player::PLAYER_MOVE_STATUS::JUMP:
 	{
 
+		//入力された移動量を取得
+		m_jumpRowMoveVec = OperationConfig::Instance()->GetMoveVecFuna(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
+
+		//入力量が一定以下だったら0にする。
+		const float DEADLINE = 0.8f;
+		if (m_jumpRowMoveVec.Length() <= DEADLINE) {
+			m_jumpRowMoveVec = {};
+		}
+
 		//タイマーを更新。
 		m_jumpTimer = std::clamp(m_jumpTimer + JUMP_TIMER * TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, 1.0f);
 
@@ -590,6 +599,13 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 			//面移動SEを鳴らす。
 			SoundConfig::Instance()->Play(SoundConfig::SE_SURFACE_JUMP);
+
+			//ジャンプ中にジャンプした時と反対方向に入力していたら and 操作が反転していたら = 反転を打ち消す。
+			if (m_jumpRowMoveVec.Dot(m_jumpTrrigerRowMoveVec) < 0.5f && m_isCameraInvX) {
+
+				m_isCameraInvX = false;
+
+			}
 
 		}
 		m_transform.SetPos(newPos);

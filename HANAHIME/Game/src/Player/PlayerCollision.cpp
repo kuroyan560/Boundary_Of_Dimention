@@ -193,6 +193,9 @@ void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, Kuro
 				m_refPlayer->m_jumpEndPos = arg_castRayArgment.m_impactPoint[minIndex].m_impactPos + arg_castRayArgment.m_impactPoint[minIndex].m_normal * (m_refPlayer->m_transform.GetScale().x / 2.0f);
 				m_refPlayer->m_jumpEndPos += m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH;
 
+				//ジャンプした瞬間の入力を保存しておく。
+				m_refPlayer->m_jumpTrrigerRowMoveVec = m_refPlayer->m_jumpRowMoveVec;
+
 				//プレイヤーの入力を反転させる。
 				bool isHitCeiling = arg_hitInfo->m_terrianNormal.y < -0.9f && !m_refPlayer->m_isCameraUpInverse;
 				bool isHitGround = 0.9f < arg_hitInfo->m_terrianNormal.y && m_refPlayer->m_isCameraUpInverse;

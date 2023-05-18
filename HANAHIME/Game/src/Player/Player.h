@@ -96,6 +96,9 @@ class Player : public KuroEngine::Debugger
 
 	//移動量
 	KuroEngine::Vec3<float> m_rowMoveVec;
+	//ジャンプした瞬間の移動量。先行入力のため。
+	KuroEngine::Vec3<float> m_jumpTrrigerRowMoveVec;
+	KuroEngine::Vec3<float> m_jumpRowMoveVec;	//ジャンプ中の生の移動方向。m_rowMoveVecを使うとバグりそうで怖いので追加。
 
 	//プレイヤーの周囲のパーティクル
 	PlayerMoveParticle m_playerMoveParticle;
