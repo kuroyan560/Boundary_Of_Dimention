@@ -802,8 +802,6 @@ void Player::DrawUI(KuroEngine::Camera &arg_cam)
 {
 	using namespace KuroEngine;
 
-	return;
-
 	//死んでいる かつ アニメーションが終わっていなかったら
 	bool isFinishAnimation = m_deathSpriteAnimNumber == DEATH_SPRITE_ANIM_COUNT && m_deathSpriteAnimTimer.IsTimeUp();
 	if (m_deathStatus == Player::DEATH_STATUS::LEAVE && !isFinishAnimation) {
