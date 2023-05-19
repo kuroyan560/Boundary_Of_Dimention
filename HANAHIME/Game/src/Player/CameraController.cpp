@@ -3,6 +3,7 @@
 #include"../../../../src/engine/ForUser/Object/Model.h"
 #include"CollisionDetectionOfRayAndMesh.h"
 #include"FrameWork/UsersInput.h"
+#include"../Stage/StageManager.h"
 
 void CameraController::OnImguiItems()
 {
@@ -156,8 +157,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 		KuroEngine::Vec3<float> cameraDir = (arg_targetPos.GetPosWorld() - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
 
 		//目標地点 いい感じの視点にするために、注視点を少し下にずらす。
-		const float VIEW_OFFSET = 0.0f;
-		KuroEngine::Vec3<float> targetPos = arg_nowStage.lock()->GetPlayerSpawnTransform().GetPosWorld() - arg_nowStage.lock()->GetPlayerSpawnTransform().GetUp() * VIEW_OFFSET;
+		KuroEngine::Vec3<float> targetPos = StageManager::Instance()->GetNowMapPingPos();
 
 		//目標地点までのベクトル
 		KuroEngine::Vec3<float> targetDir = (targetPos - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
@@ -238,7 +238,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	Vec3<float> pushBackPos = m_cameraLocalTransform.GetPosWorldByMatrix();
 
 	//当たり判定用のレイを打つ方向を決める。
-	Vec3<float> checkHitRay = m_cameraLocalTransform.GetPosWorldByMatrix() - arg_targetPos.GetPos();	//まずはデフォルトのレイに設定。
+	Vec3<float> checkHitRay = m_cameraLocalTransform.GetPosWorldByMatrix() - m_oldCameraWorldPos;	//まずはデフォルトのレイに設定。
 
 	//通常の地形を走査
 	m_isHitTerrian = false;
@@ -260,8 +260,8 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 
 			//純粋な地形とレイの当たり判定を実行
-			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_targetPos.GetPos(), checkHitRay.GetNormal(), checkHitMesh);
-			if (output.m_isHit && 0 < output.m_distance && output.m_distance < fabs(arg_cameraZ)) {
+			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_oldCameraWorldPos, checkHitRay.GetNormal(), checkHitMesh);
+			if (output.m_isHit && 0 < output.m_distance && output.m_distance < checkHitRay.Length()) {
 
 				pushBackPos = output.m_pos + output.m_normal;
 				m_isHitTerrian = true;

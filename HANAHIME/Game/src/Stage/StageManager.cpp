@@ -125,12 +125,15 @@ void StageManager::DrawUI(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float>ar
 {
 	//全ての目的地巡回済
 	if (m_nowStage->GetCompleteMapPin())return;
+	m_mapPinUI.Draw(arg_cam, GetNowMapPingPos(), arg_playerPos);
+}
+
+KuroEngine::Vec3<float> StageManager::GetNowMapPingPos() {
 
 	const auto& mapPinPointArray = m_nowStage->GetMapPinPointArray();
 
-	//デバッグ用にスタート地点を目標地点とする
-	auto destPos = mapPinPointArray[m_nowMapPinPointIdx].lock()->GetTransform().GetPosWorld();
-	m_mapPinUI.Draw(arg_cam, destPos, arg_playerPos);
+	return mapPinPointArray[m_nowMapPinPointIdx].lock()->GetTransform().GetPosWorld();
+
 }
 
 KuroEngine::Transform StageManager::GetGateTransform(int arg_stageIdx, int arg_gateID) const

@@ -67,6 +67,7 @@ public:
 	//プレイヤーの初期化トランスフォーム
 	KuroEngine::Transform GetPlayerSpawnTransform()const;
 
+	KuroEngine::Vec3<float> GetNowMapPingPos();
 
 	KuroEngine::Transform GetGoalTransform()const;
 
