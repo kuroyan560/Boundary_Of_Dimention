@@ -293,24 +293,38 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 			}
 
-			//プレイヤー方向のレイトの当たり判定を実行
+			//プレイヤーの右側にレイを飛ばす。
 			Vec3<float> playerDir = (cameraT.GetPos()) + (cameraT.GetRight() * 1.0f) - (pushBackPos);
 			output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos, playerDir.GetNormal(), checkHitMesh);
 			if (output.m_isHit && 0 < output.m_distance && output.m_distance < playerDir.Length()) {
 
-				//角度を押し戻す。
-				m_nowParam.m_yAxisAngle += 0.1f;
-				arg_playerRotY += 0.1f;
+				//プレイヤーが乗っている面だったら無効化。
+				bool onPlayer = 0.0f < output.m_normal.Dot(arg_targetPos.GetUp());
+
+				if (!onPlayer) {
+
+					//角度を押し戻す。
+					m_nowParam.m_yAxisAngle += 0.1f;
+					arg_playerRotY += 0.1f;
+
+				}
 
 			}
 
-
+			//プレイヤーの左側にレイを飛ばす。
 			playerDir = (cameraT.GetPos()) - (cameraT.GetRight() * 1.0f) - (pushBackPos);
 			output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos, playerDir.GetNormal(), checkHitMesh);
 			if (output.m_isHit && 0 < output.m_distance && output.m_distance < playerDir.Length()) {
 
-				m_nowParam.m_yAxisAngle -= 0.1f;
-				arg_playerRotY -= 0.1f;
+				//プレイヤーが乗っている面だったら無効化。
+				bool onPlayer = 0.0f < output.m_normal.Dot(arg_targetPos.GetUp());
+
+				if (!onPlayer) {
+
+					m_nowParam.m_yAxisAngle -= 0.1f;
+					arg_playerRotY -= 0.1f;
+
+				}
 
 			}
 
@@ -416,18 +430,18 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	}
 
+	////カメラが引っ掛かってどうしようもなくなったら地形を貫通させる。
+	//float distance = KuroEngine::Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_targetPos.GetPos()).Length();
+	//if (fabs(arg_cameraZ) <= distance) {
+	//	m_attachedCam.lock()->GetTransform().SetPos(arg_targetPos.GetPos() + KuroEngine::Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_targetPos.GetPos()).GetNormal() * fabs(arg_cameraZ));
+	//}
+
 	//地上にあたっているフラグを保存。これがtrueだと注視点モードになるので、プレイヤーが居る面によってカメラの回転を打ち消す。
 	arg_isHitUnderGround = m_isHitUnderGroundTerrian;
 
 	m_playerOldPos = arg_targetPos.GetPos();
 
-	//距離を求める。
-	//const float PUSHBACK = 20.0f;
-	//float distance = KuroEngine::Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_targetPos.GetPos()).Length();
-	//if (distance <= PUSHBACK) {
-	//	float pushBackDistance = PUSHBACK - distance;
-	//	m_attachedCam.lock()->GetTransform().SetPos(m_attachedCam.lock()->GetTransform().GetPos() + KuroEngine::Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_targetPos.GetPos()).GetNormal() * pushBackDistance);
-	//}
+
 
 }
 
