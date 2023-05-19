@@ -4,6 +4,7 @@
 #include"../Graphics/BasicDraw.h"
 #include"../Movie/CameraData.h"
 #include"../Player/Player.h"
+#include"FrameWork/UsersInput.h"
 
 StageManager::StageManager()
 	:KuroEngine::Debugger("StageManager", true, true)
@@ -51,6 +52,9 @@ void StageManager::SetStage(int stage_num)
 	m_nowStage->Init();
 
 	m_nowMapPinPointIdx = 0;
+
+	//チェックポイントUI初期化
+	CheckPoint::UI().lock()->Init();
 }
 
 void StageManager::Update(Player& arg_player)
@@ -76,7 +80,11 @@ void StageManager::Update(Player& arg_player)
 			if (static_cast<int>(mapPinPointArray.size()) <= m_nowMapPinPointIdx)m_nowStage->SetCompleteMapPinFlg(true);
 		}
 	}
+
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_J))CheckPoint::UI().lock()->Start();
 	
+	//チェックポイントUI更新
+	CheckPoint::UI().lock()->Update();
 }
 
 void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
@@ -123,14 +131,18 @@ void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 
 void StageManager::DrawUI(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float>arg_playerPos)
 {
-	//全ての目的地巡回済
-	if (m_nowStage->GetCompleteMapPin())return;
+	//まだ全ての目的地を巡回していない
+	if (!m_nowStage->GetCompleteMapPin())
+	{
+		const auto& mapPinPointArray = m_nowStage->GetMapPinPointArray();
 
-	const auto& mapPinPointArray = m_nowStage->GetMapPinPointArray();
+		//デバッグ用にスタート地点を目標地点とする
+		auto destPos = mapPinPointArray[m_nowMapPinPointIdx].lock()->GetTransform().GetPosWorld();
+		m_mapPinUI.Draw(arg_cam, destPos, arg_playerPos);
+	}
 
-	//デバッグ用にスタート地点を目標地点とする
-	auto destPos = mapPinPointArray[m_nowMapPinPointIdx].lock()->GetTransform().GetPosWorld();
-	m_mapPinUI.Draw(arg_cam, destPos, arg_playerPos);
+	//チェックポイントUI描画
+	CheckPoint::UI().lock()->Draw();
 }
 
 KuroEngine::Transform StageManager::GetGateTransform(int arg_stageIdx, int arg_gateID) const

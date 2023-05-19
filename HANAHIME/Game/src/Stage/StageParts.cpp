@@ -796,15 +796,31 @@ bool Gate::CheckID(int arg_id)
 	return m_id == arg_id;
 }
 
+std::shared_ptr<CheckPointUI>CheckPoint::s_ui;
+
+CheckPoint::CheckPoint(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, int arg_order)
+	:StageParts(CHECK_POINT, arg_model, arg_initTransform), m_order(arg_order)
+{
+	//UI未生成なら生成
+	if (!s_ui)s_ui = std::make_shared<CheckPointUI>();
+}
+
 void CheckPoint::Update(Player& arg_player)
 {
+	static const float CHECK_POINT_RADIUS = 10.0f;
+
 	//起動済なら特に何もしない
 	if (m_touched)return;
 
-	bool isHit = false;
-	//プレイヤーとの当たり判定
-	
-	//
+	//円の衝突
+	bool isHit = arg_player.GetTransform().GetPosWorld().DistanceSq(m_transform.GetPosWorld()) < (CHECK_POINT_RADIUS * CHECK_POINT_RADIUS);
+
+	//衝突した瞬間
+	if (!m_touched && isHit)
+	{
+		s_ui->Start();
+	}
+
 	m_touched = isHit;
 }
 

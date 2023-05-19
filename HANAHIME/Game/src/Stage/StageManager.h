@@ -4,6 +4,7 @@
 #include"Common/Transform.h"
 #include"StageParts.h"
 #include"MapPinUI.h"
+#include"CheckPointUI.h"
 
 #include<memory>
 namespace KuroEngine

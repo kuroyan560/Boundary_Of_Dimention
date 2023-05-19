@@ -214,6 +214,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Player\PlayerMoveParticleSmoke.cpp" />
     <ClCompile Include="src\Player\PlayerMoveParticleTarget.cpp" />
     <ClCompile Include="src\SoundConfig.cpp" />
+    <ClCompile Include="src\Stage\CheckPointUI.cpp" />
     <ClCompile Include="src\Stage\Enemy\Enemy.cpp" />
     <ClCompile Include="src\Stage\Enemy\EnemyDataReferenceForCircleShadow.cpp" />
     <ClCompile Include="src\Stage\GateManager.cpp" />
@@ -351,6 +352,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Player\PlayerMoveParticleTarget.h" />
     <ClInclude Include="src\Player\PlayerMoveParticleTargetEmitter.h" />
     <ClInclude Include="src\SoundConfig.h" />
+    <ClInclude Include="src\Stage\CheckPointUI.h" />
     <ClInclude Include="src\Stage\Enemy\Enemy.h" />
     <ClInclude Include="src\Stage\Enemy\EnemyDataReferenceForCircleShadow.h" />
     <ClInclude Include="src\Stage\GateManager.h" />
