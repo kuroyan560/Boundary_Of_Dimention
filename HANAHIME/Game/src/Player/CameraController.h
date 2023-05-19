@@ -4,6 +4,7 @@
 #include"Common/Transform.h"
 #include"ForUser/Debugger.h"
 #include"../Stage/Stage.h"
+#include"CollisionDetectionOfRayAndMesh.h"
 
 #include<memory>
 namespace KuroEngine
@@ -95,7 +96,7 @@ public:
 private:
 
 	//3次元ベクトルを2次元に射影する関数
-	KuroEngine::Vec2<float> Project3Dto2D(KuroEngine::Vec3<float> arg_vector3D, KuroEngine::Vec3<float> arg_basis1, KuroEngine::Vec3<float> arg_basis2) {
+	inline KuroEngine::Vec2<float> Project3Dto2D(KuroEngine::Vec3<float> arg_vector3D, KuroEngine::Vec3<float> arg_basis1, KuroEngine::Vec3<float> arg_basis2) {
 		
 		//基底ベクトルを正規化
 		arg_basis1.Normalize();
@@ -107,5 +108,8 @@ private:
 
 		return KuroEngine::Vec2<float>(x, y);
 	}
+
+	//下方向の押し戻し処理
+	void PushBackGround(const CollisionDetectionOfRayAndMesh::MeshCollisionOutput& arg_output, const KuroEngine::Vec3<float> arg_pushBackPos, const KuroEngine::Transform& arg_targetPos, float& arg_playerRotY, bool arg_isCameraUpInverse);
 
 };
