@@ -21,7 +21,7 @@ StageManager::StageManager()
 	//ホームステージ
 	m_homeStage = std::make_shared<Stage>();
 	//m_homeStage->Load(0, stageDir, "New_Home.json", 5.0f, false);
-	m_homeStage->Load(0, stageDir, "P_Stage_1.json", terrianScaling, false);
+	//m_homeStage->Load(0, stageDir, "P_Stage_1.json", terrianScaling, false);
 
 	//パズルステージ一括読み込み
 	int loadPazzleIdx = 1;
@@ -32,7 +32,7 @@ StageManager::StageManager()
 	}
 
 	//現在のステージ指定（デフォルトはホーム用ステージ）
-	m_nowStage = m_homeStage;
+	m_nowStage = m_stageArray[0];
 
 	CameraData::Instance()->RegistCameraData("");
 }

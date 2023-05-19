@@ -30,7 +30,7 @@ class MiniBug :public StageParts
 {
 public:
 	MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>posArray, bool loopFlag)
-		:StageParts(MINI_BUG, arg_model, arg_initTransform), m_deadTimer(120), m_eyeEffect(&m_transform)
+		:StageParts(MINI_BUG, arg_model, arg_initTransform), m_deadTimer(120), m_eyeEffect(&m_transform), ENEMY_ID(ENEMY_MAX_ID)
 	{
 
 		//return;
@@ -76,7 +76,8 @@ public:
 
 		//丸影用に敵のデータの参照を渡す。
 		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_shadowInfluenceRange, &m_deadFlag);
-
+		
+		++ENEMY_MAX_ID;
 	}
 
 	void OnInit()override;
@@ -87,6 +88,9 @@ public:
 
 private:
 	std::shared_ptr<KuroEngine::Model>m_enemyModel;
+	//デバック用の敵識別ID
+	const int ENEMY_ID;
+	static int ENEMY_MAX_ID;
 
 	enum Status
 	{

@@ -3,6 +3,8 @@
 #include"FrameWork/UsersInput.h"
 #include"../../Graphics/BasicDraw.h"
 
+int MiniBug::ENEMY_MAX_ID = 0;
+
 void MiniBug::OnInit()
 {
 
@@ -27,6 +29,14 @@ void MiniBug::OnInit()
 
 void MiniBug::Update(Player &arg_player)
 {
+	if (ENEMY_ID == 0)
+	{
+		bool debug = false;
+	}
+	if (ENEMY_ID == 12)
+	{
+		bool debug = false;
+	}
 
 	//return;
 	m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());

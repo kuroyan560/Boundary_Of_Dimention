@@ -176,12 +176,13 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     
     float3 ligEffect = diffuseEf;
     
-    float4 texCol = baseTex.Sample(smp, input.uv);
-    texCol.xyz += material.baseColor.xyz;
+    float4 texCol = float4(1.0f,1.0f,1.0f,1.0f);
+    //baseTex.Sample(smp, input.uv);
+    //texCol.xyz += material.baseColor.xyz;
     float4 ligEffCol = texCol;
     //ligEffCol.xyz = ((material.ambient * material.ambientFactor) + ligEffect) * ligEffCol.xyz;
-    ligEffCol.xyz = ligEffect * ligEffCol.xyz;
-    ligEffCol.w *= (1.0f - material.transparent);
+    //ligEffCol.xyz = ligEffect * ligEffCol.xyz;
+    //ligEffCol.w *= (1.0f - material.transparent);
     
     //アニメ風トゥーン加工========================================================
     
@@ -202,7 +203,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     //=========================================================================
 
     //塗りつぶし
-    result.xyz = toonIndividualParam.m_fillColor.xyz * toonIndividualParam.m_fillColor.w + result.xyz * (1.0f - toonIndividualParam.m_fillColor.w);
+    //result.xyz = toonIndividualParam.m_fillColor.xyz * toonIndividualParam.m_fillColor.w + result.xyz * (1.0f - toonIndividualParam.m_fillColor.w);
     
     int isBright = 0;
     int isBrightDefRange = 0; //デフォルトのライトの影響度の範囲
@@ -232,13 +233,13 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     
     isBright = min(isBright, 1);
     isBrightDefRange = min(isBrightDefRange, 1);
-    result.xyz *= lerp(0.7f, 1.0f, saturate(isBright + isBrightDefRange));
+    //result.xyz *= lerp(0.7f, 1.0f, saturate(isBright + isBrightDefRange));
     
     //光が当たっていないならモノクロ化
-    result.xyz = lerp(lerp(result.xyz, Monochrome(result.xyz), toonCommonParam.m_monochromeRate), result.xyz, isBright);
+    //result.xyz = lerp(lerp(result.xyz, Monochrome(result.xyz), toonCommonParam.m_monochromeRate), result.xyz, isBright);
     
     //アルファ値適用
-    result.w *= toonIndividualParam.m_alpha;
+    //result.w *= toonIndividualParam.m_alpha;
     
     
     
@@ -256,9 +257,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
         
         float bright = Easing_Cubic_In(distanceRate, 1.0f, 0.0f, 1.0f);
         
-        result.xyz *=  bright;
-        
-        
+        result.xyz *=  bright;        
     }
     
     
