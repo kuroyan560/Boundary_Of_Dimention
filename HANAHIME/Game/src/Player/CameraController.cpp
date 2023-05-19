@@ -287,7 +287,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 						Vec3<float> pushBackVec = KuroEngine::Vec3<float>(pushBackPos - arg_targetPos.GetPos()).GetNormal();
 
 						//プレイヤーの右ベクトルと現在のカメラベクトルを比べ、0以上だったら右。
-						if (0 < arg_targetPos.GetRight().Dot(pushBackVec)) {
+						if (0 < arg_targetPos.GetRight().Dot(pushBackVec) && (!arg_isCameraUpInverse)) {
 
 							//現在のX角度を求める。
 							Vec2<float> nowXVec = Project3Dto2D(KuroEngine::Vec3<float>(m_cameraLocalTransform.GetPosWorldByMatrix() - arg_targetPos.GetPos()).GetNormal(), arg_targetPos.GetFront(), arg_targetPos.GetRight());
@@ -325,7 +325,8 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 						Vec3<float> pushBackVec = KuroEngine::Vec3<float>(pushBackPos - arg_targetPos.GetPos()).GetNormal();
 						
 						//プレイヤーの右ベクトルと現在のカメラベクトルを比べ、0以上だったら右。
-						if (0 < arg_targetPos.GetRight().Dot(pushBackVec)) {
+						float dot = arg_targetPos.GetRight().Dot(pushBackVec);
+						if (arg_isCameraUpInverse ? (dot < 0) : (0 < dot)) {
 
 							//現在のY角度を求める。
 							Vec2<float> nowYVec = Project3Dto2D(KuroEngine::Vec3<float>(m_cameraLocalTransform.GetPosWorldByMatrix() - arg_targetPos.GetPos()).GetNormal(), arg_targetPos.GetFront(), arg_targetPos.GetUp());

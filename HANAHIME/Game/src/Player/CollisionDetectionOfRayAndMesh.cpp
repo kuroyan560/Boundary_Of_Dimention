@@ -8,14 +8,34 @@ CollisionDetectionOfRayAndMesh::MeshCollisionOutput CollisionDetectionOfRayAndMe
 
 	/*-- ① ポリゴンを法線情報をもとにカリングする --*/
 
+	const float CHECK_HIT_MESH_DEADLINE = 100.0f;
+
 	//法線とレイの方向の内積が0より大きかった場合、そのポリゴンは背面なのでカリングする。
 	for (auto& index : arg_targetMesh) {
 
 		index.m_isActive = true;
 
-		if (index.m_p1.normal.Dot(arg_rayDir) < -0.0001f) continue;
+		//反対側を向いていたら無効化。
+		if (-0.0001f < index.m_p1.normal.Dot(arg_rayDir)) {
 
-		index.m_isActive = false;
+			index.m_isActive = false;
+			continue;
+
+		}
+
+		//一定以上離れていたら無効化。
+		bool isNear = false;
+
+		isNear |= KuroEngine::Vec3<float>(arg_rayPos - index.m_p0.pos).Length() < CHECK_HIT_MESH_DEADLINE;
+		isNear |= KuroEngine::Vec3<float>(arg_rayPos - index.m_p1.pos).Length() < CHECK_HIT_MESH_DEADLINE;
+		isNear |= KuroEngine::Vec3<float>(arg_rayPos - index.m_p2.pos).Length() < CHECK_HIT_MESH_DEADLINE;
+
+		if (!isNear) {
+
+			index.m_isActive = false;
+			continue;
+
+		}
 
 	}
 
@@ -123,28 +143,28 @@ CollisionDetectionOfRayAndMesh::MeshCollisionOutput CollisionDetectionOfRayAndMe
 			}
 		}
 
-		//重心座標を求める。
-		KuroEngine::Vec3<float> bary = CalBary(hitDataContainer[min].second.m_p0.pos, hitDataContainer[min].second.m_p1.pos, hitDataContainer[min].second.m_p2.pos, hitDataContainer[min].first.m_pos);
+		////重心座標を求める。
+		//KuroEngine::Vec3<float> bary = CalBary(hitDataContainer[min].second.m_p0.pos, hitDataContainer[min].second.m_p1.pos, hitDataContainer[min].second.m_p2.pos, hitDataContainer[min].first.m_pos);
 
-		KuroEngine::Vec3<float> baryBuff = bary;
+		//KuroEngine::Vec3<float> baryBuff = bary;
 
-		//UVWの値がずれるので修正。
-		bary.x = baryBuff.y;
-		bary.y = baryBuff.z;
-		bary.z = baryBuff.x;
+		////UVWの値がずれるので修正。
+		//bary.x = baryBuff.y;
+		//bary.y = baryBuff.z;
+		//bary.z = baryBuff.x;
 
-		KuroEngine::Vec2<float> uv = KuroEngine::Vec2<float>();
+		//KuroEngine::Vec2<float> uv = KuroEngine::Vec2<float>();
 
-		//重心座標からUVを求める。
-		uv.x += hitDataContainer[min].second.m_p0.uv.x * bary.x;
-		uv.x += hitDataContainer[min].second.m_p1.uv.x * bary.y;
-		uv.x += hitDataContainer[min].second.m_p2.uv.x * bary.z;
+		////重心座標からUVを求める。
+		//uv.x += hitDataContainer[min].second.m_p0.uv.x * bary.x;
+		//uv.x += hitDataContainer[min].second.m_p1.uv.x * bary.y;
+		//uv.x += hitDataContainer[min].second.m_p2.uv.x * bary.z;
 
-		uv.y += hitDataContainer[min].second.m_p0.uv.y * bary.x;
-		uv.y += hitDataContainer[min].second.m_p1.uv.y * bary.y;
-		uv.y += hitDataContainer[min].second.m_p2.uv.y * bary.z;
+		//uv.y += hitDataContainer[min].second.m_p0.uv.y * bary.x;
+		//uv.y += hitDataContainer[min].second.m_p1.uv.y * bary.y;
+		//uv.y += hitDataContainer[min].second.m_p2.uv.y * bary.z;
 
-		hitDataContainer[min].first.m_uv = uv;
+		//hitDataContainer[min].first.m_uv = uv;
 
 		return hitDataContainer[min].first;
 	}
