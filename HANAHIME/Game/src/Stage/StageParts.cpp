@@ -797,6 +797,8 @@ bool Gate::CheckID(int arg_id)
 }
 
 std::shared_ptr<CheckPointUI>CheckPoint::s_ui;
+KuroEngine::Transform CheckPoint::s_latestVisitTransform;
+bool CheckPoint::s_visit = false;
 
 CheckPoint::CheckPoint(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, int arg_order)
 	:StageParts(CHECK_POINT, arg_model, arg_initTransform), m_order(arg_order)
@@ -818,7 +820,11 @@ void CheckPoint::Update(Player& arg_player)
 	//衝突した瞬間
 	if (!m_touched && isHit)
 	{
+		//UI出現
 		s_ui->Start();
+		//最後に訪れたチェックポイントのトランスフォームを記録
+		s_latestVisitTransform = m_transform;
+		s_visit = true;
 	}
 
 	m_touched = isHit;

@@ -497,7 +497,13 @@ public:
 
 class CheckPoint : public StageParts
 {
+	//UI
 	static std::shared_ptr<CheckPointUI> s_ui;
+	//最後に訪れたチェックポイントのトランスフォーム
+	static KuroEngine::Transform s_latestVisitTransform;
+	//チェックポイントを１つでも訪れたか
+	static bool s_visit;
+
 	int m_order;
 	bool m_touched = false;
 
@@ -506,6 +512,14 @@ public:
 	{
 		if (!s_ui)s_ui = std::make_shared<CheckPointUI>();
 		return s_ui; 
+	}
+
+	//最後に訪れたチェックポイントのトランスフォームゲッタ
+	static KuroEngine::Transform GetLatestVistTransform(const KuroEngine::Transform& arg_alternative)
+	{
+		//まだ１つも訪れていないなら引数のトランスフォームをそのまま返す
+		if (!s_visit)return arg_alternative;
+		return s_latestVisitTransform;
 	}
 
 	CheckPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_order);
