@@ -784,7 +784,7 @@ KuroEngine::Vec4<float> KuroEngine::Math::Ease(EASE_CHANGE_TYPE EaseChangeType, 
 
 float KuroEngine::Math::Ease(EASE_CHANGE_TYPE EaseChangeType, EASING_TYPE EasingType, float Rate, float Min, float Max)
 {
-	return std::clamp(Ease(EaseChangeType, EasingType, Rate, 1.0f, Min, Max), std::min(Min, Max), std::max(Min, Max));
+	return Ease(EaseChangeType, EasingType, Rate, 1.0f, Min, Max);
 }
 
 KuroEngine::Vec2<float> KuroEngine::Math::Ease(EASE_CHANGE_TYPE EaseChangeType, EASING_TYPE EasingType, float Rate, Vec2<float> Min, Vec2<float> Max)
