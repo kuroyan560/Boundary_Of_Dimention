@@ -248,7 +248,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	//カメラの押し戻し判定に使用する姿勢を取得。
 	Vec3<float> cameraAxisZ = playerDir.GetNormal();
-	Vec3<float> cameraAxisY = Vec3<float>(0, 1, 0);
+	Vec3<float> cameraAxisY = arg_isCameraUpInverse ? Vec3<float>(0, 1, 0) : Vec3<float>(0, -1, 0);
 	Vec3<float> cameraAxisX = cameraAxisY.Cross(cameraAxisZ);
 	cameraAxisZ = cameraAxisY.Cross(cameraAxisX);
 	DirectX::XMMATRIX cameraMatWorld = DirectX::XMMatrixIdentity();
@@ -299,13 +299,16 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 			if (output.m_isHit && 0 < output.m_distance && output.m_distance < playerDir.Length()) {
 
 				//プレイヤーが乗っている面だったら無効化。
-				bool onPlayer = 0.0f < output.m_normal.Dot(arg_targetPos.GetUp());
+				bool onPlayer = 0.01f < output.m_normal.Dot(arg_targetPos.GetUp());
 
 				if (!onPlayer) {
 
+					//押し戻す量。
+					float pushBackAmount = arg_isCameraUpInverse ? 0.1f : -0.1f;
+
 					//角度を押し戻す。
-					m_nowParam.m_yAxisAngle += 0.1f;
-					arg_playerRotY += 0.1f;
+					m_nowParam.m_yAxisAngle += pushBackAmount;
+					arg_playerRotY += pushBackAmount;
 
 				}
 
@@ -317,12 +320,15 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 			if (output.m_isHit && 0 < output.m_distance && output.m_distance < playerDir.Length()) {
 
 				//プレイヤーが乗っている面だったら無効化。
-				bool onPlayer = 0.0f < output.m_normal.Dot(arg_targetPos.GetUp());
+				bool onPlayer = 0.01f < output.m_normal.Dot(arg_targetPos.GetUp());
 
 				if (!onPlayer) {
 
-					m_nowParam.m_yAxisAngle -= 0.1f;
-					arg_playerRotY -= 0.1f;
+					//押し戻す量。
+					float pushBackAmount = arg_isCameraUpInverse ? -0.1f : 0.1f;
+
+					m_nowParam.m_yAxisAngle += pushBackAmount;
+					arg_playerRotY += pushBackAmount;
 
 				}
 
