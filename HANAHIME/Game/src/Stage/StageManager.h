@@ -68,6 +68,8 @@ public:
 	//プレイヤーの初期化トランスフォーム
 	KuroEngine::Transform GetPlayerSpawnTransform()const;
 
+	bool GetNowMapPinPos(KuroEngine::Vec3<float>* arg_destPos);
+
 	KuroEngine::Transform GetGoalTransform()const;
 
 	std::shared_ptr<GoalPoint>GetGoalModel();
