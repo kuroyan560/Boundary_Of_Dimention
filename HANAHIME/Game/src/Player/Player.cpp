@@ -305,6 +305,8 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 
 	m_attackTimer = 0;
 
+	m_jumpEndInvTimer.Reset(JUMP_END_INV_TIMER);
+
 	m_deathSpriteAnimNumber = 0;
 	m_deathSpriteAnimTimer = KuroEngine::Timer(DEATH_SPRITE_TIMER);
 
@@ -561,6 +563,20 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_collision.CheckHit(beforePos, newPos, arg_nowStage);
 
 		m_transform.SetPos(newPos);
+
+		//ジャンプが終わってから一定時間以内だったら、入力を戻す処理を書く。
+		m_jumpEndInvTimer.UpdateTimer();
+		if (!m_jumpEndInvTimer.IsTimeUp() && 0 < m_rowMoveVec.Length() && m_playerMoveStatus == PLAYER_MOVE_STATUS::MOVE) {
+
+			//ジャンプ中にジャンプした時と反対方向に入力していたら and 操作が反転していたら = 反転を打ち消す。
+			if (0.0f < m_jumpRowMoveVec.Dot(m_rowMoveVec) && m_isCameraInvX) {
+
+				m_isCameraInvX = false;
+
+			}
+
+		}
+
 	}
 	break;
 	case Player::PLAYER_MOVE_STATUS::JUMP:
@@ -601,7 +617,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			SoundConfig::Instance()->Play(SoundConfig::SE_SURFACE_JUMP);
 
 			//ジャンプ中にジャンプした時と反対方向に入力していたら and 操作が反転していたら = 反転を打ち消す。
-			if (m_jumpRowMoveVec.Dot(m_jumpTrrigerRowMoveVec) < 0.5f && m_isCameraInvX) {
+			if (m_jumpRowMoveVec.Dot(m_jumpTrrigerRowMoveVec) < 0.0f && m_isCameraInvX) {
 
 				m_isCameraInvX = false;
 
@@ -612,6 +628,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 		//ジャンプ中は常時回転を適用させる。
 		m_drawTransform.SetRotate(m_transform.GetRotate());
+
+		m_jumpEndInvTimer.Reset();
 
 	}
 	break;

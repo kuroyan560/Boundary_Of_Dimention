@@ -259,6 +259,10 @@ class Player : public KuroEngine::Debugger
 	std::vector<KuroEngine::Vec3<float>> m_gimmickExitPos;
 	std::vector<KuroEngine::Vec3<float>> m_gimmickExitNormal;
 
+	//ジャンプが終わってから一定Fいないだったら反対に入力されたら反転をキャンセルするためのタイマー
+	KuroEngine::Timer m_jumpEndInvTimer;
+	const float JUMP_END_INV_TIMER = 120.0f;
+
 	//当たり判定用ステージの参照
 	std::weak_ptr<Stage> m_nowStage;
 
