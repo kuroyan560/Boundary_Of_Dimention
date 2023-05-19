@@ -6,6 +6,7 @@
 #include"Render/RenderObject/ModelInfo/ModelMesh.h"
 #include"../Graphics/BasicDrawParameters.h"
 #include"ForUser/Timer.h"
+#include"CheckPointUI.h"
 
 namespace KuroEngine
 {
@@ -496,12 +497,32 @@ public:
 
 class CheckPoint : public StageParts
 {
+	//UI
+	static std::shared_ptr<CheckPointUI> s_ui;
+	//最後に訪れたチェックポイントのトランスフォーム
+	static KuroEngine::Transform s_latestVisitTransform;
+	//チェックポイントを１つでも訪れたか
+	static bool s_visit;
+
 	int m_order;
 	bool m_touched = false;
 
 public:
-	CheckPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_order)
-		:StageParts(CHECK_POINT, arg_model, arg_initTransform), m_order(arg_order) {}
+	static std::weak_ptr<CheckPointUI>UI() 
+	{
+		if (!s_ui)s_ui = std::make_shared<CheckPointUI>();
+		return s_ui; 
+	}
+
+	//最後に訪れたチェックポイントのトランスフォームゲッタ
+	static KuroEngine::Transform GetLatestVistTransform(const KuroEngine::Transform& arg_alternative)
+	{
+		//まだ１つも訪れていないなら引数のトランスフォームをそのまま返す
+		if (!s_visit)return arg_alternative;
+		return s_latestVisitTransform;
+	}
+
+	CheckPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_order);
 
 	void Update(Player& arg_player)override;
 };

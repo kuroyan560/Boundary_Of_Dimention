@@ -4,6 +4,7 @@
 #include"../Graphics/BasicDraw.h"
 #include"../Movie/CameraData.h"
 #include"../Player/Player.h"
+#include"FrameWork/UsersInput.h"
 
 StageManager::StageManager()
 	:KuroEngine::Debugger("StageManager", true, true)
@@ -22,7 +23,7 @@ StageManager::StageManager()
 	//ホームステージ
 	m_homeStage = std::make_shared<Stage>();
 	//m_homeStage->Load(0, stageDir, "New_Home.json", 5.0f, false);
-	m_homeStage->Load(0, stageDir, "P_Stage_1.json", terrianScaling, false);
+	//m_homeStage->Load(0, stageDir, "P_Stage_1.json", terrianScaling, false);
 
 	//パズルステージ一括読み込み
 	int loadPazzleIdx = 1;
@@ -33,7 +34,7 @@ StageManager::StageManager()
 	}
 
 	//現在のステージ指定（デフォルトはホーム用ステージ）
-	m_nowStage = m_homeStage;
+	m_nowStage = m_stageArray[0];
 
 	CameraData::Instance()->RegistCameraData("");
 }
@@ -51,6 +52,9 @@ void StageManager::SetStage(int stage_num)
 	m_nowStage->Init();
 
 	m_nowMapPinPointIdx = 0;
+
+	//チェックポイントUI初期化
+	CheckPoint::UI().lock()->Init();
 }
 
 void StageManager::Update(Player& arg_player)
@@ -76,7 +80,11 @@ void StageManager::Update(Player& arg_player)
 			if (static_cast<int>(mapPinPointArray.size()) <= m_nowMapPinPointIdx)m_nowStage->SetCompleteMapPinFlg(true);
 		}
 	}
+
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_J))CheckPoint::UI().lock()->Start();
 	
+	//チェックポイントUI更新
+	CheckPoint::UI().lock()->Update();
 }
 
 void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
@@ -123,17 +131,25 @@ void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 
 void StageManager::DrawUI(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float>arg_playerPos)
 {
-	//全ての目的地巡回済
-	if (m_nowStage->GetCompleteMapPin())return;
-	m_mapPinUI.Draw(arg_cam, GetNowMapPingPos(), arg_playerPos);
+	//まだ全ての目的地を巡回していない
+	KuroEngine::Vec3<float>mapPinPos;
+	if (GetNowMapPinPos(&mapPinPos))
+	{
+		const auto& mapPinPointArray = m_nowStage->GetMapPinPointArray();
+		
+		m_mapPinUI.Draw(arg_cam, mapPinPos, arg_playerPos);
+	}
+
+	//チェックポイントUI描画
+	CheckPoint::UI().lock()->Draw();
 }
 
-KuroEngine::Vec3<float> StageManager::GetNowMapPingPos() {
-
+bool StageManager::GetNowMapPinPos(KuroEngine::Vec3<float>* arg_destPos)
+{
+	if (m_nowStage->GetCompleteMapPin())return false;
 	const auto& mapPinPointArray = m_nowStage->GetMapPinPointArray();
-
-	return mapPinPointArray[m_nowMapPinPointIdx].lock()->GetTransform().GetPosWorld();
-
+	if (arg_destPos)*arg_destPos = mapPinPointArray[m_nowMapPinPointIdx].lock()->GetTransform().GetPosWorld();
+	return true;
 }
 
 KuroEngine::Transform StageManager::GetGateTransform(int arg_stageIdx, int arg_gateID) const
@@ -148,7 +164,7 @@ bool StageManager::IsClearNowStage() const
 
 KuroEngine::Transform StageManager::GetPlayerSpawnTransform() const
 {
-	return m_nowStage->GetPlayerSpawnTransform();
+	return CheckPoint::GetLatestVistTransform(m_nowStage->GetPlayerSpawnTransform());
 }
 
 KuroEngine::Transform StageManager::GetGoalTransform() const

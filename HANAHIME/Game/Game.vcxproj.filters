@@ -442,6 +442,12 @@
     <ClCompile Include="src\Player\PlayerMoveParticleTarget.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Stage\CheckPointUI.cpp">
+      <Filter>src\user\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AI\EnemyAttack.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -850,5 +856,9 @@
     <ClInclude Include="src\Effect\EnemyEyeEffect.h" />
     <ClInclude Include="src\Player\PlayerMoveParticleTarget.h" />
     <ClInclude Include="src\Player\PlayerMoveParticleTargetEmitter.h" />
+    <ClInclude Include="src\Stage\CheckPointUI.h">
+      <Filter>src\user\Stage</Filter>
+    </ClInclude>
+    <ClInclude Include="src\AI\EnemyAttack.h" />
   </ItemGroup>
 </Project>

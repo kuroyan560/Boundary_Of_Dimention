@@ -79,7 +79,13 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	Vec3<float>translation = GetConsiderCoordinate(transformObj["translation"]);
 
 	//回転
-	XMVECTOR quaternion = { (float)transformObj["rotation"][0],(float)transformObj["rotation"][2], -(float)transformObj["rotation"][1],(float)transformObj["rotation"][3] };
+	XMVECTOR quaternion =
+	{
+		(float)transformObj["rotation"][0],
+		(float)transformObj["rotation"][2],
+		-(float)transformObj["rotation"][1],
+		(float)transformObj["rotation"][3]
+	};
 
 	//スケーリング
 	Vec3<float>scaling = { (float)transformObj["scaling"][0],(float)transformObj["scaling"][2] ,(float)transformObj["scaling"][1] };

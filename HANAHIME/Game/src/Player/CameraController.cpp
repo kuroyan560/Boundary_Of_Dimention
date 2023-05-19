@@ -154,14 +154,15 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	}
 
+	//マップピンの座標の受け皿
+	KuroEngine::Vec3<float>mapPinPos;
 	//カメラを初期位置に戻すか。
-	if (arg_isCameraDefaultPos && !m_isHitUnderGroundTerrian) {
+	if (arg_isCameraDefaultPos && !m_isHitUnderGroundTerrian && StageManager::Instance()->GetNowMapPinPos(&mapPinPos)) {
 
 		//カメラの正面ベクトル
 		KuroEngine::Vec3<float> cameraDir = (arg_targetPos.GetPosWorld() - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
-
 		//目標地点 いい感じの視点にするために、注視点を少し下にずらす。
-		KuroEngine::Vec3<float> targetPos = StageManager::Instance()->GetNowMapPingPos();
+		KuroEngine::Vec3<float> targetPos = mapPinPos;
 
 		//目標地点までのベクトル
 		KuroEngine::Vec3<float> targetDir = (targetPos - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();

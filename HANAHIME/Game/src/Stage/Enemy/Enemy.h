@@ -8,6 +8,7 @@
 #include"../../../src/Graphics/BasicDraw.h"
 #include"../../CPUParticle/DashEffect.h"
 #include"../../Effect/EnemyEyeEffect.h"
+#include"../../AI/EnemyAttack.h"
 
 //ìGÇÃçUåÇÉpÉ^Å[Éì
 enum ENEMY_ATTACK_PATTERN
@@ -29,7 +30,7 @@ class MiniBug :public StageParts
 {
 public:
 	MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>posArray, bool loopFlag)
-		:StageParts(MINI_BUG, arg_model, arg_initTransform), m_deadTimer(120), m_eyeEffect(&m_transform)
+		:StageParts(MINI_BUG, arg_model, arg_initTransform), m_deadTimer(120), m_eyeEffect(&m_transform), ENEMY_ID(ENEMY_MAX_ID)
 	{
 
 		m_sightArea.Init(&m_transform);
@@ -73,7 +74,8 @@ public:
 
 		//ä€âeópÇ…ìGÇÃÉfÅ[É^ÇÃéQè∆ÇìnÇ∑ÅB
 		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_shadowInfluenceRange, &m_deadFlag);
-
+		
+		++ENEMY_MAX_ID;
 	}
 
 	void OnInit()override;
@@ -84,6 +86,9 @@ public:
 
 private:
 	std::shared_ptr<KuroEngine::Model>m_enemyModel;
+	//ÉfÉoÉbÉNópÇÃìGéØï ID
+	const int ENEMY_ID;
+	static int ENEMY_MAX_ID;
 
 	enum Status
 	{
@@ -436,10 +441,10 @@ public:
 		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_shadowInfluenceRange, &m_deadFlag);
 
 	}
-	void Update(Player& arg_player)override;
-	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
+	void Update(Player &arg_player)override;
+	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
 
-	void DebugDraw(KuroEngine::Camera& camera);
+	void DebugDraw(KuroEngine::Camera &camera);
 
 private:
 
@@ -490,10 +495,32 @@ class Battery : public StageParts
 {
 public:
 	Battery(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>arg_posArray, float arg_bulletScale, ENEMY_BARREL_PATTERN arg_barrelPattern);
-	void Update(Player& arg_player)override;
+	void Update(Player &arg_player)override;
+	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
 
 private:
+	KuroEngine::Transform m_initTransform;
+
+	//à⁄ìÆ
+	KuroEngine::Vec3<float>m_pos;
 	std::vector<KuroEngine::Vec3<float>>m_posArray;
+	std::unique_ptr<PatrolBasedOnControlPoint> m_patrol;
+
+	//äpìx
+	KuroEngine::Vec3<float>m_upVec;
+	KuroEngine::Quaternion m_rotation, m_larpRotation;
+
+	//íe
+	KuroEngine::Vec3<float>m_bulletDir;
 	float m_bulletScale;
 	ENEMY_BARREL_PATTERN m_barrelPattern;
+	BulletManager m_bulletManager;
+
+	//îªíË
+	float m_radius;
+	Sphere m_hitBox;
+
+	//éÄñS
+	bool m_startDeadMotionFlag;
+	bool m_deadFlag;
 };

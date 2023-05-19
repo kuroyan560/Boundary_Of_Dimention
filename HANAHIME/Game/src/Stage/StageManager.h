@@ -4,6 +4,7 @@
 #include"Common/Transform.h"
 #include"StageParts.h"
 #include"MapPinUI.h"
+#include"CheckPointUI.h"
 
 #include<memory>
 namespace KuroEngine
@@ -67,7 +68,7 @@ public:
 	//プレイヤーの初期化トランスフォーム
 	KuroEngine::Transform GetPlayerSpawnTransform()const;
 
-	KuroEngine::Vec3<float> GetNowMapPingPos();
+	bool GetNowMapPinPos(KuroEngine::Vec3<float>* arg_destPos);
 
 	KuroEngine::Transform GetGoalTransform()const;
 

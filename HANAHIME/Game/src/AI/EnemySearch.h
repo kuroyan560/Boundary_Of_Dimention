@@ -16,12 +16,10 @@ class Collision : public KuroEngine::DesignPattern::Singleton<Collision>
 public:
 	bool CheckCircleAndCircle(const Sphere &sphereA, const Sphere &sphereB)
 	{
-		float distance = sphereA.m_centerPos->Distance(*sphereB.m_centerPos);
-		float sumRadist = *sphereA.m_radius + *sphereB.m_radius;
+		float distance = sphereA.m_centerPos->Distance(*(sphereB.m_centerPos));
+		float sumRadist = *(sphereA.m_radius) + *(sphereB.m_radius);
 		return (distance <= sumRadist);
 	}
-
-
 };
 
 //ü•ª‚Æ“_‚Ì”»’è
