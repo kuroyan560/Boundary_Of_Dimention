@@ -1,4 +1,5 @@
 #include"StageParts.h"
+#include"StageParts.h"
 #include"ForUser/Object/Model.h"
 #include"../Graphics/BasicDraw.h"
 #include"../Player/Player.h"
@@ -347,6 +348,10 @@ void MoveScaffold::Update(Player& arg_player)
 
 	//いろいろと初期化して次向かう方向を決める。
 	if (isFinish) {
+
+		//隙間ができないように押し戻す。
+		m_transform.SetPos(m_translationArray[m_nextTranslationIndex]);
+		m_nowPos = m_translationArray[m_nextTranslationIndex];
 
 		//正の方向に進むフラグだったら
 		if (m_isOder) {
