@@ -62,6 +62,7 @@ void CameraController::Init()
 	m_rotateYLerpAmount = 0;
 	m_cameraXAngleLerpAmount = 0;
 	m_isHitUnderGroundTerrian = false;
+	m_playerOldPos = KuroEngine::Vec3<float>();
 }
 
 void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump)
@@ -242,6 +243,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	//当たり判定用のレイを打つ方向を決める。
 	Vec3<float> checkHitRay = m_cameraLocalTransform.GetPosWorldByMatrix() - m_oldCameraWorldPos;	//まずはデフォルトのレイに設定。
+	Vec3<float> playerDir = arg_targetPos.GetPos() - m_cameraLocalTransform.GetPosWorldByMatrix();
 
 	//通常の地形を走査
 	m_isHitTerrian = false;
@@ -273,54 +275,12 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 			}
 
-			//プレイヤーのいるメッシュか？
-			bool onPlayer = 0.9f < output.m_normal.Dot(arg_targetPos.GetUp());
+			//プレイヤー方向のレイトの当たり判定を実行
+			Vec3<float> playerDir = arg_targetPos.GetPos() - pushBackPos;
+			output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos, playerDir.GetNormal(), checkHitMesh);
+			if (output.m_isHit && 0 < output.m_distance && output.m_distance < playerDir.Length()){
 
-			//プレイヤーからちょっとずらした位置からも地形へレイをとばし、カメラの回転を押し戻す処理を行う。
-			const float PUSH_BACK_ANGLE_X = 0.5f;
-			const float PUSH_BACK_ANGLE_Y = 0.5f;
-
-			if (arg_isMovePlayer && !onPlayer && !arg_isPlayerJump) {
-
-
-				//コの字型の通路対策のために、上方向にレイを飛ばす。
-				//output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_attachedCam.lock()->GetTransform().GetPos(), { 0,arg_isCameraUpInverse ? -1.0f : 1.0f,0 }, checkHitMesh);
-
-				//const float CHECK_HIT_TOP = 5.0f;
-				//if (output.m_isHit && 0 < output.m_distance && output.m_distance < fabs(CHECK_HIT_TOP)) {
-
-				//	m_cameraXAngleLerpAmount = -PUSH_BACK_ANGLE_X * (arg_isCameraUpInverse ? -1.0f : 1.0f);
-
-				//}
-
-
-				////コの字型の通路対策のために、下方向にレイを飛ばす。
-				//output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_attachedCam.lock()->GetTransform().GetPos(), { 0,arg_isCameraUpInverse ? 1.0f : -1.0f,0 }, checkHitMesh);
-
-				//if (output.m_isHit && 0 < output.m_distance && output.m_distance < fabs(CHECK_HIT_TOP)) {
-
-				//	m_cameraXAngleLerpAmount = +PUSH_BACK_ANGLE_X * (arg_isCameraUpInverse ? -1.0f : 1.0f);
-
-				//}
-
-				////コの字型の通路対策のために、右方向にレイを飛ばす。
-				//output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_attachedCam.lock()->GetTransform().GetPos(), m_attachedCam.lock()->GetTransform().GetRight(), checkHitMesh);
-
-				//if (output.m_isHit && 0 < output.m_distance && output.m_distance < fabs(CHECK_HIT_TOP)) {
-
-				//	m_rotateYLerpAmount = +PUSH_BACK_ANGLE_Y * (arg_isCameraUpInverse ? -1.0f : 1.0f);
-
-				//}
-
-
-				////コの字型の通路対策のために、左方向にレイを飛ばす。
-				//output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_attachedCam.lock()->GetTransform().GetPos(), -m_attachedCam.lock()->GetTransform().GetRight(), checkHitMesh);
-
-				//if (output.m_isHit && 0 < output.m_distance && output.m_distance < fabs(CHECK_HIT_TOP)) {
-
-				//	m_rotateYLerpAmount = -PUSH_BACK_ANGLE_Y * (arg_isCameraUpInverse ? -1.0f : 1.0f);
-
-				//}
+				PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse);
 
 			}
 
@@ -428,6 +388,8 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	//地上にあたっているフラグを保存。これがtrueだと注視点モードになるので、プレイヤーが居る面によってカメラの回転を打ち消す。
 	arg_isHitUnderGround = m_isHitUnderGroundTerrian;
+
+	m_playerOldPos = arg_targetPos.GetPos();
 
 	//距離を求める。
 	//const float PUSHBACK = 20.0f;

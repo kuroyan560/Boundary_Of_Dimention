@@ -68,6 +68,8 @@ class CameraController : public KuroEngine::Debugger
 	KuroEngine::Transform m_cameraLocalTransform;	//カメラのローカルでの回転と移動を計算する用。
 	KuroEngine::Transform m_camParentTransform;		//プレイヤーの座標と回転を適応させる用。
 
+	KuroEngine::Vec3<float> m_playerOldPos;
+
 	//カメラの前方向座標移動のLerp値
 	float m_camForwardPosLerpRate = 0.8f;
 
