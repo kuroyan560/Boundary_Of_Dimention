@@ -175,7 +175,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     }
     
     float3 ligEffect = diffuseEf;
-    
+
     float4 texCol = baseTex.Sample(smp, input.uv);
     texCol.xyz += material.baseColor.xyz;
     float4 ligEffCol = texCol;
@@ -202,7 +202,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     //=========================================================================
 
     //塗りつぶし
-    result.xyz = toonIndividualParam.m_fillColor.xyz * toonIndividualParam.m_fillColor.w + result.xyz * (1.0f - toonIndividualParam.m_fillColor.w);
+    //result.xyz = toonIndividualParam.m_fillColor.xyz * toonIndividualParam.m_fillColor.w + result.xyz * (1.0f - toonIndividualParam.m_fillColor.w);
     
     int isBright = 0;
     int isBrightDefRange = 0; //デフォルトのライトの影響度の範囲
@@ -256,9 +256,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
         
         float bright = Easing_Cubic_In(distanceRate, 1.0f, 0.0f, 1.0f);
         
-        result.xyz *=  bright;
-        
-        
+        result.xyz *=  bright;        
     }
     
     

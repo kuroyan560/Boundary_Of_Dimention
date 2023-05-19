@@ -177,6 +177,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="..\..\src\engine\Render\RenderObject\ModelInfo\Skeleton.cpp" />
     <ClCompile Include="..\..\src\engine\Render\RenderObject\SpriteMesh.cpp" />
     <ClCompile Include="..\..\src\engine\Render\ShadowMapDevice.cpp" />
+    <ClCompile Include="src\AI\EnemyAttack.cpp" />
     <ClCompile Include="src\AI\EnemyPatrol.cpp" />
     <ClCompile Include="src\AI\EnemySearch.cpp" />
     <ClCompile Include="src\CPUParticle\CPULoucusParticle.cpp" />
@@ -315,6 +316,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="..\..\src\engine\Render\RenderObject\ModelInfo\Skeleton.h" />
     <ClInclude Include="..\..\src\engine\Render\RenderObject\SpriteMesh.h" />
     <ClInclude Include="..\..\src\engine\Render\ShadowMapDevice.h" />
+    <ClInclude Include="src\AI\EnemyAttack.h" />
     <ClInclude Include="src\AI\EnemyPatrol.h" />
     <ClInclude Include="src\AI\EnemySearch.h" />
     <ClInclude Include="src\CPUParticle\CPULoucusParticle.h" />

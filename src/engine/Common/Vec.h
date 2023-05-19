@@ -192,7 +192,7 @@ namespace KuroEngine
 		Vec3<int>Int()const
 		{
 			static_assert(std::is_arithmetic<T>::value, "template parameter T must be arithmetic");
-			return Vec3<int>(x, y, z);
+			return Vec3<int>((int)x, (int)y, (int)z);
 		}
 		Vec3<float>Float()const
 		{
