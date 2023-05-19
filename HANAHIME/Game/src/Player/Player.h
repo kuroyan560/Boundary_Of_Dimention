@@ -100,6 +100,12 @@ class Player : public KuroEngine::Debugger
 	KuroEngine::Vec3<float> m_jumpTrrigerRowMoveVec;
 	KuroEngine::Vec3<float> m_jumpRowMoveVec;	//ジャンプ中の生の移動方向。m_rowMoveVecを使うとバグりそうで怖いので追加。
 
+
+	//デバッグ用の右ベクトル
+	KuroEngine::Vec3<float> m_debugRightVec;
+
+
+
 	//プレイヤーの周囲のパーティクル
 	PlayerMoveParticle m_playerMoveParticle;
 	const int PLAYER_MOVE_PARTICLE_SPAN = 5;

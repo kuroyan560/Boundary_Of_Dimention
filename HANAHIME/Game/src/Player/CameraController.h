@@ -79,6 +79,8 @@ class CameraController : public KuroEngine::Debugger
 	//現在の上下方向で操作しているもの
 	enum VERTICAL_MOVE { ANGLE, DIST }m_verticalControl = ANGLE;
 
+	KuroEngine::Transform m_debugTransform;
+
 
 public:
 	//コンストラクタ
@@ -87,13 +89,16 @@ public:
 	void AttachCamera(std::shared_ptr<KuroEngine::Camera>arg_cam);
 
 	void Init();
-	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump);
+	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ);
 
 	const KuroEngine::Quaternion& GetPosRotate() {
 		return m_camParentTransform.GetRotate();
 	}
 
 	std::weak_ptr<KuroEngine::Camera> GetCamera() { return m_attachedCam; }
+
+
+	KuroEngine::Transform GetDebugTransform() { return m_debugTransform; }
 
 private:
 
