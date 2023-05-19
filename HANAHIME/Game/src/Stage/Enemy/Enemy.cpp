@@ -547,6 +547,7 @@ Battery::Battery(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transfo
 		m_pos = m_posArray[0];
 	}
 	m_transform = arg_initTransform;
+	m_initTransform = arg_initTransform;
 	m_transform.SetPos(m_pos);
 
 	m_upVec = arg_initTransform.GetUp();
@@ -647,6 +648,9 @@ void Battery::Update(Player &arg_player)
 	m_pos += vel;
 	m_transform.SetPos(m_pos);
 	//m_transform.SetRotate(m_larpRotation);
+
+	m_transform;
+
 }
 
 void Battery::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)

@@ -498,6 +498,8 @@ public:
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
 
 private:
+	KuroEngine::Transform m_initTransform;
+
 	//ˆÚ“®
 	KuroEngine::Vec3<float>m_pos;
 	std::vector<KuroEngine::Vec3<float>>m_posArray;

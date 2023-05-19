@@ -26,7 +26,6 @@ void EnemyDataReferenceForCircleShadow::Init()
 
 void EnemyDataReferenceForCircleShadow::SetData(const KuroEngine::Transform* arg_refTransform, const float* arg_refShadowRadius, const bool* arg_refIsDead)
 {
-
 	RefData data;
 	data.m_refIsDead = arg_refIsDead;
 	data.m_refTransform = arg_refTransform;

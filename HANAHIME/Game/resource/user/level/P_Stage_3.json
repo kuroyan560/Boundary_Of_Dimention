@@ -3,84 +3,6 @@
         "name": "scene",
         "objects": [
             {
-                "type": "Battery",
-                "name": "Battery.001",
-                "transform": {
-                    "translation": [
-                        -80.0,
-                        -27.0,
-                        30.0
-                    ],
-                    "rotation": [
-                        -0.7071068286895752,
-                        0.0,
-                        0.0,
-                        0.7071068286895752
-                    ],
-                    "scaling": [
-                        3.0,
-                        3.0,
-                        3.0
-                    ]
-                },
-                "file_name": "Battery",
-                "translationArray": {},
-                "BarrelPat": "ROCKON",
-                "BulletScale": 3.0
-            },
-            {
-                "type": "Battery",
-                "name": "Battery.002",
-                "transform": {
-                    "translation": [
-                        -53.0,
-                        0.0,
-                        30.0
-                    ],
-                    "rotation": [
-                        -0.5,
-                        -0.5,
-                        0.5,
-                        0.5
-                    ],
-                    "scaling": [
-                        3.0,
-                        3.0,
-                        3.0
-                    ]
-                },
-                "file_name": "Battery",
-                "translationArray": {},
-                "BarrelPat": "ROCKON",
-                "BulletScale": 3.0
-            },
-            {
-                "type": "Battery",
-                "name": "Battery.003",
-                "transform": {
-                    "translation": [
-                        -80.0,
-                        0.0,
-                        47.0
-                    ],
-                    "rotation": [
-                        0.0,
-                        1.0,
-                        0.0,
-                        0.0
-                    ],
-                    "scaling": [
-                        3.0,
-                        3.0,
-                        3.0
-                    ]
-                },
-                "file_name": "Battery",
-                "translationArray": {},
-                "BarrelPat": "ROCKON",
-                "BulletScale": 3.0
-            },
-            {
                 "type": "Terrian",
                 "name": "Stage0_0.003",
                 "transform": {
@@ -127,13 +49,113 @@
                 "file_name": "Start"
             },
             {
-                "type": "Battery",
-                "name": "Battery",
+                "type": "MiniBug",
+                "name": "MiniBug_0.015",
                 "transform": {
                     "translation": [
-                        -80.0,
+                        -81.0,
+                        17.0,
+                        12.0
+                    ],
+                    "rotation": [
                         0.0,
-                        13.0
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_0.016",
+                "transform": {
+                    "translation": [
+                        -81.0,
+                        17.0,
+                        48.0
+                    ],
+                    "rotation": [
+                        -0.0,
+                        -1.0,
+                        -0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_0.017",
+                "transform": {
+                    "translation": [
+                        -52.0,
+                        17.0,
+                        29.999996185302734
+                    ],
+                    "rotation": [
+                        0.0,
+                        -0.7071068286895752,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_0.018",
+                "transform": {
+                    "translation": [
+                        -81.0,
+                        -28.0,
+                        19.0
+                    ],
+                    "rotation": [
+                        -0.7071068286895752,
+                        0.0,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "DossunRing",
+                "name": "DossunRing_0.006",
+                "transform": {
+                    "translation": [
+                        -67.0,
+                        18.0,
+                        11.0
                     ],
                     "rotation": [
                         0.0,
@@ -144,24 +166,83 @@
                     "scaling": [
                         3.0,
                         3.0,
-                        3.0
+                        1.0
                     ]
                 },
-                "file_name": "Battery",
-                "translationArray": {
-                    "translation_0": [
-                        -70.0,
-                        0.0,
-                        13.0
+                "file_name": "DossunRing",
+                "ATKPat": "ALWAYS"
+            },
+            {
+                "type": "DossunRing",
+                "name": "DossunRing_0.007",
+                "transform": {
+                    "translation": [
+                        -67.0,
+                        -29.0,
+                        30.0
                     ],
-                    "translation_1": [
-                        -90.0,
+                    "rotation": [
+                        -0.7071068286895752,
                         0.0,
-                        13.0
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        3.0,
+                        3.0,
+                        1.0
                     ]
                 },
-                "BarrelPat": "FIXED",
-                "BulletScale": 3.0
+                "file_name": "DossunRing",
+                "ATKPat": "NORMAL"
+            },
+            {
+                "type": "DossunRing",
+                "name": "DossunRing_0.008",
+                "transform": {
+                    "translation": [
+                        -51.0,
+                        -18.0,
+                        30.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        -0.7071068286895752,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        3.0,
+                        3.0,
+                        1.0
+                    ]
+                },
+                "file_name": "DossunRing",
+                "ATKPat": "NORMAL"
+            },
+            {
+                "type": "DossunRing",
+                "name": "DossunRing_0.009",
+                "transform": {
+                    "translation": [
+                        -80.0,
+                        -13.0,
+                        49.0
+                    ],
+                    "rotation": [
+                        -0.0,
+                        -1.0,
+                        -0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        3.0,
+                        3.0,
+                        1.0
+                    ]
+                },
+                "file_name": "DossunRing",
+                "ATKPat": "NORMAL"
             }
         ]
     }
