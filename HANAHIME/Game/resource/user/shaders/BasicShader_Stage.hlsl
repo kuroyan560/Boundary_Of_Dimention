@@ -175,14 +175,13 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     }
     
     float3 ligEffect = diffuseEf;
-    
-    float4 texCol = float4(1.0f,1.0f,1.0f,1.0f);
-    //baseTex.Sample(smp, input.uv);
-    //texCol.xyz += material.baseColor.xyz;
+
+    float4 texCol = baseTex.Sample(smp, input.uv);
+    texCol.xyz += material.baseColor.xyz;
     float4 ligEffCol = texCol;
     //ligEffCol.xyz = ((material.ambient * material.ambientFactor) + ligEffect) * ligEffCol.xyz;
-    //ligEffCol.xyz = ligEffect * ligEffCol.xyz;
-    //ligEffCol.w *= (1.0f - material.transparent);
+    ligEffCol.xyz = ligEffect * ligEffCol.xyz;
+    ligEffCol.w *= (1.0f - material.transparent);
     
     //アニメ風トゥーン加工========================================================
     
@@ -233,13 +232,13 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     
     isBright = min(isBright, 1);
     isBrightDefRange = min(isBrightDefRange, 1);
-    //result.xyz *= lerp(0.7f, 1.0f, saturate(isBright + isBrightDefRange));
+    result.xyz *= lerp(0.7f, 1.0f, saturate(isBright + isBrightDefRange));
     
     //光が当たっていないならモノクロ化
-    //result.xyz = lerp(lerp(result.xyz, Monochrome(result.xyz), toonCommonParam.m_monochromeRate), result.xyz, isBright);
+    result.xyz = lerp(lerp(result.xyz, Monochrome(result.xyz), toonCommonParam.m_monochromeRate), result.xyz, isBright);
     
     //アルファ値適用
-    //result.w *= toonIndividualParam.m_alpha;
+    result.w *= toonIndividualParam.m_alpha;
     
     
     
