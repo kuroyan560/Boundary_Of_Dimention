@@ -2,6 +2,7 @@
 #include"../../Player/Player.h"
 #include"FrameWork/UsersInput.h"
 #include"../../Graphics/BasicDraw.h"
+#include"../../OperationConfig.h"
 
 int MiniBug::ENEMY_MAX_ID = 0;
 
@@ -72,7 +73,7 @@ void MiniBug::Update(Player &arg_player)
 	m_shadowInfluenceRange = KuroEngine::Math::Lerp(m_shadowInfluenceRange, SHADOW_INFLUENCE_RANGE, 0.1f);
 
 	//“G”­Œ©Žž(ƒvƒŒƒCƒ„[‚ªŽ‹ŠE‚É“ü‚Á‚½)
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_1))
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_1))
 	{
 		OnInit();
 	}

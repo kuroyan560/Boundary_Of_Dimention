@@ -7,6 +7,9 @@ class OperationConfig : public KuroEngine::DesignPattern::Singleton<OperationCon
 {
 	friend class KuroEngine::DesignPattern::Singleton<OperationConfig>;
 	OperationConfig();
+	
+	//デバッグのキー入力を受け付けるか
+	bool m_isDebug = true;
 
 	enum INPUT_DEVICE { KEY_BOARD_MOUSE, CONTROLLER, NUM }m_nowInputDevice = INPUT_DEVICE::KEY_BOARD_MOUSE;
 	const std::array<std::string, INPUT_DEVICE::NUM>m_inputDeviceNames =
@@ -60,4 +63,23 @@ public:
 	bool InputDone();
 	//キャンセルボタン
 	bool InputCancel();
+
+	//カメラの距離モード切り替えボタン
+	bool InputCamDistModeChange();
+	//カメラリセット
+	bool InputCamReset();
+
+	//潜るアクションボタン
+	bool InputSink();
+	//潜るアクションボタントリガー
+	bool InputSinkOnOffTrigger();
+
+	//ジップライン
+	bool InputRideZipLine();
+
+	//リトライボタン（ポーズ画面から選択してリトライするようになるかも、なくなる可能性ある）
+	bool InputRetry();
+
+	//デバッグ用のキー入力
+	bool DebugKeyInputOnTrigger(int arg_keyCode);
 };

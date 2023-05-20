@@ -257,16 +257,16 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
 
-	if (UsersInput::Instance()->KeyOnTrigger(DIK_0))
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_0))
 	{
 		m_reaction->Init(MiniBug::FIND);
 	}
-	if (UsersInput::Instance()->KeyOnTrigger(DIK_1))
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_1))
 	{
 		m_reaction->Init(MiniBug::LOOK);
 	}
 
-	if (UsersInput::Instance()->KeyOnTrigger(DIK_J))
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_J))
 	{
 		Damage();
 	}
@@ -307,7 +307,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_canJump = CAN_JUMP_DELAY <= m_canJumpDelayTimer;
 
 	//カメラモードを切り替える。
-	if (UsersInput::Instance()->KeyOffTrigger(DIK_RETURN) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::X)) {
+	if (OperationConfig::Instance()->InputCamDistModeChange()) {
 		++m_cameraMode;
 		if (static_cast<int>(CAMERA_MODE.size()) <= m_cameraMode) {
 			m_cameraMode = 0;
@@ -324,13 +324,13 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	{
 
 		//ジップライン
-		m_canZip = UsersInput::Instance()->KeyOnTrigger(DIK_LSHIFT);
+		m_canZip = OperationConfig::Instance()->InputRideZipLine();
 
 		//地中に沈むフラグを更新。 イージングが終わっていたら。
 		if (1.0f <= m_underGroundEaseTimer) {
 
 			bool prevInInputUnderGround = m_isInputUnderGround;
-			m_isInputUnderGround = UsersInput::Instance()->KeyInput(DIK_SPACE) || UsersInput::Instance()->ControllerInput(0, KuroEngine::RT);
+			m_isInputUnderGround = OperationConfig::Instance()->InputSink();
 
 			//沈むフラグが離されたトリガーだったら。
 			if ((prevInInputUnderGround && !m_isInputUnderGround) || (!m_canOldUnderGroundRelease && m_canUnderGroundRelease)) {
@@ -340,7 +340,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			}
 
 			//イージングが終わっている時のみ地中に潜ったり出たりする判定を持たせる。
-			bool isInputOnOff = UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->KeyOffTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::RT) || UsersInput::Instance()->ControllerOffTrigger(0, KuroEngine::RT);
+			bool isInputOnOff = OperationConfig::Instance()->InputSinkOnOffTrigger();
 			if ((isInputOnOff || (!m_isUnderGround && m_isInputUnderGround) || (m_isUnderGround && !m_isInputUnderGround)) && m_canUnderGroundRelease) {
 				m_underGroundEaseTimer = 0;
 			}
@@ -602,7 +602,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_growPlantPtLig.m_defInfluenceRange = MAX_INFLUENCE_RANGE;
 
 	//カメラをデフォルトの位置に戻すか。
-	m_isCameraDefault = UsersInput::Instance()->ControllerOnTrigger(0, LT) || UsersInput::Instance()->KeyOnTrigger(DIK_R);
+	m_isCameraDefault = OperationConfig::Instance()->InputCamReset();
 	if (m_isCameraDefault) {
 
 		//SEを鳴らす。
