@@ -85,13 +85,15 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	//カメラを初期位置に戻す量が0以上だったらカメラの回転量を補間。
 	if (0 < fabs(m_rotateYLerpAmount)) {
-		float lerp = m_rotateYLerpAmount - KuroEngine::Math::Lerp(m_rotateYLerpAmount, 0.0f, 0.08f);
+		float lerpAmount = arg_isCameraUpInverse ? 0.16f : 0.08f;
+		float lerp = m_rotateYLerpAmount - KuroEngine::Math::Lerp(m_rotateYLerpAmount, 0.0f, lerpAmount);
 		m_rotateYLerpAmount -= lerp;
 		arg_playerRotY += lerp;
 		m_nowParam.m_yAxisAngle = arg_playerRotY;
 	}
 	if (0 < fabs(m_cameraXAngleLerpAmount)) {
-		float lerp = m_cameraXAngleLerpAmount - KuroEngine::Math::Lerp(m_cameraXAngleLerpAmount, 0.0f, 0.08f);
+		float lerpAmount = arg_isCameraUpInverse ? 0.16f : 0.08f;
+		float lerp = m_cameraXAngleLerpAmount - KuroEngine::Math::Lerp(m_cameraXAngleLerpAmount, 0.0f, lerpAmount);
 		m_cameraXAngleLerpAmount = (fabs(m_cameraXAngleLerpAmount) - fabs(lerp)) * (signbit(m_cameraXAngleLerpAmount) ? -1.0f : 1.0f);
 		m_nowParam.m_xAxisAngle += lerp;
 	}
@@ -262,55 +264,60 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	m_isHitTerrian = false;
 	m_isHitUnderGroundTerrian = false;
 
-	//まずはプレイヤーのいる面を無限平面として、カメラを押し戻す。
-	Vec3<float> hitResult;
-	bool isHit = RayPlaneIntersection(arg_targetPos.GetPos(), Vec3<float>(pushBackPos - arg_targetPos.GetPos()).GetNormal(), arg_targetPos.GetPos() - arg_targetPos.GetUp(), arg_targetPos.GetUp(), hitResult);
-	if (isHit) {
+	//ジャンプ中は当たり判定を行わない。
+	if (!arg_isPlayerJump) {
 
-		m_isHitUnderGroundTerrian = true;
-		m_isHitTerrian = true;
+		//まずはプレイヤーのいる面を無限平面として、カメラを押し戻す。
+		Vec3<float> hitResult;
+		bool isHit = RayPlaneIntersection(arg_targetPos.GetPos(), Vec3<float>(pushBackPos - arg_targetPos.GetPos()).GetNormal(), arg_targetPos.GetPos() - arg_targetPos.GetUp(), arg_targetPos.GetUp(), hitResult);
+		if (isHit) {
 
-	}
+			m_isHitUnderGroundTerrian = true;
+			m_isHitTerrian = true;
 
-	//通常の地形を走査
-	auto& cameraTransform = m_attachedCam.lock()->GetTransform();
-	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
-	{
-		//モデル情報取得
-		auto model = terrian.GetModel().lock();
-
-		//メッシュを走査
-		for (auto& modelMesh : model->m_meshes)
-		{
-
-			//当たり判定に使用するメッシュ
-			auto checkHitMesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
-
-			//判定↓============================================
-
-
-			//純粋な地形とレイの当たり判定を実行
-			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_oldCameraWorldPos, checkHitRay.GetNormal(), checkHitMesh);
-			if (output.m_isHit && 0 < output.m_distance && output.m_distance < checkHitRay.Length()) {
-
-				pushBackPos = output.m_pos + output.m_normal;
-				m_isHitTerrian = true;
-
-				PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse);
-
-			}
-
-			//プレイヤー方向のレイトの当たり判定を実行
-			Vec3<float> playerDir = arg_targetPos.GetPos() - pushBackPos;
-			output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos, playerDir.GetNormal(), checkHitMesh);
-			if (output.m_isHit && 0 < output.m_distance && output.m_distance < playerDir.Length()) {
-
-				PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse);
-
-			}
-
-			//=================================================
 		}
+
+		//通常の地形を走査
+		auto& cameraTransform = m_attachedCam.lock()->GetTransform();
+		for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
+		{
+			//モデル情報取得
+			auto model = terrian.GetModel().lock();
+
+			//メッシュを走査
+			for (auto& modelMesh : model->m_meshes)
+			{
+
+				//当たり判定に使用するメッシュ
+				auto checkHitMesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+
+				//判定↓============================================
+
+
+				//純粋な地形とレイの当たり判定を実行
+				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_oldCameraWorldPos, checkHitRay.GetNormal(), checkHitMesh);
+				if (output.m_isHit && 0 < output.m_distance && output.m_distance < checkHitRay.Length()) {
+
+					pushBackPos = output.m_pos + output.m_normal;
+					m_isHitTerrian = true;
+
+					PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse);
+
+				}
+
+				//プレイヤー方向のレイトの当たり判定を実行
+				Vec3<float> playerDir = arg_targetPos.GetPos() - pushBackPos;
+				output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos, playerDir.GetNormal(), checkHitMesh);
+				if (output.m_isHit && 0 < output.m_distance && output.m_distance < playerDir.Length()) {
+
+					PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse);
+
+				}
+
+				//=================================================
+			}
+		}
+
 	}
 
 	//地上にあたっていたら地形と押し戻す前の座標からの回転を求めることで、注視点を上に向ける。
@@ -426,6 +433,76 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	}
 
 
+
+}
+
+void CameraController::JumpStart(const KuroEngine::Transform& arg_playerTransform, const KuroEngine::Vec3<float>& arg_jumpEndNormal, bool arg_isCameraUpInverse)
+{
+
+	using namespace KuroEngine;
+
+	//カメラが既定の位置に達していなかったら補間をかける。
+
+	//カメラをいい感じの位置に補間する量。
+	const float CAMERA_LERP_AMOUNT = 0.5f;	//内積で使用するので、つまり地面から見て45度の位置に補間する。
+
+	//プレイヤーが下の面にいたら
+	if (0.9f < arg_playerTransform.GetUp().y) {
+
+		//次の面が左側の面だったら
+		if (0.9f < arg_jumpEndNormal.z) {
+
+			//つまり現在はXZ平面上にいるということなので、カメラからプレイヤーまでのベクトルを2Dに射影。
+			Vec3<float> cameraVec = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_playerTransform.GetPos()).GetNormal();
+			Vec2<float> cameraVec2D = Project3Dto2D(cameraVec, Vec3<float>(1, 0, 0), Vec3<float>(0, 0, 1));
+			Vec2<float> jumpEndNormal2D = Project3Dto2D(arg_jumpEndNormal, Vec3<float>(1, 0, 0), Vec3<float>(0, 0, 1));
+
+			//回転量を二次元で得る。
+			float dot = jumpEndNormal2D.Dot(cameraVec2D);
+
+			//ベクトルの差がCAMERA_LARP_AMOUNTより下だったら補間の処理を入れる。
+			if (dot < CAMERA_LERP_AMOUNT) {
+
+				//ラジアンに直す。
+				float rad = acos(dot);
+
+				//補間する方向を求める。
+				float cross = std::signbit(jumpEndNormal2D.Cross(cameraVec2D)) ? -1.0f : 1.0f;
+
+				//補間させる。
+				m_rotateYLerpAmount += (rad - CAMERA_LERP_AMOUNT) * cross;
+
+			}
+
+		}
+		//次の面が右側だったら
+		else if (arg_jumpEndNormal.z < -0.9f) {
+
+			//つまり現在はXZ平面上にいるということなので、カメラからプレイヤーまでのベクトルを2Dに射影。
+			Vec3<float> cameraVec = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_playerTransform.GetPos()).GetNormal();
+			Vec2<float> cameraVec2D = Project3Dto2D(cameraVec, Vec3<float>(1, 0, 0), Vec3<float>(0, 0, 1));
+			Vec2<float> jumpEndNormal2D = Project3Dto2D(arg_jumpEndNormal, Vec3<float>(1, 0, 0), Vec3<float>(0, 0, 1));
+
+			//回転量を二次元で得る。
+			float dot = jumpEndNormal2D.Dot(cameraVec2D);
+
+			//ベクトルの差がCAMERA_LARP_AMOUNTより下だったら補間の処理を入れる。
+			if (dot < CAMERA_LERP_AMOUNT) {
+
+				//ラジアンに直す。
+				float rad = acos(dot);
+
+				//補間する方向を求める。
+				float cross = std::signbit(jumpEndNormal2D.Cross(cameraVec2D)) ? -1.0f : 1.0f;
+
+				//補間させる。
+				m_rotateYLerpAmount += (rad - CAMERA_LERP_AMOUNT) * cross;
+
+			}
+
+		}
+
+	}
 
 }
 

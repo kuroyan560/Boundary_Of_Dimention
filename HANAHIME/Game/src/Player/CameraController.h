@@ -91,6 +91,9 @@ public:
 	void Init();
 	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ);
 
+	//ジャンプを開始した瞬間、X軸回転とY軸回転を本来あるべき値に近づける。
+	void JumpStart(const KuroEngine::Transform& arg_playerTransform, const KuroEngine::Vec3<float>& arg_jumpEndNormal, bool arg_isCameraUpInverse);
+
 	const KuroEngine::Quaternion& GetPosRotate() {
 		return m_camParentTransform.GetRotate();
 	}

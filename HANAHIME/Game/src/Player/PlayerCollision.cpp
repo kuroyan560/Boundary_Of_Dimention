@@ -193,6 +193,9 @@ void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, Kuro
 				m_refPlayer->m_jumpEndPos = arg_castRayArgment.m_impactPoint[minIndex].m_impactPos + arg_castRayArgment.m_impactPoint[minIndex].m_normal * (m_refPlayer->m_transform.GetScale().x / 2.0f);
 				m_refPlayer->m_jumpEndPos += m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH;
 
+				//カメラをジャンプさせる。
+				m_refPlayer->m_camController.JumpStart(m_refPlayer->GetTransform(), arg_castRayArgment.m_impactPoint[minIndex].m_normal, m_refPlayer->m_isCameraUpInverse);
+
 				//ジャンプした瞬間の入力を保存しておく。
 				m_refPlayer->m_jumpTrrigerRowMoveVec = m_refPlayer->m_jumpRowMoveVec;
 
