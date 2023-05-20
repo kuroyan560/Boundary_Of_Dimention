@@ -301,7 +301,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 					pushBackPos = output.m_pos + output.m_normal;
 					m_isHitTerrian = true;
 
-					PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse);
+					PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse, true);
 
 				}
 
@@ -310,7 +310,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 				output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos, playerDir.GetNormal(), checkHitMesh);
 				if (output.m_isHit && 0 < output.m_distance && output.m_distance < playerDir.Length()) {
 
-					PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse);
+					PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse, false);
 
 				}
 
@@ -508,13 +508,13 @@ void CameraController::JumpStart(const KuroEngine::Transform& arg_playerTransfor
 
 }
 
-void CameraController::PushBackGround(const CollisionDetectionOfRayAndMesh::MeshCollisionOutput& arg_output, const KuroEngine::Vec3<float> arg_pushBackPos, const KuroEngine::Transform& arg_targetPos, float& arg_playerRotY, bool arg_isCameraUpInverse) {
+void CameraController::PushBackGround(const CollisionDetectionOfRayAndMesh::MeshCollisionOutput& arg_output, const KuroEngine::Vec3<float> arg_pushBackPos, const KuroEngine::Transform& arg_targetPos, float& arg_playerRotY, bool arg_isCameraUpInverse, bool arg_isAroundRay) {
 
 	using namespace KuroEngine;
 
 	//プレイヤーの法線と比べて同じだったら地上に当たった判定にする。
 	float dot = arg_output.m_normal.Dot(arg_targetPos.GetUp());
-	if (0.9f < dot) {
+	if (0.9f < dot && arg_isAroundRay) {
 
 		//地上にあたっている。
 		m_isHitUnderGroundTerrian = true;
@@ -618,42 +618,39 @@ void CameraController::PlayerMoveCameraLerp(KuroEngine::Vec3<float> arg_scopeMov
 	KuroEngine::Transform cameraT;
 	cameraT.SetRotate(arg_cameraQ);
 
+	//プレイヤーがジャンプしていなくて、プレイヤーが動いている時。
 	if (!arg_isPlayerJump && arg_isMovePlayer) {
 
 		//プレイヤーが動いたベクトルの逆を2Dに射影する。
 		Vec3<float> playerMoveVec = Vec3<float>(arg_targetPos.GetPos() - m_playerOldPos).GetNormal();
 		Vec3<float> cameraVec = Vec3<float>(arg_targetPos.GetPos() - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
 
-		if (0.9f < fabs(arg_targetPos.GetUp().y)) {
+		Vec2<float> playerMoveVec2D = -Project3Dto2D(playerMoveVec, cameraT.GetFront(), cameraT.GetRight());
 
-			Vec2<float> playerMoveVec2D = -Project3Dto2D(playerMoveVec, cameraT.GetFront(), cameraT.GetRight());
+		//カメラのベクトルを2Dに射影する。
+		Vec2<float> cameraVec2D = Project3Dto2D(cameraVec, cameraT.GetFront(), cameraT.GetRight());
 
-			//カメラのベクトルを2Dに射影する。
-			Vec2<float> cameraVec2D = Project3Dto2D(cameraVec, cameraT.GetFront(), cameraT.GetRight());
+		//Y軸上のずれを確認。
+		float zureY = acos(playerMoveVec2D.Dot(cameraVec2D)) * 0.003f;
+		float cross = playerMoveVec2D.Cross(cameraVec2D);
 
-			//Y軸上のずれを確認。
-			float zureY = acos(playerMoveVec2D.Dot(cameraVec2D)) * 0.003f;
-			float cross = playerMoveVec2D.Cross(cameraVec2D);
+		if (0 < fabs(cross)) {
 
-			if (0 < fabs(cross)) {
+			cross = (signbit(cross) ? -1.0f : 1.0f);
+			cross *= (arg_isCameraUpInverse ? -1.0f : 1.0f);
 
-				cross = (signbit(cross) ? -1.0f : 1.0f);
-				cross *= (arg_isCameraUpInverse ? -1.0f : 1.0f);
+			if (0.9f < fabs(arg_targetPos.GetUp().y)) {
 
-				if (0.9f < fabs(arg_targetPos.GetUp().y)) {
+				//Y軸を動かす。
+				m_nowParam.m_yAxisAngle += zureY * cross;
+				arg_playerRotY += zureY * cross;
 
-					//Y軸を動かす。
-					m_nowParam.m_yAxisAngle += zureY * cross;
-					arg_playerRotY += zureY * cross;
+			}
+			else {
 
-				}
-				else {
-
-					//Y軸を動かす。
-					m_nowParam.m_yAxisAngle -= zureY * cross;
-					arg_playerRotY -= zureY * cross;
-
-				}
+				//Y軸を動かす。
+				m_nowParam.m_yAxisAngle -= zureY * cross;
+				arg_playerRotY -= zureY * cross;
 
 			}
 
