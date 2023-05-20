@@ -12,10 +12,9 @@
 #include"../AI/EnemySearch.h"
 #include"PlayerMoveParticle.h"
 #include<memory>
-#include"ForUser/ImpactShake.h"
 #include"../Stage/Enemy/Enemy.h"
 #include"../CPUParticle/DashEffect.h"
-
+#include"PlayerHpUI.h"
 
 namespace KuroEngine
 {
@@ -28,7 +27,6 @@ class Stage;
 
 class Player : public KuroEngine::Debugger
 {
-
 	friend PlayerCollision;
 
 	KuroEngine::Vec3<float> m_debug;
@@ -63,36 +61,13 @@ class Player : public KuroEngine::Debugger
 	const float SUB_DAMAGE_SHAKE_AMOUNT = 0.1f;	//ダメージを受けた時のシェイクを減らす量
 	float m_damageShakeAmount;					//ダメージを受けた時のシェイクの量だんだん減っていく
 
+	//プレイヤーのHPのUI
+	PlayerHpUI m_hpUi;
+
 	//被ダメージのときの点滅タイマー
 	KuroEngine::Timer m_damageFlashTimer;
 	//被ダメージ点滅フラグ
 	bool m_damageFlash = false;
-
-
-	//HPUIの演出ステータス
-	enum HP_UI_STATUS { HP_UI_APPEAR, HP_UI_DRAW, HP_UI_DISAPPEAR, HP_UI_DAMAGE }m_hpUiStatus;
-	//HPのUIテクスチャ
-	std::shared_ptr<KuroEngine::TextureBuffer>m_hpTex;
-	std::shared_ptr<KuroEngine::TextureBuffer>m_hpDamageTex;
-	//HPUIの中心座標
-	KuroEngine::Vec2<float>m_hpCenterPos;
-	//HPUIの中心座標オフセット
-	KuroEngine::Vec2<float>m_hpCenterOffset;
-	//HPUIの半径拡大率
-	float m_hpRadiusExpand = 1.0f;
-	//HPUIの画像の拡大率
-	float m_hpTexExpand = 1.0f;
-	//HPUIの回転角度
-	KuroEngine::Angle m_hpAngle = KuroEngine::Angle(0);
-	//HPUIの登場演出タイマー
-	KuroEngine::Timer m_hpUiTimer;
-	//HPUIの振動
-	KuroEngine::ImpactShake m_hpUiShake;
-	//HPUIの心拍演出タイマー
-	KuroEngine::Timer m_hpUiBeatTimer;
-
-	void SetHpUIStatus(HP_UI_STATUS arg_status);
-	void HpUiUpdate(float arg_timeScale);
 
 	//移動量
 	KuroEngine::Vec3<float> m_rowMoveVec;

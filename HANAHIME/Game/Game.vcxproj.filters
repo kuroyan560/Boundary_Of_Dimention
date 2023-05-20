@@ -448,6 +448,9 @@
     <ClCompile Include="src\AI\EnemyAttack.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Player\PlayerHpUI.cpp">
+      <Filter>src\user\Player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -860,5 +863,8 @@
       <Filter>src\user\Stage</Filter>
     </ClInclude>
     <ClInclude Include="src\AI\EnemyAttack.h" />
+    <ClInclude Include="src\Player\PlayerHpUI.h">
+      <Filter>src\user\Player</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
