@@ -92,6 +92,9 @@
     <Filter Include="src\user\AI">
       <UniqueIdentifier>{4ddbc242-399e-44ed-b0f3-2d549a1dbbfc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\user\HUD">
+      <UniqueIdentifier>{26f1d3f6-d0ac-4ca7-9719-8ce68f26d6c9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\KuroEngineDevice.cpp">
@@ -430,9 +433,6 @@
     <ClCompile Include="src\Stage\GateManager.cpp">
       <Filter>src\user\Stage</Filter>
     </ClCompile>
-    <ClCompile Include="src\Stage\MapPinUI.cpp">
-      <Filter>src\user\Stage</Filter>
-    </ClCompile>
     <ClCompile Include="src\CPUParticle\DashEffect.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -442,14 +442,17 @@
     <ClCompile Include="src\Player\PlayerMoveParticleTarget.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Stage\CheckPointUI.cpp">
-      <Filter>src\user\Stage</Filter>
-    </ClCompile>
     <ClCompile Include="src\AI\EnemyAttack.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Player\PlayerHpUI.cpp">
-      <Filter>src\user\Player</Filter>
+    <ClCompile Include="src\HUD\CheckPointUI.cpp">
+      <Filter>src\user\HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HUD\MapPinUI.cpp">
+      <Filter>src\user\HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HUD\PlayerHpUI.cpp">
+      <Filter>src\user\HUD</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -852,19 +855,19 @@
     <ClInclude Include="src\Stage\GateManager.h">
       <Filter>src\user\Stage</Filter>
     </ClInclude>
-    <ClInclude Include="src\Stage\MapPinUI.h">
-      <Filter>src\user\Stage</Filter>
-    </ClInclude>
     <ClInclude Include="src\CPUParticle\DashEffect.h" />
     <ClInclude Include="src\Effect\EnemyEyeEffect.h" />
     <ClInclude Include="src\Player\PlayerMoveParticleTarget.h" />
     <ClInclude Include="src\Player\PlayerMoveParticleTargetEmitter.h" />
-    <ClInclude Include="src\Stage\CheckPointUI.h">
-      <Filter>src\user\Stage</Filter>
-    </ClInclude>
     <ClInclude Include="src\AI\EnemyAttack.h" />
-    <ClInclude Include="src\Player\PlayerHpUI.h">
-      <Filter>src\user\Player</Filter>
+    <ClInclude Include="src\HUD\CheckPointUI.h">
+      <Filter>src\user\HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HUD\MapPinUI.h">
+      <Filter>src\user\HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HUD\PlayerHpUI.h">
+      <Filter>src\user\HUD</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

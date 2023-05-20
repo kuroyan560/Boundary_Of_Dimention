@@ -266,6 +266,11 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_reaction->Init(MiniBug::LOOK);
 	}
 
+	if (UsersInput::Instance()->KeyOnTrigger(DIK_J))
+	{
+		Damage();
+	}
+
 
 	m_reaction->Update(m_drawTransform.GetPos());
 

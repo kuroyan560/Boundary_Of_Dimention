@@ -14,7 +14,7 @@
 #include<memory>
 #include"../Stage/Enemy/Enemy.h"
 #include"../CPUParticle/DashEffect.h"
-#include"PlayerHpUI.h"
+#include"../HUD/PlayerHpUI.h"
 
 namespace KuroEngine
 {
