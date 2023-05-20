@@ -133,13 +133,13 @@ private:
 
 	}
 
-	//カメラとプレイヤーの線分の当たり判定
-	void CameraPlayerSegmentCollision(KuroEngine::Vec3<float>& arg_pushBackPos, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, std::vector<TerrianHitPolygon> arg_checkHitMesh, bool arg_isCameraUpInverse, float arg_fromXangle, float arg_fromYangle, KuroEngine::Transform arg_cameraT);
-
 	//下方向の押し戻し処理
 	void PushBackGround(const CollisionDetectionOfRayAndMesh::MeshCollisionOutput& arg_output, const KuroEngine::Vec3<float> arg_pushBackPos, const KuroEngine::Transform& arg_targetPos, float& arg_playerRotY, bool arg_isCameraUpInverse);
 
 	//プレイヤーの動きによってカメラの回転を制御する。
 	void PlayerMoveCameraLerp(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ);
+
+	//レイと平面(無限)の当たり判定
+	bool RayPlaneIntersection(const KuroEngine::Vec3<float>& arg_rayOrigin, const KuroEngine::Vec3<float>& arg_rayDirection, const KuroEngine::Vec3<float>& arg_planePoint, const KuroEngine::Vec3<float>& arg_planeNormal, KuroEngine::Vec3<float>& arg_hitResult);
 
 };

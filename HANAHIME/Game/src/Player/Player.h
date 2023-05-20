@@ -269,7 +269,7 @@ class Player : public KuroEngine::Debugger
 
 	//ジャンプが終わってから一定Fいないだったら反対に入力されたら反転をキャンセルするためのタイマー
 	KuroEngine::Timer m_jumpEndInvTimer;
-	const float JUMP_END_INV_TIMER = 120.0f;
+	const float JUMP_END_INV_TIMER = 300.0f;
 
 	//当たり判定用ステージの参照
 	std::weak_ptr<Stage> m_nowStage;
