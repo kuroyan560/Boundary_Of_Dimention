@@ -10,33 +10,33 @@ void PlayerHpUI::SetHpUIStatus(HP_UI_STATUS arg_status)
 
 	if (arg_status == HP_UI_APPEAR)
 	{
-		m_hpUiTimer.Reset(60);
+		m_appearTimer.Reset(60);
 		m_hpUiStatus = HP_UI_APPEAR;
 	}
 	else if (arg_status == HP_UI_DRAW)
 	{
-		m_hpUiTimer.Reset(300);
+		m_appearTimer.Reset(300);
 		m_hpUiStatus = HP_UI_DRAW;
 	}
 	else if (arg_status == HP_UI_DISAPPEAR && m_hpUiStatus == HP_UI_DRAW)
 	{
-		m_hpUiTimer.Reset(60);
+		m_appearTimer.Reset(60);
 		m_hpUiStatus = HP_UI_DISAPPEAR;
 	}
 	else if (arg_status == HP_UI_DAMAGE)
 	{
-		m_hpUiTimer.Reset(30);
+		m_appearTimer.Reset(30);
 		m_hpUiStatus = HP_UI_DAMAGE;
 		m_hpTexExpand = 1.0f;
 		m_hpCenterOffset = { 0,0 };
 		m_hpRadiusExpand = 1.0f;
-		m_hpAngle = Angle(0);
-		m_hpUiShake.Shake(30.0f, 1.0f, 32.0f, 64.0f);
+		m_leafSpin = Angle(0);
+		m_impactShake.Shake(30.0f, 1.0f, 32.0f, 64.0f);
 	}
 }
 
 PlayerHpUI::PlayerHpUI()
-	:m_hpUiShake({ 1.0f,1.0f,1.0f })
+	:m_impactShake({ 1.0f,1.0f,1.0f })
 {
 	using namespace KuroEngine;
 
@@ -48,7 +48,7 @@ PlayerHpUI::PlayerHpUI()
 	}
 
 	D3D12App::Instance()->GenerateTextureBuffer(
-		m_numTexArray.data(), dir + "num_until_" + std::to_string(LEAF_NUM) + ".png", LEAF_NUM, { LEAF_NUM,1 });
+		m_numTexArray.data(), dir + "num_until_" + std::to_string(LEAF_NUM) + ".png", NUM_TEX, { NUM_TEX,1 });
 
 	m_hpStrTex = D3D12App::Instance()->GenerateTextureBuffer(dir + "str.png");
 }
@@ -56,9 +56,9 @@ PlayerHpUI::PlayerHpUI()
 void PlayerHpUI::Init()
 {
 	//HPのUI初期化
-	m_hpUiShake.Init();
+	m_impactShake.Init();
 	SetHpUIStatus(HP_UI_APPEAR);
-	m_hpUiBeatTimer.Reset(0.0f);
+	m_beatTimer.Reset(0.0f);
 	m_damageFlash = true;
 }
 
@@ -66,23 +66,27 @@ void PlayerHpUI::Update(float arg_timeScale, int arg_defaultHp, int arg_nowHp, c
 {
 	using namespace KuroEngine;
 
-	m_hpUiTimer.UpdateTimer(arg_timeScale);
+	const float OFFSET_X_MAX = -300.0f;
+
+	m_appearTimer.UpdateTimer(arg_timeScale);
 
 	if (m_hpUiStatus == HP_UI_APPEAR)
 	{
-		m_hpRadiusExpand = Math::Ease(Out, Quart, m_hpUiTimer.GetTimeRate(), 0.1f, 1.0f);
-		m_hpTexExpand = Math::Ease(Out, Quart, m_hpUiTimer.GetTimeRate(0.7f), 0.0f, 1.0f);
-		m_hpAngle = Math::Ease(Out, Quart, m_hpUiTimer.GetTimeRate(), Angle(-360 * 2), 0.0f);
-		m_hpCenterOffset = Math::Ease(Out, Exp, m_hpUiTimer.GetTimeRate(0.8f), { -300.0f,0.0f }, { 0.0f,0.0f });
-		if (m_hpUiTimer.IsTimeUp())
+		m_hpRadiusExpand = Math::Ease(Out, Quart, m_appearTimer.GetTimeRate(), 0.1f, 1.0f);
+		m_hpTexExpand = Math::Ease(Out, Quart, m_appearTimer.GetTimeRate(0.7f), 0.0f, 1.0f);
+		m_leafSpin = Math::Ease(Out, Quart, m_appearTimer.GetTimeRate(), Angle(-360 * 2), 0.0f);
+		m_hpCenterOffset = Math::Ease(Out, Exp, m_appearTimer.GetTimeRate(0.8f), { OFFSET_X_MAX,0.0f }, { 0.0f,0.0f });
+		m_strAlpha = Math::Lerp(0.0f, 1.0f, m_appearTimer.GetTimeRate());
+		m_strOffsetX = Math::Ease(Out, Back, m_appearTimer.GetTimeRate(0.8f), OFFSET_X_MAX, 0.0f);
+		if (m_appearTimer.IsTimeUp())
 		{
 			SetHpUIStatus(HP_UI_DRAW);
 		}
 	}
 	else if (m_hpUiStatus == HP_UI_DAMAGE)
 	{
-		m_hpUiShake.Update(arg_timeScale);
-		if (m_hpUiTimer.IsTimeUp())
+		m_impactShake.Update(arg_timeScale);
+		if (m_appearTimer.IsTimeUp())
 		{
 			SetHpUIStatus(HP_UI_DRAW);
 		}
@@ -90,31 +94,33 @@ void PlayerHpUI::Update(float arg_timeScale, int arg_defaultHp, int arg_nowHp, c
 	else if (m_hpUiStatus == HP_UI_DRAW)
 	{
 		//HPがMAXのときは消える
-		if (m_hpUiTimer.IsTimeUp() && arg_defaultHp <= arg_nowHp)
+		if (m_appearTimer.IsTimeUp() && arg_defaultHp <= arg_nowHp)
 		{
 			SetHpUIStatus(HP_UI_DISAPPEAR);
 		}
 	}
 	else if (m_hpUiStatus == HP_UI_DISAPPEAR)
 	{
-		m_hpRadiusExpand = Math::Ease(In, Quart, m_hpUiTimer.GetTimeRate(), 1.0f, 0.1f);
-		m_hpTexExpand = Math::Ease(In, Quart, m_hpUiTimer.GetTimeRate(0.7f), 1.0f, 0.0f);
-		m_hpAngle = Math::Ease(In, Quart, m_hpUiTimer.GetTimeRate(), 0.0f, Angle(-360 * 2));
-		m_hpCenterOffset = Math::Ease(In, Quart, m_hpUiTimer.GetTimeRate(0.8f), { 0.0f,0.0f }, { -300.0f,0.0f });
+		m_hpRadiusExpand = Math::Ease(In, Quart, m_appearTimer.GetTimeRate(), 1.0f, 0.1f);
+		m_hpTexExpand = Math::Ease(In, Quart, m_appearTimer.GetTimeRate(0.7f), 1.0f, 0.0f);
+		m_leafSpin = Math::Ease(In, Quart, m_appearTimer.GetTimeRate(), 0.0f, Angle(-360 * 2));
+		m_hpCenterOffset = Math::Ease(In, Quart, m_appearTimer.GetTimeRate(0.8f), { 0.0f,0.0f }, { -300.0f,0.0f });
+		m_strAlpha = Math::Lerp(1.0f, 0.0f, m_appearTimer.GetTimeRate());
+		m_strOffsetX = Math::Ease(In, Back, m_appearTimer.GetTimeRate(0.8f), 0.0f, OFFSET_X_MAX);
 	}
 
 	//心拍演出
-	if (m_hpUiBeatTimer.UpdateTimer(arg_timeScale))
+	if (m_beatTimer.UpdateTimer(arg_timeScale))
 	{
-		m_hpUiBeatTimer.Reset(Math::Ease(InOut, Cubic, static_cast<float>(arg_nowHp - 1) / (arg_defaultHp - 1), 45.0f, 100.0f));
+		m_beatTimer.Reset(Math::Ease(InOut, Cubic, static_cast<float>(arg_nowHp - 1) / (arg_defaultHp - 1), 45.0f, 100.0f));
 	}
 
 	//無敵時間中のダメージ葉の点滅
-	if (m_damageFlashTimer.UpdateTimer(arg_timeScale) || (!m_isDamageFlash && !arg_noDamageTimer.IsTimeUp()))
+	if (m_damageFlashTimer.UpdateTimer(arg_timeScale) || (!m_isNoDamageTime && !arg_noDamageTimer.IsTimeUp()))
 	{
 		m_damageFlashTimer.Reset(10.0f);
 
-		if ((!m_isDamageFlash && !arg_noDamageTimer.IsTimeUp()))
+		if ((!m_isNoDamageTime && !arg_noDamageTimer.IsTimeUp()))
 		{
 			m_damageFlash = true;
 		}
@@ -123,7 +129,7 @@ void PlayerHpUI::Update(float arg_timeScale, int arg_defaultHp, int arg_nowHp, c
 			m_damageFlash = !m_damageFlash;
 		}
 	}
-	m_isDamageFlash = !arg_noDamageTimer.IsTimeUp();
+	m_isNoDamageTime = !arg_noDamageTimer.IsTimeUp();
 }
 
 void PlayerHpUI::Draw(int arg_defaultHp, int arg_nowHp, bool arg_isHitStop)
@@ -175,25 +181,27 @@ void PlayerHpUI::Draw(int arg_defaultHp, int arg_nowHp, bool arg_isHitStop)
 	static const float DAMAGE_LEAF_EXPAND = 0.9f;
 	//削られたHP葉のオフセットY
 	static const float DAMAGE_LEAF_OFFSET_Y = 6.0f;
+
+	//シェイク
+	const auto shake = (!arg_isHitStop ? Vec2<float>(m_impactShake.GetOffset().x, m_impactShake.GetOffset().y) : Vec2<float>(0, 0));
 	
 	//HPUIの中心座標
-	const auto hpCenterPos = LEAF_CENTER_POS + m_hpCenterOffset + (!arg_isHitStop ? Vec2<float>(m_hpUiShake.GetOffset().x, m_hpUiShake.GetOffset().y) : Vec2<float>(0, 0));
+	const auto hpCenterPos = LEAF_CENTER_POS + m_hpCenterOffset + shake;
 
 	//HPUI心拍演出の状態
-	const auto hpBeat = Math::Ease(Out, Elastic, m_hpUiBeatTimer.GetTimeRate(0.9f), 0.9f, 1.0f);
+	const auto hpBeat = Math::Ease(Out, Elastic, m_beatTimer.GetTimeRate(0.9f), 0.9f, 1.0f);
 
 	//HPUI画像の拡大率
 	const Vec2<float>hpTexExpand = Vec2<float>(1.0f, 1.0f) * m_hpTexExpand * hpBeat;
 
-	//プレイヤーの２D座標
-	//HPのUI描画
+	//HPの葉描画
 	for (int hpIdx = arg_defaultHp - 1; 0 <= hpIdx; --hpIdx)
 	{
 		auto pos = hpCenterPos;
 		auto texExpand = hpTexExpand;
 
 		//ベクトル回転
-		auto vec = Math::RotateVec2(EACH_LEAF_OUTER_VEC[hpIdx], m_hpAngle).GetNormal();
+		auto vec = Math::RotateVec2(EACH_LEAF_OUTER_VEC[hpIdx], m_leafSpin).GetNormal();
 		pos += vec * (EACH_LEAF_DEFAULT_RADIUS[hpIdx] * m_hpRadiusExpand * hpBeat);
 
 		float alpha = DEFAULT_ALPHA;
@@ -205,11 +213,19 @@ void PlayerHpUI::Draw(int arg_defaultHp, int arg_nowHp, bool arg_isHitStop)
 			pos.y += DAMAGE_LEAF_OFFSET_Y;
 		}
 		//たった今削れたHPは点滅
-		if (m_isDamageFlash && arg_nowHp == hpIdx)
+		if (m_isNoDamageTime && arg_nowHp == hpIdx)
 		{
 			alpha = m_damageFlash ? LOW_ALPHA : DEFAULT_ALPHA;
 		}
 
-		DrawFunc2D::DrawRotaGraph2D(pos, texExpand, m_hpAngle, m_leafTexArray[hpIdx], alpha);
+		DrawFunc2D::DrawRotaGraph2D(pos, texExpand, m_leafSpin, m_leafTexArray[hpIdx], alpha);
 	}
+
+	//「HP」描画
+	static const Vec2<float>HP_STR_POS = { 242.0f,202.0f };
+	DrawFunc2D::DrawRotaGraph2D(HP_STR_POS + Vec2<float>(m_strOffsetX, 0.0f) + shake, { 1.0f,1.0f }, 0.0f, m_hpStrTex, m_strAlpha);
+
+	//HP数字描画
+	static const Vec2<float>HP_NUM_POS = { 238.0f,246.0f };
+	DrawFunc2D::DrawRotaGraph2D(HP_NUM_POS + Vec2<float>(m_strOffsetX, 0.0f) + shake, { 1.0f,1.0f }, 0.0f, m_numTexArray[arg_nowHp], m_strAlpha);
 }

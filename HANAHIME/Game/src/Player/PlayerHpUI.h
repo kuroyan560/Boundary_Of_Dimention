@@ -18,10 +18,11 @@ class PlayerHpUI
 
 	//HPリーフの数
 	static const int LEAF_NUM = 5;
+	static const int NUM_TEX = LEAF_NUM + 1;
 	//葉っぱテクスチャ
 	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, LEAF_NUM>m_leafTexArray;
 	//数字テクスチャ
-	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, LEAF_NUM>m_numTexArray;
+	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, NUM_TEX>m_numTexArray;
 	//「HP」テクスチャ
 	std::shared_ptr<KuroEngine::TextureBuffer>m_hpStrTex;
 
@@ -32,16 +33,21 @@ class PlayerHpUI
 	//HPUIの画像の拡大率
 	float m_hpTexExpand = 1.0f;
 	//HPUIの回転角度
-	KuroEngine::Angle m_hpAngle = KuroEngine::Angle(0);
+	KuroEngine::Angle m_leafSpin = KuroEngine::Angle(0);
 	//HPUIの登場演出タイマー
-	KuroEngine::Timer m_hpUiTimer;
+	KuroEngine::Timer m_appearTimer;
 	//HPUIの振動
-	KuroEngine::ImpactShake m_hpUiShake;
+	KuroEngine::ImpactShake m_impactShake;
 	//HPUIの心拍演出タイマー
-	KuroEngine::Timer m_hpUiBeatTimer;
+	KuroEngine::Timer m_beatTimer;
+
+	//HP葉以外のアルファ値
+	float m_strAlpha = 0.0f;
+	//HP葉以外のオフセットX
+	float m_strOffsetX = 0.0f;
 
 	//ダメージ時のフラッシュ
-	bool m_isDamageFlash;
+	bool m_isNoDamageTime;
 	KuroEngine::Timer m_damageFlashTimer;
 	bool m_damageFlash;
 
