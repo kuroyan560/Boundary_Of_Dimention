@@ -134,10 +134,10 @@ void PlayerHpUI::Draw(int arg_defaultHp, int arg_nowHp, bool arg_isHitStop)
 	if (arg_nowHp <= 0)return;
 	
 	//葉全体の中心座標
-	const Vec2<float>LEAF_CENTER_POS = { 160.0f,178.0f };
+	static const Vec2<float>LEAF_CENTER_POS = { 160.0f,178.0f };
 
 	//各葉の中心座標
-	const std::array<Vec2<float>,LEAF_NUM>EACH_LEAF_CENTER_POS_ARRAY = 
+	static const std::array<Vec2<float>,LEAF_NUM>EACH_LEAF_CENTER_POS_ARRAY = 
 	{
 		Vec2<float>(173.0f,124.0f),
 		Vec2<float>(214.0f,157.0f),
@@ -145,6 +145,36 @@ void PlayerHpUI::Draw(int arg_defaultHp, int arg_nowHp, bool arg_isHitStop)
 		Vec2<float>(118.0f,229.0f),
 		Vec2<float>(122.0f,167.0f),
 	};
+
+	//各葉の外側に向かうベクトル
+	static const std::array<Vec2<float>, LEAF_NUM>EACH_LEAF_OUTER_VEC =
+	{
+		EACH_LEAF_CENTER_POS_ARRAY[0] - LEAF_CENTER_POS,
+		EACH_LEAF_CENTER_POS_ARRAY[1] - LEAF_CENTER_POS,
+		EACH_LEAF_CENTER_POS_ARRAY[2] - LEAF_CENTER_POS,
+		EACH_LEAF_CENTER_POS_ARRAY[3] - LEAF_CENTER_POS,
+		EACH_LEAF_CENTER_POS_ARRAY[4] - LEAF_CENTER_POS,
+	};
+
+	//各葉の通常時の半径
+	static const std::array<float, LEAF_NUM>EACH_LEAF_DEFAULT_RADIUS =
+	{
+		EACH_LEAF_OUTER_VEC[0].Length(),
+		EACH_LEAF_OUTER_VEC[1].Length(),
+		EACH_LEAF_OUTER_VEC[2].Length(),
+		EACH_LEAF_OUTER_VEC[3].Length(),
+		EACH_LEAF_OUTER_VEC[4].Length(),
+	};
+
+	//通常時のアルファ
+	static const float DEFAULT_ALPHA = 1.0f;
+	//非アクティブの葉のアルファ
+	static const float LOW_ALPHA = 0.5f;
+
+	//削られたHP葉のスケール
+	static const float DAMAGE_LEAF_EXPAND = 0.9f;
+	//削られたHP葉のオフセットY
+	static const float DAMAGE_LEAF_OFFSET_Y = 6.0f;
 	
 	//HPUIの中心座標
 	const auto hpCenterPos = LEAF_CENTER_POS + m_hpCenterOffset + (!arg_isHitStop ? Vec2<float>(m_hpUiShake.GetOffset().x, m_hpUiShake.GetOffset().y) : Vec2<float>(0, 0));
@@ -162,26 +192,22 @@ void PlayerHpUI::Draw(int arg_defaultHp, int arg_nowHp, bool arg_isHitStop)
 		auto pos = hpCenterPos;
 		auto texExpand = hpTexExpand;
 
-		//外側に向かうベクトル
-		auto vec = EACH_LEAF_CENTER_POS_ARRAY[hpIdx] - LEAF_CENTER_POS;
-		//デフォルトの半径
-		float defaultRadius = vec.Length();
 		//ベクトル回転
-		vec = Math::RotateVec2(vec, m_hpAngle).GetNormal();
-		pos += vec * (defaultRadius * m_hpRadiusExpand * hpBeat);
+		auto vec = Math::RotateVec2(EACH_LEAF_OUTER_VEC[hpIdx], m_hpAngle).GetNormal();
+		pos += vec * (EACH_LEAF_DEFAULT_RADIUS[hpIdx] * m_hpRadiusExpand * hpBeat);
 
-		float alpha = 1.0f;
+		float alpha = DEFAULT_ALPHA;
 		//削られたHP
 		if (arg_nowHp - 1 < hpIdx)
 		{
-			alpha = 0.5f;
-			texExpand *= 0.9f;
-			pos.y += 6.0f;
+			alpha = LOW_ALPHA;
+			texExpand *= DAMAGE_LEAF_EXPAND;
+			pos.y += DAMAGE_LEAF_OFFSET_Y;
 		}
 		//たった今削れたHPは点滅
 		if (m_isDamageFlash && arg_nowHp == hpIdx)
 		{
-			alpha = m_damageFlash ? 0.5f : 1.0f;
+			alpha = m_damageFlash ? LOW_ALPHA : DEFAULT_ALPHA;
 		}
 
 		DrawFunc2D::DrawRotaGraph2D(pos, texExpand, m_hpAngle, m_leafTexArray[hpIdx], alpha);
