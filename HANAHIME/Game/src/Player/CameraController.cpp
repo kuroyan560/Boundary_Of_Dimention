@@ -342,7 +342,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 			cameraDir = KuroEngine::Math::TransformVec3(cameraDir, DirectX::XMQuaternionRotationAxis(arg_targetPos.GetUp(), -arg_scopeMove.x));
 		}
 		//â°ÇÃñ Ç…Ç¢ÇÈèÍçá
-		else if (0.9f < arg_targetPos.GetUp().y) {
+		else {
 			cameraDir = KuroEngine::Math::TransformVec3(cameraDir, DirectX::XMQuaternionRotationAxis(arg_targetPos.GetUp(), arg_scopeMove.y));
 		}
 
