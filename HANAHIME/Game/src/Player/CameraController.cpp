@@ -331,31 +331,12 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 			//判定↓============================================
 
-			CameraPlayerSegmentCollision(pushBackPos, arg_targetPos, arg_playerRotY, checkHitMesh, arg_isCameraUpInverse, fromXAngle, fromYAngle, cameraT);
+			//CameraPlayerSegmentCollision(pushBackPos, arg_targetPos, arg_playerRotY, checkHitMesh, arg_isCameraUpInverse, fromXAngle, fromYAngle, cameraT);
 
 
 			//=================================================
 		}
 	}
-
-	//当たった方向に応じて押し戻し。
-	//if (isHitCamera[UP]) {
-	//	m_nowParam.m_xAxisAngle = fromXAngle;
-	//}
-	//if (isHitCamera[DOWN]) {
-	//	m_nowParam.m_xAxisAngle = fromXAngle;
-	//}
-	//if (isHitCamera[RIGHT]) {
-	//	m_nowParam.m_yAxisAngle = fromYAngle;
-	//	arg_playerRotY = fromYAngle;
-	//}
-	//if (isHitCamera[LEFT]) {
-	//	m_nowParam.m_yAxisAngle = fromYAngle;
-	//	arg_playerRotY = fromYAngle;
-	//}
-	//if (isHitCamera[FRONT]) {
-		//int a = 0;
-	//}
 
 	//地上にあたっていたら地形と押し戻す前の座標からの回転を求めることで、注視点を上に向ける。
 	if (m_isHitUnderGroundTerrian) {
@@ -486,11 +467,6 @@ void CameraController::CameraPlayerSegmentCollision(KuroEngine::Vec3<float>& arg
 	CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_targetPos.GetPos() - castRayDir.GetNormal() * RAY_OFFSET, castRayDir.GetNormal(), arg_checkHitMesh);
 	if (output.m_isHit && 0 < output.m_distance && output.m_distance < castRayDir.Length()) {
 
-		//当たっていたら押し戻す。
-		m_nowParam.m_xAxisAngle = arg_fromXangle;
-		m_nowParam.m_yAxisAngle = arg_fromYangle;
-		arg_playerRotY = arg_fromYangle;
-
 		//プレイヤーが移動しているか？
 		KuroEngine::Vec3<float> playerMoveVec(arg_targetPos.GetPos() - m_playerOldPos);
 		if (!playerMoveVec.IsZero()) {
@@ -547,11 +523,6 @@ void CameraController::CameraPlayerSegmentCollision(KuroEngine::Vec3<float>& arg
 	castRayDir = (arg_pushBackPos + arg_cameraT.GetRight() * CAMERA_AROUND_OFFSET) - arg_targetPos.GetPos();
 	output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_targetPos.GetPos() - castRayDir.GetNormal() * RAY_OFFSET, castRayDir.GetNormal(), arg_checkHitMesh);
 	if (output.m_isHit && 0 < output.m_distance && output.m_distance < castRayDir.Length()) {
-
-		//当たっていたら押し戻す。
-		m_nowParam.m_xAxisAngle = arg_fromXangle;
-		m_nowParam.m_yAxisAngle = arg_fromYangle;
-		arg_playerRotY = arg_fromYangle;
 
 		//プレイヤーが移動しているか？
 		KuroEngine::Vec3<float> playerMoveVec(arg_targetPos.GetPos() - m_playerOldPos);
@@ -836,8 +807,6 @@ void CameraController::PushBackGround(const CollisionDetectionOfRayAndMesh::Mesh
 void CameraController::PlayerMoveCameraLerp(KuroEngine::Vec3<float> arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage> arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ)
 {
 
-	return;
-
 	using namespace KuroEngine;
 
 	KuroEngine::Transform cameraT;
@@ -857,7 +826,7 @@ void CameraController::PlayerMoveCameraLerp(KuroEngine::Vec3<float> arg_scopeMov
 			Vec2<float> cameraVec2D = Project3Dto2D(cameraVec, cameraT.GetFront(), cameraT.GetRight());
 
 			//Y軸上のずれを確認。
-			float zureY = acos(playerMoveVec2D.Dot(cameraVec2D)) * 0.001f;
+			float zureY = acos(playerMoveVec2D.Dot(cameraVec2D)) * 0.002f;
 			float cross = playerMoveVec2D.Cross(cameraVec2D);
 
 			if (0 < fabs(cross)) {
