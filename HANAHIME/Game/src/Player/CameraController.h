@@ -145,4 +145,11 @@ private:
 	//レイと平面(無限)の当たり判定
 	bool RayPlaneIntersection(const KuroEngine::Vec3<float>& arg_rayOrigin, const KuroEngine::Vec3<float>& arg_rayDirection, const KuroEngine::Vec3<float>& arg_planePoint, const KuroEngine::Vec3<float>& arg_planeNormal, KuroEngine::Vec3<float>& arg_hitResult);
 
+	//ベクトルAをベクトルBに射影
+	KuroEngine::Vec3<float> Project(const KuroEngine::Vec3<float>& arg_A, const KuroEngine::Vec3<float>& arg_B) {
+		float dotProduct = arg_A.Dot(arg_B);
+		float bLengthSquared = arg_B.Length() * arg_B.Length();
+		return arg_B * (dotProduct / bLengthSquared);
+	}
+
 };

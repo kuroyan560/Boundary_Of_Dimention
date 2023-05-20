@@ -349,8 +349,14 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 		//座標を動かす。
 		m_attachedCam.lock()->GetTransform().SetPos(arg_targetPos.GetPosWorld() + cameraDir * (m_attachedCam.lock()->GetTransform().GetPos() - arg_targetPos.GetPosWorld()).Length());
 
+		//注視点を上に動かす量。
+		Vec3<float> subTarget = Project(m_attachedCam.lock()->GetTransform().GetPos() - m_cameraLocalTransform.GetPosWorldByMatrix(), arg_targetPos.GetUp());
+
+		//注視点
+		Vec3<float> target = arg_targetPos.GetPos() + subTarget;
+
 		//現在の座標からプレイヤーに向かう回転を求める。
-		Vec3<float> axisZ = arg_targetPos.GetPos() - m_cameraLocalTransform.GetPosWorldByMatrix();
+		Vec3<float> axisZ = target - m_attachedCam.lock()->GetTransform().GetPos();
 		axisZ.Normalize();
 
 		//プレイヤーの法線との外積から仮のXベクトルを得る。
