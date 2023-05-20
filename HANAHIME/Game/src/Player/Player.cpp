@@ -775,10 +775,8 @@ void Player::DrawUI(KuroEngine::Camera &arg_cam)
 		Vec2<float> spriteSize = Vec2<float>(512.0f, 512.0f);
 
 		//KuroEngine::DrawFunc2D::DrawExtendGraph2D(winCenter - spriteSize, winCenter + spriteSize, m_deathAnimSprite[m_deathSpriteAnimNumber]);
-	}
 
-	static std::shared_ptr<TextureBuffer>debugShadow = D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/in_game/debug_shadow.png");
-	DrawFunc2D::DrawGraph({ 0,0 }, debugShadow);
+	}
 
 	//ダメージのヒットストップが効いていないときHPUI描画
 	m_hpUi.Draw(DEFAULT_HP, m_hp, !m_damageHitStopTimer.IsTimeUp());
