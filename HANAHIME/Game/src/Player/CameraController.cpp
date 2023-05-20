@@ -243,7 +243,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	Vec3<float> pushBackPos = m_cameraLocalTransform.GetPosWorldByMatrix();
 
 	//当たり判定用のレイを打つ方向を決める。
-	Vec3<float> checkHitRay = m_cameraLocalTransform.GetPosWorldByMatrix() - m_oldCameraWorldPos;	//まずはデフォルトのレイに設定。
+	Vec3<float> checkHitRay = m_cameraLocalTransform.GetPosWorldByMatrix() - pushBackPos;	//まずはデフォルトのレイに設定。
 	Vec3<float> playerDir = arg_targetPos.GetPos() - m_cameraLocalTransform.GetPosWorldByMatrix();
 
 	//カメラの押し戻し判定に使用する姿勢を取得。
@@ -283,7 +283,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 
 			//純粋な地形とレイの当たり判定を実行
-			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_oldCameraWorldPos, checkHitRay.GetNormal(), checkHitMesh);
+			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos, checkHitRay.GetNormal(), checkHitMesh);
 			if (output.m_isHit && 0 < output.m_distance && output.m_distance < checkHitRay.Length()) {
 
 				pushBackPos = output.m_pos + output.m_normal;
@@ -334,6 +334,42 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 			}
 
+			//プレイヤーの方向にレイを飛ばす。
+			playerDir = cameraT.GetPos() - pushBackPos;
+			output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos, playerDir.GetNormal(), checkHitMesh);
+			if (output.m_isHit && 0 < output.m_distance && output.m_distance < playerDir.Length()) {
+
+				//上に押し戻すか下に押し戻すかを決める。
+				Vec2<float> nowVec = Project3Dto2D(KuroEngine::Vec3<float>(pushBackPos - arg_targetPos.GetPos()).GetNormal(), cameraT.GetUp(), cameraT.GetFront());
+				Vec2<float> cameraBackVec = Project3Dto2D(cameraT.GetFront(), cameraT.GetUp(), cameraT.GetFront());
+				float dot = cameraBackVec.Dot(nowVec);
+				if (0 < dot) {
+
+					if (fabs(arg_scopeMove.y) <= 0.0f) {
+						m_nowParam.m_xAxisAngle += 0.1f;
+					}
+					else {
+						m_nowParam.m_xAxisAngle += arg_scopeMove.y;
+					}
+
+				}
+				else {
+
+					if (fabs(arg_scopeMove.y) <= 0.0f) {
+						m_nowParam.m_xAxisAngle -= 0.1f;
+					}
+					else {
+						m_nowParam.m_xAxisAngle -= arg_scopeMove.y;
+					}
+
+				}
+
+				m_isHitTerrian = true;
+				m_isHitUnderGroundTerrian = true;
+
+
+			}
+
 			//=================================================
 		}
 	}
@@ -360,7 +396,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 		}
 
 		//座標を動かす。
-		m_attachedCam.lock()->GetTransform().SetPos(arg_targetPos.GetPosWorld() + cameraDir * fabs(arg_cameraZ));
+		m_attachedCam.lock()->GetTransform().SetPos(arg_targetPos.GetPosWorld() + cameraDir * (m_attachedCam.lock()->GetTransform().GetPos() - arg_targetPos.GetPosWorld()).Length());
 
 		//現在の座標からプレイヤーに向かう回転を求める。
 		Vec3<float> axisZ = arg_targetPos.GetPos() - m_cameraLocalTransform.GetPosWorldByMatrix();

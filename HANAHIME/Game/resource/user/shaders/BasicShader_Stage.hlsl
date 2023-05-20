@@ -84,6 +84,8 @@ VSOutput VSmain(Vertex input)
 
 PSOutput PSmain(VSOutput input) : SV_TARGET
 {
+    
+    
     float3 normal = input.normal;
     float3 vnormal = normalize(mul(cam.view, normal));
     
