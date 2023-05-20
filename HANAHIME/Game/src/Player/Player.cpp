@@ -266,6 +266,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_reaction->Init(MiniBug::LOOK);
 	}
 
+
 	m_reaction->Update(m_drawTransform.GetPos());
 
 	KuroEngine::Vec3<float>dir(GetOldPos() - GetNowPos());
@@ -702,7 +703,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_underGroundShake = std::clamp(m_underGroundShake - SUB_UNDER_GROUND_SHAKE, 0.0f, 100.0f);
 
 	//HPUI更新
-	m_hpUi.Update(TimeScaleMgr::s_inGame.GetTimeScale(), DEFAULT_HP, m_hp);
+	m_hpUi.Update(TimeScaleMgr::s_inGame.GetTimeScale(), DEFAULT_HP, m_hp, m_nodamageTimer);
 
 	//プレイヤーが動いた時のパーティクル挙動
 	m_playerMoveParticle.Update();
@@ -775,7 +776,7 @@ void Player::DrawUI(KuroEngine::Camera &arg_cam)
 	DrawFunc2D::DrawGraph({ 0,0 }, debugShadow);
 
 	//ダメージのヒットストップが効いていないときHPUI描画
-	m_hpUi.Draw(DEFAULT_HP, m_hp, !m_damageHitStopTimer.IsTimeUp(), m_nodamageTimer);
+	m_hpUi.Draw(DEFAULT_HP, m_hp, !m_damageHitStopTimer.IsTimeUp());
 }
 
 void Player::Finalize()

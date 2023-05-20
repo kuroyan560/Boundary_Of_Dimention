@@ -39,8 +39,18 @@ PlayerHpUI::PlayerHpUI()
 	:m_hpUiShake({ 1.0f,1.0f,1.0f })
 {
 	using namespace KuroEngine;
-	m_hpTex = D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/in_game/hp_leaf.png");
-	m_hpDamageTex = D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/in_game/hp_leaf_damage.png");
+
+	std::string dir = "resource/user/tex/in_game/hp/";
+
+	for (int leafIdx = 0; leafIdx < LEAF_NUM; ++leafIdx)
+	{
+		m_leafTexArray[leafIdx] = D3D12App::Instance()->GenerateTextureBuffer(dir + "leaf_" + std::to_string(leafIdx) + ".png");
+	}
+
+	D3D12App::Instance()->GenerateTextureBuffer(
+		m_numTexArray.data(), dir + "num_until_" + std::to_string(LEAF_NUM) + ".png", LEAF_NUM, { LEAF_NUM,1 });
+
+	m_hpStrTex = D3D12App::Instance()->GenerateTextureBuffer(dir + "str.png");
 }
 
 void PlayerHpUI::Init()
@@ -49,9 +59,10 @@ void PlayerHpUI::Init()
 	m_hpUiShake.Init();
 	SetHpUIStatus(HP_UI_APPEAR);
 	m_hpUiBeatTimer.Reset(0.0f);
+	m_damageFlash = true;
 }
 
-void PlayerHpUI::Update(float arg_timeScale, int arg_defaultHp, int arg_nowHp)
+void PlayerHpUI::Update(float arg_timeScale, int arg_defaultHp, int arg_nowHp, const KuroEngine::Timer& arg_noDamageTimer)
 {
 	using namespace KuroEngine;
 
@@ -59,7 +70,7 @@ void PlayerHpUI::Update(float arg_timeScale, int arg_defaultHp, int arg_nowHp)
 
 	if (m_hpUiStatus == HP_UI_APPEAR)
 	{
-		m_hpRadiusExpand = Math::Ease(Out, Quart, m_hpUiTimer.GetTimeRate(), 0.5f, 1.0f);
+		m_hpRadiusExpand = Math::Ease(Out, Quart, m_hpUiTimer.GetTimeRate(), 0.1f, 1.0f);
 		m_hpTexExpand = Math::Ease(Out, Quart, m_hpUiTimer.GetTimeRate(0.7f), 0.0f, 1.0f);
 		m_hpAngle = Math::Ease(Out, Quart, m_hpUiTimer.GetTimeRate(), Angle(-360 * 2), 0.0f);
 		m_hpCenterOffset = Math::Ease(Out, Exp, m_hpUiTimer.GetTimeRate(0.8f), { -300.0f,0.0f }, { 0.0f,0.0f });
@@ -86,7 +97,7 @@ void PlayerHpUI::Update(float arg_timeScale, int arg_defaultHp, int arg_nowHp)
 	}
 	else if (m_hpUiStatus == HP_UI_DISAPPEAR)
 	{
-		m_hpRadiusExpand = Math::Ease(In, Quart, m_hpUiTimer.GetTimeRate(), 1.0f, 0.5f);
+		m_hpRadiusExpand = Math::Ease(In, Quart, m_hpUiTimer.GetTimeRate(), 1.0f, 0.1f);
 		m_hpTexExpand = Math::Ease(In, Quart, m_hpUiTimer.GetTimeRate(0.7f), 1.0f, 0.0f);
 		m_hpAngle = Math::Ease(In, Quart, m_hpUiTimer.GetTimeRate(), 0.0f, Angle(-360 * 2));
 		m_hpCenterOffset = Math::Ease(In, Quart, m_hpUiTimer.GetTimeRate(0.8f), { 0.0f,0.0f }, { -300.0f,0.0f });
@@ -97,54 +108,82 @@ void PlayerHpUI::Update(float arg_timeScale, int arg_defaultHp, int arg_nowHp)
 	{
 		m_hpUiBeatTimer.Reset(Math::Ease(InOut, Cubic, static_cast<float>(arg_nowHp - 1) / (arg_defaultHp - 1), 45.0f, 100.0f));
 	}
+
+	//無敵時間中のダメージ葉の点滅
+	if (m_damageFlashTimer.UpdateTimer(arg_timeScale) || (!m_isDamageFlash && !arg_noDamageTimer.IsTimeUp()))
+	{
+		m_damageFlashTimer.Reset(10.0f);
+
+		if ((!m_isDamageFlash && !arg_noDamageTimer.IsTimeUp()))
+		{
+			m_damageFlash = true;
+		}
+		else
+		{
+			m_damageFlash = !m_damageFlash;
+		}
+	}
+	m_isDamageFlash = !arg_noDamageTimer.IsTimeUp();
 }
 
-void PlayerHpUI::Draw(int arg_defaultHp, int arg_nowHp, bool arg_isHitStop, const KuroEngine::Timer& arg_noDamageTimer)
+void PlayerHpUI::Draw(int arg_defaultHp, int arg_nowHp, bool arg_isHitStop)
 {
 	using namespace KuroEngine;
+
+	//HPが０なら非表示
+	if (arg_nowHp <= 0)return;
 	
-	//最大HPから配置の角度オフセットを求める
-	const Angle angleOffset = Angle::ROUND() / arg_defaultHp;
+	//葉全体の中心座標
+	const Vec2<float>LEAF_CENTER_POS = { 160.0f,178.0f };
 
-	//ウィンドウのサイズ取得
-	const auto winSize = WinApp::Instance()->GetExpandWinSize();
-
+	//各葉の中心座標
+	const std::array<Vec2<float>,LEAF_NUM>EACH_LEAF_CENTER_POS_ARRAY = 
+	{
+		Vec2<float>(173.0f,124.0f),
+		Vec2<float>(214.0f,157.0f),
+		Vec2<float>(177.0f,229.0f),
+		Vec2<float>(118.0f,229.0f),
+		Vec2<float>(122.0f,167.0f),
+	};
+	
 	//HPUIの中心座標
-	const auto hpCenterPos = m_hpCenterPos + m_hpCenterOffset + (!arg_isHitStop ? Vec2<float>(m_hpUiShake.GetOffset().x, m_hpUiShake.GetOffset().y) : Vec2<float>(0, 0));
+	const auto hpCenterPos = LEAF_CENTER_POS + m_hpCenterOffset + (!arg_isHitStop ? Vec2<float>(m_hpUiShake.GetOffset().x, m_hpUiShake.GetOffset().y) : Vec2<float>(0, 0));
 
 	//HPUI心拍演出の状態
 	const auto hpBeat = Math::Ease(Out, Elastic, m_hpUiBeatTimer.GetTimeRate(0.9f), 0.9f, 1.0f);
 
 	//HPUI画像の拡大率
-	const Vec2<float>hpTexExpand = Vec2<float>(1.2f, 1.2f) * m_hpTexExpand * hpBeat;
-
-	//HPUI円の半径
-	const auto hpRadius = m_hpTex->GetGraphSize().y * 0.5f * hpTexExpand.y * m_hpRadiusExpand * hpBeat;
+	const Vec2<float>hpTexExpand = Vec2<float>(1.0f, 1.0f) * m_hpTexExpand * hpBeat;
 
 	//プレイヤーの２D座標
 	//HPのUI描画
-	for (int hpIdx = arg_nowHp - 1; 0 <= hpIdx; --hpIdx)
+	for (int hpIdx = arg_defaultHp - 1; 0 <= hpIdx; --hpIdx)
 	{
 		auto pos = hpCenterPos;
-		Angle angle = angleOffset * hpIdx - Angle::ConvertToRadian(90) + m_hpAngle;
-		pos.x += cos(angle) * hpRadius;
-		pos.y += sin(angle) * hpRadius;
-		DrawFunc2D::DrawRotaGraph2D(pos, hpTexExpand, angle + Angle(90), m_hpTex);
-	}
+		auto texExpand = hpTexExpand;
 
-	//ダメージで減ったHP
-	if (!arg_noDamageTimer.IsTimeUp())
-	{
-		int hpIdx = arg_nowHp;
-		auto pos = hpCenterPos;
-		Angle angle = angleOffset * hpIdx - Angle::ConvertToRadian(90) + m_hpAngle;
-		auto damageHpRadius = hpRadius * Math::Lerp(1.0f, 0.8f, arg_noDamageTimer.GetTimeRate());
-		pos.x += cos(angle) * damageHpRadius;
-		pos.y += sin(angle) * damageHpRadius;
-		DrawFunc2D::DrawRotaGraph2D(pos,
-			hpTexExpand * Math::Ease(Out, Circ, arg_noDamageTimer.GetTimeRate(0.8f), 1.0f, 0.8f),
-			angle + Angle(90),
-			m_hpDamageTex,
-			Math::Ease(In, Circ, arg_noDamageTimer.GetTimeRate(0.7f), 1.0f, 0.0f));
+		//外側に向かうベクトル
+		auto vec = EACH_LEAF_CENTER_POS_ARRAY[hpIdx] - LEAF_CENTER_POS;
+		//デフォルトの半径
+		float defaultRadius = vec.Length();
+		//ベクトル回転
+		vec = Math::RotateVec2(vec, m_hpAngle).GetNormal();
+		pos += vec * (defaultRadius * m_hpRadiusExpand * hpBeat);
+
+		float alpha = 1.0f;
+		//削られたHP
+		if (arg_nowHp - 1 < hpIdx)
+		{
+			alpha = 0.5f;
+			texExpand *= 0.9f;
+			pos.y += 6.0f;
+		}
+		//たった今削れたHPは点滅
+		if (m_isDamageFlash && arg_nowHp == hpIdx)
+		{
+			alpha = m_damageFlash ? 0.5f : 1.0f;
+		}
+
+		DrawFunc2D::DrawRotaGraph2D(pos, texExpand, m_hpAngle, m_leafTexArray[hpIdx], alpha);
 	}
 }
