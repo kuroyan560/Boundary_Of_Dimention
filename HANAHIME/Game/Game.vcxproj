@@ -195,6 +195,9 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Graphics\BasicDrawParameters.cpp" />
     <ClCompile Include="src\Graphics\CanvasPostEffect.cpp" />
     <ClCompile Include="src\Graphics\WaterPaintBlend.cpp" />
+    <ClCompile Include="src\HUD\CheckPointUI.cpp" />
+    <ClCompile Include="src\HUD\MapPinUI.cpp" />
+    <ClCompile Include="src\HUD\PlayerHpUI.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\GameScene.cpp" />
     <ClCompile Include="src\Movie\CameraData.cpp" />
@@ -215,13 +218,11 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Player\PlayerMoveParticleSmoke.cpp" />
     <ClCompile Include="src\Player\PlayerMoveParticleTarget.cpp" />
     <ClCompile Include="src\SoundConfig.cpp" />
-    <ClCompile Include="src\Stage\CheckPointUI.cpp" />
     <ClCompile Include="src\Stage\Enemy\Enemy.cpp" />
     <ClCompile Include="src\Stage\Enemy\EnemyDataReferenceForCircleShadow.cpp" />
     <ClCompile Include="src\Stage\GateManager.cpp" />
     <ClCompile Include="src\Stage\Goal.cpp" />
     <ClCompile Include="src\Stage\Grass.cpp" />
-    <ClCompile Include="src\Stage\MapPinUI.cpp" />
     <ClCompile Include="src\Stage\Stage.cpp" />
     <ClCompile Include="src\Stage\StageManager.cpp" />
     <ClCompile Include="src\Stage\StageParts.cpp" />
@@ -335,6 +336,9 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Graphics\BasicDrawParameters.h" />
     <ClInclude Include="src\Graphics\CanvasPostEffect.h" />
     <ClInclude Include="src\Graphics\WaterPaintBlend.h" />
+    <ClInclude Include="src\HUD\CheckPointUI.h" />
+    <ClInclude Include="src\HUD\MapPinUI.h" />
+    <ClInclude Include="src\HUD\PlayerHpUI.h" />
     <ClInclude Include="src\Movie\CameraData.h" />
     <ClInclude Include="src\Movie\MovieCamera.h" />
     <ClInclude Include="src\Movie\SceneChange.h" />
@@ -354,13 +358,11 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Player\PlayerMoveParticleTarget.h" />
     <ClInclude Include="src\Player\PlayerMoveParticleTargetEmitter.h" />
     <ClInclude Include="src\SoundConfig.h" />
-    <ClInclude Include="src\Stage\CheckPointUI.h" />
     <ClInclude Include="src\Stage\Enemy\Enemy.h" />
     <ClInclude Include="src\Stage\Enemy\EnemyDataReferenceForCircleShadow.h" />
     <ClInclude Include="src\Stage\GateManager.h" />
     <ClInclude Include="src\Stage\Goal.h" />
     <ClInclude Include="src\Stage\Grass.h" />
-    <ClInclude Include="src\Stage\MapPinUI.h" />
     <ClInclude Include="src\Stage\Stage.h" />
     <ClInclude Include="src\Stage\StageInfomation.h" />
     <ClInclude Include="src\Stage\StageManager.h" />

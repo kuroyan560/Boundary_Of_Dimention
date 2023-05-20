@@ -2,8 +2,10 @@
 #include"FrameWork/UsersInput.h"
 #include"FrameWork/WinApp.h"
 
+using namespace KuroEngine;
+
 OperationConfig::OperationConfig()
-	:KuroEngine::Debugger("OperationConfig", true)
+	:Debugger("OperationConfig", true)
 {
 	//各デバイスでの設定値をカスタムパラメータに追加
 	for (int i = 0; i < INPUT_DEVICE::NUM; ++i)
@@ -35,8 +37,6 @@ void OperationConfig::OnImguiItems()
 
 KuroEngine::Vec3<float> OperationConfig::GetMoveVec(KuroEngine::Quaternion arg_rotate)
 {
-	using namespace KuroEngine;
-
 	if (!m_isActive)return { 0,0,0 };
 
 	Vec3<float>result;
@@ -48,20 +48,18 @@ KuroEngine::Vec3<float> OperationConfig::GetMoveVec(KuroEngine::Quaternion arg_r
 	if (!result.IsZero())
 	{
 		RegisterLatestDevice(INPUT_DEVICE::KEY_BOARD_MOUSE);
-		return KuroEngine::Math::TransformVec3(result.GetNormal(), arg_rotate);
+		return Math::TransformVec3(result.GetNormal(), arg_rotate);
 	}
 
 	//左スティックの入力を変換
 	auto input = UsersInput::Instance()->GetLeftStickVec(0);
 	if (!input.IsZero())RegisterLatestDevice(INPUT_DEVICE::CONTROLLER);
 	result = Vec3<float>(input.x, 0.0f, -input.y);
-	return KuroEngine::Math::TransformVec3(result.GetNormal(), arg_rotate);
+	return Math::TransformVec3(result.GetNormal(), arg_rotate);
 }
 
 KuroEngine::Vec3<float> OperationConfig::GetMoveVecFuna(KuroEngine::Quaternion arg_rotate)
 {
-	using namespace KuroEngine;
-
 	if (!m_isActive)return { 0,0,0 };
 
 	Vec3<float>result;
@@ -73,20 +71,18 @@ KuroEngine::Vec3<float> OperationConfig::GetMoveVecFuna(KuroEngine::Quaternion a
 	if (!result.IsZero())
 	{
 		RegisterLatestDevice(INPUT_DEVICE::KEY_BOARD_MOUSE);
-		return KuroEngine::Math::TransformVec3(result.GetNormal(), arg_rotate);
+		return Math::TransformVec3(result.GetNormal(), arg_rotate);
 	}
 
 	//左スティックの入力を変換
 	auto input = UsersInput::Instance()->GetLeftStickVecFuna(0);
 	if (!input.IsZero())RegisterLatestDevice(INPUT_DEVICE::CONTROLLER);
 	result = Vec3<float>(input.x, 0.0f, -input.y);
-	return KuroEngine::Math::TransformVec3(result.GetNormal(), arg_rotate);
+	return Math::TransformVec3(result.GetNormal(), arg_rotate);
 }
 
 KuroEngine::Vec3<float> OperationConfig::GetScopeMove()
 {
-	using namespace KuroEngine;
-
 	if (!m_isActive)return { 0,0,0 };
 
 	float sensitivity = m_params[m_nowInputDevice].m_camSensitivity;
@@ -112,12 +108,47 @@ KuroEngine::Vec3<float> OperationConfig::GetScopeMove()
 
 bool OperationConfig::InputDone()
 {
-	bool doneFlag = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::XBOX_BUTTON::A);
-	return doneFlag;
+	return UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, XBOX_BUTTON::A);
 }
 
 bool OperationConfig::InputCancel()
 {
-	bool cancelFlag = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_ESCAPE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::XBOX_BUTTON::B);
-	return cancelFlag;
+	return UsersInput::Instance()->KeyOnTrigger(DIK_ESCAPE) || UsersInput::Instance()->ControllerOnTrigger(0, XBOX_BUTTON::B);
+}
+
+bool OperationConfig::InputCamDistModeChange()
+{
+	return UsersInput::Instance()->KeyOffTrigger(DIK_RETURN) || UsersInput::Instance()->ControllerOnTrigger(0, X);
+}
+
+bool OperationConfig::InputCamReset()
+{
+	return UsersInput::Instance()->ControllerOnTrigger(0, LT) || UsersInput::Instance()->KeyOnTrigger(DIK_R);;
+}
+
+bool OperationConfig::InputSink()
+{
+	return UsersInput::Instance()->KeyInput(DIK_SPACE) || UsersInput::Instance()->ControllerInput(0, RT);
+}
+
+bool OperationConfig::InputSinkOnOffTrigger()
+{
+	return UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->KeyOffTrigger(DIK_SPACE)
+		|| UsersInput::Instance()->ControllerOnTrigger(0, RT) || UsersInput::Instance()->ControllerOffTrigger(0, RT);
+}
+
+bool OperationConfig::InputRideZipLine()
+{
+	return UsersInput::Instance()->KeyOnTrigger(DIK_LSHIFT) || UsersInput::Instance()->ControllerOnTrigger(0, A);
+}
+
+bool OperationConfig::InputRetry()
+{
+	return UsersInput::Instance()->KeyOnTrigger(DIK_I) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::START);
+}
+
+bool OperationConfig::DebugKeyInputOnTrigger(int arg_keyCode)
+{
+	if (!m_isDebug)return false;
+	return UsersInput::Instance()->KeyOnTrigger(arg_keyCode);
 }

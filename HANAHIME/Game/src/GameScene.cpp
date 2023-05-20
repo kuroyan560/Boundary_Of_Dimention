@@ -168,12 +168,9 @@ void GameScene::OnUpdate()
 
 	//デバッグ用
 	bool isRetry = false;
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_I) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::START) || m_player.GetIsFinishDeathAnimation())
+	if (OperationConfig::Instance()->InputRetry() || m_player.GetIsFinishDeathAnimation())
 	{
-
 		isRetry = true;
-
-
 	}
 
 	//ステージ移動時の初期化

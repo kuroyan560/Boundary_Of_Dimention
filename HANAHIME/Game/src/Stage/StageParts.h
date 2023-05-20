@@ -6,7 +6,7 @@
 #include"Render/RenderObject/ModelInfo/ModelMesh.h"
 #include"../Graphics/BasicDrawParameters.h"
 #include"ForUser/Timer.h"
-#include"CheckPointUI.h"
+#include"../HUD/CheckPointUI.h"
 
 namespace KuroEngine
 {

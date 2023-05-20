@@ -1,6 +1,7 @@
 #include "DebugController.h"
 #include"FrameWork/UsersInput.h"
 #include"FrameWork/WinApp.h"
+#include"OperationConfig.h"
 
 DebugController::DebugController()
 {
@@ -15,7 +16,7 @@ void DebugController::Update()
 	false;
 
 	//デバッグモード切り替え
-	if (UsersInput::Instance()->KeyOnTrigger(DIK_ESCAPE))
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_ESCAPE))
 	{
 		m_active = !m_active;
 

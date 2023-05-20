@@ -1,5 +1,6 @@
 #include"FireWorkParitlce.h"
 #include"FrameWork/UsersInput.h"
+#include"../OperationConfig.h"
 
 FireWorkParticle::FireWorkParticle(std::shared_ptr<KuroEngine::RWStructuredBuffer> particle):m_gpuParticleBuffer(particle)
 {
@@ -52,7 +53,7 @@ void FireWorkParticle::Init(const KuroEngine::Vec3<float> &emittPos)
 
 void FireWorkParticle::Update()
 {
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_O))
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_O))
 	{
 		Init(m_emitterPos);
 	}

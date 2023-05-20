@@ -80,8 +80,6 @@ void StageManager::Update(Player& arg_player)
 			if (static_cast<int>(mapPinPointArray.size()) <= m_nowMapPinPointIdx)m_nowStage->SetCompleteMapPinFlg(true);
 		}
 	}
-
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_J))CheckPoint::UI().lock()->Start();
 	
 	//チェックポイントUI更新
 	CheckPoint::UI().lock()->Update();
