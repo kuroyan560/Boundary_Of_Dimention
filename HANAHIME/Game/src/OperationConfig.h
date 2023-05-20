@@ -2,9 +2,14 @@
 #include"KuroEngine.h"
 #include"Common/Singleton.h"
 #include"ForUser/Debugger.h"
+#include"FrameWork/UsersInput.h"
 
 class OperationConfig : public KuroEngine::DesignPattern::Singleton<OperationConfig>, public KuroEngine::Debugger
 {
+public:
+	enum INPUT_PATTERN { HOLD, ON_TRIGGER, OFF_TRIGGER, ON_OFF_TRIGGER };
+
+private:
 	friend class KuroEngine::DesignPattern::Singleton<OperationConfig>;
 	OperationConfig();
 	
@@ -41,6 +46,11 @@ class OperationConfig : public KuroEngine::DesignPattern::Singleton<OperationCon
 		m_nowInputDevice = arg_device;
 	}
 
+	//コントローラーによる入力
+	bool ControllerInput(INPUT_PATTERN arg_pattern, KuroEngine::XBOX_BUTTON arg_xboxButton);
+	//キーによる入力
+	bool KeyInput(INPUT_PATTERN arg_pattern, int arg_keyCode);
+
 public:
 	void SetActive(bool arg_active) { m_isActive = arg_active; }
 
@@ -60,25 +70,23 @@ public:
 	KuroEngine::Vec3<float>GetScopeMove();
 
 	//決定ボタン
-	bool InputDone();
+	bool InputDone(INPUT_PATTERN arg_pattern = ON_TRIGGER);
 	//キャンセルボタン
-	bool InputCancel();
+	bool InputCancel(INPUT_PATTERN arg_pattern = ON_TRIGGER);
 
 	//カメラの距離モード切り替えボタン
-	bool InputCamDistModeChange();
+	bool InputCamDistModeChange(INPUT_PATTERN arg_pattern = ON_TRIGGER);
 	//カメラリセット
-	bool InputCamReset();
+	bool InputCamReset(INPUT_PATTERN arg_pattern = ON_TRIGGER);
 
 	//潜るアクションボタン
-	bool InputSink();
-	//潜るアクションボタントリガー
-	bool InputSinkOnOffTrigger();
+	bool InputSink(INPUT_PATTERN arg_pattern = HOLD);
 
 	//ジップライン
-	bool InputRideZipLine();
+	bool InputRideZipLine(INPUT_PATTERN arg_pattern = ON_TRIGGER);
 
 	//リトライボタン（ポーズ画面から選択してリトライするようになるかも、なくなる可能性ある）
-	bool InputRetry();
+	bool InputRetry(INPUT_PATTERN arg_pattern = ON_TRIGGER);
 
 	//デバッグ用のキー入力
 	bool DebugKeyInputOnTrigger(int arg_keyCode);

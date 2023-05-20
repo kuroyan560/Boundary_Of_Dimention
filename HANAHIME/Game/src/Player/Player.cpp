@@ -340,7 +340,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			}
 
 			//イージングが終わっている時のみ地中に潜ったり出たりする判定を持たせる。
-			bool isInputOnOff = OperationConfig::Instance()->InputSinkOnOffTrigger();
+			bool isInputOnOff = OperationConfig::Instance()->InputSink(OperationConfig::ON_OFF_TRIGGER);
 			if ((isInputOnOff || (!m_isUnderGround && m_isInputUnderGround) || (m_isUnderGround && !m_isInputUnderGround)) && m_canUnderGroundRelease) {
 				m_underGroundEaseTimer = 0;
 			}

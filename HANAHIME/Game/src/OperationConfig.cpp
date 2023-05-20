@@ -35,6 +35,52 @@ void OperationConfig::OnImguiItems()
 
 }
 
+bool OperationConfig::ControllerInput(INPUT_PATTERN arg_pattern, KuroEngine::XBOX_BUTTON arg_xboxButton)
+{
+	using namespace KuroEngine;
+	switch (arg_pattern)
+	{
+		case HOLD:
+			return UsersInput::Instance()->ControllerInput(0, arg_xboxButton);
+			break;
+		case ON_TRIGGER:
+			return UsersInput::Instance()->ControllerOnTrigger(0, arg_xboxButton);
+			break;
+		case OFF_TRIGGER:
+			return UsersInput::Instance()->ControllerOffTrigger(0, arg_xboxButton);
+			break;
+		case ON_OFF_TRIGGER:
+			return UsersInput::Instance()->ControllerOnTrigger(0, arg_xboxButton) || UsersInput::Instance()->ControllerOffTrigger(0, arg_xboxButton);
+			break;
+		default:
+			break;
+	}
+	return false;
+}
+
+bool OperationConfig::KeyInput(INPUT_PATTERN arg_pattern, int arg_keyCode)
+{
+	using namespace KuroEngine;
+	switch (arg_pattern)
+	{
+		case HOLD:
+			return UsersInput::Instance()->KeyInput(arg_keyCode);
+			break;
+		case ON_TRIGGER:
+			return UsersInput::Instance()->KeyOnTrigger(arg_keyCode);
+			break;
+		case OFF_TRIGGER:
+			return UsersInput::Instance()->KeyOffTrigger(arg_keyCode);
+			break;
+		case ON_OFF_TRIGGER:
+			return UsersInput::Instance()->KeyOnTrigger(arg_keyCode) || UsersInput::Instance()->KeyOffTrigger(arg_keyCode);
+			break;
+		default:
+			break;
+	}
+	return false;
+}
+
 KuroEngine::Vec3<float> OperationConfig::GetMoveVec(KuroEngine::Quaternion arg_rotate)
 {
 	if (!m_isActive)return { 0,0,0 };
@@ -106,45 +152,39 @@ KuroEngine::Vec3<float> OperationConfig::GetScopeMove()
 	return result;
 }
 
-bool OperationConfig::InputDone()
+bool OperationConfig::InputDone(INPUT_PATTERN arg_pattern)
 {
-	return UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->ControllerOnTrigger(0, XBOX_BUTTON::A);
+	return KeyInput(arg_pattern, DIK_SPACE) || ControllerInput(arg_pattern, XBOX_BUTTON::A);
 }
 
-bool OperationConfig::InputCancel()
+bool OperationConfig::InputCancel(INPUT_PATTERN arg_pattern)
 {
-	return UsersInput::Instance()->KeyOnTrigger(DIK_ESCAPE) || UsersInput::Instance()->ControllerOnTrigger(0, XBOX_BUTTON::B);
+	return KeyInput(arg_pattern, DIK_ESCAPE) || ControllerInput(arg_pattern, XBOX_BUTTON::B);
 }
 
-bool OperationConfig::InputCamDistModeChange()
+bool OperationConfig::InputCamDistModeChange(INPUT_PATTERN arg_pattern)
 {
-	return UsersInput::Instance()->KeyOffTrigger(DIK_RETURN) || UsersInput::Instance()->ControllerOnTrigger(0, X);
+	return KeyInput(arg_pattern, DIK_RETURN) || ControllerInput(arg_pattern, XBOX_BUTTON::X);
 }
 
-bool OperationConfig::InputCamReset()
+bool OperationConfig::InputCamReset(INPUT_PATTERN arg_pattern)
 {
-	return UsersInput::Instance()->ControllerOnTrigger(0, LT) || UsersInput::Instance()->KeyOnTrigger(DIK_R);;
+	return KeyInput(arg_pattern, DIK_R) || ControllerInput(arg_pattern, XBOX_BUTTON::LT);
 }
 
-bool OperationConfig::InputSink()
+bool OperationConfig::InputSink(INPUT_PATTERN arg_pattern)
 {
-	return UsersInput::Instance()->KeyInput(DIK_SPACE) || UsersInput::Instance()->ControllerInput(0, RT);
+	return KeyInput(arg_pattern, DIK_SPACE) || ControllerInput(arg_pattern, XBOX_BUTTON::RT);
 }
 
-bool OperationConfig::InputSinkOnOffTrigger()
+bool OperationConfig::InputRideZipLine(INPUT_PATTERN arg_pattern)
 {
-	return UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || UsersInput::Instance()->KeyOffTrigger(DIK_SPACE)
-		|| UsersInput::Instance()->ControllerOnTrigger(0, RT) || UsersInput::Instance()->ControllerOffTrigger(0, RT);
+	return KeyInput(arg_pattern, DIK_LSHIFT) || ControllerInput(arg_pattern, XBOX_BUTTON::A);
 }
 
-bool OperationConfig::InputRideZipLine()
+bool OperationConfig::InputRetry(INPUT_PATTERN arg_pattern)
 {
-	return UsersInput::Instance()->KeyOnTrigger(DIK_LSHIFT) || UsersInput::Instance()->ControllerOnTrigger(0, A);
-}
-
-bool OperationConfig::InputRetry()
-{
-	return UsersInput::Instance()->KeyOnTrigger(DIK_I) || UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::START);
+	return KeyInput(arg_pattern, DIK_I) || ControllerInput(arg_pattern, XBOX_BUTTON::START);
 }
 
 bool OperationConfig::DebugKeyInputOnTrigger(int arg_keyCode)

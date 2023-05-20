@@ -17,7 +17,8 @@
 #include"Tutorial.h"
 #include"Movie/CameraData.h"
 #include"Stage/Enemy/Enemy.h"
-#include"../../../src/engine/Render/LightBloomDevice.h"
+#include"Render/LightBloomDevice.h"
+#include"HUD/OperationInfoUI.h"
 
 
 class GameScene : public KuroEngine::BaseScene
@@ -71,6 +72,9 @@ class GameScene : public KuroEngine::BaseScene
 	Tutorial tutorial;
 
 	Goal m_goal;
+
+	//Šî–{‚ÌHUD
+	OperationInfoUI m_opeInfoUI;
 
 	KuroEngine::LightBloomDevice m_lightBloomDevice;
 

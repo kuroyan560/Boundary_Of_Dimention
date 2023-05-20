@@ -310,6 +310,7 @@ void GameScene::OnDraw()
 	{
 		m_player.DrawUI(*m_nowCam);
 		StageManager::Instance()->DrawUI(*m_nowCam, m_player.GetTransform().GetPosWorld());
+		m_opeInfoUI.Draw();
 	}
 
 	m_title.Draw(*m_nowCam, m_ligMgr);
