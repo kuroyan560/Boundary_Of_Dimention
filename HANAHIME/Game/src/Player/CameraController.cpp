@@ -790,34 +790,47 @@ void CameraController::PlayerMoveCameraLerp(KuroEngine::Vec3<float> arg_scopeMov
 
 	using namespace KuroEngine;
 
-	//プレイヤーが動いたベクトルの逆を2Dに射影する。
-	Vec3<float> playerMoveVec = Vec3<float>(arg_targetPos.GetPos() - m_playerOldPos).GetNormal();
-	Vec2<float> playerMoveVec2D = Project3Dto2D(playerMoveVec, arg_targetPos.GetFront(), arg_targetPos.GetRight());
+	KuroEngine::Transform cameraT;
+	cameraT.SetRotate(arg_cameraQ);
 
-	//カメラのベクトルを2Dに射影する。
-	Vec3<float> cameraVec = Vec3<float>(arg_targetPos.GetPos() - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
-	Vec2<float> cameraVec2D = Project3Dto2D(cameraVec, arg_targetPos.GetFront(), arg_targetPos.GetRight());
+	if (!arg_isPlayerJump && arg_isMovePlayer) {
 
-	//Y軸上のずれを確認。
-	float zureY = acos(playerMoveVec2D.Dot(cameraVec2D));
-	float cross = playerMoveVec2D.Cross(cameraVec2D);
-
-	if (0 < fabs(cross)) {
-
-		cross = (signbit(cross) ? -1.0f : 1.0f);
+		//プレイヤーが動いたベクトルの逆を2Dに射影する。
+		Vec3<float> playerMoveVec = Vec3<float>(arg_targetPos.GetPos() - m_playerOldPos).GetNormal();
+		Vec3<float> cameraVec = Vec3<float>(arg_targetPos.GetPos() - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
 
 		if (0.9f < fabs(arg_targetPos.GetUp().y)) {
 
-			//Y軸を動かす。
-			m_nowParam.m_yAxisAngle -= zureY * 0.01f * cross;
-			arg_playerRotY -= zureY * 0.01f * cross;
+			Vec2<float> playerMoveVec2D = -Project3Dto2D(playerMoveVec, cameraT.GetFront(), cameraT.GetRight());
 
-		}
-		else {
+			//カメラのベクトルを2Dに射影する。
+			Vec2<float> cameraVec2D = Project3Dto2D(cameraVec, cameraT.GetFront(), cameraT.GetRight());
 
-			//Y軸を動かす。
-			m_nowParam.m_yAxisAngle += zureY * 0.01f * cross;
-			arg_playerRotY += zureY * 0.01f * cross;
+			//Y軸上のずれを確認。
+			float zureY = acos(playerMoveVec2D.Dot(cameraVec2D));
+			float cross = playerMoveVec2D.Cross(cameraVec2D);
+
+			if (0 < fabs(cross)) {
+
+				cross = (signbit(cross) ? -1.0f : 1.0f);
+				cross *= (arg_isCameraUpInverse ? -1.0f : 1.0f);
+
+				if (0.9f < fabs(arg_targetPos.GetUp().y)) {
+
+					//Y軸を動かす。
+					m_nowParam.m_yAxisAngle += zureY * 0.005f * cross;
+					arg_playerRotY += zureY * 0.005f * cross;
+
+				}
+				else {
+
+					//Y軸を動かす。
+					m_nowParam.m_yAxisAngle -= zureY * 0.005f * cross;
+					arg_playerRotY -= zureY * 0.005f * cross;
+
+				}
+
+			}
 
 		}
 
