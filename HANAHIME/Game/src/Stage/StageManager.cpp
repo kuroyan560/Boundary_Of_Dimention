@@ -81,7 +81,7 @@ void StageManager::Update(Player& arg_player)
 		}
 	}
 
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_J))CheckPoint::UI().lock()->Start();
+	//if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_J))CheckPoint::UI().lock()->Start();
 	
 	//チェックポイントUI更新
 	CheckPoint::UI().lock()->Update();
