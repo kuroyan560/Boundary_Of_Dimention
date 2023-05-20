@@ -228,6 +228,12 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	}
 
+
+	//プレイヤーの移動に応じてカメラを補間する。
+	PlayerMoveCameraLerp(arg_scopeMove, arg_targetPos, arg_playerRotY, arg_cameraZ, arg_nowStage, arg_isCameraUpInverse, arg_isCameraDefaultPos, arg_isHitUnderGround, arg_isMovePlayer, arg_isPlayerJump, arg_cameraQ);
+
+
+
 	//操作するカメラのトランスフォーム（前後移動）更新
 	Vec3<float> localPos = { 0,0,0 };
 	localPos.z = m_nowParam.m_posOffsetZ;
@@ -772,6 +778,46 @@ void CameraController::PushBackGround(const CollisionDetectionOfRayAndMesh::Mesh
 				arg_playerRotY += divAngle;
 
 			}
+
+		}
+
+	}
+
+}
+
+void CameraController::PlayerMoveCameraLerp(KuroEngine::Vec3<float> arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage> arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ)
+{
+
+	using namespace KuroEngine;
+
+	//プレイヤーが動いたベクトルの逆を2Dに射影する。
+	Vec3<float> playerMoveVec = Vec3<float>(arg_targetPos.GetPos() - m_playerOldPos).GetNormal();
+	Vec2<float> playerMoveVec2D = Project3Dto2D(playerMoveVec, arg_targetPos.GetFront(), arg_targetPos.GetRight());
+
+	//カメラのベクトルを2Dに射影する。
+	Vec3<float> cameraVec = Vec3<float>(arg_targetPos.GetPos() - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
+	Vec2<float> cameraVec2D = Project3Dto2D(cameraVec, arg_targetPos.GetFront(), arg_targetPos.GetRight());
+
+	//Y軸上のずれを確認。
+	float zureY = acos(playerMoveVec2D.Dot(cameraVec2D));
+	float cross = playerMoveVec2D.Cross(cameraVec2D);
+
+	if (0 < fabs(cross)) {
+
+		cross = (signbit(cross) ? -1.0f : 1.0f);
+
+		if (0.9f < fabs(arg_targetPos.GetUp().y)) {
+
+			//Y軸を動かす。
+			m_nowParam.m_yAxisAngle -= zureY * 0.01f * cross;
+			arg_playerRotY -= zureY * 0.01f * cross;
+
+		}
+		else {
+
+			//Y軸を動かす。
+			m_nowParam.m_yAxisAngle += zureY * 0.01f * cross;
+			arg_playerRotY += zureY * 0.01f * cross;
 
 		}
 
