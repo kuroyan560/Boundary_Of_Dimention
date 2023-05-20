@@ -284,116 +284,230 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 			//判定↓============================================
 
-			//まずは上方向にレイを打つ。
-			const float CAST_RAY_OFFSET = 5.0f;
-			KuroEngine::Vec3<float> castRayPos = (pushBackPos + cameraT.GetUp() * CAST_RAY_OFFSET) - arg_targetPos.GetPos();
+			//まっすぐカメラの方向にレイを飛ばす。
+			KuroEngine::Vec3<float> castRayPos = (pushBackPos - cameraT.GetRight() * 5.0f)-arg_targetPos.GetPos();
 			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_targetPos.GetPos(), castRayPos.GetNormal(), checkHitMesh);
 			if (output.m_isHit && 0 < output.m_distance && output.m_distance < castRayPos.Length()) {
 
-				//当たったらとりあえず押し戻す。
-				//m_nowParam.m_xAxisAngle = fromXAngle;
+				//プレイヤーが移動しているか？
+				KuroEngine::Vec3<float> playerMoveVec(arg_targetPos.GetPos() - m_playerOldPos);
+				if (!playerMoveVec.IsZero()) {
 
-				//合ったことを保存。
-				isHitCamera[UP] = true;
+					//当たった面が上下 かつ プレイヤーが側面にいたら だったら
+					if (0.9f < fabs(output.m_normal.y) && fabs(arg_targetPos.GetUp().y) <= 0.9f) {
+
+						//プレイヤーの方向を2Dに射影する。
+						KuroEngine::Vec3<float> playerVec = KuroEngine::Vec3<float>(arg_targetPos.GetPos() - pushBackPos).GetNormal();
+						KuroEngine::Vec2<float> playerVec2D = Project3Dto2D(playerVec, cameraT.GetFront(), cameraT.GetRight());
+
+						//プレイヤーの移動ベクトルを2Dに射影する。
+						KuroEngine::Vec2<float> playerMoveVec2D = Project3Dto2D(-playerMoveVec.GetNormal(), cameraT.GetFront(), cameraT.GetRight());
+
+						//外積によって押し戻す方向を決める。
+						float cross = playerMoveVec2D.Cross(playerVec2D);
+						cross = (std::signbit(cross) ? -1.0f : 1.0f);
+
+						//カメラの上下が変わると反転してしまうので対処。
+						cross *= (arg_isCameraUpInverse ? -1.0f : 1.0f);
+
+						//押し戻す。
+						m_cameraXAngleLerpAmount += cross * 0.1f;
+
+
+					}
+					//当たった面が左右 かつ プレイヤーが上下にいたら だったら
+					else if (fabs(output.m_normal.y) < 0.9f && 0.9f <= fabs(arg_targetPos.GetUp().y)) {
+
+						//プレイヤーの方向を2Dに射影する。
+						KuroEngine::Vec3<float> playerVec = KuroEngine::Vec3<float>(arg_targetPos.GetPos() - pushBackPos).GetNormal();
+						KuroEngine::Vec2<float> playerVec2D = Project3Dto2D(playerVec, cameraT.GetRight(), cameraT.GetUp());
+
+						//プレイヤーの移動ベクトルを2Dに射影する。
+						KuroEngine::Vec2<float> playerMoveVec2D = Project3Dto2D(-playerMoveVec.GetNormal(), cameraT.GetRight(), cameraT.GetUp());
+
+						//外積によって押し戻す方向を決める。
+						float cross = playerMoveVec2D.Cross(playerVec2D);
+						cross = (std::signbit(cross) ? -1.0f : 1.0f);
+
+						//カメラの上下が変わると反転してしまうので対処。
+						cross *= (arg_isCameraUpInverse ? -1.0f : 1.0f);
+
+						//押し戻す。
+						m_rotateYLerpAmount += cross * 0.1f;
+
+					}
+
+				}
 
 			}
 
-			//次は下方向にレイを打つ。
-			castRayPos = (pushBackPos - cameraT.GetUp() * CAST_RAY_OFFSET) - arg_targetPos.GetPos();
+			//まっすぐカメラの方向にレイを飛ばす。
+			castRayPos = (pushBackPos + cameraT.GetRight() * 5.0f) - arg_targetPos.GetPos();
 			output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_targetPos.GetPos(), castRayPos.GetNormal(), checkHitMesh);
 			if (output.m_isHit && 0 < output.m_distance && output.m_distance < castRayPos.Length()) {
 
-				//当たったらとりあえず押し戻す。
-				//m_nowParam.m_xAxisAngle = fromXAngle;
+				//プレイヤーが移動しているか？
+				KuroEngine::Vec3<float> playerMoveVec(arg_targetPos.GetPos() - m_playerOldPos);
+				if (!playerMoveVec.IsZero()) {
 
-				//合ったことを保存。
-				isHitCamera[DOWN] = true;
+					//当たった面が上下 かつ プレイヤーが側面にいたら だったら
+					if (0.9f < fabs(output.m_normal.y) && fabs(arg_targetPos.GetUp().y) <= 0.9f) {
 
-			}
+						//プレイヤーの方向を2Dに射影する。
+						KuroEngine::Vec3<float> playerVec = KuroEngine::Vec3<float>(arg_targetPos.GetPos() - pushBackPos).GetNormal();
+						KuroEngine::Vec2<float> playerVec2D = Project3Dto2D(playerVec, cameraT.GetFront(), cameraT.GetRight());
 
-			//次は右方向にレイを打つ。
-			castRayPos = (pushBackPos + cameraT.GetRight() * CAST_RAY_OFFSET) - arg_targetPos.GetPos();
-			output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_targetPos.GetPos(), castRayPos.GetNormal(), checkHitMesh);
-			if (output.m_isHit && 0 < output.m_distance && output.m_distance < castRayPos.Length()) {
+						//プレイヤーの移動ベクトルを2Dに射影する。
+						KuroEngine::Vec2<float> playerMoveVec2D = Project3Dto2D(-playerMoveVec.GetNormal(), cameraT.GetFront(), cameraT.GetRight());
 
-				////プレイヤーの移動した方向を調べる。
-				//KuroEngine::Vec3<float> oldPlayerVec = KuroEngine::Vec3<float>(m_playerOldPos - pushBackPos).GetNormal();
-				//KuroEngine::Vec3<float> newPlayerVec = KuroEngine::Vec3<float>(arg_targetPos.GetPos() - pushBackPos).GetNormal();
+						//外積によって押し戻す方向を決める。
+						float cross = playerMoveVec2D.Cross(playerVec2D);
+						cross = (std::signbit(cross) ? -1.0f : 1.0f);
 
-				////プレイヤーの方向を2Dに射影する。
-				//KuroEngine::Vec2<float> oldPlayerVec2D = Project3Dto2D(oldPlayerVec, arg_targetPos.GetFront(), arg_targetPos.GetRight());
-				//KuroEngine::Vec2<float> newPlayerVec2D = Project3Dto2D(newPlayerVec, arg_targetPos.GetFront(), arg_targetPos.GetRight());									//ジャンプ後にバグる可能性あり。
+						//カメラの上下が変わると反転してしまうので対処。
+						cross *= (arg_isCameraUpInverse ? -1.0f : 1.0f);
 
-				////角度の差分が0だったら処理を飛ばす。
-				//if ((oldPlayerVec2D - newPlayerVec2D).IsZero()) {
+						//押し戻す。
+						m_cameraXAngleLerpAmount += cross * 0.1f;
 
-				//	//当たったらとりあえず押し戻す。
-				//	m_nowParam.m_yAxisAngle = fromYAngle;
-				//	arg_playerRotY = fromYAngle;
 
-				//}
-				//else {
+					}
+					//当たった面が左右 かつ プレイヤーが上下にいたら だったら
+					else if (fabs(output.m_normal.y) < 0.9f && 0.9f <= fabs(arg_targetPos.GetUp().y)) {
 
-				//	//そして角度を求める。
-				//	float rad = acos(oldPlayerVec2D.Dot(newPlayerVec2D));
+						//プレイヤーの方向を2Dに射影する。
+						KuroEngine::Vec3<float> playerVec = KuroEngine::Vec3<float>(arg_targetPos.GetPos() - pushBackPos).GetNormal();
+						KuroEngine::Vec2<float> playerVec2D = Project3Dto2D(playerVec, cameraT.GetRight(), cameraT.GetUp());
 
-				//	//当たったらとりあえず押し戻す。
-				//	m_nowParam.m_yAxisAngle = fromYAngle + rad;
-				//	arg_playerRotY = fromYAngle + rad;
+						//プレイヤーの移動ベクトルを2Dに射影する。
+						KuroEngine::Vec2<float> playerMoveVec2D = Project3Dto2D(-playerMoveVec.GetNormal(), cameraT.GetRight(), cameraT.GetUp());
 
-				//}
+						//外積によって押し戻す方向を決める。
+						float cross = playerMoveVec2D.Cross(playerVec2D);
+						cross = (std::signbit(cross) ? -1.0f : 1.0f);
 
-				//合ったことを保存。
-				isHitCamera[RIGHT] = true;
+						//カメラの上下が変わると反転してしまうので対処。
+						cross *= (arg_isCameraUpInverse ? -1.0f : 1.0f);
 
-			}
+						//押し戻す。
+						m_rotateYLerpAmount += cross * 0.1f;
 
-			//次は左方向にレイを打つ。
-			castRayPos = (pushBackPos - cameraT.GetRight() * CAST_RAY_OFFSET) - arg_targetPos.GetPos();
-			output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_targetPos.GetPos(), castRayPos.GetNormal(), checkHitMesh);
-			if (output.m_isHit && 0 < output.m_distance && output.m_distance < castRayPos.Length()) {
+					}
 
-				////プレイヤーの移動した方向を調べる。
-				//KuroEngine::Vec3<float> oldPlayerVec = KuroEngine::Vec3<float>(m_playerOldPos - pushBackPos).GetNormal();
-				//KuroEngine::Vec3<float> newPlayerVec = KuroEngine::Vec3<float>(arg_targetPos.GetPos() - pushBackPos).GetNormal();
-
-				////プレイヤーの方向を2Dに射影する。
-				//KuroEngine::Vec2<float> oldPlayerVec2D = Project3Dto2D(oldPlayerVec, arg_targetPos.GetFront(), arg_targetPos.GetRight());
-				//KuroEngine::Vec2<float> newPlayerVec2D = Project3Dto2D(newPlayerVec, arg_targetPos.GetFront(), arg_targetPos.GetRight());									//ジャンプ後にバグる可能性あり。
-
-				////角度の差分が0だったら処理を飛ばす。
-				//if ((oldPlayerVec2D - newPlayerVec2D).IsZero()) {
-
-				//	//当たったらとりあえず押し戻す。
-				//	m_nowParam.m_yAxisAngle = fromYAngle;
-				//	arg_playerRotY = fromYAngle;
-
-				//}
-				//else {
-
-				//	//そして角度を求める。
-				//	float rad = acos(oldPlayerVec2D.Dot(newPlayerVec2D));
-
-				//	//当たったらとりあえず押し戻す。
-				//	m_nowParam.m_yAxisAngle = fromYAngle - rad;
-				//	arg_playerRotY = fromYAngle - rad;
-
-				//}
-
-				//合ったことを保存。
-				isHitCamera[LEFT] = true;
+				}
 
 			}
 
-			//次は正面方向にレイを打つ。
-			castRayPos = pushBackPos - arg_targetPos.GetPos();
-			output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_targetPos.GetPos(), castRayPos.GetNormal(), checkHitMesh);
-			if (output.m_isHit && 0 < output.m_distance && output.m_distance < castRayPos.Length()) {
+			////まずは上方向にレイを打つ。
+			//const float CAST_RAY_OFFSET = 5.0f;
+			//KuroEngine::Vec3<float> castRayPos = (pushBackPos + cameraT.GetUp() * CAST_RAY_OFFSET) - arg_targetPos.GetPos();
+			//CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_targetPos.GetPos(), castRayPos.GetNormal(), checkHitMesh);
+			//if (output.m_isHit && 0 < output.m_distance && output.m_distance < castRayPos.Length()) {
 
-				//合ったことを保存。
-				isHitCamera[FRONT] = true;
+			//	//当たったらとりあえず押し戻す。
+			//	//m_nowParam.m_xAxisAngle = fromXAngle;
 
-			}
+			//	//合ったことを保存。
+			//	isHitCamera[UP] = true;
+
+			//}
+
+			////次は下方向にレイを打つ。
+			//castRayPos = (pushBackPos - cameraT.GetUp() * CAST_RAY_OFFSET) - arg_targetPos.GetPos();
+			//output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_targetPos.GetPos(), castRayPos.GetNormal(), checkHitMesh);
+			//if (output.m_isHit && 0 < output.m_distance && output.m_distance < castRayPos.Length()) {
+
+			//	//当たったらとりあえず押し戻す。
+			//	//m_nowParam.m_xAxisAngle = fromXAngle;
+
+			//	//合ったことを保存。
+			//	isHitCamera[DOWN] = true;
+
+			//}
+
+			////次は右方向にレイを打つ。
+			//castRayPos = (pushBackPos + cameraT.GetRight() * CAST_RAY_OFFSET) - arg_targetPos.GetPos();
+			//output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_targetPos.GetPos(), castRayPos.GetNormal(), checkHitMesh);
+			//if (output.m_isHit && 0 < output.m_distance && output.m_distance < castRayPos.Length()) {
+
+			//	////プレイヤーの移動した方向を調べる。
+			//	//KuroEngine::Vec3<float> oldPlayerVec = KuroEngine::Vec3<float>(m_playerOldPos - pushBackPos).GetNormal();
+			//	//KuroEngine::Vec3<float> newPlayerVec = KuroEngine::Vec3<float>(arg_targetPos.GetPos() - pushBackPos).GetNormal();
+
+			//	////プレイヤーの方向を2Dに射影する。
+			//	//KuroEngine::Vec2<float> oldPlayerVec2D = Project3Dto2D(oldPlayerVec, arg_targetPos.GetFront(), arg_targetPos.GetRight());
+			//	//KuroEngine::Vec2<float> newPlayerVec2D = Project3Dto2D(newPlayerVec, arg_targetPos.GetFront(), arg_targetPos.GetRight());									//ジャンプ後にバグる可能性あり。
+
+			//	////角度の差分が0だったら処理を飛ばす。
+			//	//if ((oldPlayerVec2D - newPlayerVec2D).IsZero()) {
+
+			//	//	//当たったらとりあえず押し戻す。
+			//	//	m_nowParam.m_yAxisAngle = fromYAngle;
+			//	//	arg_playerRotY = fromYAngle;
+
+			//	//}
+			//	//else {
+
+			//	//	//そして角度を求める。
+			//	//	float rad = acos(oldPlayerVec2D.Dot(newPlayerVec2D));
+
+			//	//	//当たったらとりあえず押し戻す。
+			//	//	m_nowParam.m_yAxisAngle = fromYAngle + rad;
+			//	//	arg_playerRotY = fromYAngle + rad;
+
+			//	//}
+
+			//	//合ったことを保存。
+			//	isHitCamera[RIGHT] = true;
+
+			//}
+
+			////次は左方向にレイを打つ。
+			//castRayPos = (pushBackPos - cameraT.GetRight() * CAST_RAY_OFFSET) - arg_targetPos.GetPos();
+			//output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_targetPos.GetPos(), castRayPos.GetNormal(), checkHitMesh);
+			//if (output.m_isHit && 0 < output.m_distance && output.m_distance < castRayPos.Length()) {
+
+			//	////プレイヤーの移動した方向を調べる。
+			//	//KuroEngine::Vec3<float> oldPlayerVec = KuroEngine::Vec3<float>(m_playerOldPos - pushBackPos).GetNormal();
+			//	//KuroEngine::Vec3<float> newPlayerVec = KuroEngine::Vec3<float>(arg_targetPos.GetPos() - pushBackPos).GetNormal();
+
+			//	////プレイヤーの方向を2Dに射影する。
+			//	//KuroEngine::Vec2<float> oldPlayerVec2D = Project3Dto2D(oldPlayerVec, arg_targetPos.GetFront(), arg_targetPos.GetRight());
+			//	//KuroEngine::Vec2<float> newPlayerVec2D = Project3Dto2D(newPlayerVec, arg_targetPos.GetFront(), arg_targetPos.GetRight());									//ジャンプ後にバグる可能性あり。
+
+			//	////角度の差分が0だったら処理を飛ばす。
+			//	//if ((oldPlayerVec2D - newPlayerVec2D).IsZero()) {
+
+			//	//	//当たったらとりあえず押し戻す。
+			//	//	m_nowParam.m_yAxisAngle = fromYAngle;
+			//	//	arg_playerRotY = fromYAngle;
+
+			//	//}
+			//	//else {
+
+			//	//	//そして角度を求める。
+			//	//	float rad = acos(oldPlayerVec2D.Dot(newPlayerVec2D));
+
+			//	//	//当たったらとりあえず押し戻す。
+			//	//	m_nowParam.m_yAxisAngle = fromYAngle - rad;
+			//	//	arg_playerRotY = fromYAngle - rad;
+
+			//	//}
+
+			//	//合ったことを保存。
+			//	isHitCamera[LEFT] = true;
+
+			//}
+
+			////次は正面方向にレイを打つ。
+			//castRayPos = pushBackPos - arg_targetPos.GetPos();
+			//output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_targetPos.GetPos(), castRayPos.GetNormal(), checkHitMesh);
+			//if (output.m_isHit && 0 < output.m_distance && output.m_distance < castRayPos.Length()) {
+
+			//	//合ったことを保存。
+			//	isHitCamera[FRONT] = true;
+
+			//}
 
 
 			//=================================================
@@ -415,9 +529,9 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	//	m_nowParam.m_yAxisAngle = fromYAngle;
 	//	arg_playerRotY = fromYAngle;
 	//}
-	if (isHitCamera[FRONT]) {
-		int a = 0;
-	}
+	//if (isHitCamera[FRONT]) {
+		//int a = 0;
+	//}
 
 	//地上にあたっていたら地形と押し戻す前の座標からの回転を求めることで、注視点を上に向ける。
 	if (m_isHitUnderGroundTerrian) {
