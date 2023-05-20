@@ -104,7 +104,7 @@ private:
 
 	//3次元ベクトルを2次元に射影する関数
 	inline KuroEngine::Vec2<float> Project3Dto2D(KuroEngine::Vec3<float> arg_vector3D, KuroEngine::Vec3<float> arg_basis1, KuroEngine::Vec3<float> arg_basis2) {
-		
+
 		//基底ベクトルを正規化
 		arg_basis1.Normalize();
 		arg_basis2.Normalize();
@@ -114,6 +114,23 @@ private:
 		float y = arg_vector3D.Dot(arg_basis2);
 
 		return KuroEngine::Vec2<float>(x, y);
+	}
+
+	//ベクトルを指定してクォータニオンを返す。ベクトルが一致している場合は単位クォータニオンを返す。
+	inline KuroEngine::Quaternion CalQuaternionVector3(KuroEngine::Vec3<float> arg_vecA, KuroEngine::Vec3<float> arg_vecB) {
+
+		//外積から回転軸を取得。
+		KuroEngine::Vec3<float> axis = arg_vecA.Cross(arg_vecB);
+
+		//回転軸が存在しなかったら単位クォータニオンを返す。
+		if (axis.Length() <= 0.0f) return DirectX::XMQuaternionIdentity();
+
+		//回転量を計算。
+		float rad = acos(arg_vecA.Dot(arg_vecB));
+
+		//クォータニオンを計算して返す。
+		return DirectX::XMQuaternionRotationAxis(axis, rad);
+
 	}
 
 	//下方向の押し戻し処理

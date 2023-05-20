@@ -101,8 +101,10 @@ class Player : public KuroEngine::Debugger
 	KuroEngine::Vec3<float> m_jumpRowMoveVec;	//ジャンプ中の生の移動方向。m_rowMoveVecを使うとバグりそうで怖いので追加。
 
 
-	//デバッグ用の右ベクトル
-	KuroEngine::Vec3<float> m_debugRightVec;
+	//デバッグ用のベクトル
+	KuroEngine::Vec3<float> m_debugVec;
+	KuroEngine::Vec3<float> m_debugVec2;
+	KuroEngine::Vec3<float> m_debugVec3;
 
 
 
