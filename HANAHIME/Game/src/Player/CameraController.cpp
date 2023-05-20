@@ -443,11 +443,11 @@ void CameraController::JumpStart(const KuroEngine::Transform& arg_playerTransfor
 
 	//カメラが既定の位置に達していなかったら補間をかける。
 
-	//カメラをいい感じの位置に補間する量。
-	const float CAMERA_LERP_AMOUNT = 0.5f;	//内積で使用するので、つまり地面から見て45度の位置に補間する。
-
 	//プレイヤーがY面にいたら
 	if (0.9f < fabs(arg_playerTransform.GetUp().y)) {
+
+		//カメラをいい感じの位置に補間する量。
+		const float CAMERA_LERP_AMOUNT = 0.5f;	//内積で使用するので、つまり地面から見て45度の位置に補間する。
 
 		//つまり現在はXZ平面上にいるということなので、カメラからプレイヤーまでのベクトルを2Dに射影。
 		Vec3<float> cameraVec = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_playerTransform.GetPos()).GetNormal();
@@ -476,6 +476,9 @@ void CameraController::JumpStart(const KuroEngine::Transform& arg_playerTransfor
 	//プレイヤーがZ面にいたら and Y面にジャンプしていたら。
 	if (0.9f < fabs(arg_playerTransform.GetUp().z) && 0.9f < fabs(arg_jumpEndNormal.y)) {
 
+		//カメラをいい感じの位置に補間する量。
+		const float CAMERA_LERP_AMOUNT = 0.25f;	//内積で使用するので、つまり地面から見て45度の位置に補間する。
+
 		//つまり現在はXY平面上にいるということなので、カメラからプレイヤーまでのベクトルを2Dに射影。
 		Vec3<float> cameraVec = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_playerTransform.GetPos()).GetNormal();
 		Vec2<float> cameraVec2D = Project3Dto2D(cameraVec, Vec3<float>(1, 0, 0), Vec3<float>(0, 1, 0));
@@ -490,11 +493,14 @@ void CameraController::JumpStart(const KuroEngine::Transform& arg_playerTransfor
 			//ラジアンに直す。
 			float rad = acos(dot);
 
+			//面移動の瞬間だったら。
+			bool isUpInverseTrigger = (!arg_isCameraUpInverse && arg_jumpEndNormal.y < -0.9f) || (arg_isCameraUpInverse && 0.9f < arg_jumpEndNormal.y);
+
 			//補間する方向を求める。
-			float cross = std::signbit(jumpEndNormal2D.Cross(cameraVec2D)) ? -1.0f : 1.0f;
+			float inverse = arg_isCameraUpInverse ? -1.0f : 1.0f;
 
 			//補間させる。
-			m_cameraXAngleLerpAmount += (rad - CAMERA_LERP_AMOUNT) * cross;
+			m_cameraXAngleLerpAmount += (rad - CAMERA_LERP_AMOUNT) * inverse * (isUpInverseTrigger ? -1.0f : 1.0f);
 
 		}
 
