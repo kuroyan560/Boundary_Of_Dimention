@@ -330,7 +330,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		if (1.0f <= m_underGroundEaseTimer) {
 
 			bool prevInInputUnderGround = m_isInputUnderGround;
-			m_isInputUnderGround = OperationConfig::Instance()->GetOperationInput(OperationConfig::SINK_GROUND, OperationConfig::ON_TRIGGER);
+			m_isInputUnderGround = OperationConfig::Instance()->GetOperationInput(OperationConfig::SINK_GROUND, OperationConfig::HOLD);
 
 			//沈むフラグが離されたトリガーだったら。
 			if ((prevInInputUnderGround && !m_isInputUnderGround) || (!m_canOldUnderGroundRelease && m_canUnderGroundRelease)) {
