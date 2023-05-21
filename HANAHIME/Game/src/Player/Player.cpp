@@ -200,6 +200,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_isOldCameraDefault = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 	m_isWallFrontDir = false;
+	m_cameraNoCollisionTimer.Reset(10);
 
 	m_growPlantPtLig.Register();
 	//死亡演出のタイマーを初期化。
@@ -617,7 +618,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_MODE[m_cameraMode], arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_MODE[m_cameraMode], arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp());
 
 		m_deathEffectCameraZ = CAMERA_MODE[m_cameraMode];
 	}
@@ -627,7 +628,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_shake);
 
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp());
 
 	}
 	//シェイクを計算。
@@ -713,6 +714,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//プレイヤーが動いた時のパーティクル挙動
 	m_playerMoveParticle.Update();
+
+	m_cameraNoCollisionTimer.UpdateTimer();
 
 }
 

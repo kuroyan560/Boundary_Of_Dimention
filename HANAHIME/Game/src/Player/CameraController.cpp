@@ -66,7 +66,7 @@ void CameraController::Init()
 	m_isOldFrontWall = false;
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision)
 {
 	using namespace KuroEngine;
 
@@ -334,7 +334,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	m_isHitUnderGroundTerrian = false;
 
 	//ジャンプ中は当たり判定を行わない。
-	if (!arg_isPlayerJump && !arg_isCameraDefaultPos) {
+	if (!arg_isPlayerJump && !arg_isCameraDefaultPos && arg_isNoCollision) {
 
 		//まずはプレイヤーのいる面を無限平面として、カメラを押し戻す。
 		Vec3<float> hitResult;

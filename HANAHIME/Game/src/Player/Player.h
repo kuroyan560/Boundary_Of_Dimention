@@ -235,6 +235,7 @@ class Player : public KuroEngine::Debugger
 	//正面方向に壁があるかのフラグ
 	bool m_isWallFrontDir;
 	KuroEngine::Vec3<float> m_frontWallNormal;
+	KuroEngine::Timer m_cameraNoCollisionTimer;	//Initが呼ばれた後の最初の1F目か。カメラで最初の1F目に当たり判定を行わないために使用。リスポーンするときにバグるので。
 
 	//ジップライン関係のステータス
 	const int ZIP_LINE_MOVE_TIMER_START = 30;
