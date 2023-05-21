@@ -72,6 +72,7 @@ void GameScene::GameInit()
 	}
 	SoundConfig::Instance()->Init();
 	GateManager::Instance()->Init();
+	m_opeInfoUI.Init();
 }
 
 void GameScene::OnInitialize()
@@ -234,6 +235,9 @@ void GameScene::OnUpdate()
 
 	//敵用丸影を更新
 	EnemyDataReferenceForCircleShadow::Instance()->UpdateGPUData();
+
+	//UI更新
+	m_opeInfoUI.Update(TimeScaleMgr::s_inGame.GetTimeScale());
 
 	GateManager::Instance()->FrameEnd();
 }
