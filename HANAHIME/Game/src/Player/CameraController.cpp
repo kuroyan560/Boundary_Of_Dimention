@@ -63,9 +63,10 @@ void CameraController::Init()
 	m_cameraXAngleLerpAmount = 0;
 	m_isHitUnderGroundTerrian = false;
 	m_playerOldPos = KuroEngine::Vec3<float>();
+	m_isOldFrontWall = false;
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform)
 {
 	using namespace KuroEngine;
 
@@ -178,6 +179,63 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	}
 
+	//プレイヤー正面に壁があったらそっちの方向を向かせる。
+	if ((!m_isOldFrontWall && arg_isFrontWall) && arg_isMovePlayer && !arg_isPlayerJump) {
+
+		//プレイヤーが向いている方向。
+		Vec3<float> front = arg_drawTransform.GetFront();
+
+		const float SCALE = 1.5f;
+
+		//カメラが反転していたら
+		if (arg_isCameraUpInverse) {
+
+			//プレイヤーが上方向を向いていたら。
+			float dot = front.Dot(Vec3<float>(0, -1, 0));
+			if (0.5f < dot) {
+
+				m_cameraXAngleLerpAmount += m_xAxisAngleMax * SCALE;
+
+			}
+
+			//プレイヤーが下方向を向いていたら。
+			dot = front.Dot(Vec3<float>(0, 1, 0));
+			if (0.5f < dot) {
+
+				m_cameraXAngleLerpAmount += m_xAxisAngleMin * SCALE;
+
+			}
+
+		}
+		//反転していなかったら
+		else {
+
+
+			//プレイヤーが上方向を向いていたら。
+			float dot = front.Dot(Vec3<float>(0, 1, 0));
+			if (0.5f < dot) {
+
+				m_cameraXAngleLerpAmount += m_xAxisAngleMin * SCALE;
+
+			}
+
+			//プレイヤーが下方向を向いていたら。
+			dot = front.Dot(Vec3<float>(0, -1, 0));
+			if (0.5f < dot) {
+
+				m_cameraXAngleLerpAmount += m_xAxisAngleMax * SCALE;
+
+			}
+
+		}
+
+
+
+	}
+
+	//フラグを保存しておく。
+	m_isOldFrontWall = arg_isFrontWall;
+
 	//マップピンの座標の受け皿
 	KuroEngine::Vec3<float>mapPinPos;
 	//カメラを初期位置に戻すか。
@@ -265,7 +323,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	m_isHitUnderGroundTerrian = false;
 
 	//ジャンプ中は当たり判定を行わない。
-	if (!arg_isPlayerJump) {
+	if (!arg_isPlayerJump && !arg_isCameraDefaultPos) {
 
 		//まずはプレイヤーのいる面を無限平面として、カメラを押し戻す。
 		Vec3<float> hitResult;

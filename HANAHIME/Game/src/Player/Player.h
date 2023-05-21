@@ -232,6 +232,9 @@ class Player : public KuroEngine::Debugger
 	const int CAN_JUMP_DELAY = 10;
 	const int CAN_JUMP_DELAY_FAST = 1;
 
+	//正面方向に壁があるかのフラグ
+	bool m_isWallFrontDir;
+
 	//ジップライン関係のステータス
 	const int ZIP_LINE_MOVE_TIMER_START = 30;
 	const int ZIP_LINE_MOVE_TIMER_END = 30;

@@ -28,6 +28,9 @@ class CameraController : public KuroEngine::Debugger
 	KuroEngine::Angle m_xAxisAngleMinCeiling = KuroEngine::Angle(-40);
 	KuroEngine::Angle m_xAxisAngleMaxCeiling = KuroEngine::Angle(40);
 
+	//プレイヤーの正面に壁があるフラグ
+	bool m_isOldFrontWall;
+
 	//カメラをZ方向に回転させる量。
 	float m_rotateZ;
 
@@ -89,7 +92,7 @@ public:
 	void AttachCamera(std::shared_ptr<KuroEngine::Camera>arg_cam);
 
 	void Init();
-	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ);
+	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform);
 
 	//ジャンプを開始した瞬間、X軸回転とY軸回転を本来あるべき値に近づける。
 	void JumpStart(const KuroEngine::Transform& arg_playerTransform, const KuroEngine::Vec3<float>& arg_jumpEndNormal, bool arg_isCameraUpInverse);
