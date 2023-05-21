@@ -18,6 +18,8 @@
 
 #include"Stage/GateManager.h"
 
+#include"HUD/InGameUI.h"
+
 GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_1flameStopTimer(30), m_goal(m_particleRender.GetStackBuffer())
 {
 	m_ddsTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.dds");
@@ -73,6 +75,7 @@ void GameScene::GameInit()
 	SoundConfig::Instance()->Init();
 	GateManager::Instance()->Init();
 	m_opeInfoUI.Init();
+	InGameUI::Init();
 }
 
 void GameScene::OnInitialize()
@@ -237,6 +240,7 @@ void GameScene::OnUpdate()
 	EnemyDataReferenceForCircleShadow::Instance()->UpdateGPUData();
 
 	//UIXV
+	InGameUI::Update(TimeScaleMgr::s_inGame.GetTimeScale());
 	m_opeInfoUI.Update(TimeScaleMgr::s_inGame.GetTimeScale());
 
 	GateManager::Instance()->FrameEnd();

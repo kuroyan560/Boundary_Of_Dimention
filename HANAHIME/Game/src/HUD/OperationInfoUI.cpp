@@ -7,9 +7,6 @@ void OperationInfoUI::SetUIStatus(STATUS arg_status)
 {
 	using namespace KuroEngine;
 
-	//退場演出は通常描画ステータスのときのみ
-	if (arg_status == DISAPPEAR && m_status != DRAW)return;
-
 	 static const std::array<float, STATUS_NUM>INTERVALS =
 	{
 		45.0f,	//登場
@@ -66,10 +63,10 @@ void OperationInfoUI::Update(float arg_timeScale)
 	}
 	else if (m_status == DRAW)
 	{
-		if (m_timer.IsTimeUp())
+		/*if (m_timer.IsTimeUp())
 		{
 			SetUIStatus(DISAPPEAR);
-		}
+		}*/
 	}
 	else if (m_status == DISAPPEAR)
 	{
@@ -103,4 +100,16 @@ void OperationInfoUI::Draw()
 	static const Vec2<float>RT_BUTTON_POS = { 110.0f,604.0f };
 	DrawFunc2D::DrawRotaGraph2D(RT_BUTTON_POS + opeButtonOffset, { 1.0f,1.0f }, 0.0f,
 		m_opeButtonTexArray[RT][OperationConfig::Instance()->GetOperationInput(OperationConfig::SINK_GROUND, OperationConfig::HOLD) ? OFF : ON], m_opeButtonAlpha);
+}
+
+void OperationInfoUI::Appear()
+{
+	if (m_status != DISAPPEAR)return;
+	SetUIStatus(APPEAR);
+}
+
+void OperationInfoUI::Disappear()
+{
+	if (m_status != DRAW)return;
+	SetUIStatus(DISAPPEAR);
 }

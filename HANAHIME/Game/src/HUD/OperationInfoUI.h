@@ -2,13 +2,14 @@
 #include<array>
 #include<memory>
 #include"ForUser/Timer.h"
+#include"InGameUI.h"
 
 namespace KuroEngine
 {
 	class TextureBuffer;
 }
 
-class OperationInfoUI
+class OperationInfoUI : public InGameUI
 {
 	//演出ステータス
 	enum STATUS { APPEAR, DRAW, DISAPPEAR, STATUS_NUM }m_status;
@@ -30,6 +31,11 @@ class OperationInfoUI
 	float m_opeButtonAlpha = 1.0f;
 
 	void SetUIStatus(STATUS arg_status);
+
+	void Appear()override;
+	void Disappear()override;
+	bool IsAppeared()override { return m_status == DRAW; }
+	bool IsDisappeared()override { return m_status == DISAPPEAR && m_timer.IsTimeUp(); }
 
 public:
 	OperationInfoUI();

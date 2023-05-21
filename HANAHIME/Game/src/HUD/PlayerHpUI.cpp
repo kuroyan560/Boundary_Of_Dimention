@@ -8,9 +8,6 @@ void PlayerHpUI::SetHpUIStatus(STATUS arg_status)
 {
 	using namespace KuroEngine;
 
-	//退場演出は通常描画ステータスのときのみ
-	if (arg_status == DISAPPEAR && m_hpUiStatus != DRAW)return;
-
 	static const std::array<float, STATUS_NUM>INTERVALS =
 	{
 		60.0f,	//登場
@@ -31,6 +28,9 @@ void PlayerHpUI::SetHpUIStatus(STATUS arg_status)
 		m_hpRadiusExpand = 1.0f;
 		m_leafSpin = Angle(0);
 		m_impactShake.Shake(30.0f, 1.0f, 32.0f, 64.0f);
+		m_isDamageAppear = true;
+		m_strAlpha = 1.0f;
+		m_strOffsetX = 0.0f;
 	}
 }
 
@@ -59,6 +59,8 @@ void PlayerHpUI::Init()
 	SetHpUIStatus(APPEAR);
 	m_beatTimer.Reset(0.0f);
 	m_damageFlash = true;
+	m_isDamageAppear = false;
+	m_hpMax = true;
 }
 
 void PlayerHpUI::Update(float arg_timeScale, int arg_defaultHp, int arg_nowHp, const KuroEngine::Timer& arg_noDamageTimer)
@@ -68,6 +70,8 @@ void PlayerHpUI::Update(float arg_timeScale, int arg_defaultHp, int arg_nowHp, c
 	static const float OFFSET_X_MAX = -300.0f;
 
 	m_appearTimer.UpdateTimer(arg_timeScale);
+
+	m_hpMax = arg_defaultHp <= arg_nowHp;
 
 	if (m_hpUiStatus == APPEAR)
 	{
@@ -93,7 +97,7 @@ void PlayerHpUI::Update(float arg_timeScale, int arg_defaultHp, int arg_nowHp, c
 	else if (m_hpUiStatus == DRAW)
 	{
 		//HPがMAXのときは消える
-		if (m_appearTimer.IsTimeUp() && arg_defaultHp <= arg_nowHp)
+		if (m_hpMax && m_isDamageAppear && m_appearTimer.IsTimeUp())
 		{
 			SetHpUIStatus(DISAPPEAR);
 		}
@@ -227,4 +231,20 @@ void PlayerHpUI::Draw(int arg_defaultHp, int arg_nowHp, bool arg_isHitStop)
 	//HP数字描画
 	static const Vec2<float>HP_NUM_POS = { 238.0f,246.0f };
 	DrawFunc2D::DrawRotaGraph2D(HP_NUM_POS + Vec2<float>(m_strOffsetX, 0.0f) + shake, { 1.0f,1.0f }, 0.0f, m_numTexArray[arg_nowHp], m_strAlpha);
+}
+
+void PlayerHpUI::Appear()
+{
+	if (m_hpUiStatus != DISAPPEAR)return;
+	m_isDamageAppear = false;
+	SetHpUIStatus(APPEAR);
+}
+
+void PlayerHpUI::Disappear()
+{
+	//退場演出は通常描画ステータスのときのみ
+	if (m_hpUiStatus != DRAW)return;
+	//ダメージを受けてるときは常に描画
+	if (!m_hpMax)return;
+	SetHpUIStatus(DISAPPEAR);
 }

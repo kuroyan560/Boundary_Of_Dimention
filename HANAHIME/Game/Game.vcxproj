@@ -196,6 +196,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Graphics\CanvasPostEffect.cpp" />
     <ClCompile Include="src\Graphics\WaterPaintBlend.cpp" />
     <ClCompile Include="src\HUD\CheckPointUI.cpp" />
+    <ClCompile Include="src\HUD\InGameUI.cpp" />
     <ClCompile Include="src\HUD\MapPinUI.cpp" />
     <ClCompile Include="src\HUD\OperationInfoUI.cpp" />
     <ClCompile Include="src\HUD\PlayerHpUI.cpp" />
@@ -338,6 +339,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Graphics\CanvasPostEffect.h" />
     <ClInclude Include="src\Graphics\WaterPaintBlend.h" />
     <ClInclude Include="src\HUD\CheckPointUI.h" />
+    <ClInclude Include="src\HUD\InGameUI.h" />
     <ClInclude Include="src\HUD\MapPinUI.h" />
     <ClInclude Include="src\HUD\OperationInfoUI.h" />
     <ClInclude Include="src\HUD\PlayerHpUI.h" />
