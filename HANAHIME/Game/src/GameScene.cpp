@@ -169,7 +169,7 @@ void GameScene::OnUpdate()
 
 	//デバッグ用
 	bool isRetry = false;
-	if (OperationConfig::Instance()->InputRetry() || m_player.GetIsFinishDeathAnimation())
+	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::RETRY, OperationConfig::ON_TRIGGER) || m_player.GetIsFinishDeathAnimation())
 	{
 		isRetry = true;
 	}

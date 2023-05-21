@@ -7,7 +7,21 @@
 class OperationConfig : public KuroEngine::DesignPattern::Singleton<OperationConfig>, public KuroEngine::Debugger
 {
 public:
+	//入力パターン
 	enum INPUT_PATTERN { HOLD, ON_TRIGGER, OFF_TRIGGER, ON_OFF_TRIGGER };
+
+	//操作入力種別
+	enum OPERATION_TYPE
+	{
+		DONE,	//決定
+		CANCEL,	//キャンセル
+		CAM_DIST_MODE_CHANGE,	//カメラの距離モード切り替え
+		CAM_RESET,	//カメラリセット
+		SINK_GROUND,	//地中に潜る
+		RIDE_ZIP_LINE,	//ジップラインに乗る
+		RETRY,	//リトライ（ポーズ画面から選択してリトライするようになるかも、なくなる可能性ある）
+		OPERATION_TYPE_NUM
+	};
 
 private:
 	friend class KuroEngine::DesignPattern::Singleton<OperationConfig>;
@@ -22,6 +36,7 @@ private:
 		"KEY_BOARD_MOUSE","CONTROLLER"
 	};
 
+	//入力デバイスごとのパラメータ
 	struct Parameter
 	{
 		float m_camSensitivity = 0.2f;
@@ -30,12 +45,19 @@ private:
 			:m_camSensitivity(arg_camSensitivity) {}
 	};
 
+	//キーマウかコントローラーで違うパラメータ
 	std::array<Parameter, static_cast<int>(INPUT_DEVICE::NUM)>m_params =
 	{
 		Parameter(0.2f),
 		Parameter(0.1f),
 	};
 
+	//キーボード入力のときの割当キー
+	std::array<int, OPERATION_TYPE_NUM>m_operationKeyCode;
+	//コントローラー入力のときの割当ボタン
+	std::array<KuroEngine::XBOX_BUTTON, OPERATION_TYPE_NUM>m_operationButton;
+
+	//操作入力を受け付けているか
 	bool m_isActive = false;
 
 	void OnImguiItems()override;
@@ -69,24 +91,11 @@ public:
 	/// <returns>視線移動角度（ラジアン）</returns>
 	KuroEngine::Vec3<float>GetScopeMove();
 
-	//決定ボタン
-	bool InputDone(INPUT_PATTERN arg_pattern = ON_TRIGGER);
-	//キャンセルボタン
-	bool InputCancel(INPUT_PATTERN arg_pattern = ON_TRIGGER);
+	//操作入力
+	bool GetOperationInput(OPERATION_TYPE arg_operation, INPUT_PATTERN arg_pattern);
 
-	//カメラの距離モード切り替えボタン
-	bool InputCamDistModeChange(INPUT_PATTERN arg_pattern = ON_TRIGGER);
-	//カメラリセット
-	bool InputCamReset(INPUT_PATTERN arg_pattern = ON_TRIGGER);
-
-	//潜るアクションボタン
-	bool InputSink(INPUT_PATTERN arg_pattern = HOLD);
-
-	//ジップライン
-	bool InputRideZipLine(INPUT_PATTERN arg_pattern = ON_TRIGGER);
-
-	//リトライボタン（ポーズ画面から選択してリトライするようになるかも、なくなる可能性ある）
-	bool InputRetry(INPUT_PATTERN arg_pattern = ON_TRIGGER);
+	//操作入力があったか
+	bool CheckAllOperationInput();
 
 	//デバッグ用のキー入力
 	bool DebugKeyInputOnTrigger(int arg_keyCode);

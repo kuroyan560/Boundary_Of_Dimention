@@ -16,6 +16,30 @@ OperationConfig::OperationConfig()
 	}
 
 	LoadParameterLog();
+
+	//操作キー割り当て
+	m_operationKeyCode =
+	{
+		DIK_SPACE,	//決定
+		DIK_ESCAPE,	//キャンセル
+		DIK_RETURN,	//カメラの距離モード切り替え
+		DIK_R,	//カメラリセット
+		DIK_SPACE,	//地中に潜る
+		DIK_LSHIFT,	//ジップラインに乗る
+		DIK_I,	//リトライ
+	};
+
+	//操作ボタン割り当て
+	m_operationButton =
+	{
+		A,	//決定
+		B,	//キャンセル
+		X,	//カメラの距離モード切り替え
+		LT,	//カメラリセット
+		RT,	//地中に潜る
+		A,	//ジップラインに乗る
+		START,	//リトライ
+	};
 }
 
 void OperationConfig::OnImguiItems()
@@ -152,39 +176,21 @@ KuroEngine::Vec3<float> OperationConfig::GetScopeMove()
 	return result;
 }
 
-bool OperationConfig::InputDone(INPUT_PATTERN arg_pattern)
+bool OperationConfig::GetOperationInput(OPERATION_TYPE arg_operation, INPUT_PATTERN arg_pattern)
 {
-	return KeyInput(arg_pattern, DIK_SPACE) || ControllerInput(arg_pattern, XBOX_BUTTON::A);
+	return KeyInput(arg_pattern, m_operationKeyCode[arg_operation]) || ControllerInput(arg_pattern, m_operationButton[arg_operation]);
 }
 
-bool OperationConfig::InputCancel(INPUT_PATTERN arg_pattern)
+bool OperationConfig::CheckAllOperationInput()
 {
-	return KeyInput(arg_pattern, DIK_ESCAPE) || ControllerInput(arg_pattern, XBOX_BUTTON::B);
-}
-
-bool OperationConfig::InputCamDistModeChange(INPUT_PATTERN arg_pattern)
-{
-	return KeyInput(arg_pattern, DIK_RETURN) || ControllerInput(arg_pattern, XBOX_BUTTON::X);
-}
-
-bool OperationConfig::InputCamReset(INPUT_PATTERN arg_pattern)
-{
-	return KeyInput(arg_pattern, DIK_R) || ControllerInput(arg_pattern, XBOX_BUTTON::LT);
-}
-
-bool OperationConfig::InputSink(INPUT_PATTERN arg_pattern)
-{
-	return KeyInput(arg_pattern, DIK_SPACE) || ControllerInput(arg_pattern, XBOX_BUTTON::RT);
-}
-
-bool OperationConfig::InputRideZipLine(INPUT_PATTERN arg_pattern)
-{
-	return KeyInput(arg_pattern, DIK_LSHIFT) || ControllerInput(arg_pattern, XBOX_BUTTON::A);
-}
-
-bool OperationConfig::InputRetry(INPUT_PATTERN arg_pattern)
-{
-	return KeyInput(arg_pattern, DIK_I) || ControllerInput(arg_pattern, XBOX_BUTTON::START);
+	for (int ope = 0; ope < OPERATION_TYPE_NUM; ++ope)
+	{
+		if (GetOperationInput((OPERATION_TYPE)ope, HOLD))
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 bool OperationConfig::DebugKeyInputOnTrigger(int arg_keyCode)

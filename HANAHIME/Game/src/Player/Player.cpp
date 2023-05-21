@@ -307,7 +307,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_canJump = CAN_JUMP_DELAY <= m_canJumpDelayTimer;
 
 	//カメラモードを切り替える。
-	if (OperationConfig::Instance()->InputCamDistModeChange()) {
+	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE, OperationConfig::ON_TRIGGER)) {
 		++m_cameraMode;
 		if (static_cast<int>(CAMERA_MODE.size()) <= m_cameraMode) {
 			m_cameraMode = 0;
@@ -324,13 +324,13 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	{
 
 		//ジップライン
-		m_canZip = OperationConfig::Instance()->InputRideZipLine();
+		m_canZip = OperationConfig::Instance()->GetOperationInput(OperationConfig::RIDE_ZIP_LINE, OperationConfig::ON_TRIGGER);
 
 		//地中に沈むフラグを更新。 イージングが終わっていたら。
 		if (1.0f <= m_underGroundEaseTimer) {
 
 			bool prevInInputUnderGround = m_isInputUnderGround;
-			m_isInputUnderGround = OperationConfig::Instance()->InputSink();
+			m_isInputUnderGround = OperationConfig::Instance()->GetOperationInput(OperationConfig::SINK_GROUND, OperationConfig::ON_TRIGGER);
 
 			//沈むフラグが離されたトリガーだったら。
 			if ((prevInInputUnderGround && !m_isInputUnderGround) || (!m_canOldUnderGroundRelease && m_canUnderGroundRelease)) {
@@ -340,7 +340,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			}
 
 			//イージングが終わっている時のみ地中に潜ったり出たりする判定を持たせる。
-			bool isInputOnOff = OperationConfig::Instance()->InputSink(OperationConfig::ON_OFF_TRIGGER);
+			bool isInputOnOff = OperationConfig::Instance()->GetOperationInput(OperationConfig::SINK_GROUND, OperationConfig::ON_OFF_TRIGGER);
 			if ((isInputOnOff || (!m_isUnderGround && m_isInputUnderGround) || (m_isUnderGround && !m_isInputUnderGround)) && m_canUnderGroundRelease) {
 				m_underGroundEaseTimer = 0;
 			}
@@ -602,7 +602,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_growPlantPtLig.m_defInfluenceRange = MAX_INFLUENCE_RANGE;
 
 	//カメラをデフォルトの位置に戻すか。
-	m_isCameraDefault = OperationConfig::Instance()->InputCamReset();
+	m_isCameraDefault = OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_RESET, OperationConfig::ON_TRIGGER);
 	if (m_isCameraDefault) {
 
 		//SEを鳴らす。

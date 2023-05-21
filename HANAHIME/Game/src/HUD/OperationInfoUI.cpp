@@ -92,15 +92,15 @@ void OperationInfoUI::Draw()
 	//Xボタン
 	static const Vec2<float>X_BUTTON_POS = { 124.0f,428.0f };
 	DrawFunc2D::DrawRotaGraph2D(X_BUTTON_POS + opeButtonOffset, { 1.0f,1.0f }, 0.0f,
-		m_opeButtonTexArray[X][OperationConfig::Instance()->InputCamDistModeChange(OperationConfig::HOLD) ? OFF : ON], m_opeButtonAlpha);
+		m_opeButtonTexArray[X][OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE, OperationConfig::HOLD) ? OFF : ON], m_opeButtonAlpha);
 
 	//LTボタン
 	static const Vec2<float>LT_BUTTON_POS = { 110.0f,528.0f };
 	DrawFunc2D::DrawRotaGraph2D(LT_BUTTON_POS + opeButtonOffset, { 1.0f,1.0f }, 0.0f,
-		m_opeButtonTexArray[LT][OperationConfig::Instance()->InputCamReset(OperationConfig::HOLD) ? OFF : ON], m_opeButtonAlpha);
+		m_opeButtonTexArray[LT][OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_RESET, OperationConfig::HOLD) ? OFF : ON], m_opeButtonAlpha);
 
 	//RTボタン
 	static const Vec2<float>RT_BUTTON_POS = { 110.0f,604.0f };
 	DrawFunc2D::DrawRotaGraph2D(RT_BUTTON_POS + opeButtonOffset, { 1.0f,1.0f }, 0.0f,
-		m_opeButtonTexArray[RT][OperationConfig::Instance()->InputSink(OperationConfig::HOLD) ? OFF : ON], m_opeButtonAlpha);
+		m_opeButtonTexArray[RT][OperationConfig::Instance()->GetOperationInput(OperationConfig::SINK_GROUND, OperationConfig::HOLD) ? OFF : ON], m_opeButtonAlpha);
 }
