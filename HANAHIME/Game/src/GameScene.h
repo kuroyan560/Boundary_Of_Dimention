@@ -19,7 +19,7 @@
 #include"Stage/Enemy/Enemy.h"
 #include"Render/LightBloomDevice.h"
 #include"HUD/OperationInfoUI.h"
-
+#include"HUD/StageInfoUI.h"
 
 class GameScene : public KuroEngine::BaseScene
 {
@@ -75,6 +75,7 @@ class GameScene : public KuroEngine::BaseScene
 
 	//Šî–{‚ÌHUD
 	OperationInfoUI m_opeInfoUI;
+	StageInfoUI m_stageInfoUI;
 
 	KuroEngine::LightBloomDevice m_lightBloomDevice;
 

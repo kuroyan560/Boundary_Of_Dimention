@@ -174,3 +174,13 @@ std::shared_ptr<GoalPoint>StageManager::GetGoalModel()
 {
 	return m_nowStage->GetGoalModel();
 }
+
+int StageManager::GetStarCoinNum() const
+{
+	return m_nowStage->GetStarCoinNum();
+}
+
+int StageManager::ExistStarCoinNum() const
+{
+	return m_nowStage->ExistStarCoinNum();
+}

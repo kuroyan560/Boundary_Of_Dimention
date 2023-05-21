@@ -200,6 +200,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\HUD\MapPinUI.cpp" />
     <ClCompile Include="src\HUD\OperationInfoUI.cpp" />
     <ClCompile Include="src\HUD\PlayerHpUI.cpp" />
+    <ClCompile Include="src\HUD\StageInfoUI.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\GameScene.cpp" />
     <ClCompile Include="src\Movie\CameraData.cpp" />
@@ -343,6 +344,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\HUD\MapPinUI.h" />
     <ClInclude Include="src\HUD\OperationInfoUI.h" />
     <ClInclude Include="src\HUD\PlayerHpUI.h" />
+    <ClInclude Include="src\HUD\StageInfoUI.h" />
     <ClInclude Include="src\Movie\CameraData.h" />
     <ClInclude Include="src\Movie\MovieCamera.h" />
     <ClInclude Include="src\Movie\SceneChange.h" />

@@ -244,6 +244,7 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	{
 		m_gimmickArray.emplace_back(std::make_shared<StarCoin>(model, transform));
 		newPart = m_gimmickArray.back().get();
+		m_starCoinArray.emplace_back(std::dynamic_pointer_cast<StarCoin>(m_gimmickArray.back()));
 	}
 	//ƒ`ƒr’Ž
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::MINI_BUG))
@@ -539,6 +540,15 @@ void Stage::Load(int arg_ownStageIdx, std::string arg_dir, std::string arg_fileN
 		}
 	}
 
+}
+
+int Stage::GetStarCoinNum() const
+{
+	int getCoinNum = static_cast<int>(std::count_if(m_starCoinArray.begin(), m_starCoinArray.end(), [](std::weak_ptr<StarCoin>coin)
+		{
+			return coin.lock()->IsGet();
+		}));
+	return getCoinNum;
 }
 
 KuroEngine::Transform Stage::GetGateTransform(int arg_gateID) const

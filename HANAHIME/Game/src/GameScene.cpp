@@ -76,6 +76,7 @@ void GameScene::GameInit()
 	GateManager::Instance()->Init();
 	m_opeInfoUI.Init();
 	InGameUI::Init();
+	m_stageInfoUI.Init(m_stageNum);
 }
 
 void GameScene::OnInitialize()
@@ -242,6 +243,7 @@ void GameScene::OnUpdate()
 	//UIXV
 	InGameUI::Update(TimeScaleMgr::s_inGame.GetTimeScale());
 	m_opeInfoUI.Update(TimeScaleMgr::s_inGame.GetTimeScale());
+	m_stageInfoUI.Update(TimeScaleMgr::s_inGame.GetTimeScale());
 
 	GateManager::Instance()->FrameEnd();
 }
@@ -319,6 +321,7 @@ void GameScene::OnDraw()
 		m_player.DrawUI(*m_nowCam);
 		StageManager::Instance()->DrawUI(*m_nowCam, m_player.GetTransform().GetPosWorld());
 		m_opeInfoUI.Draw();
+		m_stageInfoUI.Draw(StageManager::Instance()->ExistStarCoinNum(), StageManager::Instance()->GetStarCoinNum());
 	}
 
 	m_title.Draw(*m_nowCam, m_ligMgr);

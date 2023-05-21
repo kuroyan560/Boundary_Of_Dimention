@@ -57,6 +57,7 @@ public:
 
 	KuroEngine::Transform GetGateTransform(int arg_stageIdx, int arg_gateID)const;
 
+	//ステージの数
 	int GetAllStageNum()
 	{
 		return static_cast<int>(m_stageArray.size());
@@ -73,4 +74,9 @@ public:
 	KuroEngine::Transform GetGoalTransform()const;
 
 	std::shared_ptr<GoalPoint>GetGoalModel();
+
+	//入手したスターコインの数
+	int GetStarCoinNum()const;
+	//存在するスターコインの数
+	int ExistStarCoinNum()const;
 };

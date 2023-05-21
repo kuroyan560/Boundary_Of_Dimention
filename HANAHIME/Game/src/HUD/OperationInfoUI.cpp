@@ -73,7 +73,6 @@ void OperationInfoUI::Update(float arg_timeScale)
 		m_opeButtonOffsetX = Math::Ease(In, Back, m_timer.GetTimeRate(), 0.0f, OPE_BUTTON_OFFSET_X_MAX);
 		m_opeButtonAlpha = Math::Lerp(1.0f, 0.0f, m_timer.GetTimeRate());
 	}
-
 }
 
 void OperationInfoUI::Draw()
