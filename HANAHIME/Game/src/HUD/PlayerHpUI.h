@@ -14,7 +14,7 @@ namespace KuroEngine
 class PlayerHpUI
 {
 	//HPUIの演出ステータス
-	enum HP_UI_STATUS { HP_UI_APPEAR, HP_UI_DRAW, HP_UI_DISAPPEAR, HP_UI_DAMAGE }m_hpUiStatus;
+	enum STATUS { APPEAR, DRAW, DISAPPEAR, DAMAGE, STATUS_NUM }m_hpUiStatus;
 
 	//HPリーフの数
 	static const int LEAF_NUM = 5;
@@ -51,7 +51,7 @@ class PlayerHpUI
 	KuroEngine::Timer m_damageFlashTimer;
 	bool m_damageFlash;
 
-	void SetHpUIStatus(HP_UI_STATUS arg_status);
+	void SetHpUIStatus(STATUS arg_status);
 
 public:
 	PlayerHpUI();
@@ -61,7 +61,7 @@ public:
 
 	void OnDamage()
 	{
-		SetHpUIStatus(HP_UI_DAMAGE);
+		SetHpUIStatus(DAMAGE);
 	}
 };
 
