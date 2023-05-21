@@ -79,6 +79,8 @@ class CameraController : public KuroEngine::Debugger
 	//現在の上下方向で操作しているもの
 	enum VERTICAL_MOVE { ANGLE, DIST }m_verticalControl = ANGLE;
 
+	KuroEngine::Transform m_debugTransform;
+
 
 public:
 	//コンストラクタ
@@ -87,7 +89,10 @@ public:
 	void AttachCamera(std::shared_ptr<KuroEngine::Camera>arg_cam);
 
 	void Init();
-	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump);
+	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ);
+
+	//ジャンプを開始した瞬間、X軸回転とY軸回転を本来あるべき値に近づける。
+	void JumpStart(const KuroEngine::Transform& arg_playerTransform, const KuroEngine::Vec3<float>& arg_jumpEndNormal, bool arg_isCameraUpInverse);
 
 	const KuroEngine::Quaternion& GetPosRotate() {
 		return m_camParentTransform.GetRotate();
@@ -95,11 +100,14 @@ public:
 
 	std::weak_ptr<KuroEngine::Camera> GetCamera() { return m_attachedCam; }
 
+
+	KuroEngine::Transform GetDebugTransform() { return m_debugTransform; }
+
 private:
 
 	//3次元ベクトルを2次元に射影する関数
 	inline KuroEngine::Vec2<float> Project3Dto2D(KuroEngine::Vec3<float> arg_vector3D, KuroEngine::Vec3<float> arg_basis1, KuroEngine::Vec3<float> arg_basis2) {
-		
+
 		//基底ベクトルを正規化
 		arg_basis1.Normalize();
 		arg_basis2.Normalize();
@@ -111,7 +119,37 @@ private:
 		return KuroEngine::Vec2<float>(x, y);
 	}
 
+	//ベクトルを指定してクォータニオンを返す。ベクトルが一致している場合は単位クォータニオンを返す。
+	inline KuroEngine::Quaternion CalQuaternionVector3(KuroEngine::Vec3<float> arg_vecA, KuroEngine::Vec3<float> arg_vecB) {
+
+		//外積から回転軸を取得。
+		KuroEngine::Vec3<float> axis = arg_vecA.Cross(arg_vecB);
+
+		//回転軸が存在しなかったら単位クォータニオンを返す。
+		if (axis.Length() <= 0.0f) return DirectX::XMQuaternionIdentity();
+
+		//回転量を計算。
+		float rad = acos(arg_vecA.Dot(arg_vecB));
+
+		//クォータニオンを計算して返す。
+		return DirectX::XMQuaternionRotationAxis(axis, rad);
+
+	}
+
 	//下方向の押し戻し処理
-	void PushBackGround(const CollisionDetectionOfRayAndMesh::MeshCollisionOutput& arg_output, const KuroEngine::Vec3<float> arg_pushBackPos, const KuroEngine::Transform& arg_targetPos, float& arg_playerRotY, bool arg_isCameraUpInverse);
+	void PushBackGround(const CollisionDetectionOfRayAndMesh::MeshCollisionOutput& arg_output, const KuroEngine::Vec3<float> arg_pushBackPos, const KuroEngine::Transform& arg_targetPos, float& arg_playerRotY, bool arg_isCameraUpInverse, bool arg_isAroundRay);
+
+	//プレイヤーの動きによってカメラの回転を制御する。
+	void PlayerMoveCameraLerp(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ);
+
+	//レイと平面(無限)の当たり判定
+	bool RayPlaneIntersection(const KuroEngine::Vec3<float>& arg_rayOrigin, const KuroEngine::Vec3<float>& arg_rayDirection, const KuroEngine::Vec3<float>& arg_planePoint, const KuroEngine::Vec3<float>& arg_planeNormal, KuroEngine::Vec3<float>& arg_hitResult);
+
+	//ベクトルAをベクトルBに射影
+	inline KuroEngine::Vec3<float> Project(const KuroEngine::Vec3<float>& arg_A, const KuroEngine::Vec3<float>& arg_B) {
+		float dotProduct = arg_A.Dot(arg_B);
+		float bLengthSquared = arg_B.Length() * arg_B.Length();
+		return arg_B * (dotProduct / bLengthSquared);
+	}
 
 };

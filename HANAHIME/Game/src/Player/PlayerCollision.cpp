@@ -36,7 +36,7 @@ bool PlayerCollision::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from,
 	CheckHitGround(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
 
 	//死んだか(挟まっているか)どうかを判定
-	CheckDeath(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
+	CheckDeath(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);		//これ、他のレイの処理に死亡判定フラグの書き込みの処理を追加すれば消せるのでは？
 
 	//周囲の壁との当たり判定
 	CheckHitAround(arg_from, arg_newPos, arg_nowStage, arg_hitInfo, castRayArgument);
@@ -192,6 +192,9 @@ void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, Kuro
 				m_refPlayer->m_bezierCurveControlPos = m_refPlayer->m_jumpStartPos + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH;
 				m_refPlayer->m_jumpEndPos = arg_castRayArgment.m_impactPoint[minIndex].m_impactPos + arg_castRayArgment.m_impactPoint[minIndex].m_normal * (m_refPlayer->m_transform.GetScale().x / 2.0f);
 				m_refPlayer->m_jumpEndPos += m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH;
+
+				//カメラをジャンプさせる。
+				m_refPlayer->m_camController.JumpStart(m_refPlayer->GetTransform(), arg_castRayArgment.m_impactPoint[minIndex].m_normal, m_refPlayer->m_isCameraUpInverse);
 
 				//ジャンプした瞬間の入力を保存しておく。
 				m_refPlayer->m_jumpTrrigerRowMoveVec = m_refPlayer->m_jumpRowMoveVec;
@@ -1090,6 +1093,20 @@ void PlayerCollision::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine:
 
 	//法線方向を見るクォータニオン
 	m_refPlayer->m_normalSpinQ = KuroEngine::Math::GetLookAtQuaternion({ 0,1,0 }, hitResult.m_terrianNormal);
+
+
+
+
+	//デバッグ用
+	KuroEngine::Transform transform;
+	transform.SetRotate(m_refPlayer->m_normalSpinQ);
+	m_refPlayer->m_debugVec = transform.GetFront();
+	m_refPlayer->m_debugVec2 = transform.GetRight();
+	m_refPlayer->m_debugVec3 = transform.GetUp();
+
+
+
+
 
 	//カメラの回転でY軸回転させるクォータニオン。移動方向に回転しているように見せかけるためのもの。m_refPlayer->m_cameraJumpLerpAmountは補間後のカメラに向かって補間するため。
 	DirectX::XMVECTOR ySpin;

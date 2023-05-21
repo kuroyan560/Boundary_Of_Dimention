@@ -75,6 +75,14 @@ class Player : public KuroEngine::Debugger
 	KuroEngine::Vec3<float> m_jumpTrrigerRowMoveVec;
 	KuroEngine::Vec3<float> m_jumpRowMoveVec;	//ジャンプ中の生の移動方向。m_rowMoveVecを使うとバグりそうで怖いので追加。
 
+
+	//デバッグ用のベクトル
+	KuroEngine::Vec3<float> m_debugVec;
+	KuroEngine::Vec3<float> m_debugVec2;
+	KuroEngine::Vec3<float> m_debugVec3;
+
+
+
 	//プレイヤーの周囲のパーティクル
 	PlayerMoveParticle m_playerMoveParticle;
 	const int PLAYER_MOVE_PARTICLE_SPAN = 5;
@@ -236,7 +244,7 @@ class Player : public KuroEngine::Debugger
 
 	//ジャンプが終わってから一定Fいないだったら反対に入力されたら反転をキャンセルするためのタイマー
 	KuroEngine::Timer m_jumpEndInvTimer;
-	const float JUMP_END_INV_TIMER = 120.0f;
+	const float JUMP_END_INV_TIMER = 300.0f;
 
 	//当たり判定用ステージの参照
 	std::weak_ptr<Stage> m_nowStage;
