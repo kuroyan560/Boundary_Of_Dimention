@@ -454,6 +454,9 @@
     <ClCompile Include="src\HUD\PlayerHpUI.cpp">
       <Filter>src\user\HUD</Filter>
     </ClCompile>
+    <ClCompile Include="src\HUD\OperationInfoUI.cpp">
+      <Filter>src\user\HUD</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -867,6 +870,9 @@
       <Filter>src\user\HUD</Filter>
     </ClInclude>
     <ClInclude Include="src\HUD\PlayerHpUI.h">
+      <Filter>src\user\HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HUD\OperationInfoUI.h">
       <Filter>src\user\HUD</Filter>
     </ClInclude>
   </ItemGroup>
