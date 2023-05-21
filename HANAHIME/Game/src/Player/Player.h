@@ -234,6 +234,7 @@ class Player : public KuroEngine::Debugger
 
 	//正面方向に壁があるかのフラグ
 	bool m_isWallFrontDir;
+	KuroEngine::Vec3<float> m_frontWallNormal;
 
 	//ジップライン関係のステータス
 	const int ZIP_LINE_MOVE_TIMER_START = 30;

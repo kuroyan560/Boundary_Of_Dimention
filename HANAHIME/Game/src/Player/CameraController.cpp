@@ -66,7 +66,7 @@ void CameraController::Init()
 	m_isOldFrontWall = false;
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal)
 {
 	using namespace KuroEngine;
 
@@ -229,9 +229,19 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 		}
 
-
+		JumpStart(arg_targetPos, arg_frontWallNormal, arg_isCameraUpInverse, 0.5f);
 
 	}
+
+	//if (arg_isFrontWall) {
+
+
+	//	//プレイヤーの移動に応じてカメラを補間する。
+	//	PlayerMoveCameraLerp(arg_scopeMove, arg_targetPos, arg_playerRotY, arg_cameraZ, arg_nowStage, arg_isCameraUpInverse, arg_isCameraDefaultPos, arg_isHitUnderGround, arg_isMovePlayer, arg_isPlayerJump, arg_cameraQ);
+
+
+
+	//}
 
 	//フラグを保存しておく。
 	m_isOldFrontWall = arg_isFrontWall;
@@ -275,11 +285,12 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 		}
 
+
 	}
 
 
 	//プレイヤーの移動に応じてカメラを補間する。
-	PlayerMoveCameraLerp(arg_scopeMove, arg_targetPos, arg_playerRotY, arg_cameraZ, arg_nowStage, arg_isCameraUpInverse, arg_isCameraDefaultPos, arg_isHitUnderGround, arg_isMovePlayer, arg_isPlayerJump, arg_cameraQ);
+	//PlayerMoveCameraLerp(arg_scopeMove, arg_targetPos, arg_playerRotY, arg_cameraZ, arg_nowStage, arg_isCameraUpInverse, arg_isCameraDefaultPos, arg_isHitUnderGround, arg_isMovePlayer, arg_isPlayerJump, arg_cameraQ);
 
 
 	//操作するカメラのトランスフォーム（前後移動）更新
@@ -497,7 +508,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	arg_isHitUnderGround = m_isHitUnderGroundTerrian;
 
 	//プレイヤーが移動していたら保存。
-	if (0.0f < KuroEngine::Vec3<float>(m_playerOldPos - arg_targetPos.GetPos()).Length()) {
+	if (0.1f < KuroEngine::Vec3<float>(m_playerOldPos - arg_targetPos.GetPos()).Length()) {
 		m_playerOldPos = arg_targetPos.GetPos();
 	}
 
@@ -505,7 +516,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 }
 
-void CameraController::JumpStart(const KuroEngine::Transform& arg_playerTransform, const KuroEngine::Vec3<float>& arg_jumpEndNormal, bool arg_isCameraUpInverse)
+void CameraController::JumpStart(const KuroEngine::Transform& arg_playerTransform, const KuroEngine::Vec3<float>& arg_jumpEndNormal, bool arg_isCameraUpInverse, float arg_scale)
 {
 
 	using namespace KuroEngine;
@@ -536,7 +547,7 @@ void CameraController::JumpStart(const KuroEngine::Transform& arg_playerTransfor
 			float cross = std::signbit(jumpEndNormal2D.Cross(cameraVec2D)) ? -1.0f : 1.0f;
 
 			//補間させる。
-			m_rotateYLerpAmount += (rad - CAMERA_LERP_AMOUNT) * cross;
+			m_rotateYLerpAmount += ((rad - CAMERA_LERP_AMOUNT) * cross) * arg_scale;
 
 		}
 
@@ -569,7 +580,7 @@ void CameraController::JumpStart(const KuroEngine::Transform& arg_playerTransfor
 			float inverse = arg_isCameraUpInverse ? -1.0f : 1.0f;
 
 			//補間させる。
-			m_cameraXAngleLerpAmount += (rad - CAMERA_LERP_AMOUNT) * inverse * (isUpInverseTrigger ? -1.0f : 1.0f);
+			m_cameraXAngleLerpAmount += ((rad - CAMERA_LERP_AMOUNT) * inverse * (isUpInverseTrigger ? -1.0f : 1.0f)) * arg_scale;
 
 		}
 
@@ -688,7 +699,7 @@ void CameraController::PlayerMoveCameraLerp(KuroEngine::Vec3<float> arg_scopeMov
 	cameraT.SetRotate(arg_cameraQ);
 
 	//プレイヤーがジャンプしていなくて、プレイヤーが動いている時。
-	if (!arg_isPlayerJump && arg_isMovePlayer) {
+	if (!arg_isPlayerJump) {
 
 		//プレイヤーが動いたベクトルの逆を2Dに射影する。
 		Vec3<float> playerMoveVec = Vec3<float>(arg_targetPos.GetPos() - m_playerOldPos).GetNormal();
@@ -700,7 +711,7 @@ void CameraController::PlayerMoveCameraLerp(KuroEngine::Vec3<float> arg_scopeMov
 		Vec2<float> cameraVec2D = Project3Dto2D(cameraVec, cameraT.GetFront(), cameraT.GetRight());
 
 		//Y軸上のずれを確認。
-		float zureY = acos(playerMoveVec2D.Dot(cameraVec2D)) * 0.003f;
+		float zureY = acos(playerMoveVec2D.Dot(cameraVec2D)) * 0.001f;
 		float cross = playerMoveVec2D.Cross(cameraVec2D);
 
 		if (0 < fabs(cross)) {

@@ -109,6 +109,7 @@ void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, Kuro
 			if (output.m_isHit && 0 < output.m_distance && output.m_distance < CAMERA_WALL_LENGTH) {
 
 				m_refPlayer->m_isWallFrontDir = true;
+				m_refPlayer->m_frontWallNormal = output.m_normal;
 
 			}
 
