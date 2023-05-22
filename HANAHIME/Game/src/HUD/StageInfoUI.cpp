@@ -46,6 +46,7 @@ StageInfoUI::StageInfoUI()
 
 		m_stageNameTex.emplace_back(D3D12App::Instance()->GenerateTextureBuffer(path));
 	}
+	m_stageNameDefaultTex = D3D12App::Instance()->GenerateTextureBuffer(stageTexDir + "default.png");
 	//ステージ名の装飾下線画像
 	m_underLineTex = D3D12App::Instance()->GenerateTextureBuffer(stageTexDir + "under_line.png");
 
@@ -124,8 +125,10 @@ void StageInfoUI::Draw(int arg_existFlowerNum, int arg_getFlowerNum)
 	const Vec2<float>offsetX = { m_offsetX,0.0f };
 
 	//ステージ名描画
-	const Vec2<float>stageNamePos = STAGE_NAME_RIGHT_BOTTOM_POS - m_stageNameTex[m_stageNameIdx]->GetGraphSize().Float();
-	DrawFunc2D::DrawGraph(stageNamePos + offsetX, m_stageNameTex[m_stageNameIdx], m_alpha);
+	auto stageNameTex = m_stageNameDefaultTex;
+	if (0 <= m_stageNameIdx && m_stageNameIdx < static_cast<int>(m_stageNameTex.size()))stageNameTex = m_stageNameTex[m_stageNameIdx];
+	const Vec2<float>stageNamePos = STAGE_NAME_RIGHT_BOTTOM_POS - stageNameTex->GetGraphSize().Float();
+	DrawFunc2D::DrawGraph(stageNamePos + offsetX, stageNameTex, m_alpha);
 
 	//ステージ名の装飾下線描画
 	static const Vec2<float>UNDER_LINE_CENTER_POS = { 958.0f,161.0f };

@@ -19,6 +19,7 @@ class StageInfoUI : public InGameUI
 
 	//ステージ名画像
 	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_stageNameTex;
+	std::shared_ptr<KuroEngine::TextureBuffer>m_stageNameDefaultTex;
 	//ステージ名の装飾下線画像
 	std::shared_ptr<KuroEngine::TextureBuffer>m_underLineTex;
 	//ステージ名のインデックス
