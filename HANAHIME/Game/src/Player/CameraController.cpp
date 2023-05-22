@@ -106,14 +106,8 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 			//回転角が存在したら
 			if (0.0f < axis.Length()) {
+
 				m_lookAroundTransform.SetRotate(DirectX::XMQuaternionRotationAxis(axis, angle));
-
-				//上ベクトルが反転していたら回転も反転させる。
-				if (arg_isCameraUpInverse) {
-
-					//m_lookAroundTransform.SetRotate(DirectX::XMQuaternionInverse(m_lookAroundTransform.GetRotate()));
-
-				}
 
 			}
 			else {
@@ -396,7 +390,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	//ジャンプ中は当たり判定を行わない。
 	if (!arg_isPlayerJump && !arg_isCameraDefaultPos && arg_isNoCollision) {
 
-		////無限平面との当たり判定
+		//無限平面との当たり判定
 		//bool isHit = RayPlaneIntersection(m_playerLerpPos, Vec3<float>(pushBackPos - m_playerLerpPos).GetNormal(), m_playerLerpPos - arg_targetPos.GetUp(), arg_targetPos.GetUp(), pushBackPos);
 		//if (isHit) {
 		//	m_nowParam.m_xAxisAngle = fromXAngle;
@@ -404,46 +398,46 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 		//}
 
 		//通常の地形を走査
-		//auto& cameraTransform = m_attachedCam.lock()->GetTransform();
-		//for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
-		//{
-		//	//モデル情報取得
-		//	auto model = terrian.GetModel().lock();
+		auto& cameraTransform = m_attachedCam.lock()->GetTransform();
+		for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
+		{
+			//モデル情報取得
+			auto model = terrian.GetModel().lock();
 
-		//	//メッシュを走査
-		//	for (auto& modelMesh : model->m_meshes)
-		//	{
+			//メッシュを走査
+			for (auto& modelMesh : model->m_meshes)
+			{
 
-		//		//当たり判定に使用するメッシュ
-		//		auto checkHitMesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+				//当たり判定に使用するメッシュ
+				auto checkHitMesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
 
-		//		//判定↓============================================
+				//判定↓============================================
 
 
-		//		//純粋な地形とレイの当たり判定を実行
-		//		CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_oldCameraWorldPos, checkHitRay.GetNormal(), checkHitMesh);
-		//		if (output.m_isHit && 0 < output.m_distance && output.m_distance < checkHitRay.Length()) {
+				//純粋な地形とレイの当たり判定を実行
+				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_oldCameraWorldPos, checkHitRay.GetNormal(), checkHitMesh);
+				if (output.m_isHit && 0 < output.m_distance && output.m_distance < checkHitRay.Length()) {
 
-		//			pushBackPos = output.m_pos + output.m_normal;
-		//			m_isHitTerrian = true;
+					pushBackPos = output.m_pos + output.m_normal;
+					m_isHitTerrian = true;
 
-		//			PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse, true);
+					PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse, true);
 
-		//		}
+				}
 
-		//		//プレイヤー方向のレイトの当たり判定を実行
-		//		Vec3<float> playerDir = m_playerLerpPos - pushBackPos;
-		//		output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos, playerDir.GetNormal(), checkHitMesh);
-		//		if (output.m_isHit && 0 < output.m_distance && output.m_distance < playerDir.Length()) {
+				//プレイヤー方向のレイトの当たり判定を実行
+				Vec3<float> playerDir = m_playerLerpPos - pushBackPos;
+				output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos, playerDir.GetNormal(), checkHitMesh);
+				if (output.m_isHit && 0 < output.m_distance && output.m_distance < playerDir.Length()) {
 
-		//			PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse, false);
+					PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse, false);
 
-		//		}
+				}
 
-		//	}
+			}
 
 			//=================================================
-		//}
+		}
 	}
 
 	//補間する。
