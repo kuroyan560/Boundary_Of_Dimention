@@ -101,7 +101,7 @@ void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, Kuro
 
 			//”»’è«============================================
 
-			const float CAMERA_WALL_LENGTH = 25.0f;	//‹ß‚­‚É•Ç‚ª‚ ‚Á‚½‚ç‚»‚Á‚¿‘¤‚ðŒü‚¯‚é‚½‚ß‚Ì‹——£
+			const float CAMERA_WALL_LENGTH = 35.0f;	//‹ß‚­‚É•Ç‚ª‚ ‚Á‚½‚ç‚»‚Á‚¿‘¤‚ðŒü‚¯‚é‚½‚ß‚Ì‹——£
 
 			//“–‚½‚è”»’è‚ðŽÀs
 			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_refPlayer->GetNowPos(), m_refPlayer->m_drawTransform.GetFront(), arg_castRayArgment.m_mesh);
