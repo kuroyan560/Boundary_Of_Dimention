@@ -70,7 +70,7 @@ void GameScene::GameInit()
 	}
 	else
 	{
-		m_player.Init(StageManager::Instance()->GetPlayerSpawnTransform());
+		m_player.Respawn(StageManager::Instance()->GetPlayerSpawnTransform());
 	}
 	SoundConfig::Instance()->Init();
 	GateManager::Instance()->Init();

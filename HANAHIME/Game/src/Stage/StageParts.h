@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 #include<array>
 #include<memory>
 #include<optional>

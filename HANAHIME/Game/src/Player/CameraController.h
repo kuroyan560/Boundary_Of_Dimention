@@ -34,6 +34,9 @@ class CameraController : public KuroEngine::Debugger
 	//カメラをZ方向に回転させる量。
 	float m_rotateZ;
 
+	//チェックポイントに達した時のカメラZ軸回転。
+	float m_checkPointCameraZ;
+
 	struct Parameter
 	{
 		//対象との相対的なZオフセット
@@ -48,6 +51,7 @@ class CameraController : public KuroEngine::Debugger
 	Parameter m_initializedParam;
 	//現在のパラメータ
 	Parameter m_nowParam;
+	Parameter m_checkPointTriggerParam;	//チェックポイントに到達した瞬間のパラメーター
 
 	//地形に当たっているか
 	bool m_isHitTerrian;
@@ -91,7 +95,7 @@ public:
 
 	void AttachCamera(std::shared_ptr<KuroEngine::Camera>arg_cam);
 
-	void Init();
+	void Init(bool arg_isRespawn = false);
 	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision);
 
 	//ジャンプを開始した瞬間、X軸回転とY軸回転を本来あるべき値に近づける。

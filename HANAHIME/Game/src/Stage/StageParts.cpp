@@ -10,6 +10,7 @@
 #include"../Player/PlayerCollision.h"
 #include"../TimeScaleMgr.h"
 #include"GateManager.h"
+#include"CheckPointHitFlag.h"
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
@@ -832,6 +833,7 @@ void CheckPoint::Update(Player& arg_player)
 		//最後に訪れたチェックポイントのトランスフォームを記録
 		s_latestVisitTransform = m_transform;
 		s_visit = true;
+		CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger = true;
 	}
 
 	m_touched = isHit;

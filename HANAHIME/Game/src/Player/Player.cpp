@@ -15,6 +15,7 @@
 #include"DirectX12/D3D12App.h"
 #include"Render/RenderObject/ModelInfo/ModelAnimator.h"
 #include"FrameWork/WinApp.h"
+#include"../Stage/CheckPointHitFlag.h"
 
 void Player::OnImguiItems()
 {
@@ -27,14 +28,14 @@ void Player::OnImguiItems()
 		auto pos = m_transform.GetPos();
 		auto angle = m_transform.GetRotateAsEuler();
 
-		if (ImGui::DragFloat3("Position", (float *)&pos, 0.5f))
+		if (ImGui::DragFloat3("Position", (float*)&pos, 0.5f))
 		{
 			m_transform.SetPos(pos);
 		}
 
 		//操作しやすいようにオイラー角に変換
 		KuroEngine::Vec3<float>eular = { angle.x.GetDegree(),angle.y.GetDegree(),angle.z.GetDegree() };
-		if (ImGui::DragFloat3("Eular", (float *)&eular, 0.5f))
+		if (ImGui::DragFloat3("Eular", (float*)&eular, 0.5f))
 		{
 			m_transform.SetRotate(Angle::ConvertToRadian(eular.x), Angle::ConvertToRadian(eular.y), Angle::ConvertToRadian(eular.z));
 		}
@@ -53,7 +54,7 @@ void Player::OnImguiItems()
 	}
 }
 
-void Player::AnimationSpecification(const KuroEngine::Vec3<float> &arg_beforePos, const KuroEngine::Vec3<float> &arg_newPos)
+void Player::AnimationSpecification(const KuroEngine::Vec3<float>& arg_beforePos, const KuroEngine::Vec3<float>& arg_newPos)
 {
 	//移動ステータス
 	if (m_playerMoveStatus == PLAYER_MOVE_STATUS::MOVE)
@@ -181,6 +182,9 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_canJumpDelayTimer = 0;
 	m_deathTimer = 0;
 
+	m_checkPointRotY = {};
+	m_isCheckPointUpInverse = false;
+
 	m_moveSpeed = KuroEngine::Vec3<float>();
 	m_gimmickVel = KuroEngine::Vec3<float>();
 	m_isFirstOnGround = false;
@@ -251,13 +255,109 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	//天井から始まったらカメラを反転させる。
 	if (m_transform.GetUp().y <= -0.9f) {
 		m_isCameraUpInverse = true;
+		m_isCheckPointUpInverse = true;
 	}
+
+}
+
+void Player::Respawn(KuroEngine::Transform arg_initTransform)
+{
+
+	//スケール打ち消し
+	arg_initTransform.SetScale(1.0f);
+
+	m_initTransform = arg_initTransform;
+	m_prevTransform = arg_initTransform;
+	m_transform = arg_initTransform;
+	m_drawTransform = arg_initTransform;
+	m_camController.Init(true);
+	m_cameraRotY = m_checkPointRotY;
+	m_cameraRotYStorage = m_checkPointRotY;
+	m_cameraRotMove = 0;
+	m_cameraJumpLerpAmount = 0;
+	m_cameraJumpLerpStorage = 0;
+	m_cameraQ = DirectX::XMQuaternionIdentity();
+	m_canJumpDelayTimer = 0;
+	m_deathTimer = 0;
+
+	m_moveSpeed = KuroEngine::Vec3<float>();
+	m_gimmickVel = KuroEngine::Vec3<float>();
+	m_isFirstOnGround = false;
+	m_onGimmick = false;
+	m_onGround = false;
+	m_cameraMode = 1;
+	m_prevOnGimmick = false;
+	m_isDeath = false;
+	m_canZip = false;
+	m_isCameraInvX = false;
+	m_canUnderGroundRelease = true;
+	m_canOldUnderGroundRelease = true;
+	m_onCeiling = false;
+	m_isCameraUpInverse = m_isCheckPointUpInverse;
+	m_isHitUnderGroundCamera = false;
+	m_isCameraDefault = false;
+	m_isOldCameraDefault = false;
+	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
+	m_isWallFrontDir = false;
+	m_cameraNoCollisionTimer.Reset(10);
+
+	m_growPlantPtLig.Register();
+	//死亡演出のタイマーを初期化。
+	m_deathEffectTimer = 0;
+	m_deathShakeAmount = 0;
+	m_damageShakeAmount = 0;
+	m_shake = KuroEngine::Vec3<float>();
+	m_deathStatus = DEATH_STATUS::APPROACH;
+	m_isFinishDeathAnimation = false;
+
+	//被ダメージの点滅初期化
+	m_damageFlashTimer.Reset(6.0f);
+	m_damageFlash = false;
+
+	//地中に沈む関連
+	m_isInputUnderGround = false;
+	m_isUnderGround = false;
+	m_underGroundEaseTimer = 1.0f;
+	m_underGroundShake = 0;
+
+	m_attackTimer = 0;
+
+	m_jumpEndInvTimer.Reset(JUMP_END_INV_TIMER);
+
+	m_deathSpriteAnimNumber = 0;
+	m_deathSpriteAnimTimer = KuroEngine::Timer(DEATH_SPRITE_TIMER);
+
+	m_hp = DEFAULT_HP;
+	m_damageHitStopTimer.Reset(0.0f);
+	m_nodamageTimer.Reset(0.0f);
+
+	m_modelAnimator->Play(m_animNames[ANIM_PATTERN_WAIT], true, false);
+	m_animInterestCycleCounter = ANIM_INTEREST_CYCLE;
+	m_beforePlayerMoveStatus = m_playerMoveStatus;
+
+	//プレイヤーの球の判定
+	m_sphere.m_centerPos = &m_drawTransform.GetPos();
+	m_sphere.m_radius = &m_radius;
+	m_radius = 2.0f;
+
+	//HPのUI初期化
+	m_hpUi.Init();
+
+	m_playerMoveParticle.Init();
+	m_playerMoveParticleTimer.Reset(PLAYER_MOVE_PARTICLE_SPAN);
+	m_playerIdleParticleTimer.Reset(PLAYER_IDLE_PARTICLE_SPAN);
 
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 {
 	using namespace KuroEngine;
+
+	//チェックポイントに到達した瞬間だったら、トランスフォームを保存しておく。
+	if (CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger) {
+		m_checkPointRotY = m_cameraRotYStorage;
+		m_isCheckPointUpInverse = m_isCameraUpInverse;
+	}
 
 	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_0))
 	{
@@ -272,7 +372,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	{
 		Damage();
 	}
-
 
 	m_reaction->Update(m_drawTransform.GetPos());
 
@@ -719,7 +818,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 }
 
-void Player::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr, bool arg_cameraDraw)
+void Player::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
 {
 
 	/*
@@ -765,7 +864,7 @@ void Player::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_lig
 	}
 }
 
-void Player::DrawParticle(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
+void Player::DrawParticle(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 	//プレイヤーが動いた時のパーティクル挙動
 	m_playerMoveParticle.Draw(arg_cam, arg_ligMgr);
@@ -774,7 +873,7 @@ void Player::DrawParticle(KuroEngine::Camera &arg_cam, KuroEngine::LightManager 
 	//m_dashEffect.Draw(arg_cam);
 }
 
-void Player::DrawUI(KuroEngine::Camera &arg_cam)
+void Player::DrawUI(KuroEngine::Camera& arg_cam)
 {
 	using namespace KuroEngine;
 
@@ -904,7 +1003,7 @@ Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<floa
 
 }
 
-void Player::Move(KuroEngine::Vec3<float> &arg_newPos) {
+void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 
 	//落下中は入力を無効化。
 	if (!m_onGround) {

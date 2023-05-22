@@ -364,6 +364,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Player\PlayerMoveParticleTarget.h" />
     <ClInclude Include="src\Player\PlayerMoveParticleTargetEmitter.h" />
     <ClInclude Include="src\SoundConfig.h" />
+    <ClInclude Include="src\Stage\CheckPointHitFlag.h" />
     <ClInclude Include="src\Stage\Enemy\Enemy.h" />
     <ClInclude Include="src\Stage\Enemy\EnemyDataReferenceForCircleShadow.h" />
     <ClInclude Include="src\Stage\GateManager.h" />

@@ -219,6 +219,10 @@ class Player : public KuroEngine::Debugger
 	const float SUB_UNDER_GROUND_SHAKE = 0.1f;
 	bool m_isCameraInvX;
 
+	//チェックポイントに当たった瞬間のパラメーター リスポーンをするときにこの値を入れる。
+	float m_checkPointRotY;
+	bool m_isCheckPointUpInverse;
+
 	//プレイヤーのジャンプに関する変数
 	KuroEngine::Vec3<float> m_jumpStartPos;			//ジャンプ開始位置
 	KuroEngine::Vec3<float> m_jumpEndPos;			//ジャンプ終了位置
@@ -286,7 +290,8 @@ class Player : public KuroEngine::Debugger
 
 public:
 	Player();
-	void Init(KuroEngine::Transform arg_initTransform);
+	void Init(KuroEngine::Transform arg_initTransform);		//ステージに入るとき用。
+	void Respawn(KuroEngine::Transform arg_initTransform);	//Backキーとかを押してリスポーンするとき用。
 	void Update(const std::weak_ptr<Stage>arg_nowStage);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw = false);
 	void DrawParticle(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);

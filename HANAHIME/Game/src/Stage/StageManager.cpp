@@ -5,6 +5,7 @@
 #include"../Movie/CameraData.h"
 #include"../Player/Player.h"
 #include"FrameWork/UsersInput.h"
+#include"CheckPointHitFlag.h"
 
 StageManager::StageManager()
 	:KuroEngine::Debugger("StageManager", true, true)
@@ -57,6 +58,9 @@ void StageManager::SetStage(int stage_num)
 
 void StageManager::Update(Player& arg_player)
 {
+
+	CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger = false;
+
 	m_nowStage->Update(arg_player);
 	Appearance::ModelsUpdate();
 

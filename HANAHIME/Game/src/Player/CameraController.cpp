@@ -1,9 +1,10 @@
-#include "CameraController.h"
+#include"CameraController.h"
 #include"Render/RenderObject/Camera.h"
 #include"../../../../src/engine/ForUser/Object/Model.h"
 #include"CollisionDetectionOfRayAndMesh.h"
 #include"FrameWork/UsersInput.h"
 #include"../Stage/StageManager.h"
+#include"../Stage/CheckPointHitFlag.h"
 
 void CameraController::OnImguiItems()
 {
@@ -14,6 +15,7 @@ void CameraController::OnImguiItems()
 	if (ImGui::Button("Initialize"))
 	{
 		m_nowParam = m_initializedParam;
+		m_checkPointTriggerParam = m_initializedParam;
 	}
 
 	//現在のパラメータ表示
@@ -54,11 +56,16 @@ void CameraController::AttachCamera(std::shared_ptr<KuroEngine::Camera> arg_cam)
 	m_cameraLocalTransform.SetParent(&m_camParentTransform);
 }
 
-void CameraController::Init()
+void CameraController::Init(bool arg_isRespawn)
 {
-	m_nowParam = m_initializedParam;
+	if (arg_isRespawn) {
+		m_nowParam = m_checkPointTriggerParam;
+		m_rotateZ = m_checkPointCameraZ;
+	}
+	else {
+		m_nowParam = m_initializedParam;
+	}
 	m_verticalControl = ANGLE;
-	m_rotateZ = 0;
 	m_rotateYLerpAmount = 0;
 	m_cameraXAngleLerpAmount = 0;
 	m_isHitUnderGroundTerrian = false;
@@ -69,6 +76,14 @@ void CameraController::Init()
 void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision)
 {
 	using namespace KuroEngine;
+
+	//チェックポイントに到達していたらパラメーターを保存。
+	if (CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger) {
+
+		m_checkPointTriggerParam = m_nowParam;
+		m_checkPointCameraZ = m_rotateZ;
+
+	}
 
 	//カメラがアタッチされていない
 	if (m_attachedCam.expired())return;
