@@ -114,13 +114,13 @@
       "useTex": 0
     },
     "Config": {
-      "distMax": 35.75,
-      "distMin": 0.30000001192092896,
+      "distMax": 35.0,
+      "distMin": 0.15000000596046448,
       "intensity": 1.0,
-      "opacityMax": 0.800000011920929
+      "opacityMax": 0.8999999761581421
     },
     "debuggerSetting": {
-      "active": false,
+      "active": true,
       "customParamActive": true,
       "imageColor": [
         0.800000011920929,
