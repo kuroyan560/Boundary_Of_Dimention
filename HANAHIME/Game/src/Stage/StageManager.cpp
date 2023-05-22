@@ -51,8 +51,6 @@ void StageManager::SetStage(int stage_num)
 	}
 	m_nowStage->Init();
 
-	m_nowMapPinPointIdx = 0;
-
 	//チェックポイントUI初期化
 	CheckPoint::UI().lock()->Init();
 }
