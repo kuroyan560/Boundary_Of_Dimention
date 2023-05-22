@@ -183,6 +183,11 @@ bool OperationConfig::GetOperationInput(OPERATION_TYPE arg_operation, INPUT_PATT
 
 bool OperationConfig::CheckAllOperationInput()
 {
+	//ベクトル入力
+	if (!GetMoveVecFuna(XMQuaternionIdentity()).IsZero())return true;
+	if (!GetScopeMove().IsZero())return true;
+
+	//ボタン入力
 	for (int ope = 0; ope < OPERATION_TYPE_NUM; ++ope)
 	{
 		if (GetOperationInput((OPERATION_TYPE)ope, HOLD))
