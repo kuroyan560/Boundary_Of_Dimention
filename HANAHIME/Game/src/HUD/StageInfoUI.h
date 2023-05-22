@@ -35,6 +35,11 @@ class StageInfoUI : public InGameUI
 	//収集した花の数字
 	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, FLOWER_NUM_TEX_SIZE>m_flowerNumTex;
 
+	//座標オフセットX
+	float m_offsetX = 0.0f;
+	//アルファ
+	float m_alpha = 1.0f;
+
 	void SetUIStatus(STATUS arg_status);
 
 	void Appear()override;

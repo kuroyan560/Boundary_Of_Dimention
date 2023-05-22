@@ -67,10 +67,14 @@ void StageInfoUI::Update(float arg_timeScale)
 {
 	using namespace KuroEngine;
 
+	const float OFFSET_X_MAX = 300.0f;
+
 	m_timer.UpdateTimer(arg_timeScale);
 
 	if (m_status == APPEAR)
 	{
+		m_offsetX = Math::Ease(Out, Back, m_timer.GetTimeRate(), OFFSET_X_MAX, 0.0f);
+		m_alpha = Math::Lerp(0.0f, 1.0f, m_timer.GetTimeRate());
 		if (m_timer.IsTimeUp())
 		{
 			SetUIStatus(DRAW);
@@ -85,6 +89,8 @@ void StageInfoUI::Update(float arg_timeScale)
 	}
 	else if (m_status == DISAPPEAR)
 	{
+		m_offsetX = Math::Ease(In, Back, m_timer.GetTimeRate(), 0.0f, OFFSET_X_MAX);
+		m_alpha = Math::Lerp(1.0f, 0.0f, m_timer.GetTimeRate());
 	}
 }
 
@@ -93,29 +99,32 @@ void StageInfoUI::Draw(int arg_existFlowerNum, int arg_getFlowerNum)
 	using namespace KuroEngine;
 
 	//ステージ名の右下の座標
-	const Vec2<float>STAGE_NAME_RIGHT_BOTTOM_POS = { 1130.0f,150.0f };
+	static const Vec2<float>STAGE_NAME_RIGHT_BOTTOM_POS = { 1130.0f,150.0f };
+
+	//オフセット
+	const Vec2<float>offsetX = { m_offsetX,0.0f };
 
 	//ステージ名描画
 	const Vec2<float>stageNamePos = STAGE_NAME_RIGHT_BOTTOM_POS - m_stageNameTex[m_stageNameIdx]->GetGraphSize().Float();
-	DrawFunc2D::DrawGraph(stageNamePos, m_stageNameTex[m_stageNameIdx]);
+	DrawFunc2D::DrawGraph(stageNamePos + offsetX, m_stageNameTex[m_stageNameIdx], m_alpha);
 
 	//ステージ名の装飾下線描画
 	const Vec2<float>UNDER_LINE_CENTER_POS = { 958.0f,161.0f };
-	DrawFunc2D::DrawRotaGraph2D(UNDER_LINE_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_underLineTex);
+	DrawFunc2D::DrawRotaGraph2D(UNDER_LINE_CENTER_POS + offsetX, { 1.0f,1.0f }, 0.0f, m_underLineTex, m_alpha);
 
 	//花アイコンの描画
 	const Vec2<float>MINI_FLOWER_CENTER_POS = { 1012.0f,202.0f };
-	DrawFunc2D::DrawRotaGraph2D(MINI_FLOWER_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_miniFlowerTex);
+	DrawFunc2D::DrawRotaGraph2D(MINI_FLOWER_CENTER_POS + offsetX, { 1.0f,1.0f }, 0.0f, m_miniFlowerTex, m_alpha);
 
 	//左の数字の描画
 	const Vec2<float>LEFT_NUM_CENTER_POS = { 1051.0f,205.0f };
-	DrawFunc2D::DrawRotaGraph2D(LEFT_NUM_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_flowerNumTex[arg_getFlowerNum]);
+	DrawFunc2D::DrawRotaGraph2D(LEFT_NUM_CENTER_POS + offsetX, { 1.0f,1.0f }, 0.0f, m_flowerNumTex[arg_getFlowerNum], m_alpha);
 
 	//「 / 」の描画
 	const Vec2<float>SLASH_CENTER_POS = { 1076.0f,208.0f };
-	DrawFunc2D::DrawRotaGraph2D(SLASH_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_flowerNumTex[FLOWER_NUM_SLASH_IDX]);
+	DrawFunc2D::DrawRotaGraph2D(SLASH_CENTER_POS + offsetX, { 1.0f,1.0f }, 0.0f, m_flowerNumTex[FLOWER_NUM_SLASH_IDX], m_alpha);
 
 	//右の数字の描画
 	const Vec2<float>RIGHT_NUM_CENTER_POS = { 1098.0f,208.0f };
-	DrawFunc2D::DrawRotaGraph2D(RIGHT_NUM_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_flowerNumTex[arg_existFlowerNum]);
+	DrawFunc2D::DrawRotaGraph2D(RIGHT_NUM_CENTER_POS + offsetX, { 1.0f,1.0f }, 0.0f, m_flowerNumTex[arg_existFlowerNum], m_alpha);
 }
