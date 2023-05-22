@@ -294,6 +294,12 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		std::vector<KuroEngine::Vec3<float>>translationArray;
 		if (LoadTranslationArray(arg_fileName, &translationArray, obj))
 		{
+
+			//X²•ûŒü‚ğŒü‚¢‚Ä‚¢‚é“G‚¾‚Á‚½‚çã‰º‚ğ”½“]‚³‚¹‚éB
+			if (0.9f < fabs(KuroEngine::Vec3<float>(1, 0, 0).Dot(transform.GetUp()))) {
+				transform.SetRotate(DirectX::XMQuaternionMultiply(transform.GetRotate(), DirectX::XMQuaternionRotationAxis(transform.GetFront(), DirectX::XM_PI)));
+			}
+
 			m_enemyArray.emplace_back(std::make_shared<Battery>(model, transform, translationArray, bulletScale, barrelPattern));
 			newPart = m_enemyArray.back().get();
 		}
