@@ -457,7 +457,10 @@ void Grass::GrassCheckHit(Grass::GrassData& arg_grass, const std::weak_ptr<Stage
 		for (auto& terrian : arg_nowStage.lock()->GetGimmickArray())
 		{
 			//“®‚­‘«ê‚Å‚È‚¢
-			if (terrian->GetType() != StageParts::MOVE_SCAFFOLD)	continue;
+			if (terrian->GetType() != StageParts::MOVE_SCAFFOLD) {
+				++terrianIdx;
+				continue;
+			}
 
 			//“®‚­‘«ê‚Æ‚µ‚ÄƒLƒƒƒXƒg
 			auto moveScaffold = dynamic_pointer_cast<MoveScaffold>(terrian);

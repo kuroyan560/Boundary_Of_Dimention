@@ -287,6 +287,8 @@ void MoveScaffold::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 void MoveScaffold::Update(Player& arg_player)
 {
 
+	m_moveAmount = {};
+
 	//ƒtƒ‰ƒO‚ğ•Û‘¶B
 	m_prevOnPlayer = m_onPlayer;
 
