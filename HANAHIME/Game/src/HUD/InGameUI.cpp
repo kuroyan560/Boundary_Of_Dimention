@@ -14,7 +14,7 @@ void InGameUI::Init()
 void InGameUI::Update(float arg_timeScale)
 {
 	const bool operationInput = OperationConfig::Instance()->CheckAllOperationInput();
-	const float NO_OPERATION_TIME = 120.0f;
+	const float NO_OPERATION_TIME = 300.0f;
 
 	bool isAllAppeared = true;
 	bool isAllDisappeared = true;

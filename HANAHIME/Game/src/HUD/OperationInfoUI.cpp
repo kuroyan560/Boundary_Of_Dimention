@@ -9,9 +9,9 @@ void OperationInfoUI::SetUIStatus(STATUS arg_status)
 
 	 static const std::array<float, STATUS_NUM>INTERVALS =
 	{
-		45.0f,	//“oê
-		300.0f,	//’Êí•`‰æ
-		45.0f,	//‘Şê
+		35.0f,	//“oê
+		250.0f,	//’Êí•`‰æ
+		35.0f,	//‘Şê
 	};
 
 	//‰‰oŠÔƒZƒbƒg

@@ -40,6 +40,17 @@ class StageInfoUI : public InGameUI
 	//アルファ
 	float m_alpha = 1.0f;
 
+	//前フレームでの花の所持数
+	int m_oldGetFlowerNum;
+	//花の収集量増加UI演出のタイマー
+	KuroEngine::Timer m_addFlowerNumTimer;
+	//花の収集量増加UI演出
+	int m_addFlowerNum = 0;
+	//花増加UIアルファ
+	float m_addFlowerAlpha = 1.0f;
+	//花増加UI座標オフセットY
+	float m_addFlowerOffsetY = 0.0f;
+
 	void SetUIStatus(STATUS arg_status);
 
 	void Appear()override;
@@ -49,8 +60,8 @@ class StageInfoUI : public InGameUI
 
 public:
 	StageInfoUI();
-	void Init(int arg_stageNum);
-	void Update(float arg_timeScale);
+	void Init(int arg_stageNum, int arg_getFlowerNum);
+	void Update(float arg_timeScale, int arg_getFlowerNum);
 	void Draw(int arg_existFlowerNum, int arg_getFlowerNum);
 };
 

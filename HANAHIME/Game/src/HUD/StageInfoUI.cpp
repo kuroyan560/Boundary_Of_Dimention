@@ -8,9 +8,9 @@ void StageInfoUI::SetUIStatus(STATUS arg_status)
 
 	static const std::array<float, STATUS_NUM>INTERVALS =
 	{
-		45.0f,	//ìoèÍ
-		300.0f,	//í èÌï`âÊ
-		45.0f,	//ëﬁèÍ
+		35.0f,	//ìoèÍ
+		250.0f,	//í èÌï`âÊ
+		35.0f,	//ëﬁèÍ
 	};
 
 	//ââèoéûä‘ÉZÉbÉg
@@ -57,17 +57,21 @@ StageInfoUI::StageInfoUI()
 	D3D12App::Instance()->GenerateTextureBuffer(m_flowerNumTex.data(), flowerTexDir + "flower_num.png", FLOWER_NUM_TEX_SIZE, { FLOWER_NUM_TEX_SIZE ,1 });
 }
 
-void StageInfoUI::Init(int arg_stageNum)
+void StageInfoUI::Init(int arg_stageNum, int arg_getFlowerNum)
 {
 	m_stageNameIdx = arg_stageNum;
 	SetUIStatus(APPEAR);
+	m_oldGetFlowerNum = arg_getFlowerNum;
+	m_addFlowerNum = 0;
 }
 
-void StageInfoUI::Update(float arg_timeScale)
+void StageInfoUI::Update(float arg_timeScale, int arg_getFlowerNum)
 {
 	using namespace KuroEngine;
 
 	const float OFFSET_X_MAX = 300.0f;
+	const float ADD_FLOWER_OFFSET_Y_MAX = -80.0f;
+	const float ADD_FLOWER_APEEAR_TIME = 20.0f;
 
 	m_timer.UpdateTimer(arg_timeScale);
 
@@ -82,16 +86,31 @@ void StageInfoUI::Update(float arg_timeScale)
 	}
 	else if (m_status == DRAW)
 	{
-		/*if (m_timer.IsTimeUp())
+		m_addFlowerNumTimer.UpdateTimer(arg_timeScale);
+		m_addFlowerAlpha = Math::Ease(Out, Exp, m_addFlowerNumTimer.GetTimeRate(), 0.0f, 1.0f);
+		m_addFlowerOffsetY = Math::Ease(Out, Back, m_addFlowerNumTimer.GetTimeRate(), ADD_FLOWER_OFFSET_Y_MAX, 0.0f);
+
+		if (m_addFlowerNum && m_timer.IsTimeUp())
 		{
+			m_addFlowerNum = 0;
 			SetUIStatus(DISAPPEAR);
-		}*/
+		}
 	}
 	else if (m_status == DISAPPEAR)
 	{
 		m_offsetX = Math::Ease(In, Back, m_timer.GetTimeRate(), 0.0f, OFFSET_X_MAX);
 		m_alpha = Math::Lerp(1.0f, 0.0f, m_timer.GetTimeRate());
 	}
+
+	if (m_oldGetFlowerNum < arg_getFlowerNum)
+	{
+		m_addFlowerNumTimer.Reset(ADD_FLOWER_APEEAR_TIME);
+		Appear();
+		m_addFlowerNum = arg_getFlowerNum - m_oldGetFlowerNum;
+		m_addFlowerAlpha = 0.0f;
+		m_addFlowerOffsetY = ADD_FLOWER_OFFSET_Y_MAX;
+	}
+	m_oldGetFlowerNum = arg_getFlowerNum;
 }
 
 void StageInfoUI::Draw(int arg_existFlowerNum, int arg_getFlowerNum)
@@ -109,22 +128,36 @@ void StageInfoUI::Draw(int arg_existFlowerNum, int arg_getFlowerNum)
 	DrawFunc2D::DrawGraph(stageNamePos + offsetX, m_stageNameTex[m_stageNameIdx], m_alpha);
 
 	//ÉXÉeÅ[ÉWñºÇÃëïè¸â∫ê¸ï`âÊ
-	const Vec2<float>UNDER_LINE_CENTER_POS = { 958.0f,161.0f };
+	static const Vec2<float>UNDER_LINE_CENTER_POS = { 958.0f,161.0f };
 	DrawFunc2D::DrawRotaGraph2D(UNDER_LINE_CENTER_POS + offsetX, { 1.0f,1.0f }, 0.0f, m_underLineTex, m_alpha);
 
 	//â‘ÉAÉCÉRÉìÇÃï`âÊ
-	const Vec2<float>MINI_FLOWER_CENTER_POS = { 1012.0f,202.0f };
+	static const Vec2<float>MINI_FLOWER_CENTER_POS = { 1012.0f,202.0f };
 	DrawFunc2D::DrawRotaGraph2D(MINI_FLOWER_CENTER_POS + offsetX, { 1.0f,1.0f }, 0.0f, m_miniFlowerTex, m_alpha);
 
 	//ç∂ÇÃêîéöÇÃï`âÊ
-	const Vec2<float>LEFT_NUM_CENTER_POS = { 1051.0f,205.0f };
+	static const Vec2<float>LEFT_NUM_CENTER_POS = { 1051.0f,205.0f };
 	DrawFunc2D::DrawRotaGraph2D(LEFT_NUM_CENTER_POS + offsetX, { 1.0f,1.0f }, 0.0f, m_flowerNumTex[arg_getFlowerNum], m_alpha);
 
 	//Åu / ÅvÇÃï`âÊ
-	const Vec2<float>SLASH_CENTER_POS = { 1076.0f,208.0f };
+	static const Vec2<float>SLASH_CENTER_POS = { 1076.0f,208.0f };
 	DrawFunc2D::DrawRotaGraph2D(SLASH_CENTER_POS + offsetX, { 1.0f,1.0f }, 0.0f, m_flowerNumTex[FLOWER_NUM_SLASH_IDX], m_alpha);
 
 	//âEÇÃêîéöÇÃï`âÊ
-	const Vec2<float>RIGHT_NUM_CENTER_POS = { 1098.0f,208.0f };
+	static const Vec2<float>RIGHT_NUM_CENTER_POS = { 1098.0f,208.0f };
 	DrawFunc2D::DrawRotaGraph2D(RIGHT_NUM_CENTER_POS + offsetX, { 1.0f,1.0f }, 0.0f, m_flowerNumTex[arg_existFlowerNum], m_alpha);
+
+	//ì¸éËéû
+	if (m_addFlowerNum)
+	{
+		const Vec2<float>addFlowerOffsetY = { 0.0f,m_addFlowerOffsetY };
+
+		//Åu + ÅvÇÃï`âÊ
+		const Vec2<float>PLUS_CENTER_POS = { 1058.0f,256.0f };
+		DrawFunc2D::DrawRotaGraph2D(PLUS_CENTER_POS + addFlowerOffsetY, { 1.0f,1.0f }, 0.0f, m_flowerNumTex[FLOWER_NUM_PLUS_IDX], m_addFlowerAlpha);
+
+		//ëùÇ¶ÇΩâ‘ÇÃêîï`âÊ
+		const Vec2<float>ADD_FLOWER_NUM_CENTER_POS = { 1080.0f,252.0f };
+		DrawFunc2D::DrawRotaGraph2D(ADD_FLOWER_NUM_CENTER_POS + addFlowerOffsetY, { 1.0f,1.0f }, 0.0f, m_flowerNumTex[m_addFlowerNum], m_addFlowerAlpha);
+	}
 }

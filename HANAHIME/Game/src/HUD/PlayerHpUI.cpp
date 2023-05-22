@@ -10,9 +10,9 @@ void PlayerHpUI::SetHpUIStatus(STATUS arg_status)
 
 	static const std::array<float, STATUS_NUM>INTERVALS =
 	{
-		60.0f,	//“oê
-		300.0f,	//’Êí•`‰æ
-		60.0f,	//‘Şê
+		55.0f,	//“oê
+		250.0f,	//’Êí•`‰æ
+		55.0f,	//‘Şê
 		30.0f,	//ƒ_ƒ[ƒW
 	};
 
