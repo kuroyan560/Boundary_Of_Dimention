@@ -1,79 +1,168 @@
 {
-    "stage": {
-        "name": "scene",
-        "objects": [
-            {
-                "type": "Battery",
-                "name": "Battery.002",
-                "transform": {
-                    "translation": [
-                        -53.0,
-                        0.0,
-                        30.0
-                    ],
-                    "rotation": [
-                        -0.5,
-                        -0.5,
-                        0.5,
-                        0.5
-                    ],
-                    "scaling": [
-                        3.0,
-                        3.0,
-                        3.0
-                    ]
-                },
-                "file_name": "Battery",
-                "translationArray": {},
-                "BarrelPat": "ROCKON",
-                "BulletScale": 3.0
-            },
-            {
-                "type": "Terrian",
-                "name": "Stage0_0.003",
-                "transform": {
-                    "translation": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "rotation": [
-                        -0.0,
-                        -1.0,
-                        -0.0,
-                        0.0
-                    ],
-                    "scaling": [
-                        10.0,
-                        10.0,
-                        10.0
-                    ]
-                },
-                "file_name": "DebugStage"
-            },
-            {
-                "type": "Start",
-                "name": "Start_0.001",
-                "transform": {
-                    "translation": [
-                        0.0,
-                        0.0,
-                        13.0
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                },
-                "file_name": "Start"
-            }
-        ]
-    }
+  "stage": {
+    "name": "scene",
+    "objects": [
+      {
+        "type": "Battery",
+        "name": "Battery.001",
+        "transform": {
+          "translation": [
+            -80.0,
+            -27.0,
+            30.0
+          ],
+          "rotation": [
+            -0.7071068286895752,
+            0.0,
+            0.0,
+            0.7071068286895752
+          ],
+          "scaling": [
+            3.0,
+            3.0,
+            3.0
+          ]
+        },
+        "file_name": "Battery",
+        "translationArray": {},
+        "BarrelPat": "ROCKON",
+        "BulletScale": 3.0
+      },
+      {
+        "type": "Battery",
+        "name": "Battery.002",
+        "transform": {
+          "translation": [
+            -53.0,
+            0.0,
+            30.0
+          ],
+          "rotation": [
+            -0.5,
+            -0.5,
+            0.5,
+            0.5
+          ],
+          "scaling": [
+            3.0,
+            3.0,
+            3.0
+          ]
+        },
+        "file_name": "Battery",
+        "translationArray": {},
+        "BarrelPat": "ROCKON",
+        "BulletScale": 3.0
+      },
+      {
+        "type": "Battery",
+        "name": "Battery.003",
+        "transform": {
+          "translation": [
+            -80.0,
+            0.0,
+            47.0
+          ],
+          "rotation": [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          "scaling": [
+            3.0,
+            3.0,
+            3.0
+          ]
+        },
+        "file_name": "Battery",
+        "translationArray": {},
+        "BarrelPat": "ROCKON",
+        "BulletScale": 3.0
+      },
+      {
+        "type": "Terrian",
+        "name": "Stage0_0.003",
+        "transform": {
+          "translation": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "rotation": [
+            -0.0,
+            -1.0,
+            -0.0,
+            0.0
+          ],
+          "scaling": [
+            10.0,
+            10.0,
+            10.0
+          ]
+        },
+        "file_name": "DebugStage"
+      },
+      {
+        "type": "Start",
+        "name": "Start_0.001",
+        "transform": {
+          "translation": [
+            0.0,
+            0.0,
+            13.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "scaling": [
+            1.0,
+            1.0,
+            1.0
+          ]
+        },
+        "file_name": "Start"
+      },
+      {
+        "type": "Battery",
+        "name": "Battery",
+        "transform": {
+          "translation": [
+            -80.0,
+            0.0,
+            13.0
+          ],
+          "rotation": [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ],
+          "scaling": [
+            3.0,
+            3.0,
+            3.0
+          ]
+        },
+        "file_name": "Battery",
+        "translationArray": {
+          "translation_0": [
+            -70.0,
+            0.0,
+            13.0
+          ],
+          "translation_1": [
+            -90.0,
+            0.0,
+            13.0
+          ]
+        },
+        "BarrelPat": "FIXED",
+        "BulletScale": 3.0
+      }
+    ]
+  }
 }
