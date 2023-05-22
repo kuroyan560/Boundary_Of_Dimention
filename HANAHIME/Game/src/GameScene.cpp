@@ -18,6 +18,8 @@
 
 #include"Stage/GateManager.h"
 
+#include"HUD/InGameUI.h"
+
 GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_1flameStopTimer(30), m_goal(m_particleRender.GetStackBuffer())
 {
 	m_ddsTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.dds");
@@ -72,6 +74,9 @@ void GameScene::GameInit()
 	}
 	SoundConfig::Instance()->Init();
 	GateManager::Instance()->Init();
+	m_opeInfoUI.Init();
+	InGameUI::Init();
+	m_stageInfoUI.Init(m_stageNum, StageManager::Instance()->GetStarCoinNum());
 }
 
 void GameScene::OnInitialize()
@@ -168,7 +173,7 @@ void GameScene::OnUpdate()
 
 	//デバッグ用
 	bool isRetry = false;
-	if (OperationConfig::Instance()->InputRetry() || m_player.GetIsFinishDeathAnimation())
+	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::RETRY, OperationConfig::ON_TRIGGER) || m_player.GetIsFinishDeathAnimation())
 	{
 		isRetry = true;
 	}
@@ -234,6 +239,11 @@ void GameScene::OnUpdate()
 
 	//敵用丸影を更新
 	EnemyDataReferenceForCircleShadow::Instance()->UpdateGPUData();
+
+	//UI更新
+	InGameUI::Update(TimeScaleMgr::s_inGame.GetTimeScale());
+	m_opeInfoUI.Update(TimeScaleMgr::s_inGame.GetTimeScale());
+	m_stageInfoUI.Update(TimeScaleMgr::s_inGame.GetTimeScale(), StageManager::Instance()->GetStarCoinNum());
 
 	GateManager::Instance()->FrameEnd();
 }
@@ -310,6 +320,8 @@ void GameScene::OnDraw()
 	{
 		m_player.DrawUI(*m_nowCam);
 		StageManager::Instance()->DrawUI(*m_nowCam, m_player.GetTransform().GetPosWorld());
+		m_opeInfoUI.Draw();
+		m_stageInfoUI.Draw(StageManager::Instance()->ExistStarCoinNum(), StageManager::Instance()->GetStarCoinNum());
 	}
 
 	m_title.Draw(*m_nowCam, m_ligMgr);

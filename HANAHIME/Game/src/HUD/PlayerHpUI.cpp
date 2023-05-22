@@ -4,34 +4,33 @@
 #include"FrameWork/WinApp.h"
 #include"ForUser/DrawFunc/2D/DrawFunc2D.h"
 
-void PlayerHpUI::SetHpUIStatus(HP_UI_STATUS arg_status)
+void PlayerHpUI::SetHpUIStatus(STATUS arg_status)
 {
 	using namespace KuroEngine;
 
-	if (arg_status == HP_UI_APPEAR)
+	static const std::array<float, STATUS_NUM>INTERVALS =
 	{
-		m_appearTimer.Reset(60);
-		m_hpUiStatus = HP_UI_APPEAR;
-	}
-	else if (arg_status == HP_UI_DRAW)
+		55.0f,	//登場
+		250.0f,	//通常描画
+		55.0f,	//退場
+		30.0f,	//ダメージ
+	};
+
+	//演出時間セット
+	m_appearTimer.Reset(INTERVALS[arg_status]);
+	//ステータス更新
+	m_hpUiStatus = arg_status;
+
+	if (arg_status == DAMAGE)
 	{
-		m_appearTimer.Reset(300);
-		m_hpUiStatus = HP_UI_DRAW;
-	}
-	else if (arg_status == HP_UI_DISAPPEAR && m_hpUiStatus == HP_UI_DRAW)
-	{
-		m_appearTimer.Reset(60);
-		m_hpUiStatus = HP_UI_DISAPPEAR;
-	}
-	else if (arg_status == HP_UI_DAMAGE)
-	{
-		m_appearTimer.Reset(30);
-		m_hpUiStatus = HP_UI_DAMAGE;
 		m_hpTexExpand = 1.0f;
 		m_hpCenterOffset = { 0,0 };
 		m_hpRadiusExpand = 1.0f;
 		m_leafSpin = Angle(0);
 		m_impactShake.Shake(30.0f, 1.0f, 32.0f, 64.0f);
+		m_isDamageAppear = true;
+		m_strAlpha = 1.0f;
+		m_strOffsetX = 0.0f;
 	}
 }
 
@@ -57,20 +56,24 @@ void PlayerHpUI::Init()
 {
 	//HPのUI初期化
 	m_impactShake.Init();
-	SetHpUIStatus(HP_UI_APPEAR);
+	SetHpUIStatus(APPEAR);
 	m_beatTimer.Reset(0.0f);
 	m_damageFlash = true;
+	m_isDamageAppear = false;
+	m_hpMax = true;
 }
 
 void PlayerHpUI::Update(float arg_timeScale, int arg_defaultHp, int arg_nowHp, const KuroEngine::Timer& arg_noDamageTimer)
 {
 	using namespace KuroEngine;
 
-	const float OFFSET_X_MAX = -300.0f;
+	static const float OFFSET_X_MAX = -300.0f;
 
 	m_appearTimer.UpdateTimer(arg_timeScale);
 
-	if (m_hpUiStatus == HP_UI_APPEAR)
+	m_hpMax = arg_defaultHp <= arg_nowHp;
+
+	if (m_hpUiStatus == APPEAR)
 	{
 		m_hpRadiusExpand = Math::Ease(Out, Quart, m_appearTimer.GetTimeRate(), 0.1f, 1.0f);
 		m_hpTexExpand = Math::Ease(Out, Quart, m_appearTimer.GetTimeRate(0.7f), 0.0f, 1.0f);
@@ -80,26 +83,26 @@ void PlayerHpUI::Update(float arg_timeScale, int arg_defaultHp, int arg_nowHp, c
 		m_strOffsetX = Math::Ease(Out, Back, m_appearTimer.GetTimeRate(0.8f), OFFSET_X_MAX, 0.0f);
 		if (m_appearTimer.IsTimeUp())
 		{
-			SetHpUIStatus(HP_UI_DRAW);
+			SetHpUIStatus(DRAW);
 		}
 	}
-	else if (m_hpUiStatus == HP_UI_DAMAGE)
+	else if (m_hpUiStatus == DAMAGE)
 	{
 		m_impactShake.Update(arg_timeScale);
 		if (m_appearTimer.IsTimeUp())
 		{
-			SetHpUIStatus(HP_UI_DRAW);
+			SetHpUIStatus(DRAW);
 		}
 	}
-	else if (m_hpUiStatus == HP_UI_DRAW)
+	else if (m_hpUiStatus == DRAW)
 	{
 		//HPがMAXのときは消える
-		if (m_appearTimer.IsTimeUp() && arg_defaultHp <= arg_nowHp)
+		if (m_hpMax && m_isDamageAppear && m_appearTimer.IsTimeUp())
 		{
-			SetHpUIStatus(HP_UI_DISAPPEAR);
+			SetHpUIStatus(DISAPPEAR);
 		}
 	}
-	else if (m_hpUiStatus == HP_UI_DISAPPEAR)
+	else if (m_hpUiStatus == DISAPPEAR)
 	{
 		m_hpRadiusExpand = Math::Ease(In, Quart, m_appearTimer.GetTimeRate(), 1.0f, 0.1f);
 		m_hpTexExpand = Math::Ease(In, Quart, m_appearTimer.GetTimeRate(0.7f), 1.0f, 0.0f);
@@ -228,4 +231,20 @@ void PlayerHpUI::Draw(int arg_defaultHp, int arg_nowHp, bool arg_isHitStop)
 	//HP数字描画
 	static const Vec2<float>HP_NUM_POS = { 238.0f,246.0f };
 	DrawFunc2D::DrawRotaGraph2D(HP_NUM_POS + Vec2<float>(m_strOffsetX, 0.0f) + shake, { 1.0f,1.0f }, 0.0f, m_numTexArray[arg_nowHp], m_strAlpha);
+}
+
+void PlayerHpUI::Appear()
+{
+	if (m_hpUiStatus != DISAPPEAR)return;
+	m_isDamageAppear = false;
+	SetHpUIStatus(APPEAR);
+}
+
+void PlayerHpUI::Disappear()
+{
+	//退場演出は通常描画ステータスのときのみ
+	if (m_hpUiStatus != DRAW)return;
+	//ダメージを受けてるときは常に描画
+	if (!m_hpMax)return;
+	SetHpUIStatus(DISAPPEAR);
 }

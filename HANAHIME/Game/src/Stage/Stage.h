@@ -47,6 +47,9 @@ private:
 	//全ての目的地を巡回済
 	bool m_isCompleteMapPin = false;
 
+	//スターコインのポインタ配列
+	std::vector<std::weak_ptr<StarCoin>>m_starCoinArray;
+
 //モデル
 	//地形モデルの存在するディレクトリ
 	static std::string s_stageModelDir;
@@ -93,17 +96,25 @@ public:
 
 	//通常の地形の配列取得
 	const std::vector<Terrian>& GetTerrianArray()const { return m_terrianArray; }
+	//ギミック配列取得
 	std::list<std::shared_ptr<StageParts>>& GetGimmickArray(){ return m_gimmickArray; }
 
+	//入手したスターコインの数
+	int GetStarCoinNum()const;
+	//存在するスターコインの数
+	int ExistStarCoinNum()const { return static_cast<int>(m_starCoinArray.size()); }
+
+	//ゲートのIDからゲートのトランスフォームを取得
 	KuroEngine::Transform GetGateTransform(int arg_gateID)const;
 
-	//プレイヤーの初期化トランスフォーム
+	//プレイヤーの初期化トランスフォームゲッタ
 	KuroEngine::Transform GetPlayerSpawnTransform()const
 	{
 		if (m_startPoint)return m_startPoint->GetTransform();
 		return KuroEngine::Transform();
 	}
 
+	//ゴールのトランスフォームゲッタ
 	KuroEngine::Transform GetGoalTransform()const
 	{
 		if (m_goalPoint)return m_goalPoint->GetTransform();

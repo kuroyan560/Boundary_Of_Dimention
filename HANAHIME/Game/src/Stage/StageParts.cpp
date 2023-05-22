@@ -844,13 +844,22 @@ void StarCoin::OnInit()
 
 void StarCoin::Update(Player& arg_player)
 {
+	const float STAR_COIN_RADIUS = 10.0f;
+	const float STAR_COIN_OFFSET_Y = -5.0f;
+
 	//èEÇÌÇÍÇΩÇ»ÇÁâΩÇ‡ÇµÇ»Ç¢
 	if (m_touched)return;
 
-	bool isHit = false;
 	//ÉvÉåÉCÉÑÅ[Ç∆ÇÃìñÇΩÇËîªíË
+	KuroEngine::Vec3<float>playerPos = arg_player.GetTransform().GetPosWorld();
+	KuroEngine::Vec3<float>myPos = m_transform.GetPosWorld() + m_transform.GetUpWorld() * STAR_COIN_OFFSET_Y;
+	bool isHit = playerPos.Distance(myPos) < STAR_COIN_RADIUS;
 
-	//
+	//è’ìÀÇµÇΩèuä‘
+	if (!m_touched && isHit)
+	{
+	}
+
 	m_touched = isHit;
 	if (isHit)m_get = true;
 }

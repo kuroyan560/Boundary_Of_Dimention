@@ -2,9 +2,28 @@
 #include"KuroEngine.h"
 #include"Common/Singleton.h"
 #include"ForUser/Debugger.h"
+#include"FrameWork/UsersInput.h"
 
 class OperationConfig : public KuroEngine::DesignPattern::Singleton<OperationConfig>, public KuroEngine::Debugger
 {
+public:
+	//入力パターン
+	enum INPUT_PATTERN { HOLD, ON_TRIGGER, OFF_TRIGGER, ON_OFF_TRIGGER };
+
+	//操作入力種別
+	enum OPERATION_TYPE
+	{
+		DONE,	//決定
+		CANCEL,	//キャンセル
+		CAM_DIST_MODE_CHANGE,	//カメラの距離モード切り替え
+		CAM_RESET,	//カメラリセット
+		SINK_GROUND,	//地中に潜る
+		RIDE_ZIP_LINE,	//ジップラインに乗る
+		RETRY,	//リトライ（ポーズ画面から選択してリトライするようになるかも、なくなる可能性ある）
+		OPERATION_TYPE_NUM
+	};
+
+private:
 	friend class KuroEngine::DesignPattern::Singleton<OperationConfig>;
 	OperationConfig();
 	
@@ -17,6 +36,7 @@ class OperationConfig : public KuroEngine::DesignPattern::Singleton<OperationCon
 		"KEY_BOARD_MOUSE","CONTROLLER"
 	};
 
+	//入力デバイスごとのパラメータ
 	struct Parameter
 	{
 		float m_camSensitivity = 0.2f;
@@ -25,12 +45,19 @@ class OperationConfig : public KuroEngine::DesignPattern::Singleton<OperationCon
 			:m_camSensitivity(arg_camSensitivity) {}
 	};
 
+	//キーマウかコントローラーで違うパラメータ
 	std::array<Parameter, static_cast<int>(INPUT_DEVICE::NUM)>m_params =
 	{
 		Parameter(0.2f),
 		Parameter(0.1f),
 	};
 
+	//キーボード入力のときの割当キー
+	std::array<int, OPERATION_TYPE_NUM>m_operationKeyCode;
+	//コントローラー入力のときの割当ボタン
+	std::array<KuroEngine::XBOX_BUTTON, OPERATION_TYPE_NUM>m_operationButton;
+
+	//操作入力を受け付けているか
 	bool m_isActive = false;
 
 	void OnImguiItems()override;
@@ -40,6 +67,11 @@ class OperationConfig : public KuroEngine::DesignPattern::Singleton<OperationCon
 	{
 		m_nowInputDevice = arg_device;
 	}
+
+	//コントローラーによる入力
+	bool ControllerInput(INPUT_PATTERN arg_pattern, KuroEngine::XBOX_BUTTON arg_xboxButton);
+	//キーによる入力
+	bool KeyInput(INPUT_PATTERN arg_pattern, int arg_keyCode);
 
 public:
 	void SetActive(bool arg_active) { m_isActive = arg_active; }
@@ -59,26 +91,11 @@ public:
 	/// <returns>視線移動角度（ラジアン）</returns>
 	KuroEngine::Vec3<float>GetScopeMove();
 
-	//決定ボタン
-	bool InputDone();
-	//キャンセルボタン
-	bool InputCancel();
+	//操作入力
+	bool GetOperationInput(OPERATION_TYPE arg_operation, INPUT_PATTERN arg_pattern);
 
-	//カメラの距離モード切り替えボタン
-	bool InputCamDistModeChange();
-	//カメラリセット
-	bool InputCamReset();
-
-	//潜るアクションボタン
-	bool InputSink();
-	//潜るアクションボタントリガー
-	bool InputSinkOnOffTrigger();
-
-	//ジップライン
-	bool InputRideZipLine();
-
-	//リトライボタン（ポーズ画面から選択してリトライするようになるかも、なくなる可能性ある）
-	bool InputRetry();
+	//操作入力があったか
+	bool CheckAllOperationInput();
 
 	//デバッグ用のキー入力
 	bool DebugKeyInputOnTrigger(int arg_keyCode);

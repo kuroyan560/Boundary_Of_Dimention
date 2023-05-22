@@ -5,16 +5,17 @@
 #include"Common/Angle.h"
 #include"ForUser/Timer.h"
 #include"ForUser/ImpactShake.h"
+#include"InGameUI.h"
 
 namespace KuroEngine
 {
 	class TextureBuffer;
 }
 
-class PlayerHpUI
+class PlayerHpUI : public InGameUI
 {
 	//HPUIの演出ステータス
-	enum HP_UI_STATUS { HP_UI_APPEAR, HP_UI_DRAW, HP_UI_DISAPPEAR, HP_UI_DAMAGE }m_hpUiStatus;
+	enum STATUS { APPEAR, DRAW, DISAPPEAR, DAMAGE, STATUS_NUM }m_hpUiStatus;
 
 	//HPリーフの数
 	static const int LEAF_NUM = 5;
@@ -50,8 +51,19 @@ class PlayerHpUI
 	bool m_isNoDamageTime;
 	KuroEngine::Timer m_damageFlashTimer;
 	bool m_damageFlash;
+	bool m_isDamageAppear = false;
 
-	void SetHpUIStatus(HP_UI_STATUS arg_status);
+	bool m_hpMax = false;
+
+	void SetHpUIStatus(STATUS arg_status);
+
+	void Appear()override;
+	void Disappear()override;
+	bool IsAppeared()override { return m_hpUiStatus == DRAW; }
+	bool IsDisappeared()override 
+	{
+		return (m_hpUiStatus == DISAPPEAR && m_appearTimer.IsTimeUp()) || !m_hpMax;
+	}
 
 public:
 	PlayerHpUI();
@@ -61,7 +73,7 @@ public:
 
 	void OnDamage()
 	{
-		SetHpUIStatus(HP_UI_DAMAGE);
+		SetHpUIStatus(DAMAGE);
 	}
 };
 
