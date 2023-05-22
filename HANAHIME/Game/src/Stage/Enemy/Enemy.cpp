@@ -539,6 +539,7 @@ Battery::Battery(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transfo
 		m_patrol->Init(0);
 		m_pos = m_posArray[0];
 	}
+	arg_initTransform.SetRotate(DirectX::XMQuaternionMultiply(arg_initTransform.GetRotate(), DirectX::XMQuaternionRotationAxis(arg_initTransform.GetFront(), DirectX::XM_PI)));
 	m_transform = arg_initTransform;
 	m_initTransform = arg_initTransform;
 	m_transform.SetPos(m_pos);

@@ -27,11 +27,14 @@ StageManager::StageManager()
 
 	//パズルステージ一括読み込み
 	int loadPazzleIdx = 1;
-	while (KuroEngine::ExistFile(stageDir + "P_Stage_" + std::to_string(loadPazzleIdx) + ".json"))
-	{
-		m_stageArray.emplace_back(std::make_shared<Stage>());
-		m_stageArray.back()->Load(loadPazzleIdx, stageDir, "P_Stage_" + std::to_string(loadPazzleIdx++) + ".json", terrianScaling, false);
-	}
+	//while (KuroEngine::ExistFile(stageDir + "P_Stage_" + std::to_string(loadPazzleIdx) + ".json"))
+	//{
+	//	m_stageArray.emplace_back(std::make_shared<Stage>());
+	//	m_stageArray.back()->Load(loadPazzleIdx, stageDir, "P_Stage_" + std::to_string(loadPazzleIdx++) + ".json", terrianScaling, false);
+	//}
+
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load(loadPazzleIdx, stageDir, "P_Stage_3_ForBattery.json", terrianScaling, false);
 
 	//現在のステージ指定（デフォルトはホーム用ステージ）
 	m_nowStage = m_stageArray[0];
@@ -129,17 +132,17 @@ void StageManager::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 
 void StageManager::DrawUI(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float>arg_playerPos)
 {
-	//まだ全ての目的地を巡回していない
-	KuroEngine::Vec3<float>mapPinPos;
-	if (GetNowMapPinPos(&mapPinPos))
-	{
-		const auto& mapPinPointArray = m_nowStage->GetMapPinPointArray();
-		
-		m_mapPinUI.Draw(arg_cam, mapPinPos, arg_playerPos);
-	}
+	////まだ全ての目的地を巡回していない
+	//KuroEngine::Vec3<float>mapPinPos;
+	//if (GetNowMapPinPos(&mapPinPos))
+	//{
+	//	const auto& mapPinPointArray = m_nowStage->GetMapPinPointArray();
+	//	
+	//	m_mapPinUI.Draw(arg_cam, mapPinPos, arg_playerPos);
+	//}
 
-	//チェックポイントUI描画
-	CheckPoint::UI().lock()->Draw();
+	////チェックポイントUI描画
+	//CheckPoint::UI().lock()->Draw();
 }
 
 bool StageManager::GetNowMapPinPos(KuroEngine::Vec3<float>* arg_destPos)
