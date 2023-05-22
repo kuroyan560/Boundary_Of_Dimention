@@ -22,6 +22,8 @@ bool PlayerCollision::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from,
 	arg_terrianNormal … 当たった地形のメッシュの法線、格納先
 	*/
 
+	m_refPlayer->m_isWallFrontDir = false;
+
 	//CastRayに渡す引数
 	PlayerCollision::CastRayArgument castRayArgument;
 	castRayArgument.m_stageType = StageParts::TERRIAN;
@@ -78,6 +80,42 @@ void PlayerCollision::CheckDeath(const KuroEngine::Vec3<float> arg_from, KuroEng
 }
 
 void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo, PlayerCollision::CastRayArgument& arg_castRayArgment) {
+
+
+	//移動方向にレイを飛ばす。
+	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
+	{
+		//モデル情報取得
+		auto model = terrian.GetModel().lock();
+		//情報を取得。
+		arg_castRayArgment.m_stageType = StageParts::TERRIAN;
+
+		//メッシュを走査
+		for (auto& modelMesh : model->m_meshes)
+		{
+			//メッシュ情報取得
+			auto& mesh = modelMesh.mesh;
+
+			//CastRayに渡す引数を更新。
+			arg_castRayArgment.m_mesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+
+			//判定↓============================================
+
+			const float CAMERA_WALL_LENGTH = 50.0f;	//近くに壁があったらそっち側を向けるための距離
+
+			//当たり判定を実行
+			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_refPlayer->GetNowPos(), m_refPlayer->m_drawTransform.GetFront(), arg_castRayArgment.m_mesh);
+
+			if (output.m_isHit && 0 < output.m_distance && output.m_distance < CAMERA_WALL_LENGTH) {
+
+				m_refPlayer->m_isWallFrontDir = true;
+				m_refPlayer->m_frontWallNormal = output.m_normal;
+
+			}
+
+			//=================================================
+		}
+	}
 
 
 	//プレイヤーが沈んでいるときは、上方向にレイを飛ばして上に柵がないかをチェックする。
