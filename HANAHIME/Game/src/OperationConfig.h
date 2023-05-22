@@ -20,6 +20,7 @@ public:
 		SINK_GROUND,	//地中に潜る
 		RIDE_ZIP_LINE,	//ジップラインに乗る
 		RETRY,	//リトライ（ポーズ画面から選択してリトライするようになるかも、なくなる可能性ある）
+		LOOK_AROUND,	//周囲確認用モード
 		OPERATION_TYPE_NUM
 	};
 

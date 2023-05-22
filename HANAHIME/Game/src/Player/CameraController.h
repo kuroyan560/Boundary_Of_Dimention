@@ -59,6 +59,17 @@ class CameraController : public KuroEngine::Debugger
 	//地形に当たっているか
 	bool m_isHitTerrian;
 
+	//カメラモードがLookAroundになったときのフラグ検出用。
+	bool m_isCameraModeLookAround;
+	bool m_isLookAroundFinish;			//カメラモードの終了作業を開始する
+	bool m_isLookAroundFinishComplete;	//カメラモードの終了作業が終わったかどうか。
+	float m_lookAroundModeFar;		//LookAround状態の時の距離
+	const float LOOK_AROUND_FAR = 150.0f;
+
+	//LookAround状態の時に使用する変数。
+	KuroEngine::Transform m_lookAroundTransform;
+	KuroEngine::Transform m_lookAroundInitTransform;
+
 	//プレイヤーのY軸回転を保存しておく変数。プレイヤーが横の壁に居るときは注視点の移動をY軸回転で行うので、注視点移動が終わったら動かした量を戻すため。
 	float m_playerRotYStorage;
 	float m_playerRotYLerp;
@@ -96,7 +107,7 @@ public:
 	void AttachCamera(std::shared_ptr<KuroEngine::Camera>arg_cam);
 
 	void Init(bool arg_isRespawn = false);
-	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision);
+	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, bool arg_isLookAroundMode);
 
 	//ジャンプを開始した瞬間、X軸回転とY軸回転を本来あるべき値に近づける。
 	void JumpStart(const KuroEngine::Transform& arg_playerTransform, const KuroEngine::Vec3<float>& arg_jumpEndNormal, bool arg_isCameraUpInverse, float arg_scale = 1.0f);
@@ -109,6 +120,9 @@ public:
 
 
 	KuroEngine::Transform GetDebugTransform() { return m_debugTransform; }
+
+	void EndLookAround() { m_isLookAroundFinish = true; }
+	bool IsCompleteFinishLookAround() { return m_isLookAroundFinishComplete; }
 
 private:
 
