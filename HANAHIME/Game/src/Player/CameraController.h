@@ -59,9 +59,6 @@ class CameraController : public KuroEngine::Debugger
 	//地形に当たっているか
 	bool m_isHitTerrian;
 
-	//下側の地形に当たっているか。当たっていたら注視点をずらすやつをやる。
-	bool m_isHitUnderGroundTerrian;
-
 	//プレイヤーのY軸回転を保存しておく変数。プレイヤーが横の壁に居るときは注視点の移動をY軸回転で行うので、注視点移動が終わったら動かした量を戻すため。
 	float m_playerRotYStorage;
 	float m_playerRotYLerp;
