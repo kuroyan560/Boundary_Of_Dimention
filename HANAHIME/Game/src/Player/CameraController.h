@@ -37,6 +37,9 @@ class CameraController : public KuroEngine::Debugger
 	//チェックポイントに達した時のカメラZ軸回転。
 	float m_checkPointCameraZ;
 
+	//プレイヤーの座標。
+	KuroEngine::Vec3<float> m_playerLerpPos;
+
 	struct Parameter
 	{
 		//対象との相対的なZオフセット
