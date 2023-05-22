@@ -750,10 +750,10 @@ void Player::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_lig
 
 	KuroEngine::Transform debugTrans = m_camController.GetDebugTransform();
 
-	KuroEngine::Vec3<float> pos = m_transform.GetPos();
-	KuroEngine::DrawFunc3D::DrawLine(arg_cam, pos, pos + m_debugVec * 10.0f, KuroEngine::Color(255, 0, 0, 255), 1.0f);
-	KuroEngine::DrawFunc3D::DrawLine(arg_cam, pos, pos + m_debugVec2 * 10.0f, KuroEngine::Color(0, 255, 0, 255), 1.0f);
-	KuroEngine::DrawFunc3D::DrawLine(arg_cam, pos, pos + m_debugVec3 * 10.0f, KuroEngine::Color(0, 0, 255, 255), 1.0f);
+	//KuroEngine::Vec3<float> pos = m_transform.GetPos();
+	//KuroEngine::DrawFunc3D::DrawLine(arg_cam, pos, pos + m_debugVec * 10.0f, KuroEngine::Color(255, 0, 0, 255), 1.0f);
+	//KuroEngine::DrawFunc3D::DrawLine(arg_cam, pos, pos + m_debugVec2 * 10.0f, KuroEngine::Color(0, 255, 0, 255), 1.0f);
+	//KuroEngine::DrawFunc3D::DrawLine(arg_cam, pos, pos + m_debugVec3 * 10.0f, KuroEngine::Color(0, 0, 255, 255), 1.0f);
 
 	if (arg_cameraDraw)
 	{
