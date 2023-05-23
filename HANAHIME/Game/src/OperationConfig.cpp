@@ -26,7 +26,7 @@ OperationConfig::OperationConfig()
 		DIK_R,	//カメラリセット
 		DIK_SPACE,	//地中に潜る
 		DIK_LSHIFT,	//ジップラインに乗る
-		DIK_I,	//リトライ
+		DIK_TAB,	//ポーズ画面へ
 	};
 
 	//操作ボタン割り当て
@@ -38,7 +38,7 @@ OperationConfig::OperationConfig()
 		LT,	//カメラリセット
 		RT,	//地中に潜る
 		A,	//ジップラインに乗る
-		START,	//リトライ
+		START,	//ポーズ画面へ
 	};
 }
 
