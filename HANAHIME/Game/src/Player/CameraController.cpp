@@ -93,96 +93,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	//プレイヤーが周囲を見るモードだったら
 	if (arg_isLookAroundMode) {
 
-		//カメラモードが切り替わった瞬間だったら
-		if (!m_isCameraModeLookAround && arg_isLookAroundMode) {
-
-			//カメラまでのベクトル。
-			KuroEngine::Vec3<float> cameraDir = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPosWorld() - arg_targetPos.GetPosWorld()).GetNormal();
-
-			//上ベクトルとの内積と外積から回転を得る。
-			KuroEngine::Vec3<float> upVec = arg_isCameraUpInverse ? Vec3<float>(0, 1, 0) : Vec3<float>(0, 1, 0);
-			KuroEngine::Vec3<float> axis = upVec.Cross(cameraDir);
-			float angle = acos(upVec.Dot(cameraDir));
-
-			//回転角が存在したら
-			if (0.0f < axis.Length()) {
-
-				m_lookAroundTransform.SetRotate(DirectX::XMQuaternionRotationAxis(axis, angle));
-
-			}
-			else {
-				m_lookAroundTransform.SetRotate(DirectX::XMQuaternionIdentity());
-			}
-
-			//回転の初期値を保存。
-			m_lookAroundInitTransform = m_lookAroundTransform;
-
-			m_lookAroundModeFar = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_targetPos.GetPos()).Length();
-			m_isLookAroundFinish = false;
-			m_isLookAroundFinishComplete = false;
-
-		}
-
-		//カメラの距離を補間。
-		if (m_isLookAroundFinish) {
-
-			m_lookAroundModeFar = KuroEngine::Math::Lerp(m_lookAroundModeFar, fabs(arg_cameraZ), 0.08f);
-			m_lookAroundTransform.SetRotate(DirectX::XMQuaternionSlerp(m_lookAroundTransform.GetRotate(), m_lookAroundInitTransform.GetRotate(), 0.08f));
-
-			//カメラの距離が規定値に達したら終わり。
-			if (fabs(fabs(m_lookAroundModeFar) - fabs(arg_cameraZ)) < 1.0f) {
-
-				m_isLookAroundFinishComplete = true;
-
-			}
-
-		}
-		else {
-
-			m_lookAroundModeFar = KuroEngine::Math::Lerp(m_lookAroundModeFar, LOOK_AROUND_FAR, 0.08f);
-
-		}
-
-		//カメラの位置を動かす。
-		m_attachedCam.lock()->GetTransform().SetPos(arg_targetPos.GetPosWorld() + m_lookAroundTransform.GetUp() * m_lookAroundModeFar);
-
-		//現在の座標からプレイヤーに向かう回転を求める。
-		Vec3<float> axisZ = m_playerLerpPos - m_attachedCam.lock()->GetTransform().GetPosWorld();
-		axisZ.Normalize();
-
-		//プレイヤーの法線との外積から仮のXベクトルを得る。
-		Vec3<float> axisX = Vec3<float>(0, arg_isCameraUpInverse ? -1.0f : 1.0f, 0).Cross(axisZ);
-
-		//Xベクトルから上ベクトルを得る。
-		Vec3<float> axisY = axisZ.Cross(axisX);
-
-		//姿勢を得る。
-		DirectX::XMMATRIX matWorld = DirectX::XMMatrixIdentity();
-		XMVECTOR rotate, scale, position;
-		matWorld.r[0] = { axisX.x, axisX.y, axisX.z, 0.0f };
-		matWorld.r[1] = { axisY.x, axisY.y, axisY.z, 0.0f };
-		matWorld.r[2] = { axisZ.x, axisZ.y, axisZ.z, 0.0f };
-
-		DirectX::XMMatrixDecompose(&scale, &rotate, &position, matWorld);
-
-		//回転を適用。
-		m_attachedCam.lock()->GetTransform().SetRotate(rotate);
-
-		//カメラの上下が反転状態だったら入力も反転させる。
-		if (arg_isCameraUpInverse) {
-			arg_scopeMove *= -1.0f;
-		}
-
-		//スティック操作によって回転させる。
-		if (0 < fabs(arg_scopeMove.x)) {
-			m_lookAroundTransform.SetRotate(DirectX::XMQuaternionMultiply(m_lookAroundTransform.GetRotate(), DirectX::XMQuaternionRotationAxis(arg_isCameraUpInverse ? Vec3<float>(0, -1, 0) : Vec3<float>(0, 1, 0), arg_scopeMove.x * 0.5f)));
-		}
-		if (0 < fabs(arg_scopeMove.y)) {
-			m_lookAroundTransform.SetRotate(DirectX::XMQuaternionMultiply(m_lookAroundTransform.GetRotate(), DirectX::XMQuaternionRotationAxis(axisX, arg_scopeMove.y * -0.5f)));
-		}
-
-
-		m_isCameraModeLookAround = arg_isLookAroundMode;
+		UpdateLookAround(arg_scopeMove, arg_targetPos, arg_playerRotY, arg_cameraZ, arg_nowStage, arg_isCameraUpInverse, arg_isCameraDefaultPos, arg_isHitUnderGround, arg_isMovePlayer, arg_isPlayerJump, arg_cameraQ, arg_isFrontWall, arg_drawTransform, arg_frontWallNormal, arg_isNoCollision, arg_isLookAroundMode);
 
 		return;
 
@@ -728,5 +639,103 @@ bool CameraController::RayPlaneIntersection(const KuroEngine::Vec3<float>& arg_r
 	//衝突地点を返す！
 	arg_hitResult = arg_rayOrigin + nRayDirection * t;
 	return true;
+
+}
+
+void CameraController::UpdateLookAround(KuroEngine::Vec3<float> arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage> arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, bool arg_isLookAroundMode)
+{
+
+	using namespace KuroEngine;
+
+	//カメラモードが切り替わった瞬間だったら
+	if (!m_isCameraModeLookAround && arg_isLookAroundMode) {
+
+		//カメラまでのベクトル。
+		KuroEngine::Vec3<float> cameraDir = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPosWorld() - arg_targetPos.GetPosWorld()).GetNormal();
+
+		//上ベクトルとの内積と外積から回転を得る。
+		KuroEngine::Vec3<float> upVec = arg_isCameraUpInverse ? Vec3<float>(0, 1, 0) : Vec3<float>(0, 1, 0);
+		KuroEngine::Vec3<float> axis = upVec.Cross(cameraDir);
+		float angle = acos(upVec.Dot(cameraDir));
+
+		//回転角が存在したら
+		if (0.0f < axis.Length()) {
+
+			m_lookAroundTransform.SetRotate(DirectX::XMQuaternionRotationAxis(axis, angle));
+
+		}
+		else {
+			m_lookAroundTransform.SetRotate(DirectX::XMQuaternionIdentity());
+		}
+
+		//回転の初期値を保存。
+		m_lookAroundInitTransform = m_lookAroundTransform;
+
+		m_lookAroundModeFar = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_targetPos.GetPos()).Length();
+		m_isLookAroundFinish = false;
+		m_isLookAroundFinishComplete = false;
+
+	}
+
+	//カメラの距離を補間。
+	if (m_isLookAroundFinish) {
+
+		m_lookAroundModeFar = KuroEngine::Math::Lerp(m_lookAroundModeFar, fabs(arg_cameraZ), 0.08f);
+		m_lookAroundTransform.SetRotate(DirectX::XMQuaternionSlerp(m_lookAroundTransform.GetRotate(), m_lookAroundInitTransform.GetRotate(), 0.08f));
+
+		//カメラの距離が規定値に達したら終わり。
+		if (fabs(fabs(m_lookAroundModeFar) - fabs(arg_cameraZ)) < 1.0f) {
+
+			m_isLookAroundFinishComplete = true;
+
+		}
+
+	}
+	else {
+
+		m_lookAroundModeFar = KuroEngine::Math::Lerp(m_lookAroundModeFar, LOOK_AROUND_FAR, 0.08f);
+
+	}
+
+	//カメラの位置を動かす。
+	m_attachedCam.lock()->GetTransform().SetPos(arg_targetPos.GetPosWorld() + m_lookAroundTransform.GetUp() * m_lookAroundModeFar);
+
+	//現在の座標からプレイヤーに向かう回転を求める。
+	Vec3<float> axisZ = m_playerLerpPos - m_attachedCam.lock()->GetTransform().GetPosWorld();
+	axisZ.Normalize();
+
+	//プレイヤーの法線との外積から仮のXベクトルを得る。
+	Vec3<float> axisX = Vec3<float>(0, arg_isCameraUpInverse ? -1.0f : 1.0f, 0).Cross(axisZ);
+
+	//Xベクトルから上ベクトルを得る。
+	Vec3<float> axisY = axisZ.Cross(axisX);
+
+	//姿勢を得る。
+	DirectX::XMMATRIX matWorld = DirectX::XMMatrixIdentity();
+	XMVECTOR rotate, scale, position;
+	matWorld.r[0] = { axisX.x, axisX.y, axisX.z, 0.0f };
+	matWorld.r[1] = { axisY.x, axisY.y, axisY.z, 0.0f };
+	matWorld.r[2] = { axisZ.x, axisZ.y, axisZ.z, 0.0f };
+
+	DirectX::XMMatrixDecompose(&scale, &rotate, &position, matWorld);
+
+	//回転を適用。
+	m_attachedCam.lock()->GetTransform().SetRotate(rotate);
+
+	//カメラの上下が反転状態だったら入力も反転させる。
+	if (arg_isCameraUpInverse) {
+		arg_scopeMove *= -1.0f;
+	}
+
+	//スティック操作によって回転させる。
+	if (0 < fabs(arg_scopeMove.x)) {
+		m_lookAroundTransform.SetRotate(DirectX::XMQuaternionMultiply(m_lookAroundTransform.GetRotate(), DirectX::XMQuaternionRotationAxis(arg_isCameraUpInverse ? Vec3<float>(0, -1, 0) : Vec3<float>(0, 1, 0), arg_scopeMove.x * 0.5f)));
+	}
+	if (0 < fabs(arg_scopeMove.y)) {
+		m_lookAroundTransform.SetRotate(DirectX::XMQuaternionMultiply(m_lookAroundTransform.GetRotate(), DirectX::XMQuaternionRotationAxis(axisX, arg_scopeMove.y * -0.5f)));
+	}
+
+
+	m_isCameraModeLookAround = arg_isLookAroundMode;
 
 }

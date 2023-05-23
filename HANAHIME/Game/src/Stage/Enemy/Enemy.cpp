@@ -32,6 +32,7 @@ void MiniBug::OnInit()
 
 void MiniBug::Update(Player &arg_player)
 {
+
 	m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());
 	m_eyeEffect.Update(m_larpPos);
 
@@ -319,28 +320,42 @@ void MiniBug::Update(Player &arg_player)
 
 	KuroEngine::Vec3<float>frontVec = m_transform.GetFront();
 
-	KuroEngine::Vec3<float>axis = frontVec.Cross(m_dir.GetNormal());
-	float rptaVel = acosf(frontVec.Dot(m_dir.GetNormal()));
+	//移動方向と正面ベクトルを敵基準の姿勢に投影。
+	KuroEngine::Vec2<float> frontVec2D = Project3Dto2D(frontVec, m_transform.GetFront(), m_transform.GetRight());
+	KuroEngine::Vec2<float> moveDir2D = Project3Dto2D(m_dir, m_transform.GetFront(), m_transform.GetRight());
 
-	if (axis.Length() <= 0.001f)
-	{
-		//m_larpRotation = DirectX::XMQuaternionIdentity();
-	}
+	float rptaVel = acosf(frontVec2D.Dot(moveDir2D));
+	rptaVel *= (0 < frontVec2D.Cross(moveDir2D)) ? 1.0f : -1.0f;
+
 	//プレイヤーが違う面にるか、ジャンプで壁面移動中はプレイヤーの方を見ない。
-	else if ((isDifferentWall || isPlayerWallChange) && isAttackOrNotice) {
+	if ((isDifferentWall || isPlayerWallChange) && isAttackOrNotice) {
 
 	}
 	else
 	{
-		m_larpRotation = DirectX::XMQuaternionRotationAxis(axis, rptaVel);
-		KuroEngine::Quaternion rotation = DirectX::XMQuaternionIdentity();
 
-		//見つけた時のジャンプ中じゃなかったらプレイヤーの方向を向く。
-		if (m_jumpMotion.IsDone() || m_nowStatus != MiniBug::ATTACK)
-		{
-			rotation = m_larpRotation;
-		}
-		m_transform.SetRotate(DirectX::XMQuaternionSlerp(m_transform.GetRotate(), DirectX::XMQuaternionMultiply(m_transform.GetRotate(), rotation), 0.1f));
+
+
+		//現在の座標からプレイヤーに向かう回転を求める。
+		KuroEngine::Vec3<float> axisZ = m_dir;
+		axisZ.Normalize();
+
+		//プレイヤーの法線との外積から仮のXベクトルを得る。
+		KuroEngine::Vec3<float> axisX = m_initializedTransform.GetUp().Cross(axisZ);
+
+		//Xベクトルから上ベクトルを得る。
+		KuroEngine::Vec3<float> axisY = axisZ.Cross(axisX);
+
+		//姿勢を得る。
+		DirectX::XMMATRIX matWorld = DirectX::XMMatrixIdentity();
+		matWorld.r[0] = { axisX.x, axisX.y, axisX.z, 0.0f };
+		matWorld.r[1] = { axisY.x, axisY.y, axisY.z, 0.0f };
+		matWorld.r[2] = { axisZ.x, axisZ.y, axisZ.z, 0.0f };
+
+		XMVECTOR rotate, scale, position;
+		DirectX::XMMatrixDecompose(&scale, &rotate, &position, matWorld);
+
+		m_transform.SetRotate(DirectX::XMQuaternionSlerp(m_transform.GetRotate(), rotate, 0.08f));
 	}
 
 	m_larpPos = KuroEngine::Math::Lerp(m_larpPos, m_pos, 0.1f);
