@@ -69,7 +69,16 @@ class CameraController : public KuroEngine::Debugger
 
 	//LookAround状態の時に使用する変数。
 	KuroEngine::Transform m_lookAroundTransform;
-	KuroEngine::Transform m_lookAroundInitTransform;
+	KuroEngine::Transform m_lookAroundInitTransform; 
+
+
+	//FPS状態の時に使用する変数。
+	KuroEngine::Transform m_FPSinitTransform;
+	bool m_isCameraModeFPS;
+	bool m_isFPSFinish;			//カメラモードの終了作業を開始する
+	bool m_isFPSFinishComplete;	//カメラモードの終了作業が終わったかどうか。
+	KuroEngine::Timer m_fpsFinishTimer;
+	const float FPS_FINISH_TIMER = 30.0f;
 
 	//プレイヤーのY軸回転を保存しておく変数。プレイヤーが横の壁に居るときは注視点の移動をY軸回転で行うので、注視点移動が終わったら動かした量を戻すため。
 	float m_playerRotYStorage;
@@ -108,13 +117,19 @@ public:
 		KuroEngine::Vec3<float> m_up;
 	};
 
+	enum class CAMERA_STATUS {
+		NORMAL,
+		FPS,
+		LOOK_AROUND
+	};
+
 	//コンストラクタ
 	CameraController();
 
 	void AttachCamera(std::shared_ptr<KuroEngine::Camera>arg_cam);
 
 	void Init(bool arg_isRespawn = false);
-	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float& arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, bool arg_isLookAroundMode, std::vector<HIT_POINT> arg_hitPointData);
+	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float& arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode, std::vector<HIT_POINT> arg_hitPointData);
 
 	//ジャンプを開始した瞬間、X軸回転とY軸回転を本来あるべき値に近づける。
 	void JumpStart(const KuroEngine::Transform& arg_playerTransform, const KuroEngine::Vec3<float>& arg_jumpEndNormal, bool arg_isCameraUpInverse, float arg_scale = 1.0f);
@@ -131,6 +146,9 @@ public:
 	void EndLookAround() { m_isLookAroundFinish = true; }
 	bool IsFinishLookAround() { return m_isLookAroundFinish; }
 	bool IsCompleteFinishLookAround() { return m_isLookAroundFinishComplete; }
+	void EndFPS() { m_isFPSFinish = true; }
+	bool IsFinishFPS() { return m_isFPSFinish; }
+	bool IsCompleteFinishFPS() { return m_isFPSFinishComplete; }
 
 private:
 
@@ -182,6 +200,6 @@ private:
 	}
 	
 	//LookAround状態の更新処理。
-	void UpdateLookAround(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, bool arg_isLookAroundMode);
+	void UpdateLookAround(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode);
 
 };

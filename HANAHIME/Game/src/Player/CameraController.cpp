@@ -5,6 +5,7 @@
 #include"FrameWork/UsersInput.h"
 #include"../Stage/StageManager.h"
 #include"../Stage/CheckPointHitFlag.h"
+#include"../TimeScaleMgr.h"
 
 void CameraController::OnImguiItems()
 {
@@ -71,11 +72,15 @@ void CameraController::Init(bool arg_isRespawn)
 	m_playerOldPos = KuroEngine::Vec3<float>();
 	m_isOldFrontWall = false;
 	m_isCameraModeLookAround = false;
+	m_isCameraModeFPS = false;
 	m_isLookAroundFinish = false;
 	m_isLookAroundFinishComplete = false;
+	m_isFPSFinish = false;
+	m_isFPSFinishComplete = false;
+	m_fpsFinishTimer.Reset(FPS_FINISH_TIMER);
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float& arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, bool arg_isLookAroundMode, std::vector<HIT_POINT> arg_hitPointData)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float& arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode, std::vector<HIT_POINT> arg_hitPointData)
 {
 	using namespace KuroEngine;
 
@@ -91,14 +96,69 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	if (m_attachedCam.expired())return;
 
 	//プレイヤーが周囲を見るモードだったら
-	if (arg_isLookAroundMode) {
+	if (arg_cameraMode == CAMERA_STATUS::LOOK_AROUND) {
 
-		UpdateLookAround(arg_scopeMove, arg_targetPos, arg_playerRotY, arg_cameraZ, arg_nowStage, arg_isCameraUpInverse, arg_isCameraDefaultPos, arg_isHitUnderGround, arg_isMovePlayer, arg_isPlayerJump, arg_cameraQ, arg_isFrontWall, arg_drawTransform, arg_frontWallNormal, arg_isNoCollision, arg_isLookAroundMode);
+		UpdateLookAround(arg_scopeMove, arg_targetPos, arg_playerRotY, arg_cameraZ, arg_nowStage, arg_isCameraUpInverse, arg_isCameraDefaultPos, arg_isHitUnderGround, arg_isMovePlayer, arg_isPlayerJump, arg_cameraQ, arg_isFrontWall, arg_drawTransform, arg_frontWallNormal, arg_isNoCollision, arg_cameraMode);
 
 		return;
 
 	}
-	m_isCameraModeLookAround = arg_isLookAroundMode;
+	//FPSモードだったら
+	if (arg_cameraMode == CAMERA_STATUS::FPS) {
+
+		//FPSモードになった瞬間だったら
+		if (!m_isCameraModeFPS) {
+
+			//カメラの姿勢を保存。
+			m_FPSinitTransform = m_attachedCam.lock()->GetTransform();
+			m_isFPSFinishComplete = false;
+			m_isFPSFinish = false;
+
+		}
+
+		//終了状態になってなかったら
+		if (m_isFPSFinish) {
+
+			//補間させる。
+			m_attachedCam.lock()->GetTransform().SetRotate(DirectX::XMQuaternionSlerp(m_attachedCam.lock()->GetTransform().GetRotate(), m_FPSinitTransform.GetRotate(), 0.16f * TimeScaleMgr::s_inGame.GetTimeScale()));
+
+			m_fpsFinishTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
+
+			//タイマーが終わったら
+			if (m_fpsFinishTimer.IsTimeUp()) {
+				m_fpsFinishTimer.Reset();
+				m_isFPSFinishComplete = true;
+			}
+
+		}
+		//FPSの動きをさせる。
+		else {
+
+			//カメラの上下が反転状態だったら入力も反転させる。
+			if (arg_isCameraUpInverse) {
+				arg_scopeMove *= -1.0f;
+			}
+
+			//上ベクトル
+			Vec3<float> upVec(0, 1, 0);
+			if (arg_isCameraUpInverse) {
+				upVec = Vec3<float>(0, -1, 0);
+			}
+
+			//カメラを動かす。
+			m_attachedCam.lock()->GetTransform().SetRotate(DirectX::XMQuaternionMultiply(m_attachedCam.lock()->GetTransform().GetRotate(), DirectX::XMQuaternionRotationAxis(upVec, arg_scopeMove.x * 0.5f)));
+			m_attachedCam.lock()->GetTransform().SetRotate(DirectX::XMQuaternionMultiply(m_attachedCam.lock()->GetTransform().GetRotate(), DirectX::XMQuaternionRotationAxis(m_attachedCam.lock()->GetTransform().GetRight(), arg_scopeMove.y * -0.5f)));
+
+
+		}
+
+		m_isCameraModeFPS = arg_cameraMode == CAMERA_STATUS::FPS;
+
+		return;
+
+	}
+	m_isCameraModeLookAround = arg_cameraMode == CAMERA_STATUS::LOOK_AROUND;
+	m_isCameraModeFPS = arg_cameraMode == CAMERA_STATUS::FPS;
 
 	//プレイヤーの座標をラープ
 	m_playerLerpPos = KuroEngine::Math::Lerp(m_playerLerpPos, arg_targetPos.GetPos(), 0.4f);
@@ -356,36 +416,50 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 			}
 		}
 
-		////通常の地形を走査
-		//checkHitRay = arg_targetPos.GetPos() - m_cameraLocalTransform.GetPosWorldByMatrix();	//まずはデフォルトのレイに設定。
-		//for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
-		//{
-		//	//モデル情報取得
-		//	auto model = terrian.GetModel().lock();
+		//通常の地形を走査
+		bool isHitPlayerRay = false;
+		checkHitRay = arg_targetPos.GetPos() - m_cameraLocalTransform.GetPosWorldByMatrix();	//まずはデフォルトのレイに設定。
+		for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
+		{
+			//モデル情報取得
+			auto model = terrian.GetModel().lock();
 
-		//	//メッシュを走査
-		//	for (auto& modelMesh : model->m_meshes)
-		//	{
+			//メッシュを走査
+			for (auto& modelMesh : model->m_meshes)
+			{
 
-		//		//当たり判定に使用するメッシュ
-		//		auto checkHitMesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+				//当たり判定に使用するメッシュ
+				auto checkHitMesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
 
-		//		//判定↓============================================
+				//判定↓============================================
 
 
-		//		//純粋な地形とレイの当たり判定を実行
-		//		CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos - checkHitRay.GetNormal() * 10.0f , checkHitRay.GetNormal(), checkHitMesh);
-		//		if (output.m_isHit && 0 < output.m_distance && output.m_distance < checkHitRay.Length()) {
+				//純粋な地形とレイの当たり判定を実行
+				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos - checkHitRay.GetNormal() * 20.0f, checkHitRay.GetNormal(), checkHitMesh);
+				if (output.m_isHit && 0 < output.m_distance && output.m_distance < checkHitRay.Length() + 20.0f) {
 
-		//			pushBackPos = output.m_pos + output.m_normal;
-		//			m_isHitTerrian = true;
+					//プレイヤーまでの距離
+					float playerLength = Vec3<float>(output.m_pos - pushBackPos).Length();
 
-		//		}
+					//既定の値より大きかったら
+					if (playerLength <= 40.0f) {
 
-		//	}
+						arg_cameraZ -= 20.0f;
 
-		//	//=================================================
-		//}
+					}
+
+					isHitPlayerRay = true;
+
+				}
+
+			}
+
+			//=================================================
+		}
+
+		if (!isHitPlayerRay) {
+			arg_cameraZ = -40.0f;
+		}
 	}
 
 	//補間する。
@@ -678,13 +752,13 @@ bool CameraController::RayPlaneIntersection(const KuroEngine::Vec3<float>& arg_r
 
 }
 
-void CameraController::UpdateLookAround(KuroEngine::Vec3<float> arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage> arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, bool arg_isLookAroundMode)
+void CameraController::UpdateLookAround(KuroEngine::Vec3<float> arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage> arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode)
 {
 
 	using namespace KuroEngine;
 
 	//カメラモードが切り替わった瞬間だったら
-	if (!m_isCameraModeLookAround && arg_isLookAroundMode) {
+	if (!m_isCameraModeLookAround && arg_cameraMode == CAMERA_STATUS::LOOK_AROUND) {
 
 		//カメラまでのベクトル。
 		KuroEngine::Vec3<float> cameraDir = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPosWorld() - arg_targetPos.GetPosWorld()).GetNormal();
@@ -772,6 +846,6 @@ void CameraController::UpdateLookAround(KuroEngine::Vec3<float> arg_scopeMove, K
 	}
 
 
-	m_isCameraModeLookAround = arg_isLookAroundMode;
+	m_isCameraModeLookAround = arg_cameraMode == CAMERA_STATUS::LOOK_AROUND;
 
 }

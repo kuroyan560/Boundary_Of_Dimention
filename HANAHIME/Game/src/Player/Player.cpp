@@ -199,6 +199,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_isPlayerOverHeat = false;
 	m_cameraNoCollisionTimer.Reset(10);
 	m_cameraFar = CAMERA_FAR;
+	m_cameraMode = CameraController::CAMERA_STATUS::NORMAL;
 
 	m_growPlantPtLig.Register();
 	//死亡演出のタイマーを初期化。
@@ -293,6 +294,7 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform)
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 	m_isWallFrontDir = false;
 	m_cameraNoCollisionTimer.Reset(10);
+	m_cameraMode = CameraController::CAMERA_STATUS::NORMAL;
 
 	m_growPlantPtLig.Register();
 	//死亡演出のタイマーを初期化。
@@ -399,13 +401,16 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	case Player::PLAYER_MOVE_STATUS::MOVE:
 	{
 
+		m_cameraMode = CameraController::CAMERA_STATUS::NORMAL;
+
 		//入力があったら周囲見渡しモードに切り替え。
 		if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE, OperationConfig::ON_TRIGGER)) {
 
 			//SEを鳴らす。
 			SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
 
-			m_playerMoveStatus = PLAYER_MOVE_STATUS::LOOK_AROUND;
+			m_cameraMode = CameraController::CAMERA_STATUS::FPS;
+			m_playerMoveStatus = PLAYER_MOVE_STATUS::FPS;
 			break;
 
 		}
@@ -748,6 +753,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	case PLAYER_MOVE_STATUS::LOOK_AROUND:
 	{
 
+		m_cameraMode = CameraController::CAMERA_STATUS::LOOK_AROUND;
+
 		//入力があったら周囲見渡しモードに切り替え。
 		if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE, OperationConfig::ON_TRIGGER)) {
 
@@ -762,7 +769,35 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 		if (m_camController.IsCompleteFinishLookAround()) {
 			m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
+			m_cameraMode = CameraController::CAMERA_STATUS::NORMAL;
 		}
+
+	}
+	break;
+	case PLAYER_MOVE_STATUS::FPS:
+	{
+
+		m_cameraMode = CameraController::CAMERA_STATUS::FPS;
+
+		//入力があったら周囲見渡しモードに切り替え。
+		if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE, OperationConfig::ON_TRIGGER)) {
+
+			//SEを鳴らす。
+			if (!m_camController.IsFinishLookAround()) {
+				SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
+			}
+
+			m_camController.EndFPS();
+
+		}
+
+		if (m_camController.IsCompleteFinishFPS()) {
+
+			m_playerMoveStatus = PLAYER_MOVE_STATUS::LOOK_AROUND;
+			m_cameraMode = CameraController::CAMERA_STATUS::LOOK_AROUND;
+
+		}
+
 
 	}
 	break;
@@ -817,7 +852,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_cameraFar, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_playerMoveStatus == PLAYER_MOVE_STATUS::LOOK_AROUND, m_hitPointData);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_cameraFar, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_cameraMode, m_hitPointData);
 
 		m_deathEffectCameraZ = CAMERA_FAR;
 	}
@@ -827,7 +862,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_shake);
 
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_playerMoveStatus == PLAYER_MOVE_STATUS::LOOK_AROUND, m_hitPointData);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_cameraMode, m_hitPointData);
 
 	}
 	//シェイクを計算。

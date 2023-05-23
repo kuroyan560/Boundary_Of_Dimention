@@ -102,6 +102,7 @@ class Player : public KuroEngine::Debugger
 	float CAMERA_FAR = -40.0f;
 	float m_cameraFar;
 	bool m_isHitUnderGroundCamera;
+	CameraController::CAMERA_STATUS m_cameraMode;
 
 	//植物を繁殖させる点光源
 	GrowPlantLight_Point m_growPlantPtLig;
@@ -198,6 +199,7 @@ private:
 		DEATH,	//死亡中。
 		DAMAGE,	//ダメージ演出中。
 		LOOK_AROUND,	//周囲を見ている。
+		FPS,			//FPSモード
 	}m_playerMoveStatus, m_beforeDamageStatus;	//ダメージを受ける前のステータス
 	//１フレーム前の動きのステータス
 	PLAYER_MOVE_STATUS m_beforePlayerMoveStatus;
