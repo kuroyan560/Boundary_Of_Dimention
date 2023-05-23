@@ -111,7 +111,7 @@ void PlayerMoveParticleSmoke::Update()
 
 	}
 
-	m_smokeInfo.smokeNoiseTimer += 0.02f;
+	m_smokeInfo.smokeNoiseTimer += 0.02f * TimeScaleMgr::s_inGame.GetTimeScale();
 	//‚¾‚ñ‚¾‚ñ”Z‚­‚È‚Á‚Ä‚µ‚Ü‚¤‚Ì‚Å’èŠú“I‚ÉŒ³‚É–ß‚·
 	if (1.0f < m_smokeInfo.smokeNoiseTimer) {
 		m_smokeInfo.smokeNoiseTimer = 0.0f;

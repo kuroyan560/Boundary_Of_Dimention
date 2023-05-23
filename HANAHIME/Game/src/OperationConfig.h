@@ -19,9 +19,18 @@ public:
 		CAM_RESET,	//カメラリセット
 		SINK_GROUND,	//地中に潜る
 		RIDE_ZIP_LINE,	//ジップラインに乗る
-		RETRY,	//リトライ（ポーズ画面から選択してリトライするようになるかも、なくなる可能性ある）
+		PAUSE,	//ポーズ画面へ
 		LOOK_AROUND,	//周囲確認用モード
 		OPERATION_TYPE_NUM
+	};
+
+	//選択入力方向
+	enum SELECT_VEC
+	{
+		SELECT_VEC_UP,
+		SELECT_VEC_DOWN,
+		SELECT_VEC_LEFT,
+		SELECT_VEC_RIGHT
 	};
 
 private:
@@ -58,8 +67,18 @@ private:
 	//コントローラー入力のときの割当ボタン
 	std::array<KuroEngine::XBOX_BUTTON, OPERATION_TYPE_NUM>m_operationButton;
 
-	//操作入力を受け付けているか
-	bool m_isActive = false;
+	//インゲームの操作入力を受け付けているか
+	bool m_isInGameOperationActive = true;
+	//インゲーム操作入力の配列
+	const std::vector<OPERATION_TYPE>m_inGameOperationArray =
+	{
+		CAM_DIST_MODE_CHANGE,
+		CAM_RESET,
+		SINK_GROUND,
+		RIDE_ZIP_LINE,
+	};
+	//全ての入力を受けて受けているか
+	bool m_isAllInputActive = true;
 
 	void OnImguiItems()override;
 
@@ -75,7 +94,8 @@ private:
 	bool KeyInput(INPUT_PATTERN arg_pattern, int arg_keyCode);
 
 public:
-	void SetActive(bool arg_active) { m_isActive = arg_active; }
+	void SetInGameOperationActive(bool arg_active) { m_isInGameOperationActive = arg_active; }
+	void SetAllInputActive(bool arg_active) { m_isAllInputActive = arg_active; }
 
 	/// <summary>
 	/// 入力によるXZ平面移動方向（方向指定）
@@ -91,6 +111,9 @@ public:
 	/// <param name="arg_sensitivity">感度</param>
 	/// <returns>視線移動角度（ラジアン）</returns>
 	KuroEngine::Vec3<float>GetScopeMove();
+
+	//選択項目方向入力
+	bool GetSelectVec(SELECT_VEC arg_vec);
 
 	//操作入力
 	bool GetOperationInput(OPERATION_TYPE arg_operation, INPUT_PATTERN arg_pattern);

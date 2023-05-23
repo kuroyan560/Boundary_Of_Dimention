@@ -729,6 +729,13 @@ std::shared_ptr<KuroEngine::TextureBuffer> KuroEngine::D3D12App::GenerateTexture
 
 std::shared_ptr<KuroEngine::TextureBuffer> KuroEngine::D3D12App::GenerateTextureBuffer(const std::string& LoadImgFilePath, const bool& SRVAsCube)
 {
+	//ファイルが存在するか
+	if (!ExistFile(LoadImgFilePath))
+	{
+		AppearMessageBox("D3D12App::GenerateTextureBuffer() 失敗", "\"" + LoadImgFilePath + "\" というテクスチャファイルが無いよ");
+		exit(1);
+	}
+
 	//既にあるか確認
 	for (auto itr = m_loadImgTextures.begin(); itr != m_loadImgTextures.end(); ++itr)
 	{
@@ -1041,6 +1048,13 @@ void KuroEngine::D3D12App::GenerateTextureBuffer(std::shared_ptr<TextureBuffer>*
 
 void KuroEngine::D3D12App::GenerateTextureBuffer(std::shared_ptr<KuroEngine::TextureBuffer>* Array, const std::string& LoadImgFilePath, const int& AllNum, const Vec2<int>& SplitNum)
 {
+	//ファイルが存在するか
+	if (!ExistFile(LoadImgFilePath))
+	{
+		AppearMessageBox("D3D12App::GenerateTextureBuffer() 失敗", "\"" + LoadImgFilePath + "\" というテクスチャファイルが無いよ");
+		exit(1);
+	}
+
 	for (auto& itr : m_loadImgTextures)
 	{
 		if (itr.m_path.compare(LoadImgFilePath) == 0)

@@ -839,6 +839,8 @@ void CheckPoint::Update(Player& arg_player)
 	m_touched = isHit;
 }
 
+int StarCoin::GET_SUM = 0;
+
 void StarCoin::OnInit()
 {
 	m_touched = false;
@@ -860,6 +862,11 @@ void StarCoin::Update(Player& arg_player)
 	//Õ“Ë‚µ‚½uŠÔ
 	if (!m_touched && isHit)
 	{
+		//‰‚ß‚Ä“üè
+		if (!m_get)
+		{
+			GET_SUM++;
+		}
 	}
 
 	m_touched = isHit;

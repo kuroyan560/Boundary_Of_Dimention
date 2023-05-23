@@ -530,6 +530,13 @@ public:
 
 class StarCoin : public StageParts
 {
+private:
+	//—İŒv‚Ì“üè”
+	static int GET_SUM;
+public:
+	static const int& GetFlowerSum() { return GET_SUM; }
+
+private:
 	bool m_get = false;
 	bool m_touched = false;
 

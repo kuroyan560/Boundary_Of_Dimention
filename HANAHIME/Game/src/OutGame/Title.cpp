@@ -28,7 +28,7 @@ void Title::Init(TitleMode title_mode)
 	m_delayTime.Reset();
 	m_alphaRate.Reset();
 	m_stageSelect.Init();
-	OperationConfig::Instance()->SetActive(false);
+	OperationConfig::Instance()->SetAllInputActive(false);
 
 	std::vector<MovieCameraData> titleCameraMoveDataArray;
 
@@ -201,7 +201,7 @@ void Title::Update(KuroEngine::Transform *player_camera, std::shared_ptr<KuroEng
 	else if (m_generateCameraMoveDataFlag && !m_camera.IsStart() && m_camera.IsFinish())
 	{
 		m_isFinishFlag = true;
-		OperationConfig::Instance()->SetActive(true);
+		OperationConfig::Instance()->SetAllInputActive(true);
 	}
 
 	if (m_startPazzleFlag)

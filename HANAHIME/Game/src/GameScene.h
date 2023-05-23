@@ -20,6 +20,7 @@
 #include"Render/LightBloomDevice.h"
 #include"HUD/OperationInfoUI.h"
 #include"HUD/StageInfoUI.h"
+#include"HUD/PauseUI.h"
 
 class GameScene : public KuroEngine::BaseScene
 {
@@ -59,6 +60,7 @@ class GameScene : public KuroEngine::BaseScene
 
 	std::shared_ptr<KuroEngine::Camera>m_nowCam;
 
+	bool m_gobackTitleFlag;
 	TitleMode m_eTitleMode;
 	Title m_title;
 	bool m_clearFlag;
@@ -73,12 +75,12 @@ class GameScene : public KuroEngine::BaseScene
 
 	Goal m_goal;
 
-	//Šî–{‚ÌHUD
+	//HUD
 	OperationInfoUI m_opeInfoUI;
 	StageInfoUI m_stageInfoUI;
+	PauseUI m_pauseUI;
 
 	KuroEngine::LightBloomDevice m_lightBloomDevice;
-
 
 	void GameInit();
 
@@ -89,4 +91,6 @@ class GameScene : public KuroEngine::BaseScene
 	void OnFinalize()override;
 public:
 	GameScene();
+	void Retry();
+	void GoBackTitle();
 };

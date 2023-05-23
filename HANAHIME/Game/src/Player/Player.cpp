@@ -481,7 +481,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		}
 		else {
 
-			m_underGroundEaseTimer = std::clamp(m_underGroundEaseTimer + ADD_UNDERGROUND_EASE_TIMER, 0.0f, 1.0f);
+			m_underGroundEaseTimer = std::clamp(m_underGroundEaseTimer + ADD_UNDERGROUND_EASE_TIMER * TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, 1.0f);
 
 			if (1.0f <= m_underGroundEaseTimer) {
 
@@ -798,7 +798,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	//地中にいるときはライトを変える。
 	if ((m_isInputUnderGround || !m_canUnderGroundRelease) && !m_isPlayerOverHeat) {
-		m_growPlantPtLig.m_influenceRange = std::clamp(m_growPlantPtLig.m_influenceRange - SUB_INFLUENCE_RANGE, MIN_INFLUENCE_RANGE, MAX_INFLUENCE_RANGE);
+		m_growPlantPtLig.m_influenceRange = std::clamp(m_growPlantPtLig.m_influenceRange - SUB_INFLUENCE_RANGE * TimeScaleMgr::s_inGame.GetTimeScale(), MIN_INFLUENCE_RANGE, MAX_INFLUENCE_RANGE);
 
 		//地中に居すぎてライトが最小になってしまったら
 		if (m_growPlantPtLig.m_influenceRange <= MIN_INFLUENCE_RANGE) {
@@ -808,7 +808,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		}
 	}
 	else {
-		m_growPlantPtLig.m_influenceRange = std::clamp(m_growPlantPtLig.m_influenceRange + ADD_INFLUENCE_RANGE, 0.0f, MAX_INFLUENCE_RANGE);
+		m_growPlantPtLig.m_influenceRange = std::clamp(m_growPlantPtLig.m_influenceRange + ADD_INFLUENCE_RANGE * TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, MAX_INFLUENCE_RANGE);
 
 
 		//地中に居すぎてライトが最大になってしまったら
