@@ -353,10 +353,10 @@ void GameScene::OnDraw()
 		//ƒ|[ƒY‰æ–Ê‚Å‚È‚¯‚ê‚Î
 		if (!m_pauseUI.IsActive())
 		{
-			//m_player.DrawUI(*m_nowCam);
-			//StageManager::Instance()->DrawUI(*m_nowCam, m_player.GetTransform().GetPosWorld());
-			//m_opeInfoUI.Draw();
-			//m_stageInfoUI.Draw(StageManager::Instance()->ExistStarCoinNum(), StageManager::Instance()->GetStarCoinNum());
+			m_player.DrawUI(*m_nowCam);
+			StageManager::Instance()->DrawUI(*m_nowCam, m_player.GetTransform().GetPosWorld());
+			m_opeInfoUI.Draw();
+			m_stageInfoUI.Draw(StageManager::Instance()->ExistStarCoinNum(), StageManager::Instance()->GetStarCoinNum());
 		}
 	}
 

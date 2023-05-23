@@ -1,4 +1,5 @@
 #include"EnemyPatrol.h"
+#include"../TimeScaleMgr.h"
 
 PatrolBasedOnControlPoint::PatrolBasedOnControlPoint(std::vector<KuroEngine::Vec3<float>> posArray, int initLimitIndex, bool loopFlag) :
 	m_moveTimer(60), m_limitIndex(initLimitIndex), m_loopFlag(loopFlag)
@@ -173,8 +174,8 @@ void HeadNextPoint::Init(const KuroEngine::Vec3<float> &aPos, const KuroEngine::
 
 KuroEngine::Vec3<float> HeadNextPoint::Update()
 {
-	m_arriveTimer.UpdateTimer();
-	return m_vel;
+	m_arriveTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
+	return m_vel * TimeScaleMgr::s_inGame.GetTimeScale();
 }
 
 bool HeadNextPoint::IsArrive(const KuroEngine::Vec3<float> &pos)
@@ -200,6 +201,6 @@ KuroEngine::Vec3<float> TrackEndPoint::Update(const KuroEngine::Vec3<float> &aPo
 {
 	KuroEngine::Vec3<float>distance(bPos - aPos);
 	distance.Normalize();
-	return distance * m_speed;
+	return distance * m_speed * TimeScaleMgr::s_inGame.GetTimeScale();
 }
 

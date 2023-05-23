@@ -217,7 +217,6 @@ void MiniBug::Update(Player &arg_player)
 
 				//ï‚ä‘Ç∑ÇÈÅB
 				//m_transform.SetRotate(DirectX::XMQuaternionSlerp(m_transform.GetRotate(), q, 0.1f));
-
 			}
 		}
 
@@ -283,21 +282,6 @@ void MiniBug::Update(Player &arg_player)
 		{
 			m_thinkTimer.Reset(120);
 			vel = track.Update(m_pos, arg_player.GetTransform().GetPos());
-
-			if (m_initializedTransform.GetUp().x == 0.0f)
-			{
-
-			}
-			if (m_initializedTransform.GetUp().y == 0.0f)
-			{
-
-			}
-			if (m_initializedTransform.GetUp().z == 0.0f)
-			{
-
-			}
-
-			vel *= m_initializedTransform.GetUp();
 			m_dir = track.Update(m_pos, arg_player.GetTransform().GetPos()).GetNormal();
 		}
 
@@ -387,8 +371,10 @@ void MiniBug::Update(Player &arg_player)
 
 void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
-
-	//return;
+	if (m_deadFlag)
+	{
+		return;
+	}
 
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
@@ -404,8 +390,7 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 
 	m_dashEffect.Draw(arg_cam);
 	m_eyeEffect.Draw(arg_cam);
-
-	DebugDraw(arg_cam);
+	//DebugDraw(arg_cam);
 
 }
 
@@ -590,6 +575,11 @@ void DossunRing::Update(Player &arg_player)
 
 void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
+	if (m_deadFlag)
+	{
+		return;
+	}
+
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
