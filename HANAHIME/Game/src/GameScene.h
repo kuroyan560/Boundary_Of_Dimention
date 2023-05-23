@@ -81,6 +81,7 @@ class GameScene : public KuroEngine::BaseScene
 	PauseUI m_pauseUI;
 
 	KuroEngine::LightBloomDevice m_lightBloomDevice;
+	bool m_deadFlag;
 
 	void GameInit();
 

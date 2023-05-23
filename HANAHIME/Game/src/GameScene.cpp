@@ -124,6 +124,7 @@ void GameScene::OnInitialize()
 
 	m_pauseUI.Init();
 	m_gobackTitleFlag = false;
+	m_deadFlag = false;
 }
 
 void GameScene::OnUpdate()
@@ -189,9 +190,16 @@ void GameScene::OnUpdate()
 	}
 
 	//ポーズ画面
-	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::PAUSE, OperationConfig::ON_TRIGGER) || m_player.GetIsFinishDeathAnimation())
+	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::PAUSE, OperationConfig::ON_TRIGGER))
 	{
 		m_pauseUI.SetInverseActive();
+	}
+
+	if (m_player.GetIsFinishDeathAnimation() && !m_deadFlag)
+	{
+		//Retry();
+		m_pauseUI.SetInverseActive();
+		m_deadFlag = true;
 	}
 
 	//ステージ移動時の初期化
@@ -203,6 +211,7 @@ void GameScene::OnUpdate()
 
 	if (m_gateSceneChange.IsHide())
 	{
+		m_deadFlag = false;
 		//パズル画面からシーンチェンジしたらカメラモードを切り替える
 		if (!m_title.IsFinish())
 		{
@@ -300,9 +309,6 @@ void GameScene::OnDraw()
 	//m_vignettePostEffect.Register(m_waterPaintBlend.GetResultTex());
 
 	//if (m_title.IsStartOP())
-	{
-	}
-
 
 	//tutorial.Draw(*m_nowCam);
 
