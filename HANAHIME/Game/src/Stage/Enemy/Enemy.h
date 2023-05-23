@@ -54,10 +54,11 @@ public:
 
 		m_reaction = std::make_unique<Reaction>(m_tex);
 
+
+		m_hitBoxSize = m_transform.GetScale().x;
 		m_hitBox.m_centerPos = &m_transform.GetPos();
 		m_hitBox.m_radius = &m_hitBoxSize;
 
-		m_hitBoxSize = 3.0f;
 
 		if (posArray.size() == 0 || posArray.size() == 1)
 		{
@@ -269,13 +270,13 @@ public:
 		:StageParts(DOSSUN_RING, arg_model, arg_initTransform)
 	{
 
-		m_hitBoxRadiusMax = 15.0f * arg_initTransform.GetScale().x;
-		m_hitBoxRadius = 0.0f;
+		m_attackhitBoxRadiusMax = 15.0f * arg_initTransform.GetScale().x;
+		m_attackHitBoxRadius = 0.0f;
 		m_findPlayerFlag = false;
 		m_preFindPlayerFlag = false;
 		m_nowStatus = status;
 
-		m_sightRange = m_hitBoxRadiusMax;
+		m_sightRange = m_attackhitBoxRadiusMax;
 
 		//‹ŠE‚Ì”»’è---------------------------------------
 		m_sightHitBox.m_centerPos = &m_transform.GetPos();
@@ -296,7 +297,7 @@ public:
 		//€–Sˆ—---------------------------------------
 
 		m_hitBox.m_centerPos = &m_transform.GetPos();
-		m_hitBox.m_radius = &m_hitBoxRadius;
+		m_hitBox.m_radius = &m_attackHitBoxRadius;
 
 		m_hitBoxModel =
 			KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "RedSphere.glb");
@@ -330,8 +331,8 @@ private:
 	bool m_attackFlag;					//UŒ‚’†
 	KuroEngine::Timer m_attackTimer;	//UŒ‚‚ÌL‚ª‚è
 
-	float m_hitBoxRadius;		//UŒ‚‚Ì“–‚½‚è”»’è(‰~)
-	float m_hitBoxRadiusMax;	//UŒ‚‚Ì“–‚½‚è”»’è(Å‘å’l)
+	float m_attackHitBoxRadius;		//UŒ‚‚Ì“–‚½‚è”»’è(‰~)
+	float m_attackhitBoxRadiusMax;	//UŒ‚‚Ì“–‚½‚è”»’è(Å‘å’l)
 
 	std::shared_ptr<KuroEngine::Model>m_attackRingModel;
 

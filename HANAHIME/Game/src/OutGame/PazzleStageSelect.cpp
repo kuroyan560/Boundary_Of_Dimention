@@ -139,21 +139,21 @@ void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam)
 	bool selectFlag = false;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_D) || isInputRightController)
 	{
-		/*++m_nowStageNum.x;
+		++m_nowStageNum.x;
 		selectFlag = true;
 		m_cameraLength = FAR_CAMERA_LENGTH;
 		m_arrowSineLengthNow[RIGHT] = ARROW_SINE_INIT_LENGTH_ADD;
-		m_arrowSinTimerAddNow[RIGHT] = ARROW_SINE_TIMER_ADD;*/
+		m_arrowSinTimerAddNow[RIGHT] = ARROW_SINE_TIMER_ADD;
 		SoundConfig::Instance()->Play(SoundConfig::SE_CANCEL);
 	}
 	bool isInputLeftController = -DEADLINE < m_prevContollerLeftStick.x&& contollerLeftStickInput.x < -DEADLINE;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_A) || isInputLeftController)
 	{
-		//--m_nowStageNum.x;
-		//selectFlag = true;
-		//m_cameraLength = FAR_CAMERA_LENGTH;
-		//m_arrowSineLengthNow[LEFT] = ARROW_SINE_INIT_LENGTH_ADD;
-		//m_arrowSinTimerAddNow[LEFT] = ARROW_SINE_TIMER_ADD;
+		--m_nowStageNum.x;
+		selectFlag = true;
+		m_cameraLength = FAR_CAMERA_LENGTH;
+		m_arrowSineLengthNow[LEFT] = ARROW_SINE_INIT_LENGTH_ADD;
+		m_arrowSinTimerAddNow[LEFT] = ARROW_SINE_TIMER_ADD;
 	}
 	bool isInputUpController = -DEADLINE < m_prevContollerLeftStick.y&& contollerLeftStickInput.y < -DEADLINE;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_W) || isInputUpController)

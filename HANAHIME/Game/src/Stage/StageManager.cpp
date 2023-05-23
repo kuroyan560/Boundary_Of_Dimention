@@ -34,8 +34,8 @@ StageManager::StageManager()
 		m_stageArray.back()->Load(loadPazzleIdx, stageDir, "P_Stage_" + std::to_string(loadPazzleIdx++) + ".json", terrianScaling, false);
 	}
 
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load(loadPazzleIdx, stageDir, "P_Stage_1.json", terrianScaling, false);
+	//m_stageArray.emplace_back(std::make_shared<Stage>());
+	//m_stageArray.back()->Load(loadPazzleIdx, stageDir, "P_Stage_1.json", terrianScaling, false);
 
 
 	//現在のステージ指定（デフォルトはホーム用ステージ）

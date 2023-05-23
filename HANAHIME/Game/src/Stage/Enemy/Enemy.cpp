@@ -55,9 +55,6 @@ void MiniBug::Update(Player &arg_player)
 	//€–S€”õˆ—
 	if (m_startDeadMotionFlag && !m_deadFlag)
 	{
-		m_scale = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, m_deadTimer.GetTimeRate(), 1.0f, 0.0f);
-		m_transform.SetScale(m_scale);
-
 		//€‚ñ‚Å‚¢‚½‚çŠÛ‰e‚ğ¬‚³‚­‚·‚éB
 		m_shadowInfluenceRange = KuroEngine::Math::Lerp(m_shadowInfluenceRange, 0.0f, 0.01f);
 
@@ -67,8 +64,18 @@ void MiniBug::Update(Player &arg_player)
 			m_deadFlag = true;
 		}
 
+		//€–S‚ÌÀ•W
+		KuroEngine::Vec3<float>vel = m_initializedTransform.GetUp();
+		m_pos += vel * 0.1f;
+		m_transform.SetPos(m_pos);
+
+		//€–S‚ÌƒXƒP[ƒ‹
+		m_scale = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, m_deadTimer.GetTimeRate(), m_initializedTransform.GetScale().x, 0.0f);
+		m_transform.SetScale(m_scale);
+
+		//€–S‚Ì‰ñ“]
 		DirectX::XMVECTOR vec = { 0.0f,0.0f,1.0f,1.0f };
-		m_larpRotation = DirectX::XMQuaternionRotationAxis(vec, KuroEngine::Angle::ConvertToRadian(90.0f));
+		m_larpRotation = DirectX::XMQuaternionRotationAxis(vec, KuroEngine::Angle::ConvertToRadian(360.0f));
 		KuroEngine::Quaternion rotation = m_transform.GetRotate();
 		rotation = DirectX::XMQuaternionSlerp(m_transform.GetRotate(), m_larpRotation, 0.1f);
 		m_transform.SetRotate(rotation);
@@ -192,7 +199,7 @@ void MiniBug::Update(Player &arg_player)
 				q = DirectX::XMQuaternionMultiply(m_transform.GetRotate(), q);
 
 				//•âŠÔ‚·‚éB
-				m_transform.SetRotate(DirectX::XMQuaternionSlerp(m_transform.GetRotate(), q, 0.1f));
+				//m_transform.SetRotate(DirectX::XMQuaternionSlerp(m_transform.GetRotate(), q, 0.1f));
 
 			}
 		}
@@ -259,6 +266,21 @@ void MiniBug::Update(Player &arg_player)
 		{
 			m_thinkTimer.Reset(120);
 			vel = track.Update(m_pos, arg_player.GetTransform().GetPos());
+
+			if (m_initializedTransform.GetUp().x == 0.0f)
+			{
+
+			}
+			if (m_initializedTransform.GetUp().y == 0.0f)
+			{
+
+			}
+			if (m_initializedTransform.GetUp().z == 0.0f)
+			{
+
+			}
+
+			vel *= m_initializedTransform.GetUp();
 			m_dir = track.Update(m_pos, arg_player.GetTransform().GetPos()).GetNormal();
 		}
 
@@ -337,7 +359,7 @@ void MiniBug::Update(Player &arg_player)
 		{
 			rotation = DirectX::XMQuaternionSlerp(m_transform.GetRotate(), m_larpRotation, 0.1f);
 		}
-		//m_transform.SetRotate(rotation);
+		m_transform.SetRotate(rotation);
 	}
 
 	m_larpPos = KuroEngine::Math::Lerp(m_larpPos, m_pos, 0.1f);
@@ -354,12 +376,12 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
-	/*BasicDraw::Instance()->Draw_Player(
+	BasicDraw::Instance()->Draw_Player(
 		arg_cam,
 		arg_ligMgr,
 		m_model,
 		m_transform,
-		edgeColor);*/
+		edgeColor);
 
 	m_reaction->Draw(arg_cam);
 
@@ -490,11 +512,11 @@ void DossunRing::Update(Player &arg_player)
 	if (m_attackFlag)
 	{
 		//“–‚½‚è”»’è‚ÌL‚ª‚è
-		m_hitBoxRadius = m_attackTimer.GetTimeRate() * m_hitBoxRadiusMax;
+		m_attackHitBoxRadius = m_attackTimer.GetTimeRate() * m_attackhitBoxRadiusMax;
 		//L‚ª‚èØ‚Á‚½‚çƒCƒ“ƒ^[ƒoƒ‹‚É–ß‚é
 		if (m_attackTimer.UpdateTimer())
 		{
-			m_hitBoxRadius = 0.0f;
+			m_attackHitBoxRadius = 0.0f;
 			m_attackInterval.Reset(m_maxAttackIntervalTime);
 			m_attackFlag = false;
 			m_findPlayerFlag = false;
@@ -535,7 +557,7 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 	transform.SetPos(*(m_hitBox.m_centerPos));
 	float scale = *(m_hitBox.m_radius);
 	transform.SetScale(KuroEngine::Vec3<float>(scale, 1.0f, scale));
-	BasicDraw::Instance()->Draw_Player(
+	BasicDraw::Instance()->Draw(
 		arg_cam,
 		arg_ligMgr,
 		m_attackRingModel,
@@ -544,7 +566,7 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 
 	m_reaction->Draw(arg_cam);
 
-	DebugDraw(arg_cam);
+	//DebugDraw(arg_cam);
 }
 
 void DossunRing::DebugDraw(KuroEngine::Camera &camera)

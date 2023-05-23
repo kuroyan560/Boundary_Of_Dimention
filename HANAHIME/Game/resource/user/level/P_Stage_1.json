@@ -3,63 +3,37 @@
         "name": "scene",
         "objects": [
             {
-                "type": "Battery",
-                "name": "Battery.004",
+                "type": "CheckPoint",
+                "name": "CheckPoint_0.001",
                 "transform": {
                     "translation": [
-                        -27.0,
-                        -8.999998092651367,
-                        30.000001907348633
+                        69.99999237060547,
+                        -270.0,
+                        -74.00001525878906
                     ],
                     "rotation": [
+                        -0.7071068286895752,
+                        -0.7071068286895752,
                         0.0,
-                        0.7071068286895752,
-                        0.0,
-                        0.7071068286895752
+                        0.0
                     ],
                     "scaling": [
-                        3.0,
-                        3.0,
-                        3.0
-                    ]
-                },
-                "file_name": "Battery",
-                "translationArray": {},
-                "BarrelPat": "FIXED",
-                "BulletScale": 3.0
-            },
-            {
-                "type": "DossunRing",
-                "name": "DossunRing_0.010",
-                "transform": {
-                    "translation": [
-                        -29.224456787109375,
-                        -32.0,
-                        30.000001907348633
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.7071068286895752,
-                        0.0,
-                        0.7071068286895752
-                    ],
-                    "scaling": [
-                        3.0,
-                        3.0,
+                        1.0,
+                        1.0,
                         1.0
                     ]
                 },
-                "file_name": "DossunRing",
-                "ATKPat": "NORMAL"
+                "file_name": "CheckPoint",
+                "CheckPointOrder": 2
             },
             {
-                "type": "MiniBug",
-                "name": "MiniBug_0.019",
+                "type": "CheckPoint",
+                "name": "CheckPoint_0.003",
                 "transform": {
                     "translation": [
-                        -28.224456787109375,
-                        17.0,
-                        29.999998092651367
+                        66.0,
+                        -70.0,
+                        -45.0
                     ],
                     "rotation": [
                         0.0,
@@ -68,45 +42,44 @@
                         0.7071068286895752
                     ],
                     "scaling": [
-                        1.5,
-                        1.5,
-                        1.5
+                        1.0,
+                        1.0,
+                        1.0
                     ]
                 },
-                "file_name": "MiniBug",
-                "translationArray": {},
-                "Loop": 1
+                "file_name": "CheckPoint",
+                "CheckPointOrder": 1
             },
             {
-                "type": "Terrian",
-                "name": "Stage0_0.003",
+                "type": "StarCoin",
+                "name": "StarCoin_0.001",
                 "transform": {
                     "translation": [
-                        0.0,
-                        0.0,
-                        0.0
+                        14.999996185302734,
+                        -30.0,
+                        -80.0
                     ],
                     "rotation": [
-                        -0.0,
-                        -1.0,
-                        -0.0,
-                        0.0
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
                     ],
                     "scaling": [
-                        10.0,
-                        10.0,
-                        10.0
+                        2.0,
+                        2.0,
+                        2.0
                     ]
                 },
-                "file_name": "DebugStage"
+                "file_name": "StarCoin"
             },
             {
                 "type": "Start",
-                "name": "Start_0.001",
+                "name": "Start_1",
                 "transform": {
                     "translation": [
                         0.0,
-                        0.0,
+                        10.0,
                         13.0
                     ],
                     "rotation": [
@@ -124,13 +97,13 @@
                 "file_name": "Start"
             },
             {
-                "type": "Battery",
-                "name": "Battery",
+                "type": "MoveScaffold",
+                "name": "MoveScaffoldStage0_0.001",
                 "transform": {
                     "translation": [
-                        -80.0,
-                        0.0,
-                        13.0
+                        139.0,
+                        -340.0,
+                        -120.0
                     ],
                     "rotation": [
                         0.0,
@@ -139,41 +112,449 @@
                         1.0
                     ],
                     "scaling": [
-                        3.0,
-                        3.0,
-                        3.0
+                        10.0,
+                        10.0,
+                        10.0
                     ]
                 },
-                "file_name": "Battery",
+                "file_name": "MoveScaffoldStage1",
                 "translationArray": {
                     "translation_0": [
-                        -70.0,
-                        0.0,
-                        13.0
+                        139.0,
+                        -340.0,
+                        -120.0
                     ],
                     "translation_1": [
-                        -90.0,
-                        0.0,
-                        13.0
+                        261.0,
+                        -340.0,
+                        -120.0
                     ]
-                },
-                "BarrelPat": "ROCKON",
-                "BulletScale": 3.0
+                }
             },
             {
-                "type": "Battery",
-                "name": "Battery.001",
+                "type": "MoveScaffold",
+                "name": "MoveScaffoldStage0_0.002",
                 "transform": {
                     "translation": [
-                        -80.0,
-                        -27.0,
-                        30.0
+                        379.0,
+                        -340.0,
+                        -120.0
                     ],
                     "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "MoveScaffoldStage2",
+                "translationArray": {
+                    "translation_0": [
+                        379.0,
+                        -340.0,
+                        -120.0
+                    ],
+                    "translation_1": [
+                        441.0,
+                        -340.0,
+                        -120.0
+                    ]
+                }
+            },
+            {
+                "type": "MoveScaffold",
+                "name": "MoveScaffoldStage0_0.003",
+                "transform": {
+                    "translation": [
+                        499.3919982910156,
+                        -260.0,
+                        -159.865966796875
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "MoveScaffoldStage3",
+                "translationArray": {
+                    "translation_0": [
+                        499.3919982910156,
+                        -260.0,
+                        -159.865966796875
+                    ],
+                    "translation_1": [
+                        561.3920288085938,
+                        -260.0,
+                        -159.865966796875
+                    ]
+                }
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S1",
+                "transform": {
+                    "translation": [
+                        9.916519165039062,
+                        -260.0,
+                        -80.00054931640625
+                    ],
+                    "rotation": [
+                        0.7071067094802856,
                         -0.7071068286895752,
                         0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S2",
+                "transform": {
+                    "translation": [
+                        9.916519165039062,
+                        -280.0,
+                        -80.00054931640625
+                    ],
+                    "rotation": [
+                        0.7071067094802856,
+                        -0.7071068286895752,
                         0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S3",
+                "transform": {
+                    "translation": [
+                        -20.083480834960938,
+                        -290.0,
+                        -80.00054931640625
+                    ],
+                    "rotation": [
+                        0.0,
+                        -1.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S4",
+                "transform": {
+                    "translation": [
+                        -40.08348083496094,
+                        -290.0,
+                        -80.00054931640625
+                    ],
+                    "rotation": [
+                        0.0,
+                        -1.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S6",
+                "transform": {
+                    "translation": [
+                        -20.083480834960938,
+                        -290.0,
+                        -100.00054931640625
+                    ],
+                    "rotation": [
+                        0.0,
+                        -1.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S5",
+                "transform": {
+                    "translation": [
+                        -40.08348083496094,
+                        -290.0,
+                        -100.00054931640625
+                    ],
+                    "rotation": [
+                        0.0,
+                        -1.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_1",
+                "transform": {
+                    "translation": [
+                        -30.083480834960938,
+                        -270.0,
+                        -108.00054931640625
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        -1.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S8",
+                "transform": {
+                    "translation": [
+                        39.91651916503906,
+                        -310.0,
+                        -100.00054931640625
+                    ],
+                    "rotation": [
+                        0.0,
+                        -1.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S7",
+                "transform": {
+                    "translation": [
+                        59.91651153564453,
+                        -310.0,
+                        -100.00054931640625
+                    ],
+                    "rotation": [
+                        0.0,
+                        -1.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_2",
+                "transform": {
+                    "translation": [
+                        59.91651916503906,
+                        -340.0,
+                        -108.00054168701172
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_3",
+                "transform": {
+                    "translation": [
+                        39.91651916503906,
+                        -340.0,
+                        -108.00054168701172
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S10",
+                "transform": {
+                    "translation": [
+                        59.91651153564453,
+                        -349.0,
+                        -80.00054168701172
+                    ],
+                    "rotation": [
+                        0.0,
+                        -1.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S9",
+                "transform": {
+                    "translation": [
+                        39.91651916503906,
+                        -349.0,
+                        -80.00054168701172
+                    ],
+                    "rotation": [
+                        0.0,
+                        -1.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_4",
+                "transform": {
+                    "translation": [
+                        49.91651916503906,
+                        -270.0,
+                        -108.00054931640625
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
                         0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_5",
+                "transform": {
+                    "translation": [
+                        9.916534423828125,
+                        -369.0,
+                        -73.00053405761719
+                    ],
+                    "rotation": [
+                        -0.7071067094802856,
+                        0.7071068286895752,
+                        0.0,
+                        0.0
                     ],
                     "scaling": [
                         3.0,
@@ -181,25 +562,168 @@
                         3.0
                     ]
                 },
-                "file_name": "Battery",
+                "file_name": "MiniBug",
                 "translationArray": {},
-                "BarrelPat": "ROCKON",
-                "BulletScale": 3.0
+                "Loop": 1
             },
             {
-                "type": "Battery",
-                "name": "Battery.002",
+                "type": "SplatoonFence",
+                "name": "Fence_S14",
                 "transform": {
                     "translation": [
-                        -53.0,
-                        0.0,
-                        30.0
+                        59.91651153564453,
+                        -310.0,
+                        -140.00054931640625
                     ],
                     "rotation": [
                         0.0,
+                        -1.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S13",
+                "transform": {
+                    "translation": [
+                        39.91651916503906,
+                        -310.0,
+                        -140.00054931640625
+                    ],
+                    "rotation": [
+                        0.0,
+                        -1.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S16",
+                "transform": {
+                    "translation": [
+                        9.916519165039062,
+                        -280.0,
+                        -100.00054931640625
+                    ],
+                    "rotation": [
+                        0.7071067094802856,
                         -0.7071068286895752,
                         0.0,
-                        0.7071068286895752
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S15",
+                "transform": {
+                    "translation": [
+                        9.916519165039062,
+                        -260.0,
+                        -100.00054931640625
+                    ],
+                    "rotation": [
+                        0.7071067094802856,
+                        -0.7071068286895752,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S12",
+                "transform": {
+                    "translation": [
+                        -40.08348083496094,
+                        -310.0,
+                        -140.00054931640625
+                    ],
+                    "rotation": [
+                        0.0,
+                        -1.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S11",
+                "transform": {
+                    "translation": [
+                        -20.083480834960938,
+                        -310.0,
+                        -140.00054931640625
+                    ],
+                    "rotation": [
+                        0.0,
+                        -1.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_6",
+                "transform": {
+                    "translation": [
+                        -30.083480834960938,
+                        -270.0,
+                        -133.00054931640625
+                    ],
+                    "rotation": [
+                        1.0,
+                        0.0,
+                        0.0,
+                        0.0
                     ],
                     "scaling": [
                         3.0,
@@ -207,19 +731,381 @@
                         3.0
                     ]
                 },
-                "file_name": "Battery",
+                "file_name": "MiniBug",
                 "translationArray": {},
-                "BarrelPat": "ROCKON",
-                "BulletScale": 3.0
+                "Loop": 1
             },
             {
-                "type": "Battery",
-                "name": "Battery.003",
+                "type": "MiniBug",
+                "name": "MiniBug_7",
                 "transform": {
                     "translation": [
-                        -80.0,
+                        49.91651916503906,
+                        -270.0,
+                        -133.00054931640625
+                    ],
+                    "rotation": [
+                        0.7071067094802856,
+                        -0.7071068286895752,
                         0.0,
-                        47.0
+                        0.0
+                    ],
+                    "scaling": [
+                        3.0,
+                        3.0,
+                        3.0
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "StarCoin",
+                "name": "StarCoin_0.002",
+                "transform": {
+                    "translation": [
+                        -55.649993896484375,
+                        -260.0,
+                        -120.72000122070312
+                    ],
+                    "rotation": [
+                        0.5000001788139343,
+                        0.49999991059303284,
+                        -0.5,
+                        0.5
+                    ],
+                    "scaling": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ]
+                },
+                "file_name": "StarCoin"
+            },
+            {
+                "type": "StarCoin",
+                "name": "StarCoin_0.003",
+                "transform": {
+                    "translation": [
+                        110.3499984741211,
+                        -330.90179443359375,
+                        -104.72000122070312
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.7071066498756409,
+                        0.0,
+                        0.70710688829422
+                    ],
+                    "scaling": [
+                        2.0,
+                        2.0,
+                        2.0
+                    ]
+                },
+                "file_name": "StarCoin"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S3.001",
+                "transform": {
+                    "translation": [
+                        320.36407470703125,
+                        -330.0,
+                        -99.87294006347656
+                    ],
+                    "rotation": [
+                        -1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S3.002",
+                "transform": {
+                    "translation": [
+                        300.36407470703125,
+                        -330.0,
+                        -99.87294006347656
+                    ],
+                    "rotation": [
+                        -1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S3.003",
+                "transform": {
+                    "translation": [
+                        560.3640747070312,
+                        -270.0,
+                        -119.87293243408203
+                    ],
+                    "rotation": [
+                        -1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S3.004",
+                "transform": {
+                    "translation": [
+                        540.3640747070312,
+                        -270.0000305175781,
+                        -119.87293243408203
+                    ],
+                    "rotation": [
+                        -1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S3.005",
+                "transform": {
+                    "translation": [
+                        500.36407470703125,
+                        -370.0000305175781,
+                        -159.87294006347656
+                    ],
+                    "rotation": [
+                        -1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S3.006",
+                "transform": {
+                    "translation": [
+                        530.3640747070312,
+                        -340.0000305175781,
+                        -159.87294006347656
+                    ],
+                    "rotation": [
+                        -0.7071066498756409,
+                        0.70710688829422,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S3.007",
+                "transform": {
+                    "translation": [
+                        500.36407470703125,
+                        -310.0000305175781,
+                        -159.87294006347656
+                    ],
+                    "rotation": [
+                        -1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S3.008",
+                "transform": {
+                    "translation": [
+                        470.36407470703125,
+                        -340.0000305175781,
+                        -159.87294006347656
+                    ],
+                    "rotation": [
+                        -0.7071066498756409,
+                        0.70710688829422,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_0.001",
+                "transform": {
+                    "translation": [
+                        310.36407470703125,
+                        -316.0000305175781,
+                        -107.87294006347656
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_0.002",
+                "transform": {
+                    "translation": [
+                        300.36407470703125,
+                        -306.0,
+                        -107.87294006347656
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_0.003",
+                "transform": {
+                    "translation": [
+                        320.36407470703125,
+                        -306.0000305175781,
+                        -107.87294006347656
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        1.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_0.004",
+                "transform": {
+                    "translation": [
+                        510.36407470703125,
+                        -250.00001525878906,
+                        -112.87293243408203
+                    ],
+                    "rotation": [
+                        -0.7071067094802856,
+                        -0.7071068286895752,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        3.0,
+                        3.0,
+                        3.0
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_0.005",
+                "transform": {
+                    "translation": [
+                        590.3640747070312,
+                        -330.0,
+                        -152.87294006347656
                     ],
                     "rotation": [
                         0.0,
@@ -233,44 +1119,308 @@
                         3.0
                     ]
                 },
-                "file_name": "Battery",
-                "translationArray": {},
-                "BarrelPat": "ROCKON",
-                "BulletScale": 3.0
-            },
-            {
-                "type": "MiniBug",
-                "name": "MiniBug_0.015",
-                "transform": {
-                    "translation": [
-                        -81.0,
-                        17.0,
-                        12.0
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        1.5,
-                        1.5,
-                        1.5
-                    ]
-                },
                 "file_name": "MiniBug",
                 "translationArray": {},
                 "Loop": 1
             },
             {
-                "type": "MiniBug",
-                "name": "MiniBug_0.016",
+                "type": "SplatoonFence",
+                "name": "Fence_S3.009",
                 "transform": {
                     "translation": [
-                        -81.0,
-                        17.0,
-                        48.0
+                        280.3641052246094,
+                        -330.0,
+                        -99.87294006347656
+                    ],
+                    "rotation": [
+                        -1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S3.010",
+                "transform": {
+                    "translation": [
+                        530.3640747070312,
+                        -360.0000305175781,
+                        -159.87294006347656
+                    ],
+                    "rotation": [
+                        -0.7071066498756409,
+                        0.70710688829422,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S3.011",
+                "transform": {
+                    "translation": [
+                        530.3640747070312,
+                        -320.0000305175781,
+                        -159.87294006347656
+                    ],
+                    "rotation": [
+                        -0.7071066498756409,
+                        0.70710688829422,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S3.012",
+                "transform": {
+                    "translation": [
+                        520.3640747070312,
+                        -370.0000305175781,
+                        -159.87294006347656
+                    ],
+                    "rotation": [
+                        -1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S3.013",
+                "transform": {
+                    "translation": [
+                        480.36407470703125,
+                        -370.0000305175781,
+                        -159.87294006347656
+                    ],
+                    "rotation": [
+                        -1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S3.014",
+                "transform": {
+                    "translation": [
+                        470.36407470703125,
+                        -360.0000305175781,
+                        -159.87294006347656
+                    ],
+                    "rotation": [
+                        -0.7071066498756409,
+                        0.70710688829422,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S3.015",
+                "transform": {
+                    "translation": [
+                        470.36407470703125,
+                        -320.0000305175781,
+                        -159.87294006347656
+                    ],
+                    "rotation": [
+                        -0.7071066498756409,
+                        0.70710688829422,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S3.016",
+                "transform": {
+                    "translation": [
+                        480.36407470703125,
+                        -310.0000305175781,
+                        -159.87294006347656
+                    ],
+                    "rotation": [
+                        -1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S3.017",
+                "transform": {
+                    "translation": [
+                        520.3640747070312,
+                        -310.0000305175781,
+                        -159.87294006347656
+                    ],
+                    "rotation": [
+                        -1.0,
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "Gate",
+                "name": "Gate_1",
+                "transform": {
+                    "translation": [
+                        500.36407470703125,
+                        -340.0000305175781,
+                        -149.72000122070312
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        -0.7071068286895752,
+                        0.7071067094802856
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Gate",
+                "GateID": 1,
+                "DestStageNum": 2,
+                "DestGateID": 2,
+                "CheckPointOrder": 5
+            },
+            {
+                "type": "Terrian",
+                "name": "HitStage1_0.001",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Stage1"
+            },
+            {
+                "type": "CheckPoint",
+                "name": "CheckPoint_0.006",
+                "transform": {
+                    "translation": [
+                        116.99999237060547,
+                        -330.0,
+                        -134.00003051757812
+                    ],
+                    "rotation": [
+                        -0.7071068286895752,
+                        -0.7071068286895752,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "CheckPoint",
+                "CheckPointOrder": 3
+            },
+            {
+                "type": "CheckPoint",
+                "name": "CheckPoint_0.007",
+                "transform": {
+                    "translation": [
+                        330.0,
+                        -330.0,
+                        -134.00003051757812
                     ],
                     "rotation": [
                         -0.0,
@@ -279,160 +1429,36 @@
                         0.0
                     ],
                     "scaling": [
-                        1.5,
-                        1.5,
-                        1.5
-                    ]
-                },
-                "file_name": "MiniBug",
-                "translationArray": {},
-                "Loop": 1
-            },
-            {
-                "type": "MiniBug",
-                "name": "MiniBug_0.017",
-                "transform": {
-                    "translation": [
-                        -52.0,
-                        17.0,
-                        29.999996185302734
-                    ],
-                    "rotation": [
-                        0.0,
-                        -0.7071068286895752,
-                        0.0,
-                        0.7071068286895752
-                    ],
-                    "scaling": [
-                        1.5,
-                        1.5,
-                        1.5
-                    ]
-                },
-                "file_name": "MiniBug",
-                "translationArray": {},
-                "Loop": 1
-            },
-            {
-                "type": "MiniBug",
-                "name": "MiniBug_0.018",
-                "transform": {
-                    "translation": [
-                        -81.0,
-                        -28.0,
-                        19.0
-                    ],
-                    "rotation": [
-                        -0.7071068286895752,
-                        0.0,
-                        0.0,
-                        0.7071068286895752
-                    ],
-                    "scaling": [
-                        1.5,
-                        1.5,
-                        1.5
-                    ]
-                },
-                "file_name": "MiniBug",
-                "translationArray": {},
-                "Loop": 1
-            },
-            {
-                "type": "DossunRing",
-                "name": "DossunRing_0.006",
-                "transform": {
-                    "translation": [
-                        -67.0,
-                        18.0,
-                        11.0
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        3.0,
-                        3.0,
+                        1.0,
+                        1.0,
                         1.0
                     ]
                 },
-                "file_name": "DossunRing",
-                "ATKPat": "ALWAYS"
+                "file_name": "CheckPoint",
+                "CheckPointOrder": 4
             },
             {
-                "type": "DossunRing",
-                "name": "DossunRing_0.007",
+                "type": "Appearance",
+                "name": "HitStage1_0.002",
                 "transform": {
                     "translation": [
-                        -67.0,
-                        -29.0,
-                        30.0
-                    ],
-                    "rotation": [
-                        -0.7071068286895752,
                         0.0,
                         0.0,
-                        0.7071068286895752
-                    ],
-                    "scaling": [
-                        3.0,
-                        3.0,
-                        1.0
-                    ]
-                },
-                "file_name": "DossunRing",
-                "ATKPat": "NORMAL"
-            },
-            {
-                "type": "DossunRing",
-                "name": "DossunRing_0.008",
-                "transform": {
-                    "translation": [
-                        -51.0,
-                        -18.0,
-                        30.0
-                    ],
-                    "rotation": [
-                        0.0,
-                        -0.7071068286895752,
-                        0.0,
-                        0.7071068286895752
-                    ],
-                    "scaling": [
-                        3.0,
-                        3.0,
-                        1.0
-                    ]
-                },
-                "file_name": "DossunRing",
-                "ATKPat": "NORMAL"
-            },
-            {
-                "type": "DossunRing",
-                "name": "DossunRing_0.009",
-                "transform": {
-                    "translation": [
-                        -80.0,
-                        -13.0,
-                        49.0
-                    ],
-                    "rotation": [
-                        -0.0,
-                        -1.0,
-                        -0.0,
                         0.0
                     ],
-                    "scaling": [
-                        3.0,
-                        3.0,
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
                         1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
                     ]
                 },
-                "file_name": "DossunRing",
-                "ATKPat": "NORMAL"
+                "file_name": "Appearance1"
             }
         ]
     }

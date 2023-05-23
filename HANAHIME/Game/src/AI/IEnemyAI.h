@@ -163,6 +163,12 @@ public:
 	}
 
 
+	void DeadMotion(KuroEngine::Vec3<float> &pos, KuroEngine::Vec3<float> &vec, KuroEngine::Quaternion &rotation)
+	{
+		pos += KuroEngine::Vec3<float>(1.0f, 1.0f, 1.0f) * vec;
+		rotation.m128_f32[0] += 1.0f;
+	}
+
 
 	std::unique_ptr<Reaction> m_reaction;
 	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_tex;
