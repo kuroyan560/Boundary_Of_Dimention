@@ -7,6 +7,7 @@
 #include"KuroEngineDevice.h"
 #include"Render/RenderObject/Camera.h"
 #include"../Player/CollisionDetectionOfRayAndMesh.h"
+#include"../TimeScaleMgr.h"
 
 Grass::Grass()
 {
@@ -171,7 +172,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 	int consumeCount = 0;
 
 	//if (m_plantTimer.IsTimeUp() && 0.01f < KuroEngine::Vec3<float>(m_oldPlayerPos - arg_playerTransform.GetPos()).Length())
-	if (true)
+	if (0.1f < TimeScaleMgr::s_inGame.GetTimeScale())
 	{
 		//トランスフォームに流し込む
 		Transform grassTransform;
@@ -210,7 +211,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 
 		m_plantTimer.Reset(0);
 	}
-	m_plantTimer.UpdateTimer();
+	m_plantTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
 
 	m_oldPlayerPos = arg_playerTransform.GetPos();
 
@@ -416,13 +417,13 @@ void Grass::UpdateGrassEasing(Grass::GrassData& arg_grass, int arg_index)
 	{
 		static const float appearEaseSpeed = 0.05f;
 		//イージングタイマー更新
-		arg_grass.m_appearYTimer = std::min(arg_grass.m_appearYTimer + appearEaseSpeed, 1.0f);
+		arg_grass.m_appearYTimer = std::min(arg_grass.m_appearYTimer + appearEaseSpeed * TimeScaleMgr::s_inGame.GetTimeScale(), 1.0f);
 	}
 	else
 	{
 		static const float deadEaseSpeed = 0.03f;
 		//イージングタイマー更新
-		arg_grass.m_appearYTimer = std::max(arg_grass.m_appearYTimer - deadEaseSpeed, 0.0f);
+		arg_grass.m_appearYTimer = std::max(arg_grass.m_appearYTimer - deadEaseSpeed * TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f);
 
 		//0以下になったらフラグを折る。
 		if (arg_grass.m_appearYTimer <= FLT_EPSILON)
