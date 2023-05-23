@@ -174,6 +174,14 @@ void PauseUI::Update(GameScene* arg_gameScene, float arg_timeScale)
 		{
 			//SE再生
 			SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
+
+			//ファストトラベルと設定未実装
+			if (m_item == FAST_TRAVEL || m_item == SETTING)
+			{
+				if (m_item < oldItem)m_item = RETRY;
+				else if (oldItem < m_item)m_item = RETURN_TO_TITLE;
+			}
+
 		}
 
 		//決定ボタン
@@ -290,7 +298,7 @@ void PauseUI::Draw(int arg_totalGetFlowerNum)
 
 	//半透明黒四角背景描画
 	static const float SQUARE_WIDTH_HALF = 284.0f;
-	static const float SQUARE_ALPHA = 0.2f;
+	static const float SQUARE_ALPHA = 0.5f;
 	DrawFunc2D::DrawBox2D(
 		{ WIN_CENTER_X - SQUARE_WIDTH_HALF,0.0f }, { WIN_CENTER_X + SQUARE_WIDTH_HALF,WIN_SIZE.y },
 		Color(0.0f, 0.0f, 0.0f, SQUARE_ALPHA), true);
@@ -333,13 +341,20 @@ void PauseUI::Draw(int arg_totalGetFlowerNum)
 				DrawFunc2D::DrawRotaGraph2D(pos, { 1.0f,1.0f }, 0.0f, m_defaultMenu.m_selectItemShadowTex);
 			}
 
-
 			//ステータス
 			ITEM_STATUS itemStatus = isSelected ? SELECT : DEFAULT;
+
 			//テクスチャ決定
 			auto& tex = m_defaultMenu.m_itemTexArray[itemIdx][itemStatus];
 			//アルファ決定
 			float alpha = isSelected ? 1.0f : NO_SELECT_ITEM_ALPHA;
+
+			if (itemIdx == FAST_TRAVEL || itemIdx == SETTING)
+			{
+				itemStatus = DEFAULT;
+				alpha = 0.35f;
+			}
+
 			DrawFunc2D::DrawRotaGraph2D(pos, { 1.0f,1.0f }, 0.0f, tex, alpha);
 		}
 
