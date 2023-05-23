@@ -171,23 +171,6 @@ void MiniBug::Update(Player &arg_player)
 		vel = m_patrol->Update(m_pos);
 		m_dir = vel;
 
-		{
-			//プレイヤーを回転させる。
-			KuroEngine::Vec3<float> defVec = m_transform.GetFront();
-			KuroEngine::Vec3<float> axis = defVec.Cross(vel.GetNormal());
-			float rad = std::acosf(defVec.Dot(vel.GetNormal()));
-			if (0 < axis.Length() && !std::isnan(rad)) {
-				auto q = DirectX::XMQuaternionRotationAxis(axis, rad);
-
-				//qが補間先
-				q = DirectX::XMQuaternionMultiply(m_transform.GetRotate(), q);
-
-				//補間する。
-				m_transform.SetRotate(DirectX::XMQuaternionSlerp(m_transform.GetRotate(), q, 0.1f));
-
-			}
-		}
-
 		break;
 	case MiniBug::ATTACK:
 
@@ -303,13 +286,12 @@ void MiniBug::Update(Player &arg_player)
 	m_pos += vel;
 	m_prevPos = m_pos;
 
-	KuroEngine::Vec3<float>frontVec(0.0f, 0.0f, 1.0f);
+	KuroEngine::Vec3<float>frontVec = m_transform.GetFront();
 
-	m_dir.y = 0.0f;
-	KuroEngine::Vec3<float>axis = frontVec.Cross(m_dir);
-	float rptaVel = acosf(frontVec.Dot(m_dir));
+	KuroEngine::Vec3<float>axis = frontVec.Cross(m_dir.GetNormal());
+	float rptaVel = acosf(frontVec.Dot(m_dir.GetNormal()));
 
-	if (axis.IsZero())
+	if (axis.Length() <= 0.001f)
 	{
 		//m_larpRotation = DirectX::XMQuaternionIdentity();
 	}
@@ -319,16 +301,15 @@ void MiniBug::Update(Player &arg_player)
 	}
 	else
 	{
-		DirectX::XMVECTOR dirVec = { axis.x,axis.y,axis.z,1.0f };
-		m_larpRotation = DirectX::XMQuaternionRotationAxis(dirVec, rptaVel);
-		KuroEngine::Quaternion rotation = m_transform.GetRotate();
+		m_larpRotation = DirectX::XMQuaternionRotationAxis(axis, rptaVel);
+		KuroEngine::Quaternion rotation = DirectX::XMQuaternionIdentity();
 
 		//見つけた時のジャンプ中じゃなかったらプレイヤーの方向を向く。
 		if (m_jumpMotion.IsDone() || m_nowStatus != MiniBug::ATTACK)
 		{
-			rotation = DirectX::XMQuaternionSlerp(m_transform.GetRotate(), m_larpRotation, 0.1f);
+			rotation = m_larpRotation;
 		}
-		//m_transform.SetRotate(rotation);
+		m_transform.SetRotate(DirectX::XMQuaternionMultiply(m_transform.GetRotate(), rotation));
 	}
 
 	m_larpPos = KuroEngine::Math::Lerp(m_larpPos, m_pos, 0.1f);

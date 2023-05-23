@@ -140,6 +140,7 @@ Grass::Grass()
 
 		m_grassWorldMatricies[modelIdx].reserve(s_plantGrassMax);
 	}
+	//m_modelArray.front() = Importer::Instance()->LoadModel("resource/user/model/", "flower.glb");
 }
 
 void Grass::Init()
@@ -193,7 +194,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 			m_plantGrassDataArray.back().m_pos = plantData[count].m_plantPos;
 			m_plantGrassDataArray.back().m_normal = plantData[count].m_plantNormal;
 			m_plantGrassDataArray.back().m_sineLength = KuroEngine::GetRand(40) / 100.0f;
-			m_plantGrassDataArray.back().m_modelIdx = KuroEngine::GetRand(3 - 1);
+			m_plantGrassDataArray.back().m_modelIdx = KuroEngine::GetRand(2);
 			m_plantGrassDataArray.back().m_appearY = 0.1f;			//0Ç≈ê∂Ç‚Ç∑Ç∆Ç∑ÇÆè¡Ç¶ÇƒÇµÇ‹Ç§ÅB
 			m_plantGrassDataArray.back().m_appearYTimer = 0.1f;
 			m_plantGrassDataArray.back().m_isCheckNear = false;
