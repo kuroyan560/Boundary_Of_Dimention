@@ -102,6 +102,7 @@ class Player : public KuroEngine::Debugger
 	float CAMERA_FAR = -40.0f;
 	float m_cameraFar;
 	bool m_isHitUnderGroundCamera;
+	CameraController::CAMERA_STATUS m_cameraMode;
 
 	//A•¨‚ğ”ÉB‚³‚¹‚é“_ŒõŒ¹
 	GrowPlantLight_Point m_growPlantPtLig;
