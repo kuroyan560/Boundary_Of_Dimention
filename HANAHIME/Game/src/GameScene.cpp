@@ -78,13 +78,19 @@ void GameScene::GameInit()
 	InGameUI::Init();
 	m_stageInfoUI.Init(m_stageNum, StageManager::Instance()->GetStarCoinNum());
 	m_pauseUI.Init();
-
 	OperationConfig::Instance()->SetInGameOperationActive(true);
 }
 
 void GameScene::Retry()
 {
 	m_gateSceneChange.Start();
+}
+
+void GameScene::GoBackTitle()
+{
+	m_gateSceneChange.Start();
+	m_eTitleMode = TITLE_SELECT;
+	m_gobackTitleFlag = true;
 }
 
 void GameScene::OnInitialize()
@@ -117,6 +123,7 @@ void GameScene::OnInitialize()
 	m_eTitleMode = TITLE_SELECT;
 
 	m_pauseUI.Init();
+	m_gobackTitleFlag = false;
 }
 
 void GameScene::OnUpdate()
@@ -208,8 +215,14 @@ void GameScene::OnUpdate()
 			SoundConfig::Instance()->Play(SoundConfig::BGM_TITLE);
 			StageManager::Instance()->SetStage(std::clamp(GateManager::Instance()->GetDestStageNum() - 1, 0, 1000));
 		}
-		GameInit();
 
+		if (m_gobackTitleFlag)
+		{
+			m_title.Init(m_eTitleMode);
+			m_gobackTitleFlag = false;
+		}
+
+		GameInit();
 		m_goal.Init(StageManager::Instance()->GetGoalTransform(), StageManager::Instance()->GetGoalModel());
 
 		//ƒQ[ƒ€ƒNƒŠƒAŽž‚É‘JˆÚ‚·‚éˆ—
