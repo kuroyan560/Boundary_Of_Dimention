@@ -907,6 +907,5 @@
     <ClInclude Include="src\HUD\StageInfoUI.h" />
     <ClInclude Include="src\Stage\CheckPointHitFlag.h" />
     <ClInclude Include="src\AI\IEnemyAI.h" />
->>>>>>> dev_EnemyForMaster
   </ItemGroup>
 </Project>
