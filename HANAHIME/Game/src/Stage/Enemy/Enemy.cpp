@@ -28,6 +28,23 @@ void MiniBug::OnInit()
 
 	m_dashEffect.Finalize();
 	m_finalizeFlag = false;
+
+
+	m_sightArea.Init(&m_transform);
+	track.Init(0.5f);
+
+	m_nowStatus = SEARCH;
+	m_prevStatus = NONE;
+	m_limitIndex = 0;
+	m_deadFlag = false;
+	m_startDeadMotionFlag = false;
+	m_deadTimer.Reset(120);
+
+	m_hitBoxSize = m_transform.GetScale().x;
+	m_hitBox.m_centerPos = &m_transform.GetPos();
+	m_hitBox.m_radius = &m_hitBoxSize;
+
+	m_shadowInfluenceRange = SHADOW_INFLUENCE_RANGE;
 }
 
 void MiniBug::Update(Player &arg_player)
@@ -422,6 +439,36 @@ void MiniBug::DebugDraw(KuroEngine::Camera &camera)
 
 
 #pragma region Dossun
+void DossunRing::OnInit()
+{
+	m_attackHitBoxRadius = 0.0f;
+	m_findPlayerFlag = false;
+	m_preFindPlayerFlag = false;
+
+	m_sightRange = m_attackhitBoxRadiusMax;
+
+	//éãäEÇÃîªíË---------------------------------------
+	m_sightHitBox.m_centerPos = &m_transform.GetPos();
+	m_sightHitBox.m_radius = &m_sightRange;
+	m_sightArea.Init(m_sightHitBox);
+	//éãäEÇÃîªíË---------------------------------------
+
+	m_maxAttackIntervalTime = 60 * 2;
+	m_maxAttackTime = 60 * 5;
+
+	m_attackInterval.Reset(m_maxAttackIntervalTime);
+	m_attackTimer.Reset(m_maxAttackTime);
+
+	//éÄñSèàóù---------------------------------------
+	m_deadFlag = false;
+	m_startDeadMotionFlag = false;
+	m_deadTimer.Reset(120);
+	//éÄñSèàóù---------------------------------------
+
+	m_hitBox.m_centerPos = &m_transform.GetPos();
+	m_hitBox.m_radius = &m_attackHitBoxRadius;
+}
+
 void DossunRing::Update(Player &arg_player)
 {
 	if (m_deadFlag && IsActive(m_transform, arg_player.GetTransform()))
@@ -620,6 +667,11 @@ Battery::Battery(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transfo
 
 	m_upVec = arg_initTransform.GetUp();
 
+	OnInit();
+}
+
+void Battery::OnInit()
+{
 	m_bulletDir = m_transform.GetFront();
 	m_bulletManager.Init(&m_pos, 5.0f, &m_bulletDir, 120.0f);
 

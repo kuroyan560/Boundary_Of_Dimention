@@ -27,38 +27,17 @@ enum ENEMY_BARREL_PATTERN
 	ENEMY_BARREL_PATTERN_INVALID
 };
 
-class MiniBug :public StageParts
+class MiniBug :public StageParts,IEnemyAI
 {
 public:
 	MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>posArray, bool loopFlag)
 		:StageParts(MINI_BUG, arg_model, arg_initTransform), m_deadTimer(120), m_eyeEffect(&m_transform), ENEMY_ID(ENEMY_MAX_ID)
 	{
 
-		m_sightArea.Init(&m_transform);
-		track.Init(0.5f);
-		m_posArray = posArray;
-
-		m_nowStatus = SEARCH;
-		m_prevStatus = NONE;
-		m_limitIndex = 0;
-		m_deadFlag = false;
-		m_startDeadMotionFlag = false;
-		m_deadTimer.Reset(120);
-
-		m_tex.resize(MAX);
-		m_tex[FIND] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/Find.png");
-		m_tex[HIT] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/Attack.png");
-		m_tex[LOOK] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/hatena.png");
-		m_tex[FAR_AWAY] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/hatena.png");
-		m_tex[DEAD] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/dead.png");
-
-		m_reaction = std::make_unique<Reaction>(m_tex);
-
-
-		m_hitBoxSize = m_transform.GetScale().x;
-		m_hitBox.m_centerPos = &m_transform.GetPos();
-		m_hitBox.m_radius = &m_hitBoxSize;
-
+		//ŠÛ‰e—p‚É“G‚Ìƒf[ƒ^‚ÌŽQÆ‚ð“n‚·B
+		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_shadowInfluenceRange, &m_deadFlag);
+		m_finalizeFlag = false;
+		++ENEMY_MAX_ID;
 
 		if (posArray.size() == 0 || posArray.size() == 1)
 		{
@@ -71,13 +50,7 @@ public:
 		{
 			m_patrol = std::make_unique<PatrolBasedOnControlPoint>(posArray, 0, loopFlag);
 		}
-
-		m_shadowInfluenceRange = SHADOW_INFLUENCE_RANGE;
-
-		//ŠÛ‰e—p‚É“G‚Ìƒf[ƒ^‚ÌŽQÆ‚ð“n‚·B
-		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_shadowInfluenceRange, &m_deadFlag);
-		m_finalizeFlag = false;
-		++ENEMY_MAX_ID;
+		OnInit();
 	}
 
 	void OnInit()override;
@@ -228,12 +201,6 @@ private:
 
 private:
 
-	std::unique_ptr<Reaction> m_reaction;
-
-	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_tex;
-
-	//ƒŠƒAƒNƒVƒ‡ƒ“•\‹L---------------------------------------
-
 
 
 	KuroEngine::Quaternion Lerp(const KuroEngine::Quaternion &a, const KuroEngine::Quaternion &b, float mul)
@@ -270,34 +237,7 @@ public:
 		:StageParts(DOSSUN_RING, arg_model, arg_initTransform)
 	{
 
-		m_attackhitBoxRadiusMax = 15.0f * arg_initTransform.GetScale().x;
-		m_attackHitBoxRadius = 0.0f;
-		m_findPlayerFlag = false;
-		m_preFindPlayerFlag = false;
-		m_nowStatus = status;
-
-		m_sightRange = m_attackhitBoxRadiusMax;
-
-		//Ž‹ŠE‚Ì”»’è---------------------------------------
-		m_sightHitBox.m_centerPos = &m_transform.GetPos();
-		m_sightHitBox.m_radius = &m_sightRange;
-		m_sightArea.Init(m_sightHitBox);
-		//Ž‹ŠE‚Ì”»’è---------------------------------------
-
-		m_maxAttackIntervalTime = 60 * 2;
-		m_maxAttackTime = 60 * 5;
-
-		m_attackInterval.Reset(m_maxAttackIntervalTime);
-		m_attackTimer.Reset(m_maxAttackTime);
-
-		//Ž€–Sˆ—---------------------------------------
-		m_deadFlag = false;
-		m_startDeadMotionFlag = false;
-		m_deadTimer.Reset(120);
-		//Ž€–Sˆ—---------------------------------------
-
-		m_hitBox.m_centerPos = &m_transform.GetPos();
-		m_hitBox.m_radius = &m_attackHitBoxRadius;
+		OnInit();
 
 		m_hitBoxModel =
 			KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "RedSphere.glb");
@@ -312,6 +252,7 @@ public:
 			KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "impactWave.glb");
 
 	}
+	void OnInit()override;
 	void Update(Player &arg_player)override;
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
 
@@ -370,6 +311,7 @@ class Battery : public StageParts,IEnemyAI
 {
 public:
 	Battery(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>arg_posArray, float arg_bulletScale, ENEMY_BARREL_PATTERN arg_barrelPattern);
+	void OnInit()override;
 	void Update(Player &arg_player)override;
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
 

@@ -71,6 +71,31 @@
                 },
                 "file_name": "DossunRing",
                 "ATKPat": "ALWAYS"
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_0.016",
+                "transform": {
+                    "translation": [
+                        -87.0,
+                        18.0,
+                        11.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
             }
         ]
     }
