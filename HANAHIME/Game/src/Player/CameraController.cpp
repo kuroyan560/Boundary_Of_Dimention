@@ -391,7 +391,8 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	if (!arg_isPlayerJump && !arg_isCameraDefaultPos && arg_isNoCollision) {
 
 		//–³ŒÀ•½–Ê‚Æ‚Ì“–‚½‚è”»’è
-		bool isHit = RayPlaneIntersection(m_playerLerpPos, Vec3<float>(pushBackPos - m_playerLerpPos).GetNormal(), m_playerLerpPos - arg_targetPos.GetUp(), arg_targetPos.GetUp(), pushBackPos);
+		Vec3<float> push;
+		bool isHit = RayPlaneIntersection(m_playerLerpPos, Vec3<float>(pushBackPos - m_playerLerpPos).GetNormal(), m_playerLerpPos - arg_targetPos.GetUp(), arg_targetPos.GetUp(), push);
 		if (isHit) {
 			m_nowParam.m_xAxisAngle = fromXAngle;
 			m_nowParam.m_yAxisAngle = fromYAngle;
