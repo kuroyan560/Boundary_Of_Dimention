@@ -309,7 +309,7 @@ void MiniBug::Update(Player &arg_player)
 		{
 			rotation = m_larpRotation;
 		}
-		m_transform.SetRotate(DirectX::XMQuaternionMultiply(m_transform.GetRotate(), rotation));
+		m_transform.SetRotate(DirectX::XMQuaternionSlerp(m_transform.GetRotate(), DirectX::XMQuaternionMultiply(m_transform.GetRotate(), rotation), 0.1f));
 	}
 
 	m_larpPos = KuroEngine::Math::Lerp(m_larpPos, m_pos, 0.1f);
