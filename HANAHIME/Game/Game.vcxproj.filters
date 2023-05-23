@@ -457,6 +457,15 @@
     <ClCompile Include="src\HUD\OperationInfoUI.cpp">
       <Filter>src\user\HUD</Filter>
     </ClCompile>
+    <ClCompile Include="src\HUD\PauseUI.cpp">
+      <Filter>src\user\HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HUD\InGameUI.cpp">
+      <Filter>src\user\HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HUD\StageInfoUI.cpp">
+      <Filter>src\user\HUD</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -873,6 +882,16 @@
       <Filter>src\user\HUD</Filter>
     </ClInclude>
     <ClInclude Include="src\HUD\OperationInfoUI.h">
+      <Filter>src\user\HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Stage\CheckPointHitFlag.h" />
+    <ClInclude Include="src\HUD\InGameUI.h">
+      <Filter>src\user\HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HUD\PauseUI.h">
+      <Filter>src\user\HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="src\HUD\StageInfoUI.h">
       <Filter>src\user\HUD</Filter>
     </ClInclude>
   </ItemGroup>

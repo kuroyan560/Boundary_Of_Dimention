@@ -77,6 +77,7 @@ void GameScene::GameInit()
 	m_opeInfoUI.Init();
 	InGameUI::Init();
 	m_stageInfoUI.Init(m_stageNum, StageManager::Instance()->GetStarCoinNum());
+	m_pauseUI.Init();
 }
 
 void GameScene::OnInitialize()
@@ -107,6 +108,8 @@ void GameScene::OnInitialize()
 	m_title.Init(m_eTitleMode);
 	//ゲーム画面からパズルモードに戻る場合にパズルモードとして初期化した後、再び選択できるようSELECTを入れる
 	m_eTitleMode = TITLE_SELECT;
+
+	m_pauseUI.Init();
 }
 
 void GameScene::OnUpdate()
@@ -135,7 +138,7 @@ void GameScene::OnUpdate()
 		{
 			m_nowCam = m_goal.GetCamera().lock();
 		}
-		OperationConfig::Instance()->SetActive(false);
+		OperationConfig::Instance()->SetAllInputActive(false);
 		m_clearFlag = true;
 	}
 
@@ -173,9 +176,10 @@ void GameScene::OnUpdate()
 
 	//デバッグ用
 	bool isRetry = false;
-	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::RETRY, OperationConfig::ON_TRIGGER) || m_player.GetIsFinishDeathAnimation())
+	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::PAUSE, OperationConfig::ON_TRIGGER) || m_player.GetIsFinishDeathAnimation())
 	{
-		isRetry = true;
+		m_pauseUI.SetInverseActive();
+		//isRetry = true;
 	}
 
 	//ステージ移動時の初期化
@@ -191,7 +195,7 @@ void GameScene::OnUpdate()
 		if (!m_title.IsFinish())
 		{
 			m_title.FinishTitle();
-			OperationConfig::Instance()->SetActive(true);
+			OperationConfig::Instance()->SetAllInputActive(true);
 		}
 		else
 		{
@@ -244,6 +248,7 @@ void GameScene::OnUpdate()
 	InGameUI::Update(TimeScaleMgr::s_inGame.GetTimeScale());
 	m_opeInfoUI.Update(TimeScaleMgr::s_inGame.GetTimeScale());
 	m_stageInfoUI.Update(TimeScaleMgr::s_inGame.GetTimeScale(), StageManager::Instance()->GetStarCoinNum());
+	m_pauseUI.Update();
 
 	GateManager::Instance()->FrameEnd();
 }
@@ -318,10 +323,17 @@ void GameScene::OnDraw()
 
 	if (m_title.IsFinish() || m_title.IsStartOP())
 	{
-		m_player.DrawUI(*m_nowCam);
-		StageManager::Instance()->DrawUI(*m_nowCam, m_player.GetTransform().GetPosWorld());
-		m_opeInfoUI.Draw();
-		m_stageInfoUI.Draw(StageManager::Instance()->ExistStarCoinNum(), StageManager::Instance()->GetStarCoinNum());
+		//ポーズ画面
+		m_pauseUI.Draw(StarCoin::GetFlowerSum());
+
+		//ポーズ画面でなければ
+		if (!m_pauseUI.IsActive())
+		{
+			m_player.DrawUI(*m_nowCam);
+			StageManager::Instance()->DrawUI(*m_nowCam, m_player.GetTransform().GetPosWorld());
+			m_opeInfoUI.Draw();
+			m_stageInfoUI.Draw(StageManager::Instance()->ExistStarCoinNum(), StageManager::Instance()->GetStarCoinNum());
+		}
 	}
 
 	m_title.Draw(*m_nowCam, m_ligMgr);

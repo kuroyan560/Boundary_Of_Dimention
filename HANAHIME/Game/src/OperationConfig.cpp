@@ -107,7 +107,7 @@ bool OperationConfig::KeyInput(INPUT_PATTERN arg_pattern, int arg_keyCode)
 
 KuroEngine::Vec3<float> OperationConfig::GetMoveVec(KuroEngine::Quaternion arg_rotate)
 {
-	if (!m_isActive)return { 0,0,0 };
+	if (!m_isAllInputActive || !m_isInGameOperationActive)return { 0,0,0 };
 
 	Vec3<float>result;
 
@@ -130,7 +130,7 @@ KuroEngine::Vec3<float> OperationConfig::GetMoveVec(KuroEngine::Quaternion arg_r
 
 KuroEngine::Vec3<float> OperationConfig::GetMoveVecFuna(KuroEngine::Quaternion arg_rotate)
 {
-	if (!m_isActive)return { 0,0,0 };
+	if (!m_isAllInputActive || !m_isInGameOperationActive)return { 0,0,0 };
 
 	Vec3<float>result;
 
@@ -153,7 +153,7 @@ KuroEngine::Vec3<float> OperationConfig::GetMoveVecFuna(KuroEngine::Quaternion a
 
 KuroEngine::Vec3<float> OperationConfig::GetScopeMove()
 {
-	if (!m_isActive)return { 0,0,0 };
+	if (!m_isAllInputActive || !m_isInGameOperationActive)return { 0,0,0 };
 
 	float sensitivity = m_params[m_nowInputDevice].m_camSensitivity;
 	Vec3<float>result;
@@ -176,8 +176,39 @@ KuroEngine::Vec3<float> OperationConfig::GetScopeMove()
 	return result;
 }
 
+bool OperationConfig::GetSelectVec(SELECT_VEC arg_vec)
+{
+	static const float STICK_DEAD_RANGE = 0.15f;
+
+	switch (arg_vec)
+	{
+		case SELECT_VEC_UP:
+			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_UP, STICK_DEAD_RANGE) || UsersInput::Instance()->KeyOnTrigger(DIK_W);
+			break;
+		case SELECT_VEC_DOWN:
+			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_DOWN, STICK_DEAD_RANGE) || UsersInput::Instance()->KeyOnTrigger(DIK_S);
+			break;
+		case SELECT_VEC_LEFT:
+			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_LEFT, STICK_DEAD_RANGE) || UsersInput::Instance()->KeyOnTrigger(DIK_A);
+			break;
+		case SELECT_VEC_RIGHT:
+			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_RIGHT, STICK_DEAD_RANGE) || UsersInput::Instance()->KeyOnTrigger(DIK_D);
+			break;
+		default:
+			break;
+	}
+	return false;
+}
+
 bool OperationConfig::GetOperationInput(OPERATION_TYPE arg_operation, INPUT_PATTERN arg_pattern)
 {
+	//全ての入力を受け付けていない
+	if (!m_isAllInputActive)return false;
+
+	//インゲームの操作を受け付けない状態
+	if (!m_isInGameOperationActive &&
+		std::find(m_inGameOperationArray.begin(), m_inGameOperationArray.end(), arg_operation) != m_inGameOperationArray.end())return false;
+
 	return KeyInput(arg_pattern, m_operationKeyCode[arg_operation]) || ControllerInput(arg_pattern, m_operationButton[arg_operation]);
 }
 

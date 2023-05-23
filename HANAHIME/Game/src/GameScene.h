@@ -20,6 +20,7 @@
 #include"Render/LightBloomDevice.h"
 #include"HUD/OperationInfoUI.h"
 #include"HUD/StageInfoUI.h"
+#include"HUD/PauseUI.h"
 
 class GameScene : public KuroEngine::BaseScene
 {
@@ -73,9 +74,10 @@ class GameScene : public KuroEngine::BaseScene
 
 	Goal m_goal;
 
-	//Šî–{‚ÌHUD
+	//HUD
 	OperationInfoUI m_opeInfoUI;
 	StageInfoUI m_stageInfoUI;
+	PauseUI m_pauseUI;
 
 	KuroEngine::LightBloomDevice m_lightBloomDevice;
 
