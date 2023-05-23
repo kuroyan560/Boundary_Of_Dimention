@@ -117,10 +117,10 @@
       "distMax": 35.75,
       "distMin": 0.30000001192092896,
       "intensity": 1.0,
-      "opacityMax": 0.800000011920929
+      "opacityMax": 0.699999988079071
     },
     "debuggerSetting": {
-      "active": false,
+      "active": true,
       "customParamActive": true,
       "imageColor": [
         0.800000011920929,

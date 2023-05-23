@@ -204,6 +204,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_isOldCameraDefault = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 	m_isWallFrontDir = false;
+	m_isPlayerOverHeat = false;
 	m_cameraNoCollisionTimer.Reset(10);
 
 	m_growPlantPtLig.Register();
@@ -438,20 +439,36 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		//地中に沈むフラグを更新。 イージングが終わっていたら。
 		if (1.0f <= m_underGroundEaseTimer) {
 
-			bool prevInInputUnderGround = m_isInputUnderGround;
-			m_isInputUnderGround = OperationConfig::Instance()->GetOperationInput(OperationConfig::SINK_GROUND, OperationConfig::HOLD);
+			//地中にいるときのフラグの入力を更新。
+			m_isInputUnderGround = OperationConfig::Instance()->GetOperationInput(OperationConfig::SINK_GROUND, OperationConfig::HOLD) && !m_isPlayerOverHeat;
+			bool isInputUnderGroundRelease = OperationConfig::Instance()->GetOperationInput(OperationConfig::SINK_GROUND, OperationConfig::OFF_TRIGGER);
+			bool isInputUnderGroundTrigger = OperationConfig::Instance()->GetOperationInput(OperationConfig::SINK_GROUND, OperationConfig::ON_TRIGGER);
 
-			//沈むフラグが離されたトリガーだったら。
-			if ((prevInInputUnderGround && !m_isInputUnderGround) || (!m_canOldUnderGroundRelease && m_canUnderGroundRelease)) {
+			//地中にいたら
+			if (m_isUnderGround) {
 
-				//攻撃する。
-				m_attackTimer = ATTACK_TIMER;
+				//沈むフラグが離されたトリガーだったら。
+				if ((!m_isInputUnderGround && m_canUnderGroundRelease) || m_isPlayerOverHeat) {
+
+					//攻撃する。
+					m_attackTimer = ATTACK_TIMER;
+
+					//沈んでない状態にする。
+					m_underGroundEaseTimer = 0;
+
+				}
+
 			}
+			//地中にいなかったら
+			else {
 
-			//イージングが終わっている時のみ地中に潜ったり出たりする判定を持たせる。
-			bool isInputOnOff = OperationConfig::Instance()->GetOperationInput(OperationConfig::SINK_GROUND, OperationConfig::ON_OFF_TRIGGER);
-			if ((isInputOnOff || (!m_isUnderGround && m_isInputUnderGround) || (m_isUnderGround && !m_isInputUnderGround)) && m_canUnderGroundRelease) {
-				m_underGroundEaseTimer = 0;
+				if (m_isInputUnderGround && !m_isPlayerOverHeat) {
+
+					//沈んでない状態にする。
+					m_underGroundEaseTimer = 0;
+
+				}
+
 			}
 
 		}
@@ -718,11 +735,26 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_growPlantPtLig.Active();
 
 	//地中にいるときはライトを変える。
-	if (m_isInputUnderGround || !m_canUnderGroundRelease) {
+	if ((m_isInputUnderGround || !m_canUnderGroundRelease) && !m_isPlayerOverHeat) {
 		m_growPlantPtLig.m_influenceRange = std::clamp(m_growPlantPtLig.m_influenceRange - SUB_INFLUENCE_RANGE, MIN_INFLUENCE_RANGE, MAX_INFLUENCE_RANGE);
+
+		//地中に居すぎてライトが最小になってしまったら
+		if (m_growPlantPtLig.m_influenceRange <= MIN_INFLUENCE_RANGE) {
+
+			m_isPlayerOverHeat = true;
+
+		}
 	}
 	else {
 		m_growPlantPtLig.m_influenceRange = std::clamp(m_growPlantPtLig.m_influenceRange + ADD_INFLUENCE_RANGE, 0.0f, MAX_INFLUENCE_RANGE);
+
+
+		//地中に居すぎてライトが最大になってしまったら
+		if (MAX_INFLUENCE_RANGE <= m_growPlantPtLig.m_influenceRange) {
+
+			m_isPlayerOverHeat = false;
+
+		}
 	}
 	m_growPlantPtLig.m_defInfluenceRange = MAX_INFLUENCE_RANGE;
 
