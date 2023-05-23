@@ -5,6 +5,7 @@
 #include "../../../../src/engine/Render/RenderObject/Camera.h"
 #include "../../../../src/engine/ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include "../../../../src/engine/DirectX12/D3D12App.h"
+#include "../TimeScaleMgr.h"
 
 PlayerMoveParticleSmoke::PlayerMoveParticleSmoke()
 {
@@ -53,7 +54,7 @@ void PlayerMoveParticleSmoke::Update()
 		//index.m_transform.SetPos(index.m_transform.GetPos() + move);
 
 		//パーティクルの状態を変化させるタイマーを更新。
-		index.m_statusTimer.UpdateTimer();
+		index.m_statusTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
 
 		//現在のタイマーの割合。
 		float timerRate = index.m_statusTimer.GetTimeRate();

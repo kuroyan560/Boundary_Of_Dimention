@@ -444,6 +444,13 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			bool isInputUnderGroundRelease = OperationConfig::Instance()->GetOperationInput(OperationConfig::SINK_GROUND, OperationConfig::OFF_TRIGGER);
 			bool isInputUnderGroundTrigger = OperationConfig::Instance()->GetOperationInput(OperationConfig::SINK_GROUND, OperationConfig::ON_TRIGGER);
 
+			//オーバーヒート中に潜ろうとしたら効果音を鳴らす。
+			if (m_isPlayerOverHeat && isInputUnderGroundTrigger) {
+
+				SoundConfig::Instance()->Play(SoundConfig::SE_CANCEL);
+
+			}
+
 			//地中にいたら
 			if (m_isUnderGround) {
 
@@ -514,28 +521,83 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			//イージングタイマーが0でプレイヤーが地中にいないとき(地中から出る演出の開始直後)だったらコントローラーをシェイクさせる。
 			if (m_underGroundEaseTimer <= ADD_UNDERGROUND_EASE_TIMER && m_isUnderGround) {
 
-				UsersInput::Instance()->ShakeController(0, 1.0f, 10);
+				//オーバーヒート中は煙も出す。
+				if (m_isPlayerOverHeat) {
 
-				//画面を少しシェイク。
-				m_underGroundShake = UNDER_GROUND_SHAKE;
+					for (int index = 0; index < 50; ++index) {
 
-				//地中から出た瞬間に大量にパーティクルを出す。
-				for (int index = 0; index < 50; ++index) {
+						//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
+						auto upVec = m_transform.GetUp();
 
-					//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
-					auto upVec = m_transform.GetUp();
+						//各軸を回転させる量。 ラジアン 回転させるのはローカルのXZ平面のみで、Y軸は高さのパラメーターを持つ。
+						KuroEngine::Vec3<float> randomAngle = KuroEngine::GetRand(KuroEngine::Vec3<float>(-DirectX::XM_PIDIV2, -1.0f, -DirectX::XM_PIDIV2), KuroEngine::Vec3<float>(DirectX::XM_PIDIV2, 1.0f, DirectX::XM_PIDIV2));
 
-					//各軸を回転させる量。 ラジアン 回転させるのはローカルのXZ平面のみで、Y軸は高さのパラメーターを持つ。
-					KuroEngine::Vec3<float> randomAngle = KuroEngine::GetRand(KuroEngine::Vec3<float>(-DirectX::XM_PIDIV2, -1.0f, -DirectX::XM_PIDIV2), KuroEngine::Vec3<float>(DirectX::XM_PIDIV2, 1.0f, DirectX::XM_PIDIV2));
+						//XZの回転量クォータニオン
+						auto xq = DirectX::XMQuaternionRotationAxis(m_transform.GetRight(), randomAngle.x);
+						auto zq = DirectX::XMQuaternionRotationAxis(m_transform.GetFront(), randomAngle.z);
 
-					//XZの回転量クォータニオン
-					auto xq = DirectX::XMQuaternionRotationAxis(m_transform.GetRight(), randomAngle.x);
-					auto zq = DirectX::XMQuaternionRotationAxis(m_transform.GetFront(), randomAngle.z);
+						//上ベクトルを回転させる。
+						upVec = KuroEngine::Math::TransformVec3(upVec, DirectX::XMMatrixRotationQuaternion(DirectX::XMQuaternionMultiply(xq, zq)));
 
-					//上ベクトルを回転させる。
-					upVec = KuroEngine::Math::TransformVec3(upVec, DirectX::XMMatrixRotationQuaternion(DirectX::XMQuaternionMultiply(xq, zq)));
+						m_playerMoveParticle.GenerateSmoke(m_transform.GetPos(), upVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_defInfluenceRange));
+					}
 
-					m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), upVec.GetNormal() * m_growPlantPtLig.m_defInfluenceRange, m_moveSpeed);
+					//地中から出た瞬間に大量にパーティクルを出す。
+					for (int index = 0; index < 50; ++index) {
+
+						//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
+						auto upVec = m_transform.GetUp();
+
+						//各軸を回転させる量。 ラジアン 回転させるのはローカルのXZ平面のみで、Y軸は高さのパラメーターを持つ。
+						KuroEngine::Vec3<float> randomAngle = KuroEngine::GetRand(KuroEngine::Vec3<float>(-DirectX::XM_PIDIV2, -1.0f, -DirectX::XM_PIDIV2), KuroEngine::Vec3<float>(DirectX::XM_PIDIV2, 1.0f, DirectX::XM_PIDIV2));
+
+						//XZの回転量クォータニオン
+						auto xq = DirectX::XMQuaternionRotationAxis(m_transform.GetRight(), randomAngle.x);
+						auto zq = DirectX::XMQuaternionRotationAxis(m_transform.GetFront(), randomAngle.z);
+
+						//上ベクトルを回転させる。
+						upVec = KuroEngine::Math::TransformVec3(upVec, DirectX::XMMatrixRotationQuaternion(DirectX::XMQuaternionMultiply(xq, zq)));
+
+						//プレイヤーまでのベクトル
+						KuroEngine::Vec3<float> playerDir = (m_transform.GetPos() - (m_transform.GetPos() + upVec.GetNormal() * m_growPlantPtLig.m_defInfluenceRange / 3.0f)).GetNormal();
+
+						m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), upVec.GetNormal() * m_growPlantPtLig.m_defInfluenceRange / 3.0f, m_moveSpeed - playerDir * 0.75f);
+					}
+
+					UsersInput::Instance()->ShakeController(0, 1.0f, 60);
+
+					//画面を少しシェイク。
+					m_underGroundShake = UNDER_GROUND_SHAKE * 5.0f;
+
+				}
+				else {
+
+					//地中から出た瞬間に大量にパーティクルを出す。
+					for (int index = 0; index < 50; ++index) {
+
+						//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
+						auto upVec = m_transform.GetUp();
+
+						//各軸を回転させる量。 ラジアン 回転させるのはローカルのXZ平面のみで、Y軸は高さのパラメーターを持つ。
+						KuroEngine::Vec3<float> randomAngle = KuroEngine::GetRand(KuroEngine::Vec3<float>(-DirectX::XM_PIDIV2, -1.0f, -DirectX::XM_PIDIV2), KuroEngine::Vec3<float>(DirectX::XM_PIDIV2, 1.0f, DirectX::XM_PIDIV2));
+
+						//XZの回転量クォータニオン
+						auto xq = DirectX::XMQuaternionRotationAxis(m_transform.GetRight(), randomAngle.x);
+						auto zq = DirectX::XMQuaternionRotationAxis(m_transform.GetFront(), randomAngle.z);
+
+						//上ベクトルを回転させる。
+						upVec = KuroEngine::Math::TransformVec3(upVec, DirectX::XMMatrixRotationQuaternion(DirectX::XMQuaternionMultiply(xq, zq)));
+
+						//プレイヤーまでのベクトル
+						KuroEngine::Vec3<float> playerDir = (m_transform.GetPos() - (m_transform.GetPos() + upVec.GetNormal() * m_growPlantPtLig.m_defInfluenceRange / 3.0f)).GetNormal();
+
+						m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), upVec.GetNormal() * m_growPlantPtLig.m_defInfluenceRange * 0.8f, m_moveSpeed - playerDir * 0.25f);
+					}
+
+					UsersInput::Instance()->ShakeController(0, 1.0f, 10);
+
+					//画面を少しシェイク。
+					m_underGroundShake = UNDER_GROUND_SHAKE;
 				}
 
 			}
