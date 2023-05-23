@@ -78,6 +78,13 @@ void GameScene::GameInit()
 	InGameUI::Init();
 	m_stageInfoUI.Init(m_stageNum, StageManager::Instance()->GetStarCoinNum());
 	m_pauseUI.Init();
+
+	OperationConfig::Instance()->SetInGameOperationActive(true);
+}
+
+void GameScene::Retry()
+{
+	m_gateSceneChange.Start();
 }
 
 void GameScene::OnInitialize()
@@ -174,18 +181,16 @@ void GameScene::OnUpdate()
 		stageNum = 1;
 	}
 
-	//デバッグ用
-	bool isRetry = false;
+	//ポーズ画面
 	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::PAUSE, OperationConfig::ON_TRIGGER) || m_player.GetIsFinishDeathAnimation())
 	{
 		m_pauseUI.SetInverseActive();
-		//isRetry = true;
 	}
 
 	//ステージ移動時の初期化
-	if (stageNum != -1 || isRetry)
+	if (stageNum != -1)
 	{
-		m_stageNum = isRetry ? m_stageNum : stageNum;
+		m_stageNum = stageNum;
 		m_gateSceneChange.Start();
 	}
 
@@ -248,7 +253,7 @@ void GameScene::OnUpdate()
 	InGameUI::Update(TimeScaleMgr::s_inGame.GetTimeScale());
 	m_opeInfoUI.Update(TimeScaleMgr::s_inGame.GetTimeScale());
 	m_stageInfoUI.Update(TimeScaleMgr::s_inGame.GetTimeScale(), StageManager::Instance()->GetStarCoinNum());
-	m_pauseUI.Update();
+	m_pauseUI.Update(this);
 
 	GateManager::Instance()->FrameEnd();
 }

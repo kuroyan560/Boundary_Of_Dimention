@@ -10,6 +10,8 @@ namespace KuroEngine
 	class TextureBuffer;
 }
 
+class GameScene;
+
 class PauseUI
 {
 	//ポーズ起動中
@@ -76,7 +78,7 @@ class PauseUI
 public:
 	PauseUI();
 	void Init();
-	void Update(float arg_timeScale = 1.0f);
+	void Update(GameScene* arg_gameScene, float arg_timeScale = 1.0f);
 	void Draw(int arg_totalGetFlowerNum);
 	void SetInverseActive();
 

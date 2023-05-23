@@ -81,7 +81,6 @@ class GameScene : public KuroEngine::BaseScene
 
 	KuroEngine::LightBloomDevice m_lightBloomDevice;
 
-
 	void GameInit();
 
 	void OnInitialize()override;
@@ -91,4 +90,5 @@ class GameScene : public KuroEngine::BaseScene
 	void OnFinalize()override;
 public:
 	GameScene();
+	void Retry();
 };

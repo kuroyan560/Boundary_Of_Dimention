@@ -5,6 +5,8 @@
 #include"FrameWork/WinApp.h"
 #include"Common/PerlinNoise.h"
 #include"../OperationConfig.h"
+#include"../SoundConfig.h"
+#include"../GameScene.h"
 
 void PauseUI::OnActive()
 {
@@ -24,6 +26,9 @@ void PauseUI::OnActive()
 
 	//項目リセット
 	m_item = (PAUSE_ITEM)0;
+
+	//SE
+	SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
 }
 
 void PauseUI::OnNonActive()
@@ -85,7 +90,7 @@ void PauseUI::Init()
 	m_isActive = false;
 }
 
-void PauseUI::Update(float arg_timeScale)
+void PauseUI::Update(GameScene* arg_gameScene, float arg_timeScale)
 {
 	//非アクティブ
 	if (!m_isActive)return;
@@ -118,8 +123,50 @@ void PauseUI::Update(float arg_timeScale)
 	//項目に変化があった
 	if (oldItem != m_item)
 	{
+		//SE再生
+		SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
 	}
 
+	//決定ボタン
+	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::DONE, OperationConfig::ON_TRIGGER))
+	{
+		switch (m_item)
+		{
+			//ゲームを再開
+			case RESUME:
+				this->SetInverseActive();
+				break;
+			//リトライ
+			case RETRY:
+				arg_gameScene->Retry();
+				//ゲーム内時間を再開
+				TimeScaleMgr::s_inGame.Set(m_latestTimeScale);
+				m_isActive = false;
+				//※インゲーム操作入力は受け付けないまま
+				break;
+			case FAST_TRAVEL:
+				break;
+			case SETTING:
+				break;
+			case RETURN_TO_TITLE:
+				break;
+			default:
+				break;
+		}
+		//SE再生
+		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
+	}
+
+	//キャンセルボタン
+	bool cancelInput = OperationConfig::Instance()->GetOperationInput(OperationConfig::CANCEL, OperationConfig::ON_TRIGGER);
+	if (cancelInput)
+	{
+		//ポーズ終了
+		this->SetInverseActive();
+
+		//SE再生
+		SoundConfig::Instance()->Play(SoundConfig::SE_CANCEL);
+	}
 }
 
 void PauseUI::Draw(int arg_totalGetFlowerNum)
