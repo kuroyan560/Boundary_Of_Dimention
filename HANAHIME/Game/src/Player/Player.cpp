@@ -153,14 +153,6 @@ Player::Player()
 
 	//アニメーター生成
 	m_modelAnimator = std::make_shared<ModelAnimator>(m_model);
-
-	m_tex.resize(MiniBug::MAX);
-	m_tex[MiniBug::FIND] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/Find.png");
-	m_tex[MiniBug::HIT] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/Attack.png");
-	m_tex[MiniBug::LOOK] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/hatena.png");
-	m_tex[MiniBug::FAR_AWAY] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/hatena.png");
-	m_tex[MiniBug::DEAD] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/dead.png");
-	m_reaction = std::make_unique<MiniBug::Reaction>(m_tex);
 }
 
 void Player::Init(KuroEngine::Transform arg_initTransform)
@@ -359,21 +351,12 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_isCheckPointUpInverse = m_isCameraUpInverse;
 	}
 
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_0))
-	{
-		m_reaction->Init(MiniBug::FIND);
-	}
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_1))
-	{
-		m_reaction->Init(MiniBug::LOOK);
-	}
 
 	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_J))
 	{
 		Damage();
 	}
 
-	m_reaction->Update(m_drawTransform.GetPos());
 
 	KuroEngine::Vec3<float>dir(GetOldPos() - GetNowPos());
 	dir.Normalize();
@@ -868,8 +851,6 @@ void Player::DrawParticle(KuroEngine::Camera& arg_cam, KuroEngine::LightManager&
 {
 	//プレイヤーが動いた時のパーティクル挙動
 	m_playerMoveParticle.Draw(arg_cam, arg_ligMgr);
-
-	m_reaction->Draw(arg_cam);
 	//m_dashEffect.Draw(arg_cam);
 }
 

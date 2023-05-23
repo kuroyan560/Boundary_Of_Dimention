@@ -383,8 +383,6 @@ private:
 	void UpdateDamage();
 
 
-	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_tex;
-	std::unique_ptr<MiniBug::Reaction> m_reaction;
 	DashEffect m_dashEffect;
 };
 

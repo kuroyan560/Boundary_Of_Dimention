@@ -20,6 +20,22 @@ public:
 		float sumRadist = *(sphereA.m_radius) + *(sphereB.m_radius);
 		return (distance <= sumRadist);
 	}
+
+	bool CheckPointAndEdgeOfCircle(
+		const Sphere &attack_hitBox,
+		const KuroEngine::Vec3<float> &playerPos,
+		const KuroEngine::Vec3<float> &upVec,
+		const KuroEngine::Vec3<float> &vec_enemy_player
+	)
+	{
+		float distance = attack_hitBox.m_centerPos->Distance(playerPos);
+		float dot = upVec.Dot(vec_enemy_player);
+
+		bool isInCirlceFlag = distance < *(attack_hitBox.m_radius);
+		bool isTouchEdgeFlag = abs(dot) <= 0.5f;
+
+		return isInCirlceFlag && isTouchEdgeFlag;
+	}
 };
 
 //ü•ª‚Æ“_‚Ì”»’è

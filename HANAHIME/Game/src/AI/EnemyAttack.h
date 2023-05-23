@@ -7,12 +7,7 @@
 #include<array>
 #include"EnemyPatrol.h"
 #include"EnemySearch.h"
-
-//’eŒ‚‚Â–{‘Ì‚Ìî•ñ
-struct BulletMother
-{
-
-};
+#include"../Player/PlayerCollision.h"
 
 class BulletManager
 {
@@ -121,5 +116,22 @@ private:
 
 	std::array<Bullet, 10>m_bulltArray;
 	KuroEngine::Timer m_timer;
+
+};
+
+class MeshHitBox
+{
+public:
+
+
+	void Update()
+	{
+		//collision.CheckHit();
+
+
+
+	}
+
+	PlayerCollision collision;
 
 };
