@@ -249,33 +249,33 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	//チビ虫
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::MINI_BUG))
 	{
-		////パラメータがない
-		//if (!CheckJsonKeyExist(arg_fileName, arg_json, "Loop"))return;
+		//パラメータがない
+		if (!CheckJsonKeyExist(arg_fileName, arg_json, "Loop"))return;
 
-		//std::vector<KuroEngine::Vec3<float>>translationArray;
+		std::vector<KuroEngine::Vec3<float>>translationArray;
 
-		//bool isLoopFlag = arg_json["Loop"].get<int>();
-		//if (LoadTranslationArray(arg_fileName, &translationArray, obj))
-		//{
-		//	m_enemyArray.emplace_back(std::make_shared<MiniBug>(model, transform, translationArray, isLoopFlag));
-		//	newPart = m_enemyArray.back().get();
-		//}
+		bool isLoopFlag = arg_json["Loop"].get<int>();
+		if (LoadTranslationArray(arg_fileName, &translationArray, obj))
+		{
+			m_enemyArray.emplace_back(std::make_shared<MiniBug>(model, transform, translationArray, isLoopFlag));
+			newPart = m_enemyArray.back().get();
+		}
 	}
 	//ドッスンリング
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::DOSSUN_RING))
 	{
-		////パラメータがない
-		//if (!CheckJsonKeyExist(arg_fileName, arg_json, "ATKPat"))return;
+		//パラメータがない
+		if (!CheckJsonKeyExist(arg_fileName, arg_json, "ATKPat"))return;
 
-		//ENEMY_ATTACK_PATTERN attackPattern;
+		ENEMY_ATTACK_PATTERN attackPattern;
 
-		//auto patternName = arg_json["ATKPat"].get<std::string>();
-		//if (patternName.compare("NORMAL") == 0)attackPattern = ENEMY_ATTACK_PATTERN_NORMAL;
-		//else if (patternName.compare("ALWAYS") == 0)attackPattern = ENEMY_ATTACK_PATTERN_ALWAYS;
-		//else KuroEngine::AppearMessageBox("Stage : GetAttackPattern() 失敗", "知らない攻撃パターン名\"" + patternName + "\"が含まれているよ。");
+		auto patternName = arg_json["ATKPat"].get<std::string>();
+		if (patternName.compare("NORMAL") == 0)attackPattern = ENEMY_ATTACK_PATTERN_NORMAL;
+		else if (patternName.compare("ALWAYS") == 0)attackPattern = ENEMY_ATTACK_PATTERN_ALWAYS;
+		else KuroEngine::AppearMessageBox("Stage : GetAttackPattern() 失敗", "知らない攻撃パターン名\"" + patternName + "\"が含まれているよ。");
 
-		//m_enemyArray.emplace_back(std::make_shared<DossunRing>(model, transform, attackPattern));
-		//newPart = m_enemyArray.back().get();
+		m_enemyArray.emplace_back(std::make_shared<DossunRing>(model, transform, attackPattern));
+		newPart = m_enemyArray.back().get();
 	}
 	//砲台敵
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::BATTERY))

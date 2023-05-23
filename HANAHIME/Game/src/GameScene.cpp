@@ -341,7 +341,6 @@ void GameScene::OnDraw()
 
 	if (m_title.IsFinish() || m_title.IsStartOP())
 	{
-<<<<<<< HEAD
 		//ƒ|[ƒY‰æ–Ê
 		m_pauseUI.Draw(StarCoin::GetFlowerSum());
 
@@ -353,12 +352,6 @@ void GameScene::OnDraw()
 			m_opeInfoUI.Draw();
 			m_stageInfoUI.Draw(StageManager::Instance()->ExistStarCoinNum(), StageManager::Instance()->GetStarCoinNum());
 		}
-=======
-		//m_player.DrawUI(*m_nowCam);
-		//StageManager::Instance()->DrawUI(*m_nowCam, m_player.GetTransform().GetPosWorld());
-		//m_opeInfoUI.Draw();
-		//m_stageInfoUI.Draw(StageManager::Instance()->ExistStarCoinNum(), StageManager::Instance()->GetStarCoinNum());
->>>>>>> dev_EnemyForMaster
 	}
 
 	m_title.Draw(*m_nowCam, m_ligMgr);

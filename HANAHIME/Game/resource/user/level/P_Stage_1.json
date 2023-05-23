@@ -25,7 +25,7 @@
                 },
                 "file_name": "Battery",
                 "translationArray": {},
-                "BarrelPat": "ALWAYS",
+                "BarrelPat": "FIXED",
                 "BulletScale": 3.0
             },
             {
@@ -157,7 +157,7 @@
                         13.0
                     ]
                 },
-                "BarrelPat": "NORMAL",
+                "BarrelPat": "ROCKON",
                 "BulletScale": 3.0
             },
             {
@@ -183,7 +183,7 @@
                 },
                 "file_name": "Battery",
                 "translationArray": {},
-                "BarrelPat": "ALWAYS",
+                "BarrelPat": "ROCKON",
                 "BulletScale": 3.0
             },
             {
@@ -209,7 +209,7 @@
                 },
                 "file_name": "Battery",
                 "translationArray": {},
-                "BarrelPat": "ALWAYS",
+                "BarrelPat": "ROCKON",
                 "BulletScale": 3.0
             },
             {
@@ -235,7 +235,7 @@
                 },
                 "file_name": "Battery",
                 "translationArray": {},
-                "BarrelPat": "ALWAYS",
+                "BarrelPat": "ROCKON",
                 "BulletScale": 3.0
             },
             {
