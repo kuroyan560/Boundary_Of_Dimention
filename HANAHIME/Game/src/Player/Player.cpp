@@ -16,6 +16,7 @@
 #include"Render/RenderObject/ModelInfo/ModelAnimator.h"
 #include"FrameWork/WinApp.h"
 #include"../Stage/CheckPointHitFlag.h"
+#include"CameraController.h"
 
 void Player::OnImguiItems()
 {
@@ -813,7 +814,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_FAR, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_playerMoveStatus == PLAYER_MOVE_STATUS::LOOK_AROUND);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_FAR, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_playerMoveStatus == PLAYER_MOVE_STATUS::LOOK_AROUND, m_hitPointData);
 
 		m_deathEffectCameraZ = CAMERA_FAR;
 	}
@@ -823,7 +824,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_shake);
 
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_playerMoveStatus == PLAYER_MOVE_STATUS::LOOK_AROUND);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_playerMoveStatus == PLAYER_MOVE_STATUS::LOOK_AROUND, m_hitPointData);
 
 	}
 	//シェイクを計算。
@@ -937,6 +938,12 @@ void Player::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_lig
 		drawParam,
 		KuroEngine::AlphaBlendMode_None,
 		m_modelAnimator->GetBoneMatBuff());
+
+	for (auto index : m_hitPointData) {
+
+		KuroEngine::DrawFunc3D::DrawLine(arg_cam, index.m_pos, index.m_pos + index.m_up * 1.0f, KuroEngine::Color(255, 255, 255, 255), 1.0f);
+
+	}
 
 	//KuroEngine::DrawFunc3D::DrawNonShadingModel(
 	//	m_axisModel,

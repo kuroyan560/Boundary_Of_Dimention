@@ -75,7 +75,7 @@ void CameraController::Init(bool arg_isRespawn)
 	m_isLookAroundFinishComplete = false;
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, bool arg_isLookAroundMode)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, bool arg_isLookAroundMode, std::vector<HIT_POINT> arg_hitPointData)
 {
 	using namespace KuroEngine;
 
@@ -305,8 +305,45 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 		Vec3<float> push;
 		bool isHit = RayPlaneIntersection(m_playerLerpPos, Vec3<float>(pushBackPos - m_playerLerpPos).GetNormal(), m_playerLerpPos - arg_targetPos.GetUp(), arg_targetPos.GetUp(), push);
 		if (isHit) {
-			m_nowParam.m_xAxisAngle = fromXAngle;
-			m_nowParam.m_yAxisAngle = fromYAngle;
+
+			//上下側の壁だったら
+			if (0.9f < fabs(arg_targetPos.GetUp().Dot(Vec3<float>(0, 1, 0)))) {
+				m_nowParam.m_xAxisAngle = fromXAngle;
+			}
+			else {
+				m_nowParam.m_yAxisAngle = fromYAngle;
+				arg_playerRotY = fromYAngle;
+			}
+
+		}
+
+		//プレイヤーが衝突した地点との当たり判定
+		int counter = 0;
+		for (auto& index : arg_hitPointData) {
+
+			//原点付近とNanの値は除去
+			if (std::isnan(index.m_pos.x)) continue;
+			if (index.m_pos.Length() <= 0.1f) continue;
+
+			//カメラとプレイヤーの距離
+			float cameraDistance = Vec3<float>(m_playerLerpPos - pushBackPos).Length();
+
+			isHit = RayPlaneIntersection(m_playerLerpPos, Vec3<float>(pushBackPos - m_playerLerpPos).GetNormal(), index.m_pos, index.m_up, push);
+			if (isHit) {
+
+				//上下側の壁だったら
+				if (0.9f < fabs(index.m_up.Dot(Vec3<float>(0, 1, 0)))) {
+					m_nowParam.m_xAxisAngle = fromXAngle;
+				}
+				else {
+					m_nowParam.m_yAxisAngle = fromYAngle;
+					arg_playerRotY = fromYAngle;
+				}
+
+			}
+
+			++counter;
+
 		}
 
 		//通常の地形を走査

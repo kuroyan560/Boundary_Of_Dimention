@@ -164,6 +164,13 @@ class Player : public KuroEngine::Debugger
 	bool m_isCameraDefault;
 	bool m_isOldCameraDefault;
 
+public:
+
+	//“–‚½‚è”»’è‚ÌŒ‹‰Ê•Û‘¶—p
+	std::vector<CameraController::HIT_POINT> m_hitPointData;
+
+private:
+
 	//UŒ‚”»’è
 	int m_attackTimer;
 	const int ATTACK_TIMER = 30;
