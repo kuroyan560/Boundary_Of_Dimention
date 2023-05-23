@@ -49,6 +49,7 @@ void MiniBug::OnInit()
 
 void MiniBug::Update(Player &arg_player)
 {
+
 	m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());
 	m_eyeEffect.Update(m_larpPos);
 
@@ -204,22 +205,6 @@ void MiniBug::Update(Player &arg_player)
 		vel = m_patrol->Update(m_pos);
 		m_dir = vel;
 
-		{
-			//プレイヤーを回転させる。
-			KuroEngine::Vec3<float> defVec = m_transform.GetFront();
-			KuroEngine::Vec3<float> axis = defVec.Cross(vel.GetNormal());
-			float rad = std::acosf(defVec.Dot(vel.GetNormal()));
-			if (0 < axis.Length() && !std::isnan(rad)) {
-				auto q = DirectX::XMQuaternionRotationAxis(axis, rad);
-
-				//qが補間先
-				q = DirectX::XMQuaternionMultiply(m_transform.GetRotate(), q);
-
-				//補間する。
-				//m_transform.SetRotate(DirectX::XMQuaternionSlerp(m_transform.GetRotate(), q, 0.1f));
-			}
-		}
-
 		break;
 	case MiniBug::ATTACK:
 
@@ -329,38 +314,50 @@ void MiniBug::Update(Player &arg_player)
 		m_startDeadMotionFlag = true;
 	}
 
-	m_reaction->Update(m_pos);
+	//m_reaction->Update(m_pos);
 
 	//座標移動
 	m_pos += vel;
 	m_prevPos = m_pos;
 
-	KuroEngine::Vec3<float>frontVec(0.0f, 0.0f, 1.0f);
+	KuroEngine::Vec3<float>frontVec = m_transform.GetFront();
 
-	m_dir.y = 0.0f;
-	KuroEngine::Vec3<float>axis = frontVec.Cross(m_dir);
-	float rptaVel = acosf(frontVec.Dot(m_dir));
+	//移動方向と正面ベクトルを敵基準の姿勢に投影。
+	KuroEngine::Vec2<float> frontVec2D = Project3Dto2D(frontVec, m_transform.GetFront(), m_transform.GetRight());
+	KuroEngine::Vec2<float> moveDir2D = Project3Dto2D(m_dir, m_transform.GetFront(), m_transform.GetRight());
 
-	if (axis.IsZero())
-	{
-		//m_larpRotation = DirectX::XMQuaternionIdentity();
-	}
+	float rptaVel = acosf(frontVec2D.Dot(moveDir2D));
+	rptaVel *= (0 < frontVec2D.Cross(moveDir2D)) ? 1.0f : -1.0f;
+
 	//プレイヤーが違う面にるか、ジャンプで壁面移動中はプレイヤーの方を見ない。
-	else if ((isDifferentWall || isPlayerWallChange) && isAttackOrNotice) {
+	if ((isDifferentWall || isPlayerWallChange) && isAttackOrNotice) {
 
 	}
 	else
 	{
-		DirectX::XMVECTOR dirVec = { axis.x,axis.y,axis.z,1.0f };
-		m_larpRotation = DirectX::XMQuaternionRotationAxis(dirVec, rptaVel);
-		KuroEngine::Quaternion rotation = m_transform.GetRotate();
 
-		//見つけた時のジャンプ中じゃなかったらプレイヤーの方向を向く。
-		if (m_jumpMotion.IsDone() || m_nowStatus != MiniBug::ATTACK)
-		{
-			rotation = DirectX::XMQuaternionSlerp(m_transform.GetRotate(), m_larpRotation, 0.1f);
-		}
-		m_transform.SetRotate(rotation);
+
+
+		//現在の座標からプレイヤーに向かう回転を求める。
+		KuroEngine::Vec3<float> axisZ = m_dir;
+		axisZ.Normalize();
+
+		//プレイヤーの法線との外積から仮のXベクトルを得る。
+		KuroEngine::Vec3<float> axisX = m_initializedTransform.GetUp().Cross(axisZ);
+
+		//Xベクトルから上ベクトルを得る。
+		KuroEngine::Vec3<float> axisY = axisZ.Cross(axisX);
+
+		//姿勢を得る。
+		DirectX::XMMATRIX matWorld = DirectX::XMMatrixIdentity();
+		matWorld.r[0] = { axisX.x, axisX.y, axisX.z, 0.0f };
+		matWorld.r[1] = { axisY.x, axisY.y, axisY.z, 0.0f };
+		matWorld.r[2] = { axisZ.x, axisZ.y, axisZ.z, 0.0f };
+
+		XMVECTOR rotate, scale, position;
+		DirectX::XMMatrixDecompose(&scale, &rotate, &position, matWorld);
+
+		m_transform.SetRotate(DirectX::XMQuaternionSlerp(m_transform.GetRotate(), rotate, 0.08f));
 	}
 
 	m_larpPos = KuroEngine::Math::Lerp(m_larpPos, m_pos, 0.1f);
@@ -386,7 +383,7 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 		m_transform,
 		edgeColor);
 
-	m_reaction->Draw(arg_cam);
+	//m_reaction->Draw(arg_cam);
 
 	m_dashEffect.Draw(arg_cam);
 	m_eyeEffect.Draw(arg_cam);

@@ -102,7 +102,7 @@ PSOutput PSmain(VSOutput input)
     output.emissive = float4(0, 0, 0, 0);
     if (distance < DISTANCE)
     {
-        output.emissive = output.color / 3.0f;
+        output.emissive = output.color / 2.0f;
     }
  
     return output;

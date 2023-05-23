@@ -68,12 +68,14 @@ void CameraController::Init(bool arg_isRespawn)
 	m_verticalControl = ANGLE;
 	m_rotateYLerpAmount = 0;
 	m_cameraXAngleLerpAmount = 0;
-	m_isHitUnderGroundTerrian = false;
 	m_playerOldPos = KuroEngine::Vec3<float>();
 	m_isOldFrontWall = false;
+	m_isCameraModeLookAround = false;
+	m_isLookAroundFinish = false;
+	m_isLookAroundFinishComplete = false;
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float& arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, bool arg_isLookAroundMode, std::vector<HIT_POINT> arg_hitPointData)
 {
 	using namespace KuroEngine;
 
@@ -87,6 +89,19 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	//カメラがアタッチされていない
 	if (m_attachedCam.expired())return;
+
+	//プレイヤーが周囲を見るモードだったら
+	if (arg_isLookAroundMode) {
+
+		UpdateLookAround(arg_scopeMove, arg_targetPos, arg_playerRotY, arg_cameraZ, arg_nowStage, arg_isCameraUpInverse, arg_isCameraDefaultPos, arg_isHitUnderGround, arg_isMovePlayer, arg_isPlayerJump, arg_cameraQ, arg_isFrontWall, arg_drawTransform, arg_frontWallNormal, arg_isNoCollision, arg_isLookAroundMode);
+
+		return;
+
+	}
+	m_isCameraModeLookAround = arg_isLookAroundMode;
+
+	//プレイヤーの座標をラープ
+	m_playerLerpPos = KuroEngine::Math::Lerp(m_playerLerpPos, arg_targetPos.GetPos(), 0.4f);
 
 	//トランスフォームを保存。
 	m_oldCameraWorldPos = m_attachedCam.lock()->GetTransform().GetPos();
@@ -118,27 +133,6 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	float fromXAngle = m_nowParam.m_xAxisAngle;
 	float fromYAngle = m_nowParam.m_yAxisAngle;
 
-	//横の壁に居るときの注視点移動の場合、Y軸回転を動かす。
-	if (m_isHitUnderGroundTerrian && fabs(arg_targetPos.GetUp().y) < 0.9f) {
-
-		//壁にあたっていないときに保存した回転角と現在の回転角の差分を求めて、規定値以上動かないようにする。
-		float subAngleY = arg_playerRotY - m_playerRotYStorage;
-
-		//既定値を超えていたら。
-		if (PLAYER_TARGET_MOVE_SIDE < fabs(subAngleY)) {
-
-			//回転量を押し戻す。
-			arg_playerRotY = m_playerRotYStorage + (signbit(subAngleY) ? -1.0f : 1.0f) * PLAYER_TARGET_MOVE_SIDE;
-
-		}
-
-	}
-
-	//カメラが地上に当たっているときに感度を下げる。
-	if (m_isHitUnderGroundTerrian) {
-		arg_scopeMove *= 0.8f;
-	}
-
 	//左右カメラ操作
 	m_nowParam.m_yAxisAngle = arg_playerRotY;
 
@@ -156,43 +150,9 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 		break;
 	}
 
-	//カメラが地上にあたっていて、その当たっている面が横の壁だったら回転を保存しておく。
-	if (!m_isHitUnderGroundTerrian) {
-		m_playerRotYStorage = arg_playerRotY;
-	}
-
 	//上限値超えないようにする
 	m_nowParam.m_posOffsetZ = arg_cameraZ;
 	m_nowParam.m_xAxisAngle = std::clamp(m_nowParam.m_xAxisAngle, m_xAxisAngleMin, m_xAxisAngleMax);
-
-	//床にカメラが当たっているときにプレイヤーが動いていたら、床がカメラに当たらないようにX軸回転を元に戻す。
-	if ((m_isHitUnderGroundTerrian && arg_isMovePlayer) || (m_isHitUnderGroundTerrian && arg_isCameraDefaultPos)) {
-
-		//横の壁にいたら 
-		if (fabs(arg_targetPos.GetUp().y) < 0.9f && fabs(m_playerRotYLerp) < 0.1f) {
-
-			//Y軸回転を押し戻す量。
-			float rotYScale = (arg_playerRotY - m_playerRotYStorage);
-			//Y軸回転をぴったり押し戻すと地面スレスレになってしまうので、多少オフセットを設けることで良い感じの高さにする。
-			const float ROTY_OFFSET = 0.8f;
-			float rotYOffset = (std::signbit(rotYScale) ? -1.0f : 1.0f) * ROTY_OFFSET + rotYScale;
-			m_playerRotYLerp -= rotYOffset;
-
-		}
-		//上下の壁にいたら
-		else if (0.9f < fabs(arg_targetPos.GetUp().y)) {
-
-			//カメラが反転しているかしていないかによって入れる値を決める。
-			if (arg_isCameraUpInverse) {
-				m_cameraXAngleLerpAmount = m_xAxisAngleMin;
-			}
-			else {
-				m_cameraXAngleLerpAmount = m_xAxisAngleMax;
-			}
-
-		}
-
-	}
 
 	//プレイヤー正面に壁があったらそっちの方向を向かせる。
 	if ((!m_isOldFrontWall && arg_isFrontWall) && arg_isMovePlayer && !arg_isPlayerJump) {
@@ -248,15 +208,11 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	}
 
-	//if (arg_isFrontWall) {
+
+	//プレイヤーの移動に応じてカメラを補間する。
+	PlayerMoveCameraLerp(arg_scopeMove, arg_targetPos, arg_playerRotY, arg_cameraZ, arg_nowStage, arg_isCameraUpInverse, arg_isCameraDefaultPos, arg_isHitUnderGround, arg_isMovePlayer, arg_isPlayerJump, arg_cameraQ);
 
 
-	//	//プレイヤーの移動に応じてカメラを補間する。
-	//	PlayerMoveCameraLerp(arg_scopeMove, arg_targetPos, arg_playerRotY, arg_cameraZ, arg_nowStage, arg_isCameraUpInverse, arg_isCameraDefaultPos, arg_isHitUnderGround, arg_isMovePlayer, arg_isPlayerJump, arg_cameraQ);
-
-
-
-	//}
 
 	//フラグを保存しておく。
 	m_isOldFrontWall = arg_isFrontWall;
@@ -264,7 +220,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	//マップピンの座標の受け皿
 	KuroEngine::Vec3<float>mapPinPos;
 	//カメラを初期位置に戻すか。
-	if (arg_isCameraDefaultPos && !m_isHitUnderGroundTerrian && StageManager::Instance()->GetNowMapPinPos(&mapPinPos)) {
+	if (arg_isCameraDefaultPos && StageManager::Instance()->GetNowMapPinPos(&mapPinPos)) {
 
 		//カメラの正面ベクトル
 		KuroEngine::Vec3<float> cameraDir = (arg_targetPos.GetPosWorld() - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
@@ -303,11 +259,6 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	}
 
-
-	//プレイヤーの移動に応じてカメラを補間する。
-	//PlayerMoveCameraLerp(arg_scopeMove, arg_targetPos, arg_playerRotY, arg_cameraZ, arg_nowStage, arg_isCameraUpInverse, arg_isCameraDefaultPos, arg_isHitUnderGround, arg_isMovePlayer, arg_isPlayerJump, arg_cameraQ);
-
-
 	//操作するカメラのトランスフォーム（前後移動）更新
 	Vec3<float> localPos = { 0,0,0 };
 	localPos.z = m_nowParam.m_posOffsetZ;
@@ -317,12 +268,12 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	//コントローラーのトランスフォーム（対象の周囲、左右移動）更新
 	m_camParentTransform.SetRotate(Vec3<float>::GetYAxis(), m_nowParam.m_yAxisAngle);
-	m_camParentTransform.SetPos(Math::Lerp(m_camParentTransform.GetPos(), arg_targetPos.GetPosWorld(), m_camFollowLerpRate));
+	m_camParentTransform.SetPos(Math::Lerp(m_camParentTransform.GetPos(), m_playerLerpPos, m_camFollowLerpRate));
 
 
 	//使用するカメラの座標を補間して適用。
 	Vec3<float> pushBackPos = m_cameraLocalTransform.GetPosWorldByMatrix();
-	Vec3<float> playerDir = arg_targetPos.GetPos() - m_cameraLocalTransform.GetPosWorldByMatrix();
+	Vec3<float> playerDir = m_playerLerpPos - m_cameraLocalTransform.GetPosWorldByMatrix();
 
 	//カメラの押し戻し判定に使用する姿勢を取得。
 	Vec3<float> cameraAxisZ = playerDir.GetNormal();
@@ -341,190 +292,140 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	m_debugTransform = cameraT;
 
-	//当たり判定用のレイを打つ方向を決める。
-	Vec3<float> checkHitRay = m_cameraLocalTransform.GetPosWorldByMatrix() - m_oldCameraWorldPos;	//まずはデフォルトのレイに設定。
 
 	//当たり判定変数を初期化。
 	m_isHitTerrian = false;
-	m_isHitUnderGroundTerrian = false;
 
 	//ジャンプ中は当たり判定を行わない。
 	if (!arg_isPlayerJump && !arg_isCameraDefaultPos && arg_isNoCollision) {
 
-		//まずはプレイヤーのいる面を無限平面として、カメラを押し戻す。
-		Vec3<float> hitResult;
-		bool isHit = RayPlaneIntersection(arg_targetPos.GetPos(), Vec3<float>(pushBackPos - arg_targetPos.GetPos()).GetNormal(), arg_targetPos.GetPos() - arg_targetPos.GetUp(), arg_targetPos.GetUp(), hitResult);
+		//無限平面との当たり判定
+		Vec3<float> push;
+		bool isHit = RayPlaneIntersection(m_playerLerpPos, Vec3<float>(pushBackPos - m_playerLerpPos).GetNormal(), m_playerLerpPos - arg_targetPos.GetUp(), arg_targetPos.GetUp(), push);
 		if (isHit) {
 
-			m_isHitUnderGroundTerrian = true;
-			m_isHitTerrian = true;
+			//上下側の壁だったら
+			if (0.9f < fabs(arg_targetPos.GetUp().Dot(Vec3<float>(0, 1, 0)))) {
+				m_nowParam.m_xAxisAngle = fromXAngle;
+			}
+			else {
+				m_nowParam.m_yAxisAngle = fromYAngle;
+				arg_playerRotY = fromYAngle;
+			}
 
 		}
 
-		//注視点ずらし中は当たり判定を行わない。
-		if (!m_isHitUnderGroundTerrian) {
+		//通常の地形を走査
+		Vec3<float> checkHitRay = m_cameraLocalTransform.GetPosWorldByMatrix() - m_oldCameraWorldPos;	//まずはデフォルトのレイに設定。
+		auto& cameraTransform = m_attachedCam.lock()->GetTransform();
+		for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
+		{
+			//モデル情報取得
+			auto model = terrian.GetModel().lock();
 
-			//通常の地形を走査
-			auto& cameraTransform = m_attachedCam.lock()->GetTransform();
-			for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
+			//メッシュを走査
+			for (auto& modelMesh : model->m_meshes)
 			{
-				//モデル情報取得
-				auto model = terrian.GetModel().lock();
 
-				//メッシュを走査
-				for (auto& modelMesh : model->m_meshes)
-				{
+				//当たり判定に使用するメッシュ
+				auto checkHitMesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
 
-					//当たり判定に使用するメッシュ
-					auto checkHitMesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
-
-					//判定↓============================================
+				//判定↓============================================
 
 
-					//純粋な地形とレイの当たり判定を実行
-					CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_oldCameraWorldPos, checkHitRay.GetNormal(), checkHitMesh);
-					if (output.m_isHit && 0 < output.m_distance && output.m_distance < checkHitRay.Length()) {
+				//純粋な地形とレイの当たり判定を実行
+				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_oldCameraWorldPos, checkHitRay.GetNormal(), checkHitMesh);
+				if (output.m_isHit && 0 < output.m_distance && output.m_distance < checkHitRay.Length()) {
 
-						pushBackPos = output.m_pos + output.m_normal;
-						m_isHitTerrian = true;
+					pushBackPos = output.m_pos + output.m_normal;
+					m_isHitTerrian = true;
 
-						PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse, true);
-
-					}
-
-					//プレイヤー方向のレイトの当たり判定を実行
-					Vec3<float> playerDir = arg_targetPos.GetPos() - pushBackPos;
-					output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos, playerDir.GetNormal(), checkHitMesh);
-					if (output.m_isHit && 0 < output.m_distance && output.m_distance < playerDir.Length()) {
-
-						PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse, false);
-
-					}
+					PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse, true);
 
 				}
 
-				//=================================================
+				//プレイヤー方向のレイトの当たり判定を実行
+				Vec3<float> playerDir = m_playerLerpPos - pushBackPos;
+				output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos, playerDir.GetNormal(), checkHitMesh);
+				if (output.m_isHit && 0 < output.m_distance && output.m_distance < playerDir.Length()) {
+
+					PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse, false);
+
+				}
+
 			}
 		}
 
+		////通常の地形を走査
+		//checkHitRay = arg_targetPos.GetPos() - m_cameraLocalTransform.GetPosWorldByMatrix();	//まずはデフォルトのレイに設定。
+		//for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
+		//{
+		//	//モデル情報取得
+		//	auto model = terrian.GetModel().lock();
+
+		//	//メッシュを走査
+		//	for (auto& modelMesh : model->m_meshes)
+		//	{
+
+		//		//当たり判定に使用するメッシュ
+		//		auto checkHitMesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+
+		//		//判定↓============================================
+
+
+		//		//純粋な地形とレイの当たり判定を実行
+		//		CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos - checkHitRay.GetNormal() * 10.0f , checkHitRay.GetNormal(), checkHitMesh);
+		//		if (output.m_isHit && 0 < output.m_distance && output.m_distance < checkHitRay.Length()) {
+
+		//			pushBackPos = output.m_pos + output.m_normal;
+		//			m_isHitTerrian = true;
+
+		//		}
+
+		//	}
+
+		//	//=================================================
+		//}
 	}
 
-	//地上にあたっていたら地形と押し戻す前の座標からの回転を求めることで、注視点を上に向ける。
-	if (m_isHitUnderGroundTerrian) {
+	//補間する。
+	m_attachedCam.lock()->GetTransform().SetPos(KuroEngine::Math::Lerp(m_attachedCam.lock()->GetTransform().GetPos(), pushBackPos, 0.3f));
 
-		//カメラまでのベクトル。
-		KuroEngine::Vec3<float> cameraDir = (m_attachedCam.lock()->GetTransform().GetPos() - arg_targetPos.GetPosWorld()).GetNormal();
+	//現在の座標からプレイヤーに向かう回転を求める。
+	Vec3<float> axisZ = m_playerLerpPos - m_attachedCam.lock()->GetTransform().GetPosWorld();
+	axisZ.Normalize();
 
-		//カメラが動いた量回転させる。
+	//プレイヤーの法線との外積から仮のXベクトルを得る。
+	Vec3<float> axisX = Vec3<float>(0, 1, 0).Cross(axisZ);
 
-		//下の面にいる場合
-		if (0.9f < arg_targetPos.GetUp().y) {
-			cameraDir = KuroEngine::Math::TransformVec3(cameraDir, DirectX::XMQuaternionRotationAxis(arg_targetPos.GetUp(), arg_scopeMove.x));
-		}
-		//上の面にいる場合
-		else if (arg_targetPos.GetUp().y < -0.9f) {
-			cameraDir = KuroEngine::Math::TransformVec3(cameraDir, DirectX::XMQuaternionRotationAxis(arg_targetPos.GetUp(), -arg_scopeMove.x));
-		}
-		//横の面にいる場合
-		else {
-			cameraDir = KuroEngine::Math::TransformVec3(cameraDir, DirectX::XMQuaternionRotationAxis(arg_targetPos.GetUp(), arg_scopeMove.y));
-		}
+	//Xベクトルから上ベクトルを得る。
+	Vec3<float> axisY = axisZ.Cross(axisX);
 
-		//座標を動かす。
-		m_attachedCam.lock()->GetTransform().SetPos(arg_targetPos.GetPosWorld() + cameraDir * (m_attachedCam.lock()->GetTransform().GetPos() - arg_targetPos.GetPosWorld()).Length());
+	//姿勢を得る。
+	DirectX::XMMATRIX matWorld = DirectX::XMMatrixIdentity();
+	matWorld.r[0] = { axisX.x, axisX.y, axisX.z, 0.0f };
+	matWorld.r[1] = { axisY.x, axisY.y, axisY.z, 0.0f };
+	matWorld.r[2] = { axisZ.x, axisZ.y, axisZ.z, 0.0f };
 
-		//注視点を上に動かす量。
-		Vec3<float> subTarget = Project(m_attachedCam.lock()->GetTransform().GetPos() - m_cameraLocalTransform.GetPosWorldByMatrix(), arg_targetPos.GetUp());
+	DirectX::XMMatrixDecompose(&scale, &rotate, &position, matWorld);
 
-		//注視点
-		Vec3<float> target = arg_targetPos.GetPos() + subTarget;
-
-		//現在の座標からプレイヤーに向かう回転を求める。
-		Vec3<float> axisZ = target - m_attachedCam.lock()->GetTransform().GetPos();
-		axisZ.Normalize();
-
-		//プレイヤーの法線との外積から仮のXベクトルを得る。
-		Vec3<float> axisX = Vec3<float>(0, 1, 0).Cross(axisZ);
-
-		//Xベクトルから上ベクトルを得る。
-		Vec3<float> axisY = axisZ.Cross(axisX);
-
-		//姿勢を得る。
-		DirectX::XMMATRIX matWorld = DirectX::XMMatrixIdentity();
-		matWorld.r[0] = { axisX.x, axisX.y, axisX.z, 0.0f };
-		matWorld.r[1] = { axisY.x, axisY.y, axisY.z, 0.0f };
-		matWorld.r[2] = { axisZ.x, axisZ.y, axisZ.z, 0.0f };
-
-		XMVECTOR rotate, scale, position;
-		DirectX::XMMatrixDecompose(&scale, &rotate, &position, matWorld);
-
-		//回転を反転させる。
-		if (arg_isCameraUpInverse) {
-			m_rotateZ = KuroEngine::Math::Lerp(m_rotateZ, DirectX::XM_PI, 0.08f);
-		}
-		else {
-			m_rotateZ = KuroEngine::Math::Lerp(m_rotateZ, 0.0f, 0.1f);
-		}
-		rotate = DirectX::XMQuaternionMultiply(rotate, DirectX::XMQuaternionRotationAxis(axisZ, m_rotateZ));
-
-		rotate = DirectX::XMQuaternionNormalize(rotate);
-
-		//回転を適用。
-		m_attachedCam.lock()->GetTransform().SetRotate(rotate);
-
+	//回転を反転させる。
+	if (arg_isCameraUpInverse) {
+		m_rotateZ = KuroEngine::Math::Lerp(m_rotateZ, DirectX::XM_PI, 0.08f);
 	}
 	else {
-
-		//補間する。
-		m_attachedCam.lock()->GetTransform().SetPos(KuroEngine::Math::Lerp(m_attachedCam.lock()->GetTransform().GetPos(), pushBackPos, 0.3f));
-
-		//現在の座標からプレイヤーに向かう回転を求める。
-		Vec3<float> axisZ = arg_targetPos.GetPos() - m_attachedCam.lock()->GetTransform().GetPosWorld();
-		axisZ.Normalize();
-
-		//プレイヤーの法線との外積から仮のXベクトルを得る。
-		Vec3<float> axisX = Vec3<float>(0, 1, 0).Cross(axisZ);
-
-		//Xベクトルから上ベクトルを得る。
-		Vec3<float> axisY = axisZ.Cross(axisX);
-
-		//姿勢を得る。
-		DirectX::XMMATRIX matWorld = DirectX::XMMatrixIdentity();
-		matWorld.r[0] = { axisX.x, axisX.y, axisX.z, 0.0f };
-		matWorld.r[1] = { axisY.x, axisY.y, axisY.z, 0.0f };
-		matWorld.r[2] = { axisZ.x, axisZ.y, axisZ.z, 0.0f };
-
-		XMVECTOR rotate, scale, position;
-		DirectX::XMMatrixDecompose(&scale, &rotate, &position, matWorld);
-
-		//回転を反転させる。
-		if (arg_isCameraUpInverse) {
-			m_rotateZ = KuroEngine::Math::Lerp(m_rotateZ, DirectX::XM_PI, 0.08f);
-		}
-		else {
-			m_rotateZ = KuroEngine::Math::Lerp(m_rotateZ, 0.0f, 0.08f);
-		}
-		rotate = DirectX::XMQuaternionMultiply(rotate, DirectX::XMQuaternionRotationAxis(axisZ, m_rotateZ));
-
-		rotate = DirectX::XMQuaternionNormalize(rotate);
-
-		//回転を適用。
-		m_attachedCam.lock()->GetTransform().SetRotate(rotate);
-
+		m_rotateZ = KuroEngine::Math::Lerp(m_rotateZ, 0.0f, 0.08f);
 	}
+	rotate = DirectX::XMQuaternionMultiply(rotate, DirectX::XMQuaternionRotationAxis(axisZ, m_rotateZ));
 
-	////カメラが引っ掛かってどうしようもなくなったら地形を貫通させる。
-	//float distance = KuroEngine::Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_targetPos.GetPos()).Length();
-	//if (fabs(arg_cameraZ) <= distance) {
-	//	m_attachedCam.lock()->GetTransform().SetPos(arg_targetPos.GetPos() + KuroEngine::Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_targetPos.GetPos()).GetNormal() * fabs(arg_cameraZ));
-	//}
+	rotate = DirectX::XMQuaternionNormalize(rotate);
 
-	//地上にあたっているフラグを保存。これがtrueだと注視点モードになるので、プレイヤーが居る面によってカメラの回転を打ち消す。
-	arg_isHitUnderGround = m_isHitUnderGroundTerrian;
+	//回転を適用。
+	m_attachedCam.lock()->GetTransform().SetRotate(rotate);
 
 	//プレイヤーが移動していたら保存。
-	if (0.1f < KuroEngine::Vec3<float>(m_playerOldPos - arg_targetPos.GetPos()).Length()) {
-		m_playerOldPos = arg_targetPos.GetPos();
+	if (0.1f < KuroEngine::Vec3<float>(m_playerOldPos - m_playerLerpPos).Length()) {
+		m_playerOldPos = m_playerLerpPos;
 	}
 
 
@@ -607,97 +508,84 @@ void CameraController::PushBackGround(const CollisionDetectionOfRayAndMesh::Mesh
 
 	using namespace KuroEngine;
 
-	//プレイヤーの法線と比べて同じだったら地上に当たった判定にする。
-	float dot = arg_output.m_normal.Dot(arg_targetPos.GetUp());
-	if (0.9f < dot && arg_isAroundRay) {
+	//当たっている壁が上下だったらだったら。
+	if (0.9f < std::fabs(arg_output.m_normal.y)) {
 
-		//地上にあたっている。
-		m_isHitUnderGroundTerrian = true;
+		//左右判定を行う。
+		Vec3<float> pushBackVec = KuroEngine::Vec3<float>(arg_pushBackPos - m_playerLerpPos).GetNormal();
 
-	}
-	//地上にいなかったら押し戻し。当たっている面によってX軸とY軸のどちらかを押し戻す。
-	else {
+		//プレイヤーの右ベクトルと現在のカメラベクトルを比べ、0以上だったら右。
+		if (0 < arg_targetPos.GetRight().Dot(pushBackVec) && (!arg_isCameraUpInverse)) {
 
-		//当たっている壁が上下だったらだったら。
-		if (0.9f < std::fabs(arg_output.m_normal.y)) {
+			//現在のX角度を求める。
+			Vec2<float> nowXVec = Project3Dto2D(KuroEngine::Vec3<float>(m_cameraLocalTransform.GetPosWorldByMatrix() - m_playerLerpPos).GetNormal(), arg_targetPos.GetFront(), arg_targetPos.GetRight());
+			Vec2<float> pushBackVec = Project3Dto2D(KuroEngine::Vec3<float>(arg_pushBackPos - m_playerLerpPos).GetNormal(), arg_targetPos.GetFront(), arg_targetPos.GetRight());
 
-			//左右判定を行う。
-			Vec3<float> pushBackVec = KuroEngine::Vec3<float>(arg_pushBackPos - arg_targetPos.GetPos()).GetNormal();
+			//角度の差
+			float nowAngle = atan2f(nowXVec.y, nowXVec.x);
+			float pushBackAngle = atan2f(pushBackVec.y, pushBackVec.x);
+			float divAngle = pushBackAngle - nowAngle;
 
-			//プレイヤーの右ベクトルと現在のカメラベクトルを比べ、0以上だったら右。
-			if (0 < arg_targetPos.GetRight().Dot(pushBackVec) && (!arg_isCameraUpInverse)) {
-
-				//現在のX角度を求める。
-				Vec2<float> nowXVec = Project3Dto2D(KuroEngine::Vec3<float>(m_cameraLocalTransform.GetPosWorldByMatrix() - arg_targetPos.GetPos()).GetNormal(), arg_targetPos.GetFront(), arg_targetPos.GetRight());
-				Vec2<float> pushBackVec = Project3Dto2D(KuroEngine::Vec3<float>(arg_pushBackPos - arg_targetPos.GetPos()).GetNormal(), arg_targetPos.GetFront(), arg_targetPos.GetRight());
-
-				//角度の差
-				float nowAngle = atan2f(nowXVec.y, nowXVec.x);
-				float pushBackAngle = atan2f(pushBackVec.y, pushBackVec.x);
-				float divAngle = pushBackAngle - nowAngle;
-
-				//角度を押し戻す。
-				m_nowParam.m_xAxisAngle += divAngle;
-
-			}
-			else {
-
-				//現在のX角度を求める。
-				Vec2<float> nowXVec = Project3Dto2D(KuroEngine::Vec3<float>(m_cameraLocalTransform.GetPosWorldByMatrix() - arg_targetPos.GetPos()).GetNormal(), arg_targetPos.GetRight(), arg_targetPos.GetFront());
-				Vec2<float> pushBackVec = Project3Dto2D(KuroEngine::Vec3<float>(arg_pushBackPos - arg_targetPos.GetPos()).GetNormal(), arg_targetPos.GetRight(), arg_targetPos.GetFront());
-
-				//角度の差
-				float nowAngle = atan2f(nowXVec.y, nowXVec.x);
-				float pushBackAngle = atan2f(pushBackVec.y, pushBackVec.x);
-				float divAngle = pushBackAngle - nowAngle;
-
-				//角度を押し戻す。
-				m_nowParam.m_xAxisAngle += divAngle;
-
-			}
+			//角度を押し戻す。
+			m_nowParam.m_xAxisAngle += divAngle;
 
 		}
 		else {
 
-			//左右判定を行う。
-			Vec3<float> pushBackVec = KuroEngine::Vec3<float>(arg_pushBackPos - arg_targetPos.GetPos()).GetNormal();
+			//現在のX角度を求める。
+			Vec2<float> nowXVec = Project3Dto2D(KuroEngine::Vec3<float>(m_cameraLocalTransform.GetPosWorldByMatrix() - m_playerLerpPos).GetNormal(), arg_targetPos.GetRight(), arg_targetPos.GetFront());
+			Vec2<float> pushBackVec = Project3Dto2D(KuroEngine::Vec3<float>(arg_pushBackPos - m_playerLerpPos).GetNormal(), arg_targetPos.GetRight(), arg_targetPos.GetFront());
 
-			//プレイヤーの右ベクトルと現在のカメラベクトルを比べ、0以上だったら右。
-			float dot = arg_targetPos.GetRight().Dot(pushBackVec);
-			if (arg_isCameraUpInverse ? (dot < 0) : (0 < dot)) {
+			//角度の差
+			float nowAngle = atan2f(nowXVec.y, nowXVec.x);
+			float pushBackAngle = atan2f(pushBackVec.y, pushBackVec.x);
+			float divAngle = pushBackAngle - nowAngle;
 
-				//現在のY角度を求める。
-				Vec2<float> nowYVec = Project3Dto2D(KuroEngine::Vec3<float>(m_cameraLocalTransform.GetPosWorldByMatrix() - arg_targetPos.GetPos()).GetNormal(), arg_targetPos.GetFront(), arg_targetPos.GetUp());
-				Vec2<float> pushBackVec = Project3Dto2D(KuroEngine::Vec3<float>(arg_pushBackPos - arg_targetPos.GetPos()).GetNormal(), arg_targetPos.GetFront(), arg_targetPos.GetUp());
+			//角度を押し戻す。
+			m_nowParam.m_xAxisAngle += divAngle;
+
+		}
+
+	}
+	else {
+
+		//左右判定を行う。
+		Vec3<float> pushBackVec = KuroEngine::Vec3<float>(arg_pushBackPos - m_playerLerpPos).GetNormal();
+
+		//プレイヤーの右ベクトルと現在のカメラベクトルを比べ、0以上だったら右。
+		float dot = arg_targetPos.GetRight().Dot(pushBackVec);
+		if (arg_isCameraUpInverse ? (dot < 0) : (0 < dot)) {
+
+			//現在のY角度を求める。
+			Vec2<float> nowYVec = Project3Dto2D(KuroEngine::Vec3<float>(m_cameraLocalTransform.GetPosWorldByMatrix() - m_playerLerpPos).GetNormal(), arg_targetPos.GetFront(), arg_targetPos.GetUp());
+			Vec2<float> pushBackVec = Project3Dto2D(KuroEngine::Vec3<float>(arg_pushBackPos - m_playerLerpPos).GetNormal(), arg_targetPos.GetFront(), arg_targetPos.GetUp());
 
 
-				//角度の差
-				float nowAngle = atan2f(nowYVec.y, nowYVec.x);
-				float pushBackAngle = atan2f(pushBackVec.y, pushBackVec.x);
-				float divAngle = pushBackAngle - nowAngle;
+			//角度の差
+			float nowAngle = atan2f(nowYVec.y, nowYVec.x);
+			float pushBackAngle = atan2f(pushBackVec.y, pushBackVec.x);
+			float divAngle = pushBackAngle - nowAngle;
 
-				//角度を押し戻す。
-				m_nowParam.m_yAxisAngle += divAngle;
-				arg_playerRotY += divAngle;
+			//角度を押し戻す。
+			m_nowParam.m_yAxisAngle += divAngle;
+			arg_playerRotY += divAngle;
 
-			}
-			else {
+		}
+		else {
 
-				//現在のY角度を求める。
-				Vec2<float> nowYVec = Project3Dto2D(KuroEngine::Vec3<float>(m_cameraLocalTransform.GetPosWorldByMatrix() - arg_targetPos.GetPos()).GetNormal(), arg_targetPos.GetUp(), arg_targetPos.GetFront());
-				Vec2<float> pushBackVec = Project3Dto2D(KuroEngine::Vec3<float>(arg_pushBackPos - arg_targetPos.GetPos()).GetNormal(), arg_targetPos.GetUp(), arg_targetPos.GetFront());
+			//現在のY角度を求める。
+			Vec2<float> nowYVec = Project3Dto2D(KuroEngine::Vec3<float>(m_cameraLocalTransform.GetPosWorldByMatrix() - m_playerLerpPos).GetNormal(), arg_targetPos.GetUp(), arg_targetPos.GetFront());
+			Vec2<float> pushBackVec = Project3Dto2D(KuroEngine::Vec3<float>(arg_pushBackPos - m_playerLerpPos).GetNormal(), arg_targetPos.GetUp(), arg_targetPos.GetFront());
 
 
-				//角度の差
-				float nowAngle = atan2f(nowYVec.y, nowYVec.x);
-				float pushBackAngle = atan2f(pushBackVec.y, pushBackVec.x);
-				float divAngle = pushBackAngle - nowAngle;
+			//角度の差
+			float nowAngle = atan2f(nowYVec.y, nowYVec.x);
+			float pushBackAngle = atan2f(pushBackVec.y, pushBackVec.x);
+			float divAngle = pushBackAngle - nowAngle;
 
-				//角度を押し戻す。
-				m_nowParam.m_yAxisAngle += divAngle;
-				arg_playerRotY += divAngle;
-
-			}
+			//角度を押し戻す。
+			m_nowParam.m_yAxisAngle += divAngle;
+			arg_playerRotY += divAngle;
 
 		}
 
@@ -714,38 +602,44 @@ void CameraController::PlayerMoveCameraLerp(KuroEngine::Vec3<float> arg_scopeMov
 	cameraT.SetRotate(arg_cameraQ);
 
 	//プレイヤーがジャンプしていなくて、プレイヤーが動いている時。
-	if (!arg_isPlayerJump) {
+	if (!arg_isPlayerJump && arg_isMovePlayer) {
 
 		//プレイヤーが動いたベクトルの逆を2Dに射影する。
-		Vec3<float> playerMoveVec = Vec3<float>(arg_targetPos.GetPos() - m_playerOldPos).GetNormal();
-		Vec3<float> cameraVec = Vec3<float>(arg_targetPos.GetPos() - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
+		Vec3<float> playerMoveVec = Vec3<float>(m_playerLerpPos - m_playerOldPos).GetNormal();
+		Vec3<float> cameraVec = Vec3<float>(m_playerLerpPos - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
 
 		Vec2<float> playerMoveVec2D = -Project3Dto2D(playerMoveVec, cameraT.GetFront(), cameraT.GetRight());
 
 		//カメラのベクトルを2Dに射影する。
 		Vec2<float> cameraVec2D = Project3Dto2D(cameraVec, cameraT.GetFront(), cameraT.GetRight());
 
-		//Y軸上のずれを確認。
-		float zureY = acos(playerMoveVec2D.Dot(cameraVec2D)) * 0.001f;
-		float cross = playerMoveVec2D.Cross(cameraVec2D);
+		//カメラベクトルと移動方向ベクトルの内積の結果が0.5以下だったら当たり判定を行う。
+		float dot = cameraVec2D.Dot(playerMoveVec2D);
+		if (-0.8f < dot) {
 
-		if (0 < fabs(cross)) {
+			//Y軸上のずれを確認。
+			float zureY = acos(playerMoveVec2D.Dot(cameraVec2D)) * (0.9f < fabs(KuroEngine::Vec3<float>(0, 1, 0).Dot(arg_targetPos.GetUp())) ? 0.01f : 0.001f);
+			float cross = playerMoveVec2D.Cross(cameraVec2D);
 
-			cross = (signbit(cross) ? -1.0f : 1.0f);
-			cross *= (arg_isCameraUpInverse ? -1.0f : 1.0f);
+			if (0 < fabs(cross)) {
 
-			if (0.9f < fabs(arg_targetPos.GetUp().y)) {
+				cross = (signbit(cross) ? -1.0f : 1.0f);
+				cross *= (arg_isCameraUpInverse ? -1.0f : 1.0f);
 
-				//Y軸を動かす。
-				m_nowParam.m_yAxisAngle += zureY * cross;
-				arg_playerRotY += zureY * cross;
+				if (0.9f < fabs(arg_targetPos.GetUp().y)) {
 
-			}
-			else {
+					//Y軸を動かす。
+					m_nowParam.m_yAxisAngle += zureY * cross;
+					arg_playerRotY += zureY * cross;
 
-				//Y軸を動かす。
-				m_nowParam.m_yAxisAngle -= zureY * cross;
-				arg_playerRotY -= zureY * cross;
+				}
+				else {
+
+					//Y軸を動かす。
+					m_nowParam.m_yAxisAngle -= zureY * cross;
+					arg_playerRotY -= zureY * cross;
+
+				}
 
 			}
 
@@ -781,5 +675,103 @@ bool CameraController::RayPlaneIntersection(const KuroEngine::Vec3<float>& arg_r
 	//衝突地点を返す！
 	arg_hitResult = arg_rayOrigin + nRayDirection * t;
 	return true;
+
+}
+
+void CameraController::UpdateLookAround(KuroEngine::Vec3<float> arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage> arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, bool arg_isLookAroundMode)
+{
+
+	using namespace KuroEngine;
+
+	//カメラモードが切り替わった瞬間だったら
+	if (!m_isCameraModeLookAround && arg_isLookAroundMode) {
+
+		//カメラまでのベクトル。
+		KuroEngine::Vec3<float> cameraDir = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPosWorld() - arg_targetPos.GetPosWorld()).GetNormal();
+
+		//上ベクトルとの内積と外積から回転を得る。
+		KuroEngine::Vec3<float> upVec = arg_isCameraUpInverse ? Vec3<float>(0, 1, 0) : Vec3<float>(0, 1, 0);
+		KuroEngine::Vec3<float> axis = upVec.Cross(cameraDir);
+		float angle = acos(upVec.Dot(cameraDir));
+
+		//回転角が存在したら
+		if (0.0f < axis.Length()) {
+
+			m_lookAroundTransform.SetRotate(DirectX::XMQuaternionRotationAxis(axis, angle));
+
+		}
+		else {
+			m_lookAroundTransform.SetRotate(DirectX::XMQuaternionIdentity());
+		}
+
+		//回転の初期値を保存。
+		m_lookAroundInitTransform = m_lookAroundTransform;
+
+		m_lookAroundModeFar = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_targetPos.GetPos()).Length();
+		m_isLookAroundFinish = false;
+		m_isLookAroundFinishComplete = false;
+
+	}
+
+	//カメラの距離を補間。
+	if (m_isLookAroundFinish) {
+
+		m_lookAroundModeFar = KuroEngine::Math::Lerp(m_lookAroundModeFar, fabs(arg_cameraZ), 0.08f);
+		m_lookAroundTransform.SetRotate(DirectX::XMQuaternionSlerp(m_lookAroundTransform.GetRotate(), m_lookAroundInitTransform.GetRotate(), 0.08f));
+
+		//カメラの距離が規定値に達したら終わり。
+		if (fabs(fabs(m_lookAroundModeFar) - fabs(arg_cameraZ)) < 1.0f) {
+
+			m_isLookAroundFinishComplete = true;
+
+		}
+
+	}
+	else {
+
+		m_lookAroundModeFar = KuroEngine::Math::Lerp(m_lookAroundModeFar, LOOK_AROUND_FAR, 0.08f);
+
+	}
+
+	//カメラの位置を動かす。
+	m_attachedCam.lock()->GetTransform().SetPos(arg_targetPos.GetPosWorld() + m_lookAroundTransform.GetUp() * m_lookAroundModeFar);
+
+	//現在の座標からプレイヤーに向かう回転を求める。
+	Vec3<float> axisZ = m_playerLerpPos - m_attachedCam.lock()->GetTransform().GetPosWorld();
+	axisZ.Normalize();
+
+	//プレイヤーの法線との外積から仮のXベクトルを得る。
+	Vec3<float> axisX = Vec3<float>(0, arg_isCameraUpInverse ? -1.0f : 1.0f, 0).Cross(axisZ);
+
+	//Xベクトルから上ベクトルを得る。
+	Vec3<float> axisY = axisZ.Cross(axisX);
+
+	//姿勢を得る。
+	DirectX::XMMATRIX matWorld = DirectX::XMMatrixIdentity();
+	XMVECTOR rotate, scale, position;
+	matWorld.r[0] = { axisX.x, axisX.y, axisX.z, 0.0f };
+	matWorld.r[1] = { axisY.x, axisY.y, axisY.z, 0.0f };
+	matWorld.r[2] = { axisZ.x, axisZ.y, axisZ.z, 0.0f };
+
+	DirectX::XMMatrixDecompose(&scale, &rotate, &position, matWorld);
+
+	//回転を適用。
+	m_attachedCam.lock()->GetTransform().SetRotate(rotate);
+
+	//カメラの上下が反転状態だったら入力も反転させる。
+	if (arg_isCameraUpInverse) {
+		arg_scopeMove *= -1.0f;
+	}
+
+	//スティック操作によって回転させる。
+	if (0 < fabs(arg_scopeMove.x)) {
+		m_lookAroundTransform.SetRotate(DirectX::XMQuaternionMultiply(m_lookAroundTransform.GetRotate(), DirectX::XMQuaternionRotationAxis(arg_isCameraUpInverse ? Vec3<float>(0, -1, 0) : Vec3<float>(0, 1, 0), arg_scopeMove.x * 0.5f)));
+	}
+	if (0 < fabs(arg_scopeMove.y)) {
+		m_lookAroundTransform.SetRotate(DirectX::XMQuaternionMultiply(m_lookAroundTransform.GetRotate(), DirectX::XMQuaternionRotationAxis(axisX, arg_scopeMove.y * -0.5f)));
+	}
+
+
+	m_isCameraModeLookAround = arg_isLookAroundMode;
 
 }

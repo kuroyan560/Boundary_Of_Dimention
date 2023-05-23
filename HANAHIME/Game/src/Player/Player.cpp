@@ -16,6 +16,7 @@
 #include"Render/RenderObject/ModelInfo/ModelAnimator.h"
 #include"FrameWork/WinApp.h"
 #include"../Stage/CheckPointHitFlag.h"
+#include"CameraController.h"
 
 void Player::OnImguiItems()
 {
@@ -182,7 +183,6 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_isFirstOnGround = false;
 	m_onGimmick = false;
 	m_onGround = false;
-	m_cameraMode = 1;
 	m_prevOnGimmick = false;
 	m_isDeath = false;
 	m_canZip = false;
@@ -196,7 +196,9 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_isOldCameraDefault = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 	m_isWallFrontDir = false;
+	m_isPlayerOverHeat = false;
 	m_cameraNoCollisionTimer.Reset(10);
+	m_cameraFar = CAMERA_FAR;
 
 	m_growPlantPtLig.Register();
 	//死亡演出のタイマーを初期化。
@@ -277,7 +279,6 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform)
 	m_isFirstOnGround = false;
 	m_onGimmick = false;
 	m_onGround = false;
-	m_cameraMode = 1;
 	m_prevOnGimmick = false;
 	m_isDeath = false;
 	m_canZip = false;
@@ -311,6 +312,8 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform)
 	m_isUnderGround = false;
 	m_underGroundEaseTimer = 1.0f;
 	m_underGroundShake = 0;
+
+	m_cameraFar = CAMERA_FAR;
 
 	m_attackTimer = 0;
 
@@ -390,22 +393,22 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//ジャンプができるかどうか。	一定時間地形に引っ掛かってたらジャンプできる。
 	m_canJump = CAN_JUMP_DELAY <= m_canJumpDelayTimer;
 
-	//カメラモードを切り替える。
-	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE, OperationConfig::ON_TRIGGER)) {
-		++m_cameraMode;
-		if (static_cast<int>(CAMERA_MODE.size()) <= m_cameraMode) {
-			m_cameraMode = 0;
-		}
-
-		//SEを鳴らす。
-		SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, m_cameraMode);
-	}
-
 	//移動ステータスによって処理を変える。
 	switch (m_playerMoveStatus)
 	{
 	case Player::PLAYER_MOVE_STATUS::MOVE:
 	{
+
+		//入力があったら周囲見渡しモードに切り替え。
+		if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE, OperationConfig::ON_TRIGGER)) {
+
+			//SEを鳴らす。
+			SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
+
+			m_playerMoveStatus = PLAYER_MOVE_STATUS::LOOK_AROUND;
+			break;
+
+		}
 
 		//ジップライン
 		m_canZip = OperationConfig::Instance()->GetOperationInput(OperationConfig::RIDE_ZIP_LINE, OperationConfig::ON_TRIGGER);
@@ -413,26 +416,49 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		//地中に沈むフラグを更新。 イージングが終わっていたら。
 		if (1.0f <= m_underGroundEaseTimer) {
 
-			bool prevInInputUnderGround = m_isInputUnderGround;
-			m_isInputUnderGround = OperationConfig::Instance()->GetOperationInput(OperationConfig::SINK_GROUND, OperationConfig::HOLD);
+			//地中にいるときのフラグの入力を更新。
+			m_isInputUnderGround = OperationConfig::Instance()->GetOperationInput(OperationConfig::SINK_GROUND, OperationConfig::HOLD) && !m_isPlayerOverHeat;
+			bool isInputUnderGroundRelease = OperationConfig::Instance()->GetOperationInput(OperationConfig::SINK_GROUND, OperationConfig::OFF_TRIGGER);
+			bool isInputUnderGroundTrigger = OperationConfig::Instance()->GetOperationInput(OperationConfig::SINK_GROUND, OperationConfig::ON_TRIGGER);
 
-			//沈むフラグが離されたトリガーだったら。
-			if ((prevInInputUnderGround && !m_isInputUnderGround) || (!m_canOldUnderGroundRelease && m_canUnderGroundRelease)) {
+			//オーバーヒート中に潜ろうとしたら効果音を鳴らす。
+			if (m_isPlayerOverHeat && isInputUnderGroundTrigger) {
 
-				//攻撃する。
-				m_attackTimer = ATTACK_TIMER;
+				SoundConfig::Instance()->Play(SoundConfig::SE_CANCEL);
+
 			}
 
-			//イージングが終わっている時のみ地中に潜ったり出たりする判定を持たせる。
-			bool isInputOnOff = OperationConfig::Instance()->GetOperationInput(OperationConfig::SINK_GROUND, OperationConfig::ON_OFF_TRIGGER);
-			if ((isInputOnOff || (!m_isUnderGround && m_isInputUnderGround) || (m_isUnderGround && !m_isInputUnderGround)) && m_canUnderGroundRelease) {
-				m_underGroundEaseTimer = 0;
+			//地中にいたら
+			if (m_isUnderGround) {
+
+				//沈むフラグが離されたトリガーだったら。
+				if ((!m_isInputUnderGround && m_canUnderGroundRelease) || m_isPlayerOverHeat) {
+
+					//攻撃する。
+					m_attackTimer = ATTACK_TIMER;
+
+					//沈んでない状態にする。
+					m_underGroundEaseTimer = 0;
+
+				}
+
+			}
+			//地中にいなかったら
+			else {
+
+				if (m_isInputUnderGround && !m_isPlayerOverHeat) {
+
+					//沈んでない状態にする。
+					m_underGroundEaseTimer = 0;
+
+				}
+
 			}
 
 		}
 		else {
 
-			m_underGroundEaseTimer = std::clamp(m_underGroundEaseTimer + ADD_UNDERGROUND_EASE_TIMER, 0.0f, 1.0f);
+			m_underGroundEaseTimer = std::clamp(m_underGroundEaseTimer + ADD_UNDERGROUND_EASE_TIMER * TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, 1.0f);
 
 			if (1.0f <= m_underGroundEaseTimer) {
 
@@ -472,28 +498,83 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			//イージングタイマーが0でプレイヤーが地中にいないとき(地中から出る演出の開始直後)だったらコントローラーをシェイクさせる。
 			if (m_underGroundEaseTimer <= ADD_UNDERGROUND_EASE_TIMER && m_isUnderGround) {
 
-				UsersInput::Instance()->ShakeController(0, 1.0f, 10);
+				//オーバーヒート中は煙も出す。
+				if (m_isPlayerOverHeat) {
 
-				//画面を少しシェイク。
-				m_underGroundShake = UNDER_GROUND_SHAKE;
+					for (int index = 0; index < 50; ++index) {
 
-				//地中から出た瞬間に大量にパーティクルを出す。
-				for (int index = 0; index < 50; ++index) {
+						//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
+						auto upVec = m_transform.GetUp();
 
-					//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
-					auto upVec = m_transform.GetUp();
+						//各軸を回転させる量。 ラジアン 回転させるのはローカルのXZ平面のみで、Y軸は高さのパラメーターを持つ。
+						KuroEngine::Vec3<float> randomAngle = KuroEngine::GetRand(KuroEngine::Vec3<float>(-DirectX::XM_PIDIV2, -1.0f, -DirectX::XM_PIDIV2), KuroEngine::Vec3<float>(DirectX::XM_PIDIV2, 1.0f, DirectX::XM_PIDIV2));
 
-					//各軸を回転させる量。 ラジアン 回転させるのはローカルのXZ平面のみで、Y軸は高さのパラメーターを持つ。
-					KuroEngine::Vec3<float> randomAngle = KuroEngine::GetRand(KuroEngine::Vec3<float>(-DirectX::XM_PIDIV2, -1.0f, -DirectX::XM_PIDIV2), KuroEngine::Vec3<float>(DirectX::XM_PIDIV2, 1.0f, DirectX::XM_PIDIV2));
+						//XZの回転量クォータニオン
+						auto xq = DirectX::XMQuaternionRotationAxis(m_transform.GetRight(), randomAngle.x);
+						auto zq = DirectX::XMQuaternionRotationAxis(m_transform.GetFront(), randomAngle.z);
 
-					//XZの回転量クォータニオン
-					auto xq = DirectX::XMQuaternionRotationAxis(m_transform.GetRight(), randomAngle.x);
-					auto zq = DirectX::XMQuaternionRotationAxis(m_transform.GetFront(), randomAngle.z);
+						//上ベクトルを回転させる。
+						upVec = KuroEngine::Math::TransformVec3(upVec, DirectX::XMMatrixRotationQuaternion(DirectX::XMQuaternionMultiply(xq, zq)));
 
-					//上ベクトルを回転させる。
-					upVec = KuroEngine::Math::TransformVec3(upVec, DirectX::XMMatrixRotationQuaternion(DirectX::XMQuaternionMultiply(xq, zq)));
+						m_playerMoveParticle.GenerateSmoke(m_transform.GetPos(), upVec.GetNormal() * KuroEngine::GetRand(m_growPlantPtLig.m_defInfluenceRange));
+					}
 
-					m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), upVec.GetNormal() * m_growPlantPtLig.m_defInfluenceRange, m_moveSpeed);
+					//地中から出た瞬間に大量にパーティクルを出す。
+					for (int index = 0; index < 50; ++index) {
+
+						//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
+						auto upVec = m_transform.GetUp();
+
+						//各軸を回転させる量。 ラジアン 回転させるのはローカルのXZ平面のみで、Y軸は高さのパラメーターを持つ。
+						KuroEngine::Vec3<float> randomAngle = KuroEngine::GetRand(KuroEngine::Vec3<float>(-DirectX::XM_PIDIV2, -1.0f, -DirectX::XM_PIDIV2), KuroEngine::Vec3<float>(DirectX::XM_PIDIV2, 1.0f, DirectX::XM_PIDIV2));
+
+						//XZの回転量クォータニオン
+						auto xq = DirectX::XMQuaternionRotationAxis(m_transform.GetRight(), randomAngle.x);
+						auto zq = DirectX::XMQuaternionRotationAxis(m_transform.GetFront(), randomAngle.z);
+
+						//上ベクトルを回転させる。
+						upVec = KuroEngine::Math::TransformVec3(upVec, DirectX::XMMatrixRotationQuaternion(DirectX::XMQuaternionMultiply(xq, zq)));
+
+						//プレイヤーまでのベクトル
+						KuroEngine::Vec3<float> playerDir = (m_transform.GetPos() - (m_transform.GetPos() + upVec.GetNormal() * m_growPlantPtLig.m_defInfluenceRange / 3.0f)).GetNormal();
+
+						m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), upVec.GetNormal() * m_growPlantPtLig.m_defInfluenceRange / 3.0f, m_moveSpeed - playerDir * 0.75f);
+					}
+
+					UsersInput::Instance()->ShakeController(0, 1.0f, 60);
+
+					//画面を少しシェイク。
+					m_underGroundShake = UNDER_GROUND_SHAKE * 5.0f;
+
+				}
+				else {
+
+					//地中から出た瞬間に大量にパーティクルを出す。
+					for (int index = 0; index < 50; ++index) {
+
+						//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
+						auto upVec = m_transform.GetUp();
+
+						//各軸を回転させる量。 ラジアン 回転させるのはローカルのXZ平面のみで、Y軸は高さのパラメーターを持つ。
+						KuroEngine::Vec3<float> randomAngle = KuroEngine::GetRand(KuroEngine::Vec3<float>(-DirectX::XM_PIDIV2, -1.0f, -DirectX::XM_PIDIV2), KuroEngine::Vec3<float>(DirectX::XM_PIDIV2, 1.0f, DirectX::XM_PIDIV2));
+
+						//XZの回転量クォータニオン
+						auto xq = DirectX::XMQuaternionRotationAxis(m_transform.GetRight(), randomAngle.x);
+						auto zq = DirectX::XMQuaternionRotationAxis(m_transform.GetFront(), randomAngle.z);
+
+						//上ベクトルを回転させる。
+						upVec = KuroEngine::Math::TransformVec3(upVec, DirectX::XMMatrixRotationQuaternion(DirectX::XMQuaternionMultiply(xq, zq)));
+
+						//プレイヤーまでのベクトル
+						KuroEngine::Vec3<float> playerDir = (m_transform.GetPos() - (m_transform.GetPos() + upVec.GetNormal() * m_growPlantPtLig.m_defInfluenceRange / 3.0f)).GetNormal();
+
+						m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), upVec.GetNormal() * m_growPlantPtLig.m_defInfluenceRange * 0.8f, m_moveSpeed - playerDir * 0.25f);
+					}
+
+					UsersInput::Instance()->ShakeController(0, 1.0f, 10);
+
+					//画面を少しシェイク。
+					m_underGroundShake = UNDER_GROUND_SHAKE;
 				}
 
 			}
@@ -664,6 +745,27 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	}
 	break;
+	case PLAYER_MOVE_STATUS::LOOK_AROUND:
+	{
+
+		//入力があったら周囲見渡しモードに切り替え。
+		if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE, OperationConfig::ON_TRIGGER)) {
+
+			//SEを鳴らす。
+			if (!m_camController.IsFinishLookAround()) {
+				SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
+			}
+
+			m_camController.EndLookAround();
+
+		}
+
+		if (m_camController.IsCompleteFinishLookAround()) {
+			m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
+		}
+
+	}
+	break;
 	default:
 		break;
 	}
@@ -677,11 +779,26 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_growPlantPtLig.Active();
 
 	//地中にいるときはライトを変える。
-	if (m_isInputUnderGround || !m_canUnderGroundRelease) {
+	if ((m_isInputUnderGround || !m_canUnderGroundRelease) && !m_isPlayerOverHeat) {
 		m_growPlantPtLig.m_influenceRange = std::clamp(m_growPlantPtLig.m_influenceRange - SUB_INFLUENCE_RANGE * TimeScaleMgr::s_inGame.GetTimeScale(), MIN_INFLUENCE_RANGE, MAX_INFLUENCE_RANGE);
+
+		//地中に居すぎてライトが最小になってしまったら
+		if (m_growPlantPtLig.m_influenceRange <= MIN_INFLUENCE_RANGE) {
+
+			m_isPlayerOverHeat = true;
+
+		}
 	}
 	else {
 		m_growPlantPtLig.m_influenceRange = std::clamp(m_growPlantPtLig.m_influenceRange + ADD_INFLUENCE_RANGE * TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, MAX_INFLUENCE_RANGE);
+
+
+		//地中に居すぎてライトが最大になってしまったら
+		if (MAX_INFLUENCE_RANGE <= m_growPlantPtLig.m_influenceRange) {
+
+			m_isPlayerOverHeat = false;
+
+		}
 	}
 	m_growPlantPtLig.m_defInfluenceRange = MAX_INFLUENCE_RANGE;
 
@@ -700,9 +817,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_MODE[m_cameraMode], arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp());
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_cameraFar, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_playerMoveStatus == PLAYER_MOVE_STATUS::LOOK_AROUND, m_hitPointData);
 
-		m_deathEffectCameraZ = CAMERA_MODE[m_cameraMode];
+		m_deathEffectCameraZ = CAMERA_FAR;
 	}
 	else {
 
@@ -710,7 +827,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_shake);
 
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp());
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_playerMoveStatus == PLAYER_MOVE_STATUS::LOOK_AROUND, m_hitPointData);
 
 	}
 	//シェイクを計算。
@@ -824,6 +941,12 @@ void Player::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_lig
 		drawParam,
 		KuroEngine::AlphaBlendMode_None,
 		m_modelAnimator->GetBoneMatBuff());
+
+	//for (auto index : m_hitPointData) {
+
+	//	KuroEngine::DrawFunc3D::DrawLine(arg_cam, index.m_pos, index.m_pos + index.m_up * 1.0f, KuroEngine::Color(255, 255, 255, 255), 1.0f);
+
+	//}
 
 	//KuroEngine::DrawFunc3D::DrawNonShadingModel(
 	//	m_axisModel,
@@ -1221,7 +1344,7 @@ void Player::UpdateDeath() {
 	case Player::DEATH_STATUS::LEAVE:
 	{
 		//カメラを離す。
-		m_deathEffectCameraZ += (CAMERA_MODE[1] - m_deathEffectCameraZ) / 5.0f;
+		m_deathEffectCameraZ += (CAMERA_FAR - m_deathEffectCameraZ) / 5.0f;
 
 		//速度を元に戻す。
 		TimeScaleMgr::s_inGame.Set(1.0f);

@@ -201,6 +201,26 @@ private:
 
 private:
 
+	std::unique_ptr<Reaction> m_reaction;
+
+	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_tex;
+
+	//リアクション表記---------------------------------------
+
+	//3次元ベクトルを2次元に射影する関数
+	inline KuroEngine::Vec2<float> Project3Dto2D(KuroEngine::Vec3<float> arg_vector3D, KuroEngine::Vec3<float> arg_basis1, KuroEngine::Vec3<float> arg_basis2) {
+
+		//基底ベクトルを正規化
+		arg_basis1.Normalize();
+		arg_basis2.Normalize();
+
+		//3次元ベクトルを2次元ベクトルに射影
+		float x = arg_vector3D.Dot(arg_basis1);
+		float y = arg_vector3D.Dot(arg_basis2);
+
+		return KuroEngine::Vec2<float>(x, y);
+	}
+
 
 
 	KuroEngine::Quaternion Lerp(const KuroEngine::Quaternion &a, const KuroEngine::Quaternion &b, float mul)

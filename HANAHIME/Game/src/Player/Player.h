@@ -99,8 +99,8 @@ class Player : public KuroEngine::Debugger
 
 	//カメラ感度
 	float m_camSensitivity = 1.0f;
-	int m_cameraMode;
-	std::array<const float, 3> CAMERA_MODE = { -20.0f,-40.0f,-70.0f };
+	float CAMERA_FAR = -40.0f;
+	float m_cameraFar;
 	bool m_isHitUnderGroundCamera;
 
 	//植物を繁殖させる点光源
@@ -165,6 +165,13 @@ class Player : public KuroEngine::Debugger
 	bool m_isCameraDefault;
 	bool m_isOldCameraDefault;
 
+public:
+
+	//当たり判定の結果保存用
+	std::vector<CameraController::HIT_POINT> m_hitPointData;
+
+private:
+
 	//攻撃判定
 	int m_attackTimer;
 	const int ATTACK_TIMER = 30;
@@ -174,6 +181,7 @@ class Player : public KuroEngine::Debugger
 	bool m_isUnderGround;				//地中の状態か否か
 	bool m_canUnderGroundRelease;		//潜る状態が解除できるか。潜っているときに上にフェンスがあると潜りが解除できない。
 	bool m_canOldUnderGroundRelease;	//潜る状態が解除できるか。潜っているときに上にフェンスがあると潜りが解除できない。
+	bool m_isPlayerOverHeat;
 	const float UNDERGROUND_Y = 6.5f;	//沈む量。
 	float m_underGroundEaseTimer;		//沈むときや浮上するときに使用するイージングのタイマー
 	const float ADD_UNDERGROUND_EASE_TIMER = 0.04f;
@@ -189,6 +197,7 @@ class Player : public KuroEngine::Debugger
 		ZIP,	//ジップライン移動中
 		DEATH,	//死亡中。
 		DAMAGE,	//ダメージ演出中。
+		LOOK_AROUND,	//周囲を見ている。
 	}m_playerMoveStatus, m_beforeDamageStatus;	//ダメージを受ける前のステータス
 	//１フレーム前の動きのステータス
 	PLAYER_MOVE_STATUS m_beforePlayerMoveStatus;
@@ -230,10 +239,10 @@ class Player : public KuroEngine::Debugger
 	XMVECTOR m_jumpStartQ;							//ジャンプ開始時のクォータニオン
 	XMVECTOR m_jumpEndQ;							//ジャンプ終了時のクオータニオン
 	float m_jumpTimer;								//ジャンプの計測時間を図るタイマー
-	const float JUMP_TIMER = 0.05f;
+	const float JUMP_TIMER = 0.06f;
 	bool m_canJump;									//ジャンプができるかのフラグ
 	int m_canJumpDelayTimer;						//ジャンプができるようになるまでの引っ掛かり
-	const int CAN_JUMP_DELAY = 10;
+	const int CAN_JUMP_DELAY = 1;
 	const int CAN_JUMP_DELAY_FAST = 1;
 
 	//正面方向に壁があるかのフラグ

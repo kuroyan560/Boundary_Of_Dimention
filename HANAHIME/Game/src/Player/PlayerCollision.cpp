@@ -1008,6 +1008,24 @@ bool PlayerCollision::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroE
 	//レイを飛ばす。
 	CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_rayCastPos, arg_rayDir, arg_collisionData.m_mesh);
 
+	if (arg_rayID == RAY_ID::AROUND) {
+
+		bool isnanx = std::isnan(output.m_pos.x);
+		bool isnany = std::isnan(output.m_pos.y);
+		bool isnanz = std::isnan(output.m_pos.z);
+		bool isOrigin = output.m_pos.Length() <= 0.1f;
+
+		if (!isnanx && !isnany && !isnanz && !isOrigin) {
+
+			CameraController::HIT_POINT data;
+			data.m_pos = output.m_pos;
+			data.m_up = output.m_normal;
+			m_refPlayer->m_hitPointData.emplace_back(data);
+
+		}
+
+	}
+
 	//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 	if (output.m_isHit && std::fabs(output.m_distance) < arg_rayLength) {
 
@@ -1030,6 +1048,8 @@ bool PlayerCollision::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroE
 			break;
 
 		case RAY_ID::AROUND:
+
+		{
 
 			//レイの衝突地点を保存。
 			arg_collisionData.m_impactPoint.emplace_back(ImpactPointData(output.m_pos, output.m_normal));
@@ -1055,6 +1075,8 @@ bool PlayerCollision::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroE
 			}
 
 			break;
+
+		}
 
 		case RAY_ID::CLIFF:
 		{
@@ -1120,6 +1142,9 @@ bool PlayerCollision::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroE
 }
 
 void PlayerCollision::CheckHit(KuroEngine::Vec3<float>& arg_frompos, KuroEngine::Vec3<float>& arg_nowpos, std::weak_ptr<Stage>arg_nowStage) {
+
+	//当たり判定の結果用の座標を保存。
+	m_refPlayer->m_hitPointData.clear();
 
 	HitCheckResult hitResult;
 	if (!HitCheckAndPushBack(arg_frompos, arg_nowpos, arg_nowStage, &hitResult))return;
