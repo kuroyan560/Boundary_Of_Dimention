@@ -31,7 +31,11 @@ public:
 		float distance = attack_hitBox.m_centerPos->Distance(playerPos);
 		float dot = upVec.Dot(vec_enemy_player);
 
-		bool isInCirlceFlag = distance < *(attack_hitBox.m_radius);
+		const float limit = 1.0f;
+		bool inFlag = *(attack_hitBox.m_radius) - 1.0f <= distance;
+		bool outFlag = distance <= *(attack_hitBox.m_radius) + 1.0f;
+
+		bool isInCirlceFlag = inFlag && outFlag;
 		bool isTouchEdgeFlag = abs(dot) <= 0.5f;
 
 		return isInCirlceFlag && isTouchEdgeFlag;
