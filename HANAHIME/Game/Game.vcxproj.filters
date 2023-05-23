@@ -466,6 +466,15 @@
     <ClCompile Include="src\HUD\StageInfoUI.cpp">
       <Filter>src\user\HUD</Filter>
     </ClCompile>
+    <ClCompile Include="src\HUD\InGameUI.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HUD\StageInfoUI.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AI\IEnemyAI.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -894,5 +903,10 @@
     <ClInclude Include="src\HUD\StageInfoUI.h">
       <Filter>src\user\HUD</Filter>
     </ClInclude>
+    <ClInclude Include="src\HUD\InGameUI.h" />
+    <ClInclude Include="src\HUD\StageInfoUI.h" />
+    <ClInclude Include="src\Stage\CheckPointHitFlag.h" />
+    <ClInclude Include="src\AI\IEnemyAI.h" />
+>>>>>>> dev_EnemyForMaster
   </ItemGroup>
 </Project>

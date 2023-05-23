@@ -67,7 +67,7 @@ bool SightSearch::IsFind(const KuroEngine::Vec3<float> &pos, float viewAngle)
 
 
 		float rate = 1.0f - (viewAngle / 180.0f);
-		if (-dot <= -rate && distance <= m_sightRay[i].ray.m_length)
+		if (-dot <= -rate && distance <= m_sightRay[i].ray.m_length * m_transformPtr[i].GetScale().x)
 		{
 			m_sightRay[i].hitFlag = true;
 		}

@@ -6,6 +6,8 @@
 
 int MiniBug::ENEMY_MAX_ID = 0;
 
+
+#pragma region MiniBug
 void MiniBug::OnInit()
 {
 	m_nowStatus = SEARCH;
@@ -25,30 +27,34 @@ void MiniBug::OnInit()
 	m_pos = m_patrol->GetLimitPos(m_limitIndex);
 
 	m_dashEffect.Finalize();
+	m_finalizeFlag = false;
 }
 
 void MiniBug::Update(Player &arg_player)
 {
 	m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());
 	m_eyeEffect.Update(m_larpPos);
-	
+
 	//ã§í èàóù
 	if (m_deadFlag)
 	{
 		m_reaction->Update(m_pos);
+
+		if (!m_finalizeFlag)
+		{
+			m_dashEffect.Finalize();
+			m_finalizeFlag = true;
+		}
 		return;
 	}
-	else {
-
+	else
+	{
 	}
 
 
 	//éÄñSèÄîıèàóù
 	if (m_startDeadMotionFlag && !m_deadFlag)
 	{
-		m_scale = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, m_deadTimer.GetTimeRate(), 1.0f, 0.0f);
-		m_transform.SetScale(m_scale);
-
 		//éÄÇÒÇ≈Ç¢ÇΩÇÁä€âeÇè¨Ç≥Ç≠Ç∑ÇÈÅB
 		m_shadowInfluenceRange = KuroEngine::Math::Lerp(m_shadowInfluenceRange, 0.0f, 0.01f);
 
@@ -58,8 +64,18 @@ void MiniBug::Update(Player &arg_player)
 			m_deadFlag = true;
 		}
 
+		//éÄñSéûÇÃç¿ïW
+		KuroEngine::Vec3<float>vel = m_initializedTransform.GetUp();
+		m_pos += vel * 0.1f;
+		m_transform.SetPos(m_pos);
+
+		//éÄñSéûÇÃÉXÉPÅ[Éã
+		m_scale = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, m_deadTimer.GetTimeRate(), m_initializedTransform.GetScale().x, 0.0f);
+		m_transform.SetScale(m_scale);
+
+		//éÄñSéûÇÃâÒì]
 		DirectX::XMVECTOR vec = { 0.0f,0.0f,1.0f,1.0f };
-		m_larpRotation = DirectX::XMQuaternionRotationAxis(vec, KuroEngine::Angle::ConvertToRadian(90.0f));
+		m_larpRotation = DirectX::XMQuaternionRotationAxis(vec, KuroEngine::Angle::ConvertToRadian(360.0f));
 		KuroEngine::Quaternion rotation = m_transform.GetRotate();
 		rotation = DirectX::XMQuaternionSlerp(m_transform.GetRotate(), m_larpRotation, 0.1f);
 		m_transform.SetRotate(rotation);
@@ -128,7 +144,7 @@ void MiniBug::Update(Player &arg_player)
 
 			break;
 		case MiniBug::NOTICE:
-			m_reaction->Init(LOOK);
+			m_reaction->Init(LOOK, m_transform.GetUp());
 			break;
 		case MiniBug::RETURN:
 			//ç≈Ç‡ãﬂÇ¢êßå‰ì_Ç…ñﬂÇÈ
@@ -188,7 +204,7 @@ void MiniBug::Update(Player &arg_player)
 			vel = m_jumpMotion.GetVel(m_pos);
 			m_dir = KuroEngine::Vec3<float>(arg_player.GetTransform().GetPos() - m_pos).GetNormal();
 			m_dir.y = 0.0f;
-			m_reaction->Init(FIND);
+			m_reaction->Init(FIND, m_transform.GetUp());
 			break;
 		}
 		else
@@ -233,6 +249,21 @@ void MiniBug::Update(Player &arg_player)
 		{
 			m_thinkTimer.Reset(120);
 			vel = track.Update(m_pos, arg_player.GetTransform().GetPos());
+
+			if (m_initializedTransform.GetUp().x == 0.0f)
+			{
+
+			}
+			if (m_initializedTransform.GetUp().y == 0.0f)
+			{
+
+			}
+			if (m_initializedTransform.GetUp().z == 0.0f)
+			{
+
+			}
+
+			vel *= m_initializedTransform.GetUp();
 			m_dir = track.Update(m_pos, arg_player.GetTransform().GetPos()).GetNormal();
 		}
 
@@ -248,7 +279,7 @@ void MiniBug::Update(Player &arg_player)
 		{
 			m_dir = KuroEngine::Vec3<float>(arg_player.GetTransform().GetPos() - m_pos).GetNormal();
 			m_thinkTimer.Reset(120);
-			m_reaction->Init(LOOK);
+			m_reaction->Init(LOOK, m_transform.GetUp());
 		}
 		break;
 	case MiniBug::RETURN:
@@ -276,7 +307,7 @@ void MiniBug::Update(Player &arg_player)
 	//ëêÇÃìñÇΩÇËîªíË
 	if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()) != Player::CHECK_HIT_GRASS_STATUS::NOHIT && !m_startDeadMotionFlag)
 	{
-		m_reaction->Init(DEAD);
+		m_reaction->Init(DEAD, m_transform.GetUp());
 		m_startDeadMotionFlag = true;
 	}
 
@@ -338,6 +369,8 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 	m_dashEffect.Draw(arg_cam);
 	m_eyeEffect.Draw(arg_cam);
 
+	DebugDraw(arg_cam);
+
 }
 
 void MiniBug::DebugDraw(KuroEngine::Camera &camera)
@@ -366,14 +399,20 @@ void MiniBug::DebugDraw(KuroEngine::Camera &camera)
 #endif // _DEBUG
 
 }
+#pragma endregion
 
+
+#pragma region Dossun
 void DossunRing::Update(Player &arg_player)
 {
-	if (m_deadFlag)
+	if (m_deadFlag && IsActive(m_transform, arg_player.GetTransform()))
 	{
 		return;
 	}
-
+	else
+	{
+		m_findPlayerFlag = false;
+	}
 	//éÄñSèÄîıèàóù
 	if (m_startDeadMotionFlag && !m_deadFlag)
 	{
@@ -430,11 +469,18 @@ void DossunRing::Update(Player &arg_player)
 		break;
 	}
 
-	if (!m_findPlayerFlag)
+	if (!m_findPlayerFlag && !m_attackFlag)
 	{
 		return;
 	}
 	//à»ç~ÉvÉåÉCÉÑÅ[Ç™î≠å©Ç≥ÇÍÇΩèàóù---------------------------------------
+
+	//î≠å©ÉäÉAÉNÉVÉáÉì
+	if (m_findPlayerFlag && !m_preFindPlayerFlag)
+	{
+		m_reaction->Init(FIND, m_transform.GetUp());
+	}
+	m_preFindPlayerFlag = m_findPlayerFlag;
 
 	//çUåÇó\îıìÆçÏíÜ
 	if (m_attackInterval.UpdateTimer() && !m_attackFlag)
@@ -447,22 +493,33 @@ void DossunRing::Update(Player &arg_player)
 	if (m_attackFlag)
 	{
 		//ìñÇΩÇËîªíËÇÃçLÇ™ÇË
-		m_hitBoxRadius = m_attackTimer.GetTimeRate() * m_hitBoxRadiusMax;
+		m_attackHitBoxRadius = m_attackTimer.GetTimeRate() * m_attackhitBoxRadiusMax;
 		//çLÇ™ÇËêÿÇ¡ÇΩÇÁÉCÉìÉ^Å[ÉoÉãÇ…ñﬂÇÈ
 		if (m_attackTimer.UpdateTimer())
 		{
-			m_hitBoxRadius = 0.0f;
+			m_attackHitBoxRadius = 0.0f;
 			m_attackInterval.Reset(m_maxAttackIntervalTime);
 			m_attackFlag = false;
+			m_findPlayerFlag = false;
 		}
 
-		if (Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_hitBox) && !arg_player.GetIsUnderGround())
+		KuroEngine::Vec3<float>playerPos(arg_player.GetTransform().GetPos());
+		KuroEngine::Vec3<float>playerUpVec(arg_player.GetTransform().GetUp());
+		KuroEngine::Vec3<float>enemyPlayerVec(arg_player.GetTransform().GetPos() - *(m_hitBox.m_centerPos));
+		enemyPlayerVec.Normalize();
+
+		if (Collision::Instance()->CheckPointAndEdgeOfCircle(
+			m_hitBox,
+			playerPos,
+			playerUpVec,
+			enemyPlayerVec) &&
+			!arg_player.GetIsUnderGround())
 		{
 			arg_player.Damage();
 		}
 	}
 
-
+	m_reaction->Update(m_transform.GetPos());
 }
 
 void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
@@ -476,6 +533,21 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 		m_model,
 		m_transform,
 		edgeColor);
+
+	KuroEngine::Transform transform = m_transform;
+	transform.SetPos(*(m_hitBox.m_centerPos));
+	float scale = *(m_hitBox.m_radius);
+	transform.SetScale(KuroEngine::Vec3<float>(scale, 1.0f, scale));
+	BasicDraw::Instance()->Draw(
+		arg_cam,
+		arg_ligMgr,
+		m_attackRingModel,
+		transform,
+		edgeColor);
+
+	m_reaction->Draw(arg_cam);
+
+	//DebugDraw(arg_cam);
 }
 
 void DossunRing::DebugDraw(KuroEngine::Camera &camera)
@@ -486,7 +558,7 @@ void DossunRing::DebugDraw(KuroEngine::Camera &camera)
 
 	if (m_attackFlag)
 	{
-		KuroEngine::Transform transform;
+		/*KuroEngine::Transform transform;
 		transform.SetPos(*m_hitBox.m_centerPos);
 		transform.SetScale(*m_hitBox.m_radius);
 		KuroEngine::DrawFunc3D::DrawNonShadingModel(
@@ -494,7 +566,7 @@ void DossunRing::DebugDraw(KuroEngine::Camera &camera)
 			transform.GetMatWorld(),
 			camera,
 			0.5f
-		);
+		);*/
 	}
 	else
 	{
@@ -504,7 +576,10 @@ void DossunRing::DebugDraw(KuroEngine::Camera &camera)
 #endif // _DEBUG
 
 }
+#pragma endregion
 
+
+#pragma region Battery
 Battery::Battery(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>> arg_posArray, float arg_bulletScale, ENEMY_BARREL_PATTERN arg_barrelPattern)
 	:StageParts(BATTERY, arg_model, arg_initTransform), m_posArray(arg_posArray), m_barrelPattern(arg_barrelPattern)
 {
@@ -526,7 +601,7 @@ Battery::Battery(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transfo
 
 	m_upVec = arg_initTransform.GetUp();
 
-	m_bulletDir = arg_initTransform.GetFront();
+	m_bulletDir = m_transform.GetFront();
 	m_bulletManager.Init(&m_pos, 5.0f, &m_bulletDir, 120.0f);
 
 	m_radius = m_transform.GetScale().x;
@@ -535,7 +610,7 @@ Battery::Battery(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transfo
 
 	m_startDeadMotionFlag = false;
 	m_deadFlag = false;
-
+	m_noticeFlag = false;
 }
 
 void Battery::Update(Player &arg_player)
@@ -593,6 +668,12 @@ void Battery::Update(Player &arg_player)
 		//ínñ Ç…ãèÇ»Ç¢éûÇ…ÉvÉåÉCÉÑÅ[ÇÃï˚å¸Çå©ÇÈ------
 		if (!arg_player.GetIsUnderGround() && distance <= 50.0f)
 		{
+			if (!m_noticeFlag)
+			{
+				m_reaction->Init(FIND, m_transform.GetUp());
+				m_noticeFlag = true;
+			}
+
 			//ìGÇÃï˚å¸Çå¸Ç≠èàóù
 			dir.Normalize();
 			KuroEngine::Vec3<float>frontVec(m_transform.GetFront());
@@ -608,6 +689,7 @@ void Battery::Update(Player &arg_player)
 		//å©Ç¬Ç©ÇÁÇ»Ç¢éûÇÕï ï˚å¸Çå©ÇÈ------
 		else
 		{
+			m_noticeFlag = false;
 			m_larpRotation = {};
 		}
 		m_larpRotation = DirectX::XMQuaternionSlerp(m_transform.GetRotate(), m_rotation, 0.1f);
@@ -621,9 +703,9 @@ void Battery::Update(Player &arg_player)
 
 	m_pos += vel;
 	m_transform.SetPos(m_pos);
-	//m_transform.SetRotate(m_larpRotation);
 
-	m_transform;
+	m_reaction->Update(m_pos);
+	//m_transform.SetRotate(m_larpRotation);
 
 }
 
@@ -645,4 +727,8 @@ void Battery::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 		edgeColor);
 
 	m_bulletManager.Draw(arg_cam);
+
+	m_reaction->Draw(arg_cam);
+	//DebugDraw(arg_cam);
 }
+#pragma endregion

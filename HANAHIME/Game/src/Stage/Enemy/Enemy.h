@@ -9,6 +9,7 @@
 #include"../../CPUParticle/DashEffect.h"
 #include"../../Effect/EnemyEyeEffect.h"
 #include"../../AI/EnemyAttack.h"
+#include"../../AI/IEnemyAI.h"
 
 //ìGÇÃçUåÇÉpÉ^Å[Éì
 enum ENEMY_ATTACK_PATTERN
@@ -53,10 +54,11 @@ public:
 
 		m_reaction = std::make_unique<Reaction>(m_tex);
 
+
+		m_hitBoxSize = m_transform.GetScale().x;
 		m_hitBox.m_centerPos = &m_transform.GetPos();
 		m_hitBox.m_radius = &m_hitBoxSize;
 
-		m_hitBoxSize = 3.0f;
 
 		if (posArray.size() == 0 || posArray.size() == 1)
 		{
@@ -74,7 +76,7 @@ public:
 
 		//ä€âeópÇ…ìGÇÃÉfÅ[É^ÇÃéQè∆ÇìnÇ∑ÅB
 		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_shadowInfluenceRange, &m_deadFlag);
-		
+		m_finalizeFlag = false;
 		++ENEMY_MAX_ID;
 	}
 
@@ -201,7 +203,7 @@ private:
 
 	//éÄñSèàóù------------------------------------------------------------------------------
 
-	bool m_deadFlag;
+	bool m_deadFlag, m_finalizeFlag;
 	bool m_startDeadMotionFlag;
 	KuroEngine::Timer m_deadTimer;
 
@@ -223,142 +225,6 @@ private:
 	DashEffect m_dashEffect;
 	EnemyEyeEffect m_eyeEffect;
 
-
-
-public:
-	enum ReactionEnum
-	{
-		FIND,
-		HIT,
-		LOOK,
-		FAR_AWAY,
-		DEAD,
-		MAX
-	};
-
-	class Reaction
-	{
-	public:
-		Reaction(std::vector<std::shared_ptr<KuroEngine::TextureBuffer>> buffer)
-		{
-			m_timer.Reset(120);
-			m_timer.ForciblyTimeUp();
-			m_tex = buffer;
-		}
-
-		void Init(int index)
-		{
-			m_index = index;
-			m_timer.Reset(120);
-			finishFlag = false;
-			m_appearFlag = true;
-			m_scaleTimer.Reset(5);
-
-			m_baseScale = { 2.0f,5.0f };
-			m_downScale = m_baseScale;
-		}
-
-		void Update(const KuroEngine::Vec3<float> &pos)
-		{
-			m_pos = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, 1.0f, pos, pos + KuroEngine::Vec3<float>(0.0f, 10.0f, 0.0f));
-			m_timer.UpdateTimer();
-
-			Find();
-			m_scaleTimer.UpdateTimer();
-		}
-
-		void Draw(KuroEngine::Camera &camera)
-		{
-			if (!finishFlag)
-			{
-				KuroEngine::Transform transform;
-				transform.SetPos(m_pos);
-				transform.SetScale({ m_upScale.x,m_upScale.y,1.0f });
-				BasicDraw::Instance()->DrawBillBoard(camera, m_pos, m_upScale, m_downScale, m_tex[m_index]);
-			}
-			else
-			{
-				m_pos = { 0.0f,0.0f,0.0f };
-			}
-		}
-
-		bool Done()
-		{
-			return finishFlag;
-		}
-
-	private:
-		int m_index;
-		KuroEngine::Vec3<float>m_pos;
-		KuroEngine::Vec2<float>m_upScale;
-		KuroEngine::Vec2<float>m_downScale;
-		KuroEngine::Vec2<float>m_baseScale;
-		KuroEngine::Timer m_timer;
-		std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_tex;
-
-
-		KuroEngine::Timer m_scaleTimer;
-		bool m_appearFlag;			//ìoèÍ
-		bool m_showEffectFlag;		//âΩÇ™ãNÇ´ÇΩÇÃÇ©ÇµÇ¡Ç©ÇËå©ÇπÇÈ
-		bool m_preDissappearFlag;	//è¡Ç¶ÇÈèÄîı
-		bool m_disappearFlag;		//è¡ñ≈
-
-		bool finishFlag;
-
-		void Find()
-		{
-			KuroEngine::Vec2<float>appearScale(1.5f, 0.0f);
-			KuroEngine::Vec2<float>showScale(1.0f, 1.0f);
-			KuroEngine::Vec2<float>preDisappearScale(1.5f, 0.0f);
-			KuroEngine::Vec2<float>disappearScale(0.0f, 1.0f);
-
-			//ìoèÍ
-			if (m_appearFlag)
-			{
-				m_upScale = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Circ, m_scaleTimer.GetTimeRate(), { 1.5f,-m_baseScale.y }, showScale * m_baseScale);
-				if (m_scaleTimer.IsTimeUp())
-				{
-					m_appearFlag = false;
-					m_showEffectFlag = true;
-					m_scaleTimer.Reset(30);
-				}
-			}
-			//ébÇ≠å©ÇπÇÈ
-			if (m_showEffectFlag)
-			{
-				//m_upScale = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Circ, m_scaleTimer.GetTimeRate(), appearScale * baseScale, showScale * baseScale);
-				if (m_scaleTimer.IsTimeUp())
-				{
-					m_showEffectFlag = false;
-					m_preDissappearFlag = true;
-					m_scaleTimer.Reset(5);
-				}
-			}
-			//âBÇÍÇÈê°ëO
-			if (m_preDissappearFlag)
-			{
-				m_upScale = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Circ, m_scaleTimer.GetTimeRate(), showScale * m_baseScale, preDisappearScale * m_baseScale);
-				m_downScale.x = m_upScale.x;
-				if (m_scaleTimer.IsTimeUp())
-				{
-					m_preDissappearFlag = false;
-					m_disappearFlag = true;
-					m_scaleTimer.Reset(5);
-				}
-			}
-			//è¡ñ≈
-			if (m_disappearFlag)
-			{
-				m_upScale = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Circ, m_scaleTimer.GetTimeRate(), preDisappearScale * m_baseScale, disappearScale * m_baseScale);
-				m_downScale.x = m_upScale.x;
-				if (m_scaleTimer.IsTimeUp())
-				{
-					m_disappearFlag = false;
-					m_scaleTimer.Reset(60);
-				}
-			}
-		}
-	};
 
 private:
 
@@ -397,19 +263,20 @@ private:
 	};
 };
 
-class DossunRing : public StageParts
+class DossunRing : public StageParts, IEnemyAI
 {
 public:
 	DossunRing(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, ENEMY_ATTACK_PATTERN status)
 		:StageParts(DOSSUN_RING, arg_model, arg_initTransform)
 	{
 
-		m_hitBoxRadiusMax = 10.0f;
-		m_hitBoxRadius = 0.0f;
+		m_attackhitBoxRadiusMax = 15.0f * arg_initTransform.GetScale().x;
+		m_attackHitBoxRadius = 0.0f;
 		m_findPlayerFlag = false;
+		m_preFindPlayerFlag = false;
 		m_nowStatus = status;
 
-		m_sightRange = m_hitBoxRadiusMax;
+		m_sightRange = m_attackhitBoxRadiusMax;
 
 		//éãäEÇÃîªíË---------------------------------------
 		m_sightHitBox.m_centerPos = &m_transform.GetPos();
@@ -430,7 +297,7 @@ public:
 		//éÄñSèàóù---------------------------------------
 
 		m_hitBox.m_centerPos = &m_transform.GetPos();
-		m_hitBox.m_radius = &m_hitBoxRadius;
+		m_hitBox.m_radius = &m_attackHitBoxRadius;
 
 		m_hitBoxModel =
 			KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "RedSphere.glb");
@@ -439,6 +306,10 @@ public:
 
 		//ä€âeópÇ…ìGÇÃÉfÅ[É^ÇÃéQè∆ÇìnÇ∑ÅB
 		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_shadowInfluenceRange, &m_deadFlag);
+
+
+		m_attackRingModel = 
+			KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "impactWave.glb");
 
 	}
 	void Update(Player &arg_player)override;
@@ -460,15 +331,19 @@ private:
 	bool m_attackFlag;					//çUåÇíÜ
 	KuroEngine::Timer m_attackTimer;	//çUåÇÇÃçLÇ™ÇË
 
-	float m_hitBoxRadius;		//çUåÇÇÃìñÇΩÇËîªíË(â~)
-	float m_hitBoxRadiusMax;	//çUåÇÇÃìñÇΩÇËîªíË(ç≈ëÂíl)
+	float m_attackHitBoxRadius;		//çUåÇÇÃìñÇΩÇËîªíË(â~)
+	float m_attackhitBoxRadiusMax;	//çUåÇÇÃìñÇΩÇËîªíË(ç≈ëÂíl)
+
+	std::shared_ptr<KuroEngine::Model>m_attackRingModel;
+
 	//çUåÇÉtÉFÅ[ÉY---------------
+
 
 	Sphere m_hitBox;
 	Sphere m_sightHitBox;
 	CircleSearch m_sightArea;
 
-	bool m_findPlayerFlag;
+	bool m_findPlayerFlag, m_preFindPlayerFlag;
 
 	//éÄñSèàóù---------------------------------------
 	bool m_deadFlag;
@@ -491,7 +366,7 @@ private:
 	std::shared_ptr<KuroEngine::Model>m_hitBoxModel;
 };
 
-class Battery : public StageParts
+class Battery : public StageParts,IEnemyAI
 {
 public:
 	Battery(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>arg_posArray, float arg_bulletScale, ENEMY_BARREL_PATTERN arg_barrelPattern);
@@ -520,7 +395,11 @@ private:
 	float m_radius;
 	Sphere m_hitBox;
 
+
 	//éÄñS
 	bool m_startDeadMotionFlag;
 	bool m_deadFlag;
+
+	bool m_noticeFlag;
+
 };

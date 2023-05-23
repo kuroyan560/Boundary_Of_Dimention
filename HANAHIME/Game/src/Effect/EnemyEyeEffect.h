@@ -21,7 +21,7 @@ public:
 	}
 	void Draw(KuroEngine::Camera &camera)
 	{
-		BasicDraw::Instance()->DrawBillBoard(camera, m_transform, m_tex);
+		//BasicDraw::Instance()->DrawBillBoard(camera, m_transform, m_tex);
 	}
 
 private:
