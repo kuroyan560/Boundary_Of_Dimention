@@ -20,7 +20,6 @@ public:
 		SINK_GROUND,	//地中に潜る
 		RIDE_ZIP_LINE,	//ジップラインに乗る
 		PAUSE,	//ポーズ画面へ
-		LOOK_AROUND,	//周囲確認用モード
 		OPERATION_TYPE_NUM
 	};
 

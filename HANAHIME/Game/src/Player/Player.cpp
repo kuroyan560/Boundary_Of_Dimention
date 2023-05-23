@@ -190,7 +190,6 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_isFirstOnGround = false;
 	m_onGimmick = false;
 	m_onGround = false;
-	m_cameraMode = 1;
 	m_prevOnGimmick = false;
 	m_isDeath = false;
 	m_canZip = false;
@@ -286,7 +285,6 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform)
 	m_isFirstOnGround = false;
 	m_onGimmick = false;
 	m_onGround = false;
-	m_cameraMode = 1;
 	m_prevOnGimmick = false;
 	m_isDeath = false;
 	m_canZip = false;
@@ -408,17 +406,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//ジャンプができるかどうか。	一定時間地形に引っ掛かってたらジャンプできる。
 	m_canJump = CAN_JUMP_DELAY <= m_canJumpDelayTimer;
 
-	//カメラモードを切り替える。
-	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE, OperationConfig::ON_TRIGGER)) {
-		++m_cameraMode;
-		if (static_cast<int>(CAMERA_MODE.size()) <= m_cameraMode) {
-			m_cameraMode = 0;
-		}
-
-		//SEを鳴らす。
-		SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, m_cameraMode);
-	}
-
 	//移動ステータスによって処理を変える。
 	switch (m_playerMoveStatus)
 	{
@@ -426,7 +413,10 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	{
 
 		//入力があったら周囲見渡しモードに切り替え。
-		if (OperationConfig::Instance()->GetOperationInput(OperationConfig::LOOK_AROUND, OperationConfig::ON_TRIGGER)) {
+		if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE, OperationConfig::ON_TRIGGER)) {
+
+			//SEを鳴らす。
+			SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
 
 			m_playerMoveStatus = PLAYER_MOVE_STATUS::LOOK_AROUND;
 			break;
@@ -772,7 +762,12 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	{
 
 		//入力があったら周囲見渡しモードに切り替え。
-		if (OperationConfig::Instance()->GetOperationInput(OperationConfig::LOOK_AROUND, OperationConfig::ON_TRIGGER)) {
+		if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE, OperationConfig::ON_TRIGGER)) {
+
+			//SEを鳴らす。
+			if (!m_camController.IsFinishLookAround()) {
+				SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
+			}
 
 			m_camController.EndLookAround();
 
@@ -835,9 +830,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_MODE[m_cameraMode], arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_playerMoveStatus == PLAYER_MOVE_STATUS::LOOK_AROUND);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_FAR, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_playerMoveStatus == PLAYER_MOVE_STATUS::LOOK_AROUND);
 
-		m_deathEffectCameraZ = CAMERA_MODE[m_cameraMode];
+		m_deathEffectCameraZ = CAMERA_FAR;
 	}
 	else {
 
@@ -1358,7 +1353,7 @@ void Player::UpdateDeath() {
 	case Player::DEATH_STATUS::LEAVE:
 	{
 		//カメラを離す。
-		m_deathEffectCameraZ += (CAMERA_MODE[1] - m_deathEffectCameraZ) / 5.0f;
+		m_deathEffectCameraZ += (CAMERA_FAR - m_deathEffectCameraZ) / 5.0f;
 
 		//速度を元に戻す。
 		TimeScaleMgr::s_inGame.Set(1.0f);

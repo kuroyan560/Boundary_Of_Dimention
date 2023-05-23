@@ -64,7 +64,7 @@ class CameraController : public KuroEngine::Debugger
 	bool m_isLookAroundFinish;			//カメラモードの終了作業を開始する
 	bool m_isLookAroundFinishComplete;	//カメラモードの終了作業が終わったかどうか。
 	float m_lookAroundModeFar;		//LookAround状態の時の距離
-	const float LOOK_AROUND_FAR = 150.0f;
+	const float LOOK_AROUND_FAR = 100.0f;
 
 	//LookAround状態の時に使用する変数。
 	KuroEngine::Transform m_lookAroundTransform;
@@ -122,6 +122,7 @@ public:
 	KuroEngine::Transform GetDebugTransform() { return m_debugTransform; }
 
 	void EndLookAround() { m_isLookAroundFinish = true; }
+	bool IsFinishLookAround() { return m_isLookAroundFinish; }
 	bool IsCompleteFinishLookAround() { return m_isLookAroundFinishComplete; }
 
 private:

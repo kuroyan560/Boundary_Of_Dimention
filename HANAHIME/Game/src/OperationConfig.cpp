@@ -27,7 +27,6 @@ OperationConfig::OperationConfig()
 		DIK_SPACE,	//地中に潜る
 		DIK_LSHIFT,	//ジップラインに乗る
 		DIK_TAB,	//ポーズ画面へ
-		DIK_T,	//LookAround(周囲見渡し)モードに切り替え
 	};
 
 	//操作ボタン割り当て
@@ -40,7 +39,6 @@ OperationConfig::OperationConfig()
 		RT,	//地中に潜る
 		A,	//ジップラインに乗る
 		START,	//ポーズ画面へ
-		Y,	//LookAround(周囲見渡し)モードに切り替え
 	};
 }
 
