@@ -75,7 +75,7 @@ void CameraController::Init(bool arg_isRespawn)
 	m_isLookAroundFinishComplete = false;
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, bool arg_isLookAroundMode, std::vector<HIT_POINT> arg_hitPointData)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float& arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, bool arg_isLookAroundMode, std::vector<HIT_POINT> arg_hitPointData)
 {
 	using namespace KuroEngine;
 
@@ -292,8 +292,6 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	m_debugTransform = cameraT;
 
-	//当たり判定用のレイを打つ方向を決める。
-	Vec3<float> checkHitRay = m_cameraLocalTransform.GetPosWorldByMatrix() - m_oldCameraWorldPos;	//まずはデフォルトのレイに設定。
 
 	//当たり判定変数を初期化。
 	m_isHitTerrian = false;
@@ -317,36 +315,8 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 		}
 
-		//プレイヤーが衝突した地点との当たり判定
-		int counter = 0;
-		for (auto& index : arg_hitPointData) {
-
-			//原点付近とNanの値は除去
-			if (std::isnan(index.m_pos.x)) continue;
-			if (index.m_pos.Length() <= 0.1f) continue;
-
-			//カメラとプレイヤーの距離
-			float cameraDistance = Vec3<float>(m_playerLerpPos - pushBackPos).Length();
-
-			isHit = RayPlaneIntersection(m_playerLerpPos, Vec3<float>(pushBackPos - m_playerLerpPos).GetNormal(), index.m_pos, index.m_up, push);
-			if (isHit) {
-
-				//上下側の壁だったら
-				if (0.9f < fabs(index.m_up.Dot(Vec3<float>(0, 1, 0)))) {
-					m_nowParam.m_xAxisAngle = fromXAngle;
-				}
-				else {
-					m_nowParam.m_yAxisAngle = fromYAngle;
-					arg_playerRotY = fromYAngle;
-				}
-
-			}
-
-			++counter;
-
-		}
-
 		//通常の地形を走査
+		Vec3<float> checkHitRay = m_cameraLocalTransform.GetPosWorldByMatrix() - m_oldCameraWorldPos;	//まずはデフォルトのレイに設定。
 		auto& cameraTransform = m_attachedCam.lock()->GetTransform();
 		for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
 		{
@@ -384,9 +354,38 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 				}
 
 			}
-
-			//=================================================
 		}
+
+		////通常の地形を走査
+		//checkHitRay = arg_targetPos.GetPos() - m_cameraLocalTransform.GetPosWorldByMatrix();	//まずはデフォルトのレイに設定。
+		//for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
+		//{
+		//	//モデル情報取得
+		//	auto model = terrian.GetModel().lock();
+
+		//	//メッシュを走査
+		//	for (auto& modelMesh : model->m_meshes)
+		//	{
+
+		//		//当たり判定に使用するメッシュ
+		//		auto checkHitMesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+
+		//		//判定↓============================================
+
+
+		//		//純粋な地形とレイの当たり判定を実行
+		//		CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos - checkHitRay.GetNormal() * 10.0f , checkHitRay.GetNormal(), checkHitMesh);
+		//		if (output.m_isHit && 0 < output.m_distance && output.m_distance < checkHitRay.Length()) {
+
+		//			pushBackPos = output.m_pos + output.m_normal;
+		//			m_isHitTerrian = true;
+
+		//		}
+
+		//	}
+
+		//	//=================================================
+		//}
 	}
 
 	//補間する。

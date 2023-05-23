@@ -198,6 +198,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_isWallFrontDir = false;
 	m_isPlayerOverHeat = false;
 	m_cameraNoCollisionTimer.Reset(10);
+	m_cameraFar = CAMERA_FAR;
 
 	m_growPlantPtLig.Register();
 	//死亡演出のタイマーを初期化。
@@ -311,6 +312,8 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform)
 	m_isUnderGround = false;
 	m_underGroundEaseTimer = 1.0f;
 	m_underGroundShake = 0;
+
+	m_cameraFar = CAMERA_FAR;
 
 	m_attackTimer = 0;
 
@@ -814,7 +817,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, CAMERA_FAR, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_playerMoveStatus == PLAYER_MOVE_STATUS::LOOK_AROUND, m_hitPointData);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_cameraFar, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_playerMoveStatus == PLAYER_MOVE_STATUS::LOOK_AROUND, m_hitPointData);
 
 		m_deathEffectCameraZ = CAMERA_FAR;
 	}
@@ -939,11 +942,11 @@ void Player::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_lig
 		KuroEngine::AlphaBlendMode_None,
 		m_modelAnimator->GetBoneMatBuff());
 
-	for (auto index : m_hitPointData) {
+	//for (auto index : m_hitPointData) {
 
-		KuroEngine::DrawFunc3D::DrawLine(arg_cam, index.m_pos, index.m_pos + index.m_up * 1.0f, KuroEngine::Color(255, 255, 255, 255), 1.0f);
+	//	KuroEngine::DrawFunc3D::DrawLine(arg_cam, index.m_pos, index.m_pos + index.m_up * 1.0f, KuroEngine::Color(255, 255, 255, 255), 1.0f);
 
-	}
+	//}
 
 	//KuroEngine::DrawFunc3D::DrawNonShadingModel(
 	//	m_axisModel,
