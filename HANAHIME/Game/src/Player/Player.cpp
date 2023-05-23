@@ -409,8 +409,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			//SEを鳴らす。
 			SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
 
-			m_cameraMode = CameraController::CAMERA_STATUS::LOOK_AROUND;
-			m_playerMoveStatus = PLAYER_MOVE_STATUS::LOOK_AROUND;
+			m_cameraMode = CameraController::CAMERA_STATUS::FPS;
+			m_playerMoveStatus = PLAYER_MOVE_STATUS::FPS;
 			break;
 
 		}
@@ -769,7 +769,35 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 		if (m_camController.IsCompleteFinishLookAround()) {
 			m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
+			m_cameraMode = CameraController::CAMERA_STATUS::NORMAL;
 		}
+
+	}
+	break;
+	case PLAYER_MOVE_STATUS::FPS:
+	{
+
+		m_cameraMode = CameraController::CAMERA_STATUS::FPS;
+
+		//入力があったら周囲見渡しモードに切り替え。
+		if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE, OperationConfig::ON_TRIGGER)) {
+
+			//SEを鳴らす。
+			if (!m_camController.IsFinishLookAround()) {
+				SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
+			}
+
+			m_camController.EndFPS();
+
+		}
+
+		if (m_camController.IsCompleteFinishFPS()) {
+
+			m_playerMoveStatus = PLAYER_MOVE_STATUS::LOOK_AROUND;
+			m_cameraMode = CameraController::CAMERA_STATUS::LOOK_AROUND;
+
+		}
+
 
 	}
 	break;

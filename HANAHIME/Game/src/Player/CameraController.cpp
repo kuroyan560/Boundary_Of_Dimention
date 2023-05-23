@@ -5,6 +5,7 @@
 #include"FrameWork/UsersInput.h"
 #include"../Stage/StageManager.h"
 #include"../Stage/CheckPointHitFlag.h"
+#include"../TimeScaleMgr.h"
 
 void CameraController::OnImguiItems()
 {
@@ -71,8 +72,12 @@ void CameraController::Init(bool arg_isRespawn)
 	m_playerOldPos = KuroEngine::Vec3<float>();
 	m_isOldFrontWall = false;
 	m_isCameraModeLookAround = false;
+	m_isCameraModeFPS = false;
 	m_isLookAroundFinish = false;
 	m_isLookAroundFinishComplete = false;
+	m_isFPSFinish = false;
+	m_isFPSFinishComplete = false;
+	m_fpsFinishTimer.Reset(FPS_FINISH_TIMER);
 }
 
 void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float& arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode, std::vector<HIT_POINT> arg_hitPointData)
@@ -98,7 +103,62 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 		return;
 
 	}
+	//FPSモードだったら
+	if (arg_cameraMode == CAMERA_STATUS::FPS) {
+
+		//FPSモードになった瞬間だったら
+		if (!m_isCameraModeFPS) {
+
+			//カメラの姿勢を保存。
+			m_FPSinitTransform = m_attachedCam.lock()->GetTransform();
+			m_isFPSFinishComplete = false;
+			m_isFPSFinish = false;
+
+		}
+
+		//終了状態になってなかったら
+		if (m_isFPSFinish) {
+
+			//補間させる。
+			m_attachedCam.lock()->GetTransform().SetRotate(DirectX::XMQuaternionSlerp(m_attachedCam.lock()->GetTransform().GetRotate(), m_FPSinitTransform.GetRotate(), 0.16f * TimeScaleMgr::s_inGame.GetTimeScale()));
+
+			m_fpsFinishTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
+
+			//タイマーが終わったら
+			if (m_fpsFinishTimer.IsTimeUp()) {
+				m_fpsFinishTimer.Reset();
+				m_isFPSFinishComplete = true;
+			}
+
+		}
+		//FPSの動きをさせる。
+		else {
+
+			//カメラの上下が反転状態だったら入力も反転させる。
+			if (arg_isCameraUpInverse) {
+				arg_scopeMove *= -1.0f;
+			}
+
+			//上ベクトル
+			Vec3<float> upVec(0, 1, 0);
+			if (arg_isCameraUpInverse) {
+				upVec = Vec3<float>(0, -1, 0);
+			}
+
+			//カメラを動かす。
+			m_attachedCam.lock()->GetTransform().SetRotate(DirectX::XMQuaternionMultiply(m_attachedCam.lock()->GetTransform().GetRotate(), DirectX::XMQuaternionRotationAxis(upVec, arg_scopeMove.x * 0.5f)));
+			m_attachedCam.lock()->GetTransform().SetRotate(DirectX::XMQuaternionMultiply(m_attachedCam.lock()->GetTransform().GetRotate(), DirectX::XMQuaternionRotationAxis(m_attachedCam.lock()->GetTransform().GetRight(), arg_scopeMove.y * -0.5f)));
+
+
+		}
+
+		m_isCameraModeFPS = arg_cameraMode == CAMERA_STATUS::FPS;
+
+		return;
+
+	}
 	m_isCameraModeLookAround = arg_cameraMode == CAMERA_STATUS::LOOK_AROUND;
+	m_isCameraModeFPS = arg_cameraMode == CAMERA_STATUS::FPS;
 
 	//プレイヤーの座標をラープ
 	m_playerLerpPos = KuroEngine::Math::Lerp(m_playerLerpPos, arg_targetPos.GetPos(), 0.4f);
