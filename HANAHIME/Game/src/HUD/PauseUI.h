@@ -36,10 +36,32 @@ class PauseUI
 		ITEM_STATUS_NUM 
 	};
 
-	//項目ごとの画像
-	std::array<std::array<std::shared_ptr<KuroEngine::TextureBuffer>, ITEM_STATUS_NUM>, PAUSE_ITEM_NUM>m_itemTexArray;
-	//選択中の項目にのみ出る影画像
-	std::shared_ptr<KuroEngine::TextureBuffer>m_selectItemShadowTex;
+	//メニューの状態
+	enum MENU_STATUS
+	{
+		MENU,	//通常メニュー
+		QUESTION,	//最終確認
+		MENU_STATUS_NUM
+	}m_menuStatus;
+
+	//デフォルトのメニュー
+	struct DefaultMenu
+	{
+		//項目ごとの画像
+		std::array<std::array<std::shared_ptr<KuroEngine::TextureBuffer>, ITEM_STATUS_NUM>, PAUSE_ITEM_NUM>m_itemTexArray;
+		//選択中の項目にのみ出る影画像
+		std::shared_ptr<KuroEngine::TextureBuffer>m_selectItemShadowTex;
+
+		//ステージ名画像
+		std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_stageNameTex;
+		std::shared_ptr<KuroEngine::TextureBuffer>m_stageNameDefaultTex;
+		//ステージ名の装飾下線画像
+		std::shared_ptr<KuroEngine::TextureBuffer>m_underLineTex;
+		//ステージ名のインデックス
+		int m_stageNameIdx = 0;
+	}m_defaultMenu;
+
+	//最終確認
 
 	//花の画像
 	std::shared_ptr<KuroEngine::TextureBuffer>m_flowerTex;
@@ -48,14 +70,6 @@ class PauseUI
 	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, FLOWER_NUM_TEX_SIZE>m_flowerNumTexArray;
 	//収集花の「 x 」テクスチャ
 	std::shared_ptr<KuroEngine::TextureBuffer>m_flowerMulTex;
-
-	//ステージ名画像
-	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_stageNameTex;
-	std::shared_ptr<KuroEngine::TextureBuffer>m_stageNameDefaultTex;
-	//ステージ名の装飾下線画像
-	std::shared_ptr<KuroEngine::TextureBuffer>m_underLineTex;
-	//ステージ名のインデックス
-	int m_stageNameIdx = 0;
 
 	//sinカーブレート
 	float m_sinCurveRateT = 0.0f;

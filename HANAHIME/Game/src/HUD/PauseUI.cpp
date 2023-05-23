@@ -29,6 +29,9 @@ void PauseUI::OnActive()
 
 	//SE
 	SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
+
+	//メニューステータスリセット
+	m_menuStatus = MENU;
 }
 
 void PauseUI::OnNonActive()
@@ -52,14 +55,35 @@ PauseUI::PauseUI()
 		"setting",
 		"return_to_title"
 	};
-	//項目ごとの画像読み込み
-	for (int itemIdx = 0; itemIdx < PAUSE_ITEM_NUM; ++itemIdx)
+
+	//メニュー
 	{
-		D3D12App::Instance()->GenerateTextureBuffer(m_itemTexArray[itemIdx].data(),
-			pauseTexDir + itemTexFileName[itemIdx] + ".png", ITEM_STATUS_NUM, { 1,ITEM_STATUS_NUM });
+		std::string menuTexDir = pauseTexDir + "menu/";
+
+		//項目ごとの画像読み込み
+		for (int itemIdx = 0; itemIdx < PAUSE_ITEM_NUM; ++itemIdx)
+		{
+			D3D12App::Instance()->GenerateTextureBuffer(m_defaultMenu.m_itemTexArray[itemIdx].data(),
+				menuTexDir + itemTexFileName[itemIdx] + ".png", ITEM_STATUS_NUM, { 1,ITEM_STATUS_NUM });
+		}
+		//選択中の項目にのみ出る影画像読み込み
+		m_defaultMenu.m_selectItemShadowTex = D3D12App::Instance()->GenerateTextureBuffer(menuTexDir + "shadow.png");
+
+		//ステージ関連のテクスチャのディレクトリ
+		std::string stageTexDir = "resource/user/tex/stage/";
+		//ステージ名テクスチャ
+		int stageIdx = 0;
+		while (1)
+		{
+			std::string path = stageTexDir + std::to_string(stageIdx++) + ".png";
+			if (!ExistFile(path))break;
+
+			m_defaultMenu.m_stageNameTex.emplace_back(D3D12App::Instance()->GenerateTextureBuffer(path));
+		}
+		m_defaultMenu.m_stageNameDefaultTex = D3D12App::Instance()->GenerateTextureBuffer(stageTexDir + "default.png");
+		//ステージ名の装飾下線画像
+		m_defaultMenu.m_underLineTex = D3D12App::Instance()->GenerateTextureBuffer(stageTexDir + "under_line.png");
 	}
-	//選択中の項目にのみ出る影画像読み込み
-	m_selectItemShadowTex = D3D12App::Instance()->GenerateTextureBuffer(pauseTexDir + "shadow.png");
 
 	//花の画像読み込み
 	m_flowerTex = D3D12App::Instance()->GenerateTextureBuffer(pauseTexDir + "flower.png");
@@ -68,21 +92,6 @@ PauseUI::PauseUI()
 		pauseTexDir + "flower_num.png", FLOWER_NUM_TEX_SIZE, { FLOWER_NUM_TEX_SIZE,1 });
 	//収集花の「 x 」テクスチャ読み込み
 	m_flowerMulTex = D3D12App::Instance()->GenerateTextureBuffer(pauseTexDir + "mul.png");
-
-	//ステージ関連のテクスチャのディレクトリ
-	std::string stageTexDir = "resource/user/tex/stage/";
-	//ステージ名テクスチャ
-	int stageIdx = 0;
-	while (1)
-	{
-		std::string path = stageTexDir + std::to_string(stageIdx++) + ".png";
-		if (!ExistFile(path))break;
-
-		m_stageNameTex.emplace_back(D3D12App::Instance()->GenerateTextureBuffer(path));
-	}
-	m_stageNameDefaultTex = D3D12App::Instance()->GenerateTextureBuffer(stageTexDir + "default.png");
-	//ステージ名の装飾下線画像
-	m_underLineTex = D3D12App::Instance()->GenerateTextureBuffer(stageTexDir + "under_line.png");
 }
 
 void PauseUI::Init()
@@ -188,53 +197,57 @@ void PauseUI::Draw(int arg_totalGetFlowerNum)
 		{ WIN_CENTER_X - SQUARE_WIDTH_HALF,0.0f }, { WIN_CENTER_X + SQUARE_WIDTH_HALF,WIN_SIZE.y },
 		Color(0.0f, 0.0f, 0.0f, SQUARE_ALPHA), true);
 
-	//ステージ名の中心座標
-	static const Vec2<float>STAGE_NAME_CENTER_POS = { WIN_CENTER_X,91.0f };
-	//ステージ名描画
-	auto stageNameTex = m_stageNameDefaultTex;
-	if (0 <= m_stageNameIdx && m_stageNameIdx < static_cast<int>(m_stageNameTex.size()))stageNameTex = m_stageNameTex[m_stageNameIdx];
-	DrawFunc2D::DrawRotaGraph2D(STAGE_NAME_CENTER_POS, { 1.0f,1.0f }, 0.0f, stageNameTex);
-
-	//ステージ名の装飾下線描画
-	static const Vec2<float>UNDER_LINE_CENTER_POS = { WIN_CENTER_X,132.0f };
-	DrawFunc2D::DrawRotaGraph2D(UNDER_LINE_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_underLineTex);
-
-	//一番上の項目の中心座標
-	const Vec2<float>TOP_ITEM_CENTER_POS = { WIN_CENTER_X,215.0f };
-	//項目の行間
-	const float ITEM_SPACE_Y = 79.0f;
-	//選択されていない項目のアルファ
-	const float NO_SELECT_ITEM_ALPHA = 0.8f;
-	//選択中項目の回転影のアルファ
-	const float SELECT_ITEM_SPIN_SHADOW_ALPHA = 0.4f;
-
-	//項目の描画
-	for (int itemIdx = 0; itemIdx < PAUSE_ITEM_NUM; ++itemIdx)
+	//通常メニュー
+	if (m_menuStatus == MENU)
 	{
-		//座標計算
-		const auto pos = TOP_ITEM_CENTER_POS + Vec2<float>(0.0f, ITEM_SPACE_Y * itemIdx);
-		//項目が選択中か
-		bool isSelected = (PAUSE_ITEM)itemIdx == m_item;
+		//ステージ名の中心座標
+		static const Vec2<float>STAGE_NAME_CENTER_POS = { WIN_CENTER_X,91.0f };
+		//ステージ名描画
+		auto stageNameTex = m_defaultMenu.m_stageNameDefaultTex;
+		if (0 <= m_defaultMenu.m_stageNameIdx && m_defaultMenu.m_stageNameIdx < static_cast<int>(m_defaultMenu.m_stageNameTex.size()))stageNameTex = m_defaultMenu.m_stageNameTex[m_defaultMenu.m_stageNameIdx];
+		DrawFunc2D::DrawRotaGraph2D(STAGE_NAME_CENTER_POS, { 1.0f,1.0f }, 0.0f, stageNameTex);
 
-		//選択中なら影描画
-		if (isSelected)
+		//ステージ名の装飾下線描画
+		static const Vec2<float>UNDER_LINE_CENTER_POS = { WIN_CENTER_X,132.0f };
+		DrawFunc2D::DrawRotaGraph2D(UNDER_LINE_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_defaultMenu.m_underLineTex);
+
+		//一番上の項目の中心座標
+		const Vec2<float>TOP_ITEM_CENTER_POS = { WIN_CENTER_X,215.0f };
+		//項目の行間
+		const float ITEM_SPACE_Y = 79.0f;
+		//選択されていない項目のアルファ
+		const float NO_SELECT_ITEM_ALPHA = 0.8f;
+		//選択中項目の回転影のアルファ
+		const float SELECT_ITEM_SPIN_SHADOW_ALPHA = 0.4f;
+
+		//項目の描画
+		for (int itemIdx = 0; itemIdx < PAUSE_ITEM_NUM; ++itemIdx)
 		{
-			//回転あり1
-			DrawFunc2D::DrawRotaGraph2D(pos + m_selectItemShadowOffset, { 1.0f,1.0f }, m_selectItemShadowSpin, m_selectItemShadowTex, SELECT_ITEM_SPIN_SHADOW_ALPHA);
-			//回転あり2
-			DrawFunc2D::DrawRotaGraph2D(pos - m_selectItemShadowOffset, { 1.0f,1.0f }, -m_selectItemShadowSpin, m_selectItemShadowTex, SELECT_ITEM_SPIN_SHADOW_ALPHA);
-			//回転なし
-			DrawFunc2D::DrawRotaGraph2D(pos, { 1.0f,1.0f }, 0.0f, m_selectItemShadowTex);
+			//座標計算
+			const auto pos = TOP_ITEM_CENTER_POS + Vec2<float>(0.0f, ITEM_SPACE_Y * itemIdx);
+			//項目が選択中か
+			bool isSelected = (PAUSE_ITEM)itemIdx == m_item;
+
+			//選択中なら影描画
+			if (isSelected)
+			{
+				//回転あり1
+				DrawFunc2D::DrawRotaGraph2D(pos + m_selectItemShadowOffset, { 1.0f,1.0f }, m_selectItemShadowSpin, m_defaultMenu.m_selectItemShadowTex, SELECT_ITEM_SPIN_SHADOW_ALPHA);
+				//回転あり2
+				DrawFunc2D::DrawRotaGraph2D(pos - m_selectItemShadowOffset, { 1.0f,1.0f }, -m_selectItemShadowSpin, m_defaultMenu.m_selectItemShadowTex, SELECT_ITEM_SPIN_SHADOW_ALPHA);
+				//回転なし
+				DrawFunc2D::DrawRotaGraph2D(pos, { 1.0f,1.0f }, 0.0f, m_defaultMenu.m_selectItemShadowTex);
+			}
+
+
+			//ステータス
+			ITEM_STATUS itemStatus = isSelected ? SELECT : DEFAULT;
+			//テクスチャ決定
+			auto& tex = m_defaultMenu.m_itemTexArray[itemIdx][itemStatus];
+			//アルファ決定
+			float alpha = isSelected ? 1.0f : NO_SELECT_ITEM_ALPHA;
+			DrawFunc2D::DrawRotaGraph2D(pos, { 1.0f,1.0f }, 0.0f, tex, alpha);
 		}
-
-
-		//ステータス
-		ITEM_STATUS itemStatus = isSelected ? SELECT : DEFAULT;
-		//テクスチャ決定
-		auto& tex = m_itemTexArray[itemIdx][itemStatus];
-		//アルファ決定
-		float alpha = isSelected ? 1.0f : NO_SELECT_ITEM_ALPHA;
-		DrawFunc2D::DrawRotaGraph2D(pos, { 1.0f,1.0f }, 0.0f, tex, alpha);
 	}
 
 	//花描画
