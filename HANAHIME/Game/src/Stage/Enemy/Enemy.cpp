@@ -245,7 +245,6 @@ void MiniBug::Update(Player &arg_player)
 		//UŒ‚—\”õ“®ì‚ªI‚í‚Á‚ÄUŒ‚‚ðs‚Á‚½B
 		if (m_attackFlag && m_attackIntervalTimer.UpdateTimer())
 		{
-
 			//ƒvƒŒƒCƒ„[‚Æ“G‚Ì“–‚½‚è”»’è‚Ìˆ—‚ð‚±‚±‚É‘‚­
 			m_attackIntervalTimer.Reset(120);
 			m_attackCoolTimer.Reset(120);
@@ -310,11 +309,10 @@ void MiniBug::Update(Player &arg_player)
 	//‘‚Ì“–‚½‚è”»’è
 	if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()) != Player::CHECK_HIT_GRASS_STATUS::NOHIT && !m_startDeadMotionFlag)
 	{
-		m_reaction->Init(DEAD, m_transform.GetUp());
 		m_startDeadMotionFlag = true;
 	}
 
-	//m_reaction->Update(m_pos);
+	m_reaction->Update(m_pos);
 
 	//À•WˆÚ“®
 	m_pos += vel;
@@ -383,7 +381,7 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 		m_transform,
 		edgeColor);
 
-	//m_reaction->Draw(arg_cam);
+	m_reaction->Draw(arg_cam);
 
 	m_dashEffect.Draw(arg_cam);
 	m_eyeEffect.Draw(arg_cam);

@@ -201,10 +201,6 @@ private:
 
 private:
 
-	std::unique_ptr<Reaction> m_reaction;
-
-	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_tex;
-
 	//リアクション表記---------------------------------------
 
 	//3次元ベクトルを2次元に射影する関数

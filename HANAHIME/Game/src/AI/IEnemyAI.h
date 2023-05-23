@@ -146,6 +146,7 @@ public:
 
 	IEnemyAI()
 	{
+		m_tex.reserve(MAX);
 		m_tex.resize(MAX);
 		m_tex[FIND] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/Find.png");
 		m_tex[HIT] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/Attack.png");
