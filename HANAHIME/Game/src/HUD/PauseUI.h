@@ -39,8 +39,8 @@ class PauseUI
 	//メニューの状態
 	enum MENU_STATUS
 	{
-		MENU,	//通常メニュー
-		QUESTION,	//最終確認
+		DEFAULT_MENU,	//通常メニュー
+		CONFIRM_MENU,	//最終確認
 		MENU_STATUS_NUM
 	}m_menuStatus;
 
@@ -59,17 +59,35 @@ class PauseUI
 		std::shared_ptr<KuroEngine::TextureBuffer>m_underLineTex;
 		//ステージ名のインデックス
 		int m_stageNameIdx = 0;
+
+		//花の画像
+		std::shared_ptr<KuroEngine::TextureBuffer>m_flowerTex;
+		//収集花の数テクスチャ
+		static const int FLOWER_NUM_TEX_SIZE = 10;
+		std::array<std::shared_ptr<KuroEngine::TextureBuffer>, FLOWER_NUM_TEX_SIZE>m_flowerNumTexArray;
+		//収集花の「 x 」テクスチャ
+		std::shared_ptr<KuroEngine::TextureBuffer>m_flowerMulTex;
 	}m_defaultMenu;
 
 	//最終確認
+	struct ConfirmMenu
+	{
+		//アイコン画像
+		std::shared_ptr<KuroEngine::TextureBuffer>m_iconTex;
 
-	//花の画像
-	std::shared_ptr<KuroEngine::TextureBuffer>m_flowerTex;
-	//収集花の数テクスチャ
-	static const int FLOWER_NUM_TEX_SIZE = 10;
-	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, FLOWER_NUM_TEX_SIZE>m_flowerNumTexArray;
-	//収集花の「 x 」テクスチャ
-	std::shared_ptr<KuroEngine::TextureBuffer>m_flowerMulTex;
+		//いいえ、はい
+		enum CONFIRM_ITEM { NO, YES, CONFIRM_ITEM_NUM, NONE }m_confirmItem;
+		//「いいえ」「はい」画像
+		std::array<std::array<std::shared_ptr<KuroEngine::TextureBuffer>, ITEM_STATUS_NUM>, CONFIRM_ITEM_NUM>m_answerTexArray;
+		//「いいえ」「はい」の選択側に出る影画像
+		std::shared_ptr<KuroEngine::TextureBuffer>m_answerShadowTex;
+
+		//「よろしいですか？」画像
+		std::shared_ptr<KuroEngine::TextureBuffer>m_mindTex;
+
+		//選んだ項目に応じた質問画像
+		std::array<std::shared_ptr<KuroEngine::TextureBuffer>, PAUSE_ITEM_NUM>m_questionTexArray;
+	}m_confirmMenu;
 
 	//sinカーブレート
 	float m_sinCurveRateT = 0.0f;
