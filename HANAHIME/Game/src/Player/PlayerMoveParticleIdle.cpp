@@ -4,6 +4,7 @@
 #include "../../../../src/engine/KuroEngine.h"
 #include "../../../../src/engine/Render/RenderObject/Camera.h"
 #include "../../../../src/engine/ForUser/DrawFunc/3D/DrawFunc3D.h"
+#include "../TimeScaleMgr.h"
 
 PlayerMoveParticleIdle::PlayerMoveParticleIdle()
 {
@@ -35,7 +36,7 @@ void PlayerMoveParticleIdle::Update()
 		KuroEngine::Vec3<float> move = CurlNoise3D(index.m_st, index.m_transform.GetPos(), index.m_particleStatus == EXIT) + index.m_vel;
 
 		//移動させる。
-		index.m_transform.SetPos(index.m_transform.GetPos() + move);
+		index.m_transform.SetPos(index.m_transform.GetPos() + move * TimeScaleMgr::s_inGame.GetTimeScale());
 
 		//渡された移動量を減らす。
 		if (0.0f < index.m_vel.Length()) {
@@ -43,7 +44,7 @@ void PlayerMoveParticleIdle::Update()
 		}
 
 		//パーティクルの状態を変化させるタイマーを更新。
-		index.m_statusTimer.UpdateTimer();
+		index.m_statusTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
 
 		//現在のタイマーの割合。
 		float timerRate = index.m_statusTimer.GetTimeRate();
