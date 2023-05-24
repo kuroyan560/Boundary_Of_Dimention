@@ -69,6 +69,8 @@ class CameraController : public KuroEngine::Debugger
 
 	//カメラが地形に当たったらカメラのZを下げるために使うやつ。
 	float m_cameraHitTerrianZ;
+	KuroEngine::Timer m_cameraHitTerrianZTimer;
+	const float CAMERA_HIT_TERRIAN_Z_TIMER = 5.0f;
 	const float ADD_CAMERA_HIT_TERRIAN_Z = -60.0f;
 
 	//LookAround状態の時に使用する変数。

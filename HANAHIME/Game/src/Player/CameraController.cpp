@@ -436,25 +436,29 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 
 				//純粋な地形とレイの当たり判定を実行
-				Vec3<float> rayOrigin = pushBackPos - checkHitRay.GetNormal() * fabs(m_cameraHitTerrianZ);
+				Vec3<float> rayOrigin = m_cameraLocalTransform.GetPosWorldByMatrix() - checkHitRay.GetNormal() * fabs(m_cameraHitTerrianZ);
 				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(rayOrigin, checkHitRay.GetNormal(), checkHitMesh);
 				bool isHit = output.m_isHit && 0 < output.m_distance;
-				if (isHit && output.m_distance < fabs(ADD_CAMERA_HIT_TERRIAN_Z)) {
-
-					m_cameraHitTerrianZ += ADD_CAMERA_HIT_TERRIAN_Z;
+				if (isHit && output.m_distance <= fabs(ADD_CAMERA_HIT_TERRIAN_Z)) {
 
 					m_debugCameraPos = output.m_pos;
 
+					if (!isHitPlayerRay) {
+						m_cameraHitTerrianZ += ADD_CAMERA_HIT_TERRIAN_Z;
+					}
+
 					isHitPlayerRay = true;
+
+					m_cameraHitTerrianZTimer.Reset(CAMERA_HIT_TERRIAN_Z_TIMER);
 
 				}
-				else if (isHit && output.m_distance < Vec3<float>(arg_targetPos.GetPos() - rayOrigin).Length() * 1.0f) {
-
-					m_cameraHitTerrianZ += ADD_CAMERA_HIT_TERRIAN_Z;
+				else if (isHit && output.m_distance <= Vec3<float>(arg_targetPos.GetPos() - rayOrigin).Length()) {
 
 					isHitPlayerRay = true;
 
 					m_debugCameraPos = output.m_pos;
+
+					m_cameraHitTerrianZTimer.Reset(CAMERA_HIT_TERRIAN_Z_TIMER);
 
 				}
 
@@ -464,7 +468,13 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 		}
 
 		if (!isHitPlayerRay) {
-			m_cameraHitTerrianZ = 0;
+
+			m_cameraHitTerrianZTimer.UpdateTimer();
+			if (m_cameraHitTerrianZTimer.IsTimeUp()) {
+
+				m_cameraHitTerrianZ = 0;
+
+			}
 
 			m_debugCameraPos = KuroEngine::Vec3<float>();
 		}
