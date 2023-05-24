@@ -69,7 +69,7 @@ class CameraController : public KuroEngine::Debugger
 
 	//カメラが地形に当たったらカメラのZを下げるために使うやつ。
 	float m_cameraHitTerrianZ;
-	const float ADD_CAMERA_HIT_TERRIAN_Z = -30.0f;
+	const float ADD_CAMERA_HIT_TERRIAN_Z = -60.0f;
 
 	//LookAround状態の時に使用する変数。
 	KuroEngine::Transform m_lookAroundTransform;
@@ -126,6 +126,13 @@ public:
 		FPS,
 		LOOK_AROUND
 	};
+
+
+
+	KuroEngine::Vec3<float> m_debugCameraPos;
+
+
+
 
 	//コンストラクタ
 	CameraController();
