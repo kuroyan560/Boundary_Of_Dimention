@@ -69,6 +69,7 @@ void CameraController::Init(bool arg_isRespawn)
 	m_verticalControl = ANGLE;
 	m_rotateYLerpAmount = 0;
 	m_cameraXAngleLerpAmount = 0;
+	m_cameraHitTerrianZ = 0;
 	m_playerOldPos = KuroEngine::Vec3<float>();
 	m_isOldFrontWall = false;
 	m_isCameraModeLookAround = false;
@@ -80,7 +81,7 @@ void CameraController::Init(bool arg_isRespawn)
 	m_fpsFinishTimer.Reset(FPS_FINISH_TIMER);
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float& arg_cameraZ, float arg_defaultCameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode, std::vector<HIT_POINT> arg_hitPointData)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, float arg_defaultCameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode, std::vector<HIT_POINT> arg_hitPointData)
 {
 	using namespace KuroEngine;
 
@@ -211,7 +212,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	}
 
 	//上限値超えないようにする
-	m_nowParam.m_posOffsetZ = arg_cameraZ;
+	m_nowParam.m_posOffsetZ = arg_cameraZ + m_cameraHitTerrianZ;
 	m_nowParam.m_xAxisAngle = std::clamp(m_nowParam.m_xAxisAngle, m_xAxisAngleMin, m_xAxisAngleMax);
 
 	//プレイヤー正面に壁があったらそっちの方向を向かせる。
@@ -433,18 +434,20 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 				//判定↓============================================
 
+				const float CAMERA_OFFSET = 20.0f;
+
 
 				//純粋な地形とレイの当たり判定を実行
-				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos - checkHitRay.GetNormal() * 20.0f, checkHitRay.GetNormal(), checkHitMesh);
-				if (output.m_isHit && 0 < output.m_distance && output.m_distance < checkHitRay.Length() + 20.0f) {
+				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos - checkHitRay.GetNormal() * CAMERA_OFFSET, checkHitRay.GetNormal(), checkHitMesh);
+				if (output.m_isHit && 0 < output.m_distance && output.m_distance < checkHitRay.Length() + CAMERA_OFFSET) {
 
 					//プレイヤーまでの距離
 					float playerLength = Vec3<float>(output.m_pos - pushBackPos).Length();
 
 					//既定の値より大きかったら
-					if (playerLength <= 40.0f) {
+					if (playerLength <= CAMERA_OFFSET * 2.0f) {
 
-						arg_cameraZ -= 20.0f;
+						m_cameraHitTerrianZ -= CAMERA_OFFSET;
 
 					}
 
@@ -458,7 +461,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 		}
 
 		if (!isHitPlayerRay) {
-			arg_cameraZ = arg_defaultCameraZ;
+			m_cameraHitTerrianZ = 0;
 		}
 	}
 
