@@ -80,7 +80,7 @@ void CameraController::Init(bool arg_isRespawn)
 	m_fpsFinishTimer.Reset(FPS_FINISH_TIMER);
 }
 
-void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float& arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode, std::vector<HIT_POINT> arg_hitPointData)
+void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float& arg_cameraZ, float arg_defaultCameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode, std::vector<HIT_POINT> arg_hitPointData)
 {
 	using namespace KuroEngine;
 
@@ -359,21 +359,21 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	//ジャンプ中は当たり判定を行わない。
 	if (!arg_isPlayerJump && !arg_isCameraDefaultPos && arg_isNoCollision) {
 
-		//無限平面との当たり判定
-		Vec3<float> push;
-		bool isHit = RayPlaneIntersection(m_playerLerpPos, Vec3<float>(pushBackPos - m_playerLerpPos).GetNormal(), m_playerLerpPos - arg_targetPos.GetUp(), arg_targetPos.GetUp(), push);
-		if (isHit) {
+		////無限平面との当たり判定
+		//Vec3<float> push;
+		//bool isHit = RayPlaneIntersection(m_playerLerpPos, Vec3<float>(pushBackPos - m_playerLerpPos).GetNormal(), m_playerLerpPos - arg_targetPos.GetUp(), arg_targetPos.GetUp(), push);
+		//if (isHit) {
 
-			//上下側の壁だったら
-			if (0.9f < fabs(arg_targetPos.GetUp().Dot(Vec3<float>(0, 1, 0)))) {
-				m_nowParam.m_xAxisAngle = fromXAngle;
-			}
-			else {
-				m_nowParam.m_yAxisAngle = fromYAngle;
-				arg_playerRotY = fromYAngle;
-			}
+		//	//上下側の壁だったら
+		//	if (0.9f < fabs(arg_targetPos.GetUp().Dot(Vec3<float>(0, 1, 0)))) {
+		//		m_nowParam.m_xAxisAngle = fromXAngle;
+		//	}
+		//	else {
+		//		m_nowParam.m_yAxisAngle = fromYAngle;
+		//		arg_playerRotY = fromYAngle;
+		//	}
 
-		}
+		//}
 
 		//通常の地形を走査
 		Vec3<float> checkHitRay = m_cameraLocalTransform.GetPosWorldByMatrix() - m_oldCameraWorldPos;	//まずはデフォルトのレイに設定。
@@ -458,7 +458,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 		}
 
 		if (!isHitPlayerRay) {
-			arg_cameraZ = -40.0f;
+			arg_cameraZ = arg_defaultCameraZ;
 		}
 	}
 

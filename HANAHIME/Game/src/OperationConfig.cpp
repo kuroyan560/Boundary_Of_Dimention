@@ -34,7 +34,7 @@ OperationConfig::OperationConfig()
 	{
 		A,	//決定
 		B,	//キャンセル
-		X,	//カメラの距離モード切り替え
+		X,	//カメラの距離モード切り替えFPS
 		LT,	//カメラリセット
 		RT,	//地中に潜る
 		A,	//ジップラインに乗る

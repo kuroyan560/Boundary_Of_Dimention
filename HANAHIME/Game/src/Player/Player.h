@@ -99,7 +99,7 @@ class Player : public KuroEngine::Debugger
 
 	//ÉJÉÅÉâä¥ìx
 	float m_camSensitivity = 1.0f;
-	float CAMERA_FAR = -40.0f;
+	float CAMERA_FAR = -100.0f;
 	float m_cameraFar;
 	bool m_isHitUnderGroundCamera;
 	CameraController::CAMERA_STATUS m_cameraMode;

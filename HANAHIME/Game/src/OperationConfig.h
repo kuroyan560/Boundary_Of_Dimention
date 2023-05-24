@@ -15,7 +15,7 @@ public:
 	{
 		DONE,	//決定
 		CANCEL,	//キャンセル
-		CAM_DIST_MODE_CHANGE,	//カメラの距離モード切り替え
+		CAM_DIST_MODE_CHANGE_FPS,	//カメラの距離モード切り替え
 		CAM_RESET,	//カメラリセット
 		SINK_GROUND,	//地中に潜る
 		RIDE_ZIP_LINE,	//ジップラインに乗る
@@ -71,7 +71,7 @@ private:
 	//インゲーム操作入力の配列
 	const std::vector<OPERATION_TYPE>m_inGameOperationArray =
 	{
-		CAM_DIST_MODE_CHANGE,
+		CAM_DIST_MODE_CHANGE_FPS,
 		CAM_RESET,
 		SINK_GROUND,
 		RIDE_ZIP_LINE,
