@@ -100,8 +100,12 @@ class Player : public KuroEngine::Debugger
 	//カメラ感度
 	float m_camSensitivity = 1.0f;
 	float CAMERA_FAR = -100.0f;
-	float m_cameraFar;
+	float CAMERA_NEAR_ENEMY_FAR = -40.0f;
+	float m_cameraFar;		//現在のカメラのFar
+	float m_baseCameraFar;	//現在のカメラのFarの補間先
 	bool m_isHitUnderGroundCamera;
+	bool m_isNearEnemy;		//敵が近くにいるか？いたらカメラを近づける。
+	const float CAMERA_NEAR_ENEMY_DISTANCE = 60.0f;
 	CameraController::CAMERA_STATUS m_cameraMode;
 
 	//植物を繁殖させる点光源

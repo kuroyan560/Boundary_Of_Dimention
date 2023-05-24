@@ -199,6 +199,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_isPlayerOverHeat = false;
 	m_cameraNoCollisionTimer.Reset(10);
 	m_cameraFar = CAMERA_FAR;
+	m_baseCameraFar = CAMERA_FAR;
 	m_cameraMode = CameraController::CAMERA_STATUS::NORMAL;
 
 	m_growPlantPtLig.Register();
@@ -316,6 +317,7 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform)
 	m_underGroundShake = 0;
 
 	m_cameraFar = CAMERA_FAR;
+	m_baseCameraFar = CAMERA_FAR;
 
 	m_attackTimer = 0;
 
@@ -861,12 +863,20 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//プレイヤーが動いているか。
 	bool isMovePlayer = 0.1f < m_moveSpeed.Length();
 
+	//敵が近くにいるか？
+	if (m_isNearEnemy) {
+		m_baseCameraFar = KuroEngine::Math::Lerp(m_baseCameraFar, CAMERA_NEAR_ENEMY_FAR, 0.08f);
+	}
+	else {
+		m_baseCameraFar = KuroEngine::Math::Lerp(m_baseCameraFar, CAMERA_FAR, 0.08f);
+	}
+
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_cameraFar, CAMERA_FAR, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_cameraMode, m_hitPointData);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_cameraFar, m_baseCameraFar, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_cameraMode, m_hitPointData);
 
-		m_deathEffectCameraZ = CAMERA_FAR;
+		m_deathEffectCameraZ = m_baseCameraFar;
 	}
 	else {
 
@@ -874,7 +884,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_shake);
 
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, CAMERA_FAR, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_cameraMode, m_hitPointData);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, m_baseCameraFar, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_cameraMode, m_hitPointData);
 
 	}
 	//シェイクを計算。
@@ -962,6 +972,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_playerMoveParticle.Update();
 
 	m_cameraNoCollisionTimer.UpdateTimer();
+
+	m_isNearEnemy = false;
 
 }
 
@@ -1108,6 +1120,14 @@ void Player::Damage()
 Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, KuroEngine::Vec3<float> arg_enemyUp, float arg_enemySize)
 {
 
+	//距離を計算。
+	float distance = (arg_enemyPos - m_transform.GetPosWorld()).Length();
+
+	//距離が一定いないだったら敵が近くにいる判定にしてカメラを近づける。
+	if (distance <= CAMERA_NEAR_ENEMY_DISTANCE && 0.9f < m_transform.GetUp().Dot(arg_enemyUp)) {
+		m_isNearEnemy = true;
+	}
+
 	//攻撃状態じゃなかったら処理を戻す。
 	if (!GetIsAttack()) {
 		return Player::CHECK_HIT_GRASS_STATUS::NOHIT;
@@ -1119,7 +1139,6 @@ Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<floa
 	}
 
 	//まずは球の判定
-	float distance = (arg_enemyPos - m_transform.GetPosWorld()).Length();
 	bool isHit = distance < std::clamp(m_growPlantPtLig.m_influenceRange, PLAYER_HEAD_SIZE, m_growPlantPtLig.m_defInfluenceRange);
 
 	//当たっていなかったら処理を飛ばす。
