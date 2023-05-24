@@ -1001,12 +1001,6 @@ void Player::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_lig
 		KuroEngine::AlphaBlendMode_None,
 		m_modelAnimator->GetBoneMatBuff());
 
-	//for (auto index : m_hitPointData) {
-
-		KuroEngine::DrawFunc3D::DrawLine(arg_cam, m_camController.m_debugCameraPos, m_camController.m_debugCameraPos + KuroEngine::Vec3<float>(0,1,0), KuroEngine::Color(255, 255, 255, 255), 1.0f);
-
-	//}
-
 	//KuroEngine::DrawFunc3D::DrawNonShadingModel(
 	//	m_axisModel,
 	//	m_drawTransform,

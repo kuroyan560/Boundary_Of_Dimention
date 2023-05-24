@@ -1,4 +1,4 @@
-#include"CameraController.h"
+#include "CameraController.h"
 #include"Render/RenderObject/Camera.h"
 #include"../../../../src/engine/ForUser/Object/Model.h"
 #include"CollisionDetectionOfRayAndMesh.h"
@@ -436,16 +436,13 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 
 				//純粋な地形とレイの当たり判定を実行
-				Vec3<float> rayOrigin = m_cameraLocalTransform.GetPosWorldByMatrix() - checkHitRay.GetNormal() * fabs(m_cameraHitTerrianZ);
+				Vec3<float> rayOrigin = m_cameraLocalTransform.GetPosWorldByMatrix();
+				float playerLength = checkHitRay.Length();
 				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(rayOrigin, checkHitRay.GetNormal(), checkHitMesh);
-				bool isHit = output.m_isHit && 0 < output.m_distance;
+				bool isHit = output.m_isHit && 0 < output.m_distance && output.m_distance < playerLength;
 				if (isHit && output.m_distance <= fabs(ADD_CAMERA_HIT_TERRIAN_Z)) {
 
-					m_debugCameraPos = output.m_pos;
-
-					if (!isHitPlayerRay) {
-						m_cameraHitTerrianZ += ADD_CAMERA_HIT_TERRIAN_Z;
-					}
+					m_cameraHitTerrianZ -= fabs(ADD_CAMERA_HIT_TERRIAN_Z) - output.m_distance;
 
 					isHitPlayerRay = true;
 
@@ -455,8 +452,6 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 				else if (isHit && output.m_distance <= Vec3<float>(arg_targetPos.GetPos() - rayOrigin).Length()) {
 
 					isHitPlayerRay = true;
-
-					m_debugCameraPos = output.m_pos;
 
 					m_cameraHitTerrianZTimer.Reset(CAMERA_HIT_TERRIAN_Z_TIMER);
 
@@ -475,8 +470,6 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 				m_cameraHitTerrianZ = 0;
 
 			}
-
-			m_debugCameraPos = KuroEngine::Vec3<float>();
 		}
 	}
 

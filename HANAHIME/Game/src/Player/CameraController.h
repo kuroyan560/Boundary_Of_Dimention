@@ -130,12 +130,6 @@ public:
 	};
 
 
-
-	KuroEngine::Vec3<float> m_debugCameraPos;
-
-
-
-
 	//コンストラクタ
 	CameraController();
 
