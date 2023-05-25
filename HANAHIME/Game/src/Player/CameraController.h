@@ -65,7 +65,8 @@ class CameraController : public KuroEngine::Debugger
 	bool m_isLookAroundFinish;			//カメラモードの終了作業を開始する
 	bool m_isLookAroundFinishComplete;	//カメラモードの終了作業が終わったかどうか。
 	float m_lookAroundModeFar;		//LookAround状態の時の距離
-	const float LOOK_AROUND_FAR = 100.0f;
+	float m_lookAroundInitFar;
+	const float LOOK_AROUND_FAR = 130.0f;
 
 	//カメラが地形に当たったらカメラのZを下げるために使うやつ。
 	float m_cameraHitTerrianZ;
@@ -75,16 +76,9 @@ class CameraController : public KuroEngine::Debugger
 
 	//LookAround状態の時に使用する変数。
 	KuroEngine::Transform m_lookAroundTransform;
-	KuroEngine::Transform m_lookAroundInitTransform; 
-
-
-	//FPS状態の時に使用する変数。
-	KuroEngine::Transform m_FPSinitTransform;
-	bool m_isCameraModeFPS;
-	bool m_isFPSFinish;			//カメラモードの終了作業を開始する
-	bool m_isFPSFinishComplete;	//カメラモードの終了作業が終わったかどうか。
-	KuroEngine::Timer m_fpsFinishTimer;
-	const float FPS_FINISH_TIMER = 30.0f;
+	KuroEngine::Transform m_lookAroundInitTransform;
+	KuroEngine::Timer m_lookAroundFinishTimer;
+	const float LOOKAROUND_FINISH_TIMER = 60.0f;
 
 	//プレイヤーのY軸回転を保存しておく変数。プレイヤーが横の壁に居るときは注視点の移動をY軸回転で行うので、注視点移動が終わったら動かした量を戻すため。
 	float m_playerRotYStorage;
@@ -125,7 +119,6 @@ public:
 
 	enum class CAMERA_STATUS {
 		NORMAL,
-		FPS,
 		LOOK_AROUND
 	};
 
@@ -153,9 +146,6 @@ public:
 	void EndLookAround() { m_isLookAroundFinish = true; }
 	bool IsFinishLookAround() { return m_isLookAroundFinish; }
 	bool IsCompleteFinishLookAround() { return m_isLookAroundFinishComplete; }
-	void EndFPS() { m_isFPSFinish = true; }
-	bool IsFinishFPS() { return m_isFPSFinish; }
-	bool IsCompleteFinishFPS() { return m_isFPSFinishComplete; }
 
 private:
 

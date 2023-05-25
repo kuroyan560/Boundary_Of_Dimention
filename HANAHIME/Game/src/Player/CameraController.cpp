@@ -73,12 +73,8 @@ void CameraController::Init(bool arg_isRespawn)
 	m_playerOldPos = KuroEngine::Vec3<float>();
 	m_isOldFrontWall = false;
 	m_isCameraModeLookAround = false;
-	m_isCameraModeFPS = false;
 	m_isLookAroundFinish = false;
 	m_isLookAroundFinishComplete = false;
-	m_isFPSFinish = false;
-	m_isFPSFinishComplete = false;
-	m_fpsFinishTimer.Reset(FPS_FINISH_TIMER);
 }
 
 void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, float arg_defaultCameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode, std::vector<HIT_POINT> arg_hitPointData)
@@ -93,6 +89,9 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	}
 
+	//プレイヤーの座標をラープ
+	m_playerLerpPos = KuroEngine::Math::Lerp(m_playerLerpPos, arg_targetPos.GetPos(), 0.4f);
+
 	//カメラがアタッチされていない
 	if (m_attachedCam.expired())return;
 
@@ -104,65 +103,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 		return;
 
 	}
-	//FPSモードだったら
-	if (arg_cameraMode == CAMERA_STATUS::FPS) {
-
-		//FPSモードになった瞬間だったら
-		if (!m_isCameraModeFPS) {
-
-			//カメラの姿勢を保存。
-			m_FPSinitTransform = m_attachedCam.lock()->GetTransform();
-			m_isFPSFinishComplete = false;
-			m_isFPSFinish = false;
-
-		}
-
-		//終了状態になってなかったら
-		if (m_isFPSFinish) {
-
-			//補間させる。
-			m_attachedCam.lock()->GetTransform().SetRotate(DirectX::XMQuaternionSlerp(m_attachedCam.lock()->GetTransform().GetRotate(), m_FPSinitTransform.GetRotate(), 0.16f * TimeScaleMgr::s_inGame.GetTimeScale()));
-
-			m_fpsFinishTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
-
-			//タイマーが終わったら
-			if (m_fpsFinishTimer.IsTimeUp()) {
-				m_fpsFinishTimer.Reset();
-				m_isFPSFinishComplete = true;
-			}
-
-		}
-		//FPSの動きをさせる。
-		else {
-
-			//カメラの上下が反転状態だったら入力も反転させる。
-			if (arg_isCameraUpInverse) {
-				arg_scopeMove *= -1.0f;
-			}
-
-			//上ベクトル
-			Vec3<float> upVec(0, 1, 0);
-			if (arg_isCameraUpInverse) {
-				upVec = Vec3<float>(0, -1, 0);
-			}
-
-			//カメラを動かす。
-			m_attachedCam.lock()->GetTransform().SetRotate(DirectX::XMQuaternionMultiply(m_attachedCam.lock()->GetTransform().GetRotate(), DirectX::XMQuaternionRotationAxis(upVec, arg_scopeMove.x * 0.5f)));
-			m_attachedCam.lock()->GetTransform().SetRotate(DirectX::XMQuaternionMultiply(m_attachedCam.lock()->GetTransform().GetRotate(), DirectX::XMQuaternionRotationAxis(m_attachedCam.lock()->GetTransform().GetRight(), arg_scopeMove.y * -0.5f)));
-
-
-		}
-
-		m_isCameraModeFPS = arg_cameraMode == CAMERA_STATUS::FPS;
-
-		return;
-
-	}
 	m_isCameraModeLookAround = arg_cameraMode == CAMERA_STATUS::LOOK_AROUND;
-	m_isCameraModeFPS = arg_cameraMode == CAMERA_STATUS::FPS;
-
-	//プレイヤーの座標をラープ
-	m_playerLerpPos = KuroEngine::Math::Lerp(m_playerLerpPos, arg_targetPos.GetPos(), 0.4f);
 
 	//トランスフォームを保存。
 	m_oldCameraWorldPos = m_attachedCam.lock()->GetTransform().GetPos();
@@ -772,7 +713,7 @@ void CameraController::UpdateLookAround(KuroEngine::Vec3<float> arg_scopeMove, K
 	if (!m_isCameraModeLookAround && arg_cameraMode == CAMERA_STATUS::LOOK_AROUND) {
 
 		//カメラまでのベクトル。
-		KuroEngine::Vec3<float> cameraDir = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPosWorld() - arg_targetPos.GetPosWorld()).GetNormal();
+		KuroEngine::Vec3<float> cameraDir = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPosWorld() - m_playerLerpPos).GetNormal();
 
 		//上ベクトルとの内積と外積から回転を得る。
 		KuroEngine::Vec3<float> upVec = arg_isCameraUpInverse ? Vec3<float>(0, 1, 0) : Vec3<float>(0, 1, 0);
@@ -792,20 +733,24 @@ void CameraController::UpdateLookAround(KuroEngine::Vec3<float> arg_scopeMove, K
 		//回転の初期値を保存。
 		m_lookAroundInitTransform = m_lookAroundTransform;
 
-		m_lookAroundModeFar = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_targetPos.GetPos()).Length();
+		m_lookAroundModeFar = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - m_playerLerpPos).Length();
+		m_lookAroundInitFar = m_lookAroundModeFar;
 		m_isLookAroundFinish = false;
 		m_isLookAroundFinishComplete = false;
+		m_lookAroundFinishTimer.Reset(LOOKAROUND_FINISH_TIMER);
 
 	}
 
 	//カメラの距離を補間。
 	if (m_isLookAroundFinish) {
 
-		m_lookAroundModeFar = KuroEngine::Math::Lerp(m_lookAroundModeFar, fabs(arg_cameraZ), 0.08f);
+		m_lookAroundModeFar = KuroEngine::Math::Lerp(m_lookAroundModeFar, m_lookAroundInitFar, 0.08f);
 		m_lookAroundTransform.SetRotate(DirectX::XMQuaternionSlerp(m_lookAroundTransform.GetRotate(), m_lookAroundInitTransform.GetRotate(), 0.08f));
 
+		m_lookAroundFinishTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
+
 		//カメラの距離が規定値に達したら終わり。
-		if (fabs(fabs(m_lookAroundModeFar) - fabs(arg_cameraZ)) < 1.0f) {
+		if (fabs(fabs(m_lookAroundModeFar) - m_lookAroundInitFar) < 1.0f && m_lookAroundFinishTimer.IsTimeUp()) {
 
 			m_isLookAroundFinishComplete = true;
 
@@ -819,7 +764,7 @@ void CameraController::UpdateLookAround(KuroEngine::Vec3<float> arg_scopeMove, K
 	}
 
 	//カメラの位置を動かす。
-	m_attachedCam.lock()->GetTransform().SetPos(arg_targetPos.GetPosWorld() + m_lookAroundTransform.GetUp() * m_lookAroundModeFar);
+	m_attachedCam.lock()->GetTransform().SetPos(m_playerLerpPos + m_lookAroundTransform.GetUp() * m_lookAroundModeFar);
 
 	//現在の座標からプレイヤーに向かう回転を求める。
 	Vec3<float> axisZ = m_playerLerpPos - m_attachedCam.lock()->GetTransform().GetPosWorld();
@@ -848,12 +793,29 @@ void CameraController::UpdateLookAround(KuroEngine::Vec3<float> arg_scopeMove, K
 		arg_scopeMove *= -1.0f;
 	}
 
-	//スティック操作によって回転させる。
-	if (0 < fabs(arg_scopeMove.x)) {
-		m_lookAroundTransform.SetRotate(DirectX::XMQuaternionMultiply(m_lookAroundTransform.GetRotate(), DirectX::XMQuaternionRotationAxis(arg_isCameraUpInverse ? Vec3<float>(0, -1, 0) : Vec3<float>(0, 1, 0), arg_scopeMove.x * 0.5f)));
-	}
-	if (0 < fabs(arg_scopeMove.y)) {
-		m_lookAroundTransform.SetRotate(DirectX::XMQuaternionMultiply(m_lookAroundTransform.GetRotate(), DirectX::XMQuaternionRotationAxis(axisX, arg_scopeMove.y * -0.5f)));
+	//終了状態じゃなかったら入力を反映させる。
+	if (!m_isLookAroundFinish) {
+
+		//スティック操作によって回転させる。
+		if (0 < fabs(arg_scopeMove.x)) {
+			//回転させる。
+			m_lookAroundTransform.SetRotate(DirectX::XMQuaternionMultiply(m_lookAroundTransform.GetRotate(), DirectX::XMQuaternionRotationAxis(arg_isCameraUpInverse ? Vec3<float>(0, -1, 0) : Vec3<float>(0, 1, 0), arg_scopeMove.x * 0.5f)));
+		}
+		if (0 < fabs(arg_scopeMove.y)) {
+			//回転前の上ベクトル
+			KuroEngine::Transform fromTransform = m_lookAroundTransform;
+			//回転させる。
+			m_lookAroundTransform.SetRotate(DirectX::XMQuaternionMultiply(m_lookAroundTransform.GetRotate(), DirectX::XMQuaternionRotationAxis(axisX, arg_scopeMove.y * -0.5f)));
+			//回転後の上ベクトル
+			KuroEngine::Vec3<float> nowUpDir = m_lookAroundTransform.GetUp();
+			//回転後の上ベクトルが上限値に達していたら、回転前の値を代入。
+			const float DEADLINE = 0.7f;
+			float dot = nowUpDir.Dot(Vec3<float>(0, 1, 0));
+			if (DEADLINE < fabs(dot)) {
+				m_lookAroundTransform = fromTransform;
+			}
+		}
+
 	}
 
 

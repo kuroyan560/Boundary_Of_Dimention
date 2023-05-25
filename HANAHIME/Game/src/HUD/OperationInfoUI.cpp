@@ -88,7 +88,7 @@ void OperationInfoUI::Draw()
 	//Xボタン
 	static const Vec2<float>X_BUTTON_POS = { 124.0f,428.0f };
 	DrawFunc2D::DrawRotaGraph2D(X_BUTTON_POS + opeButtonOffset, { 1.0f,1.0f }, 0.0f,
-		m_opeButtonTexArray[X][OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE_FPS, OperationConfig::HOLD) ? OFF : ON], m_opeButtonAlpha);
+		m_opeButtonTexArray[X][OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE_LOOK_AROUND, OperationConfig::HOLD) ? OFF : ON], m_opeButtonAlpha);
 
 	//LTボタン
 	static const Vec2<float>LT_BUTTON_POS = { 110.0f,528.0f };

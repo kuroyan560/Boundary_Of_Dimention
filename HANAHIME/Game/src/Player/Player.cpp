@@ -406,28 +406,20 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_cameraMode = CameraController::CAMERA_STATUS::NORMAL;
 
 		//入力があったら周囲見渡しモードに切り替え。
-		if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE_FPS, OperationConfig::ON_TRIGGER)) {
+		if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE_LOOK_AROUND, OperationConfig::ON_TRIGGER)) {
 
 			//SEを鳴らす。
 			SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
 
-			m_cameraMode = CameraController::CAMERA_STATUS::FPS;
-			m_playerMoveStatus = PLAYER_MOVE_STATUS::FPS;
+			m_cameraMode = CameraController::CAMERA_STATUS::LOOK_AROUND;
+			m_playerMoveStatus = PLAYER_MOVE_STATUS::LOOK_AROUND;
+
+			//慣性を消す。
+			m_moveSpeed = Vec3<float>();
+
 			break;
 
 		}
-
-		////入力があったら周囲見渡しモードに切り替え。
-		//if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE_LOOK_AROUND, OperationConfig::ON_TRIGGER)) {
-
-		//	//SEを鳴らす。
-		//	SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
-
-		//	m_cameraMode = CameraController::CAMERA_STATUS::LOOK_AROUND;
-		//	m_playerMoveStatus = PLAYER_MOVE_STATUS::LOOK_AROUND;
-		//	break;
-
-		//}
 
 		//ジップライン
 		m_canZip = OperationConfig::Instance()->GetOperationInput(OperationConfig::RIDE_ZIP_LINE, OperationConfig::ON_TRIGGER);
@@ -767,53 +759,27 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	case PLAYER_MOVE_STATUS::LOOK_AROUND:
 	{
 
-		//m_cameraMode = CameraController::CAMERA_STATUS::LOOK_AROUND;
-
-		////入力があったら周囲見渡しモードに切り替え。
-		//if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE_LOOK_AROUND, OperationConfig::ON_TRIGGER)) {
-
-		//	//SEを鳴らす。
-		//	if (!m_camController.IsFinishLookAround()) {
-		//		SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
-		//	}
-
-		//	m_camController.EndLookAround();
-
-		//}
-
-		//if (m_camController.IsCompleteFinishLookAround()) {
-		//	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
-		//	m_cameraMode = CameraController::CAMERA_STATUS::NORMAL;
-		//}
-
-	}
-	break;
-	case PLAYER_MOVE_STATUS::FPS:
-	{
-
-		m_cameraMode = CameraController::CAMERA_STATUS::FPS;
+		m_cameraMode = CameraController::CAMERA_STATUS::LOOK_AROUND;
 
 		//入力があったら周囲見渡しモードに切り替え。
-		if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE_FPS, OperationConfig::ON_TRIGGER)) {
+		if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE_LOOK_AROUND, OperationConfig::ON_TRIGGER)) {
 
 			//SEを鳴らす。
 			if (!m_camController.IsFinishLookAround()) {
 				SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
 			}
 
-			m_camController.EndFPS();
+			m_camController.EndLookAround();
 
 		}
 
-		if (m_camController.IsCompleteFinishFPS()) {
-
+		if (m_camController.IsCompleteFinishLookAround()) {
 			m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 			m_cameraMode = CameraController::CAMERA_STATUS::NORMAL;
-
 		}
 
-
 	}
+	break;
 	break;
 	default:
 		break;

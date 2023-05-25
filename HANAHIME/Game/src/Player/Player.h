@@ -203,7 +203,6 @@ private:
 		DEATH,	//死亡中。
 		DAMAGE,	//ダメージ演出中。
 		LOOK_AROUND,	//周囲を見ている。
-		FPS,			//FPSモード
 	}m_playerMoveStatus, m_beforeDamageStatus;	//ダメージを受ける前のステータス
 	//１フレーム前の動きのステータス
 	PLAYER_MOVE_STATUS m_beforePlayerMoveStatus;
