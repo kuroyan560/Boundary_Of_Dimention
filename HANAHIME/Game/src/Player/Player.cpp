@@ -687,6 +687,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	case Player::PLAYER_MOVE_STATUS::JUMP:
 	{
 
+		scopeMove = Vec3<float>();
+
 		//入力された移動量を取得
 		m_jumpRowMoveVec = OperationConfig::Instance()->GetMoveVecFuna(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
 
