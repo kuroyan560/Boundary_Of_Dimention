@@ -3,6 +3,55 @@
         "name": "scene",
         "objects": [
             {
+                "type": "BackGround",
+                "name": "Stage0_0.004",
+                "transform": {
+                    "translation": [
+                        327.0,
+                        68.0,
+                        43.632598876953125
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Sky1"
+            },
+            {
+                "type": "NONE_TYPE"
+            },
+            {
+                "type": "Appearance",
+                "name": "ICO球.001",
+                "transform": {
+                    "translation": [
+                        244.71572875976562,
+                        -159.51600646972656,
+                        -115.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.3826834559440613,
+                        0.9238795638084412
+                    ],
+                    "scaling": [
+                        7.999999523162842,
+                        7.999999523162842,
+                        8.0
+                    ]
+                },
+                "file_name": "Sky3"
+            },
+            {
                 "type": "CheckPoint",
                 "name": "CheckPoint_0.001",
                 "transform": {
@@ -51,6 +100,29 @@
                 "CheckPointOrder": 1
             },
             {
+                "type": "Terrian",
+                "name": "HitStage1_0.003",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071067094802856
+                    ],
+                    "scaling": [
+                        10.000000953674316,
+                        10.000000953674316,
+                        10.0
+                    ]
+                },
+                "file_name": "Stage1"
+            },
+            {
                 "type": "StarCoin",
                 "name": "StarCoin_0.001",
                 "transform": {
@@ -82,12 +154,12 @@
                         10.0,
                         13.0
                     ],
-                    "rotation": [
+                  "rotation": [
                         0.0,
                         0.0,
                         0.0,
                         1.0
-                    ],
+                  ],
                     "scaling": [
                         1.0,
                         1.0,
@@ -1365,29 +1437,6 @@
                 "DestStageNum": 2,
                 "DestGateID": 2,
                 "CheckPointOrder": 5
-            },
-            {
-                "type": "Terrian",
-                "name": "HitStage1_0.001",
-                "transform": {
-                    "translation": [
-                        0.0,
-                        0.0,
-                        0.0
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.7071068286895752,
-                        0.7071068286895752
-                    ],
-                    "scaling": [
-                        10.0,
-                        10.0,
-                        10.0
-                    ]
-                },
-                "file_name": "Stage1"
             },
             {
                 "type": "CheckPoint",
