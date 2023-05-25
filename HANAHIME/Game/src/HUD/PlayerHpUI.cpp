@@ -178,7 +178,7 @@ void PlayerHpUI::Draw(int arg_defaultHp, int arg_nowHp, bool arg_isHitStop)
 	//通常時のアルファ
 	static const float DEFAULT_ALPHA = 1.0f;
 	//非アクティブの葉のアルファ
-	static const float LOW_ALPHA = 0.5f;
+	static const float LOW_ALPHA = 0.3f;
 
 	//削られたHP葉のスケール
 	static const float DAMAGE_LEAF_EXPAND = 0.9f;
