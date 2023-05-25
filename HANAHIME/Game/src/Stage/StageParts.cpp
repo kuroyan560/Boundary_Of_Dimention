@@ -273,6 +273,7 @@ void MoveScaffold::OnInit()
 
 void MoveScaffold::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
+
 	StageParts::Draw(arg_cam, arg_ligMgr);
 
 	//ˆÚ“®Œo˜H‚ª‚È‚©‚Á‚½‚ç”ò‚Î‚·B
