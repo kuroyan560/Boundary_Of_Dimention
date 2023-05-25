@@ -6,6 +6,7 @@
 #include"Enemy/Enemy.h"
 #include"Switch.h"
 #include<optional>
+#include"../Player/Player.h"
 
 std::string Stage::s_stageModelDir = "resource/user/model/stage/";
 
@@ -361,6 +362,8 @@ void Stage::Init()
 	{
 		enemy->Init();
 	}
+
+	m_guideInsect.Init();
 }
 
 void Stage::Update(Player &arg_player)
@@ -435,6 +438,7 @@ void Stage::Update(Player &arg_player)
 		enemy->Update(arg_player);
 	}
 
+	m_guideInsect.GoToCheckPoint(arg_player.GetTransform().GetPos());
 	m_guideInsect.Update();
 
 	if (m_goalPoint)m_goalPoint->Update(arg_player);

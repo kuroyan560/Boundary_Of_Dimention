@@ -40,6 +40,7 @@ void GuideInsect::Draw()
 std::shared_ptr<GuideInsect::CheckPointData> GuideInsect::Stack()
 {
 	m_checkPointArray.emplace_back(std::make_shared<GuideInsect::CheckPointData>());
+	m_guideInsect.GoThisPos(m_checkPointArray[0]->m_pos);
 	return m_checkPointArray.back();
 }
 

@@ -52,7 +52,7 @@ SignSpotFireFly::SignSpotFireFly(std::shared_ptr<KuroEngine::RWStructuredBuffer>
 
 void SignSpotFireFly::Update()
 {
-	data.scaleRotaMat = DirectX::XMMatrixScaling(1.0f, 1.0f, 1.0f);
+	data.scaleRotaMat = DirectX::XMMatrixScaling(20.0f, 20.0f, 20.0f);
 	m_commonBuffer->Mapping(&data);
 
 	std::vector<KuroEngine::RegisterDescriptorData>descData =

@@ -29,7 +29,7 @@ private:
 	};
 
 
-	int particleMaxNum = 1024 * 10;
+	int particleMaxNum = 1024 * 20;
 	/*ResouceBufferHelper computeCovertWorldMatToDrawMat;
 	KazGPUParticle::RESOURCE_HANDLE  worldMatHandle, outputHandle, viewProjMatHandle;
 
