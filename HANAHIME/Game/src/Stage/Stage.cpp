@@ -14,7 +14,7 @@ bool Stage::CheckJsonKeyExist(std::string arg_fileName, nlohmann::json arg_json,
 	bool exist = arg_json.contains(arg_key);
 	if (!exist)
 	{
-		KuroEngine::AppearMessageBox("Stage : CheckJsonKeyExist() é∏îs", arg_fileName + " Ç…\"" + arg_key + "\"Ç™ä‹Ç‹ÇÍÇƒÇ»Ç¢ÇÊÅB");
+		KuroEngine::AppearMessageBox("Stage : CheckJsonKeyExist() é∏îs", arg_fileName + " ÇÃ " + arg_json["name"].get<std::string>() + " Ç…\"" + arg_key + "\"Ç™ä‹Ç‹ÇÍÇƒÇ»Ç¢ÇÊÅB");
 	}
 	return exist;
 }
@@ -245,6 +245,12 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		m_gimmickArray.emplace_back(std::make_shared<StarCoin>(model, transform));
 		newPart = m_gimmickArray.back().get();
 		m_starCoinArray.emplace_back(std::dynamic_pointer_cast<StarCoin>(m_gimmickArray.back()));
+	}
+	//îwåi
+	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::BACKGROUND))
+	{
+		m_gimmickArray.emplace_back(std::make_shared<BackGround>(model, transform));
+		newPart = m_gimmickArray.back().get();
 	}
 	//É`Éríé
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::MINI_BUG))
