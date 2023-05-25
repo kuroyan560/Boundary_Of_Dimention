@@ -1,4 +1,4 @@
-#include"Player.h"
+#include "Player.h"
 #include"Render/RenderObject/Camera.h"
 #include"../OperationConfig.h"
 #include"FrameWork/Importer.h"
@@ -58,7 +58,7 @@ void Player::OnImguiItems()
 void Player::AnimationSpecification(const KuroEngine::Vec3<float> &arg_beforePos, const KuroEngine::Vec3<float> &arg_newPos)
 {
 	//移動ステータス
-	if (m_playerMoveStatus == PLAYER_MOVE_STATUS::MOVE)
+	if (m_playerMoveStatus == PLAYER_MOVE_STATUS::MOVE || m_playerMoveStatus == PLAYER_MOVE_STATUS::LOOK_AROUND)
 	{
 		//ジャンプアニメーション中
 		if (m_modelAnimator->IsPlay(m_animNames[ANIM_PATTERN_JUMP]))return;
@@ -786,6 +786,11 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 			m_cameraMode = CameraController::CAMERA_STATUS::NORMAL;
 		}
+
+		m_moveSpeed = Vec3<float>();
+		m_rowMoveVec = Vec3<float>();
+		Move(newPos);
+		m_transform.SetPos(newPos);
 
 	}
 	break;
