@@ -360,21 +360,21 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	//ジャンプ中は当たり判定を行わない。
 	if (!arg_isPlayerJump && !arg_isCameraDefaultPos && arg_isNoCollision) {
 
-		////無限平面との当たり判定
-		//Vec3<float> push;
-		//bool isHit = RayPlaneIntersection(m_playerLerpPos, Vec3<float>(pushBackPos - m_playerLerpPos).GetNormal(), m_playerLerpPos - arg_targetPos.GetUp(), arg_targetPos.GetUp(), push);
-		//if (isHit) {
+		//無限平面との当たり判定
+		Vec3<float> push;
+		bool isHit = RayPlaneIntersection(m_playerLerpPos, Vec3<float>(pushBackPos - m_playerLerpPos).GetNormal(), m_playerLerpPos - arg_targetPos.GetUp(), arg_targetPos.GetUp(), push);
+		if (isHit) {
 
-		//	//上下側の壁だったら
-		//	if (0.9f < fabs(arg_targetPos.GetUp().Dot(Vec3<float>(0, 1, 0)))) {
-		//		m_nowParam.m_xAxisAngle = fromXAngle;
-		//	}
-		//	else {
-		//		m_nowParam.m_yAxisAngle = fromYAngle;
-		//		arg_playerRotY = fromYAngle;
-		//	}
+			//上下側の壁だったら
+			if (0.9f < fabs(arg_targetPos.GetUp().Dot(Vec3<float>(0, 1, 0)))) {
+				m_nowParam.m_xAxisAngle = fromXAngle;
+			}
+			else {
+				m_nowParam.m_yAxisAngle = fromYAngle;
+				arg_playerRotY = fromYAngle;
+			}
 
-		//}
+		}
 
 		//通常の地形を走査
 		Vec3<float> checkHitRay = m_cameraLocalTransform.GetPosWorldByMatrix() - m_oldCameraWorldPos;	//まずはデフォルトのレイに設定。
