@@ -43,7 +43,7 @@ VSOutput VSmain(float4 pos : POSITION, float2 uv : TEXCOORD)
 struct PSOutput
 {
     float4 color : SV_Target0;
-    float depth : SV_Target1;
+    float4 depth : SV_Target1;
 };
 
 PSOutput PSmain(VSOutput input) : SV_TARGET

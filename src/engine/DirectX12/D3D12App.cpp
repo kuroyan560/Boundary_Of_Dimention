@@ -20,7 +20,7 @@ void KuroEngine::D3D12App::Initialize(const HWND& Hwnd, const Vec2<int>& ScreenS
 	}
 	ComPtr<ID3D12Debug1> spDebugController1;
 	spDebugController0->QueryInterface(IID_PPV_ARGS(&spDebugController1));
-	//spDebugController1->SetEnableGPUBasedValidation(true);
+	spDebugController1->SetEnableGPUBasedValidation(true);
 
 #endif
 

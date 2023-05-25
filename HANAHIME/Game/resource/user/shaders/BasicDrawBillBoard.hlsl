@@ -86,7 +86,7 @@ struct PSOutput
 {
     float4 color : SV_Target0;
     float4 emissive : SV_Target1;
-    float depth : SV_Target2;
+    float4 depth : SV_Target2;
 };
 
 PSOutput PSmain(GSOutput input) : SV_TARGET
