@@ -648,14 +648,14 @@ void CameraController::PlayerMoveCameraLerp(KuroEngine::Vec3<float> arg_scopeMov
 		Vec3<float> playerMoveVec = Vec3<float>(m_playerLerpPos - m_playerOldPos).GetNormal();
 		Vec3<float> cameraVec = Vec3<float>(m_playerLerpPos - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
 
-		Vec2<float> playerMoveVec2D = -Project3Dto2D(playerMoveVec, cameraT.GetFront(), cameraT.GetRight());
+		Vec2<float> playerMoveVec2D = Project3Dto2D(playerMoveVec, cameraT.GetFront(), cameraT.GetRight());
 
 		//カメラのベクトルを2Dに射影する。
 		Vec2<float> cameraVec2D = Project3Dto2D(cameraVec, cameraT.GetFront(), cameraT.GetRight());
 
 		//カメラベクトルと移動方向ベクトルの内積の結果が0.5以下だったら当たり判定を行う。
 		float dot = cameraVec2D.Dot(playerMoveVec2D);
-		if (-0.8f < dot) {
+		if (fabs(dot) < 0.7f) {
 
 			//Y軸上のずれを確認。
 			float zureY = acos(playerMoveVec2D.Dot(cameraVec2D)) * (0.9f < fabs(KuroEngine::Vec3<float>(0, 1, 0).Dot(arg_targetPos.GetUp())) ? 0.01f : 0.001f);
@@ -669,15 +669,15 @@ void CameraController::PlayerMoveCameraLerp(KuroEngine::Vec3<float> arg_scopeMov
 				if (0.9f < fabs(arg_targetPos.GetUp().y)) {
 
 					//Y軸を動かす。
-					m_nowParam.m_yAxisAngle += zureY * cross;
-					arg_playerRotY += zureY * cross;
+					m_nowParam.m_yAxisAngle -= zureY * cross;
+					arg_playerRotY -= zureY * cross;
 
 				}
 				else {
 
 					//Y軸を動かす。
-					m_nowParam.m_yAxisAngle -= zureY * cross;
-					arg_playerRotY -= zureY * cross;
+					m_nowParam.m_yAxisAngle += zureY * cross;
+					arg_playerRotY += zureY * cross;
 
 				}
 
