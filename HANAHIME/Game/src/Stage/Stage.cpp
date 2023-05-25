@@ -246,6 +246,12 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		newPart = m_gimmickArray.back().get();
 		m_starCoinArray.emplace_back(std::dynamic_pointer_cast<StarCoin>(m_gimmickArray.back()));
 	}
+	//”wŒi
+	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::BACKGROUND))
+	{
+		m_gimmickArray.emplace_back(std::make_shared<BackGround>(model, transform));
+		newPart = m_gimmickArray.back().get();
+	}
 	//ƒ`ƒr’Ž
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::MINI_BUG))
 	{

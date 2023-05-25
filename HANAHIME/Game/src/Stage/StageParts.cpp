@@ -14,7 +14,7 @@
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
-	"Terrian","Start","Goal","Appearance","MoveScaffold","Lever","Ivy_Zipline","IvyBlock","SplatoonFence","Gate","CheckPoint","StarCoin",
+	"Terrian","Start","Goal","Appearance","MoveScaffold","Lever","Ivy_Zipline","IvyBlock","SplatoonFence","Gate","CheckPoint","StarCoin","BackGround",
 	"MiniBug","DossunRing","Battery",
 };
 

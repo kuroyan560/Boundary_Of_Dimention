@@ -76,6 +76,7 @@ public:
 		GATE,
 		CHECK_POINT,
 		STAR_COIN,
+		BACKGROUND,
 
 		//敵など静的オブジェクト
 		MINI_BUG,	//チビ虫
@@ -549,4 +550,13 @@ public:
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 
 	const bool& IsGet()const { return m_get; }
+};
+
+class BackGround : public StageParts
+{
+public:
+	BackGround(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
+		:StageParts(BACKGROUND, arg_model, arg_initTransform) {}
+
+	void Update(Player& arg_player)override {};
 };
