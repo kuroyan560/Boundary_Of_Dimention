@@ -66,7 +66,10 @@ class CameraController : public KuroEngine::Debugger
 	bool m_isLookAroundFinishComplete;	//カメラモードの終了作業が終わったかどうか。
 	float m_lookAroundModeFar;		//LookAround状態の時の距離
 	float m_lookAroundInitFar;
-	const float LOOK_AROUND_FAR = 130.0f;
+	float m_lookAroundFar;
+	const float MIN_LOOK_AROUND_FAR = 20.0f;
+	const float MAX_LOOK_AROUND_FAR = 550.0f;
+	const float ADD_LOOK_AROUND_FAR = 5.0f;
 
 	//カメラが地形に当たったらカメラのZを下げるために使うやつ。
 	float m_cameraHitTerrianZ;

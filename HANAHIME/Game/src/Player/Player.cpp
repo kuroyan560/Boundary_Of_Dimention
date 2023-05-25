@@ -673,6 +673,15 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 		}
 
+		//カメラをデフォルトの位置に戻すか。
+		m_isCameraDefault = OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_RESET, OperationConfig::ON_TRIGGER);
+		if (m_isCameraDefault) {
+
+			//SEを鳴らす。
+			SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
+
+		}
+
 	}
 	break;
 	case Player::PLAYER_MOVE_STATUS::JUMP:
@@ -816,15 +825,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		}
 	}
 	m_growPlantPtLig.m_defInfluenceRange = MAX_INFLUENCE_RANGE;
-
-	//カメラをデフォルトの位置に戻すか。
-	m_isCameraDefault = OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_RESET, OperationConfig::ON_TRIGGER);
-	if (m_isCameraDefault) {
-
-		//SEを鳴らす。
-		SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
-
-	}
 
 	//プレイヤーが動いているか。
 	bool isMovePlayer = 0.1f < m_moveSpeed.Length();

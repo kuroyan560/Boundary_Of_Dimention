@@ -23,6 +23,8 @@ OperationConfig::OperationConfig()
 		DIK_SPACE,	//決定
 		DIK_ESCAPE,	//キャンセル
 		DIK_RETURN,	//カメラの距離モード切り替え
+		DIK_UP,		//LookAroundモードのズームイン
+		DIK_DOWN,	//LookAroundモードのズームアウト
 		DIK_R,	//カメラリセット
 		DIK_SPACE,	//地中に潜る
 		DIK_LSHIFT,	//ジップラインに乗る
@@ -35,6 +37,8 @@ OperationConfig::OperationConfig()
 		A,	//決定
 		B,	//キャンセル
 		X,	//カメラの距離モード切り替えFPS
+		RT,	//LookAroundモードのズームイン
+		LT,	//LookAroundモードのズームアウト
 		LT,	//カメラリセット
 		RT,	//地中に潜る
 		A,	//ジップラインに乗る

@@ -6,6 +6,8 @@
 #include"../Stage/StageManager.h"
 #include"../Stage/CheckPointHitFlag.h"
 #include"../TimeScaleMgr.h"
+#include"../OperationConfig.h"
+#include"../SoundConfig.h"
 
 void CameraController::OnImguiItems()
 {
@@ -733,6 +735,9 @@ void CameraController::UpdateLookAround(KuroEngine::Vec3<float> arg_scopeMove, K
 		//回転の初期値を保存。
 		m_lookAroundInitTransform = m_lookAroundTransform;
 
+		//カメラ距離を設定。
+		m_lookAroundFar = MIN_LOOK_AROUND_FAR + (MAX_LOOK_AROUND_FAR - MIN_LOOK_AROUND_FAR) / 2.0f;
+
 		m_lookAroundModeFar = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - m_playerLerpPos).Length();
 		m_lookAroundInitFar = m_lookAroundModeFar;
 		m_isLookAroundFinish = false;
@@ -759,7 +764,7 @@ void CameraController::UpdateLookAround(KuroEngine::Vec3<float> arg_scopeMove, K
 	}
 	else {
 
-		m_lookAroundModeFar = KuroEngine::Math::Lerp(m_lookAroundModeFar, LOOK_AROUND_FAR, 0.08f);
+		m_lookAroundModeFar = KuroEngine::Math::Lerp(m_lookAroundModeFar, m_lookAroundFar, 0.08f);
 
 	}
 
@@ -795,6 +800,24 @@ void CameraController::UpdateLookAround(KuroEngine::Vec3<float> arg_scopeMove, K
 
 	//終了状態じゃなかったら入力を反映させる。
 	if (!m_isLookAroundFinish) {
+
+
+		if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE_LOOK_AROUND_ZOOMIN, OperationConfig::ON_TRIGGER)) {
+			//SEを鳴らす。
+			SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
+		}
+		if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE_LOOK_AROUND_ZOOMOUT, OperationConfig::ON_TRIGGER)) {
+			//SEを鳴らす。
+			SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
+		}
+
+		//入力によってカメラの位置を調整。
+		if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE_LOOK_AROUND_ZOOMIN, OperationConfig::HOLD)) {
+			m_lookAroundFar = std::clamp(m_lookAroundFar - ADD_LOOK_AROUND_FAR, MIN_LOOK_AROUND_FAR, MAX_LOOK_AROUND_FAR);
+		}
+		if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE_LOOK_AROUND_ZOOMOUT, OperationConfig::HOLD)) {
+			m_lookAroundFar = std::clamp(m_lookAroundFar + ADD_LOOK_AROUND_FAR, MIN_LOOK_AROUND_FAR, MAX_LOOK_AROUND_FAR);
+		}
 
 		//スティック操作によって回転させる。
 		if (0 < fabs(arg_scopeMove.x)) {

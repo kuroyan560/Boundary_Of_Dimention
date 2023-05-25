@@ -16,6 +16,8 @@ public:
 		DONE,	//決定
 		CANCEL,	//キャンセル
 		CAM_DIST_MODE_CHANGE_LOOK_AROUND,	//カメラの距離モード切り替え
+		CAM_DIST_MODE_CHANGE_LOOK_AROUND_ZOOMIN,	//カメラの距離モード切り替え
+		CAM_DIST_MODE_CHANGE_LOOK_AROUND_ZOOMOUT,	//カメラの距離モード切り替え
 		CAM_RESET,	//カメラリセット
 		SINK_GROUND,	//地中に潜る
 		RIDE_ZIP_LINE,	//ジップラインに乗る
@@ -72,6 +74,8 @@ private:
 	const std::vector<OPERATION_TYPE>m_inGameOperationArray =
 	{
 		CAM_DIST_MODE_CHANGE_LOOK_AROUND,
+		CAM_DIST_MODE_CHANGE_LOOK_AROUND_ZOOMIN,
+		CAM_DIST_MODE_CHANGE_LOOK_AROUND_ZOOMOUT,
 		CAM_RESET,
 		SINK_GROUND,
 		RIDE_ZIP_LINE,
