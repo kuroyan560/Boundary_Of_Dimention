@@ -475,6 +475,9 @@
     <ClCompile Include="src\AI\IEnemyAI.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Effect\GuideInsect.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -907,5 +910,6 @@
     <ClInclude Include="src\HUD\StageInfoUI.h" />
     <ClInclude Include="src\Stage\CheckPointHitFlag.h" />
     <ClInclude Include="src\AI\IEnemyAI.h" />
+    <ClInclude Include="src\Effect\GuideInsect.h" />
   </ItemGroup>
 </Project>

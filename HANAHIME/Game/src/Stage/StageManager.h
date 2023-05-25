@@ -5,6 +5,7 @@
 #include"StageParts.h"
 #include"../HUD/MapPinUI.h"
 #include"../HUD/CheckPointUI.h"
+#include"../Effect/GuideInsect.h"
 
 #include<memory>
 namespace KuroEngine
@@ -44,7 +45,6 @@ class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>, 
 	MapPinUI m_mapPinUI;
 	//現在マップピンが指す地点のインデックス
 	int m_nowMapPinPointIdx;
-
 public:
 	void SetStage(int stage_num = -1);
 

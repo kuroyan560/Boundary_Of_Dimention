@@ -808,11 +808,12 @@ std::shared_ptr<CheckPointUI>CheckPoint::s_ui;
 KuroEngine::Transform CheckPoint::s_latestVisitTransform;
 bool CheckPoint::s_visit = false;
 
-CheckPoint::CheckPoint(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, int arg_order)
-	:StageParts(CHECK_POINT, arg_model, arg_initTransform), m_order(arg_order)
+CheckPoint::CheckPoint(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, int arg_order, std::shared_ptr<GuideInsect::CheckPointData>checkPointData)
+:StageParts(CHECK_POINT, arg_model, arg_initTransform), m_order(arg_order),m_guideData(checkPointData)
 {
 	//UI未生成なら生成
 	if (!s_ui)s_ui = std::make_shared<CheckPointUI>();
+	m_guideData->m_pos = m_transform.GetPos();
 }
 
 void CheckPoint::Update(Player& arg_player)
@@ -828,6 +829,7 @@ void CheckPoint::Update(Player& arg_player)
 	//衝突した瞬間
 	if (!m_touched && isHit)
 	{
+		m_guideData->m_isHitFlag = true;
 		//UI出現
 		s_ui->Start();
 		//最後に訪れたチェックポイントのトランスフォームを記録

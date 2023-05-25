@@ -20,7 +20,8 @@
 
 #include"HUD/InGameUI.h"
 
-GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_1flameStopTimer(30), m_goal(m_particleRender.GetStackBuffer())
+GameScene::GameScene() :m_fireFlyStage(GPUParticleRender::Instance()->GetStackBuffer()), tutorial(GPUParticleRender::Instance()->GetStackBuffer()), m_1flameStopTimer(30), m_goal(GPUParticleRender::Instance()->GetStackBuffer()),
+m_guideFly(GPUParticleRender::Instance()->GetStackBuffer()), m_guideInsect(GPUParticleRender::Instance()->GetStackBuffer())
 {
 	m_ddsTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.dds");
 	m_pngTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
@@ -129,7 +130,7 @@ void GameScene::OnInitialize()
 
 void GameScene::OnUpdate()
 {
-	m_particleRender.InitCount();
+	GPUParticleRender::Instance()->InitCount();
 
 	//デバッグモード更新
 	DebugController::Instance()->Update();
@@ -328,7 +329,7 @@ void GameScene::OnDraw()
 		m_player.DrawParticle(*m_nowCam, m_ligMgr);
 	}
 
-	m_particleRender.Draw(*m_nowCam);
+	GPUParticleRender::Instance()->Draw(*m_nowCam);
 
 	//m_canvasPostEffect.Execute();
 	BasicDraw::Instance()->DrawEdge(m_nowCam->GetViewMat(), m_nowCam->GetProjectionMat(), ds);
