@@ -14,7 +14,7 @@ bool Stage::CheckJsonKeyExist(std::string arg_fileName, nlohmann::json arg_json,
 	bool exist = arg_json.contains(arg_key);
 	if (!exist)
 	{
-		KuroEngine::AppearMessageBox("Stage : CheckJsonKeyExist() ¸”s", arg_fileName + " ‚É\"" + arg_key + "\"‚ªŠÜ‚Ü‚ê‚Ä‚È‚¢‚æB");
+		KuroEngine::AppearMessageBox("Stage : CheckJsonKeyExist() ¸”s", arg_fileName + " ‚Ì " + arg_json["name"].get<std::string>() + " ‚É\"" + arg_key + "\"‚ªŠÜ‚Ü‚ê‚Ä‚È‚¢‚æB");
 	}
 	return exist;
 }
