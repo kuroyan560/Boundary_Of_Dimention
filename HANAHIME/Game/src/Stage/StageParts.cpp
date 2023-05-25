@@ -794,9 +794,18 @@ void Terrian::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_li
 
 void Gate::Update(Player& arg_player)
 {
+	if (IsExit())return;
+
 	float dist = m_transform.GetPosWorld().Distance(arg_player.GetNowPos());
 	bool enter = dist < 5.0f;
 	GateManager::Instance()->SetEnter(enter, m_destStageNum, m_destGateId);
+}
+
+void Gate::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+{
+	if (IsExit())return;
+
+	StageParts::Draw(arg_cam, arg_ligMgr);
 }
 
 bool Gate::CheckID(int arg_id)

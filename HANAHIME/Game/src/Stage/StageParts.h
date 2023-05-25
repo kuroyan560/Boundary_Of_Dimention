@@ -486,11 +486,19 @@ class Gate : public StageParts
 	int m_id;
 	int m_destStageNum;
 	int m_destGateId;
+
+	//oŒûê—p
+	bool IsExit() 
+	{
+		return m_destStageNum == INVALID_STAGE_NUM;
+	}
+
 public:
 	Gate(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_id, int arg_destStageNum, int arg_destGateId)
 		:StageParts(GATE, arg_model, arg_initTransform), m_id(arg_id), m_destStageNum(arg_destStageNum), m_destGateId(arg_destGateId) {}
 
 	void Update(Player& arg_player)override;
+	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 
 	bool CheckID(int arg_id);
 	const int& GetDestStageNum()const { return m_destStageNum; }
