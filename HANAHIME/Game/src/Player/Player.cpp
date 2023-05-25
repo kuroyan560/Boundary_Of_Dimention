@@ -241,8 +241,9 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_sphere.m_radius = &m_radius;
 	m_radius = 2.0f;
 
-	//HPのUI初期化
+	//UI初期化
 	m_hpUi.Init();
+	m_camModeUI.Init();
 
 	m_playerMoveParticle.Init();
 	m_playerMoveParticleTimer.Reset(PLAYER_MOVE_PARTICLE_SPAN);
@@ -416,6 +417,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 			//慣性を消す。
 			m_moveSpeed = Vec3<float>();
+
+			m_camModeUI.Appear();
 
 			break;
 
@@ -782,6 +785,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 			m_camController.EndLookAround();
 
+			m_camModeUI.Disappear();
 		}
 
 		if (m_camController.IsCompleteFinishLookAround()) {
@@ -938,8 +942,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//地中に潜ったときのシェイク量を減らす。
 	m_underGroundShake = std::clamp(m_underGroundShake - SUB_UNDER_GROUND_SHAKE, 0.0f, 100.0f);
 
-	//HPUI更新
+	//UI更新
 	m_hpUi.Update(TimeScaleMgr::s_inGame.GetTimeScale(), DEFAULT_HP, m_hp, m_nodamageTimer);
+	m_camModeUI.Update(TimeScaleMgr::s_inGame.GetTimeScale());
 
 	//プレイヤーが動いた時のパーティクル挙動
 	m_playerMoveParticle.Update();
@@ -1018,8 +1023,9 @@ void Player::DrawUI(KuroEngine::Camera &arg_cam)
 
 	}
 
-	//ダメージのヒットストップが効いていないときHPUI描画
+	//UI描画
 	m_hpUi.Draw(DEFAULT_HP, m_hp, !m_damageHitStopTimer.IsTimeUp());
+	m_camModeUI.Draw();
 }
 
 void Player::Finalize()
