@@ -340,8 +340,9 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform)
 	m_sphere.m_radius = &m_radius;
 	m_radius = 2.0f;
 
-	//HP‚ÌUI‰Šú‰»
+	//UI‰Šú‰»
 	m_hpUi.Init();
+	m_camModeUI.Init();
 
 	m_playerMoveParticle.Init();
 	m_playerMoveParticleTimer.Reset(PLAYER_MOVE_PARTICLE_SPAN);
