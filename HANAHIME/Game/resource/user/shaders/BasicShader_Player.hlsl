@@ -24,6 +24,7 @@ struct PSOutput_Player
     float4 edgeColor : SV_Target3;
     float4 bright : SV_Target4;
     float4 normal : SV_Target5;
+    float4 playerDepth : SV_Target6;
 };
 
 VSOutput VSmain(Vertex input)
@@ -245,6 +246,7 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
     output.emissive.w = 1.0f;
     
     output.depth = input.depthInView;
+    output.playerDepth = input.depthInView;
 
     output.edgeColor = toonIndividualParam.m_edgeColor * lerp(0.2f, 1.0f, isBright);
     

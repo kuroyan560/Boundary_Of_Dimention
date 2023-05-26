@@ -157,6 +157,7 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_None),	//エッジカラーマップ
 			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//草むらマップ
 			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//ノーマルマップ
+			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//プレイヤーの深度マップ
 		};
 
 		//パイプライン設定
@@ -332,6 +333,7 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"エッジカラーマップ"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"法線マップ"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"ワールド座標"),
+			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"プレイヤーの深度"),
 			RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"専用のパラメータ"),
 		};
 
@@ -472,6 +474,13 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 			GetWideStrFromStr(("BasicDraw - " + targetNames[targetIdx])).c_str());
 	}
 
+	//プレイヤー用の深度レンダーターゲット
+	m_playerDepthRenderTarget = D3D12App::Instance()->GenerateRenderTarget(
+		DXGI_FORMAT_R16G16B16A16_FLOAT,
+		Color(0.0f, 0.0f, 0.0f, 0.0f),
+		targetSize,
+		GetWideStrFromStr(("BasicDraw - PlayerDepth")).c_str());
+
 	//デプスマップのクローン
 	m_depthMapClone = D3D12App::Instance()->GenerateTextureBuffer(
 		targetSize,
@@ -527,6 +536,7 @@ void BasicDraw::RenderTargetsClearAndSet(std::weak_ptr<KuroEngine::DepthStencil>
 		rts.emplace_back(m_renderTargetArray[targetIdx]);
 		KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(m_renderTargetArray[targetIdx]);
 	}
+	KuroEngineDevice::Instance()->Graphics().ClearRenderTarget(m_playerDepthRenderTarget);
 	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(arg_ds);
 
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(rts, arg_ds.lock());
@@ -643,10 +653,21 @@ void BasicDraw::Draw_Stage(KuroEngine::Camera &arg_cam, KuroEngine::LightManager
 
 }
 
-void BasicDraw::Draw_Player(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform &arg_transform, const IndividualDrawParameter &arg_toonParam, const KuroEngine::AlphaBlendMode &arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff, int arg_layer)
+void BasicDraw::Draw_Player(KuroEngine::Camera &arg_cam, std::weak_ptr<KuroEngine::DepthStencil>arg_ds, KuroEngine::LightManager &arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform &arg_transform, const IndividualDrawParameter &arg_toonParam, const KuroEngine::AlphaBlendMode &arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff, int arg_layer)
 {
 
 	using namespace KuroEngine;
+
+	std::vector<std::weak_ptr<RenderTarget>>rts;
+	rts.emplace_back(m_renderTargetArray[RENDER_TARGET_TYPE::MAIN]);
+	rts.emplace_back(m_renderTargetArray[RENDER_TARGET_TYPE::EMISSIVE]);
+	rts.emplace_back(m_renderTargetArray[RENDER_TARGET_TYPE::DEPTH]);
+	rts.emplace_back(m_renderTargetArray[RENDER_TARGET_TYPE::EDGE_COLOR]);
+	rts.emplace_back(m_renderTargetArray[RENDER_TARGET_TYPE::BRIGHT]);
+	rts.emplace_back(m_renderTargetArray[RENDER_TARGET_TYPE::NORMAL]);
+	rts.emplace_back(m_playerDepthRenderTarget);
+
+	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(rts, arg_ds);
 
 	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_drawPipeline_player);
 
@@ -696,6 +717,15 @@ void BasicDraw::Draw_Player(KuroEngine::Camera &arg_cam, KuroEngine::LightManage
 
 	m_drawCount++;
 	m_individualParamCount++;
+
+
+	//レンダーターゲットを再セット
+	rts.clear();
+	for (int targetIdx = 0; targetIdx < RENDER_TARGET_TYPE::NUM; ++targetIdx)
+	{
+		rts.emplace_back(m_renderTargetArray[targetIdx]);
+	}
+	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(rts, arg_ds);
 
 }
 
@@ -955,6 +985,7 @@ void BasicDraw::DrawEdge(DirectX::XMMATRIX arg_camView, DirectX::XMMATRIX arg_ca
 		{m_renderTargetArray[EDGE_COLOR],SRV},
 		{m_renderTargetArray[NORMAL],SRV},
 		{m_renderTargetArray[WORLD_POS],SRV},
+		{m_playerDepthRenderTarget,SRV},
 		{m_edgeShaderParamBuff,CBV},
 	};
 	m_spriteMesh->Render(descDatas);

@@ -100,6 +100,8 @@ private:
 
 	std::array<std::shared_ptr<KuroEngine::RenderTarget>, RENDER_TARGET_TYPE::NUM>m_renderTargetArray;
 
+	std::shared_ptr<KuroEngine::RenderTarget> m_playerDepthRenderTarget;
+
 	//プレイヤーより手前のオブジェクトを透過させる際のテクスチャ
 	std::shared_ptr<KuroEngine::TextureBuffer>m_playerMaskTex;
 
@@ -211,7 +213,7 @@ public:
 	/// <param name="arg_toonParam">トゥーンのパラメータ</param>
 	/// <param name="arg_boneBuff">ボーンバッファ</param>
 	/// <param name="arg_layer">描画レイヤー</param>
-	void Draw_Player(KuroEngine::Camera &arg_cam,
+	void Draw_Player(KuroEngine::Camera &arg_cam, std::weak_ptr<KuroEngine::DepthStencil>arg_ds,
 		KuroEngine::LightManager &arg_ligMgr,
 		std::weak_ptr<KuroEngine::Model>arg_model,
 		KuroEngine::Transform &arg_transform,

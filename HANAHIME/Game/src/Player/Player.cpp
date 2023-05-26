@@ -956,7 +956,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 }
 
-void Player::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr, bool arg_cameraDraw)
+void Player::Draw(KuroEngine::Camera &arg_cam, std::weak_ptr<KuroEngine::DepthStencil>arg_ds, KuroEngine::LightManager &arg_ligMgr, bool arg_cameraDraw)
 {
 
 	/*
@@ -973,6 +973,7 @@ void Player::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_lig
 
 	BasicDraw::Instance()->Draw_Player(
 		arg_cam,
+		arg_ds,
 		arg_ligMgr,
 		m_model,
 		m_drawTransform,

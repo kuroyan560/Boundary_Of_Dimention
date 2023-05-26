@@ -374,12 +374,12 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
-	BasicDraw::Instance()->Draw_Player(
-		arg_cam,
-		arg_ligMgr,
-		m_model,
-		m_transform,
-		edgeColor);
+	//BasicDraw::Instance()->Draw_Player(
+	//	arg_cam,
+	//	arg_ligMgr,
+	//	m_model,
+	//	m_transform,
+	//	edgeColor);
 
 	m_reaction->Draw(arg_cam);
 
@@ -578,12 +578,12 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
-	BasicDraw::Instance()->Draw_Player(
-		arg_cam,
-		arg_ligMgr,
-		m_model,
-		m_transform,
-		edgeColor);
+	//BasicDraw::Instance()->Draw_Player(
+	//	arg_cam,
+	//	arg_ligMgr,
+	//	m_model,
+	//	m_transform,
+	//	edgeColor);
 
 	KuroEngine::Transform transform = m_transform;
 	transform.SetPos(*(m_hitBox.m_centerPos));
@@ -775,12 +775,12 @@ void Battery::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
-	BasicDraw::Instance()->Draw_Player(
-		arg_cam,
-		arg_ligMgr,
-		m_model,
-		m_transform,
-		edgeColor);
+	//BasicDraw::Instance()->Draw_Player(
+	//	arg_cam,
+	//	arg_ligMgr,
+	//	m_model,
+	//	m_transform,
+	//	edgeColor);
 
 	m_bulletManager.Draw(arg_cam);
 
