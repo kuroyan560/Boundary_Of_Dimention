@@ -653,6 +653,20 @@ Battery::Battery(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transfo
 	m_upVec = arg_initTransform.GetUp();
 
 	OnInit();
+
+	switch (arg_barrelPattern)
+	{
+	case ENEMY_BARREL_PATTERN_FIXED:
+		DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_BATTERY_FIXED);
+		break;
+	case ENEMY_BARREL_PATTERN_ROCKON:
+		DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_BATTERY_ROCKON);
+		break;
+	case ENEMY_BARREL_PATTERN_INVALID:
+		break;
+	default:
+		break;
+	}
 }
 
 void Battery::OnInit()

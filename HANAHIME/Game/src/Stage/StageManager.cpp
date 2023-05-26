@@ -30,6 +30,7 @@ StageManager::StageManager()
 	int loadPazzleIdx = 1;
 	while (KuroEngine::ExistFile(stageDir + "P_Stage_" + std::to_string(loadPazzleIdx) + ".json"))
 	{
+		DebugEnemy::Instance()->StackStage();
 		m_stageArray.emplace_back(std::make_shared<Stage>());
 		m_stageArray.back()->Load(loadPazzleIdx, stageDir, "P_Stage_" + std::to_string(loadPazzleIdx++) + ".json", terrianScaling, false);
 	}
