@@ -155,6 +155,9 @@ Player::Player()
 
 	//アニメーター生成
 	m_modelAnimator = std::make_shared<ModelAnimator>(m_model);
+
+	m_cameraReturnTimer.Reset(CAMERA_RETURN_TIMER);
+	m_cameraReturnTimer.ForciblyTimeUp();
 }
 
 void Player::Init(KuroEngine::Transform arg_initTransform)
@@ -256,6 +259,9 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 		m_isCheckPointUpInverse = true;
 	}
 
+	m_cameraReturnTimer.Reset(CAMERA_RETURN_TIMER);
+	m_cameraReturnTimer.ForciblyTimeUp();
+
 }
 
 void Player::Respawn(KuroEngine::Transform arg_initTransform)
@@ -348,6 +354,9 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform)
 	m_playerMoveParticle.Init();
 	m_playerMoveParticleTimer.Reset(PLAYER_MOVE_PARTICLE_SPAN);
 	m_playerIdleParticleTimer.Reset(PLAYER_IDLE_PARTICLE_SPAN);
+
+	m_cameraReturnTimer.Reset(CAMERA_RETURN_TIMER);
+	m_cameraReturnTimer.ForciblyTimeUp();
 
 }
 
@@ -815,6 +824,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	m_growPlantPtLig.Active();
 
+	//敵に近づいたときにデフォルトの距離の戻るまでのタイマーを更新。
+	m_cameraReturnTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
+
 	//地中にいるときはライトを変える。
 	if ((m_isInputUnderGround || !m_canUnderGroundRelease) && !m_isPlayerOverHeat) {
 		m_growPlantPtLig.m_influenceRange = std::clamp(m_growPlantPtLig.m_influenceRange - SUB_INFLUENCE_RANGE * TimeScaleMgr::s_inGame.GetTimeScale(), MIN_INFLUENCE_RANGE, MAX_INFLUENCE_RANGE);
@@ -843,7 +855,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	bool isMovePlayer = 0.1f < m_moveSpeed.Length();
 
 	//敵が近くにいるか？
-	if (m_isNearEnemy) {
+	if (!m_cameraReturnTimer.IsTimeUp()) {
 		m_baseCameraFar = KuroEngine::Math::Lerp(m_baseCameraFar, CAMERA_NEAR_ENEMY_FAR, 0.08f);
 	}
 	else {
@@ -952,8 +964,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_playerMoveParticle.Update();
 
 	m_cameraNoCollisionTimer.UpdateTimer();
-
-	m_isNearEnemy = false;
 
 }
 
@@ -1119,7 +1129,7 @@ Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<floa
 
 	//距離が一定いないだったら敵が近くにいる判定にしてカメラを近づける。
 	if (distance <= CAMERA_NEAR_ENEMY_DISTANCE && 0.9f < m_transform.GetUp().Dot(arg_enemyUp)) {
-		m_isNearEnemy = true;
+		m_cameraReturnTimer.Reset(CAMERA_RETURN_TIMER);
 	}
 
 	//攻撃状態じゃなかったら処理を戻す。

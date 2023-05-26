@@ -63,6 +63,10 @@ class Player : public KuroEngine::Debugger
 	const float SUB_DAMAGE_SHAKE_AMOUNT = 0.1f;	//ダメージを受けた時のシェイクを減らす量
 	float m_damageShakeAmount;					//ダメージを受けた時のシェイクの量だんだん減っていく
 
+	//敵に近づいたときのカメラを戻すまでの時間。
+	KuroEngine::Timer m_cameraReturnTimer;
+	const float CAMERA_RETURN_TIMER = 60.0f;
+
 	//プレイヤーのHPのUI
 	PlayerHpUI m_hpUi;
 
@@ -106,7 +110,6 @@ class Player : public KuroEngine::Debugger
 	float m_cameraFar;		//現在のカメラのFar
 	float m_baseCameraFar;	//現在のカメラのFarの補間先
 	bool m_isHitUnderGroundCamera;
-	bool m_isNearEnemy;		//敵が近くにいるか？いたらカメラを近づける。
 	const float CAMERA_NEAR_ENEMY_DISTANCE = 60.0f;
 	CameraController::CAMERA_STATUS m_cameraMode;
 
