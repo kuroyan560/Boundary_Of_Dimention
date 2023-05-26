@@ -16,6 +16,16 @@ struct VSOutput
 
 #define FLT_EPSILON 0.001
 
+//エッジ描画のしきい
+static const float EDGE_DEPTH_THRESHOLD_MIN = 200.0f;
+static const float EDGE_DEPTH_THRESHOLD_MAX = 500.0f;
+
+float CalculateEdgeAlpha(float arg_depth)
+{
+    float depthRate = clamp((arg_depth - EDGE_DEPTH_THRESHOLD_MIN) / (EDGE_DEPTH_THRESHOLD_MAX - EDGE_DEPTH_THRESHOLD_MIN), 0.0f, 1.0f);
+    return lerp(1.0f, 0.0f, depthRate);
+}
+
 Texture2D<float4> g_depthMap : register(t0);
 Texture2D<float4> g_brightMap : register(t1);
 Texture2D<float4> g_edgeColorMap : register(t2);
@@ -141,7 +151,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
             bool isDepthCheck = pickDepth < depth;
             if (pickBright != enemyBright && !g_brightMap.Sample(g_sampler, brihgtPickUv).z && isDepthCheck)
             {
-                output.color = float4(0.54f, 0.14f, 0.33f, 1.0f);
+                output.color = float4(0.54f, 0.14f, 0.33f, CalculateEdgeAlpha(depth));
                 output.depth = g_depthMap.Sample(g_sampler, brihgtPickUv);
                 return output;
             }
@@ -158,7 +168,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
             float isPlayer = g_brightMap.Sample(g_sampler, brihgtPickUv).z;
             if (pickBright != myBright && !isPlayer)
             {
-                output.color = m_edgeParam.m_isPlayerOverheat ? float4(0.5f, 0.5f, 0.5f, 1.0f) : g_edgeColorMap.Sample(g_sampler, brihgtPickUv);
+                output.color = m_edgeParam.m_isPlayerOverheat ? float4(0.5f, 0.5f, 0.5f, 1.0f) : float4(0.35f, 0.90f, 0.57f, 1.0f);
                 output.depth = g_depthMap.Sample(g_sampler, brihgtPickUv);
                 return output;
             }
@@ -219,6 +229,9 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     {
         //一番手前側のエッジカラーを採用する
         output.color = g_edgeColorMap.Sample(g_sampler, nearestUv);
+        
+        output.color.w = CalculateEdgeAlpha(nearest);
+        
         output.depth = g_depthMap.Sample(g_sampler, nearestUv);
         return output;
     }
