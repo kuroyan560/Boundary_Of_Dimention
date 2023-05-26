@@ -374,7 +374,7 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
-	BasicDraw::Instance()->Draw_Player(
+	BasicDraw::Instance()->Draw_NoGrass(
 		arg_cam,
 		arg_ligMgr,
 		m_model,
@@ -578,7 +578,7 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
-	BasicDraw::Instance()->Draw_Player(
+	BasicDraw::Instance()->Draw_NoGrass(
 		arg_cam,
 		arg_ligMgr,
 		m_model,
@@ -775,7 +775,7 @@ void Battery::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
-	BasicDraw::Instance()->Draw_Player(
+	BasicDraw::Instance()->Draw_NoGrass(
 		arg_cam,
 		arg_ligMgr,
 		m_model,

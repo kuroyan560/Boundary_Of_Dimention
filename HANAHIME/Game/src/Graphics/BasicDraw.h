@@ -48,6 +48,7 @@ private:
 		DirectX::XMMATRIX m_proj;
 		//エッジ描画の判断をする深度差のしきい値
 		float m_depthThreshold = 0.19f;
+		int m_isPlayerOverheat;
 	};
 	EdgeCommonParameter m_edgeShaderParam;
 
@@ -78,6 +79,7 @@ private:
 	//モデル描画
 	std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>m_drawPipeline;
 	std::shared_ptr<KuroEngine::GraphicsPipeline>m_drawPipeline_player;
+	std::shared_ptr<KuroEngine::GraphicsPipeline>m_drawPipeline_noGrass;
 	std::array < std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>m_drawPipeline_stage;
 	std::vector<std::shared_ptr<KuroEngine::ConstantBuffer>>m_drawTransformBuff;
 
@@ -99,6 +101,8 @@ private:
 	std::shared_ptr<KuroEngine::TextureBuffer>m_depthMapClone;
 
 	std::array<std::shared_ptr<KuroEngine::RenderTarget>, RENDER_TARGET_TYPE::NUM>m_renderTargetArray;
+
+	std::shared_ptr<KuroEngine::RenderTarget> m_playerDepthRenderTarget;
 
 	//プレイヤーより手前のオブジェクトを透過させる際のテクスチャ
 	std::shared_ptr<KuroEngine::TextureBuffer>m_playerMaskTex;
@@ -211,12 +215,20 @@ public:
 	/// <param name="arg_toonParam">トゥーンのパラメータ</param>
 	/// <param name="arg_boneBuff">ボーンバッファ</param>
 	/// <param name="arg_layer">描画レイヤー</param>
-	void Draw_Player(KuroEngine::Camera &arg_cam,
+	void Draw_Player(KuroEngine::Camera &arg_cam, std::weak_ptr<KuroEngine::DepthStencil>arg_ds,
 		KuroEngine::LightManager &arg_ligMgr,
 		std::weak_ptr<KuroEngine::Model>arg_model,
 		KuroEngine::Transform &arg_transform,
 		const IndividualDrawParameter &arg_toonParam,
 		const KuroEngine::AlphaBlendMode &arg_blendMode = KuroEngine::AlphaBlendMode_None,
+		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr,
+		int arg_layer = 0);
+	void Draw_NoGrass(KuroEngine::Camera& arg_cam,
+		KuroEngine::LightManager& arg_ligMgr,
+		std::weak_ptr<KuroEngine::Model>arg_model,
+		KuroEngine::Transform& arg_transform,
+		const IndividualDrawParameter& arg_toonParam,
+		const KuroEngine::AlphaBlendMode& arg_blendMode = KuroEngine::AlphaBlendMode_None,
 		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr,
 		int arg_layer = 0);
 
@@ -289,7 +301,7 @@ public:
 		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr);
 
 	//エッジ描画
-	void DrawEdge(DirectX::XMMATRIX arg_camView, DirectX::XMMATRIX arg_camProj, std::weak_ptr<KuroEngine::DepthStencil>arg_ds);
+	void DrawEdge(DirectX::XMMATRIX arg_camView, DirectX::XMMATRIX arg_camProj, std::weak_ptr<KuroEngine::DepthStencil>arg_ds, int arg_isPlayerOverheat);
 
 	//メインのレンダーターゲットゲッタ
 	std::shared_ptr<KuroEngine::RenderTarget> &GetRenderTarget(RENDER_TARGET_TYPE arg_type) { return m_renderTargetArray[arg_type]; }

@@ -34,6 +34,7 @@ class Player : public KuroEngine::Debugger
 
 	//プレイヤーのモデル
 	std::shared_ptr<KuroEngine::Model>m_model;
+	std::shared_ptr<KuroEngine::Model>m_headLeafModel;
 	std::shared_ptr<KuroEngine::Model>m_axisModel;
 
 	//カメラのモデル（デバッグ用）
@@ -61,6 +62,10 @@ class Player : public KuroEngine::Debugger
 	const float DAMAGE_SHAKE_AMOUNT = 1.0f;		//ダメージを受けた時のシェイク
 	const float SUB_DAMAGE_SHAKE_AMOUNT = 0.1f;	//ダメージを受けた時のシェイクを減らす量
 	float m_damageShakeAmount;					//ダメージを受けた時のシェイクの量だんだん減っていく
+
+	//敵に近づいたときのカメラを戻すまでの時間。
+	KuroEngine::Timer m_cameraReturnTimer;
+	const float CAMERA_RETURN_TIMER = 60.0f;
 
 	//プレイヤーのHPのUI
 	PlayerHpUI m_hpUi;
@@ -105,7 +110,6 @@ class Player : public KuroEngine::Debugger
 	float m_cameraFar;		//現在のカメラのFar
 	float m_baseCameraFar;	//現在のカメラのFarの補間先
 	bool m_isHitUnderGroundCamera;
-	bool m_isNearEnemy;		//敵が近くにいるか？いたらカメラを近づける。
 	const float CAMERA_NEAR_ENEMY_DISTANCE = 60.0f;
 	CameraController::CAMERA_STATUS m_cameraMode;
 
@@ -248,7 +252,7 @@ private:
 	XMVECTOR m_jumpStartQ;							//ジャンプ開始時のクォータニオン
 	XMVECTOR m_jumpEndQ;							//ジャンプ終了時のクオータニオン
 	float m_jumpTimer;								//ジャンプの計測時間を図るタイマー
-	const float JUMP_TIMER = 0.06f;
+	const float JUMP_TIMER = 0.05f;
 	bool m_canJump;									//ジャンプができるかのフラグ
 	int m_canJumpDelayTimer;						//ジャンプができるようになるまでの引っ掛かり
 	const int CAN_JUMP_DELAY = 1;
@@ -311,7 +315,7 @@ public:
 	void Init(KuroEngine::Transform arg_initTransform);		//ステージに入るとき用。
 	void Respawn(KuroEngine::Transform arg_initTransform);	//Backキーとかを押してリスポーンするとき用。
 	void Update(const std::weak_ptr<Stage>arg_nowStage);
-	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw = false);
+	void Draw(KuroEngine::Camera& arg_cam, std::weak_ptr<KuroEngine::DepthStencil>arg_ds, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw = false);
 	void DrawParticle(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
 	void DrawUI(KuroEngine::Camera& arg_cam);
 	void Finalize();
@@ -359,6 +363,11 @@ public:
 
 	//攻撃中か？
 	bool GetIsAttack() { return 0 < m_attackTimer; }
+
+	//オーバーヒート中か？
+	bool GetIsOverheat() { return m_isPlayerOverHeat; }
+
+	KuroEngine::Vec3<float> GetMoveSpeed() { return m_moveSpeed; }
 
 	void DisactiveLight()
 	{

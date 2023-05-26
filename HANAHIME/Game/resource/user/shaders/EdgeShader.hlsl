@@ -4,6 +4,7 @@ struct EdgeParameter
     matrix m_matProj;
     //エッジ描画の判断をする深度差のしきい値
     float m_depthThreshold;
+    int m_isPlayerOverheat;
 };
 
 
@@ -20,6 +21,7 @@ Texture2D<float4> g_brightMap : register(t1);
 Texture2D<float4> g_edgeColorMap : register(t2);
 Texture2D<float4> g_normalMap : register(t3);
 Texture2D<float4> g_worldMap : register(t4);
+Texture2D<float4> g_playerDepth : register(t5);
 SamplerState g_sampler : register(s0);
 cbuffer cbuff0 : register(b0)
 {
@@ -93,6 +95,17 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     playerEdgeOffsetUV[5] = float2(-edgeThickness, edgeThickness);
     playerEdgeOffsetUV[6] = float2(edgeThickness, -edgeThickness);
     playerEdgeOffsetUV[7] = float2(-edgeThickness, -edgeThickness);
+        
+    //プレイヤーの深度が0より上でデフォルトの値より下だったらシルエットを描画。
+    float pickPlayerBright = g_playerDepth.Sample(g_sampler, input.m_uv).x;
+    if (0 < pickPlayerBright && depth < pickPlayerBright)
+    {
+            
+        output.color = float4(0.35f, 0.90f, 0.57f, 1.0f);
+        output.depth = g_depthMap.Sample(g_sampler, input.m_uv);
+        return output;
+            
+    }
 
     // 近傍8テクセルの深度値の差の平均値を計算する
     float depthDiffer = 0.0f;
@@ -145,7 +158,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
             float isPlayer = g_brightMap.Sample(g_sampler, brihgtPickUv).z;
             if (pickBright != myBright && !isPlayer)
             {
-                output.color = g_edgeColorMap.Sample(g_sampler, brihgtPickUv);
+                output.color = m_edgeParam.m_isPlayerOverheat ? float4(0.5f, 0.5f, 0.5f, 1.0f) : g_edgeColorMap.Sample(g_sampler, brihgtPickUv);
                 output.depth = g_depthMap.Sample(g_sampler, brihgtPickUv);
                 return output;
             }

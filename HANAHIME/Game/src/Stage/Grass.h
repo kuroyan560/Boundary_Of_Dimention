@@ -53,6 +53,7 @@ class Grass
 		KuroEngine::Vec3<float>m_normal = { 0,1,0 };
 		int m_modelIdx = 0;
 		float m_sineLength = 0;
+		float m_sineTimer = 0;
 		float m_appearY = 0;		//出現エフェクトに使用する変数 Y軸をどこまで表示させるか。
 		float m_appearYTimer = 0;
 		bool m_isCheckGround  = false;
@@ -112,7 +113,12 @@ class Grass
 
 	
 	//描画に使うモデルごとの草のワールド行列
-	std::array<std::vector<KuroEngine::Matrix>, s_modelNumMax>m_grassWorldMatricies;
+	struct GrassInfo {
+		KuroEngine::Matrix m_worldMat;
+		float m_grassTimer;
+		KuroEngine::Vec3<float> m_pad;
+	};
+	std::array<std::vector<GrassInfo>, s_modelNumMax>m_grassWorldMatricies;
 	//描画に使うモデルごとの草のワールド行列バッファ
 	std::array<std::shared_ptr<KuroEngine::StructuredBuffer>, s_modelNumMax>m_grassWorldMatriciesBuffer;
 
@@ -128,7 +134,7 @@ class Grass
 public:
 	Grass();
 	void Init();
-	void Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, float arg_plantInfluenceRange, const std::weak_ptr<Stage>arg_nowStage, bool arg_isAttack);
+	void Update(const float arg_timeScale, bool arg_isPlayerOverheat, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, float arg_plantInfluenceRange, const std::weak_ptr<Stage>arg_nowStage, bool arg_isAttack, KuroEngine::Vec3<float> arg_moveSpeed);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, float arg_plantInfluenceRange, bool arg_isAttack);
 
 private:
@@ -139,7 +145,7 @@ private:
 	/// <returns> t:生えている  f:生えていない </returns>
 	std::array<Grass::SearchPlantResult, GRASSF_SEARCH_COUNT> SearchPlantPos(KuroEngine::Transform arg_playerTransform);
 
-	void UpdateGrassEasing(Grass::GrassData& arg_grass, int arg_index);
+	void UpdateGrassEasing(Grass::GrassData& arg_grass, int arg_index, KuroEngine::Vec3<float> arg_moveSpeed);
 	void GrassCheckHit(Grass::GrassData& arg_grass, const std::weak_ptr<Stage>arg_nowStage);
 
 };
