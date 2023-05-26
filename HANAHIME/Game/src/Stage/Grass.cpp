@@ -133,7 +133,7 @@ Grass::Grass()
 
 		//草の描画用ワールド行列配列バッファ
 		m_grassWorldMatriciesBuffer[modelIdx] = D3D12App::Instance()->GenerateStructuredBuffer(
-			sizeof(Matrix),
+			sizeof(GrassInfo),
 			s_plantGrassMax,
 			nullptr,
 			"Grass - GrassIndicies - StructuredBuffer");
@@ -316,7 +316,10 @@ void Grass::Update(const float arg_timeScale, bool arg_isPlayerOverheat, const K
 		float appear = (-(1.0f - grass.m_appearY) * POSITION_SCALE);
 		grassTransform.SetPos(grass.m_pos + grass.m_normal * appear);
 		grassTransform.SetUp(grass.m_normal);
-		m_grassWorldMatricies[grass.m_modelIdx].emplace_back(grassTransform.GetMatWorld());
+		GrassInfo info;
+		info.m_worldMat = grassTransform.GetMatWorld();
+		info.m_grassTimer = sinf(grassIdx.m_sineTimer) * grassIdx.m_sineLength;
+		m_grassWorldMatricies[grass.m_modelIdx].emplace_back(info);
 		m_plantGrassPosArray.emplace_back(grass.m_pos + grass.m_normal * appear);
 	}
 
@@ -432,6 +435,10 @@ void Grass::UpdateGrassEasing(Grass::GrassData& arg_grass, int arg_index)
 			arg_grass.m_isDead = true;
 		}
 	}
+
+	//風の速度。
+	const float WIND_SPEED = 0.05f;
+	arg_grass.m_sineTimer += WIND_SPEED;
 
 	//原点付近の草は強制削除。
 	if (arg_grass.m_pos.Length() < 1.0f) {

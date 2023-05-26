@@ -53,6 +53,7 @@ class Grass
 		KuroEngine::Vec3<float>m_normal = { 0,1,0 };
 		int m_modelIdx = 0;
 		float m_sineLength = 0;
+		float m_sineTimer = 0;
 		float m_appearY = 0;		//出現エフェクトに使用する変数 Y軸をどこまで表示させるか。
 		float m_appearYTimer = 0;
 		bool m_isCheckGround  = false;
@@ -112,7 +113,12 @@ class Grass
 
 	
 	//描画に使うモデルごとの草のワールド行列
-	std::array<std::vector<KuroEngine::Matrix>, s_modelNumMax>m_grassWorldMatricies;
+	struct GrassInfo {
+		KuroEngine::Matrix m_worldMat;
+		float m_grassTimer;
+		KuroEngine::Vec3<float> m_pad;
+	};
+	std::array<std::vector<GrassInfo>, s_modelNumMax>m_grassWorldMatricies;
 	//描画に使うモデルごとの草のワールド行列バッファ
 	std::array<std::shared_ptr<KuroEngine::StructuredBuffer>, s_modelNumMax>m_grassWorldMatriciesBuffer;
 
