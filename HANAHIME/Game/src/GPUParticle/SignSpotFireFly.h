@@ -27,8 +27,10 @@ private:
 	{
 		DirectX::XMFLOAT3 pos;
 		DirectX::XMFLOAT3 vel;
+		float speed;
 	};
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_fireFlyArrayBuffer;
+	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_larpFireFlyArrayBuffer;
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_particleBuffer;
 
 	struct CommonData

@@ -10,6 +10,15 @@ SignSpotFireFly::SignSpotFireFly(std::shared_ptr<KuroEngine::RWStructuredBuffer>
 			"signSpotParticle - RWStructureBuffer"
 		);
 
+	m_larpFireFlyArrayBuffer =
+		KuroEngine::D3D12App::Instance()->GenerateRWStructuredBuffer(
+			sizeof(DirectX::XMFLOAT3),
+			1024,
+			nullptr,
+			"larpSignSpotParticle - RWStructureBuffer"
+		);
+
+
 	m_commonBuffer = KuroEngine::D3D12App::Instance()->GenerateConstantBuffer(
 		sizeof(CommonData),
 		1,
@@ -22,6 +31,7 @@ SignSpotFireFly::SignSpotFireFly(std::shared_ptr<KuroEngine::RWStructuredBuffer>
 		std::vector<KuroEngine::RootParam>rootParam =
 		{
 			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"蛍パーティクルの情報(RWStructuredBuffer)"),
+			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"蛍パーティクルのラープ情報(RWStructuredBuffer)"),
 		};
 		auto cs_init = KuroEngine::D3D12App::Instance()->CompileShader("resource/user/shaders/SignSpot.hlsl", "InitMain", "cs_6_4");
 		m_cInitPipeline = KuroEngine::D3D12App::Instance()->GenerateComputePipeline(cs_init, rootParam, { KuroEngine::WrappedSampler(true,true) });
@@ -31,6 +41,7 @@ SignSpotFireFly::SignSpotFireFly(std::shared_ptr<KuroEngine::RWStructuredBuffer>
 		std::vector<KuroEngine::RootParam>rootParam =
 		{
 			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"蛍パーティクルの情報(RWStructuredBuffer)"),
+			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"蛍パーティクルのラープ情報(RWStructuredBuffer)"),
 			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"描画用の情報(RWStructuredBuffer)"),
 			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"描画の共通情報(RWStructuredBuffer)")
 		};
@@ -41,6 +52,7 @@ SignSpotFireFly::SignSpotFireFly(std::shared_ptr<KuroEngine::RWStructuredBuffer>
 	std::vector<KuroEngine::RegisterDescriptorData>descData =
 	{
 		{m_fireFlyArrayBuffer,KuroEngine::UAV},
+		{m_larpFireFlyArrayBuffer,KuroEngine::UAV}
 	};
 	KuroEngine::D3D12App::Instance()->DispathOneShot(m_cInitPipeline, { 1,1,1 }, descData);
 
@@ -58,6 +70,7 @@ void SignSpotFireFly::Update()
 	std::vector<KuroEngine::RegisterDescriptorData>descData =
 	{
 		{m_fireFlyArrayBuffer,KuroEngine::UAV},
+		{m_larpFireFlyArrayBuffer,KuroEngine::UAV},
 		{m_particleBuffer,KuroEngine::UAV},
 		{m_commonBuffer,KuroEngine::CBV},
 	};
