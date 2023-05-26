@@ -46,7 +46,7 @@ void MiniBug::OnInit()
 
 	m_shadowInfluenceRange = SHADOW_INFLUENCE_RANGE;
 
-	m_animator->Play("Wing", true, false);
+	m_animator->Play("Wing", true, false, KuroEngine::GetRand(5));
 	m_animator->SetStartPosture("To_Angry");
 }
 
