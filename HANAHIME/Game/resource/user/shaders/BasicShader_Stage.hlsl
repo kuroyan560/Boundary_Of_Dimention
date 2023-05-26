@@ -104,16 +104,32 @@ PSOutputStage PSmain(VSOutput input) : SV_TARGET
     //ライトの影響
     float3 diffuseEf = { 0, 0, 0 };
     
-    //ディレクションライト
-    for (int i = 0; i < ligNum.dirLigNum; ++i)
-    {
-        if (!dirLight[i].active)
-            continue;
+    ////ディレクションライト
+    //for (int i = 0; i < ligNum.dirLigNum; ++i)
+    //{
+    //    if (!dirLight[i].active)
+    //        continue;
         
-        float3 dir = dirLight[i].direction;
-        float3 ligCol = dirLight[i].color.xyz * dirLight[i].color.w;
-        diffuseEf += CalcLambertDiffuse(dir, ligCol, normal) * (material.diffuse * material.diffuseFactor);
-    }
+    //    float3 dir = dirLight[i].direction;
+    //    float3 ligCol = dirLight[i].color.xyz * dirLight[i].color.w;
+    //    diffuseEf += CalcLambertDiffuse(dir, ligCol, normal) * (material.diffuse * material.diffuseFactor);
+    //}
+        
+    float3 dir = float3(1,1,0);
+    float3 ligCol = float3(1, 1, 1);
+    diffuseEf += CalcLambertDiffuse(normalize(dir), ligCol, normal) * (material.diffuse * material.diffuseFactor);
+        
+    dir = float3(-1, -1, 0);
+    diffuseEf += CalcLambertDiffuse(normalize(dir), ligCol, normal) * (material.diffuse * material.diffuseFactor);
+        
+    dir = float3(0, 1, 1);
+    diffuseEf += CalcLambertDiffuse(normalize(dir), ligCol, normal) * (material.diffuse * material.diffuseFactor);
+        
+    dir = float3(0, -1, -1);
+    diffuseEf += CalcLambertDiffuse(normalize(dir), ligCol, normal) * (material.diffuse * material.diffuseFactor);
+    
+    diffuseEf = clamp(diffuseEf, 0.5, 1.0f);
+    
     //ポイントライト
     for (int i = 0; i < ligNum.ptLigNum; ++i)
     {
