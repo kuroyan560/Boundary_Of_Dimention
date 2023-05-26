@@ -34,6 +34,7 @@ class Player : public KuroEngine::Debugger
 
 	//プレイヤーのモデル
 	std::shared_ptr<KuroEngine::Model>m_model;
+	std::shared_ptr<KuroEngine::Model>m_headLeafModel;
 	std::shared_ptr<KuroEngine::Model>m_axisModel;
 
 	//カメラのモデル（デバッグ用）

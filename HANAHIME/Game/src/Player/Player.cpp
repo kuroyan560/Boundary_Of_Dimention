@@ -131,6 +131,7 @@ Player::Player()
 
 	//ƒ‚ƒfƒ‹“Ç‚Ýž‚Ý
 	m_model = Importer::Instance()->LoadModel("resource/user/model/", "Player.glb");
+	m_headLeafModel = Importer::Instance()->LoadModel("resource/user/model/", "Player_Head_Leaf.glb");
 	m_axisModel = Importer::Instance()->LoadModel("resource/user/model/", "Axis.glb");
 	m_camModel = Importer::Instance()->LoadModel("resource/user/model/", "Camera.glb");
 
@@ -972,13 +973,13 @@ void Player::Draw(KuroEngine::Camera &arg_cam, std::weak_ptr<KuroEngine::DepthSt
 	drawParam.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 1.0f, 0.0f);
 
 	//ö‚Á‚Ä‚¢‚½‚ç
-	if (m_isUnderGround) {
+	if ((m_isUnderGround && 1.0f <= m_underGroundEaseTimer)) {
 
 		BasicDraw::Instance()->Draw_Player(
 			arg_cam,
 			arg_ds,
 			arg_ligMgr,
-			m_model,
+			m_headLeafModel,
 			m_drawTransform,
 			drawParam,
 			KuroEngine::AlphaBlendMode_None,
