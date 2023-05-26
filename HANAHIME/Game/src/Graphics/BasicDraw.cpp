@@ -497,9 +497,12 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 	auto targetSize = D3D12App::Instance()->GetBackBuffRenderTarget()->GetGraphSize();
 	for (int targetIdx = 0; targetIdx < RENDER_TARGET_TYPE::NUM; ++targetIdx)
 	{
+		Color clear = Color(0.0f, 0.0f, 0.0f, 0.0f);
+		if (targetIdx == RENDER_TARGET_TYPE::DEPTH)clear.m_r = FLT_MAX;
+
 		m_renderTargetArray[targetIdx] = D3D12App::Instance()->GenerateRenderTarget(
 			RENDER_TARGET_INFO[0][targetIdx].m_format,
-			Color(0.0f, 0.0f, 0.0f, 0.0f),
+			clear,
 			targetSize,
 			GetWideStrFromStr(("BasicDraw - " + targetNames[targetIdx])).c_str());
 	}
