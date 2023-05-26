@@ -971,15 +971,33 @@ void Player::Draw(KuroEngine::Camera &arg_cam, std::weak_ptr<KuroEngine::DepthSt
 	IndividualDrawParameter drawParam = IndividualDrawParameter::GetDefault();
 	drawParam.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 1.0f, 0.0f);
 
-	BasicDraw::Instance()->Draw_Player(
-		arg_cam,
-		arg_ds,
-		arg_ligMgr,
-		m_model,
-		m_drawTransform,
-		drawParam,
-		KuroEngine::AlphaBlendMode_None,
-		m_modelAnimator->GetBoneMatBuff());
+	//ö‚Á‚Ä‚¢‚½‚ç
+	if (m_isUnderGround) {
+
+		BasicDraw::Instance()->Draw_Player(
+			arg_cam,
+			arg_ds,
+			arg_ligMgr,
+			m_model,
+			m_drawTransform,
+			drawParam,
+			KuroEngine::AlphaBlendMode_None,
+			m_modelAnimator->GetBoneMatBuff());
+
+	}
+	else {
+
+		BasicDraw::Instance()->Draw_Player(
+			arg_cam,
+			arg_ds,
+			arg_ligMgr,
+			m_model,
+			m_drawTransform,
+			drawParam,
+			KuroEngine::AlphaBlendMode_None,
+			m_modelAnimator->GetBoneMatBuff());
+
+	}
 
 	//KuroEngine::DrawFunc3D::DrawNonShadingModel(
 	//	m_axisModel,

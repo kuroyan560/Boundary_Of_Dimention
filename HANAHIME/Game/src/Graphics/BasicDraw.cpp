@@ -178,6 +178,36 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 			{ WrappedSampler(true, true) });
 
 	}
+	{
+
+		std::vector<RenderTargetInfo> playerRenderTargetInfo =
+		{
+			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), (AlphaBlendMode)AlphaBlendMode_Trans),	//通常描画
+			RenderTargetInfo(DXGI_FORMAT_R32G32B32A32_FLOAT, AlphaBlendMode_Trans),	//エミッシブマップ
+			RenderTargetInfo(DXGI_FORMAT_R16_FLOAT, AlphaBlendMode_None),	//深度マップ
+			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_None),	//エッジカラーマップ
+			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//草むらマップ
+			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//ノーマルマップ
+		};
+
+		//パイプライン設定
+		static PipelineInitializeOption PIPELINE_OPTION(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+		//シェーダー情報
+		static Shaders SHADERS;
+		SHADERS.m_vs = D3D12App::Instance()->CompileShader("resource/user/shaders/BasicShader_NoGrass.hlsl", "VSmain", "vs_6_4");
+		SHADERS.m_ps = D3D12App::Instance()->CompileShader("resource/user/shaders/BasicShader_NoGrass.hlsl", "PSmain", "ps_6_4");
+
+		//パイプライン生成
+		m_drawPipeline_noGrass = D3D12App::Instance()->GenerateGraphicsPipeline(
+			PIPELINE_OPTION,
+			SHADERS,
+			ModelMesh::Vertex::GetInputLayout(),
+			ROOT_PARAMETER,
+			playerRenderTargetInfo,
+			{ WrappedSampler(true, true) });
+
+	}
 
 	//インスタンシング描画パイプライン生成
 	for (int writeDepth = 0; writeDepth < 2; ++writeDepth)
@@ -726,6 +756,62 @@ void BasicDraw::Draw_Player(KuroEngine::Camera &arg_cam, std::weak_ptr<KuroEngin
 		rts.emplace_back(m_renderTargetArray[targetIdx]);
 	}
 	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(rts, arg_ds);
+
+}
+
+void BasicDraw::Draw_NoGrass(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform& arg_transform, const IndividualDrawParameter& arg_toonParam, const KuroEngine::AlphaBlendMode& arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff, int arg_layer)
+{
+
+	using namespace KuroEngine;
+
+	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_drawPipeline_noGrass);
+
+	//トランスフォームバッファ送信
+	if (m_drawTransformBuff.size() < (m_drawCount + 1))
+	{
+		m_drawTransformBuff.emplace_back(D3D12App::Instance()->GenerateConstantBuffer(sizeof(Matrix), 1, nullptr, ("BasicDraw - Transform -" + std::to_string(m_drawCount)).c_str()));
+	}
+	m_drawTransformBuff[m_drawCount]->Mapping(&arg_transform.GetMatWorld());
+
+	//トゥーンの個別パラメータバッファ送信
+	if (m_toonIndividualParamBuff.size() < (m_individualParamCount + 1))
+	{
+		m_toonIndividualParamBuff.emplace_back(D3D12App::Instance()->GenerateConstantBuffer(sizeof(IndividualDrawParameter), 1, nullptr, ("BasicDraw - IndividualDrawParameter -" + std::to_string(m_individualParamCount)).c_str()));
+	}
+	m_toonIndividualParamBuff[m_individualParamCount]->Mapping(&arg_toonParam);
+
+	auto model = arg_model.lock();
+
+	for (int meshIdx = 0; meshIdx < model->m_meshes.size(); ++meshIdx)
+	{
+		const auto& mesh = model->m_meshes[meshIdx];
+		KuroEngineDevice::Instance()->Graphics().ObjectRender(
+			mesh.mesh->vertBuff,
+			mesh.mesh->idxBuff,
+			{
+				{arg_cam.GetBuff(),CBV},
+				{arg_ligMgr.GetLigNumInfo(),CBV},
+				{arg_ligMgr.GetLigInfo(Light::DIRECTION),SRV},
+				{arg_ligMgr.GetLigInfo(Light::POINT),SRV},
+				{arg_ligMgr.GetLigInfo(Light::SPOT),SRV},
+				{arg_ligMgr.GetLigInfo(Light::HEMISPHERE),SRV},
+				{m_drawTransformBuff[m_drawCount],CBV},
+				{arg_boneBuff,CBV},
+				{mesh.material->texBuff[COLOR_TEX],SRV},
+				{mesh.material->buff,CBV},
+				{m_toonCommonParamBuff,CBV},
+				{m_toonIndividualParamBuff[m_individualParamCount],CBV},
+				{m_playerInfoBuffer,CBV},
+				{m_growPlantLigNumBuffer,CBV},
+				{m_growPlantPtLigBuffer,SRV},
+				{m_growPlantSpotLigBuffer,SRV},
+			},
+			arg_layer,
+			arg_blendMode == AlphaBlendMode_Trans);
+	}
+
+	m_drawCount++;
+	m_individualParamCount++;
 
 }
 
