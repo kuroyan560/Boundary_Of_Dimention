@@ -252,7 +252,7 @@ private:
 	XMVECTOR m_jumpStartQ;							//ジャンプ開始時のクォータニオン
 	XMVECTOR m_jumpEndQ;							//ジャンプ終了時のクオータニオン
 	float m_jumpTimer;								//ジャンプの計測時間を図るタイマー
-	const float JUMP_TIMER = 0.06f;
+	const float JUMP_TIMER = 0.05f;
 	bool m_canJump;									//ジャンプができるかのフラグ
 	int m_canJumpDelayTimer;						//ジャンプができるようになるまでの引っ掛かり
 	const int CAN_JUMP_DELAY = 1;
