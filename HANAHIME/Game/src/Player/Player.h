@@ -361,6 +361,9 @@ public:
 	//攻撃中か？
 	bool GetIsAttack() { return 0 < m_attackTimer; }
 
+	//オーバーヒート中か？
+	bool GetIsOverheat() { return m_isPlayerOverHeat; }
+
 	void DisactiveLight()
 	{
 		m_growPlantPtLig.Disactive();

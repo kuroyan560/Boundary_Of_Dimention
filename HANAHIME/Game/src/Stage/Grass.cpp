@@ -154,7 +154,7 @@ void Grass::Init()
 	m_plantTimer.Reset(0);
 }
 
-void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, float arg_plantInfluenceRange, const std::weak_ptr<Stage>arg_nowStage, bool arg_isAttack)
+void Grass::Update(const float arg_timeScale, bool arg_isPlayerOverheat, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, float arg_plantInfluenceRange, const std::weak_ptr<Stage>arg_nowStage, bool arg_isAttack)
 {
 	using namespace KuroEngine;
 
@@ -173,7 +173,7 @@ void Grass::Update(const float arg_timeScale, const KuroEngine::Transform arg_pl
 	int consumeCount = 0;
 
 	//if (m_plantTimer.IsTimeUp() && 0.01f < KuroEngine::Vec3<float>(m_oldPlayerPos - arg_playerTransform.GetPos()).Length())
-	if (0.1f < TimeScaleMgr::s_inGame.GetTimeScale())
+	if (0.1f < TimeScaleMgr::s_inGame.GetTimeScale() && !arg_isPlayerOverheat)
 	{
 		//トランスフォームに流し込む
 		Transform grassTransform;
