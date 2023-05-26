@@ -53,14 +53,6 @@ private:
 //モデル
 	//地形モデルの存在するディレクトリ
 	static std::string s_stageModelDir;
-	//スカイドーム
-	std::shared_ptr<KuroEngine::Model>m_skydomeModel;
-	//森林円柱
-	std::shared_ptr<KuroEngine::Model>m_woodsCylinderModel;
-
-//画像
-	//地面
-	std::shared_ptr<KuroEngine::TextureBuffer>m_groundTex;
 
 	//全てをオン状態にすることがクリア条件となるレバーの識別番号
 	int m_goalLeverID = Lever::INVALID_ID;
@@ -128,14 +120,6 @@ public:
 
 	void SetCompleteMapPinFlg(bool arg_flg) { m_isCompleteMapPin = arg_flg; }
 	const bool& GetCompleteMapPin()const { return m_isCompleteMapPin; }
-
-//モデルのゲッタ
-	//スカイドーム
-	std::weak_ptr<KuroEngine::Model>GetSkydomeModel() { return m_skydomeModel; }
-	//森林円柱
-	std::weak_ptr<KuroEngine::Model>GetWoodsCylinderModel() { return m_woodsCylinderModel; }
-	//地面
-	std::weak_ptr<KuroEngine::TextureBuffer>GetGroundTex() { return m_groundTex; }
 
 	//マップピンを指すパーツの配列
 	std::vector<std::weak_ptr<StageParts>>GetMapPinPointArray()const { return m_mapPinPoint; }

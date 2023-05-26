@@ -24,8 +24,10 @@
 
 class GameScene : public KuroEngine::BaseScene
 {
-	std::shared_ptr<KuroEngine::TextureBuffer>m_ddsTex;
-	std::shared_ptr<KuroEngine::TextureBuffer>m_pngTex;
+	//スカイドーム
+	KuroEngine::Transform m_skyDomeTransform;
+	IndividualDrawParameter m_skyDomeDrawParam;
+	std::shared_ptr<KuroEngine::Model>m_skyDomeModel;
 
 	Player m_player;
 

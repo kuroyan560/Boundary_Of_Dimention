@@ -22,9 +22,6 @@
 
 GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_1flameStopTimer(30), m_goal(m_particleRender.GetStackBuffer())
 {
-	m_ddsTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.dds");
-	m_pngTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
-
 	KuroEngine::Vec3<float>dir = { 0.0f,-1.0f,0.0f };
 	m_dirLigArray.emplace_back();
 	m_dirLigArray.back().SetDir(dir.GetNormal());
@@ -55,6 +52,10 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 	SoundConfig::Instance();
 	CameraData::Instance()->RegistCameraData("");
 
+	//スカイドーム
+	m_skyDomeModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Skydome.glb");
+	m_skyDomeDrawParam.m_edgeColor.m_a = 0.0f;
+	m_skyDomeTransform.SetScale(StageManager::Instance()->GetSkyDomeScaling());
 }
 
 
@@ -289,28 +290,11 @@ void GameScene::OnDraw()
 	//レンダーターゲットのクリアとセット
 	BasicDraw::Instance()->RenderTargetsClearAndSet(ds);
 
-	Transform transform;
-	transform.SetPos({ -0.5f,0,0 });
-	DrawFunc3D::DrawNonShadingPlane(
-		m_ddsTex,
-		transform,
-		*m_nowCam);
+	//スカイドームの描画
+	BasicDraw::Instance()->Draw_Stage(*m_nowCam, m_ligMgr, m_skyDomeModel, m_skyDomeTransform, m_skyDomeDrawParam);
 
-	transform.SetPos({ 0.5f,0,0 });
-	DrawFunc3D::DrawNonShadingPlane(
-		m_pngTex,
-		transform,
-		*m_nowCam);
-
-	//m_movieCamera.DebugDraw(*m_nowCam, m_ligMgr);
-
-	//KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
-	//m_waterPaintBlend.Register(main, *nowCamera, ds);
-	//m_vignettePostEffect.Register(m_waterPaintBlend.GetResultTex());
-
-	//if (m_title.IsStartOP())
-
-	//tutorial.Draw(*m_nowCam);
+	//スカイドームを最背面描画するため、デプスステンシルのクリア
+	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 
 	if (m_title.IsFinish() || m_title.IsStartOP())
 	{

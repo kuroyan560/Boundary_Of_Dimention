@@ -301,7 +301,8 @@ PSOutputStage PSmain(VSOutput input) : SV_TARGET
     
     output.depth = input.depthInView;
 
-    output.edgeColor = toonIndividualParam.m_edgeColor * lerp(0.2f, 1.0f, isBright);
+    output.edgeColor = toonIndividualParam.m_edgeColor;
+    output.edgeColor.xyz *= lerp(0.2f, 1.0f, isBright);
     
     output.bright.x = isBright;
     output.bright.y = saturate(isBright + isBrightDefRange);

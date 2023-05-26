@@ -256,11 +256,7 @@
       "textColorFlg": false
     },
     "scaling": {
-      "skydome": 5000.0,
-      "woods": {
-        "height": 3000.0,
-        "radius": 3000.0
-      }
+      "skydome": 5000.0
     }
   },
   "Vignette": {
