@@ -826,7 +826,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 		}
 	}
-	else {
+	else if(!(m_isPlayerOverHeat && m_isUnderGround)) {
 		m_growPlantPtLig.m_influenceRange = std::clamp(m_growPlantPtLig.m_influenceRange + ADD_INFLUENCE_RANGE * TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, MAX_INFLUENCE_RANGE);
 
 
