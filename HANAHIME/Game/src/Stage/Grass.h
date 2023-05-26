@@ -134,7 +134,7 @@ class Grass
 public:
 	Grass();
 	void Init();
-	void Update(const float arg_timeScale, bool arg_isPlayerOverheat, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, float arg_plantInfluenceRange, const std::weak_ptr<Stage>arg_nowStage, bool arg_isAttack);
+	void Update(const float arg_timeScale, bool arg_isPlayerOverheat, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, float arg_plantInfluenceRange, const std::weak_ptr<Stage>arg_nowStage, bool arg_isAttack, KuroEngine::Vec3<float> arg_moveSpeed);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, float arg_plantInfluenceRange, bool arg_isAttack);
 
 private:
@@ -145,7 +145,7 @@ private:
 	/// <returns> t:ê∂Ç¶ÇƒÇ¢ÇÈ  f:ê∂Ç¶ÇƒÇ¢Ç»Ç¢ </returns>
 	std::array<Grass::SearchPlantResult, GRASSF_SEARCH_COUNT> SearchPlantPos(KuroEngine::Transform arg_playerTransform);
 
-	void UpdateGrassEasing(Grass::GrassData& arg_grass, int arg_index);
+	void UpdateGrassEasing(Grass::GrassData& arg_grass, int arg_index, KuroEngine::Vec3<float> arg_moveSpeed);
 	void GrassCheckHit(Grass::GrassData& arg_grass, const std::weak_ptr<Stage>arg_nowStage);
 
 };

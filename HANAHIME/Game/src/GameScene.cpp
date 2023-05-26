@@ -163,7 +163,7 @@ void GameScene::OnUpdate()
 		m_nowCam = m_debugCam;
 	}
 
-	m_grass.Update(1.0f, m_player.GetIsOverheat(), m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrowPlantLight().m_influenceRange, StageManager::Instance()->GetNowStage(), m_player.GetIsAttack());
+	m_grass.Update(1.0f, m_player.GetIsOverheat(), m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrowPlantLight().m_influenceRange, StageManager::Instance()->GetNowStage(), m_player.GetIsAttack(), m_player.GetMoveSpeed());
 
 	//ƒz[ƒ€‚Å‚Ìˆ—----------------------------------------
 	if (!m_title.IsFinish() && !m_title.IsStartOP())

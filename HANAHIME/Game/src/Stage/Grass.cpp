@@ -154,7 +154,7 @@ void Grass::Init()
 	m_plantTimer.Reset(0);
 }
 
-void Grass::Update(const float arg_timeScale, bool arg_isPlayerOverheat, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, float arg_plantInfluenceRange, const std::weak_ptr<Stage>arg_nowStage, bool arg_isAttack)
+void Grass::Update(const float arg_timeScale, bool arg_isPlayerOverheat, const KuroEngine::Transform arg_playerTransform, std::weak_ptr<KuroEngine::Camera> arg_cam, float arg_plantInfluenceRange, const std::weak_ptr<Stage>arg_nowStage, bool arg_isAttack, KuroEngine::Vec3<float> arg_moveSpeed)
 {
 	using namespace KuroEngine;
 
@@ -265,7 +265,7 @@ void Grass::Update(const float arg_timeScale, bool arg_isPlayerOverheat, const K
 			auto grass = grassIdx;
 
 			//草のイージングの更新処理
-			UpdateGrassEasing(grass, static_cast<int>(&grassIdx - &m_plantGrassDataArray[0]));
+			UpdateGrassEasing(grass, static_cast<int>(&grassIdx - &m_plantGrassDataArray[0]), arg_moveSpeed);
 
 			//草の当たり判定
 			GrassCheckHit(grass, arg_nowStage);
@@ -411,7 +411,7 @@ std::array<Grass::SearchPlantResult, Grass::GRASSF_SEARCH_COUNT> Grass::SearchPl
 
 }
 
-void Grass::UpdateGrassEasing(Grass::GrassData& arg_grass, int arg_index)
+void Grass::UpdateGrassEasing(Grass::GrassData& arg_grass, int arg_index, KuroEngine::Vec3<float> arg_moveSpeed)
 {
 
 	//コンピュートシェーダーで計算した結果を取得
@@ -439,6 +439,15 @@ void Grass::UpdateGrassEasing(Grass::GrassData& arg_grass, int arg_index)
 	//風の速度。
 	const float WIND_SPEED = 0.05f;
 	arg_grass.m_sineTimer += WIND_SPEED;
+
+	//草がプレイヤーの周囲にあり、プレイヤーが動いていたらガサガサさせる。
+	const float GRASS_MOVE = 0.4f;
+	const float GRASS_DEADLINE = 5.0f;
+	float distance = KuroEngine::Vec3<float>(arg_grass.m_pos - m_playerPos).Length();
+	if(distance < GRASS_DEADLINE && 0.1f < arg_moveSpeed.Length()){
+		arg_grass.m_sineTimer += GRASS_MOVE;
+	}
+
 
 	//原点付近の草は強制削除。
 	if (arg_grass.m_pos.Length() < 1.0f) {

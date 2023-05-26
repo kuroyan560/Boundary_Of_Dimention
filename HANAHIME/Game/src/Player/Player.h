@@ -367,6 +367,8 @@ public:
 	//オーバーヒート中か？
 	bool GetIsOverheat() { return m_isPlayerOverHeat; }
 
+	KuroEngine::Vec3<float> GetMoveSpeed() { return m_moveSpeed; }
+
 	void DisactiveLight()
 	{
 		m_growPlantPtLig.Disactive();
