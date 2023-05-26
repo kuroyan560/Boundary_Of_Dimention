@@ -4,6 +4,7 @@ struct EdgeParameter
     matrix m_matProj;
     //エッジ描画の判断をする深度差のしきい値
     float m_depthThreshold;
+    int m_isPlayerOverheat;
 };
 
 
@@ -157,7 +158,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
             float isPlayer = g_brightMap.Sample(g_sampler, brihgtPickUv).z;
             if (pickBright != myBright && !isPlayer)
             {
-                output.color = g_edgeColorMap.Sample(g_sampler, brihgtPickUv);
+                output.color = m_edgeParam.m_isPlayerOverheat ? float4(0.5f, 0.5f, 0.5f, 1.0f) : g_edgeColorMap.Sample(g_sampler, brihgtPickUv);
                 output.depth = g_depthMap.Sample(g_sampler, brihgtPickUv);
                 return output;
             }

@@ -1045,7 +1045,7 @@ void BasicDraw::InstancingDraw(KuroEngine::Camera &arg_cam, KuroEngine::LightMan
 		arg_boneBuff);
 }
 
-void BasicDraw::DrawEdge(DirectX::XMMATRIX arg_camView, DirectX::XMMATRIX arg_camProj, std::weak_ptr<KuroEngine::DepthStencil>arg_ds)
+void BasicDraw::DrawEdge(DirectX::XMMATRIX arg_camView, DirectX::XMMATRIX arg_camProj, std::weak_ptr<KuroEngine::DepthStencil>arg_ds, int arg_isPlayerOverheat)
 {
 	using namespace KuroEngine;
 
@@ -1061,6 +1061,7 @@ void BasicDraw::DrawEdge(DirectX::XMMATRIX arg_camView, DirectX::XMMATRIX arg_ca
 
 	m_edgeShaderParam.m_view = arg_camView;
 	m_edgeShaderParam.m_proj = arg_camProj;
+	m_edgeShaderParam.m_isPlayerOverheat = arg_isPlayerOverheat;
 	m_edgeShaderParamBuff->Mapping(&m_edgeShaderParam);
 
 	std::vector<RegisterDescriptorData>descDatas =

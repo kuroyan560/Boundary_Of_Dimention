@@ -48,6 +48,7 @@ private:
 		DirectX::XMMATRIX m_proj;
 		//エッジ描画の判断をする深度差のしきい値
 		float m_depthThreshold = 0.19f;
+		int m_isPlayerOverheat;
 	};
 	EdgeCommonParameter m_edgeShaderParam;
 
@@ -300,7 +301,7 @@ public:
 		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr);
 
 	//エッジ描画
-	void DrawEdge(DirectX::XMMATRIX arg_camView, DirectX::XMMATRIX arg_camProj, std::weak_ptr<KuroEngine::DepthStencil>arg_ds);
+	void DrawEdge(DirectX::XMMATRIX arg_camView, DirectX::XMMATRIX arg_camProj, std::weak_ptr<KuroEngine::DepthStencil>arg_ds, int arg_isPlayerOverheat);
 
 	//メインのレンダーターゲットゲッタ
 	std::shared_ptr<KuroEngine::RenderTarget> &GetRenderTarget(RENDER_TARGET_TYPE arg_type) { return m_renderTargetArray[arg_type]; }
