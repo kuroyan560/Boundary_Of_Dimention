@@ -230,7 +230,8 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     
     //–¾‚é‚³ŒvŽZ
     float bright = dot(result.xyz, float3(0.2125f, 0.7154f, 0.0721f));
-    output.emissive = float4(0, 0, 0, 0);
+    output.emissive.xyz = material.emissive * material.emissiveFactor;
+    output.emissive.z = 1.0f;
     //if (1.0f < bright)
     //    output.emissive += result;
     //output.emissive.w = result.w;

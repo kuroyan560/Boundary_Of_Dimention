@@ -1,4 +1,4 @@
-#include"Player.h"
+#include "Player.h"
 #include"Render/RenderObject/Camera.h"
 #include"../OperationConfig.h"
 #include"FrameWork/Importer.h"
@@ -58,7 +58,7 @@ void Player::OnImguiItems()
 void Player::AnimationSpecification(const KuroEngine::Vec3<float> &arg_beforePos, const KuroEngine::Vec3<float> &arg_newPos)
 {
 	//移動ステータス
-	if (m_playerMoveStatus == PLAYER_MOVE_STATUS::MOVE)
+	if (m_playerMoveStatus == PLAYER_MOVE_STATUS::MOVE || m_playerMoveStatus == PLAYER_MOVE_STATUS::LOOK_AROUND)
 	{
 		//ジャンプアニメーション中
 		if (m_modelAnimator->IsPlay(m_animNames[ANIM_PATTERN_JUMP]))return;
@@ -241,8 +241,9 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_sphere.m_radius = &m_radius;
 	m_radius = 2.0f;
 
-	//HPのUI初期化
+	//UI初期化
 	m_hpUi.Init();
+	m_camModeUI.Init();
 
 	m_playerMoveParticle.Init();
 	m_playerMoveParticleTimer.Reset(PLAYER_MOVE_PARTICLE_SPAN);
@@ -339,8 +340,9 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform)
 	m_sphere.m_radius = &m_radius;
 	m_radius = 2.0f;
 
-	//HPのUI初期化
+	//UI初期化
 	m_hpUi.Init();
+	m_camModeUI.Init();
 
 	m_playerMoveParticle.Init();
 	m_playerMoveParticleTimer.Reset(PLAYER_MOVE_PARTICLE_SPAN);
@@ -416,6 +418,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 			//慣性を消す。
 			m_moveSpeed = Vec3<float>();
+
+			m_camModeUI.Appear();
 
 			break;
 
@@ -687,6 +691,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	case Player::PLAYER_MOVE_STATUS::JUMP:
 	{
 
+		scopeMove = Vec3<float>();
+
 		//入力された移動量を取得
 		m_jumpRowMoveVec = OperationConfig::Instance()->GetMoveVecFuna(XMQuaternionIdentity());	//生の入力方向を取得。プレイヤーを入力方向に回転させる際に、XZ平面での値を使用したいから。
 
@@ -780,12 +786,18 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 			m_camController.EndLookAround();
 
+			m_camModeUI.Disappear();
 		}
 
 		if (m_camController.IsCompleteFinishLookAround()) {
 			m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 			m_cameraMode = CameraController::CAMERA_STATUS::NORMAL;
 		}
+
+		m_moveSpeed = Vec3<float>();
+		m_rowMoveVec = Vec3<float>();
+		Move(newPos);
+		m_transform.SetPos(newPos);
 
 	}
 	break;
@@ -931,8 +943,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//地中に潜ったときのシェイク量を減らす。
 	m_underGroundShake = std::clamp(m_underGroundShake - SUB_UNDER_GROUND_SHAKE, 0.0f, 100.0f);
 
-	//HPUI更新
+	//UI更新
 	m_hpUi.Update(TimeScaleMgr::s_inGame.GetTimeScale(), DEFAULT_HP, m_hp, m_nodamageTimer);
+	m_camModeUI.Update(TimeScaleMgr::s_inGame.GetTimeScale());
 
 	//プレイヤーが動いた時のパーティクル挙動
 	m_playerMoveParticle.Update();
@@ -1011,8 +1024,9 @@ void Player::DrawUI(KuroEngine::Camera &arg_cam)
 
 	}
 
-	//ダメージのヒットストップが効いていないときHPUI描画
+	//UI描画
 	m_hpUi.Draw(DEFAULT_HP, m_hp, !m_damageHitStopTimer.IsTimeUp());
+	m_camModeUI.Draw();
 }
 
 void Player::Finalize()

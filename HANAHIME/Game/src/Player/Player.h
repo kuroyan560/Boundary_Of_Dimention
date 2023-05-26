@@ -15,6 +15,7 @@
 #include"../Stage/Enemy/Enemy.h"
 #include"../CPUParticle/DashEffect.h"
 #include"../HUD/PlayerHpUI.h"
+#include"../HUD/CameraModeUI.h"
 
 namespace KuroEngine
 {
@@ -107,6 +108,9 @@ class Player : public KuroEngine::Debugger
 	bool m_isNearEnemy;		//敵が近くにいるか？いたらカメラを近づける。
 	const float CAMERA_NEAR_ENEMY_DISTANCE = 60.0f;
 	CameraController::CAMERA_STATUS m_cameraMode;
+
+	//カメラモードのUI
+	CameraModeUI m_camModeUI;
 
 	//植物を繁殖させる点光源
 	GrowPlantLight_Point m_growPlantPtLig;
