@@ -73,7 +73,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     float2 nearestUv = input.m_uv;
 
     //エッジの太さ
-    float edgeThickness = 0.002f;
+    float edgeThickness = 0.0011f;
     float2 edgeOffsetUV[8];
     edgeOffsetUV[0] = float2(edgeThickness, 0.0f);
     edgeOffsetUV[1] = float2(-edgeThickness, 0.0f);
@@ -203,10 +203,19 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     //法線が一緒か
     bool sameNormal = (length(normal - nearestNormal) < FLT_EPSILON);
     
-    // 自身の深度値と近傍8テクセルの深度値の差を調べる
+    bool drawFlg = false;
+    
+    if (!sameNormal && m_edgeParam.m_depthThreshold <= depthDiffer)
+        drawFlg = true;
+    
+    if(sameNormal && 10.0f <= depthDiffer)
+        drawFlg = true;
+    
+       // 自身の深度値と近傍8テクセルの深度値の差を調べる
     // 法線が異なる　かつ　深度値が結構違う場合はエッジ出力
     // 敵・プレイヤーには表示しない。
-    if (!sameNormal && m_edgeParam.m_depthThreshold <= depthDiffer && !playerBright && !enemyBright)
+    //if (!sameNormal && m_edgeParam.m_depthThreshold <= depthDiffer && !playerBright && !enemyBright)
+    if (drawFlg && !playerBright && !enemyBright)
     {
         //一番手前側のエッジカラーを採用する
         output.color = g_edgeColorMap.Sample(g_sampler, nearestUv);
