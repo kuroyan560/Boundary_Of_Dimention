@@ -291,7 +291,8 @@ void GameScene::OnDraw()
 	BasicDraw::Instance()->RenderTargetsClearAndSet(ds);
 
 	//スカイドームの描画
-	BasicDraw::Instance()->Draw_Stage(*m_nowCam, m_ligMgr, m_skyDomeModel, m_skyDomeTransform, m_skyDomeDrawParam);
+	DrawFunc3D::DrawNonShadingModel(m_skyDomeModel, m_skyDomeTransform, *m_nowCam, 1.0f, nullptr, AlphaBlendMode_None);
+	//BasicDraw::Instance()->Draw_Stage(*m_nowCam, m_ligMgr, m_skyDomeModel, m_skyDomeTransform, m_skyDomeDrawParam);
 
 	//スカイドームを最背面描画するため、デプスステンシルのクリア
 	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
