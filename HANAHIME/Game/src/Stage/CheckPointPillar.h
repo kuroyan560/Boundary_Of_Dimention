@@ -21,12 +21,13 @@ private:
 	KuroEngine::Transform m_transform;					//円柱の描画情報
 	bool m_isDraw;										//描画するか？
 	float m_alpha;										//円柱のアルファ
+	bool m_isFirstFrame;								//最初のフレームかどうか。最初のフレームだけ座標を保存する。
 
 	//各ステータスのタイマー
 	KuroEngine::Timer m_appearModeTimer;
 	const float APPEAR_MODE_TIMER = 20.0f;
 	KuroEngine::Timer m_exitModeTimer;
-	const float EXIT_MODE_TIMER = 20.0f;
+	const float EXIT_MODE_TIMER = 30.0f;
 
 	enum STATUS {
 		NORMAL,

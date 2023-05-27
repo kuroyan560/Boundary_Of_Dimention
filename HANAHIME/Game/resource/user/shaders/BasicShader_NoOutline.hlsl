@@ -79,7 +79,7 @@ struct NoOutlineOutput
 NoOutlineOutput PSmain(VSOutput input) : SV_TARGET
 {
     
-    if (toonIndividualParam.m_alpha <= 0.1f)
+    if (toonIndividualParam.m_alpha <= 0.01f)
     {
         discard;
     }

@@ -14,6 +14,7 @@ CheckPointPillar::CheckPointPillar()
 	m_status = NORMAL;
 	m_appearModeTimer.Reset(APPEAR_MODE_TIMER);
 	m_exitModeTimer.Reset(EXIT_MODE_TIMER);
+	m_isFirstFrame = false;
 
 }
 
@@ -24,6 +25,7 @@ void CheckPointPillar::Init()
 	m_status = NORMAL;
 	m_appearModeTimer.Reset(APPEAR_MODE_TIMER);
 	m_exitModeTimer.Reset(EXIT_MODE_TIMER);
+	m_isFirstFrame = false;
 
 }
 
@@ -37,6 +39,15 @@ void CheckPointPillar::Update(const KuroEngine::Vec3<float>& arg_playerPos)
 	//そのままの座標を保存。
 	KuroEngine::Vec3<float> rawPos = nextCheckPointTransform.GetPosWorld();
 
+	//座標を保存。
+	if (!m_isFirstFrame) {
+
+		//座標をオフセットをつけて保存。
+		const KuroEngine::Vec3<float> OFFSET = KuroEngine::Vec3<float>(0, 20000.0f, 0);
+		m_transform.SetPos(nextCheckPointTransform.GetPosWorld() - OFFSET);
+
+	}
+
 	//UVアニメーション
 
 	for (auto& mesh : m_pillarModel->m_meshes)
@@ -49,7 +60,7 @@ void CheckPointPillar::Update(const KuroEngine::Vec3<float>& arg_playerPos)
 	}
 
 	//退出、出現するときの広がってるスケール
-	const float SCALE_EXIT = 10.0f;
+	const float SCALE_EXIT = 20.0f;
 	const float SCALE_DEFAULT = 1.0f;
 
 	switch (m_status)
@@ -77,7 +88,7 @@ void CheckPointPillar::Update(const KuroEngine::Vec3<float>& arg_playerPos)
 		m_transform.SetScale(KuroEngine::Vec3<float>(1.0f, 100.0f, 1.0f));
 
 		//チェックポイントに当たった瞬間だったらAPPEARの処理を行わわセル。
-		if (CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger) {
+		if (CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger || KuroEngine::UsersInput::Instance()->KeyInput(DIK_P)) {
 			m_status = STATUS::EXIT;
 			m_appearModeTimer.Reset();
 			m_exitModeTimer.Reset();
@@ -144,6 +155,7 @@ void CheckPointPillar::Update(const KuroEngine::Vec3<float>& arg_playerPos)
 		break;
 	}
 
+	m_isFirstFrame = true;
 }
 
 void CheckPointPillar::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::DepthStencil>arg_ds)
