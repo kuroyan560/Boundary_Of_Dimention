@@ -91,7 +91,6 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 
 
 
-
 	//ExcuteIndirect----------------------------------------
 	std::array<SpriteVertex, 4>verticesArray;
 	InitVerticesPos(&verticesArray[0].pos, &verticesArray[1].pos, &verticesArray[2].pos, &verticesArray[3].pos, { 0.5f,0.5f });
