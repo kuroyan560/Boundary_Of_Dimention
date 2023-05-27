@@ -28,7 +28,7 @@ void StageParts::Init()
 	//m_transform.SetPos(m_initializedTransform.GetPos());
 	//m_transform.SetScale(m_initializedTransform.GetScale());
 	//m_transform.SetRotate(m_initializedTransform.GetRotate());
-	m_transform = m_initializedTransform;
+ 	m_transform = m_initializedTransform;
 	OnInit();
 }
 

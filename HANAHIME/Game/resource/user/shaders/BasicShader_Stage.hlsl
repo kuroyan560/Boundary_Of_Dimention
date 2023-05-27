@@ -296,7 +296,9 @@ PSOutputStage PSmain(VSOutput input) : SV_TARGET
     output.color = result;
     
     //–¾‚é‚³ŒvŽZ
-    output.emissive.xyz = material.emissive * material.emissiveFactor;
+    output.emissive = emissiveTex.Sample(smp, input.uv) * 0.5f;
+    output.emissive.xyz += material.emissive * material.emissiveFactor;
+    output.emissive.xyz *= output.emissive.w;
     output.emissive.w = 1.0f;
     
     output.depth = input.depthInView;

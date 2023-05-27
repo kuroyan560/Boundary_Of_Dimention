@@ -21,6 +21,7 @@
 #include"HUD/OperationInfoUI.h"
 #include"HUD/StageInfoUI.h"
 #include"HUD/PauseUI.h"
+#include"Stage/CheckPointPillar.h"
 
 class GameScene : public KuroEngine::BaseScene
 {
@@ -54,6 +55,9 @@ class GameScene : public KuroEngine::BaseScene
 
 	//水彩画風ブレンドポストエフェクト
 	WaterPaintBlend m_waterPaintBlend;
+
+	//チェックポイントに出る円柱
+	CheckPointPillar m_checkPointPillar;
 
 	int m_stageNum;
 	SceneChange m_gateSceneChange;

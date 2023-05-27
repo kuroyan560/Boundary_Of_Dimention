@@ -243,7 +243,7 @@ void KuroEngine::ModelAnimator::Play(const std::string& AnimationName, const boo
 	//Ä¶’†‚È‚çƒŠƒZƒbƒg‚µ‚Ä‚¨‚í‚è
 	if (already != playAnimations.end())
 	{
-		already->past = InitPast;
+		already->past = static_cast<float>(InitPast);
 		already->loop = Loop;
 		return;
 	}

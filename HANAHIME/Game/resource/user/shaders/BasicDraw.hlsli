@@ -73,6 +73,7 @@ cbuffer cbuff3 : register(b3)
 }
 
 Texture2D<float4> baseTex : register(t4);
+Texture2D<float4> emissiveTex : register(t5);
 SamplerState smp : register(s0);
 
 cbuffer cbuff4 : register(b4)
@@ -100,8 +101,8 @@ cbuffer cbuff8 : register(b8)
     LightInfo_Plant ligNum_Plant;
 }
 
-StructuredBuffer<PointLight_Plant> pointLight_Plant : register(t5);
-StructuredBuffer<SpotLight_Plant> spotLight_Plant : register(t6);
+StructuredBuffer<PointLight_Plant> pointLight_Plant : register(t6);
+StructuredBuffer<SpotLight_Plant> spotLight_Plant : register(t7);
 
 struct PSOutput
 {
