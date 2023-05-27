@@ -36,13 +36,17 @@ void InitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 
 {
     int index = GetIndex(groupId,groupThreadID);
     fireFlyDataBuffer[index].startPos = emittPos;
-    
+
+    int mulNum = index / 1024;
+    int randomTableIndex = index - 1024 * mulNum;
+    int randomTableMaxIndex = 1024 * 1;
+
     float2 angle =
     float2(
-        Rand(randomTable[index],360.0f,0.0f),
-        Rand(randomTable[1024 - index],360.0f,0.0f)
+        Rand(randomTable[randomTableIndex],360.0f,0.0f),
+        Rand(randomTable[randomTableMaxIndex - randomTableIndex],360.0f,0.0f)
     );
-    float radius = 30.0f;
+    float radius = Rand(randomTable[randomTableIndex], 5.0f,50.0f);
     float diamator = radius * 2.0f;
     float3 pos =
     float3

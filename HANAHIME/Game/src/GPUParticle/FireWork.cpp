@@ -4,7 +4,6 @@
 
 FireWork::FireWork(std::shared_ptr<KuroEngine::RWStructuredBuffer> particle) :m_gpuParticleBuffer(particle)
 {
-	const int FIREWORK_PARTICLE_MAX = 1024;
 	m_fireUploadBuffer = KuroEngine::D3D12App::Instance()->GenerateRWStructuredBuffer(sizeof(FireParticle), FIREWORK_PARTICLE_MAX);
 
 	{
@@ -59,7 +58,7 @@ void FireWork::Init(const KuroEngine::Vec3<float> &emittPos)
 		{m_particleColor,KuroEngine::SRV},
 		{m_emitterBuffer,KuroEngine::CBV}
 	};
-	KuroEngine::D3D12App::Instance()->DispathOneShot(m_fireWorkInitPipeline, { 1,1,1 }, descData);
+	KuroEngine::D3D12App::Instance()->DispathOneShot(m_fireWorkInitPipeline, { DISPATCH_NUM,1,1 }, descData);
 }
 
 void FireWork::Update()
@@ -69,5 +68,5 @@ void FireWork::Update()
 		{m_fireUploadBuffer,KuroEngine::UAV},
 		{m_gpuParticleBuffer,KuroEngine::UAV}
 	};
-	KuroEngine::D3D12App::Instance()->DispathOneShot(m_fireWorkUpdatePipeline, { 1,1,1 }, descData);
+	KuroEngine::D3D12App::Instance()->DispathOneShot(m_fireWorkUpdatePipeline, { DISPATCH_NUM,1,1 }, descData);
 }

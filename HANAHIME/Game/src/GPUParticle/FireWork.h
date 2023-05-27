@@ -9,6 +9,10 @@ public:
 	void Update();
 
 private:
+
+	static const int DISPATCH_NUM = 1;
+	static const int FIREWORK_PARTICLE_MAX = 1024 * DISPATCH_NUM;
+
 	//â‘âŒç\ë¢ëÃ
 	struct FireParticle
 	{
