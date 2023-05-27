@@ -499,6 +499,7 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 	{
 		Color clear = Color(0.0f, 0.0f, 0.0f, 0.0f);
 		if (targetIdx == RENDER_TARGET_TYPE::DEPTH)clear.m_r = FLT_MAX;
+		else if (targetIdx == RENDER_TARGET_TYPE::EDGE_COLOR)clear = IndividualDrawParameter::GetDefault().m_edgeColor;
 
 		m_renderTargetArray[targetIdx] = D3D12App::Instance()->GenerateRenderTarget(
 			RENDER_TARGET_INFO[0][targetIdx].m_format,
