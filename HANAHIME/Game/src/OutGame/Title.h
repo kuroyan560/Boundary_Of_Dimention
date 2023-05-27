@@ -9,6 +9,13 @@
 /// </summary>
 class Title
 {
+	//通常のメニュー
+	void MenuUpdate(bool arg_inputUp, bool arg_inputDown, bool arg_inputDone);
+	void MenuDraw();
+
+	void ConfirmNewGameUpdate(bool arg_inputLeft, bool arg_inputRight, bool arg_inputDone);
+	void ConfirmNewGameDraw();
+
 public:
 	Title();
 	void Init();
@@ -97,6 +104,7 @@ private:
 	KuroEngine::Vec2<float> m_pazzleModeLogoPos, m_storyModeLogoPos;
 
 	//新しいやつ↓==============================================================
+	enum TITLE_MODE { MODE_MENU, MODE_CONFIRM_NEW_GAME }m_mode;
 	enum TITLE_MENU_ITEM { CONTINUE, NEW_GAME, SETTING, QUIT, TITLE_MENU_ITEM_NUM }m_nowItem;
 	enum ITEM_STATUS { DEFAULT, SELECT, ITEM_STATUS_NUM };
 	struct Item
@@ -113,5 +121,31 @@ private:
 	std::shared_ptr<KuroEngine::TextureBuffer>m_titleLogoTex;
 	//選択影テクスチャ
 	std::shared_ptr<KuroEngine::TextureBuffer>m_selectShadowTex;
+
+	//「はじめから」の最終確認
+	struct ConfirmNewGame
+	{
+		bool m_isNo = true;
+		//アイコン
+		std::shared_ptr<KuroEngine::TextureBuffer>m_iconTex;
+		//文章
+		std::shared_ptr<KuroEngine::TextureBuffer>m_strTex;
+		//はい
+		std::array<std::shared_ptr<KuroEngine::TextureBuffer>, ITEM_STATUS_NUM>m_yesTex;
+		//いいえ
+		std::array<std::shared_ptr<KuroEngine::TextureBuffer>, ITEM_STATUS_NUM>m_noTex;
+		//選択中の影
+		std::shared_ptr<KuroEngine::TextureBuffer>m_shadowTex;
+
+		std::shared_ptr<KuroEngine::TextureBuffer>GetYesTex()
+		{
+			return m_yesTex[m_isNo ? DEFAULT : SELECT];
+		}
+		std::shared_ptr<KuroEngine::TextureBuffer>GetNoTex()
+		{
+			return m_noTex[m_isNo ? SELECT : DEFAULT];
+		}
+
+	}m_confirmNewGame;
 };
 

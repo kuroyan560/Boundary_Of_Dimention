@@ -5,6 +5,139 @@
 #include"../System/SaveDataManager.h"
 #include"KuroEngineDevice.h"
 
+void Title::MenuUpdate(bool arg_inputUp, bool arg_inputDown, bool arg_inputDone)
+{
+	//項目の更新
+	auto oldItem = m_nowItem;
+	if (m_nowItem < TITLE_MENU_ITEM_NUM - 1 && arg_inputDown)	//下へ
+	{
+		m_nowItem = (TITLE_MENU_ITEM)(m_nowItem + 1);
+	}
+	else if (0 < m_nowItem && arg_inputUp)		//上へ
+	{
+		m_nowItem = (TITLE_MENU_ITEM)(m_nowItem - 1);
+	}
+
+	//セーブデータがないときは「つづきから」を選べない
+	if (m_nowItem == CONTINUE && !SaveDataManager::Instance()->IsExistSaveData())m_nowItem = oldItem;
+
+	//選択項目が変わった
+	if (m_nowItem != oldItem)
+	{
+		m_itemArray[m_nowItem].m_status = ITEM_STATUS::SELECT;
+		m_itemArray[oldItem].m_status = ITEM_STATUS::DEFAULT;
+	}
+
+	//決定
+	if (arg_inputDone)
+	{
+		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
+		switch (m_nowItem)
+		{
+			//つづきから
+			case CONTINUE:
+				break;
+				//はじめから
+			case NEW_GAME:
+				//最終確認
+				m_confirmNewGame.m_isNo = true;
+				m_mode = MODE_CONFIRM_NEW_GAME;
+				break;
+				//設定
+			case SETTING:
+				break;
+				//ゲームをやめる
+			case QUIT:
+				KuroEngine::KuroEngineDevice::Instance()->GameEnd();
+				break;
+			default:
+				break;
+		}
+	}
+}
+
+void Title::MenuDraw()
+{
+	using namespace KuroEngine;
+
+	//項目の描画中心座標
+	static const Vec2<float>ITEM_DRAW_CENTER_POS = { 1044.0f,200.0f };
+	//項目間の行間
+	static const float ITEM_LINE_SPACE = 70.0f;
+
+	//項目の描画
+	float offsetY = 0.0f;
+	for (int itemIdx = 0; itemIdx < TITLE_MENU_ITEM_NUM; ++itemIdx)
+	{
+		//描画位置計算
+		auto drawPos = ITEM_DRAW_CENTER_POS + m_itemArray[itemIdx].m_offsetPos + Vec2<float>(0.0f, offsetY);
+
+		//セーブデータがなければつづきからは選択不可
+		float alpha = 1.0f;
+		if (itemIdx == CONTINUE && !SaveDataManager::Instance()->IsExistSaveData())alpha = 0.3f;
+
+		//選択項目
+		if (itemIdx == m_nowItem)
+		{
+			//影描画
+			DrawFunc2D::DrawRotaGraph2D(drawPos, { 1.0f,1.0f }, 0.0f, m_selectShadowTex);
+		}
+		//項目描画
+		DrawFunc2D::DrawRotaGraph2D(drawPos, { 1.0f,1.0f }, 0.0f, m_itemArray[itemIdx].GetTex(), alpha);
+
+		//オフセットYずらし
+		offsetY += m_itemArray[itemIdx].GetTex()->GetGraphSize().y + ITEM_LINE_SPACE;
+	}
+}
+
+void Title::ConfirmNewGameUpdate(bool arg_inputLeft, bool arg_inputRight, bool arg_inputDone)
+{
+	//「はい」「いいえ」選択
+	if ((!m_confirmNewGame.m_isNo && arg_inputLeft) || (m_confirmNewGame.m_isNo && arg_inputRight))
+	{
+		m_confirmNewGame.m_isNo = !m_confirmNewGame.m_isNo;
+	}
+
+	//決定
+	if (arg_inputDone)
+	{
+		//いいえ
+		if (m_confirmNewGame.m_isNo)m_mode = MODE_MENU;
+		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
+	}
+}
+
+void Title::ConfirmNewGameDraw()
+{
+	using namespace KuroEngine;
+
+	const float CENTER_X = 1004.0f;
+
+	//アイコンの座標
+	const Vec2<float>ICON_CENTER_POS = { CENTER_X,256.0f };
+	DrawFunc2D::DrawRotaGraph2D(ICON_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_confirmNewGame.m_iconTex);
+	//質問テクスチャの座標
+	const Vec2<float>STR_CENTER_POS = { CENTER_X,392.0f };
+	DrawFunc2D::DrawRotaGraph2D(STR_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_confirmNewGame.m_strTex);
+
+	//「はい」「いいえ」の中心座標からのオフセットX
+	const float YES_NO_OFFSET_X = 94.0f;
+	//「はい」テクスチャの座標
+	const Vec2<float>YES_CENTER_POS = { CENTER_X + YES_NO_OFFSET_X,540.0f };
+
+	//「いいえ」テクスチャの座標
+	const Vec2<float>NO_CENTER_POS = { CENTER_X - YES_NO_OFFSET_X,540.0f };
+
+	//影のテクスチャの座標
+	auto shadowPos = m_confirmNewGame.m_isNo ? NO_CENTER_POS : YES_CENTER_POS;
+	DrawFunc2D::DrawRotaGraph2D(shadowPos, { 1.0f,1.0f }, 0.0f, m_confirmNewGame.m_shadowTex);
+
+	//「はい」
+	DrawFunc2D::DrawRotaGraph2D(YES_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_confirmNewGame.GetYesTex());
+	//「いいえ」
+	DrawFunc2D::DrawRotaGraph2D(NO_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_confirmNewGame.GetNoTex());
+}
+
 Title::Title()
 	:m_startGameFlag(false), m_isFinishFlag(false), m_startOPFlag(false), m_generateCameraMoveDataFlag(false),
 	m_delayTime(10)
@@ -14,7 +147,7 @@ Title::Title()
 	using namespace KuroEngine;
 
 	//テクスチャのディレクトリ
-	const std::string DIR = "resource/user/tex/title/";
+	static const std::string DIR = "resource/user/tex/title/";
 
 	//タイトルロゴ
 	m_titleLogoTex = D3D12App::Instance()->GenerateTextureBuffer(DIR + "logo_bright.png");
@@ -33,12 +166,20 @@ Title::Title()
 			DIR + TEX_FILE_NAME[itemIdx], ITEM_STATUS_NUM, { 1,ITEM_STATUS_NUM });
 	}
 
-	//選択矢印テクスチャ
 	m_selectShadowTex = D3D12App::Instance()->GenerateTextureBuffer(DIR + "shadow.png");
+
+	//「はじめから」の最終確認のテクスチャ
+	static const std::string CONFIRM_DIR = "resource/user/tex/title/confirm/";
+	m_confirmNewGame.m_iconTex = D3D12App::Instance()->GenerateTextureBuffer(CONFIRM_DIR + "icon.png");
+	m_confirmNewGame.m_strTex = D3D12App::Instance()->GenerateTextureBuffer(CONFIRM_DIR + "str.png");
+	D3D12App::Instance()->GenerateTextureBuffer(m_confirmNewGame.m_yesTex.data(), CONFIRM_DIR + "yes.png", ITEM_STATUS_NUM, { 1,ITEM_STATUS_NUM });
+	D3D12App::Instance()->GenerateTextureBuffer(m_confirmNewGame.m_noTex.data(), CONFIRM_DIR + "no.png", ITEM_STATUS_NUM, { 1,ITEM_STATUS_NUM });
+	m_confirmNewGame.m_shadowTex = D3D12App::Instance()->GenerateTextureBuffer(CONFIRM_DIR + "shadow.png");
 
 	//セーブデータが存在に応じて選択項目の初期化
 	m_nowItem = SaveDataManager::Instance()->IsExistSaveData() ? CONTINUE : NEW_GAME;
 	m_itemArray[m_nowItem].m_status = SELECT;
+
 }
 
 void Title::Init()
@@ -107,6 +248,8 @@ void Title::Init()
 	//	break;
 	//}
 	m_doneFlag = false;
+
+	m_mode = MODE_MENU;
 }
 
 void Title::Update(KuroEngine::Transform *player_camera, std::shared_ptr<KuroEngine::Camera> arg_cam)
@@ -114,52 +257,23 @@ void Title::Update(KuroEngine::Transform *player_camera, std::shared_ptr<KuroEng
 	//入力
 	bool inputUp = OperationConfig::Instance()->GetSelectVec(OperationConfig::SELECT_VEC_UP);
 	bool inputDown = OperationConfig::Instance()->GetSelectVec(OperationConfig::SELECT_VEC_DOWN);
+	bool inputLeft = OperationConfig::Instance()->GetSelectVec(OperationConfig::SELECT_VEC_LEFT);
+	bool inputRight = OperationConfig::Instance()->GetSelectVec(OperationConfig::SELECT_VEC_RIGHT);
 	bool inputDone = OperationConfig::Instance()->GetOperationInput(OperationConfig::DONE, OperationConfig::ON_TRIGGER);
 
-	//項目の更新
-	auto oldItem = m_nowItem;
-	if (m_nowItem < TITLE_MENU_ITEM_NUM - 1 && inputDown)	//下へ
+	//選択音
+	if (inputUp || inputDown || inputLeft || inputRight)SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
+	
+	switch (m_mode)
 	{
-		m_nowItem = (TITLE_MENU_ITEM)(m_nowItem + 1);
-	}
-	else if (0 < m_nowItem && inputUp)		//上へ
-	{
-		m_nowItem = (TITLE_MENU_ITEM)(m_nowItem - 1);
-	}
-
-	//セーブデータがないときは「つづきから」を選べない
-	if (m_nowItem == CONTINUE && !SaveDataManager::Instance()->IsExistSaveData())m_nowItem = oldItem;
-
-	//選択項目が変わった
-	if (m_nowItem != oldItem)
-	{
-		SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
-		m_itemArray[m_nowItem].m_status = ITEM_STATUS::SELECT;
-		m_itemArray[oldItem].m_status = ITEM_STATUS::DEFAULT;
+		case MODE_MENU:	//通常のメニュー
+			MenuUpdate(inputUp, inputDown, inputDone);
+			break;
+		case MODE_CONFIRM_NEW_GAME:	//「はじめから」の確認
+			ConfirmNewGameUpdate(inputLeft, inputRight, inputDone);
+			break;
 	}
 
-	//決定
-	if (inputDone)
-	{
-		switch (m_nowItem)
-		{
-			//つづきから
-			case CONTINUE:
-				break;
-			//はじめから
-			case NEW_GAME:
-				break;
-			//設定
-			case SETTING:
-				break;
-			//ゲームをやめる
-			case QUIT:
-				KuroEngine::KuroEngineDevice::Instance()->GameEnd();
-				break;
-			default:
-				break;
-		}
-	}
 
 	//bool isInputSpace = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A);
 	//if (m_isPazzleModeFlag && isInputSpace && !m_startGameFlag && m_stageSelect.IsEnableToDone())
@@ -274,36 +388,17 @@ void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligM
 	//左端の四角描画
 	DrawFunc2D::DrawBox2D({ 0,0 }, { 154.0f,WinApp::Instance()->GetExpandWinSize().y }, Color(0, 21, 13, 180), true);
 
-	//項目の描画中心座標
-	const Vec2<float>ITEM_DRAW_CENTER_POS = { 1044.0f,200.0f };
-	//項目間の行間
-	const float ITEM_LINE_SPACE = 70.0f;
-
-	//項目の描画
-	float offsetY = 0.0f;
-	for (int itemIdx = 0; itemIdx < TITLE_MENU_ITEM_NUM; ++itemIdx)
-	{
-		//描画位置計算
-		auto drawPos = ITEM_DRAW_CENTER_POS + m_itemArray[itemIdx].m_offsetPos + Vec2<float>(0.0f, offsetY);
-
-		//セーブデータがなければつづきからは選択不可
-		float alpha = 1.0f;
-		if (itemIdx == CONTINUE && !SaveDataManager::Instance()->IsExistSaveData())alpha = 0.3f;
-
-		//選択項目
-		if (itemIdx == m_nowItem)
-		{
-			//影描画
-			DrawFunc2D::DrawRotaGraph2D(drawPos, { 1.0f,1.0f }, 0.0f, m_selectShadowTex);
-		}
-		//項目描画
-		DrawFunc2D::DrawRotaGraph2D(drawPos, { 1.0f,1.0f }, 0.0f, m_itemArray[itemIdx].GetTex(), alpha);
-
-		//オフセットYずらし
-		offsetY += m_itemArray[itemIdx].GetTex()->GetGraphSize().y + ITEM_LINE_SPACE;
-	}
-
 	//タイトルロゴ
 	const Vec2<float>TITLE_LOGO_CENTER_POS = { 412.0f,282.0f };
 	DrawFunc2D::DrawRotaGraph2D(TITLE_LOGO_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_titleLogoTex);
+
+	switch (m_mode)
+	{
+		case MODE_MENU:	//通常のメニュー
+			MenuDraw();
+			break;
+		case MODE_CONFIRM_NEW_GAME:	//「はじめから」の確認
+			ConfirmNewGameDraw();
+			break;
+	}
 }
