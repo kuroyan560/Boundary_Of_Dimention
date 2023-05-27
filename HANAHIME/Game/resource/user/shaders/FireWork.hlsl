@@ -5,6 +5,9 @@ struct FireFlyParticleData
 {
     float3 startPos;
     float3 endPos;
+    float3 startColor;
+    float3 endColor;
+    float3 nowColor;
     int timer;
     int isAliveFlag;
 };
@@ -25,6 +28,8 @@ float ConvertToRadian(float Degree)
 
 static const int TIMER = 60;
 
+Texture2D<float4> tex : register(t0);
+SamplerState smp : register(s0);
 //蛍パーティクル初期化
 [numthreads(1024, 1, 1)]
 void InitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 groupThreadID : SV_GroupThreadID)
@@ -49,6 +54,9 @@ void InitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 
 
     fireFlyDataBuffer[index].endPos = emittPos + pos;
     fireFlyDataBuffer[index].timer = TIMER;
+
+    fireFlyDataBuffer[index].startColor = tex.SampleLevel(smp,float2(0.9f,0.9f),0);
+    fireFlyDataBuffer[index].endColor = tex.SampleLevel(smp,float2(0.1f,0.1f),0);
 }
 
 //蛍パーティクル更新
@@ -62,11 +70,17 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
     float startTimer = TIMER - fireFlyDataBuffer[index].timer;
     float3 pos = Easing_Cubic_Out(startTimer,maxTimer,fireFlyDataBuffer[index].startPos,fireFlyDataBuffer[index].endPos);
 
+    //色の補間
+    fireFlyDataBuffer[index].nowColor = Easing_Cubic_Out(startTimer,maxTimer,fireFlyDataBuffer[index].startColor,fireFlyDataBuffer[index].endColor);
+
     //出力--------------------------------------------
+
+    float alpha = (float)(fireFlyDataBuffer[index].timer) / (float)(TIMER);
     ParticleData outputMat;
     matrix mat = SetScaleInMatrix(float3(1.0f,1.0f,1.0f));
     outputMat.world = SetPosInMatrix(mat,pos);
-    outputMat.color = float4(0.12f, 0.97f, 0.8f,(float)(fireFlyDataBuffer[index].timer) / (float)(TIMER));
+    outputMat.color.xyz = fireFlyDataBuffer[index].nowColor.xyz;
+    outputMat.color.a = alpha;
     particleData.Append(outputMat);
     //出力--------------------------------------------
 }

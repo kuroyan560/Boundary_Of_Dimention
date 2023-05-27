@@ -12,17 +12,22 @@ FireWork::FireWork(std::shared_ptr<KuroEngine::RWStructuredBuffer> particle) :m_
 		{
 			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"花火(RWStructuredBuffer)"),
 			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"乱数テーブル(RWStructuredBuffer)"),
-			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"エミッター(ConstBuffer)"),
+			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_SRV,"パーティクルカラー(ShaderResourceBuffer)"),
+			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"エミッター(ConstBuffer)")
 		};
 		auto cs_init = KuroEngine::D3D12App::Instance()->CompileShader("resource/user/shaders/FireWork.hlsl", "InitMain", "cs_6_4");
-		m_fireWorkInitPipeline = KuroEngine::D3D12App::Instance()->GenerateComputePipeline(cs_init, rootParam, { KuroEngine::WrappedSampler(true,true) });
+
+		KuroEngine::WrappedSampler smp(true, true);
+		smp.m_sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+		m_fireWorkInitPipeline = KuroEngine::D3D12App::Instance()->GenerateComputePipeline(cs_init, rootParam, { smp });
 
 		std::vector<KuroEngine::RootParam>rootParam2 =
 		{
 			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"花火(RWStructuredBuffer)"),
 			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"描画(RWStructuredBuffer)")
 		};
-		auto cs_update = KuroEngine::D3D12App::Instance()->CompileShader("resource/user/shaders/FireWork.hlsl", "UpdateMain", "cs_6_4");
+		auto cs_update = KuroEngine::D3D12App::Instance()->CompileShader("resource/user/shaders/FireWork.hlsl", "UpdateMain", "cs_6_5");
+
 		m_fireWorkUpdatePipeline = KuroEngine::D3D12App::Instance()->GenerateComputePipeline(cs_update, rootParam2, { KuroEngine::WrappedSampler(true,true) });
 	}
 
@@ -37,6 +42,7 @@ FireWork::FireWork(std::shared_ptr<KuroEngine::RWStructuredBuffer> particle) :m_
 	}
 	m_randomBuffer->Mapping(randomArray.data());
 
+	m_particleColor = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Particle/check_point_particle_gradation.png");
 }
 
 void FireWork::Init(const KuroEngine::Vec3<float> &emittPos)
@@ -50,19 +56,18 @@ void FireWork::Init(const KuroEngine::Vec3<float> &emittPos)
 	{
 		{m_fireUploadBuffer,KuroEngine::UAV},
 		{m_randomBuffer,KuroEngine::UAV},
-		{m_emitterBuffer,KuroEngine::CBV},
+		{m_particleColor,KuroEngine::SRV},
+		{m_emitterBuffer,KuroEngine::CBV}
 	};
 	KuroEngine::D3D12App::Instance()->DispathOneShot(m_fireWorkInitPipeline, { 1,1,1 }, descData);
 }
 
 void FireWork::Update()
 {
+	std::vector<KuroEngine::RegisterDescriptorData>descData =
 	{
-		std::vector<KuroEngine::RegisterDescriptorData>descData =
-		{
-			{m_fireUploadBuffer,KuroEngine::UAV},
-			{m_gpuParticleBuffer,KuroEngine::UAV}
-		};
-		KuroEngine::D3D12App::Instance()->DispathOneShot(m_fireWorkUpdatePipeline, { 1,1,1 }, descData);
-	}
+		{m_fireUploadBuffer,KuroEngine::UAV},
+		{m_gpuParticleBuffer,KuroEngine::UAV}
+	};
+	KuroEngine::D3D12App::Instance()->DispathOneShot(m_fireWorkUpdatePipeline, { 1,1,1 }, descData);
 }

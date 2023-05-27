@@ -14,6 +14,9 @@ private:
 	{
 		DirectX::XMFLOAT3 startPos;
 		DirectX::XMFLOAT3 endPos;
+		DirectX::XMFLOAT3 startColor;
+		DirectX::XMFLOAT3 endColor;
+		DirectX::XMFLOAT3 nowColor;
 		int timer;
 		int isAliveFlag;
 	};
@@ -32,6 +35,7 @@ private:
 
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_gpuParticleBuffer;
 
+	std::shared_ptr<KuroEngine::TextureBuffer>m_particleColor;
 
 	KuroEngine::Vec3<float>m_emitterPos;
 };
