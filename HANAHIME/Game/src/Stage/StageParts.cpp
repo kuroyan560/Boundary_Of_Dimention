@@ -11,6 +11,7 @@
 #include"../TimeScaleMgr.h"
 #include"GateManager.h"
 #include"CheckPointHitFlag.h"
+#include"../System/SaveDataManager.h"
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
@@ -890,6 +891,7 @@ void CheckPoint::Update(Player& arg_player)
 		s_latestVisitTransform = m_transform;
 		s_visit = true;
 		CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger = true;
+		SaveDataManager::Instance()->Save(m_order);
 	}
 
 	m_touched = isHit;

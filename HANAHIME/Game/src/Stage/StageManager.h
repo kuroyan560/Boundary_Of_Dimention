@@ -33,6 +33,7 @@ class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>, 
 
 	//現在のステージ
 	std::shared_ptr<Stage>m_nowStage;
+	int m_nowStageIdx;
 
 	//マップピンUI
 	MapPinUI m_mapPinUI;
@@ -48,6 +49,7 @@ public:
 
 	//現在のステージのゲッタ
 	std::weak_ptr<Stage>GetNowStage() { return m_nowStage; }
+	const int& GetNowStageIdx()const{ return m_nowStageIdx; }
 
 	KuroEngine::Transform GetGateTransform(int arg_stageIdx, int arg_gateID)const;
 

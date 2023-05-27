@@ -29,14 +29,16 @@ Title::Title()
 	};
 	for (int itemIdx = 0; itemIdx < TITLE_MENU_ITEM_NUM; ++itemIdx)
 	{
-		m_itemArray[itemIdx].m_tex = D3D12App::Instance()->GenerateTextureBuffer(DIR + TEX_FILE_NAME[itemIdx]);
+		D3D12App::Instance()->GenerateTextureBuffer(m_itemArray[itemIdx].m_texArray.data(),
+			DIR + TEX_FILE_NAME[itemIdx], ITEM_STATUS_NUM, { 1,ITEM_STATUS_NUM });
 	}
 
 	//選択矢印テクスチャ
-	m_selectArrowTex = D3D12App::Instance()->GenerateTextureBuffer(DIR + "arrow.png");
+	m_selectShadowTex = D3D12App::Instance()->GenerateTextureBuffer(DIR + "shadow.png");
 
 	//セーブデータが存在に応じて選択項目の初期化
 	m_nowItem = SaveDataManager::Instance()->IsExistSaveData() ? CONTINUE : NEW_GAME;
+	m_itemArray[m_nowItem].m_status = SELECT;
 }
 
 void Title::Init()
@@ -132,6 +134,8 @@ void Title::Update(KuroEngine::Transform *player_camera, std::shared_ptr<KuroEng
 	if (m_nowItem != oldItem)
 	{
 		SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
+		m_itemArray[m_nowItem].m_status = ITEM_STATUS::SELECT;
+		m_itemArray[oldItem].m_status = ITEM_STATUS::DEFAULT;
 	}
 
 	//決定
@@ -261,7 +265,6 @@ void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligM
 		return;
 	}
 
-
 	//ゲームが始まったら選択画面を表示しない
 	if (m_startGameFlag)
 	{
@@ -271,20 +274,17 @@ void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligM
 	//左端の四角描画
 	DrawFunc2D::DrawBox2D({ 0,0 }, { 154.0f,WinApp::Instance()->GetExpandWinSize().y }, Color(0, 21, 13, 180), true);
 
-	//項目の描画左上座標
-	const Vec2<float>ITEM_DRAW_LEFT_UP_POS = { 914.0f,350.0f };
+	//項目の描画中心座標
+	const Vec2<float>ITEM_DRAW_CENTER_POS = { 1044.0f,200.0f };
 	//項目間の行間
-	//const float ITEM_LINE_SPACE = 87.0f;
-	const float ITEM_LINE_SPACE = 42.0f;
-	//選択矢印のオフセット
-	const Vec2<float>SELECT_ARROW_OFFSET = { -50.0f,8.0f };
+	const float ITEM_LINE_SPACE = 70.0f;
 
 	//項目の描画
 	float offsetY = 0.0f;
 	for (int itemIdx = 0; itemIdx < TITLE_MENU_ITEM_NUM; ++itemIdx)
 	{
 		//描画位置計算
-		auto drawPos = ITEM_DRAW_LEFT_UP_POS + m_itemArray[itemIdx].m_offsetPos + Vec2<float>(0.0f, offsetY);
+		auto drawPos = ITEM_DRAW_CENTER_POS + m_itemArray[itemIdx].m_offsetPos + Vec2<float>(0.0f, offsetY);
 
 		//セーブデータがなければつづきからは選択不可
 		float alpha = 1.0f;
@@ -293,14 +293,14 @@ void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligM
 		//選択項目
 		if (itemIdx == m_nowItem)
 		{
-			//矢印描画
-			DrawFunc2D::DrawGraph(drawPos + SELECT_ARROW_OFFSET, m_selectArrowTex);
+			//影描画
+			DrawFunc2D::DrawRotaGraph2D(drawPos, { 1.0f,1.0f }, 0.0f, m_selectShadowTex);
 		}
 		//項目描画
-		DrawFunc2D::DrawGraph(drawPos, m_itemArray[itemIdx].m_tex, alpha);
+		DrawFunc2D::DrawRotaGraph2D(drawPos, { 1.0f,1.0f }, 0.0f, m_itemArray[itemIdx].GetTex(), alpha);
 
 		//オフセットYずらし
-		offsetY += m_itemArray[itemIdx].m_tex->GetGraphSize().y + ITEM_LINE_SPACE;
+		offsetY += m_itemArray[itemIdx].GetTex()->GetGraphSize().y + ITEM_LINE_SPACE;
 	}
 
 	//タイトルロゴ

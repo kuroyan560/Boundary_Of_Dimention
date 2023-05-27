@@ -98,17 +98,20 @@ private:
 
 	//新しいやつ↓==============================================================
 	enum TITLE_MENU_ITEM { CONTINUE, NEW_GAME, SETTING, QUIT, TITLE_MENU_ITEM_NUM }m_nowItem;
+	enum ITEM_STATUS { DEFAULT, SELECT, ITEM_STATUS_NUM };
 	struct Item
 	{
-		std::shared_ptr<KuroEngine::TextureBuffer>m_tex;
+		std::array<std::shared_ptr<KuroEngine::TextureBuffer>, ITEM_STATUS_NUM>m_texArray;
 		KuroEngine::Vec2<float>m_offsetPos;
+		ITEM_STATUS m_status;
+		std::shared_ptr<KuroEngine::TextureBuffer>GetTex() { return m_texArray[m_status]; }
 	};
 	//項目配列
 	std::array<Item, TITLE_MENU_ITEM_NUM>m_itemArray;
 
 	//タイトルロゴテクスチャ
 	std::shared_ptr<KuroEngine::TextureBuffer>m_titleLogoTex;
-	//選択矢印テクスチャ
-	std::shared_ptr<KuroEngine::TextureBuffer>m_selectArrowTex;
+	//選択影テクスチャ
+	std::shared_ptr<KuroEngine::TextureBuffer>m_selectShadowTex;
 };
 

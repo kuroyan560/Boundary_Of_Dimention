@@ -37,7 +37,8 @@ StageManager::StageManager()
 
 
 	//現在のステージ指定（デフォルトはホーム用ステージ）
-	m_nowStage = m_stageArray[0];
+	m_nowStageIdx = 0;
+	m_nowStage = m_stageArray[m_nowStageIdx];
 
 	CameraData::Instance()->RegistCameraData("");
 }
@@ -53,6 +54,7 @@ void StageManager::SetStage(int stage_num)
 		m_nowStage = m_stageArray[stage_num];
 	}
 	m_nowStage->Init();
+	m_nowStageIdx = stage_num;
 
 	//チェックポイントUI初期化
 	CheckPoint::UI().lock()->Init();
