@@ -839,14 +839,14 @@ void Gate::Update(Player& arg_player)
 void Gate::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 	static const float SIZE_HALF = 10.0f;
-	static const KuroEngine::Vec3<float> DRAW_POS_OFFSET = { 0.0f,4.0f,0.0f };
+	static const float DRAW_POS_OFFSET = 4.0f;
 
 	static const KuroEngine::Vec2<float>PLANE_SIZE = { SIZE_HALF * 2.0f,SIZE_HALF * 2.0f };
 
 	if (IsExit())return;
 
 	BasicDraw::Instance()->DrawBillBoard(arg_cam, 
-		m_transform.GetPosWorld() + DRAW_POS_OFFSET,
+		m_transform.GetPosWorld() + m_transform.GetUpWorld() * DRAW_POS_OFFSET,
 		PLANE_SIZE * m_effectScale,
 		PLANE_SIZE * m_effectScale,
 		s_texArray[m_texIdx]);
