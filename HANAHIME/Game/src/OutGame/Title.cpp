@@ -2,31 +2,51 @@
 #include"FrameWork/UsersInput.h"
 #include"FrameWork/WinApp.h"
 #include"../OperationConfig.h"
+#include"../System/SaveDataManager.h"
 
 Title::Title()
 	:m_startGameFlag(false), m_isFinishFlag(false), m_startOPFlag(false), m_generateCameraMoveDataFlag(false),
-	m_titleTexBuff(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/title/logo_bright.png")),
-	m_alphaRate(30.0f), m_startPazzleFlag(false), m_isPazzleModeFlag(false), m_delayInputFlag(false),
-	m_pazzleModeTexBuff(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/title/Pazzle.png")),
-	m_storyModeTexBuff(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/title/Story.png")),
 	m_delayTime(10)
 {
 	SoundConfig::Instance()->Play(SoundConfig::BGM_TITLE);
+
+	using namespace KuroEngine;
+
+	//テクスチャのディレクトリ
+	const std::string DIR = "resource/user/tex/title/";
+
+	//タイトルロゴ
+	m_titleLogoTex = D3D12App::Instance()->GenerateTextureBuffer(DIR + "logo_bright.png");
+
+	//項目のテクスチャ
+	const std::array<std::string, TITLE_MENU_ITEM_NUM>TEX_FILE_NAME =
+	{
+		"continue.png",
+		"new_game.png",
+		"setting.png",
+		"quit.png"
+	};
+	for (int itemIdx = 0; itemIdx < TITLE_MENU_ITEM_NUM; ++itemIdx)
+	{
+		m_itemArray[itemIdx].m_tex = D3D12App::Instance()->GenerateTextureBuffer(DIR + TEX_FILE_NAME[itemIdx]);
+	}
+
+	//選択矢印テクスチャ
+	m_selectArrowTex = D3D12App::Instance()->GenerateTextureBuffer(DIR + "arrow.png");
+
+	//セーブデータが存在に応じて選択項目の初期化
+	m_nowItem = SaveDataManager::Instance()->IsExistSaveData() ? CONTINUE : NEW_GAME;
 }
 
-void Title::Init(TitleMode title_mode)
+void Title::Init()
 {
 	m_startGameFlag = false;
 	m_isFinishFlag = false;
 	m_startOPFlag = false;
 	m_startPazzleFlag = false;
 	m_generateCameraMoveDataFlag = false;
-	m_isPazzleModeFlag = false;
 	m_delayInputFlag = false;
-	m_isPrevInputControllerRight = false;
-	m_isPrevInputControllerLeft = false;
 	m_delayTime.Reset();
-	m_alphaRate.Reset();
 	m_stageSelect.Init();
 	OperationConfig::Instance()->SetAllInputActive(false);
 
@@ -69,91 +89,58 @@ void Title::Init(TitleMode title_mode)
 
 	m_camera.StartMovie(titleCameraMoveDataArray, true);
 
-	//中心から多少上にずらす
-	m_titlePos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() + KuroEngine::Vec2<float>(0.0f, -KuroEngine::WinApp::Instance()->GetExpandWinCenter().y / 2.0f + 100);
-	m_titleLogoSize = { 1,1 };
-
 	m_pazzleModeLogoPos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() + KuroEngine::Vec2<float>(KuroEngine::WinApp::Instance()->GetExpandWinCenter().x / 2.0f, KuroEngine::WinApp::Instance()->GetExpandWinCenter().y / 2.0f);
 	m_storyModeLogoPos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() + KuroEngine::Vec2<float>(-KuroEngine::WinApp::Instance()->GetExpandWinCenter().x / 2.0f, KuroEngine::WinApp::Instance()->GetExpandWinCenter().y / 2.0f);
 
-	switch (title_mode)
-	{
-	case TITLE_SELECT:
-		break;
-	case TITLE_PAZZLE:
-		m_startPazzleFlag = true;
+	m_startPazzleFlag = false;
+	//switch (title_mode)
+	//{
+	//case TITLE_SELECT:
+	//	break;
+	//case TITLE_PAZZLE:
+	//	m_startPazzleFlag = true;
 
-		break;
-	default:
-		break;
-	}
+	//	break;
+	//default:
+	//	break;
+	//}
 	m_doneFlag = false;
 }
 
 void Title::Update(KuroEngine::Transform *player_camera, std::shared_ptr<KuroEngine::Camera> arg_cam)
 {
-	//コントローラーで右に入力されたか
-	bool isInputControllerRight = 0.9f < KuroEngine::UsersInput::Instance()->GetLeftStickVecFuna(0).x;
-	bool isInputTriggerRight = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_RIGHT) || (!m_isPrevInputControllerRight && isInputControllerRight);
-	if (isInputTriggerRight)
-	{
-		m_isPazzleModeFlag = true;
-	}
-	//コントローラーで左に入力されたか
-	bool isInputContollerLeft = KuroEngine::UsersInput::Instance()->GetLeftStickVecFuna(0).x < -0.9f;
-	bool isInputTriggerLeft = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_LEFT) || (!m_isPrevInputControllerLeft && isInputContollerLeft);
-	if (isInputTriggerLeft)
-	{
-		m_isPazzleModeFlag = false;
-	}
-	m_isPazzleModeFlag = true;
+	//入力
+	bool inputUp = OperationConfig::Instance()->GetSelectVec(OperationConfig::SELECT_VEC_UP);
+	bool inputDown = OperationConfig::Instance()->GetSelectVec(OperationConfig::SELECT_VEC_DOWN);
+	bool inputDone = OperationConfig::Instance()->GetOperationInput(OperationConfig::DONE, OperationConfig::ON_TRIGGER);
 
-	if (m_isPazzleModeFlag != m_prevIsPazzleModeFlag)
+	//項目の更新
+	auto oldItem = m_nowItem;
+	if (m_nowItem < TITLE_MENU_ITEM_NUM - 1 && inputDown)	//下へ
+	{
+		m_nowItem = (TITLE_MENU_ITEM)(m_nowItem + 1);
+	}
+	else if (0 < m_nowItem && inputUp)		//上へ
+	{
+		m_nowItem = (TITLE_MENU_ITEM)(m_nowItem - 1);
+	}
+
+	//セーブデータがないときは「つづきから」を選べない
+	if (m_nowItem == CONTINUE && !SaveDataManager::Instance()->IsExistSaveData())m_nowItem = oldItem;
+
+	//選択項目が変わった
+	if (m_nowItem != oldItem)
 	{
 		SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
-		m_prevIsPazzleModeFlag = m_isPazzleModeFlag;
 	}
 
-	//コントローラーの入力を保存。
-	m_isPrevInputControllerRight = isInputControllerRight;
-	m_isPrevInputControllerLeft = isInputContollerLeft;
-
-	//タイトル画面からツリー注目モードに切り替える
-	bool isInput = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A);
-	if (!m_isPazzleModeFlag && isInput && !m_startGameFlag && !m_startPazzleFlag)
-	{
-		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
-
-		m_startGameFlag = true;
-
-		std::vector<MovieCameraData> moveToTreeDataArray;
-		MovieCameraData data1;
-		data1.transform = m_camera.GetCamera().lock()->GetTransform();
-		data1.interpolationTimer = 1;
-		data1.easePosData.easeChangeType = KuroEngine::Out;
-		data1.easePosData.easeType = KuroEngine::Circ;
-		moveToTreeDataArray.emplace_back(data1);
-
-
-		KuroEngine::Vec3<float>cameraPos = m_camera.GetCamera().lock()->GetTransform().GetPosWorld();
-		MovieCameraData data2;
-		data2.transform.SetPos(cameraPos.GetCenter(KuroEngine::Transform().GetPos()));
-		data2.transform.SetRotaMatrix(data1.transform.GetMatWorld());
-		data2.interpolationTimer = 0;
-		data2.easePosData.easeChangeType = KuroEngine::Out;
-		data2.easePosData.easeType = KuroEngine::Circ;
-		moveToTreeDataArray.emplace_back(data2);
-
-		m_camera.StartMovie(moveToTreeDataArray, false);
-	}
-
-	bool isInputSpace = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A);
-	if (m_isPazzleModeFlag && isInputSpace && !m_startGameFlag && m_stageSelect.IsEnableToDone())
-	{
-		m_startPazzleFlag = true;
-		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
-		m_stageSelect.Init();
-	}
+	//bool isInputSpace = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A);
+	//if (m_isPazzleModeFlag && isInputSpace && !m_startGameFlag && m_stageSelect.IsEnableToDone())
+	//{
+	//	m_startPazzleFlag = true;
+	//	SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
+	//	m_stageSelect.Init();
+	//}
 
 
 	//急速接近が終わったらOP開始
@@ -163,7 +150,7 @@ void Title::Update(KuroEngine::Transform *player_camera, std::shared_ptr<KuroEng
 	}
 	if (m_startGameFlag)
 	{
-		m_alphaRate.UpdateTimer();
+		//m_alphaRate.UpdateTimer();
 	}
 
 	//OPのカメラ挙動
@@ -225,10 +212,20 @@ void Title::Update(KuroEngine::Transform *player_camera, std::shared_ptr<KuroEng
 	}
 	m_camera.Update();
 
+	//選択された項目のオフセットX
+	const float SELECT_ITEM_OFFSET_X = -59.0f;
+	for (int itemIdx = 0; itemIdx < TITLE_MENU_ITEM_NUM; ++itemIdx)
+	{
+		KuroEngine::Vec2<float>targetOffset = { 0.0f,0.0f };
+		if (itemIdx == m_nowItem)targetOffset.x = SELECT_ITEM_OFFSET_X;
+		m_itemArray[itemIdx].m_offsetPos = KuroEngine::Math::Lerp(m_itemArray[itemIdx].m_offsetPos, targetOffset, 0.08f);
+	}
 }
 
 void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
+	using namespace KuroEngine;
+
 	if (m_isFinishFlag)
 	{
 		return;
@@ -240,7 +237,6 @@ void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligM
 		m_stageSelect.Draw(arg_cam);
 		return;
 	}
-	KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_titlePos, m_titleLogoSize.Float(), 0.0f, m_titleTexBuff, 1.0f - m_alphaRate.GetTimeRate());
 
 
 	//ゲームが始まったら選択画面を表示しない
@@ -248,20 +244,43 @@ void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligM
 	{
 		return;
 	}
-	float storyLogoAlpha = 1.0f;
-	float pazzleLogoAlpha = 1.0f;
-	if (m_isPazzleModeFlag)
+
+	//左端の四角描画
+	DrawFunc2D::DrawBox2D({ 0,0 }, { 154.0f,WinApp::Instance()->GetExpandWinSize().y }, Color(0, 21, 13, 180), true);
+
+	//項目の描画左上座標
+	const Vec2<float>ITEM_DRAW_LEFT_UP_POS = { 914.0f,350.0f };
+	//項目間の行間
+	//const float ITEM_LINE_SPACE = 87.0f;
+	const float ITEM_LINE_SPACE = 42.0f;
+	//選択矢印のオフセット
+	const Vec2<float>SELECT_ARROW_OFFSET = { -50.0f,8.0f };
+
+	//項目の描画
+	float offsetY = 0.0f;
+	for (int itemIdx = 0; itemIdx < TITLE_MENU_ITEM_NUM; ++itemIdx)
 	{
-		storyLogoAlpha = 0.5f;
-	}
-	else
-	{
-		pazzleLogoAlpha = 0.5f;
+		//描画位置計算
+		auto drawPos = ITEM_DRAW_LEFT_UP_POS + m_itemArray[itemIdx].m_offsetPos + Vec2<float>(0.0f, offsetY);
+
+		//セーブデータがなければつづきからは選択不可
+		float alpha = 1.0f;
+		if (itemIdx == CONTINUE && !SaveDataManager::Instance()->IsExistSaveData())alpha = 0.3f;
+
+		//選択項目
+		if (itemIdx == m_nowItem)
+		{
+			//矢印描画
+			DrawFunc2D::DrawGraph(drawPos + SELECT_ARROW_OFFSET, m_selectArrowTex);
+		}
+		//項目描画
+		DrawFunc2D::DrawGraph(drawPos, m_itemArray[itemIdx].m_tex, alpha);
+
+		//オフセットYずらし
+		offsetY += m_itemArray[itemIdx].m_tex->GetGraphSize().y + ITEM_LINE_SPACE;
 	}
 
-	//パズルモード選択中
-	KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_pazzleModeLogoPos, { 1.0f,1.0f }, 0.0f, m_pazzleModeTexBuff, pazzleLogoAlpha);
-	//ストーリーモード選択中
-	KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_storyModeLogoPos, { 1.0f,1.0f }, 0.0f, m_storyModeTexBuff, storyLogoAlpha);
-
+	//タイトルロゴ
+	const Vec2<float>TITLE_LOGO_CENTER_POS = { 412.0f,282.0f };
+	DrawFunc2D::DrawRotaGraph2D(TITLE_LOGO_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_titleLogoTex);
 }

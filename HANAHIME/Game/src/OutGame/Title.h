@@ -4,12 +4,6 @@
 #include"PazzleStageSelect.h"
 #include"../SoundConfig.h"
 
-enum TitleMode
-{
-	TITLE_SELECT,//選択画面に戻りたい時
-	TITLE_PAZZLE //パズル画面に戻りたい時
-};
-
 /// <summary>
 /// タイトル画面向けの処理
 /// </summary>
@@ -17,7 +11,7 @@ class Title
 {
 public:
 	Title();
-	void Init(TitleMode title_mode);
+	void Init();
 	void Update(KuroEngine::Transform *player_camera, std::shared_ptr<KuroEngine::Camera> arg_cam);
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr);
 
@@ -84,15 +78,9 @@ private:
 	//ゲーム開始フラグ
 	bool m_startGameFlag;
 	bool m_startPazzleFlag;
-	bool m_isPazzleModeFlag;
-	bool m_prevIsPazzleModeFlag;
 	//OPフラグ
 	bool m_startOPFlag;
 	bool m_generateCameraMoveDataFlag;
-
-	//入力フラグ
-	bool m_isPrevInputControllerRight;
-	bool m_isPrevInputControllerLeft;
 
 	bool m_doneFlag;
 
@@ -101,11 +89,6 @@ private:
 
 	MovieCamera m_camera;
 
-	//タイトルロゴ
-	KuroEngine::Vec2<float> m_titlePos, m_titleLogoSize;
-	std::shared_ptr<KuroEngine::TextureBuffer> m_titleTexBuff;
-	KuroEngine::Timer m_alphaRate;
-
 	//ステージ選択画面
 	//パズルモード入力時に決定を1Fずらす事で連続で入力されることを防ぐ
 	bool m_delayInputFlag;
@@ -113,7 +96,19 @@ private:
 
 	KuroEngine::Vec2<float> m_pazzleModeLogoPos, m_storyModeLogoPos;
 
-	std::shared_ptr<KuroEngine::TextureBuffer> m_pazzleModeTexBuff;
-	std::shared_ptr<KuroEngine::TextureBuffer> m_storyModeTexBuff;
+	//新しいやつ↓==============================================================
+	enum TITLE_MENU_ITEM { CONTINUE, NEW_GAME, SETTING, QUIT, TITLE_MENU_ITEM_NUM }m_nowItem;
+	struct Item
+	{
+		std::shared_ptr<KuroEngine::TextureBuffer>m_tex;
+		KuroEngine::Vec2<float>m_offsetPos;
+	};
+	//項目配列
+	std::array<Item, TITLE_MENU_ITEM_NUM>m_itemArray;
+
+	//タイトルロゴテクスチャ
+	std::shared_ptr<KuroEngine::TextureBuffer>m_titleLogoTex;
+	//選択矢印テクスチャ
+	std::shared_ptr<KuroEngine::TextureBuffer>m_selectArrowTex;
 };
 

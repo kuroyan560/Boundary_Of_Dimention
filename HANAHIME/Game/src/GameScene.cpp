@@ -45,9 +45,6 @@ GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutor
 	auto backBuffTarget = KuroEngine::D3D12App::Instance()->GetBackBuffRenderTarget();
 	m_fogPostEffect = std::make_shared<KuroEngine::Fog>(backBuffTarget->GetGraphSize(), backBuffTarget->GetDesc().Format);
 
-	//起動時にタイトル画面を出す為に必要
-	m_eTitleMode = TITLE_SELECT;
-
 	//音声の読み込み
 	SoundConfig::Instance();
 	CameraData::Instance()->RegistCameraData("");
@@ -90,7 +87,6 @@ void GameScene::Retry()
 void GameScene::GoBackTitle()
 {
 	m_gateSceneChange.Start();
-	m_eTitleMode = TITLE_SELECT;
 	m_gobackTitleFlag = true;
 }
 
@@ -119,9 +115,7 @@ void GameScene::OnInitialize()
 
 	m_waterPaintBlend.Init();
 
-	m_title.Init(m_eTitleMode);
-	//ゲーム画面からパズルモードに戻る場合にパズルモードとして初期化した後、再び選択できるようSELECTを入れる
-	m_eTitleMode = TITLE_SELECT;
+	m_title.Init();
 
 	m_pauseUI.Init();
 	m_gobackTitleFlag = false;
@@ -228,7 +222,7 @@ void GameScene::OnUpdate()
 
 		if (m_gobackTitleFlag)
 		{
-			m_title.Init(m_eTitleMode);
+			m_title.Init();
 			m_gobackTitleFlag = false;
 		}
 
@@ -238,7 +232,6 @@ void GameScene::OnUpdate()
 		//ゲームクリア時に遷移する処理
 		if (m_clearFlag)
 		{
-			m_eTitleMode = TITLE_PAZZLE;
 			this->Initialize();
 			m_clearFlag = false;
 

@@ -63,7 +63,6 @@ class GameScene : public KuroEngine::BaseScene
 	std::shared_ptr<KuroEngine::Camera>m_nowCam;
 
 	bool m_gobackTitleFlag;
-	TitleMode m_eTitleMode;
 	Title m_title;
 	bool m_clearFlag;
 	KuroEngine::Timer m_1flameStopTimer;
