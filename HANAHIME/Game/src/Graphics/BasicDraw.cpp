@@ -389,15 +389,12 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		{
 			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), (AlphaBlendMode)AlphaBlendMode_Trans),	//通常描画
 			RenderTargetInfo(DXGI_FORMAT_R32G32B32A32_FLOAT, AlphaBlendMode_Trans),	//エミッシブマップ
-			RenderTargetInfo(DXGI_FORMAT_R16_FLOAT, AlphaBlendMode_None),	//深度マップ
-			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_None),	//エッジカラーマップ
-			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//草むらマップ
-			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//ノーマルマップ
 		};
 
 		//パイプライン設定
 		static PipelineInitializeOption s_pipelineOption(D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT, D3D_PRIMITIVE_TOPOLOGY_POINTLIST);
 		s_pipelineOption.m_calling = D3D12_CULL_MODE_NONE;
+		s_pipelineOption.m_depthWriteMask = false;
 
 		//シェーダー情報
 		static KuroEngine::Shaders s_shaders;
