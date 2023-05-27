@@ -24,10 +24,19 @@ VSOutput VSmain(float4 pos : POSITION,float2 uv:TEXCOORD, uint instanceID : SV_I
 
 
 Texture2D<float4> tex : register(t0);
-SamplerState smp : register(s0);
+SamplerState gpuParticleSmp : register(s0);
 
-float4 PSmain(VSOutput input) : SV_TARGET
+struct PSOutput
 {
-    float4 texColor = float4(tex.Sample(smp, input.uv));
-    return texColor * input.color;
+    float4 color : SV_Target0;
+    float4 emissive : SV_Target1;
+};
+PSOutput PSmain(VSOutput input) : SV_TARGET
+{
+    float4 texColor = float4(tex.Sample(gpuParticleSmp, input.uv));
+
+    PSOutput output;
+    output.color = texColor * input.color;
+    output.emissive = texColor * input.color;
+    return output;
 }
