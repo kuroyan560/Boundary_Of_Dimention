@@ -6,6 +6,7 @@
 #include"Enemy/Enemy.h"
 #include"Switch.h"
 #include<optional>
+#include"../OperationConfig.h"
 #include"../Player/Player.h"
 
 std::string Stage::s_stageModelDir = "resource/user/model/stage/";
@@ -438,7 +439,12 @@ void Stage::Update(Player &arg_player)
 		enemy->Update(arg_player);
 	}
 
-	m_guideInsect.GoToCheckPoint(arg_player.GetTransform().GetPos());
+	//チェックポイントまで飛ぶ処理
+	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::DONE, OperationConfig::ON_TRIGGER))
+	{
+		m_guideInsect.GoToCheckPoint(arg_player.GetTransform().GetPos());
+	}
+
 	m_guideInsect.Update();
 
 	if (m_goalPoint)m_goalPoint->Update(arg_player);

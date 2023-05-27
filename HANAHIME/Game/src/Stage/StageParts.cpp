@@ -813,7 +813,23 @@ CheckPoint::CheckPoint(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::T
 {
 	//UIñ¢ê∂ê¨Ç»ÇÁê∂ê¨
 	if (!s_ui)s_ui = std::make_shared<CheckPointUI>();
-	m_guideData->m_pos = m_transform.GetPos();
+
+	KuroEngine::Vec3<float>vec(m_transform.GetUpWorld());
+
+	if (1.0f <= abs(vec.x))
+	{
+		vec.x *= 10.0f;
+	}
+	if (1.0f <= abs(vec.y))
+	{
+		vec.y *= 10.0f;
+	}
+	if (1.0f <= abs(vec.z))
+	{
+		vec.z *= 10.0f;
+	}
+
+	m_guideData->m_pos = m_transform.GetPosWorld() + vec;
 }
 
 void CheckPoint::Update(Player& arg_player)

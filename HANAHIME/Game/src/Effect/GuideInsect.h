@@ -37,5 +37,6 @@ private:
 
 
 	SignSpotFireFly m_guideInsect;
-
+	bool m_goToCheckPointFlag;
+	KuroEngine::Timer m_tiemr;
 };
