@@ -60,7 +60,6 @@ struct PSOutput
 
 PSOutput PSmain(VSOutput input) : SV_TARGET
 {   
-    
     PSOutput output;
     output.color = float4(0, 0, 0, 0);
     
@@ -83,7 +82,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     float2 nearestUv = input.m_uv;
 
     //エッジの太さ
-    float edgeThickness = 0.0011f;
+    float edgeThickness = 0.0005f;
     float2 edgeOffsetUV[8];
     edgeOffsetUV[0] = float2(edgeThickness, 0.0f);
     edgeOffsetUV[1] = float2(-edgeThickness, 0.0f);
@@ -95,7 +94,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     edgeOffsetUV[7] = float2(-edgeThickness, -edgeThickness);
 
     //プレイヤーのエッジの太さ
-    edgeThickness = 0.002f;
+    edgeThickness = 0.0005f;
     float2 playerEdgeOffsetUV[8];
     playerEdgeOffsetUV[0] = float2(edgeThickness, 0.0f);
     playerEdgeOffsetUV[1] = float2(-edgeThickness, 0.0f);
