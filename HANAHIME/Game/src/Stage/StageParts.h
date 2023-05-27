@@ -504,7 +504,7 @@ class Gate : public StageParts
 	//oŒûê—p
 	bool IsExit() 
 	{
-		return m_destStageNum == INVALID_STAGE_NUM;
+		return m_destStageNum < 0;
 	}
 
 	void OnInit()override
