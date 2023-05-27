@@ -12,8 +12,8 @@ private:
 	//â‘âŒç\ë¢ëÃ
 	struct FireParticle
 	{
-		DirectX::XMFLOAT3 pos;
-		DirectX::XMFLOAT3 vel;
+		DirectX::XMFLOAT3 startPos;
+		DirectX::XMFLOAT3 endPos;
 		int timer;
 		int isAliveFlag;
 	};

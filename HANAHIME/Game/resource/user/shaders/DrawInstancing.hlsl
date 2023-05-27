@@ -38,5 +38,6 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     PSOutput output;
     output.color = texColor * input.color;
     output.emissive = texColor * input.color;
+    output.emissive.a = clamp(output.emissive.a,0.0f,0.5f);
     return output;
 }
