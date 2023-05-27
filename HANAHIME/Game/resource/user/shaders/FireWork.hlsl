@@ -9,6 +9,7 @@ struct FireFlyParticleData
 };
 
 RWStructuredBuffer<FireFlyParticleData> fireFlyDataBuffer : register(u0);
+RWStructuredBuffer<uint> randomTable : register(u1);
 AppendStructuredBuffer<ParticleData> particleData : register(u1);
 
 cbuffer EmittBuffer : register(b0)
@@ -32,9 +33,9 @@ void InitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 
     
     float3 angle =
     float3(
-    Rand(index * 100 + groupThreadID.x * 2,360.0f,0.0f),
-    Rand(index * 100 + groupThreadID.x * 102,360.0f,0.0f),
-    Rand(index * 100 + groupThreadID.x * 102,360.0f,0.0f)
+        Rand(randomTable[index],360.0f,0.0f),
+        Rand(randomTable[1024 - index],360.0f,0.0f),
+        Rand(randomTable[1024 - index],360.0f,0.0f)
     );
 
     float2 xRadian = float2(cos(ConvertToRadian(angle.x)),sin(ConvertToRadian(angle.x)));
@@ -63,5 +64,4 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
     outputMat.color = float4(0.12f, 0.97f, 0.8f,(float)(fireFlyDataBuffer[index].timer) / (float)(TIMER));
     particleData.Append(outputMat);
     //èoóÕ--------------------------------------------
-    
 }

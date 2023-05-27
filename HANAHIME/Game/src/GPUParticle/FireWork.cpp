@@ -11,6 +11,7 @@ FireWork::FireWork(std::shared_ptr<KuroEngine::RWStructuredBuffer> particle) :m_
 		std::vector<KuroEngine::RootParam>rootParam =
 		{
 			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"花火(RWStructuredBuffer)"),
+			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"乱数テーブル(RWStructuredBuffer)"),
 			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"エミッター(ConstBuffer)"),
 		};
 		auto cs_init = KuroEngine::D3D12App::Instance()->CompileShader("resource/user/shaders/FireWork.hlsl", "InitMain", "cs_6_4");
@@ -27,6 +28,15 @@ FireWork::FireWork(std::shared_ptr<KuroEngine::RWStructuredBuffer> particle) :m_
 
 	m_emitterBuffer = KuroEngine::D3D12App::Instance()->GenerateConstantBuffer(sizeof(EmittreData), 1);
 
+	//乱数テーブル
+	m_randomBuffer = KuroEngine::D3D12App::Instance()->GenerateRWStructuredBuffer(sizeof(UINT), 1024);
+	std::vector<UINT>randomArray;
+	for (int i = 0; i < 1024; ++i)
+	{
+		randomArray.emplace_back(KuroEngine::GetRand(10000, -10000));
+	}
+	m_randomBuffer->Mapping(randomArray.data());
+
 }
 
 void FireWork::Init(const KuroEngine::Vec3<float> &emittPos)
@@ -39,6 +49,7 @@ void FireWork::Init(const KuroEngine::Vec3<float> &emittPos)
 	std::vector<KuroEngine::RegisterDescriptorData>descData =
 	{
 		{m_fireUploadBuffer,KuroEngine::UAV},
+		{m_randomBuffer,KuroEngine::UAV},
 		{m_emitterBuffer,KuroEngine::CBV},
 	};
 	KuroEngine::D3D12App::Instance()->DispathOneShot(m_fireWorkInitPipeline, { 1,1,1 }, descData);

@@ -31,7 +31,7 @@ void GuideInsect::Update()
 	if (m_checkPointArray[m_index]->m_isHitFlag)
 	{
 		++m_index;
-		//m_guideInsect.SetAlpha(0.0f);
+		//GoToCheckPoint(m_checkPointArray[m_index]->m_pos);
 	}
 	m_guideInsect.Update();
 

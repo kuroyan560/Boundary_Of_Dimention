@@ -19,6 +19,7 @@ private:
 	};
 
 	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_fireUploadBuffer;
+	std::shared_ptr<KuroEngine::RWStructuredBuffer>m_randomBuffer;
 
 	struct EmittreData
 	{
