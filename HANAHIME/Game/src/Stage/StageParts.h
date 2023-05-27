@@ -483,9 +483,22 @@ class Gate : public StageParts
 {
 	static const int INVALID_STAGE_NUM = -1;
 	static int s_destStageNum;
+
+	//ゲートのテクスチャ
+	static const int GATE_TEX_ARRAY_SIZE = 6;
+	static std::array<std::shared_ptr<KuroEngine::TextureBuffer>, GATE_TEX_ARRAY_SIZE>s_texArray;
+	//テクスチャアニメーション
+	int m_texIdx = 0;
+	KuroEngine::Timer m_animTimer;
+
+	//演出タイマー
+	KuroEngine::Angle m_effectSinCurveAngle;
+	float m_effectScale = 1.0f;
+
 	int m_id;
 	int m_destStageNum;
 	int m_destGateId;
+
 
 	//出口専用
 	bool IsExit() 
@@ -493,9 +506,13 @@ class Gate : public StageParts
 		return m_destStageNum == INVALID_STAGE_NUM;
 	}
 
+	void OnInit()override
+	{
+		m_effectSinCurveAngle = 0;
+	}
+
 public:
-	Gate(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_id, int arg_destStageNum, int arg_destGateId)
-		:StageParts(GATE, arg_model, arg_initTransform), m_id(arg_id), m_destStageNum(arg_destStageNum), m_destGateId(arg_destGateId) {}
+	Gate(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_id, int arg_destStageNum, int arg_destGateId);
 
 	void Update(Player& arg_player)override;
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;

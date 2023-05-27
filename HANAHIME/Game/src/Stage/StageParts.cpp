@@ -793,20 +793,63 @@ void Terrian::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_li
 
 }
 
+std::array<std::shared_ptr<KuroEngine::TextureBuffer>, Gate::GATE_TEX_ARRAY_SIZE>Gate::s_texArray;
+
+Gate::Gate(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, int arg_id, int arg_destStageNum, int arg_destGateId)
+	:StageParts(GATE, arg_model, arg_initTransform), m_id(arg_id), m_destStageNum(arg_destStageNum), m_destGateId(arg_destGateId)
+{
+	//テクスチャ読み込み
+	if (!s_texArray[0])
+	{
+		KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(
+			s_texArray.data(), "resource/user/tex/stage/gate.png", GATE_TEX_ARRAY_SIZE, { GATE_TEX_ARRAY_SIZE,1 });
+	}
+
+	static const float TEX_ANIM_INTERVAL = 4.0f;
+	m_animTimer.Reset(TEX_ANIM_INTERVAL);
+}
+
 void Gate::Update(Player& arg_player)
 {
+	using namespace KuroEngine;
+	static const float HIT_RADIUS = 8.0f;
+	static const float EFFECT_INTERVAL = 60.0f;
+	static const float EFFECT_SCALE_OFFSET = 0.1f;
+
 	if (IsExit())return;
 
+	const float timeScale = TimeScaleMgr::s_inGame.GetTimeScale();
+
 	float dist = m_transform.GetPosWorld().Distance(arg_player.GetNowPos());
-	bool enter = dist < 5.0f;
+	bool enter = dist < HIT_RADIUS* m_transform.GetScaleWorld().x;
 	GateManager::Instance()->SetEnter(enter, m_destStageNum, m_destGateId);
+
+	//テクスチャアニメーション
+	if (m_animTimer.UpdateTimer(timeScale))
+	{
+		//ループ
+		if (GATE_TEX_ARRAY_SIZE <= ++m_texIdx)m_texIdx = 0;
+		m_animTimer.Reset();
+	}
+
+	m_effectSinCurveAngle += Angle::ROUND() / EFFECT_INTERVAL;
+	m_effectScale = 1.0f + powf(sin(m_effectSinCurveAngle),2.0f) * EFFECT_SCALE_OFFSET;
 }
 
 void Gate::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
+	static const float SIZE_HALF = 10.0f;
+	static const KuroEngine::Vec3<float> DRAW_POS_OFFSET = { 0.0f,4.0f,0.0f };
+
+	static const KuroEngine::Vec2<float>PLANE_SIZE = { SIZE_HALF * 2.0f,SIZE_HALF * 2.0f };
+
 	if (IsExit())return;
 
-	StageParts::Draw(arg_cam, arg_ligMgr);
+	BasicDraw::Instance()->DrawBillBoard(arg_cam, 
+		m_transform.GetPosWorld() + DRAW_POS_OFFSET,
+		PLANE_SIZE * m_effectScale,
+		PLANE_SIZE * m_effectScale,
+		s_texArray[m_texIdx]);
 }
 
 bool Gate::CheckID(int arg_id)
