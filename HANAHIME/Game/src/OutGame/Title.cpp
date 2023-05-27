@@ -3,6 +3,7 @@
 #include"FrameWork/WinApp.h"
 #include"../OperationConfig.h"
 #include"../System/SaveDataManager.h"
+#include"KuroEngineDevice.h"
 
 Title::Title()
 	:m_startGameFlag(false), m_isFinishFlag(false), m_startOPFlag(false), m_generateCameraMoveDataFlag(false),
@@ -48,7 +49,6 @@ void Title::Init()
 	m_delayInputFlag = false;
 	m_delayTime.Reset();
 	m_stageSelect.Init();
-	OperationConfig::Instance()->SetAllInputActive(false);
 
 	std::vector<MovieCameraData> titleCameraMoveDataArray;
 
@@ -132,6 +132,29 @@ void Title::Update(KuroEngine::Transform *player_camera, std::shared_ptr<KuroEng
 	if (m_nowItem != oldItem)
 	{
 		SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
+	}
+
+	//Œˆ’è
+	if (inputDone)
+	{
+		switch (m_nowItem)
+		{
+			//‚Â‚Ã‚«‚©‚ç
+			case CONTINUE:
+				break;
+			//‚Í‚¶‚ß‚©‚ç
+			case NEW_GAME:
+				break;
+			//Ý’è
+			case SETTING:
+				break;
+			//ƒQ[ƒ€‚ð‚â‚ß‚é
+			case QUIT:
+				KuroEngine::KuroEngineDevice::Instance()->GameEnd();
+				break;
+			default:
+				break;
+		}
 	}
 
 	//bool isInputSpace = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A);
