@@ -11,6 +11,7 @@
 #include"../TimeScaleMgr.h"
 #include"GateManager.h"
 #include"CheckPointHitFlag.h"
+#include"../OperationConfig.h"
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
@@ -863,11 +864,10 @@ KuroEngine::Transform CheckPoint::s_latestVisitTransform;
 bool CheckPoint::s_visit = false;
 
 CheckPoint::CheckPoint(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, int arg_order, std::shared_ptr<GuideInsect::CheckPointData>checkPointData)
-:StageParts(CHECK_POINT, arg_model, arg_initTransform), m_order(arg_order),m_guideData(checkPointData)
+:StageParts(CHECK_POINT, arg_model, arg_initTransform), m_order(arg_order),m_guideData(checkPointData), m_fireWork(GPUParticleRender::Instance()->GetStackBuffer())
 {
 	//UIñ¢ê∂ê¨Ç»ÇÁê∂ê¨
 	if (!s_ui)s_ui = std::make_shared<CheckPointUI>();
-
 	KuroEngine::Vec3<float>vec(m_transform.GetUpWorld());
 
 	if (1.0f <= abs(vec.x))
@@ -884,11 +884,21 @@ CheckPoint::CheckPoint(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::T
 	}
 
 	m_guideData->m_pos = m_transform.GetPosWorld() + vec;
+
+
+
 }
 
 void CheckPoint::Update(Player& arg_player)
 {
 	static const float CHECK_POINT_RADIUS = 10.0f;
+
+
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_O))
+	{
+		m_fireWork.Init(m_transform.GetPosWorld());
+	}
+	m_fireWork.Update();
 
 	//ãNìÆçœÇ»ÇÁì¡Ç…âΩÇ‡ÇµÇ»Ç¢
 	if (m_touched)return;
@@ -906,7 +916,10 @@ void CheckPoint::Update(Player& arg_player)
 		s_latestVisitTransform = m_transform;
 		s_visit = true;
 		CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger = true;
+
+		m_fireWork.Init(m_transform.GetPosWorld());
 	}
+
 
 	m_touched = isHit;
 }

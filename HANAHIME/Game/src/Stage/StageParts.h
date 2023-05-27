@@ -9,6 +9,7 @@
 #include"ForUser/Timer.h"
 #include"../HUD/CheckPointUI.h"
 #include"../Effect/GuideInsect.h"
+#include"../GPUParticle/FireWork.h"
 
 namespace KuroEngine
 {
@@ -537,6 +538,7 @@ class CheckPoint : public StageParts
 	bool m_touched = false;
 
 	std::shared_ptr<GuideInsect::CheckPointData>m_guideData;
+	FireWork m_fireWork;
 
 public:
 	static std::weak_ptr<CheckPointUI>UI()
@@ -554,7 +556,6 @@ public:
 	}
 
 	CheckPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_order, std::shared_ptr<GuideInsect::CheckPointData>checkPointData);
-
 	void Update(Player &arg_player)override;
 };
 

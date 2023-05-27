@@ -481,6 +481,9 @@
     <ClCompile Include="src\HUD\CameraModeUI.cpp">
       <Filter>src\user\HUD</Filter>
     </ClCompile>
+    <ClCompile Include="src\GPUParticle\FireWork.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -917,5 +920,6 @@
     <ClInclude Include="src\HUD\CameraModeUI.h">
       <Filter>src\user\HUD</Filter>
     </ClInclude>
+    <ClInclude Include="src\GPUParticle\FireWork.h" />
   </ItemGroup>
 </Project>
