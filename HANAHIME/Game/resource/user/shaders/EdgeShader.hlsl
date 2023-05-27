@@ -71,6 +71,12 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     //画面の中心
     float2 centerPos = float2(0.5f, 0.5f);
     
+    //エッジの色を取得
+    if (g_edgeColorMap.Sample(g_sampler, input.m_uv).w < 1.0f)
+    {
+        discard;
+    }
+    
     //このピクセルに光が当たっているか
     float myBright = g_brightMap.Sample(g_sampler, input.m_uv).x;
     float defBright = g_brightMap.Sample(g_sampler, input.m_uv).y; //デフォルトのライトの範囲
@@ -121,41 +127,41 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     for( int i = 0; i < 8; i++)
     {
 
-        //プレイヤーの輪郭線の処理
-        if (playerBright == 0 && !enemyBright)
-        {
+        ////プレイヤーの輪郭線の処理
+        //if (playerBright == 0 && !enemyBright)
+        //{
         
-            //明るさ取得
-            float2 brihgtPickUv = input.m_uv + playerEdgeOffsetUV[i];
-            float pickBright = g_brightMap.Sample(g_sampler, brihgtPickUv).z;
-            float pickDepth = g_depthMap.Sample(g_sampler, brihgtPickUv).x;
-            bool isDepthCheck = pickDepth < depth;
-            if (pickBright != playerBright && !g_brightMap.Sample(g_sampler, brihgtPickUv).w && isDepthCheck)
-            {
-                output.color = float4(0.35f, 0.90f, 0.57f, 1.0f);
-                output.depth = g_depthMap.Sample(g_sampler, brihgtPickUv);
-                return output;
-            }
+        //    //明るさ取得
+        //    float2 brihgtPickUv = input.m_uv + playerEdgeOffsetUV[i];
+        //    float pickBright = g_brightMap.Sample(g_sampler, brihgtPickUv).z;
+        //    float pickDepth = g_depthMap.Sample(g_sampler, brihgtPickUv).x;
+        //    bool isDepthCheck = pickDepth < depth;
+        //    if (pickBright != playerBright && !g_brightMap.Sample(g_sampler, brihgtPickUv).w && isDepthCheck)
+        //    {
+        //        output.color = float4(0.35f, 0.90f, 0.57f, 1.0f);
+        //        output.depth = g_depthMap.Sample(g_sampler, brihgtPickUv);
+        //        return output;
+        //    }
 
-        }
+        //}
 
-        //敵の輪郭線の処理
-        if (enemyBright == 0 && !playerBright)
-        {
+        ////敵の輪郭線の処理
+        //if (enemyBright == 0 && !playerBright)
+        //{
         
-            //明るさ取得
-            float2 brihgtPickUv = input.m_uv + playerEdgeOffsetUV[i];
-            float pickBright = g_brightMap.Sample(g_sampler, brihgtPickUv).w;
-            float pickDepth = g_depthMap.Sample(g_sampler, brihgtPickUv).x;
-            bool isDepthCheck = pickDepth < depth;
-            if (pickBright != enemyBright && !g_brightMap.Sample(g_sampler, brihgtPickUv).z && isDepthCheck)
-            {
-                output.color = float4(0.54f, 0.14f, 0.33f, CalculateEdgeAlpha(depth));
-                output.depth = g_depthMap.Sample(g_sampler, brihgtPickUv);
-                return output;
-            }
+        //    //明るさ取得
+        //    float2 brihgtPickUv = input.m_uv + playerEdgeOffsetUV[i];
+        //    float pickBright = g_brightMap.Sample(g_sampler, brihgtPickUv).w;
+        //    float pickDepth = g_depthMap.Sample(g_sampler, brihgtPickUv).x;
+        //    bool isDepthCheck = pickDepth < depth;
+        //    if (pickBright != enemyBright && !g_brightMap.Sample(g_sampler, brihgtPickUv).z && isDepthCheck)
+        //    {
+        //        output.color = float4(0.54f, 0.14f, 0.33f, CalculateEdgeAlpha(depth));
+        //        output.depth = g_depthMap.Sample(g_sampler, brihgtPickUv);
+        //        return output;
+        //    }
 
-        }
+        //}
 
         //ライトの範囲の輪郭線
         if (myBright == 0)
@@ -224,7 +230,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     // 法線が異なる　かつ　深度値が結構違う場合はエッジ出力
     // 敵・プレイヤーには表示しない。
     //if (!sameNormal && m_edgeParam.m_depthThreshold <= depthDiffer && !playerBright && !enemyBright)
-    if (drawFlg && !playerBright && !enemyBright)
+    if (drawFlg)
     {
         //一番手前側のエッジカラーを採用する
         output.color = g_edgeColorMap.Sample(g_sampler, nearestUv);

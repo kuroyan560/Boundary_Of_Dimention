@@ -248,7 +248,7 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
     output.depth = input.depthInView;
     output.playerDepth = input.depthInView;
 
-    output.edgeColor = toonIndividualParam.m_edgeColor;
+    output.edgeColor = float4(0.35f, 0.90f, 0.57f, 1.0f);
     output.edgeColor.xyz *= lerp(0.9f, 1.0f, isBright);
     
     output.bright.x = 0;

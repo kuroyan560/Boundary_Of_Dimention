@@ -71,14 +71,18 @@ struct NoOutlineOutput
 {
     float4 color : SV_Target0;
     float4 emissive : SV_Target1;
-    float depth : SV_Target2;
-    float4 edgeColor : SV_Target3;
-    float4 bright : SV_Target4;
+    float4 edgeColor : SV_Target2;
+    float4 bright : SV_Target3;
+    float4 normal : SV_Target4;
 };
 
 NoOutlineOutput PSmain(VSOutput input) : SV_TARGET
 {
     
+    if (toonIndividualParam.m_alpha <= 0.1f)
+    {
+        discard;
+    }
     
     float3 normal = input.normal;
     float3 vnormal = normalize(mul(cam.view, normal));
@@ -260,13 +264,12 @@ NoOutlineOutput PSmain(VSOutput input) : SV_TARGET
     output.emissive = emissiveTex.Sample(smp, input.uv) * 0.5f;
     output.emissive.xyz += material.emissive * material.emissiveFactor;
     output.emissive.xyz *= output.emissive.w;
-    output.emissive.w = 1.0f;
+    output.emissive.w = toonIndividualParam.m_alpha;
     
     //アウトラインを消す。
-    output.edgeColor = float4(0, 0, 0, 1);
-    output.bright = float4(0, 0, 0, 1);
-    
-    output.depth = input.depthInView;
+    output.edgeColor = float4(0, 0, 0, 0);
+    output.bright = float4(0, 0, 0, 0);
+    output.normal = float4(0, 0, 0, 0);
 
     return output;
 }

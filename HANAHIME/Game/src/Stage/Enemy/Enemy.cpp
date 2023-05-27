@@ -383,7 +383,7 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 	}
 
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
-	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
+	edgeColor.m_edgeColor = KuroEngine::Color(0.54f, 0.14f, 0.33f, 1.0f);
 
 	BasicDraw::Instance()->Draw_NoGrass(
 		arg_cam,

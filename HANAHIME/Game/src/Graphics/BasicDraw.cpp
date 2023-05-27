@@ -219,14 +219,15 @@ void BasicDraw::Awake(KuroEngine::Vec2<float>arg_screenSize, int arg_prepareBuff
 		{
 			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), (AlphaBlendMode)i),	//通常描画
 			RenderTargetInfo(DXGI_FORMAT_R32G32B32A32_FLOAT, AlphaBlendMode_Trans),	//エミッシブマップ
-			RenderTargetInfo(DXGI_FORMAT_R16_FLOAT, AlphaBlendMode_None),	//深度マップ
 			RenderTargetInfo(D3D12App::Instance()->GetBackBuffFormat(), AlphaBlendMode_None),	//エッジカラーマップ
 			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//草むらマップ
+			RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, AlphaBlendMode_None),	//ノーマルマップ
 		};
 
 		//パイプライン設定
 		static PipelineInitializeOption PIPELINE_OPTION(D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE, D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		PIPELINE_OPTION.m_depthWriteMask = false;
+		PIPELINE_OPTION.m_calling = D3D12_CULL_MODE_NONE;
 
 		//シェーダー情報
 		static Shaders SHADERS;
@@ -855,10 +856,22 @@ void BasicDraw::Draw_NoGrass(KuroEngine::Camera& arg_cam, KuroEngine::LightManag
 
 }
 
-void BasicDraw::Draw_NoOutline(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform& arg_transform, const IndividualDrawParameter& arg_toonParam, const KuroEngine::AlphaBlendMode& arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff, int arg_layer)
+void BasicDraw::Draw_NoOutline(std::weak_ptr<KuroEngine::DepthStencil>arg_ds, KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform& arg_transform, const IndividualDrawParameter& arg_toonParam, const KuroEngine::AlphaBlendMode& arg_blendMode, std::shared_ptr<KuroEngine::ConstantBuffer> arg_boneBuff, int arg_layer)
 {
 
 	using namespace KuroEngine;
+
+
+
+	std::vector<std::weak_ptr<RenderTarget>>rts;
+	rts.emplace_back(m_renderTargetArray[RENDER_TARGET_TYPE::MAIN]);
+	rts.emplace_back(m_renderTargetArray[RENDER_TARGET_TYPE::EMISSIVE]);
+	rts.emplace_back(m_renderTargetArray[RENDER_TARGET_TYPE::EDGE_COLOR]);
+	rts.emplace_back(m_renderTargetArray[RENDER_TARGET_TYPE::BRIGHT]);
+	rts.emplace_back(m_renderTargetArray[RENDER_TARGET_TYPE::NORMAL]);
+	rts.emplace_back(m_playerDepthRenderTarget);
+
+	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(rts, arg_ds.lock());
 
 	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_drawPipeline_noOutline[arg_blendMode]);
 
@@ -909,6 +922,15 @@ void BasicDraw::Draw_NoOutline(KuroEngine::Camera& arg_cam, KuroEngine::LightMan
 
 	m_drawCount++;
 	m_individualParamCount++;
+
+
+	//レンダーターゲットを再セット
+	rts.clear();
+	for (int targetIdx = 0; targetIdx < RENDER_TARGET_TYPE::NUM; ++targetIdx)
+	{
+		rts.emplace_back(m_renderTargetArray[targetIdx]);
+	}
+	KuroEngineDevice::Instance()->Graphics().SetRenderTargets(rts, arg_ds);
 
 }
 

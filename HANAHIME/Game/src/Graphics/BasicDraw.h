@@ -232,7 +232,8 @@ public:
 		const KuroEngine::AlphaBlendMode& arg_blendMode = KuroEngine::AlphaBlendMode_None,
 		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr,
 		int arg_layer = 0);
-	void Draw_NoOutline(KuroEngine::Camera& arg_cam,
+	void Draw_NoOutline(std::weak_ptr<KuroEngine::DepthStencil>arg_ds,
+		KuroEngine::Camera& arg_cam,
 		KuroEngine::LightManager& arg_ligMgr,
 		std::weak_ptr<KuroEngine::Model>arg_model,
 		KuroEngine::Transform& arg_transform,

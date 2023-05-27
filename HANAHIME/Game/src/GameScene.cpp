@@ -282,7 +282,7 @@ void GameScene::OnUpdate()
 	GateManager::Instance()->FrameEnd();
 
 	//チェックポイントの円柱を更新。
-	m_checkPointPillar.Update();
+	m_checkPointPillar.Update(m_player.GetTransform().GetPosWorld());
 }
 
 void GameScene::OnDraw()
@@ -321,7 +321,7 @@ void GameScene::OnDraw()
 	m_particleRender.Draw(*m_nowCam);
 
 	//チェックポイントの円柱を描画
-	m_checkPointPillar.Draw(*m_nowCam, m_ligMgr);
+	m_checkPointPillar.Draw(*m_nowCam, m_ligMgr, ds);
 
 	//m_canvasPostEffect.Execute();
 	BasicDraw::Instance()->DrawEdge(m_nowCam->GetViewMat(), m_nowCam->GetProjectionMat(), ds, m_player.GetIsOverheat());
