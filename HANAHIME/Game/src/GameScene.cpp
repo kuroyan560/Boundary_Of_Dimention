@@ -77,6 +77,7 @@ void GameScene::GameInit()
 	m_stageInfoUI.Init(m_stageNum, StageManager::Instance()->GetStarCoinNum());
 	m_pauseUI.Init();
 	OperationConfig::Instance()->SetInGameOperationActive(true);
+	m_checkPointPillar.Init();
 }
 
 void GameScene::Retry()
@@ -272,6 +273,9 @@ void GameScene::OnUpdate()
 	m_pauseUI.Update(this);
 
 	GateManager::Instance()->FrameEnd();
+
+	//チェックポイントの円柱を更新。
+	m_checkPointPillar.Update(m_player.GetTransform().GetPosWorld());
 }
 
 void GameScene::OnDraw()
@@ -295,6 +299,7 @@ void GameScene::OnDraw()
 		m_goal.Draw(*m_nowCam);
 		m_player.Draw(*m_nowCam, ds, m_ligMgr, DebugController::Instance()->IsActive());
 		m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
+
 	}
 
 	//ステージ描画
@@ -307,6 +312,9 @@ void GameScene::OnDraw()
 	}
 
 	m_particleRender.Draw(*m_nowCam);
+
+	//チェックポイントの円柱を描画
+	m_checkPointPillar.Draw(*m_nowCam, m_ligMgr, ds);
 
 	//m_canvasPostEffect.Execute();
 	BasicDraw::Instance()->DrawEdge(m_nowCam->GetViewMat(), m_nowCam->GetProjectionMat(), ds, m_player.GetIsOverheat());

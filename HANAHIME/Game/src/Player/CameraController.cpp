@@ -222,14 +222,14 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	m_isOldFrontWall = arg_isFrontWall;
 
 	//マップピンの座標の受け皿
-	KuroEngine::Vec3<float>mapPinPos;
+	KuroEngine::Transform mapPinPos;
 	//カメラを初期位置に戻すか。
-	if (arg_isCameraDefaultPos && StageManager::Instance()->GetNowMapPinPos(&mapPinPos)) {
+	if (arg_isCameraDefaultPos && StageManager::Instance()->GetNowMapPinTransform(&mapPinPos)) {
 
 		//カメラの正面ベクトル
 		KuroEngine::Vec3<float> cameraDir = (arg_targetPos.GetPosWorld() - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
 		//目標地点 いい感じの視点にするために、注視点を少し下にずらす。
-		KuroEngine::Vec3<float> targetPos = mapPinPos;
+		KuroEngine::Vec3<float> targetPos = mapPinPos.GetPosWorld();
 
 		//目標地点までのベクトル
 		KuroEngine::Vec3<float> targetDir = (targetPos - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();

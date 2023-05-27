@@ -7,21 +7,6 @@ cbuffer cbuff2 : register(b2)
     matrix world;
 }
 
-
-//“GŠÛ‰e—p ===================================================
-cbuffer cbuff9 : register(b9)
-{
-    uint circleShadowCount;
-}
-struct CircleShadowData
-{
-    float3 pos;
-    float3 up;
-    float shadowRadius;
-};
-StructuredBuffer<CircleShadowData> circleShadowData : register(t7);
-//“GŠÛ‰e—p ===================================================
-
 struct VSOutput
 {
     float4 svpos : SV_POSITION;
@@ -82,21 +67,22 @@ VSOutput VSmain(Vertex input)
     return output;
 }
 
-struct PSOutputStage
+struct NoOutlineOutput
 {
     float4 color : SV_Target0;
     float4 emissive : SV_Target1;
-    float depth : SV_Target2;
-    float4 edgeColor : SV_Target3;
-    float4 bright : SV_Target4;
-    float4 normal : SV_Target5;
-    float4 normalGrass : SV_Target6;
-    float4 worldPos : SV_Target7;
+    float4 edgeColor : SV_Target2;
+    float4 bright : SV_Target3;
+    float4 normal : SV_Target4;
 };
 
-PSOutputStage PSmain(VSOutput input) : SV_TARGET
+NoOutlineOutput PSmain(VSOutput input) : SV_TARGET
 {
     
+    if (toonIndividualParam.m_alpha <= 0.01f)
+    {
+        discard;
+    }
     
     float3 normal = input.normal;
     float3 vnormal = normalize(mul(cam.view, normal));
@@ -271,48 +257,19 @@ PSOutputStage PSmain(VSOutput input) : SV_TARGET
     result.w *= toonIndividualParam.m_alpha;
     
     
-    
-    
-    //‚±‚±‚Å‚³‚ç‚É“G—p‚ÌŠÛ‰e‚ðo‚·B
-    for (int index = 0; index < circleShadowCount; ++index)
-    {
-    
-        //‹——£‚ªˆê’èˆÈã—£‚ê‚Ä‚¢‚½‚ç”ò‚Î‚·B
-        float distance = length(input.worldpos - circleShadowData[index].pos);
-        if (circleShadowData[index].shadowRadius < distance)
-            continue;
-        
-        float distanceRate = distance / circleShadowData[index].shadowRadius;
-        
-        float bright = Easing_Cubic_In(distanceRate, 1.0f, 0.0f, 1.0f);
-        
-        result.xyz *=  bright;        
-    }
-    
-    
-    
-    
-    PSOutputStage output;
+    NoOutlineOutput output;
     output.color = result;
     
     //–¾‚é‚³ŒvŽZ
     output.emissive = emissiveTex.Sample(smp, input.uv) * 0.5f;
     output.emissive.xyz += material.emissive * material.emissiveFactor;
     output.emissive.xyz *= output.emissive.w;
-    output.emissive.w = 1.0f;
+    output.emissive.w = toonIndividualParam.m_alpha;
     
-    output.depth = input.depthInView;
-
-    output.edgeColor = toonIndividualParam.m_edgeColor;
-    output.edgeColor.xyz *= lerp(0.9f, 1.0f, isBright);
-    
-    output.bright.x = isBright;
-    output.bright.y = saturate(isBright + isBrightDefRange);
-    
-    output.worldPos = float4(input.worldpos, 1.0f);
-    
-    output.normal.xyz = input.normal;
-    output.normalGrass.xyz = input.normal;
+    //ƒAƒEƒgƒ‰ƒCƒ“‚ðÁ‚·B
+    output.edgeColor = float4(0, 0, 0, 0);
+    output.bright = float4(0, 0, 0, 0);
+    output.normal = float4(0, 0, 0, 0);
 
     return output;
 }

@@ -28,7 +28,7 @@ void StageParts::Init()
 	//m_transform.SetPos(m_initializedTransform.GetPos());
 	//m_transform.SetScale(m_initializedTransform.GetScale());
 	//m_transform.SetRotate(m_initializedTransform.GetRotate());
-	m_transform = m_initializedTransform;
+ 	m_transform = m_initializedTransform;
 	OnInit();
 }
 
@@ -867,6 +867,8 @@ CheckPoint::CheckPoint(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::T
 {
 	//UIñ¢ê∂ê¨Ç»ÇÁê∂ê¨
 	if (!s_ui)s_ui = std::make_shared<CheckPointUI>();
+
+	m_bloomingFlowerModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/Stage/", "CheckPoint_Unlocked.glb");
 }
 
 void CheckPoint::Update(Player& arg_player)
@@ -891,6 +893,26 @@ void CheckPoint::Update(Player& arg_player)
 	}
 
 	m_touched = isHit;
+}
+
+void CheckPoint::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+{
+	if (m_touched) {
+		BasicDraw::Instance()->Draw_NoGrass(
+			arg_cam,
+			arg_ligMgr,
+			m_bloomingFlowerModel,
+			m_transform,
+			IndividualDrawParameter::GetDefault());
+	}
+	else {
+		BasicDraw::Instance()->Draw(
+			arg_cam,
+			arg_ligMgr,
+			m_model.lock(),
+			m_transform,
+			IndividualDrawParameter::GetDefault());
+	}
 }
 
 int StarCoin::GET_SUM = 0;

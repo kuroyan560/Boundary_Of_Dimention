@@ -532,6 +532,7 @@ class CheckPoint : public StageParts
 	//チェックポイントを１つでも訪れたか
 	static bool s_visit;
 
+	std::shared_ptr<KuroEngine::Model> m_bloomingFlowerModel;
 	int m_order;
 	bool m_touched = false;
 
@@ -553,6 +554,7 @@ public:
 	CheckPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_order);
 
 	void Update(Player& arg_player)override;
+	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 };
 
 class StarCoin : public StageParts

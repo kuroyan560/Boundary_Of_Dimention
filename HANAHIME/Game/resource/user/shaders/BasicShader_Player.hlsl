@@ -242,13 +242,13 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
     // if (1.0f < bright)
     //    output.emissive += result;
     // output.emissive.w = result.w;
-    output.emissive.xyz = material.emissive * material.emissiveFactor;
+    output.emissive.xyz = material.emissive * material.emissiveFactor + emissiveTex.Sample(smp, input.uv).xyz;
     output.emissive.w = 1.0f;
     
     output.depth = input.depthInView;
     output.playerDepth = input.depthInView;
 
-    output.edgeColor = toonIndividualParam.m_edgeColor;
+    output.edgeColor = float4(0.35f, 0.90f, 0.57f, 1.0f);
     output.edgeColor.xyz *= lerp(0.9f, 1.0f, isBright);
     
     output.bright.x = 0;
