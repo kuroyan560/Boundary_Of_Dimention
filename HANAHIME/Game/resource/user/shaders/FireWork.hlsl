@@ -46,7 +46,7 @@ void InitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 
         Rand(randomTable[randomTableIndex],360.0f,0.0f),
         Rand(randomTable[randomTableMaxIndex - randomTableIndex],360.0f,0.0f)
     );
-    float radius = Rand(randomTable[randomTableIndex], 5.0f,50.0f);
+    float radius = 70.0f;
     float diamator = radius * 2.0f;
     float3 pos =
     float3
