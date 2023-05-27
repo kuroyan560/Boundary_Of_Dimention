@@ -32,21 +32,22 @@ void InitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 
     int index = GetIndex(groupId,groupThreadID);
     fireFlyDataBuffer[index].startPos = emittPos;
     
-    float3 angle =
-    float3(
+    float2 angle =
+    float2(
         Rand(randomTable[index],360.0f,0.0f),
-        Rand(randomTable[1024 - index],360.0f,0.0f),
         Rand(randomTable[1024 - index],360.0f,0.0f)
     );
+    float radius = 30.0f;
+    float diamator = radius * 2.0f;
+    float3 pos =
+    float3
+    (
+        radius * sin(ConvertToRadian(angle.x)) * cos(ConvertToRadian(angle.y)),
+        radius * sin(ConvertToRadian(angle.x)) * sin(ConvertToRadian(angle.y)),
+        radius * cos(ConvertToRadian(angle.x))
+    );
 
-    float2 xRadian = float2(cos(ConvertToRadian(angle.x)),sin(ConvertToRadian(angle.x)));
-    float2 yRadian = float2(cos(ConvertToRadian(angle.y)),sin(ConvertToRadian(angle.y)));
-
-    float3 xVel = float3(xRadian.x,0.0f,xRadian.y);
-    float3 yVel = float3(0.0f,yRadian.x,yRadian.y);
-    float radius = 60.0f;
-    fireFlyDataBuffer[index].endPos = emittPos + (xVel * (radius / 2.0f) + yVel * (radius / 2.0f));
-
+    fireFlyDataBuffer[index].endPos = emittPos + pos;
     fireFlyDataBuffer[index].timer = TIMER;
 }
 
