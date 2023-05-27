@@ -154,6 +154,7 @@ public:
 	StartPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
 		:StageParts(START_POINT, arg_model, arg_initTransform) {}
 	void Update(Player& arg_player)override {}
+	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override {};
 };
 
 //ÉSÅ[Éãínì_
