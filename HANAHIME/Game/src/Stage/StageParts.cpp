@@ -813,6 +813,7 @@ void Gate::Update(Player& arg_player)
 {
 	using namespace KuroEngine;
 	static const float HIT_RADIUS = 8.0f;
+	static const float HIT_SPHERE_OFFSET_Y = -4.0f;
 	static const float EFFECT_INTERVAL = 60.0f;
 	static const float EFFECT_SCALE_OFFSET = 0.1f;
 
@@ -820,7 +821,7 @@ void Gate::Update(Player& arg_player)
 
 	const float timeScale = TimeScaleMgr::s_inGame.GetTimeScale();
 
-	float dist = m_transform.GetPosWorld().Distance(arg_player.GetNowPos());
+	float dist = (m_transform.GetPosWorld() + m_transform.GetUpWorld() * HIT_SPHERE_OFFSET_Y).Distance(arg_player.GetNowPos());
 	bool enter = dist < HIT_RADIUS* m_transform.GetScaleWorld().x;
 	GateManager::Instance()->SetEnter(enter, m_destStageNum, m_destGateId);
 
@@ -839,7 +840,7 @@ void Gate::Update(Player& arg_player)
 void Gate::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 	static const float SIZE_HALF = 10.0f;
-	static const float DRAW_POS_OFFSET = 4.0f;
+	static const float DRAW_POS_OFFSET = -5.0f;
 
 	static const KuroEngine::Vec2<float>PLANE_SIZE = { SIZE_HALF * 2.0f,SIZE_HALF * 2.0f };
 
