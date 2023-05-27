@@ -58,7 +58,7 @@ namespace KuroEngine
 		void SetEndPosture(const std::string& AnimationName);
 
 		//アニメーション再生
-		void Play(const std::string& AnimationName, const bool& Loop, const bool& Blend);
+		void Play(const std::string& AnimationName, const bool& Loop, const bool& Blend, float InitPast = 0.0f);
 		//何かしらのアニメーションが現在再生中か
 		bool IsPlay()const
 		{

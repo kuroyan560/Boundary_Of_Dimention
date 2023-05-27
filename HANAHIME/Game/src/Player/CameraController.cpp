@@ -107,6 +107,10 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	}
 	m_isCameraModeLookAround = arg_cameraMode == CAMERA_STATUS::LOOK_AROUND;
 
+	//回転を適用する前のX回転
+	float fromXAngle = m_nowParam.m_xAxisAngle;
+	float fromYAngle = m_nowParam.m_yAxisAngle;
+
 	//トランスフォームを保存。
 	m_oldCameraWorldPos = m_attachedCam.lock()->GetTransform().GetPos();
 
@@ -132,10 +136,6 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 		m_cameraXAngleLerpAmount = (fabs(m_cameraXAngleLerpAmount) - fabs(lerp)) * (signbit(m_cameraXAngleLerpAmount) ? -1.0f : 1.0f);
 		m_nowParam.m_xAxisAngle += lerp;
 	}
-
-	//回転を適用する前のX回転
-	float fromXAngle = m_nowParam.m_xAxisAngle;
-	float fromYAngle = m_nowParam.m_yAxisAngle;
 
 	//左右カメラ操作
 	m_nowParam.m_yAxisAngle = arg_playerRotY;
@@ -300,24 +300,35 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	//当たり判定変数を初期化。
 	m_isHitTerrian = false;
 
-	//ジャンプ中は当たり判定を行わない。
-	if (!arg_isPlayerJump && !arg_isCameraDefaultPos && arg_isNoCollision) {
+	//無限平面との当たり判定
+	Vec3<float> push;
+	bool isHit = RayPlaneIntersection(m_playerLerpPos, Vec3<float>(pushBackPos - m_playerLerpPos).GetNormal(), m_playerLerpPos - arg_targetPos.GetUp() * 0.1f, arg_targetPos.GetUp(), push);
+	if (isHit) {
 
-		//無限平面との当たり判定
-		Vec3<float> push;
-		bool isHit = RayPlaneIntersection(m_playerLerpPos, Vec3<float>(pushBackPos - m_playerLerpPos).GetNormal(), m_playerLerpPos - arg_targetPos.GetUp(), arg_targetPos.GetUp(), push);
-		if (isHit) {
-
-			//上下側の壁だったら
-			if (0.9f < fabs(arg_targetPos.GetUp().Dot(Vec3<float>(0, 1, 0)))) {
-				m_nowParam.m_xAxisAngle = fromXAngle;
-			}
-			else {
-				m_nowParam.m_yAxisAngle = fromYAngle;
-				arg_playerRotY = fromYAngle;
-			}
-
+		//上下側の壁だったら
+		if (0.9f < fabs(arg_targetPos.GetUp().Dot(Vec3<float>(0, 1, 0)))) {
+			m_nowParam.m_xAxisAngle = fromXAngle;
 		}
+		else {
+			m_nowParam.m_yAxisAngle = fromYAngle;
+			arg_playerRotY = fromYAngle;
+		}
+
+		//カメラの座標を再度取得。
+		localPos = { 0,0,0 };
+		localPos.z = m_nowParam.m_posOffsetZ;
+		localPos.y = m_gazePointOffset.y + tan(-m_nowParam.m_xAxisAngle) * m_nowParam.m_posOffsetZ;
+		m_cameraLocalTransform.SetPos(Math::Lerp(m_cameraLocalTransform.GetPos(), localPos, m_camForwardPosLerpRate));
+		m_cameraLocalTransform.SetRotate(Vec3<float>::GetXAxis(), m_nowParam.m_xAxisAngle);
+
+		//コントローラーのトランスフォーム（対象の周囲、左右移動）更新
+		m_camParentTransform.SetRotate(Vec3<float>::GetYAxis(), m_nowParam.m_yAxisAngle);
+		m_camParentTransform.SetPos(Math::Lerp(m_camParentTransform.GetPos(), m_playerLerpPos, m_camFollowLerpRate));
+		pushBackPos = m_cameraLocalTransform.GetPosWorldByMatrix();
+
+	}
+
+	if (!arg_isPlayerJump && !arg_isCameraDefaultPos) {
 
 		//通常の地形を走査
 		Vec3<float> checkHitRay = m_cameraLocalTransform.GetPosWorldByMatrix() - m_oldCameraWorldPos;	//まずはデフォルトのレイに設定。
@@ -636,14 +647,14 @@ void CameraController::PlayerMoveCameraLerp(KuroEngine::Vec3<float> arg_scopeMov
 		Vec3<float> playerMoveVec = Vec3<float>(m_playerLerpPos - m_playerOldPos).GetNormal();
 		Vec3<float> cameraVec = Vec3<float>(m_playerLerpPos - m_attachedCam.lock()->GetTransform().GetPos()).GetNormal();
 
-		Vec2<float> playerMoveVec2D = -Project3Dto2D(playerMoveVec, cameraT.GetFront(), cameraT.GetRight());
+		Vec2<float> playerMoveVec2D = Project3Dto2D(playerMoveVec, cameraT.GetFront(), cameraT.GetRight());
 
 		//カメラのベクトルを2Dに射影する。
 		Vec2<float> cameraVec2D = Project3Dto2D(cameraVec, cameraT.GetFront(), cameraT.GetRight());
 
 		//カメラベクトルと移動方向ベクトルの内積の結果が0.5以下だったら当たり判定を行う。
 		float dot = cameraVec2D.Dot(playerMoveVec2D);
-		if (-0.8f < dot) {
+		if (fabs(dot) < 0.7f) {
 
 			//Y軸上のずれを確認。
 			float zureY = acos(playerMoveVec2D.Dot(cameraVec2D)) * (0.9f < fabs(KuroEngine::Vec3<float>(0, 1, 0).Dot(arg_targetPos.GetUp())) ? 0.01f : 0.001f);
@@ -657,15 +668,15 @@ void CameraController::PlayerMoveCameraLerp(KuroEngine::Vec3<float> arg_scopeMov
 				if (0.9f < fabs(arg_targetPos.GetUp().y)) {
 
 					//Y軸を動かす。
-					m_nowParam.m_yAxisAngle += zureY * cross;
-					arg_playerRotY += zureY * cross;
+					m_nowParam.m_yAxisAngle -= zureY * cross;
+					arg_playerRotY -= zureY * cross;
 
 				}
 				else {
 
 					//Y軸を動かす。
-					m_nowParam.m_yAxisAngle -= zureY * cross;
-					arg_playerRotY -= zureY * cross;
+					m_nowParam.m_yAxisAngle += zureY * cross;
+					arg_playerRotY += zureY * cross;
 
 				}
 

@@ -6,8 +6,8 @@ struct FireFlyParticleData
     float3 vel;
     float2 scale;
     float4 color;
-    //x..timer,y...revFlag
-    uint2 flashTimer;
+    //x..timer,y...revFlag,z...baseTimer
+    uint3 flashTimer;
     //x...angle,y...vel
     float2 angle;
     float3 basePos;
@@ -62,7 +62,9 @@ void InitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 
     float scale = Rand(index,5.0f,3.0f);
     outputMat.scale = float2(scale,scale);
     outputMat.color = color;
-    outputMat.flashTimer = uint2(Rand(index,50,0),1);
+    outputMat.flashTimer.x = Rand((pos.x+pos.y) * index + 200 / scale,120,0);
+    outputMat.flashTimer.y = 1;
+    outputMat.flashTimer.z = outputMat.flashTimer.x;
     outputMat.angle.x = 0.0f;
     outputMat.angle.y = Rand(index,5.0f,0.5f);
     if( outputMat.angle.y <= 0.0f)
@@ -113,10 +115,10 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
         fireFlyDataBuffer[index].flashTimer.x -= vel;
     }
 
-    if(60 <= fireFlyDataBuffer[index].flashTimer.x)
+    if(fireFlyDataBuffer[index].flashTimer.z <= fireFlyDataBuffer[index].flashTimer.x)
     {
         fireFlyDataBuffer[index].flashTimer.y = 0;        
-        fireFlyDataBuffer[index].flashTimer.x = 60;
+        fireFlyDataBuffer[index].flashTimer.x = fireFlyDataBuffer[index].flashTimer.z;
     }
     else if(fireFlyDataBuffer[index].flashTimer.x <= 0)
     {

@@ -10,6 +10,12 @@
 #include"../../Effect/EnemyEyeEffect.h"
 #include"../../AI/EnemyAttack.h"
 #include"../../AI/IEnemyAI.h"
+#include"Render/RenderObject/ModelInfo/ModelAnimator.h"
+
+namespace KuroEngine
+{
+	class ModelAnimator;
+}
 
 //敵の攻撃パターン
 enum ENEMY_ATTACK_PATTERN
@@ -50,6 +56,8 @@ public:
 		{
 			m_patrol = std::make_unique<PatrolBasedOnControlPoint>(posArray, 0, loopFlag);
 		}
+
+		m_animator = std::make_shared<KuroEngine::ModelAnimator>(arg_model);
 		OnInit();
 	}
 
@@ -89,6 +97,9 @@ private:
 	//丸影用
 	float m_shadowInfluenceRange;
 	const float SHADOW_INFLUENCE_RANGE = 6.0f;
+
+	//アニメーション
+	std::shared_ptr<KuroEngine::ModelAnimator>m_animator;
 
 	class AttackMotion
 	{

@@ -23,9 +23,6 @@
 GameScene::GameScene() :m_fireFlyStage(GPUParticleRender::Instance()->GetStackBuffer()), tutorial(GPUParticleRender::Instance()->GetStackBuffer()), m_1flameStopTimer(30), m_goal(GPUParticleRender::Instance()->GetStackBuffer()),
 m_guideFly(GPUParticleRender::Instance()->GetStackBuffer()), m_guideInsect(GPUParticleRender::Instance()->GetStackBuffer())
 {
-	m_ddsTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.dds");
-	m_pngTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/test.png");
-
 	KuroEngine::Vec3<float>dir = { 0.0f,-1.0f,0.0f };
 	m_dirLigArray.emplace_back();
 	m_dirLigArray.back().SetDir(dir.GetNormal());
@@ -56,6 +53,10 @@ m_guideFly(GPUParticleRender::Instance()->GetStackBuffer()), m_guideInsect(GPUPa
 	SoundConfig::Instance();
 	CameraData::Instance()->RegistCameraData("");
 
+	//スカイドーム
+	m_skyDomeModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Skydome.glb");
+	m_skyDomeDrawParam.m_edgeColor.m_a = 0.0f;
+	m_skyDomeTransform.SetScale(StageManager::Instance()->GetSkyDomeScaling());
 }
 
 
@@ -164,7 +165,7 @@ void GameScene::OnUpdate()
 		m_nowCam = m_debugCam;
 	}
 
-	m_grass.Update(1.0f, m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrowPlantLight().m_influenceRange, StageManager::Instance()->GetNowStage(), m_player.GetIsAttack());
+	m_grass.Update(1.0f, m_player.GetIsOverheat(), m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrowPlantLight().m_influenceRange, StageManager::Instance()->GetNowStage(), m_player.GetIsAttack(), m_player.GetMoveSpeed());
 
 	//ホームでの処理----------------------------------------
 	if (!m_title.IsFinish() && !m_title.IsStartOP())
@@ -290,34 +291,18 @@ void GameScene::OnDraw()
 	//レンダーターゲットのクリアとセット
 	BasicDraw::Instance()->RenderTargetsClearAndSet(ds);
 
-	Transform transform;
-	transform.SetPos({ -0.5f,0,0 });
-	DrawFunc3D::DrawNonShadingPlane(
-		m_ddsTex,
-		transform,
-		*m_nowCam);
+	//スカイドームの描画
+	DrawFunc3D::DrawNonShadingModel(m_skyDomeModel, m_skyDomeTransform, *m_nowCam, 1.0f, nullptr, AlphaBlendMode_None);
+	//BasicDraw::Instance()->Draw_Stage(*m_nowCam, m_ligMgr, m_skyDomeModel, m_skyDomeTransform, m_skyDomeDrawParam);
 
-	transform.SetPos({ 0.5f,0,0 });
-	DrawFunc3D::DrawNonShadingPlane(
-		m_pngTex,
-		transform,
-		*m_nowCam);
-
-	//m_movieCamera.DebugDraw(*m_nowCam, m_ligMgr);
-
-	//KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
-	//m_waterPaintBlend.Register(main, *nowCamera, ds);
-	//m_vignettePostEffect.Register(m_waterPaintBlend.GetResultTex());
-
-	//if (m_title.IsStartOP())
-
-	//tutorial.Draw(*m_nowCam);
+	//スカイドームを最背面描画するため、デプスステンシルのクリア
+	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 
 	if (m_title.IsFinish() || m_title.IsStartOP())
 	{
 		m_goal.Draw(*m_nowCam);
+		m_player.Draw(*m_nowCam, ds, m_ligMgr, DebugController::Instance()->IsActive());
 		m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
-		m_player.Draw(*m_nowCam, m_ligMgr, DebugController::Instance()->IsActive());
 	}
 
 	//ステージ描画
@@ -332,7 +317,7 @@ void GameScene::OnDraw()
 	GPUParticleRender::Instance()->Draw(*m_nowCam);
 
 	//m_canvasPostEffect.Execute();
-	BasicDraw::Instance()->DrawEdge(m_nowCam->GetViewMat(), m_nowCam->GetProjectionMat(), ds);
+	BasicDraw::Instance()->DrawEdge(m_nowCam->GetViewMat(), m_nowCam->GetProjectionMat(), ds, m_player.GetIsOverheat());
 
 	m_lightBloomDevice.Draw(BasicDraw::Instance()->GetRenderTarget(BasicDraw::EMISSIVE), BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN));
 

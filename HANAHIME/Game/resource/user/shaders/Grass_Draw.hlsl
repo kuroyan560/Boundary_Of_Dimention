@@ -22,7 +22,13 @@ struct PSOutput
     float4 bright : SV_Target4;
 };
 
-StructuredBuffer<matrix> grassWorldMatArrayBuffer : register(t0);
+struct GrassInfo
+{
+    matrix m_worldMat;
+    float m_grassTimer;
+    float3 pad;
+};
+StructuredBuffer<GrassInfo> grassWorldMatArrayBuffer : register(t0);
 
 //定数バッファ（カメラ情報）
 cbuffer cbuff0 : register(b0)
@@ -49,7 +55,14 @@ SamplerState smp : register(s0);
 VSOutput VSmain(Vertex input, uint instanceID : SV_InstanceID)
 {
     VSOutput output;
-    float4 wpos = mul(grassWorldMatArrayBuffer[instanceID], input.pos);
+    
+    //この頂点の高さの割合
+    float vertexHeightRate = (input.pos.y + 1.0f) / 2.0f;
+    
+    
+    float4 grassPos = input.pos;
+    grassPos.x += grassWorldMatArrayBuffer[instanceID].m_grassTimer * (vertexHeightRate);
+    float4 wpos = mul(grassWorldMatArrayBuffer[instanceID].m_worldMat, grassPos);
     output.svpos = mul(cam.view, wpos);
     output.depthInView = output.svpos.z;
     output.svpos = mul(cam.proj, output.svpos);

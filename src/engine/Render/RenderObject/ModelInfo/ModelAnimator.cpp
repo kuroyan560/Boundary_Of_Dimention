@@ -229,7 +229,7 @@ void KuroEngine::ModelAnimator::SetEndPosture(const std::string& AnimationName)
 	boneBuff->Mapping(boneMatricies.data());
 }
 
-void KuroEngine::ModelAnimator::Play(const std::string& AnimationName, const bool& Loop, const bool& Blend)
+void KuroEngine::ModelAnimator::Play(const std::string& AnimationName, const bool& Loop, const bool& Blend, float InitPast)
 {
 	if (!Blend)Reset();
 
@@ -243,7 +243,7 @@ void KuroEngine::ModelAnimator::Play(const std::string& AnimationName, const boo
 	//Ä¶’†‚È‚çƒŠƒZƒbƒg‚µ‚Ä‚¨‚í‚è
 	if (already != playAnimations.end())
 	{
-		already->past = 0;
+		already->past = InitPast;
 		already->loop = Loop;
 		return;
 	}

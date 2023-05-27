@@ -45,6 +45,9 @@ void MiniBug::OnInit()
 	m_hitBox.m_radius = &m_hitBoxSize;
 
 	m_shadowInfluenceRange = SHADOW_INFLUENCE_RANGE;
+
+	m_animator->Play("Wing", true, false, KuroEngine::GetRand(5.0f));
+	m_animator->SetStartPosture("To_Angry");
 }
 
 void MiniBug::Update(Player &arg_player)
@@ -160,6 +163,9 @@ void MiniBug::Update(Player &arg_player)
 			//Doneフラグをfalseにして、演出が終わってない状態にする。
 			m_jumpMotion.UnDone();
 
+			//怒り目
+			m_animator->SetEndPosture("To_Angry");
+
 			break;
 		case MiniBug::NOTICE:
 			m_reaction->Init(LOOK, m_transform.GetUp());
@@ -185,6 +191,10 @@ void MiniBug::Update(Player &arg_player)
 		default:
 			break;
 		}
+
+		//通常目
+		if(m_nowStatus != MiniBug::ATTACK)m_animator->SetStartPosture("To_Angry");
+
 		m_thinkTimer.Reset(120);
 		m_prevStatus = m_nowStatus;
 	}
@@ -362,6 +372,7 @@ void MiniBug::Update(Player &arg_player)
 
 	m_transform.SetPos(m_larpPos);
 
+	m_animator->Update(TimeScaleMgr::s_inGame.GetTimeScale());
 }
 
 void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
@@ -374,12 +385,14 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
-	BasicDraw::Instance()->Draw_Player(
+	BasicDraw::Instance()->Draw_NoGrass(
 		arg_cam,
 		arg_ligMgr,
 		m_model,
 		m_transform,
-		edgeColor);
+		edgeColor,
+		KuroEngine::AlphaBlendMode_None,
+		m_animator->GetBoneMatBuff());
 
 	m_reaction->Draw(arg_cam);
 
@@ -578,7 +591,7 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
-	BasicDraw::Instance()->Draw_Player(
+	BasicDraw::Instance()->Draw_NoGrass(
 		arg_cam,
 		arg_ligMgr,
 		m_model,
@@ -775,7 +788,7 @@ void Battery::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
-	BasicDraw::Instance()->Draw_Player(
+	BasicDraw::Instance()->Draw_NoGrass(
 		arg_cam,
 		arg_ligMgr,
 		m_model,

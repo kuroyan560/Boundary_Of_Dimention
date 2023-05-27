@@ -4,6 +4,7 @@ struct EdgeParameter
     matrix m_matProj;
     //エッジ描画の判断をする深度差のしきい値
     float m_depthThreshold;
+    int m_isPlayerOverheat;
 };
 
 
@@ -15,11 +16,22 @@ struct VSOutput
 
 #define FLT_EPSILON 0.001
 
+//エッジ描画のしきい
+static const float EDGE_DEPTH_THRESHOLD_MIN = 200.0f;
+static const float EDGE_DEPTH_THRESHOLD_MAX = 500.0f;
+
+float CalculateEdgeAlpha(float arg_depth)
+{
+    float depthRate = clamp((arg_depth - EDGE_DEPTH_THRESHOLD_MIN) / (EDGE_DEPTH_THRESHOLD_MAX - EDGE_DEPTH_THRESHOLD_MIN), 0.0f, 1.0f);
+    return lerp(1.0f, 0.0f, depthRate);
+}
+
 Texture2D<float4> g_depthMap : register(t0);
 Texture2D<float4> g_brightMap : register(t1);
 Texture2D<float4> g_edgeColorMap : register(t2);
 Texture2D<float4> g_normalMap : register(t3);
 Texture2D<float4> g_worldMap : register(t4);
+Texture2D<float4> g_playerDepth : register(t5);
 SamplerState g_sampler : register(s0);
 cbuffer cbuff0 : register(b0)
 {
@@ -48,7 +60,6 @@ struct PSOutput
 
 PSOutput PSmain(VSOutput input) : SV_TARGET
 {   
-    
     PSOutput output;
     output.color = float4(0, 0, 0, 0);
     
@@ -71,7 +82,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     float2 nearestUv = input.m_uv;
 
     //エッジの太さ
-    float edgeThickness = 0.002f;
+    float edgeThickness = 0.0005f;
     float2 edgeOffsetUV[8];
     edgeOffsetUV[0] = float2(edgeThickness, 0.0f);
     edgeOffsetUV[1] = float2(-edgeThickness, 0.0f);
@@ -83,7 +94,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     edgeOffsetUV[7] = float2(-edgeThickness, -edgeThickness);
 
     //プレイヤーのエッジの太さ
-    edgeThickness = 0.002f;
+    edgeThickness = 0.0005f;
     float2 playerEdgeOffsetUV[8];
     playerEdgeOffsetUV[0] = float2(edgeThickness, 0.0f);
     playerEdgeOffsetUV[1] = float2(-edgeThickness, 0.0f);
@@ -93,6 +104,17 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     playerEdgeOffsetUV[5] = float2(-edgeThickness, edgeThickness);
     playerEdgeOffsetUV[6] = float2(edgeThickness, -edgeThickness);
     playerEdgeOffsetUV[7] = float2(-edgeThickness, -edgeThickness);
+        
+    //プレイヤーの深度が0より上でデフォルトの値より下だったらシルエットを描画。
+    float pickPlayerBright = g_playerDepth.Sample(g_sampler, input.m_uv).x;
+    if (0 < pickPlayerBright && depth < pickPlayerBright)
+    {
+            
+        output.color = float4(0.35f, 0.90f, 0.57f, 1.0f);
+        output.depth = g_depthMap.Sample(g_sampler, input.m_uv);
+        return output;
+            
+    }
 
     // 近傍8テクセルの深度値の差の平均値を計算する
     float depthDiffer = 0.0f;
@@ -128,7 +150,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
             bool isDepthCheck = pickDepth < depth;
             if (pickBright != enemyBright && !g_brightMap.Sample(g_sampler, brihgtPickUv).z && isDepthCheck)
             {
-                output.color = float4(0.54f, 0.14f, 0.33f, 1.0f);
+                output.color = float4(0.54f, 0.14f, 0.33f, CalculateEdgeAlpha(depth));
                 output.depth = g_depthMap.Sample(g_sampler, brihgtPickUv);
                 return output;
             }
@@ -145,7 +167,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
             float isPlayer = g_brightMap.Sample(g_sampler, brihgtPickUv).z;
             if (pickBright != myBright && !isPlayer)
             {
-                output.color = g_edgeColorMap.Sample(g_sampler, brihgtPickUv);
+                output.color = m_edgeParam.m_isPlayerOverheat ? float4(0.5f, 0.5f, 0.5f, 1.0f) : float4(0.35f, 0.90f, 0.57f, 1.0f);
                 output.depth = g_depthMap.Sample(g_sampler, brihgtPickUv);
                 return output;
             }
@@ -190,13 +212,25 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     //法線が一緒か
     bool sameNormal = (length(normal - nearestNormal) < FLT_EPSILON);
     
-    // 自身の深度値と近傍8テクセルの深度値の差を調べる
+    bool drawFlg = false;
+    
+    if (!sameNormal && m_edgeParam.m_depthThreshold <= depthDiffer)
+        drawFlg = true;
+    
+    if(sameNormal && 10.0f <= depthDiffer)
+        drawFlg = true;
+    
+       // 自身の深度値と近傍8テクセルの深度値の差を調べる
     // 法線が異なる　かつ　深度値が結構違う場合はエッジ出力
     // 敵・プレイヤーには表示しない。
-    if (!sameNormal && m_edgeParam.m_depthThreshold <= depthDiffer && !playerBright && !enemyBright)
+    //if (!sameNormal && m_edgeParam.m_depthThreshold <= depthDiffer && !playerBright && !enemyBright)
+    if (drawFlg && !playerBright && !enemyBright)
     {
         //一番手前側のエッジカラーを採用する
         output.color = g_edgeColorMap.Sample(g_sampler, nearestUv);
+        
+        output.color.w = CalculateEdgeAlpha(nearest);
+        
         output.depth = g_depthMap.Sample(g_sampler, nearestUv);
         return output;
     }

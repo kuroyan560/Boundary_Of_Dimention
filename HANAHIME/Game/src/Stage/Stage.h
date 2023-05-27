@@ -55,14 +55,14 @@ private:
 	//モデル
 		//地形モデルの存在するディレクトリ
 	static std::string s_stageModelDir;
-	//スカイドーム
-	std::shared_ptr<KuroEngine::Model>m_skydomeModel;
-	//森林円柱
-	std::shared_ptr<KuroEngine::Model>m_woodsCylinderModel;
 
 	//画像
 		//地面
 	std::shared_ptr<KuroEngine::TextureBuffer>m_groundTex;
+
+	std::shared_ptr<KuroEngine::Model>m_skydomeModel;
+
+	std::shared_ptr<KuroEngine::Model>m_woodsCylinderModel;
 
 	//全てをオン状態にすることがクリア条件となるレバーの識別番号
 	int m_goalLeverID = Lever::INVALID_ID;

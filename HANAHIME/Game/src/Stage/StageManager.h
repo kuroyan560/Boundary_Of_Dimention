@@ -25,12 +25,6 @@ class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>, 
 
 	//スカイドームの大きさ
 	float m_skydomeScaling = 1.0f;
-	//森林円柱の半径
-	float m_woodsRadius = 1.0f;
-	//森林円柱の高さ
-	float m_woodsHeight = 1.0f;
-	//地面の大きさ
-	float m_groundScaling = 1.0f;
 
 	//ホームステージ
 	std::shared_ptr<Stage>m_homeStage;
@@ -79,4 +73,7 @@ public:
 	int GetStarCoinNum()const;
 	//存在するスターコインの数
 	int ExistStarCoinNum()const;
+
+	//スカイドームのスケーリングゲッタ
+	const float& GetSkyDomeScaling()const { return m_skydomeScaling; }
 };
