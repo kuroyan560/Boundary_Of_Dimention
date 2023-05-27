@@ -59,7 +59,7 @@ void CheckPointPillar::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManage
 	if (m_isDraw) {
 
 		auto param = IndividualDrawParameter::GetDefault();
-		BasicDraw::Instance()->Draw_Stage(arg_cam, arg_ligMgr, m_pillarModel, m_transform, IndividualDrawParameter::GetDefault(), KuroEngine::AlphaBlendMode_Trans, nullptr, 3);
+		BasicDraw::Instance()->Draw_NoOutline(arg_cam, arg_ligMgr, m_pillarModel, m_transform, IndividualDrawParameter::GetDefault(), KuroEngine::AlphaBlendMode_Trans);
 
 	}
 

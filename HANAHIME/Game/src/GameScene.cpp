@@ -307,9 +307,6 @@ void GameScene::OnDraw()
 		m_player.Draw(*m_nowCam, ds, m_ligMgr, DebugController::Instance()->IsActive());
 		m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
 
-		//チェックポイントの円柱を描画
-		m_checkPointPillar.Draw(*m_nowCam, m_ligMgr);
-
 	}
 
 	//ステージ描画
@@ -322,6 +319,9 @@ void GameScene::OnDraw()
 	}
 
 	m_particleRender.Draw(*m_nowCam);
+
+	//チェックポイントの円柱を描画
+	m_checkPointPillar.Draw(*m_nowCam, m_ligMgr);
 
 	//m_canvasPostEffect.Execute();
 	BasicDraw::Instance()->DrawEdge(m_nowCam->GetViewMat(), m_nowCam->GetProjectionMat(), ds, m_player.GetIsOverheat());
