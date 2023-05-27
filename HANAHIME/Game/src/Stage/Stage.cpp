@@ -426,8 +426,8 @@ void Stage::Update(Player &arg_player)
 	{
 		m_guideInsect.GoToCheckPoint(arg_player.GetTransform().GetPos());
 	}
-
 	m_guideInsect.Update();
+
 
 	if (m_goalPoint)m_goalPoint->Update(arg_player);
 }

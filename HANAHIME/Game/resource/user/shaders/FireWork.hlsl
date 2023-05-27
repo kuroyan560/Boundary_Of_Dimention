@@ -29,7 +29,21 @@ void InitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 
 {
     int index = GetIndex(groupId,groupThreadID);
     fireFlyDataBuffer[index].pos = emittPos;
-    fireFlyDataBuffer[index].vel = float3(Rand(index + 12,1.0f,0.0f),Rand(index * 100,1.0f,0.0f),Rand(index * 50,1.0f,0.0f));
+    
+    float3 angle =
+    float3(
+    Rand(index * 100 + groupThreadID.x * 2,360.0f,0.0f),
+    Rand(index * 100 + groupThreadID.x * 102,360.0f,0.0f),
+    Rand(index * 100 + groupThreadID.x * 102,360.0f,0.0f)
+    );
+
+    float2 xRadian = float2(cos(ConvertToRadian(angle.x)),sin(ConvertToRadian(angle.x)));
+    float2 yRadian = float2(cos(ConvertToRadian(angle.y)),sin(ConvertToRadian(angle.y)));
+
+    float3 xVel = float3(xRadian.x,xRadian.y,0.0f);
+    float3 yVel = float3(0.0f,yRadian.x,yRadian.y);
+    fireFlyDataBuffer[index].vel = xVel + yVel;
+
     fireFlyDataBuffer[index].timer = TIMER;
 }
 
@@ -42,14 +56,12 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
     fireFlyDataBuffer[index].pos += fireFlyDataBuffer[index].vel;
     --fireFlyDataBuffer[index].timer;
 
-    if(0 < fireFlyDataBuffer[index].timer)
-    {
-        //出力--------------------------------------------
-        ParticleData outputMat;
-        matrix mat = SetScaleInMatrix(float3(1.0f,1.0f,1.0f));
-        outputMat.world = SetPosInMatrix(mat,fireFlyDataBuffer[index].pos);
-        outputMat.color = float4(1.0f,1.0f,1.0f,(float)(fireFlyDataBuffer[index].timer) / (float)(TIMER));
-        particleData.Append(outputMat);
-        //出力--------------------------------------------
-    }
+    //出力--------------------------------------------
+    ParticleData outputMat;
+    matrix mat = SetScaleInMatrix(float3(1.0f,1.0f,1.0f));
+    outputMat.world = SetPosInMatrix(mat,fireFlyDataBuffer[index].pos);
+    outputMat.color = float4(0.12f, 0.97f, 0.8f,(float)(fireFlyDataBuffer[index].timer) / (float)(TIMER));
+    particleData.Append(outputMat);
+    //出力--------------------------------------------
+    
 }

@@ -250,6 +250,15 @@ void GameScene::OnUpdate()
 	}
 	m_1flameStopTimer.UpdateTimer();
 
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_L))
+	{
+		KuroEngine::Transform transform;
+		transform.SetPos(KuroEngine::Vec3<float>(-99.0f,-67.5f,105.0f));
+		KuroEngine::Quaternion rotate = { 0.0f, 0.0f, -0.7f, 0.7f };
+		transform.SetRotate(rotate);
+		m_player.Init(transform);
+	}
+
 	//ゲームシーンでのみ使う物
 	if (m_title.IsFinish() || m_title.IsStartOP())
 	{
