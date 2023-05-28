@@ -78,4 +78,7 @@ public:
 
 	//スカイドームのスケーリングゲッタ
 	const float& GetSkyDomeScaling()const { return m_skydomeScaling; }
+
+	//解放済のチェックポイントのトランスフォーム配列
+	std::vector<std::vector<KuroEngine::Transform>>GetUnlockedCheckPointTransformArray()const;
 };

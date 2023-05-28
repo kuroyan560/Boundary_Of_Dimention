@@ -231,8 +231,10 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		if (!CheckJsonKeyExist(arg_fileName, arg_json, "CheckPointOrder"))return;
 
 		int order = arg_json["CheckPointOrder"].get<int>();
-		m_gimmickArray.emplace_back(std::make_shared<CheckPoint>(model, transform, order));
+		auto checkPoint = std::make_shared<CheckPoint>(model, transform, order);
+		m_gimmickArray.emplace_back(checkPoint);
 		newPart = m_gimmickArray.back().get();
+		m_checkPointArray.emplace_back(checkPoint);
 
 		//マップピンデータに追加
 		arg_mapPinDataArray.emplace_back();
@@ -534,6 +536,11 @@ void Stage::Load(int arg_ownStageIdx, std::string arg_dir, std::string arg_fileN
 		}
 	}
 
+	//チェックポイント配列をオーダーでソート
+	std::sort(m_checkPointArray.begin(), m_checkPointArray.end(), [](std::weak_ptr<CheckPoint> a, std::weak_ptr<CheckPoint> b)
+		{
+			return a.lock()->GetOrder() < b.lock()->GetOrder();
+		});
 }
 
 int Stage::GetStarCoinNum() const

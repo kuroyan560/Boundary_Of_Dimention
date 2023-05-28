@@ -7,6 +7,7 @@
 #include <memory>
 #include <Common/Singleton.h>
 
+class GameScene;
 
 #include <windows.h>
 
@@ -120,7 +121,7 @@ public:
 	FastTravel();
 
 	void Init(std::vector<std::vector<KuroEngine::Transform>>arg_checkPointVector, int arg_selectStageNum, int arg_selectTransIdx);
-	void Update();
+	void Update(GameScene* arg_gameScene);
 	void Draw(KuroEngine::Camera& arg_cam);
 
 	std::shared_ptr<KuroEngine::Camera> GetCamera() { return m_fastTravelCamera; }
@@ -137,6 +138,7 @@ public:
 	}
 
 	void Activate() { m_isActive = true; }
+	void DisActivate() { m_isActive = false; }
 
 	const bool& IsActive()const { return m_isActive; }
 };

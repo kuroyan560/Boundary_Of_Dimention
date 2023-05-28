@@ -3,6 +3,7 @@
 #include"ForUser/DrawFunc/2D/DrawFunc2D.h"
 #include"../Stage/StageManager.h"
 #include"../SoundConfig.h"
+#include"../GameScene.h"
 
 void FastTravel::GetTargetPosAndRotate(KuroEngine::Quaternion* arg_resultRotate, KuroEngine::Vec3<float>* arg_resultPos)
 {
@@ -67,7 +68,7 @@ void FastTravel::Init(std::vector<std::vector<KuroEngine::Transform>>arg_checkPo
 	StageManager::Instance()->SetStage(arg_selectStageNum);
 }
 
-void FastTravel::Update()
+void FastTravel::Update(GameScene* arg_gameScene)
 {
 	using namespace KuroEngine;
 
@@ -141,6 +142,7 @@ void FastTravel::Update()
 	//Œˆ’è
 	if (doneInput)
 	{
+		arg_gameScene->StartGame(m_nowStageNum, m_checkPointVector[m_nowStageNum][m_nowTargetCheckPoint]);
 		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
 	}
 

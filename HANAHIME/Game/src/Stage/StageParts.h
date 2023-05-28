@@ -555,6 +555,8 @@ public:
 
 	void Update(Player& arg_player)override;
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
+
+	const int& GetOrder()const { return m_order; }
 };
 
 class StarCoin : public StageParts

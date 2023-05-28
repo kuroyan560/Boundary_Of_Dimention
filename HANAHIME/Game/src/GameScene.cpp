@@ -19,6 +19,7 @@
 #include"Stage/GateManager.h"
 
 #include"HUD/InGameUI.h"
+#include"System/SaveDataManager.h"
 
 GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_goal(m_particleRender.GetStackBuffer())
 {
@@ -70,8 +71,9 @@ void GameScene::GameInit()
 	InGameUI::Init();
 	m_stageInfoUI.Init(m_stageNum, StageManager::Instance()->GetStarCoinNum());
 	m_pauseUI.Init();
-	OperationConfig::Instance()->SetInGameOperationActive(true);
 	m_checkPointPillar.Init();
+	OperationConfig::Instance()->SetInGameOperationActive(true);
+	TimeScaleMgr::s_inGame.Set(1.0f);
 
 	//std::vector<KuroEngine::Transform> testTransform;
 	//KuroEngine::Transform buff;
@@ -104,26 +106,12 @@ void GameScene::GoBackTitle()
 
 void GameScene::ActivateFastTravel()
 {
+	SaveData saveData;
+	if (!SaveDataManager::Instance()->LoadSaveData(&saveData))return;
+
 	m_fastTravel.Activate();
-
-	//ファストトラベル
-	std::vector<std::vector<KuroEngine::Transform>>transformArray;
-	transformArray.emplace_back();
-	transformArray.back().emplace_back();
-	transformArray.back().back().SetPos({ -100,5,30 });
-	transformArray.back().emplace_back();
-	transformArray.back().back().SetPos({ 22,10,-500 });
-	transformArray.back().emplace_back();
-	transformArray.back().back().SetPos({ -52,-5,250 });
-
-	transformArray.emplace_back();
-	transformArray.back().emplace_back();
-	transformArray.back().back().SetPos({ -100,5,30 });
-	transformArray.back().emplace_back();
-	transformArray.back().back().SetPos({ 22,10,-500 });
-	transformArray.back().emplace_back();
-	transformArray.back().back().SetPos({ -52,-5,250 });
-	m_fastTravel.Init(transformArray, 0, 0);
+	m_fastTravel.Init(
+		StageManager::Instance()->GetUnlockedCheckPointTransformArray(), saveData.m_reachStageNum, saveData.m_reachCheckPointOrder - 1);
 }
 
 void GameScene::OnInitialize()
@@ -163,6 +151,9 @@ void GameScene::OnUpdate()
 
 	//デバッグモード更新
 	DebugController::Instance()->Update();
+
+	//ファストトラベル画面更新
+	m_fastTravel.Update(this);
 
 	//ファストトラベル
 	if (m_fastTravel.IsActive())
@@ -258,6 +249,9 @@ void GameScene::OnUpdate()
 			m_clearFlag = false;
 		}
 
+		//ファストトラベル画面を閉じる
+		m_fastTravel.DisActivate();
+
 		m_nowScene = m_nextScene;
 	}
 
@@ -289,10 +283,8 @@ void GameScene::OnUpdate()
 	GateManager::Instance()->FrameEnd();
 
 	//チェックポイントの円柱を更新。
-	m_checkPointPillar.Update(m_player.GetTransform().GetPosWorld());
-	
-	//ファストトラベル画面更新
-	m_fastTravel.Update();
+	m_checkPointPillar.Update(m_player.GetTransform().GetPosWorld());	
+
 }
 
 void GameScene::OnDraw()

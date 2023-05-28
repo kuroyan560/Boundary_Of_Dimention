@@ -35,6 +35,8 @@ private:
 	std::shared_ptr<GoalPoint>m_goalPoint;
 	//ゲート配列
 	std::vector<std::weak_ptr<Gate>>m_gateArray;
+	//チェックポイント配列
+	std::vector<std::weak_ptr<CheckPoint>>m_checkPointArray;
 
 	//マップピンを指すパーツのデータの一時格納用
 	struct MapPinPointData
@@ -123,6 +125,8 @@ public:
 
 	//マップピンを指すパーツの配列
 	std::vector<std::weak_ptr<StageParts>>GetMapPinPointArray()const { return m_mapPinPoint; }
+	//チェックポイント配列
+	std::vector<std::weak_ptr<CheckPoint>>GetCheckPointArray()const { return m_checkPointArray; }
 
 
 };

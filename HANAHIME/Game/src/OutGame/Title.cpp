@@ -20,7 +20,7 @@ void Title::MenuUpdate(bool arg_inputUp, bool arg_inputDown, bool arg_inputDone,
 	}
 
 	//セーブデータがないときは「つづきから」を選べない
-	//if (m_nowItem == CONTINUE && !SaveDataManager::Instance()->IsExistSaveData())m_nowItem = oldItem;
+	if (m_nowItem == CONTINUE && !SaveDataManager::Instance()->LoadSaveData(nullptr))m_nowItem = oldItem;
 
 	//選択項目が変わった
 	if (m_nowItem != oldItem)
@@ -41,9 +41,17 @@ void Title::MenuUpdate(bool arg_inputUp, bool arg_inputDown, bool arg_inputDone,
 				break;
 				//はじめから
 			case NEW_GAME:
-				//最終確認
-				m_confirmNewGame.m_isNo = true;
-				m_mode = MODE_CONFIRM_NEW_GAME;
+				if (SaveDataManager::Instance()->LoadSaveData(nullptr))
+				{
+					//最終確認
+					m_confirmNewGame.m_isNo = true;
+					m_mode = MODE_CONFIRM_NEW_GAME;
+				}
+				else
+				{
+					arg_gameScene->StartGame(0, StageManager::Instance()->GetStartPointTransform());
+					SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
+				}
 				break;
 				//設定
 			case SETTING:
@@ -76,7 +84,7 @@ void Title::MenuDraw()
 
 		//セーブデータがなければつづきからは選択不可
 		float alpha = 1.0f;
-		//if (itemIdx == CONTINUE && !SaveDataManager::Instance()->IsExistSaveData())alpha = 0.3f;
+		if (itemIdx == CONTINUE && !SaveDataManager::Instance()->LoadSaveData(nullptr))alpha = 0.3f;
 
 		//選択項目
 		if (itemIdx == m_nowItem)
@@ -181,7 +189,7 @@ Title::Title()
 	m_confirmNewGame.m_shadowTex = D3D12App::Instance()->GenerateTextureBuffer(CONFIRM_DIR + "shadow.png");
 
 	//セーブデータが存在に応じて選択項目の初期化
-	m_nowItem = SaveDataManager::Instance()->IsExistSaveData() ? CONTINUE : NEW_GAME;
+	m_nowItem = SaveDataManager::Instance()->LoadSaveData(nullptr) ? CONTINUE : NEW_GAME;
 	m_itemArray[m_nowItem].m_status = SELECT;
 
 }

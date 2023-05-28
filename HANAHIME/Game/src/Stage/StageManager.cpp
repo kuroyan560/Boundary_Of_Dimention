@@ -6,6 +6,7 @@
 #include"../Player/Player.h"
 #include"FrameWork/UsersInput.h"
 #include"CheckPointHitFlag.h"
+#include"../System/SaveDataManager.h"
 
 StageManager::StageManager()
 	:KuroEngine::Debugger("StageManager", true, true)
@@ -156,4 +157,25 @@ int StageManager::GetStarCoinNum() const
 int StageManager::ExistStarCoinNum() const
 {
 	return m_nowStage->ExistStarCoinNum();
+}
+
+std::vector<std::vector<KuroEngine::Transform>> StageManager::GetUnlockedCheckPointTransformArray() const
+{
+	SaveData saveData;
+	std::vector<std::vector<KuroEngine::Transform>>result;
+
+	if (!SaveDataManager::Instance()->LoadSaveData(&saveData))return result;
+
+	for (int stageIdx = 0; stageIdx <= saveData.m_reachStageNum; ++stageIdx)
+	{
+		result.emplace_back();
+		for (auto& checkPoint : m_stageArray[stageIdx]->GetCheckPointArray())
+		{
+			if (stageIdx == saveData.m_reachStageNum && saveData.m_reachCheckPointOrder < checkPoint.lock()->GetOrder())break;
+
+			result.back().emplace_back(checkPoint.lock()->GetInitTransform());
+		}
+	}
+
+	return result;
 }
