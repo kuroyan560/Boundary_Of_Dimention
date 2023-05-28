@@ -82,6 +82,12 @@ void GameScene::GameInit()
 
 void GameScene::Retry()
 {
+	StartGame(m_stageNum);
+}
+
+void GameScene::StartGame(int arg_stageNum)
+{
+	m_stageNum = arg_stageNum;
 	m_gateSceneChange.Start();
 }
 
@@ -164,7 +170,7 @@ void GameScene::OnUpdate()
 	//ホームでの処理----------------------------------------
 	if (!m_title.IsFinish() && !m_title.IsStartOP())
 	{
-		m_title.Update(&m_player.GetCamera().lock()->GetTransform(), m_nowCam);
+		m_title.Update(&m_player.GetCamera().lock()->GetTransform(), m_nowCam, this);
 	}
 
 	//ステージ選択
@@ -176,7 +182,7 @@ void GameScene::OnUpdate()
 	}
 	else
 	{
-		stageNum = m_title.GetStageNum();
+		//stageNum = m_title.GetStageNum();
 	}
 
 	//ゲームクリア演出を終えたら遷移開始
@@ -212,13 +218,12 @@ void GameScene::OnUpdate()
 		if (!m_title.IsFinish())
 		{
 			m_title.FinishTitle();
-			OperationConfig::Instance()->SetAllInputActive(true);
 		}
 		else
 		{
 			//タイトル画面に戻る
 			SoundConfig::Instance()->Play(SoundConfig::BGM_TITLE);
-			StageManager::Instance()->SetStage(std::clamp(GateManager::Instance()->GetDestStageNum() - 1, 0, 1000));
+			//StageManager::Instance()->SetStage(std::clamp(GateManager::Instance()->GetDestStageNum() - 1, 0, 1000));
 		}
 
 		if (m_gobackTitleFlag)
@@ -238,7 +243,7 @@ void GameScene::OnUpdate()
 
 			m_1flameStopTimer.Reset();
 
-			m_title.Clear();
+			//m_title.Clear();
 		}
 	}
 	m_1flameStopTimer.UpdateTimer();

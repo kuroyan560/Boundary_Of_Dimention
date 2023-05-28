@@ -4,6 +4,8 @@
 #include"PazzleStageSelect.h"
 #include"../SoundConfig.h"
 
+class GameScene;
+
 /// <summary>
 /// タイトル画面向けの処理
 /// </summary>
@@ -13,13 +15,13 @@ class Title
 	void MenuUpdate(bool arg_inputUp, bool arg_inputDown, bool arg_inputDone);
 	void MenuDraw();
 
-	void ConfirmNewGameUpdate(bool arg_inputLeft, bool arg_inputRight, bool arg_inputDone);
+	void ConfirmNewGameUpdate(bool arg_inputLeft, bool arg_inputRight, bool arg_inputDone, GameScene* arg_gameScene);
 	void ConfirmNewGameDraw();
 
 public:
 	Title();
 	void Init();
-	void Update(KuroEngine::Transform *player_camera, std::shared_ptr<KuroEngine::Camera> arg_cam);
+	void Update(KuroEngine::Transform* player_camera, std::shared_ptr<KuroEngine::Camera> arg_cam, GameScene* arg_gameScene);
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr);
 
 	bool IsStartOP()
@@ -36,51 +38,51 @@ public:
 	}
 	std::weak_ptr<KuroEngine::Camera>GetCamera()
 	{
-		if (!m_startPazzleFlag)
-		{
+		/*if (!m_startPazzleFlag)
+		{*/
 			return m_camera.GetCamera();
-		}
+		/*}
 		else
 		{
 			return m_stageSelect.GetCamera();
-		}
+		}*/
 	}
-	int GetStageNum()
-	{
-		if (!m_startPazzleFlag)
-		{
-			return -1;
-		}
-		//連続入力を防ぐためスキップする
-		if (!m_delayInputFlag)
-		{
-			return -1;
-		}
+	//int GetStageNum()
+	//{
+	//	if (!m_startPazzleFlag)
+	//	{
+	//		return -1;
+	//	}
+	//	//連続入力を防ぐためスキップする
+	//	if (!m_delayInputFlag)
+	//	{
+	//		return -1;
+	//	}
 
-		//入力＝決定。ステージ番号を渡す
-		bool inputFlag = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A);
-		if (inputFlag && m_stageSelect.IsEnableToDone() && !m_doneFlag)
-		{
-			if (m_stageSelect.IsEnableToSelect())
-			{
-				m_doneFlag = true;
-				m_stageSelect.Stop();
-				return m_stageSelect.GetNumber();
-			}
-			else
-			{
-				return -1;
-			}
-		}
-		return -1;
-	}
+	//	//入力＝決定。ステージ番号を渡す
+	//	bool inputFlag = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::A);
+	//	if (inputFlag && m_stageSelect.IsEnableToDone() && !m_doneFlag)
+	//	{
+	//		if (m_stageSelect.IsEnableToSelect())
+	//		{
+	//			m_doneFlag = true;
+	//			m_stageSelect.Stop();
+	//			return m_stageSelect.GetNumber();
+	//		}
+	//		else
+	//		{
+	//			return -1;
+	//		}
+	//	}
+	//	return -1;
+	//}
 
-	void Clear()
+	/*void Clear()
 	{
 		m_stageSelect.Clear();
-	};
+	};*/
 
-	PazzleStageSelect m_stageSelect;
+	//PazzleStageSelect m_stageSelect;
 private:
 	//ゲーム開始フラグ
 	bool m_startGameFlag;
@@ -89,7 +91,7 @@ private:
 	bool m_startOPFlag;
 	bool m_generateCameraMoveDataFlag;
 
-	bool m_doneFlag;
+	//bool m_doneFlag;
 
 	//終了フラグ
 	bool m_isFinishFlag;

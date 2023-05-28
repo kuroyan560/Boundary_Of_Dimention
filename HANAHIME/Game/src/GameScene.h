@@ -98,5 +98,6 @@ class GameScene : public KuroEngine::BaseScene
 public:
 	GameScene();
 	void Retry();
+	void StartGame(int arg_stageNum);
 	void GoBackTitle();
 };

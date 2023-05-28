@@ -4,6 +4,7 @@
 #include"../OperationConfig.h"
 #include"../System/SaveDataManager.h"
 #include"KuroEngineDevice.h"
+#include"../GameScene.h"
 
 void Title::MenuUpdate(bool arg_inputUp, bool arg_inputDown, bool arg_inputDone)
 {
@@ -90,7 +91,7 @@ void Title::MenuDraw()
 	}
 }
 
-void Title::ConfirmNewGameUpdate(bool arg_inputLeft, bool arg_inputRight, bool arg_inputDone)
+void Title::ConfirmNewGameUpdate(bool arg_inputLeft, bool arg_inputRight, bool arg_inputDone, GameScene* arg_gameScene)
 {
 	//「はい」「いいえ」選択
 	if ((!m_confirmNewGame.m_isNo && arg_inputLeft) || (m_confirmNewGame.m_isNo && arg_inputRight))
@@ -103,6 +104,8 @@ void Title::ConfirmNewGameUpdate(bool arg_inputLeft, bool arg_inputRight, bool a
 	{
 		//いいえ
 		if (m_confirmNewGame.m_isNo)m_mode = MODE_MENU;
+		//はい
+		else arg_gameScene->StartGame(0);
 		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
 	}
 }
@@ -191,7 +194,7 @@ void Title::Init()
 	m_generateCameraMoveDataFlag = false;
 	m_delayInputFlag = false;
 	m_delayTime.Reset();
-	m_stageSelect.Init();
+	//m_stageSelect.Init();
 
 	std::vector<MovieCameraData> titleCameraMoveDataArray;
 
@@ -247,12 +250,12 @@ void Title::Init()
 	//default:
 	//	break;
 	//}
-	m_doneFlag = false;
+	//m_doneFlag = false;
 
 	m_mode = MODE_MENU;
 }
 
-void Title::Update(KuroEngine::Transform *player_camera, std::shared_ptr<KuroEngine::Camera> arg_cam)
+void Title::Update(KuroEngine::Transform* player_camera, std::shared_ptr<KuroEngine::Camera> arg_cam, GameScene* arg_gameScene)
 {
 	//入力
 	bool inputUp = OperationConfig::Instance()->GetSelectVec(OperationConfig::SELECT_VEC_UP);
@@ -270,7 +273,7 @@ void Title::Update(KuroEngine::Transform *player_camera, std::shared_ptr<KuroEng
 			MenuUpdate(inputUp, inputDown, inputDone);
 			break;
 		case MODE_CONFIRM_NEW_GAME:	//「はじめから」の確認
-			ConfirmNewGameUpdate(inputLeft, inputRight, inputDone);
+			ConfirmNewGameUpdate(inputLeft, inputRight, inputDone, arg_gameScene);
 			break;
 	}
 
@@ -334,7 +337,7 @@ void Title::Update(KuroEngine::Transform *player_camera, std::shared_ptr<KuroEng
 
 	if (m_startPazzleFlag)
 	{
-		m_stageSelect.Update(arg_cam);
+		//m_stageSelect.Update(arg_cam);
 
 		if (m_delayTime.IsTimeUp())
 		{
@@ -347,7 +350,7 @@ void Title::Update(KuroEngine::Transform *player_camera, std::shared_ptr<KuroEng
 			SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
 			m_startPazzleFlag = false;
 			m_delayInputFlag = false;
-			m_stageSelect.Stop();
+			//m_stageSelect.Stop();
 			m_delayTime.Reset();
 		}
 	}
@@ -375,7 +378,7 @@ void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligM
 	//タイトルロゴ描画
 	if (m_startPazzleFlag)
 	{
-		m_stageSelect.Draw(arg_cam);
+		//m_stageSelect.Draw(arg_cam);
 		return;
 	}
 
