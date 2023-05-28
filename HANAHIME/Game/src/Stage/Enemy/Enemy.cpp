@@ -190,7 +190,7 @@ void MiniBug::Update(Player &arg_player)
 			}
 			m_bPointPos = m_posArray[index];
 
-			m_trackPlayer.Init(m_pos, m_bPointPos, 0.1f);
+			m_trackPlayer.Init(m_pos, m_bPointPos, 0.5f);
 
 			m_limitIndex = index;
 			break;
@@ -357,17 +357,17 @@ void MiniBug::Update(Player &arg_player)
 	}
 
 	m_reaction->Update(m_pos);
-	if (1.0f <= m_transform.GetUp().x)
+	if (1.0f <= m_initializedTransform.GetUp().x)
 	{
 		vel.x = 0.0f;
 		m_dir.x = 0.0f;
 	}
-	if (1.0f <= m_transform.GetUp().y)
+	if (1.0f <= m_initializedTransform.GetUp().y)
 	{
 		vel.y = 0.0f;
 		m_dir.y = 0.0f;
 	}
-	if (1.0f <= m_transform.GetUp().z)
+	if (1.0f <= m_initializedTransform.GetUp().z)
 	{
 		vel.z = 0.0f;
 		m_dir.z = 0.0f;
@@ -452,12 +452,16 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 
 	m_reaction->Draw(arg_cam);
 
-	m_dashEffect.Draw(arg_cam);
+	//m_dashEffect.Draw(arg_cam);
 	m_eyeEffect.Draw(arg_cam);
 
 	if (DebugEnemy::Instance()->VisualizeEnemyHitBox())
 	{
 		m_debugHitBox->Draw(arg_cam, arg_ligMgr);
+	}
+	if (DebugEnemy::Instance()->VisualizeEnemySight())
+	{
+		m_sightArea.DebugDraw(arg_cam);
 	}
 	DebugDraw(arg_cam);
 
@@ -503,7 +507,28 @@ void DossunRing::OnInit()
 	m_findPlayerFlag = false;
 	m_preFindPlayerFlag = false;
 
-	m_sightRange = m_attackhitBoxRadiusMax;
+
+	switch (m_nowStatus)
+	{
+	case ENEMY_ATTACK_PATTERN_NORMAL:
+		DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_DOSSUN_NORMAL);
+		m_radius = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_DOSSUN_NORMAL);
+		break;
+	case ENEMY_ATTACK_PATTERN_ALWAYS:
+		DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_DOSSUN_ALLWAYS);
+		m_radius = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_DOSSUN_ALLWAYS);
+		break;
+	case ENEMY_ATTACK_PATTERN_INVALID:
+		break;
+	default:
+		break;
+	}
+
+	m_sightRange = m_radius * 2.0f;
+
+
+	m_enemyHitBox.m_centerPos = &m_transform.GetPos();
+	m_enemyHitBox.m_radius = &m_radius;
 
 	//Ž‹ŠE‚Ì”»’è---------------------------------------
 	m_sightHitBox.m_centerPos = &m_transform.GetPos();
@@ -523,29 +548,10 @@ void DossunRing::OnInit()
 	m_deadTimer.Reset(120);
 	//Ž€–Sˆ—---------------------------------------
 
+	m_attackhitBoxRadiusMax = 5.0f * m_radius;
+
 	m_hitBox.m_centerPos = &m_transform.GetPos();
 	m_hitBox.m_radius = &m_attackHitBoxRadius;
-
-
-	switch (m_nowStatus)
-	{
-	case ENEMY_ATTACK_PATTERN_NORMAL:
-		DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_DOSSUN_NORMAL);
-		m_radius = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_DOSSUN_NORMAL);
-		break;
-	case ENEMY_ATTACK_PATTERN_ALWAYS:
-		DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_DOSSUN_ALLWAYS);
-		m_radius = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_DOSSUN_ALLWAYS);
-		break;
-	case ENEMY_ATTACK_PATTERN_INVALID:
-		break;
-	default:
-		break;
-	}
-
-	m_enemyHitBox.m_centerPos = &m_transform.GetPos();
-	m_enemyHitBox.m_radius = &m_radius;
-
 }
 
 void DossunRing::Update(Player &arg_player)
@@ -691,7 +697,7 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 	}
 
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
-	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
+	edgeColor.m_edgeColor = KuroEngine::Color(1.0f, 0.0f, 0.0f, 1.0f);
 
 	BasicDraw::Instance()->Draw_NoGrass(
 		arg_cam,
@@ -703,7 +709,7 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 	KuroEngine::Transform transform = m_transform;
 	transform.SetPos(*(m_hitBox.m_centerPos));
 	float scale = *(m_hitBox.m_radius);
-	transform.SetScale(KuroEngine::Vec3<float>(scale, 1.0f, scale));
+	transform.SetScale(KuroEngine::Vec3<float>(scale, 5.0f, scale));
 	BasicDraw::Instance()->Draw(
 		arg_cam,
 		arg_ligMgr,
@@ -713,7 +719,7 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 
 	if (DebugEnemy::Instance()->VisualizeEnemySight())
 	{
-
+		m_sightArea.DebugDraw(arg_cam, arg_ligMgr);
 	}
 	if (DebugEnemy::Instance()->VisualizeEnemyHitBox())
 	{
@@ -746,7 +752,6 @@ void DossunRing::DebugDraw(KuroEngine::Camera &camera)
 	}
 	else
 	{
-		m_sightArea.DebugDraw(camera);
 	}
 
 #endif // _DEBUG

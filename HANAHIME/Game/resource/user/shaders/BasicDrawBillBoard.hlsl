@@ -86,6 +86,7 @@ struct PSOutput
 {
     float4 color : SV_Target0;
     float4 emissive : SV_Target1;
+    float depth : SV_Target2;
 };
 
 PSOutput PSmain(GSOutput input) : SV_TARGET
@@ -95,5 +96,6 @@ PSOutput PSmain(GSOutput input) : SV_TARGET
     PSOutput output;
     output.color = input.col * texCol;
     output.emissive = float4(0,0,0,0);
+    output.depth = 0.0f;
     return output;
 }

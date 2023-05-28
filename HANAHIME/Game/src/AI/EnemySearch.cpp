@@ -1,11 +1,12 @@
 #include"EnemySearch.h"
+#include"../Graphics/BasicDraw.h"
 
 SightSearch::SightSearch()
 {
 	KuroEngine::Vec3<float>basePos(0.0f, 0.0f, 0.0f);
 	float nearScale = 1.0f;
 	float farScale = 6.0f;
-	float length = 15.0f;
+	float length = 25.0f;
 	float nearHeight = 1.0f;
 	float farHeight = 5.0f;
 
@@ -67,7 +68,7 @@ bool SightSearch::IsFind(const KuroEngine::Vec3<float> &pos, float viewAngle)
 
 
 		float rate = 1.0f - (viewAngle / 180.0f);
-		if (-dot <= -rate && distance <= m_sightRay[i].ray.m_length * m_transformPtr[i].GetScale().x)
+		if (-dot <= -rate && distance <= m_sightRay[i].ray.m_length * m_transformPtr[i].GetScale().Length())
 		{
 			m_sightRay[i].hitFlag = true;
 		}
@@ -117,15 +118,20 @@ bool CircleSearch::IsFind(const Sphere &sphere)
 	return Collision::Instance()->CheckCircleAndCircle(sphere, m_hitBox);
 }
 
-void CircleSearch::DebugDraw(KuroEngine::Camera &camera)
+void CircleSearch::DebugDraw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 	KuroEngine::Transform transform;
 	transform.SetPos(*m_hitBox.m_centerPos);
 	transform.SetScale(*m_hitBox.m_radius);
-	KuroEngine::DrawFunc3D::DrawNonShadingModel(
+
+	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
+	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
+	BasicDraw::Instance()->Draw_NoGrass(
+		arg_cam,
+		arg_ligMgr,
 		m_hitBoxModel,
-		transform.GetMatWorld(),
-		camera,
-		0.5f
+		transform,
+		edgeColor
 	);
+
 }
