@@ -282,7 +282,15 @@ void GameScene::OnUpdate()
 	{
 		m_player.Init(DebugEnemy::Instance()->GetSpecificTransform(ENEMY_DOSSUN_ALLWAYS));
 	}
-
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_3))
+	{
+		m_player.Init(DebugEnemy::Instance()->GetSpecificTransform(ENEMY_DOSSUN_NORMAL));
+	}
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_LSHIFT))
+	{
+		KuroEngine::Transform &transform = m_nowCam->GetTransform();
+		transform.SetPos(m_player.GetTransform().GetPos());
+	}
 
 	m_gateSceneChange.Update();
 	m_movieCamera.Update();

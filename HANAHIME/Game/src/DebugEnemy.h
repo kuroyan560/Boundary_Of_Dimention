@@ -94,14 +94,24 @@ private:
 	//指定した敵の種類までインデックスをスキップする。
 	void FindEnemy(EnemyType type)
 	{
+		int loopIndex = 0;
+		int prevIndex = m_index;
 		while (1)
 		{
 			//敵が見つかったらインデックス探索を止める
-			if (type == ENEMY_MINIBUG)
+			if (type == m_transformArray[m_stageIndex][m_index].type)
 			{
 				break;
 			}
 			Increment();
+
+			//何も無かった際の処理
+			if (m_transformArray[m_stageIndex].size() <= loopIndex)
+			{
+				m_index = prevIndex;
+				break;
+			}
+			++loopIndex;
 		}
 	}
 

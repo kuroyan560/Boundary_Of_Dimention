@@ -35,7 +35,7 @@ enum ENEMY_BARREL_PATTERN
 	ENEMY_BARREL_PATTERN_INVALID
 };
 
-class MiniBug :public StageParts,IEnemyAI
+class MiniBug :public StageParts, IEnemyAI
 {
 public:
 	MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>posArray, bool loopFlag)
@@ -273,7 +273,7 @@ class DossunRing : public StageParts, IEnemyAI
 {
 public:
 	DossunRing(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, ENEMY_ATTACK_PATTERN status)
-		:StageParts(DOSSUN_RING, arg_model, arg_initTransform)
+		:StageParts(DOSSUN_RING, arg_model, arg_initTransform), m_nowStatus(status)
 	{
 
 		OnInit();
@@ -287,22 +287,10 @@ public:
 		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_shadowInfluenceRange, &m_deadFlag);
 
 
-		m_attackRingModel = 
+		m_attackRingModel =
 			KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "impactWave.glb");
 
-		switch (status)
-		{
-		case ENEMY_ATTACK_PATTERN_NORMAL:
-			DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_DOSSUN_NORMAL);
-			break;
-		case ENEMY_ATTACK_PATTERN_ALWAYS:
-			DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_DOSSUN_ALLWAYS);
-			break;
-		case ENEMY_ATTACK_PATTERN_INVALID:
-			break;
-		default:
-			break;
-		}
+		m_debugHitBox = std::make_unique<EnemyHitBox>(m_enemyHitBox);
 	}
 	void OnInit()override;
 	void Update(Player &arg_player)override;
@@ -333,6 +321,8 @@ private:
 
 
 	Sphere m_hitBox;
+	Sphere m_enemyHitBox;
+	float m_radius;
 	Sphere m_sightHitBox;
 	CircleSearch m_sightArea;
 
@@ -356,10 +346,12 @@ private:
 	const float SHADOW_INFLUENCE_RANGE = 6.0f;
 
 
+	std::unique_ptr<EnemyHitBox> m_debugHitBox;
+
 	std::shared_ptr<KuroEngine::Model>m_hitBoxModel;
 };
 
-class Battery : public StageParts,IEnemyAI
+class Battery : public StageParts, IEnemyAI
 {
 public:
 	Battery(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>arg_posArray, float arg_bulletScale, ENEMY_BARREL_PATTERN arg_barrelPattern);

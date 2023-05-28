@@ -525,6 +525,27 @@ void DossunRing::OnInit()
 
 	m_hitBox.m_centerPos = &m_transform.GetPos();
 	m_hitBox.m_radius = &m_attackHitBoxRadius;
+
+
+	switch (m_nowStatus)
+	{
+	case ENEMY_ATTACK_PATTERN_NORMAL:
+		DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_DOSSUN_NORMAL);
+		m_radius = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_DOSSUN_NORMAL);
+		break;
+	case ENEMY_ATTACK_PATTERN_ALWAYS:
+		DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_DOSSUN_ALLWAYS);
+		m_radius = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_DOSSUN_ALLWAYS);
+		break;
+	case ENEMY_ATTACK_PATTERN_INVALID:
+		break;
+	default:
+		break;
+	}
+
+	m_enemyHitBox.m_centerPos = &m_transform.GetPos();
+	m_enemyHitBox.m_radius = &m_radius;
+
 }
 
 void DossunRing::Update(Player &arg_player)
@@ -569,6 +590,13 @@ void DossunRing::Update(Player &arg_player)
 		return;
 	}
 
+	//ƒvƒŒƒCƒ„[‚Æ“G‚Ì”»’è
+	if (Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_enemyHitBox))
+	{
+		bool debug = false;
+		//arg_player.Damage();
+	}
+
 	//¶‚«‚Ä‚¢‚½‚çŠÛ‰e‚ðŒ³‚É–ß‚·B
 	m_shadowInfluenceRange = KuroEngine::Math::Lerp(m_shadowInfluenceRange, SHADOW_INFLUENCE_RANGE, 0.1f);
 
@@ -587,7 +615,16 @@ void DossunRing::Update(Player &arg_player)
 	switch (m_nowStatus)
 	{
 	case ENEMY_ATTACK_PATTERN_ALWAYS:
+#ifdef _DEBUG
+		m_radius = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_DOSSUN_ALLWAYS);
+#endif
 		m_findPlayerFlag = true;
+		break;
+
+	case ENEMY_ATTACK_PATTERN_NORMAL:
+#ifdef _DEBUG
+		m_radius = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_DOSSUN_NORMAL);
+#endif
 		break;
 	default:
 		break;
@@ -680,7 +717,7 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 	}
 	if (DebugEnemy::Instance()->VisualizeEnemyHitBox())
 	{
-
+		m_debugHitBox->Draw(arg_cam, arg_ligMgr);
 	}
 
 
