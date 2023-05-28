@@ -218,7 +218,7 @@ void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, Kuro
 				arg_hitInfo->m_terrianNormal = m_refPlayer->m_transform.GetUp();
 			}
 			//ジャンプができる状態だったらジャンプする。
-			else if (m_refPlayer->m_canJump) {
+			else if (m_refPlayer->m_canJump || m_refPlayer->CAN_JUMP_DELAY <= m_refPlayer->m_canJumpDelayTimer) {
 
 				//最短の衝突点を求めたら、それをジャンプ先にする。
 				arg_hitInfo->m_terrianNormal = arg_castRayArgment.m_impactPoint[minIndex].m_normal;
@@ -265,6 +265,9 @@ void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, Kuro
 
 				arg_newPos = arg_from + m_refPlayer->m_gimmickVel;
 				arg_hitInfo->m_terrianNormal = m_refPlayer->m_transform.GetUp();
+
+				m_refPlayer->m_isWallFrontDir = true;
+				m_refPlayer->m_frontWallNormal = arg_hitInfo->m_terrianNormal;
 
 				//引っ掛かりのタイマーを更新 この値が一定値をこえたらジャンプできるようになる
 				++m_refPlayer->m_canJumpDelayTimer;
