@@ -28,6 +28,7 @@ class GameScene : public KuroEngine::BaseScene
 {
 	enum SCENE_STATUS { SCENE_TITLE, SCENE_IN_GAME }m_nowScene = SCENE_TITLE;
 	SCENE_STATUS m_nextScene = m_nowScene;
+	KuroEngine::Transform m_playerInitTransform;
 
 	//スカイドーム
 	KuroEngine::Transform m_skyDomeTransform;
@@ -103,7 +104,7 @@ class GameScene : public KuroEngine::BaseScene
 public:
 	GameScene();
 	void Retry();
-	void StartGame(int arg_stageNum);
+	void StartGame(int arg_stageNum, KuroEngine::Transform arg_playerInitTransform);
 	void GoBackTitle();
 	void ActivateFastTravel();
 };

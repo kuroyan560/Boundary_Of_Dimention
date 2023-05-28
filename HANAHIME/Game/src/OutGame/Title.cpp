@@ -106,7 +106,7 @@ void Title::ConfirmNewGameUpdate(bool arg_inputLeft, bool arg_inputRight, bool a
 		//‚¢‚¢‚¦
 		if (m_confirmNewGame.m_isNo)m_mode = MODE_MENU;
 		//‚Í‚¢
-		else arg_gameScene->StartGame(0);
+		else arg_gameScene->StartGame(0, StageManager::Instance()->GetStartPointTransform());
 		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
 	}
 }

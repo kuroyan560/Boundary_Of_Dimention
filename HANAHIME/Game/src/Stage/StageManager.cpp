@@ -133,9 +133,9 @@ bool StageManager::IsClearNowStage() const
 	return m_nowStage->IsClear();
 }
 
-KuroEngine::Transform StageManager::GetPlayerSpawnTransform() const
+KuroEngine::Transform StageManager::GetStartPointTransform() const
 {
-	return CheckPoint::GetLatestVistTransform(m_nowStage->GetPlayerSpawnTransform());
+	return m_stageArray[0]->GetStartPointTransform();
 }
 
 KuroEngine::Transform StageManager::GetGoalTransform() const

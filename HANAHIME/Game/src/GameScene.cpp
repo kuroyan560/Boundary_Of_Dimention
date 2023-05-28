@@ -62,14 +62,8 @@ void GameScene::GameInit()
 	GrowPlantLight::ResetRegisteredLight();
 	StageManager::Instance()->SetStage(m_stageNum);
 
-	if (GateManager::Instance()->IsEnter())
-	{
-		m_player.Respawn(StageManager::Instance()->GetGateTransform(GateManager::Instance()->GetDestStageNum(), GateManager::Instance()->GetDestGateID()));
-	}
-	else
-	{
-		m_player.Respawn(StageManager::Instance()->GetPlayerSpawnTransform());
-	}
+	m_player.Respawn(m_playerInitTransform);
+
 	SoundConfig::Instance()->Init();
 	GateManager::Instance()->Init();
 	m_opeInfoUI.Init();
@@ -91,14 +85,15 @@ void GameScene::GameInit()
 
 void GameScene::Retry()
 {
-	StartGame(m_stageNum);
+	StartGame(m_stageNum, CheckPoint::GetLatestVistTransform(StageManager::Instance()->GetStartPointTransform()));
 }
 
-void GameScene::StartGame(int arg_stageNum)
+void GameScene::StartGame(int arg_stageNum, KuroEngine::Transform arg_playerInitTransform)
 {
 	m_stageNum = arg_stageNum;
 	m_gateSceneChange.Start();
 	m_nextScene = SCENE_IN_GAME;
+	m_playerInitTransform = arg_playerInitTransform;
 }
 
 void GameScene::GoBackTitle()
@@ -150,7 +145,7 @@ void GameScene::OnInitialize()
 
 	m_debugCam.Init({ 0,5,-10 });
 
-	m_player.Init(StageManager::Instance()->GetPlayerSpawnTransform());
+	m_player.Init(StageManager::Instance()->GetStartPointTransform());
 
 	m_grass.Init();
 
@@ -200,14 +195,14 @@ void GameScene::OnUpdate()
 		//ゲートをくぐった
 		if (GateManager::Instance()->IsEnter() && !m_gateSceneChange.IsActive())
 		{
-			m_stageNum = GateManager::Instance()->GetDestStageNum();
-			m_gateSceneChange.Start();
+			StartGame(GateManager::Instance()->GetDestStageNum(), 
+				StageManager::Instance()->GetGateTransform(GateManager::Instance()->GetDestStageNum(), GateManager::Instance()->GetDestGateID()));
 		}
-
 		//ゲームクリア演出を終えたら遷移開始
 		if (m_goal.IsEnd())
 		{
 			m_gateSceneChange.Start();
+			GoBackTitle();
 		}
 
 		//ポーズ画面

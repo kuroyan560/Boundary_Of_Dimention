@@ -100,7 +100,7 @@ public:
 	KuroEngine::Transform GetGateTransform(int arg_gateID)const;
 
 	//プレイヤーの初期化トランスフォームゲッタ
-	KuroEngine::Transform GetPlayerSpawnTransform()const
+	KuroEngine::Transform GetStartPointTransform()const
 	{
 		if (m_startPoint)return m_startPoint->GetTransform();
 		return KuroEngine::Transform();

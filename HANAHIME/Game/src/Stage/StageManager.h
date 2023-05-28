@@ -63,7 +63,7 @@ public:
 	bool IsClearNowStage()const;
 
 	//プレイヤーの初期化トランスフォーム
-	KuroEngine::Transform GetPlayerSpawnTransform()const;
+	KuroEngine::Transform GetStartPointTransform()const;
 
 	bool GetNowMapPinTransform(KuroEngine::Transform* arg_destPos);
 
