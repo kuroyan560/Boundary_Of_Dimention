@@ -139,11 +139,11 @@ void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, Kuro
 		auto model = terrian->GetModel();
 
 		//メッシュを走査
-		for (auto& modelMesh : model.lock()->m_meshes)
+		for (auto& modelMesh : ivyBlock->GetCollisionMesh())
 		{
 
 			//CastRayに渡す引数を更新。
-			auto hitmesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+			auto hitmesh = modelMesh;
 
 			//判定↓============================================
 
@@ -1756,13 +1756,11 @@ inline void PlayerCollision::CheckHitAllObject(Func arg_func, KuroEngine::Vec3<f
 		arg_castRayArgment.m_stage = terrian;
 
 		//メッシュを走査
-		for (auto& modelMesh : model.lock()->m_meshes)
+		for (auto& modelMesh : ivyBlock->GetCollisionMesh())
 		{
-			//メッシュ情報取得
-			auto& mesh = modelMesh.mesh;
 
 			//CastRayに渡す引数を更新。
-			arg_castRayArgment.m_mesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+			arg_castRayArgment.m_mesh = modelMesh;
 
 			//判定↓============================================
 
