@@ -269,7 +269,7 @@ void MiniBug::Update(Player &arg_player)
 
 		m_attackFlag = false;
 		//プレイヤーと一定以上距離が離れた場合
-		if (100.0f <= distance)
+		if (125.0f <= distance)
 		{
 			//暫く止まり、何もなければ思考を切り替える。
 			if (m_thinkTimer.UpdateTimer())
@@ -281,7 +281,7 @@ void MiniBug::Update(Player &arg_player)
 		//プレイヤーを追尾中
 		else if (!m_attackFlag)
 		{
-			m_thinkTimer.Reset(120);
+			m_thinkTimer.Reset(60);
 			vel = track.Update(m_pos, arg_player.GetTransform().GetPos());
 			m_dir = track.Update(m_pos, arg_player.GetTransform().GetPos()).GetNormal();
 		}
