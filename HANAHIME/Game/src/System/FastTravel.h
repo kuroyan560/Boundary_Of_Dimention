@@ -120,7 +120,6 @@ private:
 public:
 	FastTravel();
 
-	void Init(std::vector<std::vector<KuroEngine::Transform>>arg_checkPointVector, int arg_selectStageNum, int arg_selectTransIdx);
 	void Update(GameScene* arg_gameScene);
 	void Draw(KuroEngine::Camera& arg_cam);
 
@@ -137,7 +136,7 @@ public:
 		return result;
 	}
 
-	void Activate() { m_isActive = true; }
+	void Activate(std::vector<std::vector<KuroEngine::Transform>>arg_checkPointVector, int arg_selectStageNum, int arg_selectTransIdx);
 	void DisActivate() { m_isActive = false; }
 
 	const bool& IsActive()const { return m_isActive; }
