@@ -17,6 +17,7 @@
 #include"FrameWork/WinApp.h"
 #include"../Stage/CheckPointHitFlag.h"
 #include"CameraController.h"
+#include"../Stage/FastTravel.h"
 
 void Player::OnImguiItems()
 {
@@ -368,12 +369,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	if (CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger) {
 		m_checkPointRotY = m_cameraRotYStorage;
 		m_isCheckPointUpInverse = m_isCameraUpInverse;
-	}
-
-
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_J))
-	{
-		Damage();
 	}
 
 
@@ -965,6 +960,17 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 	m_cameraNoCollisionTimer.UpdateTimer();
 
+
+
+
+
+
+
+
+	////テスト用
+	//FastTravel::Instance()->Update();
+	//m_camController.GetCamera().lock()->GetTransform() = FastTravel::Instance()->GetCamera()->GetTransform();
+
 }
 
 void Player::Draw(KuroEngine::Camera &arg_cam, std::weak_ptr<KuroEngine::DepthStencil>arg_ds, KuroEngine::LightManager &arg_ligMgr, bool arg_cameraDraw)
@@ -1485,3 +1491,17 @@ void Player::UpdateDamage()
 		m_damageShakeAmount = std::clamp(m_damageShakeAmount - SUB_DAMAGE_SHAKE_AMOUNT, 0.0f, 100.0f);
 	}
 }
+
+
+
+
+/*
+
+・オーバーヒートのバグ
+・IvyBlockの演出
+・目標地点に光の柱立てる
+・チェックポイントのゴールを切り替えたらモデルを切り替える。
+・浮島シェーダー
+・カメラ修正
+
+*/

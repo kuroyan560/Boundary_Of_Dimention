@@ -1057,7 +1057,7 @@ void KuroEngine::D3D12App::GenerateTextureBuffer(std::shared_ptr<KuroEngine::Tex
 
 	for (auto& itr : m_loadImgTextures)
 	{
-		if (itr.m_path.compare(LoadImgFilePath) == 0)
+		if (itr.m_path.compare(LoadImgFilePath) == 0 && static_cast<int>(itr.m_textures.size()) == AllNum)
 		{
 			for (int texIdx = 0; texIdx < static_cast<int>(itr.m_textures.size()); ++texIdx)
 			{

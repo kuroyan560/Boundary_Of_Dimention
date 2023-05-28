@@ -227,6 +227,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Stage\CheckPointPillar.cpp" />
     <ClCompile Include="src\Stage\Enemy\Enemy.cpp" />
     <ClCompile Include="src\Stage\Enemy\EnemyDataReferenceForCircleShadow.cpp" />
+    <ClCompile Include="src\Stage\FastTravel.cpp" />
     <ClCompile Include="src\Stage\GateManager.cpp" />
     <ClCompile Include="src\Stage\Goal.cpp" />
     <ClCompile Include="src\Stage\Grass.cpp" />
@@ -326,6 +327,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="..\..\src\engine\Render\RenderObject\SpriteMesh.h" />
     <ClInclude Include="..\..\src\engine\Render\ShadowMapDevice.h" />
     <ClInclude Include="CheckPointPillar.h" />
+    <ClInclude Include="FastTravel.h" />
     <ClInclude Include="src\AI\EnemyAttack.h" />
     <ClInclude Include="src\AI\EnemyPatrol.h" />
     <ClInclude Include="src\AI\EnemySearch.h" />
@@ -377,6 +379,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Stage\CheckPointPillar.h" />
     <ClInclude Include="src\Stage\Enemy\Enemy.h" />
     <ClInclude Include="src\Stage\Enemy\EnemyDataReferenceForCircleShadow.h" />
+    <ClInclude Include="src\Stage\FastTravel.h" />
     <ClInclude Include="src\Stage\GateManager.h" />
     <ClInclude Include="src\Stage\Goal.h" />
     <ClInclude Include="src\Stage\Grass.h" />

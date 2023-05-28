@@ -43,8 +43,9 @@ void CheckPointPillar::Update(const KuroEngine::Vec3<float>& arg_playerPos)
 	if (!m_isFirstFrame) {
 
 		//座標をオフセットをつけて保存。
-		const KuroEngine::Vec3<float> OFFSET = KuroEngine::Vec3<float>(0, 20000.0f, 0);
-		m_transform.SetPos(nextCheckPointTransform.GetPosWorld() - OFFSET);
+		const float OFFSET = 20000.0f;
+		m_transform.SetPos(nextCheckPointTransform.GetPosWorld() - nextCheckPointTransform.GetUp() * OFFSET);
+		m_transform.SetRotate(nextCheckPointTransform.GetRotate());
 
 	}
 

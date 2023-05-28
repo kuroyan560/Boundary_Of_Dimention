@@ -20,6 +20,8 @@
 
 #include"HUD/InGameUI.h"
 
+#include"Stage/FastTravel.h"
+
 GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_1flameStopTimer(30), m_goal(m_particleRender.GetStackBuffer())
 {
 	KuroEngine::Vec3<float>dir = { 0.0f,-1.0f,0.0f };
@@ -78,6 +80,15 @@ void GameScene::GameInit()
 	m_pauseUI.Init();
 	OperationConfig::Instance()->SetInGameOperationActive(true);
 	m_checkPointPillar.Init();
+
+	//std::vector<KuroEngine::Transform> testTransform;
+	//KuroEngine::Transform buff;
+	//buff.SetPos(KuroEngine::Vec3<float>(0, 0, 0));
+	//testTransform.emplace_back(buff);
+	//buff.SetPos(KuroEngine::Vec3<float>(0, -100, 100));
+	//testTransform.emplace_back(buff);
+	//FastTravel::Instance()->Init(testTransform);
+
 }
 
 void GameScene::Retry()
@@ -281,6 +292,8 @@ void GameScene::OnUpdate()
 
 	//チェックポイントの円柱を更新。
 	m_checkPointPillar.Update(m_player.GetTransform().GetPosWorld());
+	
+
 }
 
 void GameScene::OnDraw()
@@ -350,6 +363,28 @@ void GameScene::OnDraw()
 			m_stageInfoUI.Draw(StageManager::Instance()->ExistStarCoinNum(), StageManager::Instance()->GetStarCoinNum());
 		}
 	}
+
+
+
+
+
+
+
+
+	//テスト用
+	//FastTravel::Instance()->Draw(*m_nowCam);
+
+
+
+
+
+
+
+
+
+
+
+
 
 	m_title.Draw(*m_nowCam, m_ligMgr);
 
