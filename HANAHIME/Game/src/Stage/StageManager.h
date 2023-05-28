@@ -5,8 +5,9 @@
 #include"StageParts.h"
 #include"../HUD/MapPinUI.h"
 #include"../HUD/CheckPointUI.h"
-
+#include"../DebugEnemy.h"
 #include<memory>
+
 namespace KuroEngine
 {
 	class Model;

@@ -213,6 +213,8 @@ void GameScene::OnUpdate()
 
 	if (m_gateSceneChange.IsHide())
 	{
+		DebugEnemy::Instance()->SetStageNum(m_stageNum);
+
 		m_deadFlag = false;
 		//パズル画面からシーンチェンジしたらカメラモードを切り替える
 		if (!m_title.IsFinish())
@@ -263,6 +265,23 @@ void GameScene::OnUpdate()
 		m_player.GetPointLig()->SetActive(false);
 		m_player.DisactiveLight();
 	}
+
+	//そのステージにいるすべての敵にワープする
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_0))
+	{
+		m_player.Init(DebugEnemy::Instance()->GetTransform());
+	}
+	//そのステージにいるミニバグにワープする
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_1))
+	{
+		m_player.Init(DebugEnemy::Instance()->GetSpecificTransform(ENEMY_MINIBUG));
+	}
+	//そのステージにいるミニバグにワープする
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_2))
+	{
+		m_player.Init(DebugEnemy::Instance()->GetSpecificTransform(ENEMY_DOSSUN_NORMAL));
+	}
+
 
 	m_gateSceneChange.Update();
 	m_movieCamera.Update();

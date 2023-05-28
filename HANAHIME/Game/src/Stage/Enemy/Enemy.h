@@ -16,6 +16,7 @@ namespace KuroEngine
 {
 	class ModelAnimator;
 }
+#include"../../DebugEnemy.h"
 
 //ìGÇÃçUåÇÉpÉ^Å[Éì
 enum ENEMY_ATTACK_PATTERN
@@ -59,6 +60,10 @@ public:
 
 		m_animator = std::make_shared<KuroEngine::ModelAnimator>(arg_model);
 		OnInit();
+
+
+		DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_MINIBUG);
+
 	}
 
 	void OnInit()override;
@@ -278,6 +283,19 @@ public:
 		m_attackRingModel = 
 			KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "impactWave.glb");
 
+		switch (status)
+		{
+		case ENEMY_ATTACK_PATTERN_NORMAL:
+			DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_DOSSUN_NORMAL);
+			break;
+		case ENEMY_ATTACK_PATTERN_ALWAYS:
+			DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_DOSSUN_ALLWAYS);
+			break;
+		case ENEMY_ATTACK_PATTERN_INVALID:
+			break;
+		default:
+			break;
+		}
 	}
 	void OnInit()override;
 	void Update(Player &arg_player)override;
