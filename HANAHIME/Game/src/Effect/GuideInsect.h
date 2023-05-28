@@ -18,7 +18,7 @@ public:
 
 	void Init();
 	void Update();
-	void Draw();
+	void Draw(KuroEngine::Camera &camera, KuroEngine::LightManager &light);
 
 	std::shared_ptr<CheckPointData> Stack();
 

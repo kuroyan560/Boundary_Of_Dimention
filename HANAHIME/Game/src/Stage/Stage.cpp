@@ -424,7 +424,7 @@ void Stage::Update(Player &arg_player)
 	}
 
 	//チェックポイントまで飛ぶ処理
-	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CANCEL, OperationConfig::ON_TRIGGER))
+	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_RESET, OperationConfig::ON_TRIGGER))
 	{
 		m_guideInsect.GoToCheckPoint(arg_player.GetTransform().GetPos());
 	}
@@ -459,6 +459,8 @@ void Stage::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligM
 	{
 		m_goalPoint->Draw(arg_cam, arg_ligMgr);
 	}
+
+	m_guideInsect.Draw(arg_cam, arg_ligMgr);
 }
 
 bool Stage::IsClear() const

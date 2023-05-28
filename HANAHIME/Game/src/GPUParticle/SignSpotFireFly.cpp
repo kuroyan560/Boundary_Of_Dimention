@@ -52,6 +52,9 @@ SignSpotFireFly::SignSpotFireFly(std::shared_ptr<KuroEngine::RWStructuredBuffer>
 	data.scaleRotaMat = DirectX::XMMatrixScaling(1.0f, 1.0f, 1.0f);
 	data.speed = 5.0f;
 	m_commonBuffer->Mapping(&data);
+
+
+	m_hitBoxModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Shpere.glb");
 }
 
 void SignSpotFireFly::Init(const KuroEngine::Vec3<float> &pos)
@@ -72,9 +75,9 @@ void SignSpotFireFly::Update()
 {
 	data.emittPos =
 	{
-		KuroEngine::Math::Ease(KuroEngine::InOut, KuroEngine::Cubic, m_timer.GetTimeRate(), m_startPos, m_endPos).x,
-		KuroEngine::Math::Ease(KuroEngine::InOut, KuroEngine::Cubic, m_timer.GetTimeRate(), m_startPos, m_endPos).y,
-		KuroEngine::Math::Ease(KuroEngine::InOut, KuroEngine::Cubic, m_timer.GetTimeRate(), m_startPos, m_endPos).z
+		KuroEngine::Math::Ease(KuroEngine::In, KuroEngine::Cubic, m_timer.GetTimeRate(), m_startPos, m_endPos).x,
+		KuroEngine::Math::Ease(KuroEngine::In, KuroEngine::Cubic, m_timer.GetTimeRate(), m_startPos, m_endPos).y,
+		KuroEngine::Math::Ease(KuroEngine::In, KuroEngine::Cubic, m_timer.GetTimeRate(), m_startPos, m_endPos).z
 	};
 	m_timer.UpdateTimer();
 
@@ -111,9 +114,24 @@ void SignSpotFireFly::Update()
 	}
 }
 
-void SignSpotFireFly::Draw(KuroEngine::Camera &camera)
+void SignSpotFireFly::Draw(KuroEngine::Camera &camera, KuroEngine::LightManager &light)
 {
 	KuroEngine::DrawFunc3D::DrawNonShadingModel(m_particleMove, camera);
+
+	IndividualDrawParameter drawParam = IndividualDrawParameter::GetDefault();
+	drawParam.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 1.0f, 0.0f);
+	KuroEngine::Transform transform;
+	transform.SetPos({ data.emittPos.x,data.emittPos.y,data.emittPos.z });
+	transform.SetScale(5.0f);
+
+	BasicDraw::Instance()->Draw_NoGrass
+	(
+		camera,
+		light,
+		m_hitBoxModel,
+		transform,
+		drawParam
+	);
 }
 
 void SignSpotFireFly::Finish()

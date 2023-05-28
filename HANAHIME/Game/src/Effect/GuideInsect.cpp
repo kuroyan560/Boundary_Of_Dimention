@@ -46,8 +46,9 @@ void GuideInsect::Update()
 	}
 }
 
-void GuideInsect::Draw()
+void GuideInsect::Draw(KuroEngine::Camera &camera, KuroEngine::LightManager &light)
 {
+	//m_guideInsect.Draw(camera, light);
 }
 
 std::shared_ptr<GuideInsect::CheckPointData> GuideInsect::Stack()

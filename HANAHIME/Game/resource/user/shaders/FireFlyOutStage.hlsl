@@ -136,7 +136,12 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
     fireFlyDataBuffer[index].pos += fireFlyDataBuffer[index].vel;
     if(fireFlyDataBuffer[index].pos.y <= fireFlyDataBuffer[index].basePos.y - 200.0f)
     {
-        fireFlyDataBuffer[index].pos = fireFlyDataBuffer[index].basePos;
+        fireFlyDataBuffer[index].pos = 
+        float3(
+            playerPos.x + fireFlyDataBuffer[index].basePos.x,
+            fireFlyDataBuffer[index].basePos.y,
+            playerPos.z + fireFlyDataBuffer[index].basePos.z
+        );
     }
 
 

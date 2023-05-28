@@ -18,9 +18,7 @@ private:
 	{
 		DirectX::XMFLOAT3 startPos;
 		DirectX::XMFLOAT3 endPos;
-		DirectX::XMFLOAT3 startColor;
-		DirectX::XMFLOAT3 endColor;
-		DirectX::XMFLOAT3 nowColor;
+		DirectX::XMFLOAT2 uv;
 		int timer;
 		int isAliveFlag;
 	};

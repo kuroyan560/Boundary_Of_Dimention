@@ -687,6 +687,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			//SE‚ð–Â‚ç‚·B
 			SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
 
+
 		}
 
 	}

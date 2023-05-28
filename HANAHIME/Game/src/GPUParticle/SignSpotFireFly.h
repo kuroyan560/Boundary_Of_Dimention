@@ -5,6 +5,7 @@
 #include"ForUser/Object/Object.h"
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"Render/RenderObject/Camera.h"
+#include"FrameWork/Importer.h"
 
 class SignSpotFireFly
 {
@@ -13,7 +14,7 @@ public:
 
 	void Init(const KuroEngine::Vec3<float> &pos);
 	void Update();
-	void Draw(KuroEngine::Camera &camera);
+	void Draw(KuroEngine::Camera &camera, KuroEngine::LightManager &light);
 
 	void Finish();
 	void GoThisPos(const KuroEngine::Vec3<float>&startPos, const KuroEngine::Vec3<float>&endPos);
@@ -64,6 +65,9 @@ private:
 	KuroEngine::Vec3<float>m_endPos;
 
 	KuroEngine::Timer m_timer;
+
+
+	std::shared_ptr<KuroEngine::Model>m_hitBoxModel;
 
 public:
 	KuroEngine::Vec3<float>m_prevPos;

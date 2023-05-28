@@ -5,9 +5,7 @@ struct FireFlyParticleData
 {
     float3 startPos;
     float3 endPos;
-    float3 startColor;
-    float3 endColor;
-    float3 nowColor;
+    float2 uv;
     int timer;
     int isAliveFlag;
 };
@@ -59,8 +57,9 @@ void InitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 
     fireFlyDataBuffer[index].endPos = emittPos + pos;
     fireFlyDataBuffer[index].timer = TIMER;
 
-    fireFlyDataBuffer[index].startColor = tex.SampleLevel(smp,float2(0.9f,0.9f),0);
-    fireFlyDataBuffer[index].endColor = tex.SampleLevel(smp,float2(0.1f,0.1f),0);
+    fireFlyDataBuffer[index].uv = float2(0.9f,0.9f);
+    //fireFlyDataBuffer[index].startColor = tex.SampleLevel(smp,float2(0.9f,0.9f),0);
+    //fireFlyDataBuffer[index].endColor = tex.SampleLevel(smp,float2(0.1f,0.1f),0);
 }
 
 //蛍パーティクル更新
@@ -75,15 +74,18 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
     float3 pos = Easing_Cubic_Out(startTimer,maxTimer,fireFlyDataBuffer[index].startPos,fireFlyDataBuffer[index].endPos);
 
     //色の補間
-    fireFlyDataBuffer[index].nowColor = Easing_Cubic_Out(startTimer,maxTimer,fireFlyDataBuffer[index].startColor,fireFlyDataBuffer[index].endColor);
+    //fireFlyDataBuffer[index].nowColor = Larp(fireFlyDataBuffer[index].startColor,fireFlyDataBuffer[index].endColor,0.08f);
+
+    fireFlyDataBuffer[index].uv = LarpFloat2(float2(0.1f,0.1f),fireFlyDataBuffer[index].uv,0.08f);
+    float4 color = tex.SampleLevel(smp,fireFlyDataBuffer[index].uv,0);
 
     //出力--------------------------------------------
-
     float alpha = (float)(fireFlyDataBuffer[index].timer) / (float)(TIMER);
     ParticleData outputMat;
     matrix mat = SetScaleInMatrix(float3(1.0f,1.0f,1.0f));
     outputMat.world = SetPosInMatrix(mat,pos);
-    outputMat.color.xyz = fireFlyDataBuffer[index].nowColor.xyz;
+    //outputMat.color.xyz = fireFlyDataBuffer[index].nowColor.xyz;
+    outputMat.color.xyz = color.xyz;
     outputMat.color.a = alpha;
     particleData.Append(outputMat);
     //出力--------------------------------------------
