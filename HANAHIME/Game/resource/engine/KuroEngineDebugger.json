@@ -37,7 +37,7 @@
       "MonochromeRate": 0.3499999940395355
     },
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.3920130133628845,
@@ -93,6 +93,23 @@
         1.0
       ],
       "textColorFlg": false
+    }
+  },
+  "EnemyDebug": {
+    "debuggerSetting": {
+      "active": true,
+      "customParamActive": true,
+      "imageColor": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "textColorFlg": false
+    },
+    "enemy": {
+      "common": false,
+      "hitBox": 1.0
     }
   },
   "Fog": {

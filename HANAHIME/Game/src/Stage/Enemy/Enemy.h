@@ -5,18 +5,18 @@
 #include"../Grass.h"
 #include"ForUser/DrawFunc/BillBoard/DrawFuncBillBoard.h"
 #include"EnemyDataReferenceForCircleShadow.h"
-#include"../../../src/Graphics/BasicDraw.h"
+#include"../../Graphics/BasicDraw.h"
 #include"../../CPUParticle/DashEffect.h"
 #include"../../Effect/EnemyEyeEffect.h"
 #include"../../AI/EnemyAttack.h"
 #include"../../AI/IEnemyAI.h"
 #include"Render/RenderObject/ModelInfo/ModelAnimator.h"
+#include"../../DebugEnemy.h"
 
 namespace KuroEngine
 {
 	class ModelAnimator;
 }
-#include"../../DebugEnemy.h"
 
 //敵の攻撃パターン
 enum ENEMY_ATTACK_PATTERN
@@ -40,7 +40,6 @@ public:
 	MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>posArray, bool loopFlag)
 		:StageParts(MINI_BUG, arg_model, arg_initTransform), m_deadTimer(120), m_eyeEffect(&m_transform), ENEMY_ID(ENEMY_MAX_ID)
 	{
-
 		//丸影用に敵のデータの参照を渡す。
 		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_shadowInfluenceRange, &m_deadFlag);
 		m_finalizeFlag = false;
@@ -64,6 +63,7 @@ public:
 
 		DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_MINIBUG);
 
+		m_debugHitBox = std::make_unique<EnemyHitBox>(m_hitBox);
 	}
 
 	void OnInit()override;
@@ -216,6 +216,8 @@ private:
 
 
 private:
+
+	std::unique_ptr<EnemyHitBox> m_debugHitBox;
 
 	//リアクション表記---------------------------------------
 

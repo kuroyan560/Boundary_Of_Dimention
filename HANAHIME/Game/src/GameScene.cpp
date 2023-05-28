@@ -110,6 +110,7 @@ void GameScene::OnInitialize()
 	&m_ligMgr,
 	m_fogPostEffect.get(),
 	SoundConfig::Instance(),
+	DebugEnemy::Instance()
 		});
 
 	m_debugCam.Init({ 0,5,-10 });
@@ -165,7 +166,7 @@ void GameScene::OnUpdate()
 		m_nowCam = m_debugCam;
 	}
 
-	m_grass.Update(1.0f, m_player.GetIsOverheat(), m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrowPlantLight().m_influenceRange, StageManager::Instance()->GetNowStage(), m_player.GetIsAttack(), m_player.GetMoveSpeed());
+	//m_grass.Update(1.0f, m_player.GetIsOverheat(), m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrowPlantLight().m_influenceRange, StageManager::Instance()->GetNowStage(), m_player.GetIsAttack(), m_player.GetMoveSpeed());
 
 	//ƒz[ƒ€‚Å‚Ìˆ—----------------------------------------
 	if (!m_title.IsFinish() && !m_title.IsStartOP())
@@ -324,7 +325,7 @@ void GameScene::OnDraw()
 	{
 		m_goal.Draw(*m_nowCam);
 		m_player.Draw(*m_nowCam, ds, m_ligMgr, DebugController::Instance()->IsActive());
-		m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
+		//m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
 
 	}
 

@@ -40,7 +40,7 @@ void MiniBug::OnInit()
 	m_startDeadMotionFlag = false;
 	m_deadTimer.Reset(120);
 
-	m_hitBoxSize = m_transform.GetScale().x;
+	m_hitBoxSize = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_MINIBUG);
 	m_hitBox.m_centerPos = &m_transform.GetPos();
 	m_hitBox.m_radius = &m_hitBoxSize;
 
@@ -52,6 +52,10 @@ void MiniBug::OnInit()
 
 void MiniBug::Update(Player &arg_player)
 {
+#ifdef _DEBUG
+	m_hitBoxSize = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_MINIBUG);
+#endif // _DEBUG
+
 
 	m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());
 	m_eyeEffect.Update(m_larpPos);
@@ -193,7 +197,7 @@ void MiniBug::Update(Player &arg_player)
 		}
 
 		//通常目
-		if(m_nowStatus != MiniBug::ATTACK)m_animator->SetStartPosture("To_Angry");
+		if (m_nowStatus != MiniBug::ATTACK)m_animator->SetStartPosture("To_Angry");
 
 		m_thinkTimer.Reset(120);
 		m_prevStatus = m_nowStatus;
@@ -313,7 +317,7 @@ void MiniBug::Update(Player &arg_player)
 	//プレイヤーと敵の判定
 	if (Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_hitBox))
 	{
-		arg_player.Damage();
+		//arg_player.Damage();
 	}
 
 	//草の当たり判定
@@ -323,6 +327,22 @@ void MiniBug::Update(Player &arg_player)
 	}
 
 	m_reaction->Update(m_pos);
+	if (1.0f <= m_transform.GetUp().x)
+	{
+		vel.x = 0.0f;
+		m_dir.x = 0.0f;
+	}
+	if (1.0f <= m_transform.GetUp().y)
+	{
+		vel.y = 0.0f;
+		m_dir.y = 0.0f;
+	}
+	if (1.0f <= m_transform.GetUp().z)
+	{
+		vel.z = 0.0f;
+		m_dir.z = 0.0f;
+	}
+
 
 	//座標移動
 	m_pos += vel;
@@ -385,11 +405,16 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.54f, 0.14f, 0.33f, 1.0f);
 
+	KuroEngine::Vec3<float>offset(5.0f, 5.0f, 5.0f);
+	offset *= m_transform.GetUp();
+	KuroEngine::Transform drawTransform(m_transform);
+	drawTransform.SetPos(m_transform.GetPos() + offset);
+
 	BasicDraw::Instance()->Draw_NoGrass(
 		arg_cam,
 		arg_ligMgr,
 		m_model,
-		m_transform,
+		drawTransform,
 		edgeColor,
 		KuroEngine::AlphaBlendMode_None,
 		m_animator->GetBoneMatBuff());
@@ -398,7 +423,12 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 
 	m_dashEffect.Draw(arg_cam);
 	m_eyeEffect.Draw(arg_cam);
-	//DebugDraw(arg_cam);
+
+	if (DebugEnemy::Instance()->VisualizeEnemyHitBox())
+	{
+		m_debugHitBox->Draw(arg_cam, arg_ligMgr);
+	}
+	DebugDraw(arg_cam);
 
 }
 
@@ -423,7 +453,11 @@ void MiniBug::DebugDraw(KuroEngine::Camera &camera)
 		break;
 	}
 
-	m_sightArea.DebugDraw(camera);
+	if (DebugEnemy::Instance()->VisualizeEnemySight())
+	{
+		m_sightArea.DebugDraw(camera);
+	}
+
 
 #endif // _DEBUG
 
@@ -608,6 +642,16 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 		m_attackRingModel,
 		transform,
 		edgeColor);
+
+	if (DebugEnemy::Instance()->VisualizeEnemySight())
+	{
+
+	}
+	if (DebugEnemy::Instance()->VisualizeEnemyHitBox())
+	{
+
+	}
+
 
 	m_reaction->Draw(arg_cam);
 
@@ -812,6 +856,15 @@ void Battery::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 	m_bulletManager.Draw(arg_cam);
 
 	m_reaction->Draw(arg_cam);
+
+	if (DebugEnemy::Instance()->VisualizeEnemySight())
+	{
+
+	}
+	if (DebugEnemy::Instance()->VisualizeEnemyHitBox())
+	{
+
+	}
 	//DebugDraw(arg_cam);
 }
 #pragma endregion
