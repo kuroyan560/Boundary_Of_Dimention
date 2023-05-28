@@ -238,6 +238,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Stage\Switch.cpp" />
     <ClCompile Include="src\System\FastTravel.cpp" />
     <ClCompile Include="src\System\SaveDataManager.cpp" />
+    <ClCompile Include="src\System\SystemSetting.cpp" />
     <ClCompile Include="src\TimeScaleMgr.cpp" />
     <ClCompile Include="src\Tutorial.cpp" />
   </ItemGroup>
@@ -328,7 +329,6 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="..\..\src\engine\Render\RenderObject\ModelInfo\Skeleton.h" />
     <ClInclude Include="..\..\src\engine\Render\RenderObject\SpriteMesh.h" />
     <ClInclude Include="..\..\src\engine\Render\ShadowMapDevice.h" />
-    <ClInclude Include="CheckPointPillar.h" />
     <ClInclude Include="src\AI\EnemyAttack.h" />
     <ClInclude Include="src\AI\EnemyPatrol.h" />
     <ClInclude Include="src\AI\EnemySearch.h" />
@@ -392,6 +392,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Stage\Switch.h" />
     <ClInclude Include="src\System\FastTravel.h" />
     <ClInclude Include="src\System\SaveDataManager.h" />
+    <ClInclude Include="src\System\SystemSetting.h" />
     <ClInclude Include="src\TimeScaleMgr.h" />
     <ClInclude Include="src\Tutorial.h" />
   </ItemGroup>

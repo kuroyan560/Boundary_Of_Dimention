@@ -490,6 +490,15 @@
     <ClCompile Include="src\GPUParticle\FireWork.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Stage\CheckPointPillar.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\System\FastTravel.cpp">
+      <Filter>src\user\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\System\SystemSetting.cpp">
+      <Filter>src\user\System</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -930,5 +939,12 @@
       <Filter>src\user\System</Filter>
     </ClInclude>
     <ClInclude Include="src\GPUParticle\FireWork.h" />
+    <ClInclude Include="src\Stage\CheckPointPillar.h" />
+    <ClInclude Include="src\System\FastTravel.h">
+      <Filter>src\user\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\System\SystemSetting.h">
+      <Filter>src\user\System</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

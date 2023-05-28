@@ -202,6 +202,7 @@ void PauseUI::Update(GameScene* arg_gameScene, float arg_timeScale)
 					arg_gameScene->ActivateFastTravel();
 					break;
 				case SETTING:
+					arg_gameScene->ActivateSystemSetting();
 					break;
 				case RETURN_TO_TITLE:
 					m_menuStatus = CONFIRM_MENU;

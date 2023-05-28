@@ -55,6 +55,7 @@ void Title::MenuUpdate(bool arg_inputUp, bool arg_inputDown, bool arg_inputDone,
 				break;
 				//İ’è
 			case SETTING:
+				arg_gameScene->ActivateSystemSetting();
 				break;
 				//ƒQ[ƒ€‚ğ‚â‚ß‚é
 			case QUIT:

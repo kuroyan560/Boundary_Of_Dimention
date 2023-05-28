@@ -24,6 +24,7 @@
 #include"Effect/GuideInsect.h"
 #include"Stage/CheckPointPillar.h"
 #include"System/FastTravel.h"
+#include"System/SystemSetting.h"
 
 class GameScene : public KuroEngine::BaseScene
 {
@@ -77,6 +78,8 @@ class GameScene : public KuroEngine::BaseScene
 
 	//ファストトラベル
 	FastTravel m_fastTravel;
+	//設定画面
+	SystemSetting m_sysSetting;
 
 	//ステージ外の蛍描画
 	FireFlyOutStage m_fireFlyStage;
@@ -98,6 +101,11 @@ class GameScene : public KuroEngine::BaseScene
 
 	bool m_deadFlag;
 
+	bool IsSystemAplicationActive()const
+	{
+		return m_fastTravel.IsActive() || m_sysSetting.IsActive();
+	}
+
 	void GameInit();
 
 	void OnInitialize()override;
@@ -111,4 +119,5 @@ public:
 	void StartGame(int arg_stageNum, KuroEngine::Transform arg_playerInitTransform);
 	void GoBackTitle();
 	void ActivateFastTravel();
+	void ActivateSystemSetting();
 };

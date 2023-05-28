@@ -117,6 +117,11 @@ void GameScene::ActivateFastTravel()
 	}
 }
 
+void GameScene::ActivateSystemSetting()
+{
+	m_sysSetting.Activate();
+}
+
 void GameScene::OnInitialize()
 {
 	GrowPlantLight::ResetRegisteredLight();
@@ -163,6 +168,7 @@ void GameScene::OnUpdate()
 	{
 		m_nowCam = m_fastTravel.GetCamera();
 	}
+	else if (IsSystemAplicationActive()) {}
 	//タイトル画面
 	else if (m_nowScene == SCENE_TITLE)
 	{
@@ -211,6 +217,9 @@ void GameScene::OnUpdate()
 		m_stageInfoUI.Update(TimeScaleMgr::s_inGame.GetTimeScale(), StageManager::Instance()->GetStarCoinNum());
 		m_pauseUI.Update(this);
 	}
+
+	//設定画面更新
+	m_sysSetting.Update();
 
 	if (DebugController::Instance()->IsActive())
 	{
@@ -270,7 +279,7 @@ void GameScene::OnUpdate()
 	//ゲームシーンでのみ使う物
 	if (m_nowScene == SCENE_IN_GAME)
 	{
-		if (!m_fastTravel.IsActive())
+		if (!IsSystemAplicationActive())
 		{
 			m_player.Update(StageManager::Instance()->GetNowStage());
 			m_goal.Update(&m_player.GetTransform());
@@ -316,7 +325,7 @@ void GameScene::OnDraw()
 	//スカイドームを最背面描画するため、デプスステンシルのクリア
 	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 
-	if (!m_fastTravel.IsActive() && m_nowScene == SCENE_IN_GAME)
+	if (!IsSystemAplicationActive() && m_nowScene == SCENE_IN_GAME)
 	{
 		m_goal.Draw(*m_nowCam);
 		m_player.Draw(*m_nowCam, ds, m_ligMgr, DebugController::Instance()->IsActive());
@@ -327,7 +336,7 @@ void GameScene::OnDraw()
 	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
 
 	//プレイヤーのパーティクル描画
-	if (!m_fastTravel.IsActive() && m_nowScene == SCENE_IN_GAME)
+	if (!IsSystemAplicationActive() && m_nowScene == SCENE_IN_GAME)
 	{
 		m_player.DrawParticle(*m_nowCam, m_ligMgr);
 	}
@@ -351,7 +360,7 @@ void GameScene::OnDraw()
 	m_vignettePostEffect.Register(m_fogPostEffect->GetResultTex());
 
 	//UI描画
-	if (!m_fastTravel.IsActive() && m_nowScene == SCENE_IN_GAME)
+	if (!IsSystemAplicationActive() && m_nowScene == SCENE_IN_GAME)
 	{
 		//ポーズ画面
 		m_pauseUI.Draw(StarCoin::GetFlowerSum());
@@ -366,13 +375,16 @@ void GameScene::OnDraw()
 		}
 		m_goal.Draw2D();
 	}
-	else if (!m_fastTravel.IsActive() && m_nowScene == SCENE_TITLE)
+	else if (!IsSystemAplicationActive() && m_nowScene == SCENE_TITLE)
 	{
 		m_title.Draw(*m_nowCam, m_ligMgr);
 	}
 
 	//ファストトラベル画面描画
 	m_fastTravel.Draw(*m_nowCam);
+
+	//設定画面描画
+	m_sysSetting.Draw();
 
 	//シーン遷移描画
 	m_gateSceneChange.Draw();
