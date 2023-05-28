@@ -3,78 +3,8 @@
         "name": "scene",
         "objects": [
             {
-                "type": "IvyBlock",
-                "name": "IvyBlock_0.016",
-                "transform": {
-                    "translation": [
-                        40.0,
-                        0.0,
-                        -2.0
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        10.0,
-                        10.0,
-                        10.0
-                    ]
-                },
-                "file_name": "IvyBlock",
-                "block": {
-                    "left_top_front_pos": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
-                    "right_bottom_back_pos": [
-                        -1.0,
-                        -1.0,
-                        -1.0
-                    ]
-                }
-            },
-            {
-                "type": "IvyBlock",
-                "name": "IvyBlock_0.017",
-                "transform": {
-                    "translation": [
-                        40.0,
-                        -60.0,
-                        -2.0
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        10.0,
-                        10.0,
-                        10.0
-                    ]
-                },
-                "file_name": "IvyBlock",
-                "block": {
-                    "left_top_front_pos": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ],
-                    "right_bottom_back_pos": [
-                        -1.0,
-                        -1.0,
-                        -1.0
-                    ]
-                }
-            },
-            {
                 "type": "Terrian",
-                "name": "HitStage2_0",
+                "name": "ShowStage",
                 "transform": {
                     "translation": [
                         0.0,
@@ -96,108 +26,12 @@
                 "file_name": "Stage2"
             },
             {
-                "type": "SplatoonFence",
-                "name": "Fence_S0.007",
-                "transform": {
-                    "translation": [
-                        190.0,
-                        0.0,
-                        -2.0
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.7071068286895752,
-                        0.7071068286895752
-                    ],
-                    "scaling": [
-                        10.0,
-                        10.0,
-                        10.0
-                    ]
-                },
-                "file_name": "SplatoonFence",
-                "CollisionModelFileName": "SplatoonFence_Collision"
-            },
-            {
-                "type": "SplatoonFence",
-                "name": "Fence_S0.004",
-                "transform": {
-                    "translation": [
-                        190.0,
-                        40.000003814697266,
-                        -2.0
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.7071068286895752,
-                        0.7071068286895752
-                    ],
-                    "scaling": [
-                        10.0,
-                        10.0,
-                        10.0
-                    ]
-                },
-                "file_name": "SplatoonFence",
-                "CollisionModelFileName": "SplatoonFence_Collision"
-            },
-            {
-                "type": "CheckPoint",
-                "name": "CheckPoint_0.002",
-                "transform": {
-                    "translation": [
-                        0.0,
-                        0.0,
-                        12.0
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                },
-                "file_name": "CheckPoint",
-                "CheckPointOrder": 6
-            },
-            {
-                "type": "CheckPoint",
-                "name": "CheckPoint_0.008",
-                "transform": {
-                    "translation": [
-                        -300.0,
-                        -134.0,
-                        -58.99999237060547
-                    ],
-                    "rotation": [
-                        -0.7071068286895752,
-                        -0.7071068286895752,
-                        0.0,
-                        0.0
-                    ],
-                    "scaling": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                },
-                "file_name": "CheckPoint",
-                "CheckPointOrder": 9
-            },
-            {
                 "type": "Goal",
                 "name": "Goal_S1",
                 "transform": {
                     "translation": [
-                        -412.0,
-                        -129.99998474121094,
+                        -409.90118408203125,
+                        -130.0697479248047,
                         141.0
                     ],
                     "rotation": [
@@ -645,10 +479,10 @@
                         -53.68389892578125
                     ],
                     "rotation": [
-                        0.0,
-                        0.0,
                         0.2588191032409668,
-                        0.9659258127212524
+                        -0.9659258127212524,
+                        0.0,
+                        0.0
                     ],
                     "scaling": [
                         1.5,
@@ -3633,8 +3467,8 @@
                     "rotation": [
                         0.0,
                         0.0,
-                        0.0,
-                        1.0
+                        -0.7071068286895752,
+                        0.7071068286895752
                     ],
                     "scaling": [
                         1.0,
@@ -3958,7 +3792,7 @@
                 "transform": {
                     "translation": [
                         -200.0,
-                        5.0,
+                        0.0,
                         12.0
                     ],
                     "rotation": [
@@ -3981,7 +3815,7 @@
                 "name": "StarCoin_0.004",
                 "transform": {
                     "translation": [
-                        30.0,
+                        20.0,
                         -160.0,
                         -46.99999237060547
                     ],
@@ -4044,8 +3878,6 @@
                     ]
                 },
                 "file_name": "StarCoin"
-<<<<<<< Updated upstream
-=======
             },
             {
                 "type": "CheckPoint",
@@ -4980,7 +4812,6 @@
                 },
                 "file_name": "Sky1",
                 "ShadowShader": 1
->>>>>>> Stashed changes
             }
         ]
     }
