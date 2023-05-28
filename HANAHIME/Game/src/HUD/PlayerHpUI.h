@@ -55,6 +55,11 @@ class PlayerHpUI : public InGameUI
 
 	bool m_hpMax = false;
 
+	//無操作からしばらく出現させておく
+	KuroEngine::Timer m_idleTimer;
+	//退場の予約（アイドル時間のとき）
+	bool m_disappearCall = false;
+
 	void SetHpUIStatus(STATUS arg_status);
 
 	void Appear()override;

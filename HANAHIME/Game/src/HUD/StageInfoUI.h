@@ -52,6 +52,11 @@ class StageInfoUI : public InGameUI
 	//花増加UI座標オフセットY
 	float m_addFlowerOffsetY = 0.0f;
 
+	//無操作からしばらく出現させておく
+	KuroEngine::Timer m_idleTimer;
+	//退場の予約（アイドル時間のとき）
+	bool m_disappearCall = false;
+
 	void SetUIStatus(STATUS arg_status);
 
 	void Appear()override;
