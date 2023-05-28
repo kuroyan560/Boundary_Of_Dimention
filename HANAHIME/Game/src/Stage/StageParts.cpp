@@ -797,8 +797,8 @@ void Terrian::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_li
 
 std::array<std::shared_ptr<KuroEngine::TextureBuffer>, Gate::GATE_TEX_ARRAY_SIZE>Gate::s_texArray;
 
-Gate::Gate(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, int arg_id, int arg_destStageNum, int arg_destGateId)
-	:StageParts(GATE, arg_model, arg_initTransform), m_id(arg_id), m_destStageNum(arg_destStageNum), m_destGateId(arg_destGateId)
+Gate::Gate(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, int arg_id, int arg_destStageNum, int arg_destGateId, std::shared_ptr<GuideInsect::CheckPointData>checkPointData)
+	:StageParts(GATE, arg_model, arg_initTransform), m_id(arg_id), m_destStageNum(arg_destStageNum), m_destGateId(arg_destGateId), m_guideData(checkPointData)
 {
 	//テクスチャ読み込み
 	if (!s_texArray[0])
@@ -806,6 +806,7 @@ Gate::Gate(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg
 		KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(
 			s_texArray.data(), "resource/user/tex/stage/gate.png", GATE_TEX_ARRAY_SIZE, { GATE_TEX_ARRAY_SIZE,1 });
 	}
+	m_guideData->m_pos = m_transform.GetPosWorld();
 
 	static const float TEX_ANIM_INTERVAL = 4.0f;
 	m_animTimer.Reset(TEX_ANIM_INTERVAL);

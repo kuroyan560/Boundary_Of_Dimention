@@ -490,6 +490,7 @@ class Gate : public StageParts
 	//ゲートのテクスチャ
 	static const int GATE_TEX_ARRAY_SIZE = 6;
 	static std::array<std::shared_ptr<KuroEngine::TextureBuffer>, GATE_TEX_ARRAY_SIZE>s_texArray;
+
 	//テクスチャアニメーション
 	int m_texIdx = 0;
 	KuroEngine::Timer m_animTimer;
@@ -502,6 +503,7 @@ class Gate : public StageParts
 	int m_destStageNum;
 	int m_destGateId;
 
+	std::shared_ptr<GuideInsect::CheckPointData>m_guideData;
 
 	//出口専用
 	bool IsExit() 
@@ -515,7 +517,7 @@ class Gate : public StageParts
 	}
 
 public:
-	Gate(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_id, int arg_destStageNum, int arg_destGateId);
+	Gate(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_id, int arg_destStageNum, int arg_destGateId, std::shared_ptr<GuideInsect::CheckPointData>checkPointData);
 
 	void Update(Player& arg_player)override;
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
