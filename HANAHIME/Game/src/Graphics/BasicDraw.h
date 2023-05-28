@@ -80,8 +80,9 @@ private:
 	std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>m_drawPipeline;
 	std::shared_ptr<KuroEngine::GraphicsPipeline>m_drawPipeline_player;
 	std::shared_ptr<KuroEngine::GraphicsPipeline>m_drawPipeline_noGrass;
-	std::array < std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>m_drawPipeline_noOutline;
-	std::array < std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>m_drawPipeline_stage;
+	std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>m_drawPipeline_noOutline;
+	std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>m_drawPipeline_stage;
+	std::array<std::shared_ptr<KuroEngine::GraphicsPipeline>, KuroEngine::AlphaBlendModeNum>m_drawPipeline_backGround;
 	std::vector<std::shared_ptr<KuroEngine::ConstantBuffer>>m_drawTransformBuff;
 
 	//インスタンシグ描画で一度に描画できるインスタンス最大数
@@ -233,6 +234,15 @@ public:
 		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr,
 		int arg_layer = 0);
 	void Draw_NoOutline(std::weak_ptr<KuroEngine::DepthStencil>arg_ds,
+		KuroEngine::Camera& arg_cam,
+		KuroEngine::LightManager& arg_ligMgr,
+		std::weak_ptr<KuroEngine::Model>arg_model,
+		KuroEngine::Transform& arg_transform,
+		const IndividualDrawParameter& arg_toonParam,
+		const KuroEngine::AlphaBlendMode& arg_blendMode = KuroEngine::AlphaBlendMode_None,
+		std::shared_ptr<KuroEngine::ConstantBuffer>arg_boneBuff = nullptr,
+		int arg_layer = 0);
+	void Draw_BackGround(std::shared_ptr<KuroEngine::TextureBuffer> arg_colorTexBuffer,
 		KuroEngine::Camera& arg_cam,
 		KuroEngine::LightManager& arg_ligMgr,
 		std::weak_ptr<KuroEngine::Model>arg_model,

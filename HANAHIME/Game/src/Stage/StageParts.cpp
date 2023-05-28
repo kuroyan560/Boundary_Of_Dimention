@@ -30,7 +30,7 @@ void StageParts::Init()
 	//m_transform.SetPos(m_initializedTransform.GetPos());
 	//m_transform.SetScale(m_initializedTransform.GetScale());
 	//m_transform.SetRotate(m_initializedTransform.GetRotate());
- 	m_transform = m_initializedTransform;
+	m_transform = m_initializedTransform;
 	OnInit();
 }
 
@@ -836,7 +836,7 @@ void Gate::Update(Player& arg_player)
 	}
 
 	m_effectSinCurveAngle += Angle::ROUND() / EFFECT_INTERVAL;
-	m_effectScale = 1.0f + powf(sin(m_effectSinCurveAngle),2.0f) * EFFECT_SCALE_OFFSET;
+	m_effectScale = 1.0f + powf(sin(m_effectSinCurveAngle), 2.0f) * EFFECT_SCALE_OFFSET;
 }
 
 void Gate::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
@@ -848,7 +848,7 @@ void Gate::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMg
 
 	if (IsExit())return;
 
-	BasicDraw::Instance()->DrawBillBoard(arg_cam, 
+	BasicDraw::Instance()->DrawBillBoard(arg_cam,
 		m_transform.GetPosWorld() + m_transform.GetUpWorld() * DRAW_POS_OFFSET,
 		PLANE_SIZE * m_effectScale,
 		PLANE_SIZE * m_effectScale,
@@ -1000,4 +1000,23 @@ void StarCoin::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_l
 			m_transform,
 			halfAlphaParam);
 	}
+}
+
+BackGround::BackGround(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform)
+	:StageParts(BACKGROUND, arg_model, arg_initTransform)
+{
+	m_backGroundObjectTexBuffer = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/BackGroundObjectTexture.png");
+}
+
+void BackGround::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+{
+
+	BasicDraw::Instance()->Draw_BackGround(
+		m_backGroundObjectTexBuffer,
+		arg_cam,
+		arg_ligMgr,
+		m_model,
+		m_transform,
+		IndividualDrawParameter::GetDefault());
+
 }

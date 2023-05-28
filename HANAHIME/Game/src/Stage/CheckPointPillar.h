@@ -39,7 +39,7 @@ public:
 
 	CheckPointPillar();
 	void Init();
-	void Update(const KuroEngine::Vec3<float>& arg_playerPos);
+	void Update(const KuroEngine::Transform& arg_playerPos);
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, std::weak_ptr<KuroEngine::DepthStencil>arg_ds);
 
 };
