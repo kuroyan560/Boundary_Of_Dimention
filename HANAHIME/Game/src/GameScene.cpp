@@ -64,7 +64,7 @@ void GameScene::GameInit()
 
 	if (GateManager::Instance()->IsEnter())
 	{
-		m_player.Init(StageManager::Instance()->GetGateTransform(GateManager::Instance()->GetDestStageNum(), GateManager::Instance()->GetDestGateID()));
+		m_player.Respawn(StageManager::Instance()->GetGateTransform(GateManager::Instance()->GetDestStageNum(), GateManager::Instance()->GetDestGateID()));
 	}
 	else
 	{
