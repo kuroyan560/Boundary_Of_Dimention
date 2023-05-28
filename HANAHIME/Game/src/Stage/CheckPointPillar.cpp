@@ -89,7 +89,7 @@ void CheckPointPillar::Update(const KuroEngine::Vec3<float>& arg_playerPos)
 		m_transform.SetScale(KuroEngine::Vec3<float>(1.0f, 100.0f, 1.0f));
 
 		//チェックポイントに当たった瞬間だったらAPPEARの処理を行わわセル。
-		if (CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger || KuroEngine::UsersInput::Instance()->KeyInput(DIK_P)) {
+		if (CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger) {
 			m_status = STATUS::EXIT;
 			m_appearModeTimer.Reset();
 			m_exitModeTimer.Reset();
@@ -119,8 +119,9 @@ void CheckPointPillar::Update(const KuroEngine::Vec3<float>& arg_playerPos)
 			m_status = CheckPointPillar::APPEAR;
 
 			//座標をオフセットをつけて保存。
-			const KuroEngine::Vec3<float> OFFSET = KuroEngine::Vec3<float>(0, 20000.0f, 0);
-			m_transform.SetPos(nextCheckPointTransform.GetPosWorld() - OFFSET);
+			const float OFFSET = 20000.0f;
+			m_transform.SetPos(nextCheckPointTransform.GetPosWorld() - nextCheckPointTransform.GetUp() * OFFSET);
+			m_transform.SetRotate(nextCheckPointTransform.GetRotate());
 
 		}
 
