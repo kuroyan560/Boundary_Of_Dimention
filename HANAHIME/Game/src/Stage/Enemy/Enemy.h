@@ -12,6 +12,7 @@
 #include"../../AI/IEnemyAI.h"
 #include"Render/RenderObject/ModelInfo/ModelAnimator.h"
 #include"../../DebugEnemy.h"
+#include"../../AI/EnemyStatus.h"
 
 namespace KuroEngine
 {
@@ -85,6 +86,8 @@ private:
 		ATTACK,//プレイヤーを追跡
 		NOTICE,//プレイヤーらしきものを見つけた
 		RETURN,//循環エリアに戻る
+		KNOCK_BACK,
+		HEAD_ATTACK
 	};
 
 	Status m_nowStatus;
@@ -213,7 +216,9 @@ private:
 	//演出回り------------------------------------------------------------------------------
 	DashEffect m_dashEffect;
 	EnemyEyeEffect m_eyeEffect;
-
+	int m_knockBackTime;
+	EnemyKnockBack m_knockBack;
+	EnemyHeadAttack m_headAttack;
 
 private:
 

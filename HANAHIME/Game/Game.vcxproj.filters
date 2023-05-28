@@ -481,6 +481,12 @@
     <ClCompile Include="src\DebugEnemy.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Stage\CheckPointPillar.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AI\EnemyStatus.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -917,5 +923,8 @@
       <Filter>src\user\HUD</Filter>
     </ClInclude>
     <ClInclude Include="src\DebugEnemy.h" />
+    <ClInclude Include="CheckPointPillar.h" />
+    <ClInclude Include="src\Stage\CheckPointPillar.h" />
+    <ClInclude Include="src\AI\EnemyStatus.h" />
   </ItemGroup>
 </Project>

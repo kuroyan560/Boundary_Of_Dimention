@@ -48,6 +48,8 @@ void MiniBug::OnInit()
 
 	m_animator->Play("Wing", true, false, KuroEngine::GetRand(5.0f));
 	m_animator->SetStartPosture("To_Angry");
+
+	m_knockBackTime = 10;
 }
 
 void MiniBug::Update(Player &arg_player)
@@ -133,7 +135,7 @@ void MiniBug::Update(Player &arg_player)
 	{
 		m_nowStatus = MiniBug::NOTICE;
 	}
-	else if (findFlag && !arg_player.GetIsUnderGround() && !isDifferentWall)
+	else if (findFlag && !arg_player.GetIsUnderGround() && !isDifferentWall && m_nowStatus != MiniBug::KNOCK_BACK)
 	{
 		m_nowStatus = MiniBug::ATTACK;
 	}
@@ -192,6 +194,24 @@ void MiniBug::Update(Player &arg_player)
 
 			m_limitIndex = index;
 			break;
+
+		case MiniBug::KNOCK_BACK:
+		{
+			KuroEngine::Vec3<float>dir(m_pos - arg_player.GetTransform().GetPos());
+			dir.y = 0.0f;
+			dir.Normalize();
+			m_knockBack.Init(m_pos, dir, m_knockBackTime);
+			m_pos = m_larpPos;
+		}
+		break;
+
+		case MiniBug::HEAD_ATTACK:
+		{
+			KuroEngine::Vec3<float>dir(m_pos - arg_player.GetTransform().GetPos());
+			dir.y = arg_player.GetTransform().GetUp().Dot(arg_player.GetTransform().GetUpWorld());
+			dir.Normalize();
+			m_headAttack.Init({}, dir);
+		}
 		default:
 			break;
 		}
@@ -245,28 +265,11 @@ void MiniBug::Update(Player &arg_player)
 			m_jumpMotion.Done();
 		}
 
-
 		distance = arg_player.GetTransform().GetPos().Distance(m_pos);
 
-
-		//プレイヤーと一定距離まで近づいたら攻撃予備動作を入れる
-		if (m_attackCoolTimer.UpdateTimer() && distance <= 5.0f && !m_attackFlag)
-		{
-			m_attackFlag = true;
-			m_attackMotion.Init(m_pos, m_pos + KuroEngine::Vec3<float>(0.0f, 2.0f, 0.0f), 0.5f);
-		}
-
-		//攻撃予備動作が終わって攻撃を行った。
-		if (m_attackFlag && m_attackIntervalTimer.UpdateTimer())
-		{
-			//プレイヤーと敵の当たり判定の処理をここに書く
-			m_attackIntervalTimer.Reset(120);
-			m_attackCoolTimer.Reset(120);
-			m_attackFlag = false;
-		}
-
+		m_attackFlag = false;
 		//プレイヤーと一定以上距離が離れた場合
-		if (30.0f <= distance)
+		if (100.0f <= distance)
 		{
 			//暫く止まり、何もなければ思考を切り替える。
 			if (m_thinkTimer.UpdateTimer())
@@ -308,6 +311,30 @@ void MiniBug::Update(Player &arg_player)
 			m_nowStatus = MiniBug::SEARCH;
 		}
 		break;
+
+	case MiniBug::KNOCK_BACK:
+		vel = m_knockBack.Update();
+		if (m_knockBack.IsDone())
+		{
+			vel = {};
+		}
+		//攻撃が当たった時のクールタイム
+		if (m_attackCoolTimer.UpdateTimer())
+		{
+			m_nowStatus = MiniBug::RETURN;
+		}
+		break;
+	case MiniBug::HEAD_ATTACK:
+	{
+		HeadAttackData data = m_headAttack.Update();
+		vel = data.m_dir;
+		m_larpRotation = data.m_rotation;
+		if (m_headAttack.IsDone())
+		{
+			m_startDeadMotionFlag = true;
+		}
+	}
+	break;
 	default:
 		break;
 	}
@@ -317,6 +344,9 @@ void MiniBug::Update(Player &arg_player)
 	//プレイヤーと敵の判定
 	if (Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_hitBox))
 	{
+		m_nowStatus = MiniBug::KNOCK_BACK;
+		m_knockBackTime = 10;
+		m_attackCoolTimer.Reset(120);
 		//arg_player.Damage();
 	}
 
@@ -387,6 +417,7 @@ void MiniBug::Update(Player &arg_player)
 
 		m_transform.SetRotate(DirectX::XMQuaternionSlerp(m_transform.GetRotate(), rotate, 0.08f));
 	}
+
 
 	m_larpPos = KuroEngine::Math::Lerp(m_larpPos, m_pos, 0.1f);
 

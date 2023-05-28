@@ -280,7 +280,7 @@ void GameScene::OnUpdate()
 	//そのステージにいるミニバグにワープする
 	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_2))
 	{
-		m_player.Init(DebugEnemy::Instance()->GetSpecificTransform(ENEMY_DOSSUN_NORMAL));
+		m_player.Init(DebugEnemy::Instance()->GetSpecificTransform(ENEMY_DOSSUN_ALLWAYS));
 	}
 
 
