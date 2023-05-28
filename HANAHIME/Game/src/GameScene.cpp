@@ -21,7 +21,8 @@
 #include"HUD/InGameUI.h"
 #include"System/SaveDataManager.h"
 
-GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_goal(m_particleRender.GetStackBuffer())
+GameScene::GameScene() :m_fireFlyStage(GPUParticleRender::Instance()->GetStackBuffer()), tutorial(GPUParticleRender::Instance()->GetStackBuffer()), m_goal(GPUParticleRender::Instance()->GetStackBuffer()),
+m_guideFly(GPUParticleRender::Instance()->GetStackBuffer()), m_guideInsect(GPUParticleRender::Instance()->GetStackBuffer())
 {
 	KuroEngine::Vec3<float>dir = { 0.0f,-1.0f,0.0f };
 	m_dirLigArray.emplace_back();
@@ -147,7 +148,7 @@ void GameScene::OnInitialize()
 
 void GameScene::OnUpdate()
 {
-	m_particleRender.InitCount();
+	GPUParticleRender::Instance()->InitCount();
 
 	//デバッグモード更新
 	DebugController::Instance()->Update();
@@ -255,6 +256,15 @@ void GameScene::OnUpdate()
 		m_nowScene = m_nextScene;
 	}
 
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_L))
+	{
+		KuroEngine::Transform transform;
+		transform.SetPos(KuroEngine::Vec3<float>(-99.0f,-67.5f,105.0f));
+		KuroEngine::Quaternion rotate = { 0.0f, 0.0f, -0.7f, 0.7f };
+		transform.SetRotate(rotate);
+		m_player.Init(transform);
+	}
+
 	//ゲームシーンでのみ使う物
 	if (m_nowScene == SCENE_IN_GAME)
 	{
@@ -319,7 +329,7 @@ void GameScene::OnDraw()
 		m_player.DrawParticle(*m_nowCam, m_ligMgr);
 	}
 
-	m_particleRender.Draw(*m_nowCam);
+	GPUParticleRender::Instance()->Draw(*m_nowCam);
 
 	//チェックポイントの円柱を描画
 	m_checkPointPillar.Draw(*m_nowCam, m_ligMgr, ds);

@@ -21,6 +21,7 @@
 #include"HUD/OperationInfoUI.h"
 #include"HUD/StageInfoUI.h"
 #include"HUD/PauseUI.h"
+#include"Effect/GuideInsect.h"
 #include"Stage/CheckPointPillar.h"
 #include"System/FastTravel.h"
 
@@ -77,10 +78,10 @@ class GameScene : public KuroEngine::BaseScene
 	//ファストトラベル
 	FastTravel m_fastTravel;
 
-	//GPUパーティクルの描画
-	GPUParticleRender m_particleRender;
 	//ステージ外の蛍描画
 	FireFlyOutStage m_fireFlyStage;
+
+	SignSpotFireFly m_guideFly;
 
 	Tutorial tutorial;
 
@@ -92,6 +93,9 @@ class GameScene : public KuroEngine::BaseScene
 	PauseUI m_pauseUI;
 
 	KuroEngine::LightBloomDevice m_lightBloomDevice;
+
+	GuideInsect m_guideInsect;
+
 	bool m_deadFlag;
 
 	void GameInit();

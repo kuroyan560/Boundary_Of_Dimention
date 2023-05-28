@@ -14,7 +14,13 @@ cbuffer RootConstants : register(b0)
 {    
     matrix scaleRotateBillboardMat;
     float3 dirPos;
-    float alpha;
+    float alpha;    
+    float speed;
+};
+
+cbuffer InitBuffer : register(b0)
+{
+    float3 emittpos;
 };
 
 [numthreads(1024, 1, 1)]
@@ -23,7 +29,8 @@ void InitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 
     uint index = (groupThreadID.y * 1204) + groupThreadID.x + groupThreadID.z;
     index += 1024 * groupId.x;
 
-    SignSpotBuffer[index].pos = float3(RandXorShift(index,5.0f,-5.0f),RandXorShift(index,5.0f,-5.0f),RandXorShift(index,5.0f,-5.0f));
+    float offset = 20.0f;
+    SignSpotBuffer[index].pos = emittpos + float3(Rand(index * 100,offset,-offset),Rand(index*100/2,offset,-offset),Rand(index*450,offset,-offset));
     SignSpotBuffer[index].vel = float3(0,0,0);
 }
 
@@ -38,9 +45,9 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
     particle.pos = IsNanToZero(particle.pos);
     particle.vel = IsNanToZero(particle.vel);
 
-    float3 lenght = dirPos - particle.pos;
+    float3 lenght = (dirPos - particle.pos);
     lenght = normalize(lenght);
-    float3 vel = lenght * 5.0f;
+    float3 vel = lenght * speed;
     particle.vel = Larp(vel,particle.vel,0.01f);
 
     //àÍê∂ÇΩÇ«ÇËíÖÇ©Ç»Ç¢ãììÆ
@@ -59,7 +66,7 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
     //èoóÕ--------------------------------------------
     ParticleData outputMat;
     outputMat.world = pMatWorld;     
-    outputMat.color = float4(1,1,1,alpha);
+    outputMat.color = float4(0.12f, 0.97f, 0.80f,alpha);
     ParticleBuffer.Append(outputMat);
     //èoóÕ--------------------------------------------
 

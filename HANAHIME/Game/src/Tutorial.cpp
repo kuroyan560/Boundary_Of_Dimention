@@ -5,7 +5,7 @@ Tutorial::Tutorial(std::shared_ptr<KuroEngine::RWStructuredBuffer> particleBuffe
 	m_tutorialDataArray.emplace_back(TutorialData({ -50.0f, 30.0f, 40.0f }, 120.0f, "resource/user/tex/Number.png", 10, { 10,1 }));
 	m_tutorialDataArray.emplace_back(TutorialData({ -30.0f, 30.0f, 40.0f }, 120.0f, "resource/user/tex/Number.png", 10, { 10,1 }));
 	//m_tutorialDataArray.emplace_back(TutorialData({ 20.0f, 0.0f, 10.0f }, 30.0f, "resource/user/tex/L_stick.png", 3, { 3,1 }));	
-	m_fireFly.GoThisPos(m_tutorialDataArray[0].m_pos);
+	m_fireFly.GoThisPos(m_tutorialDataArray[0].m_pos, {});
 
 	m_texPosIndex = 0;
 	m_nowIndex = 0;
@@ -20,7 +20,16 @@ void Tutorial::Update()
 	{
 		m_changeTimer.Reset();
 		m_changeUIFlag = true;
-		m_fireFly.GoThisPos(m_tutorialDataArray[m_nowIndex].m_pos);
+
+		if (m_nowIndex <= 0 || m_tutorialDataArray.size() - 1 <= m_nowIndex)
+		{
+			m_fireFly.GoThisPos(m_tutorialDataArray[m_nowIndex].m_pos, m_tutorialDataArray[m_nowIndex].m_pos);
+		}
+		else
+		{
+			m_fireFly.GoThisPos(m_tutorialDataArray[m_nowIndex].m_pos, m_tutorialDataArray[m_nowIndex + 1].m_pos);
+		}
+
 		m_prevNowIndex = m_nowIndex;
 	}
 

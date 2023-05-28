@@ -186,8 +186,10 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\CPUParticle\GlitterEmitter.cpp" />
     <ClCompile Include="src\DebugController.cpp" />
     <ClCompile Include="src\Effect\EnemyEyeEffect.cpp" />
+    <ClCompile Include="src\Effect\GuideInsect.cpp" />
     <ClCompile Include="src\GPUParticle\DrawExcuteIndirect.cpp" />
     <ClCompile Include="src\GPUParticle\FireFlyOutStage.cpp" />
+    <ClCompile Include="src\GPUParticle\FireWork.cpp" />
     <ClCompile Include="src\GPUParticle\FireWorkParticle.cpp" />
     <ClCompile Include="src\GPUParticle\GPUParticleRender.cpp" />
     <ClCompile Include="src\GPUParticle\SplineParticle.cpp" />
@@ -336,9 +338,11 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\CPUParticle\GlitterEmitter.h" />
     <ClInclude Include="src\DebugController.h" />
     <ClInclude Include="src\Effect\EnemyEyeEffect.h" />
+    <ClInclude Include="src\Effect\GuideInsect.h" />
     <ClInclude Include="src\GameScene.h" />
     <ClInclude Include="src\GPUParticle\DrawExcuteIndirect.h" />
     <ClInclude Include="src\GPUParticle\FireFlyOutStage.h" />
+    <ClInclude Include="src\GPUParticle\FireWork.h" />
     <ClInclude Include="src\GPUParticle\FireWorkParitlce.h" />
     <ClInclude Include="src\GPUParticle\GPUParticleRender.h" />
     <ClInclude Include="src\GPUParticle\SplineParticle.h" />

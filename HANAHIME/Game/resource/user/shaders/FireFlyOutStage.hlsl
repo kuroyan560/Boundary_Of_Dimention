@@ -3,10 +3,14 @@
 struct FireFlyParticleData
 {
     float3 pos;
+    float3 vel;
     float2 scale;
     float4 color;
-    //x..timer,y...revFlag
-    uint2 flashTimer;
+    //x..timer,y...revFlag,z...baseTimer
+    uint3 flashTimer;
+    //x...angle,y...vel
+    float2 angle;
+    float3 basePos;
 };
 
 RWStructuredBuffer<FireFlyParticleData> fireFlyDataBuffer : register(u0);
@@ -21,6 +25,11 @@ cbuffer PlayerBuffer : register(b1)
 {    
     float3 playerPos;
 };
+
+float ConvertToRadian(float Degree)
+{
+    return 3.14f / 180.0f * Degree;
+}
 
 //蛍パーティクル初期化
 [numthreads(1024, 1, 1)]
@@ -49,11 +58,21 @@ void InitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 
     //出力--------------------------------------------
     FireFlyParticleData outputMat;
     outputMat.pos = pos;
-
-    float scale = Rand(index,3.0f,1.0f);
+    outputMat.vel = float3(0.0f,-Rand(index,0.5f,0.1f),0.0f);
+    float scale = Rand(index,5.0f,3.0f);
     outputMat.scale = float2(scale,scale);
     outputMat.color = color;
-    outputMat.flashTimer = uint2(Rand(index,50,0),1);
+    outputMat.flashTimer.x = Rand((pos.x+pos.y) * index + 200 / scale,120,0);
+    outputMat.flashTimer.y = 1;
+    outputMat.flashTimer.z = outputMat.flashTimer.x;
+    outputMat.angle.x = 0.0f;
+    outputMat.angle.y = Rand(index,5.0f,0.5f);
+    if( outputMat.angle.y <= 0.0f)
+    {
+        outputMat.angle.y = 0.5f;
+    }
+
+    outputMat.basePos = outputMat.pos;
     fireFlyDataBuffer[index] = outputMat;
     //出力--------------------------------------------
 }
@@ -96,10 +115,10 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
         fireFlyDataBuffer[index].flashTimer.x -= vel;
     }
 
-    if(60 <= fireFlyDataBuffer[index].flashTimer.x)
+    if(fireFlyDataBuffer[index].flashTimer.z <= fireFlyDataBuffer[index].flashTimer.x)
     {
         fireFlyDataBuffer[index].flashTimer.y = 0;        
-        fireFlyDataBuffer[index].flashTimer.x = 60;
+        fireFlyDataBuffer[index].flashTimer.x = fireFlyDataBuffer[index].flashTimer.z;
     }
     else if(fireFlyDataBuffer[index].flashTimer.x <= 0)
     {
@@ -111,6 +130,15 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
     fireFlyDataBuffer[index].color.a = rate;
     float2 scale = fireFlyDataBuffer[index].scale * float2(rate,rate);
     scale *= particleScaleOffset;
+
+    fireFlyDataBuffer[index].angle.x += fireFlyDataBuffer[index].angle.y;
+    fireFlyDataBuffer[index].pos.x = fireFlyDataBuffer[index].basePos.x + sin(ConvertToRadian(fireFlyDataBuffer[index].angle.x)) * 5.0f;
+    fireFlyDataBuffer[index].pos += fireFlyDataBuffer[index].vel;
+    if(fireFlyDataBuffer[index].pos.y <= fireFlyDataBuffer[index].basePos.y - 200.0f)
+    {
+        fireFlyDataBuffer[index].pos = fireFlyDataBuffer[index].basePos;
+    }
+
 
 
     //出力--------------------------------------------

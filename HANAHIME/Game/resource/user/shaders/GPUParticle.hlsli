@@ -105,6 +105,13 @@ float2 LarpFloat2(float2 BASE_POS,float2 POS,float MUL)
     return POS + distance;
 }
 
+float2 LarpFloat1(float BASE_POS,float POS,float MUL)
+{
+    float distance = BASE_POS - POS;
+    distance *= MUL;
+    return POS + distance;
+}
+
 float GetRate(float min,float max)
 {
     return min / max;

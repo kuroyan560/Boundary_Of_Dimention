@@ -478,11 +478,17 @@
     <ClCompile Include="src\AI\IEnemyAI.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Effect\GuideInsect.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
     <ClCompile Include="src\HUD\CameraModeUI.cpp">
       <Filter>src\user\HUD</Filter>
     </ClCompile>
     <ClCompile Include="src\System\SaveDataManager.cpp">
       <Filter>src\user\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GPUParticle\FireWork.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -916,11 +922,13 @@
     <ClInclude Include="src\HUD\StageInfoUI.h" />
     <ClInclude Include="src\Stage\CheckPointHitFlag.h" />
     <ClInclude Include="src\AI\IEnemyAI.h" />
+    <ClInclude Include="src\Effect\GuideInsect.h" />
     <ClInclude Include="src\HUD\CameraModeUI.h">
       <Filter>src\user\HUD</Filter>
     </ClInclude>
     <ClInclude Include="src\System\SaveDataManager.h">
       <Filter>src\user\System</Filter>
     </ClInclude>
+    <ClInclude Include="src\GPUParticle\FireWork.h" />
   </ItemGroup>
 </Project>

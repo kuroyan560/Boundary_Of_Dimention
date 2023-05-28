@@ -11,6 +11,7 @@
 #include"../TimeScaleMgr.h"
 #include"GateManager.h"
 #include"CheckPointHitFlag.h"
+#include"../OperationConfig.h"
 #include"../System/SaveDataManager.h"
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
@@ -863,18 +864,40 @@ std::shared_ptr<CheckPointUI>CheckPoint::s_ui;
 KuroEngine::Transform CheckPoint::s_latestVisitTransform;
 bool CheckPoint::s_visit = false;
 
-CheckPoint::CheckPoint(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, int arg_order)
-	:StageParts(CHECK_POINT, arg_model, arg_initTransform), m_order(arg_order)
+CheckPoint::CheckPoint(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, int arg_order, std::shared_ptr<GuideInsect::CheckPointData>checkPointData)
+:StageParts(CHECK_POINT, arg_model, arg_initTransform), m_order(arg_order),m_guideData(checkPointData), m_fireWork(GPUParticleRender::Instance()->GetStackBuffer())
 {
 	//UI未生成なら生成
 	if (!s_ui)s_ui = std::make_shared<CheckPointUI>();
+	KuroEngine::Vec3<float>vec(m_transform.GetUpWorld());
+
+	if (1.0f <= abs(vec.x))
+	{
+		vec.x *= 10.0f;
+	}
+	if (1.0f <= abs(vec.y))
+	{
+		vec.y *= 10.0f;
+	}
+	if (1.0f <= abs(vec.z))
+	{
+		vec.z *= 10.0f;
+	}
 
 	m_bloomingFlowerModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/Stage/", "CheckPoint_Unlocked.glb");
+	m_guideData->m_pos = m_transform.GetPosWorld() + vec;
 }
 
 void CheckPoint::Update(Player& arg_player)
 {
 	static const float CHECK_POINT_RADIUS = 10.0f;
+
+
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_O))
+	{
+		m_fireWork.Init(m_transform.GetPosWorld());
+	}
+	m_fireWork.Update();
 
 	//起動済なら特に何もしない
 	if (m_touched)return;
@@ -885,6 +908,7 @@ void CheckPoint::Update(Player& arg_player)
 	//衝突した瞬間
 	if (!m_touched && isHit)
 	{
+		m_guideData->m_isHitFlag = true;
 		//UI出現
 		s_ui->Start();
 		//最後に訪れたチェックポイントのトランスフォームを記録
@@ -892,7 +916,10 @@ void CheckPoint::Update(Player& arg_player)
 		s_visit = true;
 		CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger = true;
 		SaveDataManager::Instance()->Save(m_order);
+
+		m_fireWork.Init(m_transform.GetPosWorld());
 	}
+
 
 	m_touched = isHit;
 }

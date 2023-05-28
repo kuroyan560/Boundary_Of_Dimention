@@ -6,6 +6,8 @@
 #include"Enemy/Enemy.h"
 #include"Switch.h"
 #include<optional>
+#include"../OperationConfig.h"
+#include"../Player/Player.h"
 
 std::string Stage::s_stageModelDir = "resource/user/model/stage/";
 
@@ -24,7 +26,7 @@ KuroEngine::Vec3<float> Stage::GetConsiderCoordinate(nlohmann::json arg_json)
 	return KuroEngine::Vec3<float>(-(float)arg_json[0], (float)arg_json[2], -(float)arg_json[1]);
 }
 
-bool Stage::LoadTranslationArray(std::string arg_fileName, std::vector<KuroEngine::Vec3<float>>* arg_result, nlohmann::json arg_json)
+bool Stage::LoadTranslationArray(std::string arg_fileName, std::vector<KuroEngine::Vec3<float>> *arg_result, nlohmann::json arg_json)
 {
 	using namespace KuroEngine;
 
@@ -51,11 +53,11 @@ bool Stage::LoadTranslationArray(std::string arg_fileName, std::vector<KuroEngin
 	return true;
 }
 
-void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, StageParts* arg_parent, std::vector<MapPinPointData>& arg_mapPinDataArray)
+void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, StageParts *arg_parent, std::vector<MapPinPointData> &arg_mapPinDataArray)
 {
 	using namespace KuroEngine;
 
-	auto& obj = arg_json;
+	auto &obj = arg_json;
 
 	//種別のパラメータがない
 	if (!CheckJsonKeyExist(arg_fileName, obj, "type"))return;
@@ -106,7 +108,7 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		collisionModel = Importer::Instance()->LoadModel(s_stageModelDir, obj["CollisionModelFileName"].get<std::string>() + ".glb");
 	}
 
-	StageParts* newPart = nullptr;
+	StageParts *newPart = nullptr;
 
 	//種別に応じて変わるパラメータ
 		//通常の地形
@@ -231,7 +233,7 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		if (!CheckJsonKeyExist(arg_fileName, arg_json, "CheckPointOrder"))return;
 
 		int order = arg_json["CheckPointOrder"].get<int>();
-		auto checkPoint = std::make_shared<CheckPoint>(model, transform, order);
+		auto checkPoint = std::make_shared<CheckPoint>(model, transform, order, m_guideInsect.Stack());
 		m_gimmickArray.emplace_back(checkPoint);
 		newPart = m_gimmickArray.back().get();
 		m_checkPointArray.emplace_back(checkPoint);
@@ -240,6 +242,7 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		arg_mapPinDataArray.emplace_back();
 		arg_mapPinDataArray.back().m_order = order;
 		arg_mapPinDataArray.back().m_part = m_gimmickArray.back();
+
 	}
 	//スターコイン
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::STAR_COIN))
@@ -328,38 +331,40 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	}
 }
 
-Stage::Stage()
+Stage::Stage():m_guideInsect(GPUParticleRender::Instance()->GetStackBuffer())
 {
 	using namespace KuroEngine;
 }
 
 void Stage::Init()
 {
-	for (auto& gimmick : m_gimmickArray)
+	for (auto &gimmick : m_gimmickArray)
 	{
 		gimmick->Init();
 	}
 
-	for (auto& enemy : m_enemyArray)
+	for (auto &enemy : m_enemyArray)
 	{
 		enemy->Init();
 	}
+
+	m_guideInsect.Init();
 }
 
-void Stage::Update(Player& arg_player)
+void Stage::Update(Player &arg_player)
 {
-	for (auto& gimmick : m_gimmickArray)
+	for (auto &gimmick : m_gimmickArray)
 	{
 		gimmick->Update(arg_player);
 	}
 
 	//動く足場同士の当たり判定を行う。
-	for (auto& gimmickA : m_gimmickArray) {
+	for (auto &gimmickA : m_gimmickArray) {
 
 		//動く足場じゃなかったら処理を飛ばす。
 		if (gimmickA->GetType() != StageParts::STAGE_PARTS_TYPE::MOVE_SCAFFOLD) continue;
 
-		for (auto& gimmickB : m_gimmickArray) {
+		for (auto &gimmickB : m_gimmickArray) {
 
 			//動く足場じゃなかったら処理を飛ばす。
 			if (gimmickB->GetType() != StageParts::STAGE_PARTS_TYPE::MOVE_SCAFFOLD) continue;
@@ -373,11 +378,11 @@ void Stage::Update(Player& arg_player)
 			std::optional<AABB::CollisionInfo> result;
 
 			//すべてのメッシュを走査して当たり判定を行う。
-			for (auto& meshA : moveScaffoldA->m_collider.m_aabb) {
-				for (auto& aabbA : meshA) {
+			for (auto &meshA : moveScaffoldA->m_collider.m_aabb) {
+				for (auto &aabbA : meshA) {
 
-					for (auto& meshB : moveScaffoldB->m_collider.m_aabb) {
-						for (auto& aabbB : meshB) {
+					for (auto &meshB : moveScaffoldB->m_collider.m_aabb) {
+						for (auto &aabbB : meshB) {
 
 							result = aabbA.CheckAABBCollision(aabbB);
 							if (!result) continue;
@@ -413,27 +418,35 @@ void Stage::Update(Player& arg_player)
 
 	}
 
-	for (auto& enemy : m_enemyArray)
+	for (auto &enemy : m_enemyArray)
 	{
 		enemy->Update(arg_player);
 	}
 
+	//チェックポイントまで飛ぶ処理
+	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CANCEL, OperationConfig::ON_TRIGGER))
+	{
+		m_guideInsect.GoToCheckPoint(arg_player.GetTransform().GetPos());
+	}
+	m_guideInsect.Update();
+
+
 	if (m_goalPoint)m_goalPoint->Update(arg_player);
 }
 
-void Stage::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void Stage::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
-	for (auto& enemy : m_enemyArray)
+	for (auto &enemy : m_enemyArray)
 	{
 		enemy->Draw(arg_cam, arg_ligMgr);
 	}
 
-	for (auto& terrian : m_terrianArray)
+	for (auto &terrian : m_terrianArray)
 	{
 		terrian.Draw(arg_cam, arg_ligMgr);
 	}
 
-	for (auto& gimmick : m_gimmickArray)
+	for (auto &gimmick : m_gimmickArray)
 	{
 		gimmick->Draw(arg_cam, arg_ligMgr);
 	}
@@ -479,13 +492,13 @@ void Stage::Load(int arg_ownStageIdx, std::string arg_dir, std::string arg_fileN
 	std::vector<MapPinPointData>mapPinPointDataArray;
 
 	auto stageJsonData = jsonData.m_jsonData["stage"];
-	for (auto& obj : stageJsonData["objects"])
+	for (auto &obj : stageJsonData["objects"])
 	{
 		LoadWithType(arg_fileName, obj, nullptr, mapPinPointDataArray);
 	}
 
 	//マップピンデータ配列を順番通りにソート
-	std::sort(mapPinPointDataArray.begin(), mapPinPointDataArray.end(), [](MapPinPointData& a, MapPinPointData& b)
+	std::sort(mapPinPointDataArray.begin(), mapPinPointDataArray.end(), [](MapPinPointData &a, MapPinPointData &b)
 		{
 			return a.m_order < b.m_order;
 		});
@@ -519,7 +532,7 @@ void Stage::Load(int arg_ownStageIdx, std::string arg_dir, std::string arg_fileN
 		m_goalSwitch->m_leverID = m_goalLeverID;
 
 		std::vector<std::weak_ptr<Lever>>goalLeverArray;
-		for (auto& gimmick : m_gimmickArray)
+		for (auto &gimmick : m_gimmickArray)
 		{
 			//レバーじゃない
 			if (gimmick->GetType() != StageParts::LEVER)continue;
@@ -554,7 +567,7 @@ int Stage::GetStarCoinNum() const
 
 KuroEngine::Transform Stage::GetGateTransform(int arg_gateID) const
 {
-	for (auto& gate : m_gateArray)
+	for (auto &gate : m_gateArray)
 	{
 		if (!gate.lock()->CheckID(arg_gateID))continue;
 		return gate.lock()->GetInitTransform();
