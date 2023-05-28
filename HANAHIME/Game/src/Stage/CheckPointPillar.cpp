@@ -31,10 +31,13 @@ void CheckPointPillar::Init()
 
 void CheckPointPillar::Update(const KuroEngine::Vec3<float>& arg_playerPos)
 {
-
 	//次のチェックポイントの情報を取得
 	KuroEngine::Transform nextCheckPointTransform;
-	StageManager::Instance()->GetNowMapPinTransform(&nextCheckPointTransform);
+	if (!StageManager::Instance()->GetNowMapPinTransform(&nextCheckPointTransform))
+	{
+		m_isDraw = false;
+		return;
+	}
 
 	//そのままの座標を保存。
 	KuroEngine::Vec3<float> rawPos = nextCheckPointTransform.GetPosWorld();
