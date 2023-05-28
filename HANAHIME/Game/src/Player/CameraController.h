@@ -31,6 +31,7 @@ class CameraController : public KuroEngine::Debugger
 
 	//プレイヤーの正面に壁があるフラグ
 	bool m_isOldFrontWall;
+	KuroEngine::Vec3<float> m_oldHitFrontWallNormal;
 
 	//カメラをZ方向に回転させる量。
 	float m_rotateZ;
