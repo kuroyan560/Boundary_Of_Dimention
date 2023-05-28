@@ -766,11 +766,11 @@ void PlayerCollision::CheckCliff(PlayerCollision::ImpactPointData& arg_impactPoi
 			auto model = terrian->GetModel();
 
 			//メッシュを走査
-			for (auto& modelMesh : model.lock()->m_meshes)
+			for (auto& modelMesh : ivyBlock->GetCollisionMesh())
 			{
 
 				//当たり判定を行うメッシュ。
-				std::vector<TerrianHitPolygon> mesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+				std::vector<TerrianHitPolygon> mesh = modelMesh;
 
 				//下方向にレイを飛ばす。
 				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * 0.5f, -m_refPlayer->m_transform.GetUp(), mesh);
@@ -972,12 +972,12 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 			auto model = terrian->GetModel();
 
 			//メッシュを走査
-			for (auto& modelMesh : model.lock()->m_meshes) {
+			for (auto& modelMesh : appearWall->GetCollisionMesh()) {
 
 				//判定↓============================================
 
 				//当たり判定を行うメッシュ。
-				std::vector<TerrianHitPolygon> mesh = appearWall->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+				std::vector<TerrianHitPolygon> mesh = modelMesh;
 
 				//下方向にレイを飛ばす。
 				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
