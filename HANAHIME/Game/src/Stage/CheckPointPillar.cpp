@@ -29,7 +29,7 @@ void CheckPointPillar::Init()
 
 }
 
-void CheckPointPillar::Update(const KuroEngine::Vec3<float>& arg_playerPos)
+void CheckPointPillar::Update(const KuroEngine::Transform& arg_playerPos)
 {
 
 	//次のチェックポイントの情報を取得
@@ -71,10 +71,13 @@ void CheckPointPillar::Update(const KuroEngine::Vec3<float>& arg_playerPos)
 
 		//アルファを下げる距離
 		const float ALPHA_DEADLINE = 100.0f;
-		float distance = KuroEngine::Vec3<float>(arg_playerPos - rawPos).Length();
+		float distance = KuroEngine::Vec3<float>(arg_playerPos.GetPos() - rawPos).Length();
+
+		//法線方向を比べる。
+		bool isNormal = 0.9f < arg_playerPos.GetUp().Dot(m_transform.GetUp());
 
 		//近づいているときはアルファを下げる。
-		if (distance < ALPHA_DEADLINE) {
+		if (distance < ALPHA_DEADLINE && isNormal) {
 
 			m_alpha = KuroEngine::Math::Lerp(m_alpha, 0.0f, 0.2f);
 

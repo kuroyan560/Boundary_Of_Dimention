@@ -293,7 +293,7 @@ void GameScene::OnUpdate()
 	GateManager::Instance()->FrameEnd();
 
 	//チェックポイントの円柱を更新。
-	m_checkPointPillar.Update(m_player.GetTransform().GetPosWorld());
+	m_checkPointPillar.Update(m_player.GetTransform());
 	
 
 }
