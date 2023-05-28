@@ -113,8 +113,7 @@ void GameScene::ActivateFastTravel()
 
 	if (StageManager::Instance()->GetUnlockedCheckPointInfo(&checkPointTransformArray, &recentStageNum, &recentIdx))
 	{
-		m_fastTravel.Activate();
-		m_fastTravel.Init(checkPointTransformArray, recentStageNum, recentIdx);
+		m_fastTravel.Activate(checkPointTransformArray, recentStageNum, recentIdx);
 	}
 }
 

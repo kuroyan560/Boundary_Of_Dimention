@@ -54,24 +54,6 @@ FastTravel::FastTravel()
 
 }
 
-void FastTravel::Init(std::vector<std::vector<KuroEngine::Transform>>arg_checkPointVector, int arg_selectStageNum, int arg_selectTransIdx)
-{
-	//チェックポイントを保存。
-	m_checkPointVector = arg_checkPointVector;
-	m_nowStageNum = arg_selectStageNum;
-	m_nowTargetCheckPoint = arg_selectTransIdx;
-	m_rotate.SetRotate(DirectX::XMQuaternionRotationAxis(KuroEngine::Vec3<float>(0, 0, 1), DirectX::XM_PIDIV2));
-
-	//カメラの座標と回転を設定。
-	KuroEngine::Quaternion camRotate;
-	GetTargetPosAndRotate(&camRotate, &m_cameraPos);
-	m_fastTravelCamera->GetTransform().SetPos(m_cameraPos);
-	m_fastTravelCamera->GetTransform().SetRotate(camRotate);
-
-	m_beforeStageNum = StageManager::Instance()->GetNowStageIdx();
-	StageManager::Instance()->SetStage(arg_selectStageNum);
-}
-
 void FastTravel::Update(GameScene* arg_gameScene)
 {
 	using namespace KuroEngine;
@@ -207,4 +189,22 @@ void FastTravel::Draw(KuroEngine::Camera& arg_cam)
 	KuroEngine::DrawFunc2D::DrawNumber2D(m_nowTargetCheckPoint + 1, fontPos, m_numMainTexArray.data(), 
 		{ FONT_SCALE ,FONT_SCALE }, 0.0f, KuroEngine::HORIZONTAL_ALIGN::LEFT, KuroEngine::VERTICAL_ALIGN::CENTER);
 
+}
+
+void FastTravel::Activate(std::vector<std::vector<KuroEngine::Transform>>arg_checkPointVector, int arg_selectStageNum, int arg_selectTransIdx)
+{
+	//チェックポイントを保存。
+	m_checkPointVector = arg_checkPointVector;
+	m_nowStageNum = arg_selectStageNum;
+	m_nowTargetCheckPoint = arg_selectTransIdx;
+	m_rotate.SetRotate(DirectX::XMQuaternionRotationAxis(KuroEngine::Vec3<float>(0, 0, 1), DirectX::XM_PIDIV2));
+
+	//カメラの座標と回転を設定。
+	KuroEngine::Quaternion camRotate;
+	GetTargetPosAndRotate(&camRotate, &m_cameraPos);
+	m_fastTravelCamera->GetTransform().SetPos(m_cameraPos);
+	m_fastTravelCamera->GetTransform().SetRotate(camRotate);
+
+	m_beforeStageNum = StageManager::Instance()->GetNowStageIdx();
+	StageManager::Instance()->SetStage(arg_selectStageNum);
 }
