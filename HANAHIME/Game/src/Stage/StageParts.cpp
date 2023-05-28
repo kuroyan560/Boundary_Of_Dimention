@@ -893,11 +893,6 @@ void CheckPoint::Update(Player& arg_player)
 {
 	static const float CHECK_POINT_RADIUS = 10.0f;
 
-
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_O))
-	{
-		m_fireWork.Init(m_transform.GetPosWorld());
-	}
 	m_fireWork.Update();
 
 	//‹N“®Ï‚È‚ç“Á‚É‰½‚à‚µ‚È‚¢
