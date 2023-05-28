@@ -193,6 +193,8 @@ void FastTravel::Draw(KuroEngine::Camera& arg_cam)
 
 void FastTravel::Activate(std::vector<std::vector<KuroEngine::Transform>>arg_checkPointVector, int arg_selectStageNum, int arg_selectTransIdx)
 {
+	m_isActive = true;
+
 	//チェックポイントを保存。
 	m_checkPointVector = arg_checkPointVector;
 	m_nowStageNum = arg_selectStageNum;
