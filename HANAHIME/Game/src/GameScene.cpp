@@ -107,12 +107,15 @@ void GameScene::GoBackTitle()
 
 void GameScene::ActivateFastTravel()
 {
-	SaveData saveData;
-	if (!SaveDataManager::Instance()->LoadSaveData(&saveData))return;
+	std::vector<std::vector<KuroEngine::Transform>>checkPointTransformArray;
+	int recentStageNum;
+	int recentIdx;
 
-	m_fastTravel.Activate();
-	m_fastTravel.Init(
-		StageManager::Instance()->GetUnlockedCheckPointTransformArray(), saveData.m_reachStageNum, saveData.m_reachCheckPointOrder - 1);
+	if (StageManager::Instance()->GetUnlockedCheckPointInfo(&checkPointTransformArray, &recentStageNum, &recentIdx))
+	{
+		m_fastTravel.Activate();
+		m_fastTravel.Init(checkPointTransformArray, recentStageNum, recentIdx);
+	}
 }
 
 void GameScene::OnInitialize()
