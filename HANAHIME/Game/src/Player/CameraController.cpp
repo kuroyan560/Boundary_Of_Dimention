@@ -352,21 +352,37 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_oldCameraWorldPos, checkHitRay.GetNormal(), checkHitMesh);
 				if (output.m_isHit && 0 < output.m_distance && output.m_distance < checkHitRay.Length()) {
 
-					pushBackPos = output.m_pos + output.m_normal;
-					m_isHitTerrian = true;
+					//上下側の壁だったら
+					if (0.9f < fabs(output.m_normal.Dot(Vec3<float>(0, 1, 0)))) {
+						m_nowParam.m_xAxisAngle = fromXAngle;
+					}
+					else {
+						m_nowParam.m_yAxisAngle = fromYAngle;
+						arg_playerRotY = fromYAngle;
+					}
 
-					PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse, true);
+					//カメラの座標を再度取得。
+					localPos = { 0,0,0 };
+					localPos.z = m_nowParam.m_posOffsetZ;
+					localPos.y = m_gazePointOffset.y + tan(-m_nowParam.m_xAxisAngle) * m_nowParam.m_posOffsetZ;
+					m_cameraLocalTransform.SetPos(Math::Lerp(m_cameraLocalTransform.GetPos(), localPos, m_camForwardPosLerpRate));
+					m_cameraLocalTransform.SetRotate(Vec3<float>::GetXAxis(), m_nowParam.m_xAxisAngle);
+
+					//コントローラーのトランスフォーム（対象の周囲、左右移動）更新
+					m_camParentTransform.SetRotate(Vec3<float>::GetYAxis(), m_nowParam.m_yAxisAngle);
+					m_camParentTransform.SetPos(Math::Lerp(m_camParentTransform.GetPos(), m_playerLerpPos, m_camFollowLerpRate));
+					pushBackPos = m_cameraLocalTransform.GetPosWorldByMatrix();
 
 				}
 
 				//プレイヤー方向のレイトの当たり判定を実行
-				Vec3<float> playerDir = m_playerLerpPos - pushBackPos;
-				output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos, playerDir.GetNormal(), checkHitMesh);
-				if (output.m_isHit && 0 < output.m_distance && output.m_distance < playerDir.Length()) {
+				//Vec3<float> playerDir = m_playerLerpPos - pushBackPos;
+				//output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos, playerDir.GetNormal(), checkHitMesh);
+				//if (output.m_isHit && 0 < output.m_distance && output.m_distance < playerDir.Length()) {
 
-					PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse, false);
+				//	PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse, false);
 
-				}
+				//}
 
 			}
 		}

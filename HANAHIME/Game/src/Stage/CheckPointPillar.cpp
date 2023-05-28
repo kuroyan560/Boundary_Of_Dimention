@@ -136,7 +136,7 @@ void CheckPointPillar::Update(const KuroEngine::Vec3<float>& arg_playerPos)
 
 		//スケールとアルファを変更。
 		float timeRate = m_appearModeTimer.GetTimeRate(1.0f);
-		float scaleRate = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, timeRate, 0.0f, 1.0f);
+		float scaleRate = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, timeRate, 0.0f, 1.0f);
 
 		m_alpha = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Sine, timeRate, 0.0f, 1.0f);
 		m_transform.SetScale(KuroEngine::Vec3<float>(SCALE_EXIT - scaleRate * (SCALE_EXIT - SCALE_DEFAULT), 100.0f, SCALE_EXIT - scaleRate * (SCALE_EXIT - SCALE_DEFAULT)));
