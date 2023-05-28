@@ -14,8 +14,9 @@ cbuffer RootConstants : register(b0)
 {    
     matrix scaleRotateBillboardMat;
     float3 dirPos;
-    float alpha;    
+    float alpha;
     float speed;
+    float timeScale;
 };
 
 cbuffer InitBuffer : register(b0)
@@ -51,7 +52,7 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
     particle.vel = Larp(vel,particle.vel,0.01f);
 
     //àÍê∂ÇΩÇ«ÇËíÖÇ©Ç»Ç¢ãììÆ
-    particle.pos += particle.vel;
+    particle.pos += particle.vel * timeScale;
 
 
     SignSpotBuffer[index] = particle;

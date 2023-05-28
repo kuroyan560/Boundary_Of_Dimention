@@ -47,6 +47,7 @@ private:
 		DirectX::XMFLOAT3 emittPos;
 		float alpha;
 		float speed;
+		float timeScale;
 	};
 	CommonData data;
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_commonBuffer;

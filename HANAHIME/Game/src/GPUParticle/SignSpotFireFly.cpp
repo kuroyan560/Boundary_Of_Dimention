@@ -1,4 +1,5 @@
 #include "SignSpotFireFly.h"
+#include"../TimeScaleMgr.h"
 
 SignSpotFireFly::SignSpotFireFly(std::shared_ptr<KuroEngine::RWStructuredBuffer>particle_buffer) :m_particleBuffer(particle_buffer)
 {
@@ -81,7 +82,7 @@ void SignSpotFireFly::Update()
 	};
 	m_timer.UpdateTimer();
 
-
+	data.timeScale = TimeScaleMgr::s_inGame.GetTimeScale();
 	m_commonBuffer->Mapping(&data);
 	std::vector<KuroEngine::RegisterDescriptorData>descData =
 	{
