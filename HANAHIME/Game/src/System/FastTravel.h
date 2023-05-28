@@ -85,17 +85,17 @@ namespace ImageAdjust {
 	}
 }
 
-
-
-
 //ファストトラベル
-class FastTravel : public KuroEngine::DesignPattern::Singleton<FastTravel> {
-
+class FastTravel 
+{
 private:
+	bool m_isActive = false;
 
 	//チェックポイントの配列
-	std::vector<KuroEngine::Transform> m_checkPointVector;
+	std::vector<std::vector<KuroEngine::Transform>>m_checkPointVector;
 
+	//現在注視する配列のステージ番号
+	int m_nowStageNum;
 	//現在注視する配列の要素
 	int m_nowTargetCheckPoint;
 
@@ -107,15 +107,19 @@ private:
 	std::shared_ptr<KuroEngine::Camera> m_fastTravelCamera;
 
 	//UIの表示に使用するテクスチャ
-	std::shared_ptr<KuroEngine::TextureBuffer> m_stageNameTex;
+	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>> m_stageNameTexArray;
 	std::shared_ptr<KuroEngine::TextureBuffer> m_underLineTex;
 	std::array<std::shared_ptr<KuroEngine::TextureBuffer>, 10> m_numMainTexArray;
 
-public:
+	//ファストトラベル画面に以降するまえのステージ番号
+	int m_beforeStageNum;
 
+	void GetTargetPosAndRotate(KuroEngine::Quaternion* arg_resultRotate, KuroEngine::Vec3<float>* arg_resultPos);
+
+public:
 	FastTravel();
 
-	void Init(std::vector<KuroEngine::Transform> arg_checkPointVector);
+	void Init(std::vector<std::vector<KuroEngine::Transform>>arg_checkPointVector, int arg_selectStageNum, int arg_selectTransIdx);
 	void Update();
 	void Draw(KuroEngine::Camera& arg_cam);
 
@@ -130,7 +134,9 @@ public:
 		mod_value = arg_value % (int)pow(10, arg_disit + 1);
 		result = static_cast<int>(mod_value / pow(10, arg_disit));
 		return result;
-
 	}
 
+	void Activate() { m_isActive = true; }
+
+	const bool& IsActive()const { return m_isActive; }
 };

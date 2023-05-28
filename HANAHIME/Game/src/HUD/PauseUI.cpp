@@ -176,9 +176,9 @@ void PauseUI::Update(GameScene* arg_gameScene, float arg_timeScale)
 			SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
 
 			//ファストトラベルと設定未実装
-			if (m_item == FAST_TRAVEL || m_item == SETTING)
+			if (m_item == SETTING)
 			{
-				if (m_item < oldItem)m_item = RETRY;
+				if (m_item < oldItem)m_item = FAST_TRAVEL;
 				else if (oldItem < m_item)m_item = RETURN_TO_TITLE;
 			}
 
@@ -199,6 +199,7 @@ void PauseUI::Update(GameScene* arg_gameScene, float arg_timeScale)
 					m_confirmMenu.m_confirmItem = ConfirmMenu::CONFIRM_ITEM::NONE;
 					break;
 				case FAST_TRAVEL:
+					arg_gameScene->ActivateFastTravel();
 					break;
 				case SETTING:
 					break;
@@ -349,7 +350,7 @@ void PauseUI::Draw(int arg_totalGetFlowerNum)
 			//アルファ決定
 			float alpha = isSelected ? 1.0f : NO_SELECT_ITEM_ALPHA;
 
-			if (itemIdx == FAST_TRAVEL || itemIdx == SETTING)
+			if (itemIdx == SETTING)
 			{
 				itemStatus = DEFAULT;
 				alpha = 0.35f;

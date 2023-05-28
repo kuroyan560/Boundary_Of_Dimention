@@ -20,9 +20,7 @@
 
 #include"HUD/InGameUI.h"
 
-#include"Stage/FastTravel.h"
-
-GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_1flameStopTimer(30), m_goal(m_particleRender.GetStackBuffer())
+GameScene::GameScene() :m_fireFlyStage(m_particleRender.GetStackBuffer()), tutorial(m_particleRender.GetStackBuffer()), m_goal(m_particleRender.GetStackBuffer())
 {
 	KuroEngine::Vec3<float>dir = { 0.0f,-1.0f,0.0f };
 	m_dirLigArray.emplace_back();
@@ -100,12 +98,37 @@ void GameScene::StartGame(int arg_stageNum)
 {
 	m_stageNum = arg_stageNum;
 	m_gateSceneChange.Start();
+	m_nextScene = SCENE_IN_GAME;
 }
 
 void GameScene::GoBackTitle()
 {
 	m_gateSceneChange.Start();
-	m_gobackTitleFlag = true;
+	m_nextScene = SCENE_TITLE;
+}
+
+void GameScene::ActivateFastTravel()
+{
+	m_fastTravel.Activate();
+
+	//ファストトラベル
+	std::vector<std::vector<KuroEngine::Transform>>transformArray;
+	transformArray.emplace_back();
+	transformArray.back().emplace_back();
+	transformArray.back().back().SetPos({ -100,5,30 });
+	transformArray.back().emplace_back();
+	transformArray.back().back().SetPos({ 22,10,-500 });
+	transformArray.back().emplace_back();
+	transformArray.back().back().SetPos({ -52,-5,250 });
+
+	transformArray.emplace_back();
+	transformArray.back().emplace_back();
+	transformArray.back().back().SetPos({ -100,5,30 });
+	transformArray.back().emplace_back();
+	transformArray.back().back().SetPos({ 22,10,-500 });
+	transformArray.back().emplace_back();
+	transformArray.back().back().SetPos({ -52,-5,250 });
+	m_fastTravel.Init(transformArray, 0, 0);
 }
 
 void GameScene::OnInitialize()
@@ -136,7 +159,6 @@ void GameScene::OnInitialize()
 	m_title.Init();
 
 	m_pauseUI.Init();
-	m_gobackTitleFlag = false;
 	m_deadFlag = false;
 }
 
@@ -147,27 +169,58 @@ void GameScene::OnUpdate()
 	//デバッグモード更新
 	DebugController::Instance()->Update();
 
-	m_nowCam = m_player.GetCamera().lock();
-	//タイトル画面モード
-	if (!m_title.IsFinish())
+	//ファストトラベル
+	if (m_fastTravel.IsActive())
+	{
+		m_nowCam = m_fastTravel.GetCamera();
+	}
+	//タイトル画面
+	else if (m_nowScene == SCENE_TITLE)
 	{
 		m_nowCam = m_title.GetCamera().lock();
+		m_title.Update(&m_player.GetCamera().lock()->GetTransform(), m_nowCam, this);
 	}
-	//ホームでの演出
-	if (m_movieCamera.IsStart())
+	//インゲーム
+	else if (m_nowScene == SCENE_IN_GAME)
 	{
-		m_nowCam = m_movieCamera.GetCamera().lock();
-	}
-	//ゴール時の演出
-	if (StageManager::Instance()->IsClearNowStage() && m_1flameStopTimer.IsTimeUp() && (m_title.IsFinish() || m_title.IsStartOP()))
-	{
-		m_goal.Start();
-		if (m_goal.ChangeCamera())
+		//通常のプレイヤーカメラ
+		m_nowCam = m_player.GetCamera().lock();
+		//クリア時のカメラ
+		if (StageManager::Instance()->IsClearNowStage())
 		{
-			m_nowCam = m_goal.GetCamera().lock();
+			m_goal.Start();
+			if (m_goal.ChangeCamera())
+			{
+				m_nowCam = m_goal.GetCamera().lock();
+			}
+			OperationConfig::Instance()->SetAllInputActive(false);
+			m_clearFlag = true;
 		}
-		OperationConfig::Instance()->SetAllInputActive(false);
-		m_clearFlag = true;
+
+		//ゲートをくぐった
+		if (GateManager::Instance()->IsEnter() && !m_gateSceneChange.IsActive())
+		{
+			m_stageNum = GateManager::Instance()->GetDestStageNum();
+			m_gateSceneChange.Start();
+		}
+
+		//ゲームクリア演出を終えたら遷移開始
+		if (m_goal.IsEnd())
+		{
+			m_gateSceneChange.Start();
+		}
+
+		//ポーズ画面
+		if (OperationConfig::Instance()->GetOperationInput(OperationConfig::PAUSE, OperationConfig::ON_TRIGGER))
+		{
+			m_pauseUI.SetInverseActive();
+		}
+
+		//UI更新
+		InGameUI::Update(TimeScaleMgr::s_inGame.GetTimeScale());
+		m_opeInfoUI.Update(TimeScaleMgr::s_inGame.GetTimeScale());
+		m_stageInfoUI.Update(TimeScaleMgr::s_inGame.GetTimeScale(), StageManager::Instance()->GetStarCoinNum());
+		m_pauseUI.Update(this);
 	}
 
 	if (DebugController::Instance()->IsActive())
@@ -178,35 +231,6 @@ void GameScene::OnUpdate()
 
 	m_grass.Update(1.0f, m_player.GetIsOverheat(), m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrowPlantLight().m_influenceRange, StageManager::Instance()->GetNowStage(), m_player.GetIsAttack(), m_player.GetMoveSpeed());
 
-	//ホームでの処理----------------------------------------
-	if (!m_title.IsFinish() && !m_title.IsStartOP())
-	{
-		m_title.Update(&m_player.GetCamera().lock()->GetTransform(), m_nowCam, this);
-	}
-
-	//ステージ選択
-	int stageNum = -1;
-	if (m_title.IsFinish() && GateManager::Instance()->IsEnter() && !m_gateSceneChange.IsActive())
-	{
-		//stageNum = m_stageSelect.GetStageNumber(m_player.GetTransform().GetPos());
-		stageNum = GateManager::Instance()->GetDestStageNum();
-	}
-	else
-	{
-		//stageNum = m_title.GetStageNum();
-	}
-
-	//ゲームクリア演出を終えたら遷移開始
-	if (m_goal.IsEnd())
-	{
-		stageNum = 1;
-	}
-
-	//ポーズ画面
-	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::PAUSE, OperationConfig::ON_TRIGGER))
-	{
-		m_pauseUI.SetInverseActive();
-	}
 
 	if (m_player.GetIsFinishDeathAnimation() && !m_deadFlag)
 	{
@@ -215,57 +239,43 @@ void GameScene::OnUpdate()
 		m_deadFlag = true;
 	}
 
-	//ステージ移動時の初期化
-	if (stageNum != -1)
-	{
-		m_stageNum = stageNum;
-		m_gateSceneChange.Start();
-	}
-
 	if (m_gateSceneChange.IsHide())
 	{
 		m_deadFlag = false;
-		//パズル画面からシーンチェンジしたらカメラモードを切り替える
-		if (!m_title.IsFinish())
-		{
-			m_title.FinishTitle();
-		}
-		else
+
+		if (m_nextScene == SCENE_TITLE)
 		{
 			//タイトル画面に戻る
 			SoundConfig::Instance()->Play(SoundConfig::BGM_TITLE);
-			//StageManager::Instance()->SetStage(std::clamp(GateManager::Instance()->GetDestStageNum() - 1, 0, 1000));
-		}
-
-		if (m_gobackTitleFlag)
-		{
 			m_title.Init();
-			m_gobackTitleFlag = false;
 		}
-
-		GameInit();
-		m_goal.Init(StageManager::Instance()->GetGoalTransform(), StageManager::Instance()->GetGoalModel());
+		else if (m_nextScene == SCENE_IN_GAME)
+		{
+			//インゲーム
+			GameInit();
+			m_goal.Init(StageManager::Instance()->GetGoalTransform(), StageManager::Instance()->GetGoalModel());
+		}
 
 		//ゲームクリア時に遷移する処理
 		if (m_clearFlag)
 		{
 			this->Initialize();
 			m_clearFlag = false;
-
-			m_1flameStopTimer.Reset();
-
-			//m_title.Clear();
 		}
+
+		m_nowScene = m_nextScene;
 	}
-	m_1flameStopTimer.UpdateTimer();
 
 	//ゲームシーンでのみ使う物
-	if (m_title.IsFinish() || m_title.IsStartOP())
+	if (m_nowScene == SCENE_IN_GAME)
 	{
-		m_player.Update(StageManager::Instance()->GetNowStage());
-		m_goal.Update(&m_player.GetTransform());
-		//ステージ選択画面ではギミックを作動させない
-		StageManager::Instance()->Update(m_player);
+		if (!m_fastTravel.IsActive())
+		{
+			m_player.Update(StageManager::Instance()->GetNowStage());
+			m_goal.Update(&m_player.GetTransform());
+			//ステージ選択画面ではギミックを作動させない
+			StageManager::Instance()->Update(m_player);
+		}
 	}
 	else
 	{
@@ -274,7 +284,6 @@ void GameScene::OnUpdate()
 	}
 
 	m_gateSceneChange.Update();
-	m_movieCamera.Update();
 	m_fireFlyStage.ComputeUpdate(m_player.GetTransform().GetPos());
 
 	BasicDraw::Instance()->Update(m_player.GetTransform().GetPosWorld(), *m_nowCam);
@@ -282,18 +291,13 @@ void GameScene::OnUpdate()
 	//敵用丸影を更新
 	EnemyDataReferenceForCircleShadow::Instance()->UpdateGPUData();
 
-	//UI更新
-	InGameUI::Update(TimeScaleMgr::s_inGame.GetTimeScale());
-	m_opeInfoUI.Update(TimeScaleMgr::s_inGame.GetTimeScale());
-	m_stageInfoUI.Update(TimeScaleMgr::s_inGame.GetTimeScale(), StageManager::Instance()->GetStarCoinNum());
-	m_pauseUI.Update(this);
-
 	GateManager::Instance()->FrameEnd();
 
 	//チェックポイントの円柱を更新。
 	m_checkPointPillar.Update(m_player.GetTransform().GetPosWorld());
 	
-
+	//ファストトラベル画面更新
+	m_fastTravel.Update();
 }
 
 void GameScene::OnDraw()
@@ -312,19 +316,18 @@ void GameScene::OnDraw()
 	//スカイドームを最背面描画するため、デプスステンシルのクリア
 	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 
-	if (m_title.IsFinish() || m_title.IsStartOP())
+	if (!m_fastTravel.IsActive() && m_nowScene == SCENE_IN_GAME)
 	{
 		m_goal.Draw(*m_nowCam);
 		m_player.Draw(*m_nowCam, ds, m_ligMgr, DebugController::Instance()->IsActive());
 		m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
-
 	}
 
 	//ステージ描画
 	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
 
 	//プレイヤーのパーティクル描画
-	if (m_title.IsFinish() || m_title.IsStartOP())
+	if (!m_fastTravel.IsActive() && m_nowScene == SCENE_IN_GAME)
 	{
 		m_player.DrawParticle(*m_nowCam, m_ligMgr);
 	}
@@ -339,17 +342,16 @@ void GameScene::OnDraw()
 
 	m_lightBloomDevice.Draw(BasicDraw::Instance()->GetRenderTarget(BasicDraw::EMISSIVE), BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN));
 
-
 	m_fogPostEffect->Register(
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN),
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::DEPTH),
 		BasicDraw::Instance()->GetRenderTarget(BasicDraw::BRIGHT),
-		m_title.IsFinish() || m_title.IsStartOP()
-	);
+		m_nowScene == SCENE_IN_GAME);
 
 	m_vignettePostEffect.Register(m_fogPostEffect->GetResultTex());
 
-	if (m_title.IsFinish() || m_title.IsStartOP())
+	//UI描画
+	if (!m_fastTravel.IsActive() && m_nowScene == SCENE_IN_GAME)
 	{
 		//ポーズ画面
 		m_pauseUI.Draw(StarCoin::GetFlowerSum());
@@ -362,32 +364,17 @@ void GameScene::OnDraw()
 			m_opeInfoUI.Draw();
 			m_stageInfoUI.Draw(StageManager::Instance()->ExistStarCoinNum(), StageManager::Instance()->GetStarCoinNum());
 		}
+		m_goal.Draw2D();
+	}
+	else if (!m_fastTravel.IsActive() && m_nowScene == SCENE_TITLE)
+	{
+		m_title.Draw(*m_nowCam, m_ligMgr);
 	}
 
+	//ファストトラベル画面描画
+	m_fastTravel.Draw(*m_nowCam);
 
-
-
-
-
-
-
-	//テスト用
-	//FastTravel::Instance()->Draw(*m_nowCam);
-
-
-
-
-
-
-
-
-
-
-
-
-
-	m_title.Draw(*m_nowCam, m_ligMgr);
-
+	//シーン遷移描画
 	m_gateSceneChange.Draw();
 
 
@@ -397,7 +384,6 @@ void GameScene::OnDraw()
 		});
 
 	m_vignettePostEffect.DrawResult(AlphaBlendMode_None);
-	m_goal.Draw2D();
 }
 
 void GameScene::OnImguiDebug()

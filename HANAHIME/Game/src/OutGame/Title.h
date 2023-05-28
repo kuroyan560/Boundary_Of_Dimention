@@ -12,7 +12,7 @@ class GameScene;
 class Title
 {
 	//通常のメニュー
-	void MenuUpdate(bool arg_inputUp, bool arg_inputDown, bool arg_inputDone);
+	void MenuUpdate(bool arg_inputUp, bool arg_inputDown, bool arg_inputDone, GameScene* arg_gameScene);
 	void MenuDraw();
 
 	void ConfirmNewGameUpdate(bool arg_inputLeft, bool arg_inputRight, bool arg_inputDone, GameScene* arg_gameScene);
@@ -24,18 +24,18 @@ public:
 	void Update(KuroEngine::Transform* player_camera, std::shared_ptr<KuroEngine::Camera> arg_cam, GameScene* arg_gameScene);
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr);
 
-	bool IsStartOP()
-	{
-		return m_startOPFlag;
-	}
-	bool IsFinish()
+	//bool IsStartOP()
+	//{
+		//return m_startOPFlag;
+	//}
+	/*bool IsFinish()
 	{
 		return m_isFinishFlag;
 	}
 	void FinishTitle()
 	{
 		m_isFinishFlag = true;
-	}
+	}*/
 	std::weak_ptr<KuroEngine::Camera>GetCamera()
 	{
 		/*if (!m_startPazzleFlag)
@@ -85,25 +85,25 @@ public:
 	//PazzleStageSelect m_stageSelect;
 private:
 	//ゲーム開始フラグ
-	bool m_startGameFlag;
-	bool m_startPazzleFlag;
+	//bool m_startGameFlag;
+	//bool m_startPazzleFlag;
 	//OPフラグ
-	bool m_startOPFlag;
-	bool m_generateCameraMoveDataFlag;
+	//bool m_startOPFlag;
+	//bool m_generateCameraMoveDataFlag;
 
 	//bool m_doneFlag;
 
 	//終了フラグ
-	bool m_isFinishFlag;
+	//bool m_isFinishFlag;
 
 	MovieCamera m_camera;
 
 	//ステージ選択画面
 	//パズルモード入力時に決定を1Fずらす事で連続で入力されることを防ぐ
-	bool m_delayInputFlag;
-	KuroEngine::Timer m_delayTime;
+	//bool m_delayInputFlag;
+	//KuroEngine::Timer m_delayTime;
 
-	KuroEngine::Vec2<float> m_pazzleModeLogoPos, m_storyModeLogoPos;
+	//KuroEngine::Vec2<float> m_pazzleModeLogoPos, m_storyModeLogoPos;
 
 	//新しいやつ↓==============================================================
 	enum TITLE_MODE { MODE_MENU, MODE_CONFIRM_NEW_GAME }m_mode;

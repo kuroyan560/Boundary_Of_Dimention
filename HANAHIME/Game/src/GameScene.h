@@ -22,9 +22,13 @@
 #include"HUD/StageInfoUI.h"
 #include"HUD/PauseUI.h"
 #include"Stage/CheckPointPillar.h"
+#include"System/FastTravel.h"
 
 class GameScene : public KuroEngine::BaseScene
 {
+	enum SCENE_STATUS { SCENE_TITLE, SCENE_IN_GAME }m_nowScene = SCENE_TITLE;
+	SCENE_STATUS m_nextScene = m_nowScene;
+
 	//スカイドーム
 	KuroEngine::Transform m_skyDomeTransform;
 	IndividualDrawParameter m_skyDomeDrawParam;
@@ -62,14 +66,15 @@ class GameScene : public KuroEngine::BaseScene
 	int m_stageNum;
 	SceneChange m_gateSceneChange;
 
-	MovieCamera m_movieCamera;
+	//MovieCamera m_movieCamera;
 
 	std::shared_ptr<KuroEngine::Camera>m_nowCam;
 
-	bool m_gobackTitleFlag;
 	Title m_title;
 	bool m_clearFlag;
-	KuroEngine::Timer m_1flameStopTimer;
+
+	//ファストトラベル
+	FastTravel m_fastTravel;
 
 	//GPUパーティクルの描画
 	GPUParticleRender m_particleRender;
@@ -100,4 +105,5 @@ public:
 	void Retry();
 	void StartGame(int arg_stageNum);
 	void GoBackTitle();
+	void ActivateFastTravel();
 };

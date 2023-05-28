@@ -17,7 +17,6 @@
 #include"FrameWork/WinApp.h"
 #include"../Stage/CheckPointHitFlag.h"
 #include"CameraController.h"
-#include"../Stage/FastTravel.h"
 
 void Player::OnImguiItems()
 {

@@ -6,7 +6,7 @@
 #include"KuroEngineDevice.h"
 #include"../GameScene.h"
 
-void Title::MenuUpdate(bool arg_inputUp, bool arg_inputDown, bool arg_inputDone)
+void Title::MenuUpdate(bool arg_inputUp, bool arg_inputDown, bool arg_inputDone, GameScene* arg_gameScene)
 {
 	//項目の更新
 	auto oldItem = m_nowItem;
@@ -20,7 +20,7 @@ void Title::MenuUpdate(bool arg_inputUp, bool arg_inputDown, bool arg_inputDone)
 	}
 
 	//セーブデータがないときは「つづきから」を選べない
-	if (m_nowItem == CONTINUE && !SaveDataManager::Instance()->IsExistSaveData())m_nowItem = oldItem;
+	//if (m_nowItem == CONTINUE && !SaveDataManager::Instance()->IsExistSaveData())m_nowItem = oldItem;
 
 	//選択項目が変わった
 	if (m_nowItem != oldItem)
@@ -37,6 +37,7 @@ void Title::MenuUpdate(bool arg_inputUp, bool arg_inputDown, bool arg_inputDone)
 		{
 			//つづきから
 			case CONTINUE:
+				arg_gameScene->ActivateFastTravel();
 				break;
 				//はじめから
 			case NEW_GAME:
@@ -75,7 +76,7 @@ void Title::MenuDraw()
 
 		//セーブデータがなければつづきからは選択不可
 		float alpha = 1.0f;
-		if (itemIdx == CONTINUE && !SaveDataManager::Instance()->IsExistSaveData())alpha = 0.3f;
+		//if (itemIdx == CONTINUE && !SaveDataManager::Instance()->IsExistSaveData())alpha = 0.3f;
 
 		//選択項目
 		if (itemIdx == m_nowItem)
@@ -142,8 +143,8 @@ void Title::ConfirmNewGameDraw()
 }
 
 Title::Title()
-	:m_startGameFlag(false), m_isFinishFlag(false), m_startOPFlag(false), m_generateCameraMoveDataFlag(false),
-	m_delayTime(10)
+	//:m_startGameFlag(false), m_isFinishFlag(false), m_startOPFlag(false), m_generateCameraMoveDataFlag(false),
+	//m_delayTime(10)
 {
 	SoundConfig::Instance()->Play(SoundConfig::BGM_TITLE);
 
@@ -187,13 +188,13 @@ Title::Title()
 
 void Title::Init()
 {
-	m_startGameFlag = false;
-	m_isFinishFlag = false;
-	m_startOPFlag = false;
-	m_startPazzleFlag = false;
-	m_generateCameraMoveDataFlag = false;
-	m_delayInputFlag = false;
-	m_delayTime.Reset();
+	//m_startGameFlag = false;
+	//m_isFinishFlag = false;
+	//m_startOPFlag = false;
+	//m_startPazzleFlag = false;
+	//m_generateCameraMoveDataFlag = false;
+	//m_delayInputFlag = false;
+	//m_delayTime.Reset();
 	//m_stageSelect.Init();
 
 	std::vector<MovieCameraData> titleCameraMoveDataArray;
@@ -235,10 +236,10 @@ void Title::Init()
 
 	m_camera.StartMovie(titleCameraMoveDataArray, true);
 
-	m_pazzleModeLogoPos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() + KuroEngine::Vec2<float>(KuroEngine::WinApp::Instance()->GetExpandWinCenter().x / 2.0f, KuroEngine::WinApp::Instance()->GetExpandWinCenter().y / 2.0f);
-	m_storyModeLogoPos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() + KuroEngine::Vec2<float>(-KuroEngine::WinApp::Instance()->GetExpandWinCenter().x / 2.0f, KuroEngine::WinApp::Instance()->GetExpandWinCenter().y / 2.0f);
+	//m_pazzleModeLogoPos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() + KuroEngine::Vec2<float>(KuroEngine::WinApp::Instance()->GetExpandWinCenter().x / 2.0f, KuroEngine::WinApp::Instance()->GetExpandWinCenter().y / 2.0f);
+	//m_storyModeLogoPos = KuroEngine::WinApp::Instance()->GetExpandWinCenter() + KuroEngine::Vec2<float>(-KuroEngine::WinApp::Instance()->GetExpandWinCenter().x / 2.0f, KuroEngine::WinApp::Instance()->GetExpandWinCenter().y / 2.0f);
 
-	m_startPazzleFlag = false;
+	//m_startPazzleFlag = false;
 	//switch (title_mode)
 	//{
 	//case TITLE_SELECT:
@@ -270,7 +271,7 @@ void Title::Update(KuroEngine::Transform* player_camera, std::shared_ptr<KuroEng
 	switch (m_mode)
 	{
 		case MODE_MENU:	//通常のメニュー
-			MenuUpdate(inputUp, inputDown, inputDone);
+			MenuUpdate(inputUp, inputDown, inputDone, arg_gameScene);
 			break;
 		case MODE_CONFIRM_NEW_GAME:	//「はじめから」の確認
 			ConfirmNewGameUpdate(inputLeft, inputRight, inputDone, arg_gameScene);
@@ -288,72 +289,72 @@ void Title::Update(KuroEngine::Transform* player_camera, std::shared_ptr<KuroEng
 
 
 	//急速接近が終わったらOP開始
-	if (m_startGameFlag && m_camera.IsFinish())
-	{
-		m_startOPFlag = true;
-	}
-	if (m_startGameFlag)
-	{
-		//m_alphaRate.UpdateTimer();
-	}
+	//if (m_startGameFlag && m_camera.IsFinish())
+	//{
+	//	m_startOPFlag = true;
+	//}
+	//if (m_startGameFlag)
+	//{
+	//	//m_alphaRate.UpdateTimer();
+	//}
 
 	//OPのカメラ挙動
-	if (m_startOPFlag && !m_generateCameraMoveDataFlag)
-	{
-		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
-		std::vector<MovieCameraData> lookDownDataArray;
+	//if (m_startOPFlag && !m_generateCameraMoveDataFlag)
+	//{
+	//	SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
+	//	std::vector<MovieCameraData> lookDownDataArray;
 
-		//プレイヤーを基準に座標を動かして気を見ている
-		MovieCameraData data1;
-		data1.transform.SetParent(player_camera);
-		data1.transform.SetPos(KuroEngine::Vec3<float>(0.0f, 20.0f, -10.0f));
-		data1.transform.SetRotate(KuroEngine::Angle(-60), KuroEngine::Angle(0), KuroEngine::Angle(0));
-		data1.interpolationTimer = 1;
-		data1.preStopTimer = 2;
-		data1.easePosData.easeChangeType = KuroEngine::Out;
-		data1.easePosData.easeType = KuroEngine::Circ;
-		lookDownDataArray.emplace_back(data1);
+	//	//プレイヤーを基準に座標を動かして気を見ている
+	//	MovieCameraData data1;
+	//	data1.transform.SetParent(player_camera);
+	//	data1.transform.SetPos(KuroEngine::Vec3<float>(0.0f, 20.0f, -10.0f));
+	//	data1.transform.SetRotate(KuroEngine::Angle(-60), KuroEngine::Angle(0), KuroEngine::Angle(0));
+	//	data1.interpolationTimer = 1;
+	//	data1.preStopTimer = 2;
+	//	data1.easePosData.easeChangeType = KuroEngine::Out;
+	//	data1.easePosData.easeType = KuroEngine::Circ;
+	//	lookDownDataArray.emplace_back(data1);
 
-		//プレイヤーに戻る
-		MovieCameraData data2;
-		data2.transform.SetParent(player_camera);
-		data2.transform.SetPos(KuroEngine::Vec3<float>(0.0f, 0.0f, 0.0f));
-		data2.transform.SetRotate(KuroEngine::Angle(0), KuroEngine::Angle(0), KuroEngine::Angle(0));
-		data2.interpolationTimer = 1;
-		data2.preStopTimer = 4;
-		data2.easePosData.easeChangeType = KuroEngine::Out;
-		data2.easePosData.easeType = KuroEngine::Circ;
-		lookDownDataArray.emplace_back(data2);
+	//	//プレイヤーに戻る
+	//	MovieCameraData data2;
+	//	data2.transform.SetParent(player_camera);
+	//	data2.transform.SetPos(KuroEngine::Vec3<float>(0.0f, 0.0f, 0.0f));
+	//	data2.transform.SetRotate(KuroEngine::Angle(0), KuroEngine::Angle(0), KuroEngine::Angle(0));
+	//	data2.interpolationTimer = 1;
+	//	data2.preStopTimer = 4;
+	//	data2.easePosData.easeChangeType = KuroEngine::Out;
+	//	data2.easePosData.easeType = KuroEngine::Circ;
+	//	lookDownDataArray.emplace_back(data2);
 
-		m_camera.StartMovie(lookDownDataArray, false);
-		m_generateCameraMoveDataFlag = true;
-	}
-	//OP終了
-	else if (m_generateCameraMoveDataFlag && !m_camera.IsStart() && m_camera.IsFinish())
-	{
-		m_isFinishFlag = true;
-		OperationConfig::Instance()->SetAllInputActive(true);
-	}
+	//	m_camera.StartMovie(lookDownDataArray, false);
+	//	m_generateCameraMoveDataFlag = true;
+	//}
+	////OP終了
+	//else if (m_generateCameraMoveDataFlag && !m_camera.IsStart() && m_camera.IsFinish())
+	//{
+	//	//m_isFinishFlag = true;
+	//	OperationConfig::Instance()->SetAllInputActive(true);
+	//}
 
-	if (m_startPazzleFlag)
-	{
-		//m_stageSelect.Update(arg_cam);
+	//if (m_startPazzleFlag)
+	//{
+	//	//m_stageSelect.Update(arg_cam);
 
-		if (m_delayTime.IsTimeUp())
-		{
-			m_delayInputFlag = true;
-		}
-		m_delayTime.UpdateTimer();
+	//	if (m_delayTime.IsTimeUp())
+	//	{
+	//		m_delayInputFlag = true;
+	//	}
+	//	m_delayTime.UpdateTimer();
 
-		if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_ESCAPE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::B))
-		{
-			SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
-			m_startPazzleFlag = false;
-			m_delayInputFlag = false;
-			//m_stageSelect.Stop();
-			m_delayTime.Reset();
-		}
-	}
+	//	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_ESCAPE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::B))
+	//	{
+	//		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
+	//		m_startPazzleFlag = false;
+	//		m_delayInputFlag = false;
+	//		//m_stageSelect.Stop();
+	//		m_delayTime.Reset();
+	//	}
+	//}
 	m_camera.Update();
 
 	//選択された項目のオフセットX
@@ -370,23 +371,23 @@ void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligM
 {
 	using namespace KuroEngine;
 
-	if (m_isFinishFlag)
-	{
-		return;
-	}
+	//if (m_isFinishFlag)
+	//{
+	//	return;
+	//}
 
-	//タイトルロゴ描画
-	if (m_startPazzleFlag)
-	{
-		//m_stageSelect.Draw(arg_cam);
-		return;
-	}
+	////タイトルロゴ描画
+	//if (m_startPazzleFlag)
+	//{
+	//	//m_stageSelect.Draw(arg_cam);
+	//	return;
+	//}
 
-	//ゲームが始まったら選択画面を表示しない
-	if (m_startGameFlag)
-	{
-		return;
-	}
+	////ゲームが始まったら選択画面を表示しない
+	//if (m_startGameFlag)
+	//{
+	//	return;
+	//}
 
 	//左端の四角描画
 	DrawFunc2D::DrawBox2D({ 0,0 }, { 154.0f,WinApp::Instance()->GetExpandWinSize().y }, Color(0, 21, 13, 180), true);
