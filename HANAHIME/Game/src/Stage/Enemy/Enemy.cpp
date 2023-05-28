@@ -342,12 +342,12 @@ void MiniBug::Update(Player &arg_player)
 
 
 	//プレイヤーと敵の判定
-	if (Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_hitBox))
+	if (!arg_player.GetIsUnderGround() && Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_hitBox))
 	{
 		m_nowStatus = MiniBug::KNOCK_BACK;
 		m_knockBackTime = 10;
 		m_attackCoolTimer.Reset(120);
-		//arg_player.Damage();
+		arg_player.Damage();
 	}
 
 	//草の当たり判定
@@ -597,7 +597,7 @@ void DossunRing::Update(Player &arg_player)
 	}
 
 	//プレイヤーと敵の判定
-	if (Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_enemyHitBox))
+	if (!arg_player.GetIsUnderGround() && Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_enemyHitBox))
 	{
 		bool debug = false;
 		//arg_player.Damage();
@@ -675,12 +675,11 @@ void DossunRing::Update(Player &arg_player)
 		KuroEngine::Vec3<float>enemyPlayerVec(arg_player.GetTransform().GetPos() - *(m_hitBox.m_centerPos));
 		enemyPlayerVec.Normalize();
 
-		if (Collision::Instance()->CheckPointAndEdgeOfCircle(
+		if (!arg_player.GetIsUnderGround() && Collision::Instance()->CheckPointAndEdgeOfCircle(
 			m_hitBox,
 			playerPos,
 			playerUpVec,
-			enemyPlayerVec) &&
-			!arg_player.GetIsUnderGround())
+			enemyPlayerVec))
 		{
 			arg_player.Damage();
 		}
@@ -710,7 +709,7 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 	transform.SetPos(*(m_hitBox.m_centerPos));
 	float scale = *(m_hitBox.m_radius);
 	transform.SetScale(KuroEngine::Vec3<float>(scale, 5.0f, scale));
-	BasicDraw::Instance()->Draw(
+	BasicDraw::Instance()->Draw_NoGrass(
 		arg_cam,
 		arg_ligMgr,
 		m_attackRingModel,
@@ -849,7 +848,7 @@ void Battery::Update(Player &arg_player)
 		arg_player.Damage();
 	}
 	//敵とプレイヤーの判定
-	if (Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_hitBox) && !arg_player.GetIsUnderGround())
+	if (!arg_player.GetIsUnderGround() && Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_hitBox))
 	{
 		arg_player.Damage();
 	}
