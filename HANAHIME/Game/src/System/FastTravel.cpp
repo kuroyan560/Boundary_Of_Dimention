@@ -12,7 +12,11 @@ void FastTravel::GetTargetPosAndRotate(KuroEngine::Quaternion* arg_resultRotate,
 	//カメラの座標を決定。
 	const float CAMERA_Y = 50.0f;
 	const float CAMERA_DISTANCE = 100.0f;
-	Vec3<float> baseCameraPos = m_checkPointVector[m_nowStageNum][m_nowTargetCheckPoint].GetPos() + m_rotate.GetFront() * CAMERA_DISTANCE + Vec3<float>(0, CAMERA_Y, 0);
+	Vec3<float> upVec(0,1,0);
+	if (0.9f < m_checkPointVector[m_nowStageNum][m_nowTargetCheckPoint].GetUp().Dot(Vec3<float>(0, -1, 0))) {
+		upVec = Vec3<float>(0,-1,0);
+	}
+	Vec3<float> baseCameraPos = m_checkPointVector[m_nowStageNum][m_nowTargetCheckPoint].GetPos() + m_rotate.GetFront() * CAMERA_DISTANCE + upVec * CAMERA_Y;
 
 	//カメラの回転を取得。
 	Vec3<float> axisZ = Vec3<float>(m_checkPointVector[m_nowStageNum][m_nowTargetCheckPoint].GetPos() - baseCameraPos).GetNormal();
@@ -155,7 +159,7 @@ void FastTravel::Update(GameScene* arg_gameScene)
 	GetTargetPosAndRotate(&rotate, &baseCameraPos);
 
 	//カメラを補間。
-	m_cameraPos = KuroEngine::Math::Lerp(m_cameraPos, baseCameraPos, 0.15f);
+	m_cameraPos = KuroEngine::Math::Lerp(m_cameraPos, baseCameraPos, 0.08f);
 
 	//カメラの座標と回転を設定。
 	m_fastTravelCamera->GetTransform().SetPos(m_cameraPos);
