@@ -582,7 +582,7 @@ void CameraController::Respawn(KuroEngine::Transform arg_playerTransform, bool a
 	float dot = jumpEndNormal2D.Dot(cameraVec2D);
 
 	//ベクトルの差がCAMERA_LARP_AMOUNTより下だったら補間の処理を入れる。
-	if (dot < CAMERA_LERP_AMOUNT) {
+	//if (dot < CAMERA_LERP_AMOUNT) {
 
 		//ラジアンに直す。
 		float rad = acos(dot);
@@ -596,7 +596,27 @@ void CameraController::Respawn(KuroEngine::Transform arg_playerTransform, bool a
 		//補間させる。
 		m_cameraXAngleLerpAmount += (rad - CAMERA_LERP_AMOUNT) * inverse;
 
+	//}
+
+	//上方向も回転させておく。
+	if (arg_isCameraUpInverse) {
+		m_rotateZ = DirectX::XM_PI;
 	}
+	else {
+		m_rotateZ = 0;
+	}
+
+}
+
+void CameraController::LerpForcedToEnd(float& arg_playerRotY)
+{
+
+	arg_playerRotY += m_rotateYLerpAmount;
+	m_nowParam.m_yAxisAngle += m_rotateYLerpAmount;
+	m_rotateYLerpAmount = 0;
+
+	m_nowParam.m_xAxisAngle += m_cameraXAngleLerpAmount;
+	m_cameraXAngleLerpAmount = 0;
 
 }
 

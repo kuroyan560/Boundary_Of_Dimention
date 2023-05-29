@@ -145,6 +145,9 @@ public:
 		return m_camParentTransform.GetRotate();
 	}
 
+	//ラープを強制的に終わらせる。
+	void LerpForcedToEnd(float& arg_playerRotY);
+
 	std::weak_ptr<KuroEngine::Camera> GetCamera() { return m_attachedCam; }
 
 

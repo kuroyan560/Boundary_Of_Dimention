@@ -266,6 +266,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 		m_isCameraUpInverse = true;
 	}
 	m_camController.Respawn(m_transform, m_isCameraUpInverse);
+	m_camController.LerpForcedToEnd(m_cameraRotYStorage);
 
 }
 
@@ -368,7 +369,7 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform, const std::weak_pt
 		m_isCameraUpInverse = true;
 	}
 	m_camController.Respawn(m_transform, m_isCameraUpInverse);
-
+	m_camController.LerpForcedToEnd(m_cameraRotYStorage);
 
 
 }
