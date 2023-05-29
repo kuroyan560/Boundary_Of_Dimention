@@ -436,14 +436,14 @@ void Stage::Update(Player &arg_player)
 
 void Stage::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
+	for (auto& terrian : m_terrianArray)
+	{
+		terrian.Draw(arg_cam, arg_ligMgr);
+	}
+
 	for (auto &enemy : m_enemyArray)
 	{
 		enemy->Draw(arg_cam, arg_ligMgr);
-	}
-
-	for (auto &terrian : m_terrianArray)
-	{
-		terrian.Draw(arg_cam, arg_ligMgr);
 	}
 
 	for (auto &gimmick : m_gimmickArray)

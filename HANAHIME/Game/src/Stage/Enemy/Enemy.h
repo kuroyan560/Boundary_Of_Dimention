@@ -5,12 +5,14 @@
 #include"../Grass.h"
 #include"ForUser/DrawFunc/BillBoard/DrawFuncBillBoard.h"
 #include"EnemyDataReferenceForCircleShadow.h"
-#include"../../../src/Graphics/BasicDraw.h"
+#include"../../Graphics/BasicDraw.h"
 #include"../../CPUParticle/DashEffect.h"
 #include"../../Effect/EnemyEyeEffect.h"
 #include"../../AI/EnemyAttack.h"
 #include"../../AI/IEnemyAI.h"
 #include"Render/RenderObject/ModelInfo/ModelAnimator.h"
+#include"../../DebugEnemy.h"
+#include"../../AI/EnemyStatus.h"
 
 namespace KuroEngine
 {
@@ -33,13 +35,12 @@ enum ENEMY_BARREL_PATTERN
 	ENEMY_BARREL_PATTERN_INVALID
 };
 
-class MiniBug :public StageParts,IEnemyAI
+class MiniBug :public StageParts, IEnemyAI
 {
 public:
 	MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>posArray, bool loopFlag)
 		:StageParts(MINI_BUG, arg_model, arg_initTransform), m_deadTimer(120), m_eyeEffect(&m_transform), ENEMY_ID(ENEMY_MAX_ID)
 	{
-
 		//丸影用に敵のデータの参照を渡す。
 		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_shadowInfluenceRange, &m_deadFlag);
 		m_finalizeFlag = false;
@@ -59,6 +60,11 @@ public:
 
 		m_animator = std::make_shared<KuroEngine::ModelAnimator>(arg_model);
 		OnInit();
+
+
+		DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_MINIBUG);
+
+		m_debugHitBox = std::make_unique<EnemyHitBox>(m_hitBox, KuroEngine::Color(1.0f, 1.0f, 1.0f, 1.0f));
 	}
 
 	void OnInit()override;
@@ -80,6 +86,8 @@ private:
 		ATTACK,//プレイヤーを追跡
 		NOTICE,//プレイヤーらしきものを見つけた
 		RETURN,//循環エリアに戻る
+		KNOCK_BACK,
+		HEAD_ATTACK
 	};
 
 	Status m_nowStatus;
@@ -208,9 +216,13 @@ private:
 	//演出回り------------------------------------------------------------------------------
 	DashEffect m_dashEffect;
 	EnemyEyeEffect m_eyeEffect;
-
+	int m_knockBackTime;
+	EnemyKnockBack m_knockBack;
+	EnemyHeadAttack m_headAttack;
 
 private:
+
+	std::unique_ptr<EnemyHitBox> m_debugHitBox;
 
 	//リアクション表記---------------------------------------
 
@@ -261,7 +273,7 @@ class DossunRing : public StageParts, IEnemyAI
 {
 public:
 	DossunRing(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, ENEMY_ATTACK_PATTERN status)
-		:StageParts(DOSSUN_RING, arg_model, arg_initTransform)
+		:StageParts(DOSSUN_RING, arg_model, arg_initTransform), m_nowStatus(status)
 	{
 
 		OnInit();
@@ -275,9 +287,10 @@ public:
 		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_shadowInfluenceRange, &m_deadFlag);
 
 
-		m_attackRingModel = 
+		m_attackRingModel =
 			KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "impactWave.glb");
 
+		m_debugHitBox = std::make_unique<EnemyHitBox>(m_enemyHitBox, KuroEngine::Color(1.0f, 1.0f, 1.0f, 1.0f));
 	}
 	void OnInit()override;
 	void Update(Player &arg_player)override;
@@ -303,22 +316,28 @@ private:
 	float m_attackhitBoxRadiusMax;	//攻撃の当たり判定(最大値)
 
 	std::shared_ptr<KuroEngine::Model>m_attackRingModel;
-
+	KuroEngine::Color m_ringColor;
 	//攻撃フェーズ---------------
 
 
 	Sphere m_hitBox;
+	Sphere m_enemyHitBox;
+	float m_radius;
 	Sphere m_sightHitBox;
 	CircleSearch m_sightArea;
 
-	bool m_findPlayerFlag, m_preFindPlayerFlag;
+	bool m_findPlayerFlag, m_preFindPlayerFlag, m_intervalFlag;
 
 	//死亡処理---------------------------------------
 	bool m_deadFlag;
 	bool m_startDeadMotionFlag;
 	KuroEngine::Timer m_deadTimer;
-	float m_scale;
+	float m_deadScale;
 	//死亡処理---------------------------------------
+
+	//予備動作---------------------------------------
+	KuroEngine::Vec3<float> m_larpScale, m_scale;
+	//予備動作---------------------------------------
 
 
 	//移動処理---------------------------------------
@@ -331,10 +350,30 @@ private:
 	const float SHADOW_INFLUENCE_RANGE = 6.0f;
 
 
+	std::unique_ptr<EnemyHitBox> m_debugHitBox;
+
 	std::shared_ptr<KuroEngine::Model>m_hitBoxModel;
+
+	void SetParam()
+	{
+		//索敵---------------------------------------
+		//視野
+		m_sightRange = m_initializedTransform.GetScale().Length() * DebugEnemy::Instance()->GetDossunParam().m_sightRadius;
+		//攻撃---------------------------------------
+		//プレイヤーと敵の判定
+		m_radius = m_initializedTransform.GetScale().Length() * DebugEnemy::Instance()->GetDossunParam().m_hitBoxRadius;
+		//円の最大の広がり
+		m_attackhitBoxRadiusMax = DebugEnemy::Instance()->GetDossunParam().m_attackHitBoxRadius;
+		//円が広がり切るまでの時間
+		m_maxAttackIntervalTime = DebugEnemy::Instance()->GetDossunParam().m_attackTime;
+		//攻撃のクールタイム
+		m_maxAttackTime = DebugEnemy::Instance()->GetDossunParam().m_attackCoolTime;
+	}
+
+	void Attack(Player &arg_player);
 };
 
-class Battery : public StageParts,IEnemyAI
+class Battery : public StageParts, IEnemyAI
 {
 public:
 	Battery(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>arg_posArray, float arg_bulletScale, ENEMY_BARREL_PATTERN arg_barrelPattern);

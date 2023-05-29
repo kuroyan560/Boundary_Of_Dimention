@@ -6,8 +6,9 @@
 #include"../HUD/MapPinUI.h"
 #include"../HUD/CheckPointUI.h"
 #include"../Effect/GuideInsect.h"
-
+#include"../DebugEnemy.h"
 #include<memory>
+
 namespace KuroEngine
 {
 	class Model;

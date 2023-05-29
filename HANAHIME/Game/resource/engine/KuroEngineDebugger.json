@@ -37,7 +37,7 @@
       "MonochromeRate": 0.3499999940395355
     },
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.3920130133628845,
@@ -93,6 +93,32 @@
         1.0
       ],
       "textColorFlg": false
+    }
+  },
+  "EnemyDebug": {
+    "common": {
+      "draw_HitBox": false,
+      "draw_Sight": false
+    },
+    "debuggerSetting": {
+      "active": true,
+      "customParamActive": true,
+      "imageColor": [
+        0.800000011920929,
+        0.800000011920929,
+        0.800000011920929,
+        1.0
+      ],
+      "textColorFlg": false
+    },
+    "dossun_normal": {
+      "status": {
+        "attackCoolTime": 60,
+        "attackHitBoxRadius": 50.099998474121094,
+        "attackTime": 120,
+        "hitBoxRadius": 1.0,
+        "sightRadius": 6.25
+      }
     }
   },
   "Fog": {
