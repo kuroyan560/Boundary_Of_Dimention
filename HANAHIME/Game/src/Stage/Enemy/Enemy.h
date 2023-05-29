@@ -272,26 +272,8 @@ private:
 class DossunRing : public StageParts, IEnemyAI
 {
 public:
-	DossunRing(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, ENEMY_ATTACK_PATTERN status)
-		:StageParts(DOSSUN_RING, arg_model, arg_initTransform), m_nowStatus(status)
-	{
+	DossunRing(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, ENEMY_ATTACK_PATTERN status);
 
-		OnInit();
-
-		m_hitBoxModel =
-			KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "RedSphere.glb");
-
-		m_shadowInfluenceRange = SHADOW_INFLUENCE_RANGE;
-
-		//丸影用に敵のデータの参照を渡す。
-		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_shadowInfluenceRange, &m_deadFlag);
-
-
-		m_attackRingModel =
-			KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "impactWave.glb");
-
-		m_debugHitBox = std::make_unique<EnemyHitBox>(m_enemyHitBox, KuroEngine::Color(1.0f, 1.0f, 1.0f, 1.0f));
-	}
 	void OnInit()override;
 	void Update(Player &arg_player)override;
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
@@ -371,6 +353,9 @@ private:
 	}
 
 	void Attack(Player &arg_player);
+
+	//アニメーション
+	std::shared_ptr<KuroEngine::ModelAnimator>m_modelAnimator;
 };
 
 class Battery : public StageParts, IEnemyAI
