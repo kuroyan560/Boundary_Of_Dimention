@@ -654,6 +654,7 @@ void DossunRing::Update(Player &arg_player)
 
 
 	float attackScaleOffset = m_attackInterval.GetTimeRate();
+	float larpRate = 0.08f;
 	//UŒ‚—\”õ“®ì’†
 	if (m_attackInterval.UpdateTimer() && !m_attackFlag)
 	{
@@ -665,11 +666,12 @@ void DossunRing::Update(Player &arg_player)
 	else if (m_attackFlag)
 	{
 		attackScaleOffset = 0.0f;
+		larpRate = 0.3f;
 	}
 	//UŒ‚‚·‚éuŠÔ‚ğæ‚Á‚½‚à‚Ì
 	m_scale = m_initializedTransform.GetScale() +
 		KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, attackScaleOffset, { 0.0f,0.0f,0.0f }, { 1.3f,1.3f,1.3f });
-	m_larpScale = KuroEngine::Math::Lerp(m_larpScale, m_scale, 0.08f);
+	m_larpScale = KuroEngine::Math::Lerp(m_larpScale, m_scale, larpRate);
 	m_transform.SetScale(m_larpScale);
 
 	//UŒ‚ŠJn
