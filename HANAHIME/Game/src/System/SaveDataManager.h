@@ -1,5 +1,6 @@
 #pragma once
 #include"Common/Singleton.h"
+#include<string>
 
 struct SoundVolumeData
 {
@@ -21,7 +22,7 @@ struct OperationData
 	float m_camSensitivity = 1.0f;
 };
 
-struct SaveData
+struct GameSaveData
 {
 	static const int INVALID = -1;
 
@@ -45,10 +46,17 @@ class SaveDataManager : public KuroEngine::DesignPattern::Singleton<SaveDataMana
 
 	friend class SystemSetting;
 
-	void Load();
-	SaveData m_saveData;
+	//データファイルのディレクトリ
+	static const std::string DIR;
+	//データファイルの名前
+	static const std::string FILE_NAME;
+	//データファイルの総合パス
+	static const std::string FILE_PATH;
+
+	GameSaveData m_saveData;
 
 public:
+	~SaveDataManager();
 	void Save(int arg_checkPointOrder);
 
 	//ステージに関するセーブデータ読み込み
@@ -56,7 +64,7 @@ public:
 	{ 
 		if (arg_reachStageNum)*arg_reachStageNum = m_saveData.m_reachStageNum;
 		if (arg_reachCheckPointOreder)*arg_reachCheckPointOreder = m_saveData.m_reachCheckPointOrder;
-		return m_saveData.m_reachStageNum != SaveData::INVALID && m_saveData.m_reachCheckPointOrder != SaveData::INVALID;
+		return m_saveData.m_reachStageNum != GameSaveData::INVALID && m_saveData.m_reachCheckPointOrder != GameSaveData::INVALID;
 	}
 
 	//サウンドボリュームに関するデータ
