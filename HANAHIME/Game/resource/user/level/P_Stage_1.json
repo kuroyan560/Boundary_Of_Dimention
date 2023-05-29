@@ -4,30 +4,6 @@
         "objects": [
             {
                 "type": "CheckPoint",
-                "name": "CheckPoint_0.009",
-                "transform": {
-                    "translation": [
-                        10.0,
-                        10.0,
-                        14.0
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                },
-                "file_name": "CheckPoint",
-                "CheckPointOrder": 1
-            },
-            {
-                "type": "CheckPoint",
                 "name": "CheckPoint_0.001",
                 "transform": {
                     "translation": [
@@ -96,6 +72,30 @@
                     ]
                 },
                 "file_name": "Stage1"
+            },
+            {
+                "type": "CheckPoint",
+                "name": "CheckPoint_0.009",
+                "transform": {
+                    "translation": [
+                        10.0,
+                        10.0,
+                        14.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "CheckPoint",
+                "CheckPointOrder": 1
             },
             {
                 "type": "StarCoin",
@@ -1862,7 +1862,7 @@
                 "name": "HitStage1_0.002",
                 "transform": {
                     "translation": [
-                        0.0,
+                        -0.5,
                         0.0,
                         0.0
                     ],
