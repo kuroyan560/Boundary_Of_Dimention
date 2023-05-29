@@ -1176,7 +1176,7 @@ Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<floa
 	}
 
 	//まずは球の判定
-	bool isHit = distance < std::clamp(m_growPlantPtLig.m_influenceRange, PLAYER_HEAD_SIZE, m_growPlantPtLig.m_defInfluenceRange);
+	bool isHit = distance < std::clamp(m_growPlantPtLig.m_influenceRange, PLAYER_HEAD_SIZE, m_growPlantPtLig.m_defInfluenceRange) + arg_enemySize;
 
 	//当たっていなかったら処理を飛ばす。
 	if (!isHit) {
@@ -1184,7 +1184,8 @@ Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<floa
 	}
 
 	//プレイヤーから敵までのベクトルと敵の上ベクトルを内積して、その結果が0以下だったらライトが当たっている判定(草が当たっている判定。)
-	bool isLight = (arg_enemyPos - m_transform.GetPosWorld()).GetNormal().Dot(arg_enemyUp) < 0;
+	float dot = (arg_enemyPos - m_transform.GetPosWorld()).GetNormal().Dot(arg_enemyUp);
+	bool isLight = dot < -0.1f;
 
 	//ライトに当たっている判定
 	if (!isLight) {
@@ -1403,6 +1404,37 @@ void Player::UpdateZipline() {
 	break;
 	default:
 		break;
+	}
+
+}
+
+bool Player::CheckInGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, KuroEngine::Vec3<float> arg_enemyUp, float arg_enemySize)
+{
+
+	//距離を計算。
+	float distance = (arg_enemyPos - m_transform.GetPosWorld()).Length();
+
+	//まずは球の判定
+	bool isHit = distance < std::clamp(m_growPlantPtLig.m_influenceRange, PLAYER_HEAD_SIZE, m_growPlantPtLig.m_defInfluenceRange) + arg_enemySize;
+
+	//当たっていなかったら処理を飛ばす。
+	if (!isHit) {
+		return false;
+	}
+
+	//プレイヤーから敵までのベクトルと敵の上ベクトルを内積して、その結果が0以下だったらライトが当たっている判定(草が当たっている判定。)
+	bool isLight = (arg_enemyPos - m_transform.GetPosWorld()).GetNormal().Dot(arg_enemyUp) < 0.1f;
+
+	//ライトに当たっている判定
+	if (!isLight) {
+
+		return true;
+
+	}
+	else {
+
+		return true;
+
 	}
 
 }

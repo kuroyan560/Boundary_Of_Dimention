@@ -78,6 +78,16 @@ void MiniBug::Update(Player &arg_player)
 	{
 	}
 
+	m_inSphereEffectConstBufferData.m_info.m_upVec = m_transform.GetUp();
+	m_inSphereEffectConstBufferData.m_info.m_inSphere = arg_player.CheckInGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), *(m_hitBox.m_radius));
+	if (m_inSphereEffectConstBufferData.m_info.m_inSphere) {
+		m_inSphereEffectConstBufferData.m_info.m_lightRate = KuroEngine::Math::Lerp(m_inSphereEffectConstBufferData.m_info.m_lightRate, 1.0f, 0.5f);
+	}
+	else {
+		m_inSphereEffectConstBufferData.m_info.m_lightRate = KuroEngine::Math::Lerp(m_inSphereEffectConstBufferData.m_info.m_lightRate, 0.0f, 0.5f);
+	}
+	m_inSphereEffectConstBufferData.m_constBuffer->Mapping(&m_inSphereEffectConstBufferData.m_info);
+
 
 	//死亡準備処理
 	if (m_startDeadMotionFlag && !m_deadFlag)
@@ -434,7 +444,8 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 	KuroEngine::Transform drawTransform(m_transform);
 	drawTransform.SetPos(m_transform.GetPos() + offset);
 
-	BasicDraw::Instance()->Draw_NoGrass(
+	BasicDraw::Instance()->Draw_Enemy(
+		m_inSphereEffectConstBufferData.m_constBuffer,
 		arg_cam,
 		arg_ligMgr,
 		m_model,
@@ -512,6 +523,16 @@ DossunRing::DossunRing(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::T
 
 	m_attackRingModel =
 		KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "impactWave.glb");
+
+	//定数バッファを生成。
+	m_inSphereEffectConstBufferData.m_info.m_inSphere = false;
+	m_inSphereEffectConstBufferData.m_info.m_lightRate = 0.0f;
+	m_inSphereEffectConstBufferData.m_info.m_upVec = KuroEngine::Vec3<float>(0, 1, 0);
+	m_inSphereEffectConstBufferData.m_constBuffer = KuroEngine::D3D12App::Instance()->GenerateConstantBuffer(
+		sizeof(EnemyInSphereEffectInfo),
+		1,
+		nullptr,
+		"Enemy - Effect");
 
 	m_debugHitBox = std::make_unique<EnemyHitBox>(m_enemyHitBox, KuroEngine::Color(1.0f, 1.0f, 1.0f, 1.0f));
 }
@@ -610,6 +631,10 @@ void DossunRing::Update(Player &arg_player)
 
 		return;
 	}
+
+	m_inSphereEffectConstBufferData.m_info.m_upVec = m_transform.GetUp();
+	m_inSphereEffectConstBufferData.m_info.m_inSphere = arg_player.CheckInGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length());
+	m_inSphereEffectConstBufferData.m_constBuffer->Mapping(&m_inSphereEffectConstBufferData.m_info);
 
 
 	//プレイヤーと敵の当たり判定の処理をここに書く
@@ -711,7 +736,8 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 0.0f);
 
-	BasicDraw::Instance()->Draw_NoGrass(
+	BasicDraw::Instance()->Draw_Enemy(
+		m_inSphereEffectConstBufferData.m_constBuffer,
 		arg_cam,
 		arg_ligMgr,
 		m_model,
@@ -831,6 +857,16 @@ Battery::Battery(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transfo
 
 	m_upVec = arg_initTransform.GetUp();
 
+	//定数バッファを生成。
+	m_inSphereEffectConstBufferData.m_info.m_inSphere = false;
+	m_inSphereEffectConstBufferData.m_info.m_lightRate = 0.0f;
+	m_inSphereEffectConstBufferData.m_info.m_upVec = KuroEngine::Vec3<float>(0, 1, 0);
+	m_inSphereEffectConstBufferData.m_constBuffer = KuroEngine::D3D12App::Instance()->GenerateConstantBuffer(
+		sizeof(EnemyInSphereEffectInfo),
+		1,
+		nullptr,
+		"Enemy - Effect");
+
 	OnInit();
 
 	switch (arg_barrelPattern)
@@ -872,6 +908,10 @@ void Battery::Update(Player &arg_player)
 	{
 		m_deadFlag = true;
 	}
+
+	m_inSphereEffectConstBufferData.m_info.m_upVec = m_transform.GetUp();
+	m_inSphereEffectConstBufferData.m_info.m_inSphere = arg_player.CheckInGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length());
+	m_inSphereEffectConstBufferData.m_constBuffer->Mapping(&m_inSphereEffectConstBufferData.m_info);
 
 	KuroEngine::Vec3<float>vel = {};
 	//制御点が二つ以上ある場合は交互に動く
@@ -968,7 +1008,8 @@ void Battery::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 1.0f);
 
-	BasicDraw::Instance()->Draw_NoGrass(
+	BasicDraw::Instance()->Draw_Enemy(
+		m_inSphereEffectConstBufferData.m_constBuffer,
 		arg_cam,
 		arg_ligMgr,
 		m_model,

@@ -7,7 +7,8 @@ void KuroEngine::Camera::CameraInfoUpdate()
 	if (dirty || m_transform.IsDirty())
 	{
 		cameraInfo.matView = XMMatrixInverse(nullptr, m_transform.GetMatWorld());
-		cameraInfo.eye = { cameraInfo.matView.r[3].m128_f32[0],cameraInfo.matView.r[3].m128_f32[1] ,cameraInfo.matView.r[3].m128_f32[2] };
+		//cameraInfo.eye = { cameraInfo.matView.r[3].m128_f32[0],cameraInfo.matView.r[3].m128_f32[1] ,cameraInfo.matView.r[3].m128_f32[2] };
+		cameraInfo.eye = m_transform.GetPosWorld();
 
 		DirectX::XMVECTOR cameraAxisX = m_transform.GetRightWorld();
 		DirectX::XMVECTOR cameraAxisY= m_transform.GetUpWorld();
