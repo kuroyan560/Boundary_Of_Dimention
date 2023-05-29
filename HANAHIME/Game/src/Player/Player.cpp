@@ -263,7 +263,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 
 }
 
-void Player::Respawn(KuroEngine::Transform arg_initTransform)
+void Player::Respawn(KuroEngine::Transform arg_initTransform, const std::weak_ptr<Stage>arg_nowStage)
 {
 
 	//スケール打ち消し
@@ -301,7 +301,7 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform)
 	m_isOldCameraDefault = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 	m_isWallFrontDir = false;
-	m_cameraNoCollisionTimer.Reset(10);
+	m_cameraNoCollisionTimer.Reset(60);
 	m_cameraMode = CameraController::CAMERA_STATUS::NORMAL;
 
 	m_growPlantPtLig.Register();
@@ -357,6 +357,14 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform)
 	m_cameraReturnTimer.Reset(CAMERA_RETURN_TIMER);
 	m_cameraReturnTimer.ForciblyTimeUp();
 
+	//プレイヤーのY軸方向でカメラを反転させるかを決める。
+	if (m_transform.GetUp().y <= -0.9f) {
+		m_isCameraUpInverse = true;
+	}
+	m_camController.Respawn(m_transform, m_isCameraUpInverse);
+
+
+
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
@@ -397,6 +405,11 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//プレイヤーが天井にいたら左右のカメラ走査を反転。
 	if (m_onCeiling || m_isCameraUpInverse) {
 		scopeMove *= -1.0f;
+	}
+
+	//リスポーンしてから数フレームは入力を受け付けない。(カメラが正しい位置にセットされるまで待つ。)
+	if (!m_cameraNoCollisionTimer.IsTimeUp()) {
+		scopeMove = KuroEngine::Vec3<float>();
 	}
 
 	//ジャンプができるかどうか。	一定時間地形に引っ掛かってたらジャンプできる。
@@ -859,7 +872,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_baseCameraFar, m_baseCameraFar, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_cameraMode, m_hitPointData);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_baseCameraFar, m_baseCameraFar, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, !m_cameraNoCollisionTimer.IsTimeUp(), m_cameraMode, m_hitPointData);
 
 		m_deathEffectCameraZ = m_baseCameraFar;
 	}
@@ -869,7 +882,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_shake);
 
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, m_baseCameraFar, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_cameraMode, m_hitPointData);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, m_baseCameraFar, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, !m_cameraNoCollisionTimer.IsTimeUp(), m_cameraMode, m_hitPointData);
 
 	}
 	//シェイクを計算。
@@ -957,7 +970,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//プレイヤーが動いた時のパーティクル挙動
 	m_playerMoveParticle.Update();
 
-	m_cameraNoCollisionTimer.UpdateTimer();
+	m_cameraNoCollisionTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
 
 
 	//ジャンプ後のクールタイムを修正。
