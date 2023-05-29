@@ -8,16 +8,12 @@ GuideInsect::GuideInsect(std::shared_ptr<KuroEngine::RWStructuredBuffer>particle
 	}
 
 	m_tiemr.Reset(60 * 10);
+	m_index = 0;
 }
 
 void GuideInsect::Init()
 {
-	m_index = 0;
 	m_goToCheckPointFlag = false;
-	for (auto &stage : m_checkPointArray)
-	{
-		stage->m_isHitFlag = false;
-	}
 }
 
 void GuideInsect::Update()
@@ -38,6 +34,7 @@ void GuideInsect::Update()
 	if (m_tiemr.UpdateTimer())
 	{
 		m_goToCheckPointFlag = false;
+		m_guideInsect.Finish();
 	}
 
 	if (m_guideInsect.GetAlphaRate() <= 0.0f)

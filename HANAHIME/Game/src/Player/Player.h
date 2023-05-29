@@ -154,7 +154,8 @@ class Player : public KuroEngine::Debugger
 	KuroEngine::Vec3<float> m_gimmickVel;
 
 	//壁移動の距離
-	const float WALL_JUMP_LENGTH = 3.0f;
+	const float WALL_JUMP_LENGTH = 6.0f;	//ジャンプして動く量
+	const float WALL_CAN_JUMP_LENGTH = 2.0f;	//ジャンプできるまでの距離
 
 	//接地フラグ
 	bool m_isFirstOnGround;	//開始時に空中から始まるので、着地済みだということを判断する用変数。
@@ -251,10 +252,10 @@ private:
 	XMVECTOR m_jumpStartQ;							//ジャンプ開始時のクォータニオン
 	XMVECTOR m_jumpEndQ;							//ジャンプ終了時のクオータニオン
 	float m_jumpTimer;								//ジャンプの計測時間を図るタイマー
-	const float JUMP_TIMER = 0.03f;
+	const float JUMP_TIMER = 0.05f;
 	bool m_canJump;									//ジャンプができるかのフラグ
 	int m_canJumpDelayTimer;						//ジャンプができるようになるまでの引っ掛かり
-	const int CAN_JUMP_DELAY = 5;
+	const int CAN_JUMP_DELAY = 30;
 	const int CAN_JUMP_DELAY_FAST = 1;
 
 	//正面方向に壁があるかのフラグ
