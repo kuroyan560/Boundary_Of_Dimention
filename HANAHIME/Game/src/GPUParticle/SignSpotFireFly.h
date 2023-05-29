@@ -31,7 +31,7 @@ public:
 
 private:
 
-	static const int PARTICLE_MAX_NUM = 1024 * 10;
+	static const int PARTICLE_MAX_NUM = 1024;
 
 	struct ParticleData
 	{

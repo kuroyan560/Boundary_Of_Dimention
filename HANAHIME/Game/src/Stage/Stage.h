@@ -148,4 +148,6 @@ public:
 
 	//ƒKƒCƒh—p‚Ì’
 	GuideInsect m_guideInsect;
+
+	void CheckPointReset();
 };

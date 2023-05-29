@@ -1,6 +1,7 @@
 #pragma once
 #include<memory>
 #include<array>
+#include<vector>
 #include<string>
 #include"Common/Vec.h"
 
@@ -51,17 +52,33 @@ class SystemSetting
 
 		//見出し
 		std::shared_ptr<KuroEngine::TextureBuffer>m_headTex;
+
 		//項目
 		std::array<SelectItem, ITEM_NUM>m_items;
+		//ゲージの植物（画像パターンのインデックス）
+		std::array<std::vector<int>, ITEM_NUM>m_gageParam;
+
+		static int GetPattern()
+		{
+			static int PATTERN = -1;
+			PATTERN++;
+			if (GAGE_PATTERN_NUM <= PATTERN)PATTERN = 0;
+			return PATTERN;
+		}
+
 		//地面ゲージ
 		std::shared_ptr<KuroEngine::TextureBuffer>m_groundLineTex;
 		//ゲージのパターン数
 		static const int GAGE_PATTERN_NUM = 3;
 		std::array<std::shared_ptr<KuroEngine::TextureBuffer>, GAGE_PATTERN_NUM>m_gagePatternTex;
 
+		//パラメータの段階数
+		static const int VOL_STAGE_NUM = 10;
+		static const float VOL_CHANGE;
+
 	public:
 		SoundMenuGroup();
-		void Init() { m_nowItem = ITEM_MASTER; }
+		void Init();
 		void Update(SystemSetting* arg_parent);
 		void Draw();
 	}m_soundMenu;
@@ -70,6 +87,7 @@ class SystemSetting
 	struct OpeMenuGroup
 	{
 		enum ITEM { ITEM_MIRROR, ITEM_SENSITIVITY,ITEM_BACK, ITEM_NUM }m_nowItem;
+		enum MIRROR_ITEM { MIRROR_ITEM_X, MIRROR_ITEM_Y, MIRROR_ITEM_NUM }m_nowMirrorItem;
 
 		//見出し
 		std::shared_ptr<KuroEngine::TextureBuffer>m_headTex;
@@ -89,9 +107,25 @@ class SystemSetting
 		//地面ゲージのインデックスの葉
 		std::shared_ptr<KuroEngine::TextureBuffer>m_leafTex;
 
+		//カメラ感度の段階数
+		static const int CAM_SENSITIVITY_PLUS_MINUS_STAGE_NUM = 5;
+		//カメラ感度の基準
+		static const float CAM_SENSITIVITY_BASE;
+		//カメラ感度最大オフセット
+		static const float CAM_SENSITIVITY_OFFSET_MAX;
+		//カメラ感度オフセット
+		static const float CAM_SENSITIVITY_CHANGE;
+
+		//カメラ感度のゲージ位置
+		int m_camSensitivityParam = 0;
+
 	public:
 		OpeMenuGroup();
-		void Init() { m_nowItem = ITEM_MIRROR; }
+		void Init() 
+		{
+			m_nowItem = ITEM_MIRROR; 
+			m_nowMirrorItem = MIRROR_ITEM_X;
+		}
 		void Update(SystemSetting* arg_parent);
 		void Draw();
 	}m_opeMenu;

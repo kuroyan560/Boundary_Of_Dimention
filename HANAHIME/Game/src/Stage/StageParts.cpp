@@ -889,6 +889,10 @@ CheckPoint::CheckPoint(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::T
 	m_guideData->m_pos = m_transform.GetPosWorld() + vec;
 }
 
+void CheckPoint::OnInit()
+{
+}
+
 void CheckPoint::Update(Player& arg_player)
 {
 	static const float CHECK_POINT_RADIUS = 10.0f;
@@ -916,8 +920,8 @@ void CheckPoint::Update(Player& arg_player)
 		m_fireWork.Init(m_transform.GetPosWorld());
 	}
 
-
 	m_touched = isHit;
+	m_guideData->m_isHitFlag = isHit;
 }
 
 void CheckPoint::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)

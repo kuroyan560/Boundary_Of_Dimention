@@ -7,6 +7,7 @@
 #include"FrameWork/UsersInput.h"
 #include"CheckPointHitFlag.h"
 #include"../System/SaveDataManager.h"
+#include"StageParts.h"
 
 StageManager::StageManager()
 	:KuroEngine::Debugger("StageManager", true, true)
@@ -33,9 +34,22 @@ StageManager::StageManager()
 		m_stageArray.back()->Load(loadPazzleIdx, stageDir, "P_Stage_" + std::to_string(loadPazzleIdx++) + ".json", terrianScaling, false);
 	}
 
-	//m_stageArray.emplace_back(std::make_shared<Stage>());
-	//m_stageArray.back()->Load(loadPazzleIdx, stageDir, "P_Stage_1.json", terrianScaling, false);
+	//データからチェックポイントの解放を設定
+	int unlockedStageNum, unlockedCheckPointOrder;
+	if (SaveDataManager::Instance()->LoadStageSaveData(&unlockedStageNum, &unlockedCheckPointOrder))
+	{
+		for (int stageIdx = 0; stageIdx <= unlockedStageNum; ++stageIdx)
+		{
+			for (auto& checkPoint : m_stageArray[stageIdx]->GetCheckPointArray())
+			{
+				bool touched = checkPoint.lock()->GetOrder() <= unlockedCheckPointOrder;
+				if (!touched)touched = stageIdx < unlockedStageNum;
 
+				//チェックポイントを触った状態にする
+				if (touched)checkPoint.lock()->SetTouch(true);
+			}
+		}
+	}
 
 	//現在のステージ指定（デフォルトはホーム用ステージ）
 	m_nowStageIdx = 0;
@@ -74,17 +88,22 @@ void StageManager::Update(Player& arg_player)
 	//マップピンインデックスが範囲外でない
 	if (!(m_nowMapPinPointIdx < 0 || static_cast<int>(mapPinPointArray.size()) <= m_nowMapPinPointIdx))
 	{
-		//目的地点座標取得
-		const auto destPos = mapPinPointArray[m_nowMapPinPointIdx].lock()->GetTransform().GetPosWorld();
-		//マップピンの当たり判定半径
-		const float MAP_PIN_RADIUS = 10.0f;
-		if (destPos.DistanceSq(arg_player.GetTransform().GetPosWorld()) < MAP_PIN_RADIUS * MAP_PIN_RADIUS)
-		{
-			//マップピンを次の目的地に変更
-			m_nowMapPinPointIdx++;
+		int oldMapPinPointIdx = m_nowMapPinPointIdx;
 
-			//全ての目的地を巡回完了
-			if (static_cast<int>(mapPinPointArray.size()) <= m_nowMapPinPointIdx)m_nowStage->SetCompleteMapPinFlg(true);
+		for (int pointIdx = m_nowMapPinPointIdx; pointIdx < static_cast<int>(mapPinPointArray.size()); ++pointIdx)
+		{
+			//目的地点座標取得
+			const auto destPos = mapPinPointArray[pointIdx].lock()->GetTransform().GetPosWorld();
+			//マップピンの当たり判定半径
+			const float MAP_PIN_RADIUS = 10.0f;
+			if (destPos.DistanceSq(arg_player.GetTransform().GetPosWorld()) < MAP_PIN_RADIUS * MAP_PIN_RADIUS)
+			{
+				//マップピンを次の目的地に変更
+				m_nowMapPinPointIdx = pointIdx + 1;
+
+				//全ての目的地を巡回完了
+				if (static_cast<int>(mapPinPointArray.size()) <= m_nowMapPinPointIdx)m_nowStage->SetCompleteMapPinFlg(true);
+			}
 		}
 	}
 
@@ -160,50 +179,33 @@ int StageManager::ExistStarCoinNum() const
 	return m_nowStage->ExistStarCoinNum();
 }
 
-//std::vector<std::vector<KuroEngine::Transform>> StageManager::GetUnlockedCheckPointTransformArray() const
-//{
-//	SaveData saveData;
-//	std::vector<std::vector<KuroEngine::Transform>>result;
-//
-//	if (!SaveDataManager::Instance()->LoadSaveData(&saveData))return result;
-//
-//	for (int stageIdx = 0; stageIdx <= saveData.m_reachStageNum; ++stageIdx)
-//	{
-//		result.emplace_back();
-//		for (auto& checkPoint : m_stageArray[stageIdx]->GetCheckPointArray())
-//		{
-//			if (stageIdx == saveData.m_reachStageNum && saveData.m_reachCheckPointOrder < checkPoint.lock()->GetOrder())break;
-//
-//			result.back().emplace_back(checkPoint.lock()->GetInitTransform());
-//		}
-//	}
-//
-//	return result;
-//}
-
 bool StageManager::GetUnlockedCheckPointInfo(std::vector<std::vector<KuroEngine::Transform>>* arg_transformArray, int* arg_recentStageNum, int* arg_recentIdx) const
 {
-	SaveData saveData;
-
 	if (!arg_transformArray || !arg_recentStageNum || !arg_recentIdx)return false;
 
-	if (!SaveDataManager::Instance()->LoadSaveData(&saveData))return false;
+	int reachStageNum, reachCheckPointOrder;
+	if (!SaveDataManager::Instance()->LoadStageSaveData(&reachStageNum, &reachCheckPointOrder))return false;
 
 	arg_transformArray->clear();
 
-	for (int stageIdx = 0; stageIdx <= saveData.m_reachStageNum; ++stageIdx)
+	for (int stageIdx = 0; stageIdx <= reachStageNum; ++stageIdx)
 	{
 		arg_transformArray->emplace_back();
 		for (auto& checkPoint : m_stageArray[stageIdx]->GetCheckPointArray())
 		{
-			if (stageIdx == saveData.m_reachStageNum && saveData.m_reachCheckPointOrder < checkPoint.lock()->GetOrder())break;
+			if (stageIdx == reachStageNum && reachCheckPointOrder < checkPoint.lock()->GetOrder())break;
 
 			arg_transformArray->back().emplace_back(checkPoint.lock()->GetInitTransform());
-			if (stageIdx == saveData.m_reachStageNum && saveData.m_reachCheckPointOrder == checkPoint.lock()->GetOrder())*arg_recentIdx = static_cast<int>(arg_transformArray->back().size()) - 1;
+			if (stageIdx == reachStageNum && reachCheckPointOrder == checkPoint.lock()->GetOrder())*arg_recentIdx = static_cast<int>(arg_transformArray->back().size()) - 1;
 		}
 	}
 
-	*arg_recentStageNum = saveData.m_reachStageNum;
+	*arg_recentStageNum = reachStageNum;
 
 	return true;
+}
+
+void StageManager::AllStageCheckPointReset()
+{
+	for (auto& stage : m_stageArray)stage->CheckPointReset();
 }
