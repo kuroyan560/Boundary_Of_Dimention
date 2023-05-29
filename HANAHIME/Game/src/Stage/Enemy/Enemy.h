@@ -64,7 +64,7 @@ public:
 
 		DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_MINIBUG);
 
-		m_debugHitBox = std::make_unique<EnemyHitBox>(m_hitBox);
+		m_debugHitBox = std::make_unique<EnemyHitBox>(m_hitBox, KuroEngine::Color(1.0f, 1.0f, 1.0f, 1.0f));
 	}
 
 	void OnInit()override;
@@ -290,7 +290,7 @@ public:
 		m_attackRingModel =
 			KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "impactWave.glb");
 
-		m_debugHitBox = std::make_unique<EnemyHitBox>(m_enemyHitBox);
+		m_debugHitBox = std::make_unique<EnemyHitBox>(m_enemyHitBox, KuroEngine::Color(1.0f, 1.0f, 1.0f, 1.0f));
 	}
 	void OnInit()override;
 	void Update(Player &arg_player)override;
@@ -316,7 +316,7 @@ private:
 	float m_attackhitBoxRadiusMax;	//UŒ‚‚Ì“–‚½‚è”»’è(Å‘å’l)
 
 	std::shared_ptr<KuroEngine::Model>m_attackRingModel;
-
+	KuroEngine::Color m_ringColor;
 	//UŒ‚ƒtƒF[ƒY---------------
 
 
@@ -326,14 +326,18 @@ private:
 	Sphere m_sightHitBox;
 	CircleSearch m_sightArea;
 
-	bool m_findPlayerFlag, m_preFindPlayerFlag;
+	bool m_findPlayerFlag, m_preFindPlayerFlag, m_intervalFlag;
 
 	//€–Sˆ—---------------------------------------
 	bool m_deadFlag;
 	bool m_startDeadMotionFlag;
 	KuroEngine::Timer m_deadTimer;
-	float m_scale;
+	float m_deadScale;
 	//€–Sˆ—---------------------------------------
+
+	//—\”õ“®ì---------------------------------------
+	KuroEngine::Vec3<float> m_larpScale, m_scale;
+	//—\”õ“®ì---------------------------------------
 
 
 	//ˆÚ“®ˆ—---------------------------------------
@@ -349,6 +353,22 @@ private:
 	std::unique_ptr<EnemyHitBox> m_debugHitBox;
 
 	std::shared_ptr<KuroEngine::Model>m_hitBoxModel;
+
+	void SetParam()
+	{
+		//õ“G---------------------------------------
+		//‹–ì
+		m_sightRange = m_initializedTransform.GetScale().Length() * DebugEnemy::Instance()->GetDossunParam().m_sightRadius;
+		//UŒ‚---------------------------------------
+		//ƒvƒŒƒCƒ„[‚Æ“G‚Ì”»’è
+		m_radius = m_initializedTransform.GetScale().Length() * DebugEnemy::Instance()->GetDossunParam().m_hitBoxRadius;
+		//‰~‚ÌÅ‘å‚ÌL‚ª‚è
+		m_attackhitBoxRadiusMax = DebugEnemy::Instance()->GetDossunParam().m_attackHitBoxRadius;
+		//‰~‚ªL‚ª‚èØ‚é‚Ü‚Å‚ÌŠÔ
+		m_maxAttackIntervalTime = DebugEnemy::Instance()->GetDossunParam().m_attackTime;
+		//UŒ‚‚ÌƒN[ƒ‹ƒ^ƒCƒ€
+		m_maxAttackTime = DebugEnemy::Instance()->GetDossunParam().m_attackCoolTime;
+	}
 };
 
 class Battery : public StageParts, IEnemyAI

@@ -512,11 +512,11 @@ void DossunRing::OnInit()
 	{
 	case ENEMY_ATTACK_PATTERN_NORMAL:
 		DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_DOSSUN_NORMAL);
-		m_radius = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_DOSSUN_NORMAL);
+		SetParam();
 		break;
 	case ENEMY_ATTACK_PATTERN_ALWAYS:
 		DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_DOSSUN_ALLWAYS);
-		m_radius = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_DOSSUN_ALLWAYS);
+		SetParam();
 		break;
 	case ENEMY_ATTACK_PATTERN_INVALID:
 		break;
@@ -524,7 +524,6 @@ void DossunRing::OnInit()
 		break;
 	}
 
-	m_sightRange = m_radius * 2.0f;
 
 
 	m_enemyHitBox.m_centerPos = &m_transform.GetPos();
@@ -536,9 +535,6 @@ void DossunRing::OnInit()
 	m_sightArea.Init(m_sightHitBox);
 	//Ž‹ŠE‚Ì”»’è---------------------------------------
 
-	m_maxAttackIntervalTime = 60 * 2;
-	m_maxAttackTime = 60 * 5;
-
 	m_attackInterval.Reset(m_maxAttackIntervalTime);
 	m_attackTimer.Reset(m_maxAttackTime);
 
@@ -548,14 +544,21 @@ void DossunRing::OnInit()
 	m_deadTimer.Reset(120);
 	//Ž€–Sˆ—---------------------------------------
 
-	m_attackhitBoxRadiusMax = 5.0f * m_radius;
-
 	m_hitBox.m_centerPos = &m_transform.GetPos();
 	m_hitBox.m_radius = &m_attackHitBoxRadius;
+
+	m_ringColor.m_r = 1.0f;
+	m_ringColor.m_g = 1.0f;
+	m_ringColor.m_b = 1.0f;
+	m_ringColor.m_a = 1.0f;
+
+	m_intervalFlag = false;
 }
 
 void DossunRing::Update(Player &arg_player)
 {
+	m_reaction->Update(m_transform.GetPos());
+
 	if (m_deadFlag && IsActive(m_transform, arg_player.GetTransform()))
 	{
 		return;
@@ -567,8 +570,8 @@ void DossunRing::Update(Player &arg_player)
 	//Ž€–S€”õˆ—
 	if (m_startDeadMotionFlag && !m_deadFlag)
 	{
-		m_scale = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, m_deadTimer.GetTimeRate(), 1.0f, 0.0f);
-		m_transform.SetScale(m_scale);
+		m_deadScale = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, m_deadTimer.GetTimeRate(), 1.0f, 0.0f);
+		m_transform.SetScale(m_deadScale);
 
 		//Ž€‚ñ‚Å‚¢‚½‚çŠÛ‰e‚ð¬‚³‚­‚·‚éB
 		m_shadowInfluenceRange = KuroEngine::Math::Lerp(m_shadowInfluenceRange, 0.0f, 0.01f);
@@ -599,8 +602,7 @@ void DossunRing::Update(Player &arg_player)
 	//ƒvƒŒƒCƒ„[‚Æ“G‚Ì”»’è
 	if (!arg_player.GetIsUnderGround() && Collision::Instance()->CheckCircleAndCircle(arg_player.m_sphere, m_enemyHitBox))
 	{
-		bool debug = false;
-		//arg_player.Damage();
+		arg_player.Damage();
 	}
 
 	//¶‚«‚Ä‚¢‚½‚çŠÛ‰e‚ðŒ³‚É–ß‚·B
@@ -610,6 +612,7 @@ void DossunRing::Update(Player &arg_player)
 	if (m_sightArea.IsFind(arg_player.m_sphere) && !arg_player.GetIsUnderGround())
 	{
 		m_findPlayerFlag = true;
+		m_intervalFlag = true;
 	}
 	//UŒ‚‚ªI‚í‚Á‚ÄƒvƒŒƒCƒ„[‚ªŒ©‚¦‚È‚­‚È‚Á‚½‚çUŒ‚I—¹
 	else if (!m_attackFlag)
@@ -622,21 +625,21 @@ void DossunRing::Update(Player &arg_player)
 	{
 	case ENEMY_ATTACK_PATTERN_ALWAYS:
 #ifdef _DEBUG
-		m_radius = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_DOSSUN_ALLWAYS);
+		SetParam();
 #endif
 		m_findPlayerFlag = true;
 		break;
 
 	case ENEMY_ATTACK_PATTERN_NORMAL:
 #ifdef _DEBUG
-		m_radius = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_DOSSUN_NORMAL);
+		SetParam();
 #endif
 		break;
 	default:
 		break;
 	}
 
-	if (!m_findPlayerFlag && !m_attackFlag)
+	if (!m_findPlayerFlag && !m_attackFlag && !m_intervalFlag)
 	{
 		return;
 	}
@@ -649,18 +652,33 @@ void DossunRing::Update(Player &arg_player)
 	}
 	m_preFindPlayerFlag = m_findPlayerFlag;
 
+
+	float attackScaleOffset = m_attackInterval.GetTimeRate();
 	//UŒ‚—\”õ“®ì’†
 	if (m_attackInterval.UpdateTimer() && !m_attackFlag)
 	{
 		m_attackTimer.Reset(m_maxAttackTime);
 		m_attackFlag = true;
+		m_intervalFlag = false;
+		attackScaleOffset = 0.0f;
 	}
+	else if (m_attackFlag)
+	{
+		attackScaleOffset = 0.0f;
+	}
+	//UŒ‚‚·‚éuŠÔ‚ðŽæ‚Á‚½‚à‚Ì
+	m_scale = m_initializedTransform.GetScale() +
+		KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, attackScaleOffset, { 0.0f,0.0f,0.0f }, { 1.3f,1.3f,1.3f });
+	m_larpScale = KuroEngine::Math::Lerp(m_larpScale, m_scale, 0.08f);
+	m_transform.SetScale(m_larpScale);
 
 	//UŒ‚ŠJŽn
 	if (m_attackFlag)
 	{
 		//“–‚½‚è”»’è‚ÌL‚ª‚è
 		m_attackHitBoxRadius = m_attackTimer.GetTimeRate() * m_attackhitBoxRadiusMax;
+		m_ringColor.m_a = m_attackTimer.GetInverseTimeRate();
+
 		//L‚ª‚èØ‚Á‚½‚çƒCƒ“ƒ^[ƒoƒ‹‚É–ß‚é
 		if (m_attackTimer.UpdateTimer())
 		{
@@ -684,8 +702,6 @@ void DossunRing::Update(Player &arg_player)
 			arg_player.Damage();
 		}
 	}
-
-	m_reaction->Update(m_transform.GetPos());
 }
 
 void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
@@ -694,9 +710,13 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 	{
 		return;
 	}
+	if (m_attackFlag)
+	{
+		bool debug = false;
+	}
 
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
-	edgeColor.m_edgeColor = KuroEngine::Color(1.0f, 0.0f, 0.0f, 1.0f);
+	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 0.0f);
 
 	BasicDraw::Instance()->Draw_NoGrass(
 		arg_cam,
@@ -714,7 +734,8 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 		arg_ligMgr,
 		m_attackRingModel,
 		transform,
-		edgeColor);
+		edgeColor,
+		m_ringColor);
 
 	if (DebugEnemy::Instance()->VisualizeEnemySight())
 	{

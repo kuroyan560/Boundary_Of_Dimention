@@ -130,7 +130,7 @@ void CircleSearch::DebugDraw(KuroEngine::Camera &arg_cam, KuroEngine::LightManag
 		arg_ligMgr,
 		m_hitBoxModel,
 		transform,
-		edgeColor
+		edgeColor,
+		KuroEngine::Color(1.0f, 0.0f, 0.0f, 0.5f)
 	);
-
 }

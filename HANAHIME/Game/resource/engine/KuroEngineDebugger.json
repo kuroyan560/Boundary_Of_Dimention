@@ -96,6 +96,10 @@
     }
   },
   "EnemyDebug": {
+    "common": {
+      "draw_HitBox": false,
+      "draw_Sight": false
+    },
     "debuggerSetting": {
       "active": true,
       "customParamActive": true,
@@ -107,9 +111,14 @@
       ],
       "textColorFlg": false
     },
-    "enemy": {
-      "common": false,
-      "hitBox": 1.0
+    "dossun_normal": {
+      "status": {
+        "attackCoolTime": 60,
+        "attackHitBoxRadius": 50.400001525878906,
+        "attackTime": 120,
+        "hitBoxRadius": 1.0,
+        "sightRadius": 5.0
+      }
     }
   },
   "Fog": {

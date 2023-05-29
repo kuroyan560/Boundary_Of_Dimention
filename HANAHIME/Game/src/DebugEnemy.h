@@ -16,30 +16,46 @@ enum EnemyType
 	ENEMY_MAX
 };
 
+struct DossunParameterData
+{
+	float m_hitBoxRadius;		//プレイヤーと敵の判定
+	float m_sightRadius;		//プレイヤーと敵の判定
+	float m_attackHitBoxRadius;	//円がどれくらい広がるか
+	int m_attackCoolTime;		//攻撃した後のクールタイム
+	int m_attackTime;			//円が最大サイズになるまでの時間
+
+	DossunParameterData()
+	{
+		m_sightRadius = 2.0f;
+		m_hitBoxRadius = 1.0f;
+		m_attackHitBoxRadius = 5.0f;
+		m_attackCoolTime = 60;
+		m_attackTime = 60 * 2;
+	}
+};
+
 class DebugEnemy : public KuroEngine::DesignPattern::Singleton<DebugEnemy>, public KuroEngine::Debugger
 {
 public:
 	DebugEnemy() :m_stageIndex(0), m_index(0), KuroEngine::Debugger("EnemyDebug", true, true)
 	{
 		m_enemyHitBox.resize(ENEMY_MAX);
-		AddCustomParameter("EnemyHitBox", { "enemy", "common" }, PARAM_TYPE::BOOL, &m_isVisualizeEnemyHitBoxFlag, "Common");
-		AddCustomParameter("Sight", { "enemy", "common" }, PARAM_TYPE::BOOL, &m_isVisualizeEnemySightFlag, "Common");
-		AddCustomParameter("ENEMY_MINIBUG_HITBOX", { "enemy", "hitBox" }, PARAM_TYPE::FLOAT, &m_enemyHitBox[ENEMY_MINIBUG], "EnemyHitBox");
-		AddCustomParameter("ENEMY_DOSSUN_NORMAL_HITBOX", { "enemy", "hitBox" }, PARAM_TYPE::FLOAT, &m_enemyHitBox[ENEMY_DOSSUN_NORMAL], "EnemyHitBox");
-		AddCustomParameter("ENEMY_DOSSUN_ALLWAYS_HITBOX", { "enemy", "hitBox" }, PARAM_TYPE::FLOAT, &m_enemyHitBox[ENEMY_DOSSUN_ALLWAYS], "EnemyHitBox");
-		AddCustomParameter("ENEMY_BATTERY_FIXED_HITBOX", { "enemy", "hitBox" }, PARAM_TYPE::FLOAT, &m_enemyHitBox[ENEMY_BATTERY_FIXED], "EnemyHitBox");
-		AddCustomParameter("ENEMY_BATTERY_ROCKON_HITBOX", { "enemy", "hitBox" }, PARAM_TYPE::FLOAT, &m_enemyHitBox[ENEMY_BATTERY_ROCKON], "EnemyHitBox");
+		AddCustomParameter("draw_HitBox", { "common", "draw_HitBox" }, PARAM_TYPE::BOOL, &m_isVisualizeEnemyHitBoxFlag, "Common");
+		AddCustomParameter("draw_Sight", { "common", "draw_Sight" }, PARAM_TYPE::BOOL, &m_isVisualizeEnemySightFlag, "Common");
+		//ドッスン(普通)
+		AddCustomParameter("hitBoxRadius", { "dossun_normal", "status","hitBoxRadius" }, PARAM_TYPE::FLOAT, &m_dossunParam.m_hitBoxRadius, "ENEMY_DOSSUN_NORMAL");
+		AddCustomParameter("sightRadius", { "dossun_normal", "status", "sightRadius" }, PARAM_TYPE::FLOAT, &m_dossunParam.m_sightRadius, "ENEMY_DOSSUN_NORMAL");
+		AddCustomParameter("attackTime", { "dossun_normal", "status","attackTime" }, PARAM_TYPE::INT, &m_dossunParam.m_attackTime, "ENEMY_DOSSUN_NORMAL");
+		AddCustomParameter("attackHitBoxRadius", { "dossun_normal", "status","attackHitBoxRadius" }, PARAM_TYPE::FLOAT, &m_dossunParam.m_attackHitBoxRadius, "ENEMY_DOSSUN_NORMAL");
+		AddCustomParameter("attackCoolTime", { "dossun_normal", "status","attackCoolTime" }, PARAM_TYPE::INT, &m_dossunParam.m_attackCoolTime, "ENEMY_DOSSUN_NORMAL");
+		//ミニバグ
+		LoadParameterLog();
 
-		//LoadParameterLog();
 		m_enemyHitBox[ENEMY_MINIBUG] = 1.5f;
 		m_enemyHitBox[ENEMY_DOSSUN_NORMAL] = 1.0f;
 		m_enemyHitBox[ENEMY_DOSSUN_ALLWAYS] = 1.0f;
 		m_enemyHitBox[ENEMY_BATTERY_FIXED] = 1.0f;
 		m_enemyHitBox[ENEMY_BATTERY_ROCKON] = 1.0f;
-	}
-
-	~DebugEnemy()
-	{
 	}
 
 	KuroEngine::Transform GetTransform(int enmeyIndex);
@@ -52,6 +68,33 @@ public:
 
 	void StackStage();
 	void Stack(const KuroEngine::Transform &transform, EnemyType type);
+
+	void GetEnemyStatus(EnemyType type)
+	{
+		switch (type)
+		{
+		case ENEMY_MINIBUG:
+			break;
+		case ENEMY_DOSSUN_NORMAL:
+
+			break;
+		case ENEMY_DOSSUN_ALLWAYS:
+			break;
+		case ENEMY_BATTERY_FIXED:
+			break;
+		case ENEMY_BATTERY_ROCKON:
+			break;
+		case ENEMY_MAX:
+			break;
+		default:
+			break;
+		}
+	}
+
+	DossunParameterData GetDossunParam()
+	{
+		return m_dossunParam;
+	};
 
 
 	//デバックに敵に反映するもの達---------------------------------------
@@ -119,6 +162,8 @@ private:
 	std::vector<int>m_enemyHP;
 	std::vector<float>m_enemyHitBox;
 
+	DossunParameterData m_dossunParam;
+
 };
 
 
@@ -127,10 +172,13 @@ private:
 class EnemyHitBox
 {
 public:
-	EnemyHitBox(Sphere &transform)
+	EnemyHitBox(Sphere &transform, KuroEngine::Color &color)
 	{
 		m_hitBox = transform;
 		m_hitBoxModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "Shpere.glb");
+
+		m_color = color;
+		m_color.m_a = 0.5f;
 	}
 	void Draw(KuroEngine::Camera &camera, KuroEngine::LightManager &light)
 	{
@@ -145,13 +193,14 @@ public:
 			light,
 			m_hitBoxModel,
 			m_transform,
-			edgeColor
+			edgeColor,
+			m_color
 		);
 	}
 
 private:
 	Sphere m_hitBox;
 	std::shared_ptr<KuroEngine::Model>m_hitBoxModel;
-
+	KuroEngine::Color m_color;
 
 };
