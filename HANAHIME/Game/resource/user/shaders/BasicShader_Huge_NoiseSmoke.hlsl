@@ -13,7 +13,7 @@ cbuffer cbuff9 : register(b9)
     float noiseTimer;
 }
 
-StructuredBuffer<float> smokeAlpha : register(t7);
+StructuredBuffer<float> smokeAlpha : register(t8);
 
 struct VSOutput
 {

@@ -161,6 +161,8 @@ void PlayerMoveParticleSmoke::Draw(KuroEngine::Camera& arg_cam, KuroEngine::Ligh
 	if (0 < static_cast<int>(mat.size())) {
 		m_smokeNoiseAlpha->Mapping(alpha.data(), static_cast<int>(alpha.size()));
 		BasicDraw::Instance()->InstancingDraw_NoiseSmoke(arg_cam, arg_ligMgr, m_model, mat, IndividualDrawParameter::GetDefault(), true, m_smokeNoiseBuffer, m_smokeNoiseAlpha, KuroEngine::AlphaBlendMode::AlphaBlendMode_Add);
+		//BasicDraw::Instance()->InstancingDraw_NoOutline(arg_cam, arg_ligMgr, m_model, mat, IndividualDrawParameter::GetDefault(), true, KuroEngine::AlphaBlendMode::AlphaBlendMode_Add);
+
 	}
 
 }
