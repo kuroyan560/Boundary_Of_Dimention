@@ -504,13 +504,16 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 				//地中にいたらコントローラーを振動させる。
 				if (m_isUnderGround) {
-					UsersInput::Instance()->ShakeController(0, 1.0f, 10);
+
+					if (0 < TimeScaleMgr::s_inGame.GetTimeScale()) {
+						UsersInput::Instance()->ShakeController(0, 1.0f * TimeScaleMgr::s_inGame.GetTimeScale(), 10);
+					}
 
 					//画面を少しシェイク。
-					m_underGroundShake = UNDER_GROUND_SHAKE;
+					m_underGroundShake = UNDER_GROUND_SHAKE * TimeScaleMgr::s_inGame.GetTimeScale();
 
 					//地中から出た瞬間に大量にパーティクルを出す。
-					for (int index = 0; index < 50; ++index) {
+					for (int index = 0; index < 50.0f * TimeScaleMgr::s_inGame.GetTimeScale(); ++index) {
 
 						//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
 						auto upVec = m_transform.GetUp();
@@ -538,7 +541,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 				//オーバーヒート中は煙も出す。
 				if (m_isPlayerOverHeat) {
 
-					for (int index = 0; index < 50; ++index) {
+					for (int index = 0; index < 50.0f * TimeScaleMgr::s_inGame.GetTimeScale(); ++index) {
 
 						//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
 						auto upVec = m_transform.GetUp();
@@ -557,7 +560,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 					}
 
 					//地中から出た瞬間に大量にパーティクルを出す。
-					for (int index = 0; index < 50; ++index) {
+					for (int index = 0; index < 50.0f * TimeScaleMgr::s_inGame.GetTimeScale(); ++index) {
 
 						//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
 						auto upVec = m_transform.GetUp();
@@ -578,16 +581,18 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 						m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), upVec.GetNormal() * m_growPlantPtLig.m_defInfluenceRange / 3.0f, m_moveSpeed - playerDir * 0.75f);
 					}
 
-					UsersInput::Instance()->ShakeController(0, 1.0f, 60);
+					if (0 < TimeScaleMgr::s_inGame.GetTimeScale()) {
+						UsersInput::Instance()->ShakeController(0, 1.0f * TimeScaleMgr::s_inGame.GetTimeScale(), 60);
+					}
 
 					//画面を少しシェイク。
-					m_underGroundShake = UNDER_GROUND_SHAKE * 5.0f;
+					m_underGroundShake = (UNDER_GROUND_SHAKE * 5.0f) * TimeScaleMgr::s_inGame.GetTimeScale();
 
 				}
 				else {
 
 					//地中から出た瞬間に大量にパーティクルを出す。
-					for (int index = 0; index < 50; ++index) {
+					for (int index = 0; index < 50.0f * TimeScaleMgr::s_inGame.GetTimeScale(); ++index) {
 
 						//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
 						auto upVec = m_transform.GetUp();
@@ -608,10 +613,12 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 						m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), upVec.GetNormal() * m_growPlantPtLig.m_defInfluenceRange * 0.8f, m_moveSpeed - playerDir * 0.25f);
 					}
 
-					UsersInput::Instance()->ShakeController(0, 1.0f, 10);
+					if (0 < TimeScaleMgr::s_inGame.GetTimeScale()) {
+						UsersInput::Instance()->ShakeController(0, 1.0f * TimeScaleMgr::s_inGame.GetTimeScale(), 10);
+					}
 
 					//画面を少しシェイク。
-					m_underGroundShake = UNDER_GROUND_SHAKE;
+					m_underGroundShake = UNDER_GROUND_SHAKE * TimeScaleMgr::s_inGame.GetTimeScale();
 				}
 
 			}
