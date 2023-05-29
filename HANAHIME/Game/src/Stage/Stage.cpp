@@ -334,7 +334,7 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	}
 }
 
-Stage::Stage():m_guideInsect(GPUParticleRender::Instance()->GetStackBuffer())
+Stage::Stage() :m_guideInsect(GPUParticleRender::Instance()->GetStackBuffer())
 {
 	using namespace KuroEngine;
 }
@@ -350,6 +350,8 @@ void Stage::Init()
 	{
 		enemy->Init();
 	}
+
+	if (m_goalPoint)m_goalPoint->Init();
 
 	m_guideInsect.Init();
 }
@@ -439,7 +441,7 @@ void Stage::Update(Player &arg_player)
 
 void Stage::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
-	for (auto& terrian : m_terrianArray)
+	for (auto &terrian : m_terrianArray)
 	{
 		terrian.Draw(arg_cam, arg_ligMgr);
 	}
@@ -582,5 +584,5 @@ KuroEngine::Transform Stage::GetGateTransform(int arg_gateID) const
 
 void Stage::CheckPointReset()
 {
-	for (auto& checkPoint : m_checkPointArray)checkPoint.lock()->SetTouch(false);
+	for (auto &checkPoint : m_checkPointArray)checkPoint.lock()->SetTouch(false);
 }

@@ -152,6 +152,9 @@ void GameScene::OnInitialize()
 
 	m_pauseUI.Init();
 	m_deadFlag = false;
+
+
+	m_goal.Init(KuroEngine::Transform(), {});
 }
 
 void GameScene::OnUpdate()
@@ -181,8 +184,10 @@ void GameScene::OnUpdate()
 	{
 		//通常のプレイヤーカメラ
 		m_nowCam = m_player.GetCamera().lock();
+
+		bool flag = StageManager::Instance()->IsClearNowStage();
 		//クリア時のカメラ
-		if (StageManager::Instance()->IsClearNowStage())
+		if (flag)
 		{
 			m_goal.Start();
 			if (m_goal.ChangeCamera())
@@ -228,7 +233,7 @@ void GameScene::OnUpdate()
 		m_nowCam = m_debugCam;
 	}
 
-	//m_grass.Update(1.0f, m_player.GetIsOverheat(), m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrowPlantLight().m_influenceRange, StageManager::Instance()->GetNowStage(), m_player.GetIsAttack(), m_player.GetMoveSpeed());
+	m_grass.Update(1.0f, m_player.GetIsOverheat(), m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrowPlantLight().m_influenceRange, StageManager::Instance()->GetNowStage(), m_player.GetIsAttack(), m_player.GetMoveSpeed());
 
 
 	if (m_player.GetIsFinishDeathAnimation() && !m_deadFlag)
@@ -320,6 +325,10 @@ void GameScene::OnUpdate()
 		KuroEngine::Transform &transform = m_nowCam->GetTransform();
 		transform.SetPos(m_player.GetTransform().GetPos());
 	}
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_LSHIFT))
+	{
+		m_player.Init(StageManager::Instance()->GetGoalTransform());
+	}
 
 	m_gateSceneChange.Update();
 	m_fireFlyStage.ComputeUpdate(m_player.GetTransform().GetPos());
@@ -357,7 +366,7 @@ void GameScene::OnDraw()
 	{
 		m_goal.Draw(*m_nowCam);
 		m_player.Draw(*m_nowCam, ds, m_ligMgr, DebugController::Instance()->IsActive());
-		//m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
+		m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
 	}
 
 	//ステージ描画
