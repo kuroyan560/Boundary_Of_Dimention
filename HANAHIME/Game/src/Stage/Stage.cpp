@@ -72,7 +72,10 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	//種別
 	auto typeKey = obj["type"].get<std::string>();
 	//モデル設定
-	auto model = Importer::Instance()->LoadModel(s_stageModelDir, obj["file_name"].get<std::string>() + ".glb");
+	auto glbPath = obj["file_name"].get<std::string>() + ".glb";
+	auto gltfPath = obj["file_name"].get<std::string>() + ".gltf";
+	auto fileName = (ExistFile(s_stageModelDir + glbPath) ? glbPath : gltfPath);
+	auto model = Importer::Instance()->LoadModel(s_stageModelDir, fileName);
 
 	//トランスフォーム取得
 	auto transformObj = obj["transform"];

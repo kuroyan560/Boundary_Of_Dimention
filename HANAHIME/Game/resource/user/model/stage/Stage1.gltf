@@ -21,16 +21,25 @@
                 0,
                 0,
                 0.7071067094802856
+            ],
+            "scale" : [
+                0.10000000149011612,
+                0.10000000149011612,
+                0.10000000149011612
             ]
         }
     ],
     "materials" : [
         {
-            "alphaCutoff" : 0.5,
-            "alphaMode" : "MASK",
             "doubleSided" : true,
-            "name" : "terrain",
-            "pbrMetallicRoughness" : {}
+            "name" : "\u30de\u30c6\u30ea\u30a2\u30eb",
+            "pbrMetallicRoughness" : {
+                "baseColorTexture" : {
+                    "index" : 0
+                },
+                "metallicFactor" : 0,
+                "roughnessFactor" : 0.5
+            }
         }
     ],
     "meshes" : [
@@ -49,33 +58,46 @@
             ]
         }
     ],
+    "textures" : [
+        {
+            "sampler" : 0,
+            "source" : 0
+        }
+    ],
+    "images" : [
+        {
+            "mimeType" : "image/png",
+            "name" : "terrain_3",
+            "uri" : "terrain_3.png"
+        }
+    ],
     "accessors" : [
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 3242,
+            "count" : 3309,
             "max" : [
                 610,
                 390,
-                170
+                170.00006103515625
             ],
             "min" : [
                 -70,
-                -50,
-                -30
+                -50.000003814697266,
+                -30.00000762939453
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 3242,
+            "count" : 3309,
             "type" : "VEC3"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 3242,
+            "count" : 3309,
             "type" : "VEC2"
         },
         {
@@ -88,28 +110,34 @@
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 38904,
+            "byteLength" : 39708,
             "byteOffset" : 0
         },
         {
             "buffer" : 0,
-            "byteLength" : 38904,
-            "byteOffset" : 38904
+            "byteLength" : 39708,
+            "byteOffset" : 39708
         },
         {
             "buffer" : 0,
-            "byteLength" : 25936,
-            "byteOffset" : 77808
+            "byteLength" : 26472,
+            "byteOffset" : 79416
         },
         {
             "buffer" : 0,
             "byteLength" : 10512,
-            "byteOffset" : 103744
+            "byteOffset" : 105888
+        }
+    ],
+    "samplers" : [
+        {
+            "magFilter" : 9729,
+            "minFilter" : 9987
         }
     ],
     "buffers" : [
         {
-            "byteLength" : 114256,
+            "byteLength" : 116400,
             "uri" : "Stage1.bin"
         }
     ]
