@@ -140,6 +140,7 @@ bool StageManager::GetNowMapPinTransform(KuroEngine::Transform* arg_destPos)
 {
 	if (m_nowStage->GetCompleteMapPin())return false;
 	const auto& mapPinPointArray = m_nowStage->GetMapPinPointArray();
+	if (m_nowMapPinPointIdx < 0 || mapPinPointArray.size() <= m_nowMapPinPointIdx)return false;
 	if (arg_destPos)*arg_destPos = mapPinPointArray[m_nowMapPinPointIdx].lock()->GetTransform();
 	return true;
 }
