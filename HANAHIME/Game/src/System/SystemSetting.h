@@ -87,6 +87,7 @@ class SystemSetting
 	struct OpeMenuGroup
 	{
 		enum ITEM { ITEM_MIRROR, ITEM_SENSITIVITY,ITEM_BACK, ITEM_NUM }m_nowItem;
+		enum MIRROR_ITEM { MIRROR_ITEM_X, MIRROR_ITEM_Y, MIRROR_ITEM_NUM }m_nowMirrorItem;
 
 		//å©èoÇµ
 		std::shared_ptr<KuroEngine::TextureBuffer>m_headTex;
@@ -120,7 +121,11 @@ class SystemSetting
 
 	public:
 		OpeMenuGroup();
-		void Init() { m_nowItem = ITEM_MIRROR; }
+		void Init() 
+		{
+			m_nowItem = ITEM_MIRROR; 
+			m_nowMirrorItem = MIRROR_ITEM_X;
+		}
 		void Update(SystemSetting* arg_parent);
 		void Draw();
 	}m_opeMenu;

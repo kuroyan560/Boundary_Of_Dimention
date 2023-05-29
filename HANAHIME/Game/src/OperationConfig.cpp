@@ -163,6 +163,14 @@ KuroEngine::Vec3<float> OperationConfig::GetScopeMove()
 	float sensitivity = m_params[m_nowInputDevice].m_camSensitivity * SaveDataManager::Instance()->GetOperationData().m_camSensitivity;
 	Vec3<float>result;
 
+	//ミラー
+	Vec3<float>mirror =
+	{
+		SaveDataManager::Instance()->GetOperationData().m_camMirrorX ? -1.0f : 1.0f,
+		SaveDataManager::Instance()->GetOperationData().m_camMirrorY ? -1.0f : 1.0f,
+		1.0f
+	};
+
 	//マウス入力
 	auto mouseMove = UsersInput::Instance()->GetMouseMove();
 	//ウィンドウサイズによって相対的なスケールに合わせる
@@ -171,14 +179,14 @@ KuroEngine::Vec3<float> OperationConfig::GetScopeMove()
 	if (!result.IsZero())
 	{
 		RegisterLatestDevice(INPUT_DEVICE::KEY_BOARD_MOUSE);
-		return result;
+		return result * mirror;
 	}
 
 	//右スティックの入力を変換
 	auto input = UsersInput::Instance()->GetRightStickVec(0);
 	result = { input.x * sensitivity, -input.y * sensitivity, 0.0f };
 	if (!input.IsZero())RegisterLatestDevice(INPUT_DEVICE::CONTROLLER);
-	return result;
+	return result * mirror;
 }
 
 bool OperationConfig::GetSelectVec(SELECT_VEC arg_vec)

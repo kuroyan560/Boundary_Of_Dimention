@@ -275,7 +275,7 @@ SystemSetting::OpeMenuGroup::OpeMenuGroup()
 	//カメラのミラーのチェックボックス
 	m_camMirrorCheckBoxTex = D3D12App::Instance()->GenerateTextureBuffer(dir + "check_box.png");
 	//チェックマーク
-	m_checkMarkTex = D3D12App::Instance()->GenerateTextureBuffer(dir + "check_box.png");
+	m_checkMarkTex = D3D12App::Instance()->GenerateTextureBuffer(dir + "check_mark.png");
 	//地面ゲージ
 	m_groundLineTex = D3D12App::Instance()->GenerateTextureBuffer(dir + "ground.png");
 	//地面ゲージのインデックスの葉
@@ -304,13 +304,30 @@ void SystemSetting::OpeMenuGroup::Update(SystemSetting* arg_parent)
 	if (m_nowItem < ITEM_NUM - 1 && downInput)m_nowItem = (ITEM)(m_nowItem + 1);
 
 	//項目変化あり
-	if (oldItem != m_nowItem)SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
+	if (oldItem != m_nowItem)
+	{
+		SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
+		if (m_nowItem == ITEM_MIRROR)m_nowMirrorItem = MIRROR_ITEM_X;
+	}
 
 	//操作設定データ参照取得
 	auto& operationSettingData = SaveDataManager::Instance()->m_saveData.m_operationSetting;
 
+	//カメラミラー
+	if (m_nowItem == ITEM_MIRROR)
+	{
+		if (leftInput)m_nowMirrorItem = MIRROR_ITEM_X;
+		if (rightInput)m_nowMirrorItem = MIRROR_ITEM_Y;
+
+		if (doneInput)
+		{
+			auto& mirror = (m_nowMirrorItem == MIRROR_ITEM_X) ? operationSettingData.m_camMirrorX : operationSettingData.m_camMirrorY;
+			mirror = !mirror;
+			SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
+		}
+	}
 	//カメラ感度上げ下げ
-	if (m_nowItem == ITEM_SENSITIVITY)
+	else if (m_nowItem == ITEM_SENSITIVITY)
 	{
 		bool camSensitivity = false;
 		if (leftInput)
@@ -367,7 +384,7 @@ void SystemSetting::OpeMenuGroup::Draw()
 	DrawFunc2D::DrawGraph({ 0.0f,32.0f }, m_headTex);
 
 	//項目の描画
-	const std::array<Vec2<float>, ITEM_NUM>ITEM_CENTER_POS =
+	static const std::array<Vec2<float>, ITEM_NUM>ITEM_CENTER_POS =
 	{
 		Vec2<float>(563.0f,152.0f),
 		Vec2<float>(335.0f,373.0f),
@@ -383,17 +400,46 @@ void SystemSetting::OpeMenuGroup::Draw()
 	//チェックボックス
 	DrawFunc2D::DrawRotaGraph2D({ 921.0f,ITEM_CENTER_POS[ITEM_MIRROR].y }, { 1.0f,1.0f }, 0.0f, m_camMirrorCheckBoxTex);
 
+	//チェックボックスの矢印描画
+	const std::array<float, MIRROR_ITEM_NUM>ARROW_CENTER_POS_X =
+	{
+		867.0f,1018.0f
+	};
+	const float ARROW_CENTER_POS_Y = 79.0f;
+	if (m_nowItem == ITEM_MIRROR)
+	{
+		DrawFunc2D::DrawRotaGraph2D({ ARROW_CENTER_POS_X[m_nowMirrorItem],ARROW_CENTER_POS_Y }, { 1.0f,1.0f }, 0.0f, m_arrowTex);
+	}
+
+	//操作設定データ参照取得
+	auto& operationSettingData = SaveDataManager::Instance()->m_saveData.m_operationSetting;
+	
+	//チェックマークの描画
+	const std::array<float, MIRROR_ITEM_NUM>CHECK_MARK_CENTER_POS_X =
+	{
+		881.0f,1030.0f
+	};
+	const float CHECK_MARK_CENTER_POS_Y = 140.0f;
+	if (operationSettingData.m_camMirrorX)	//ミラーXのチェックマーク
+	{
+		DrawFunc2D::DrawRotaGraph2D({ CHECK_MARK_CENTER_POS_X[MIRROR_ITEM_X],CHECK_MARK_CENTER_POS_Y }, { 1.0f,1.0f }, 0.0f, m_checkMarkTex);
+	}
+	if (operationSettingData.m_camMirrorY)	//ミラーYのチェックマーク
+	{
+		DrawFunc2D::DrawRotaGraph2D({ CHECK_MARK_CENTER_POS_X[MIRROR_ITEM_Y],CHECK_MARK_CENTER_POS_Y }, { 1.0f,1.0f }, 0.0f, m_checkMarkTex);
+	}
+
 	//地面ゲージ
-	const Vec2<float>GROUND_LINE_CENTER_POS = { 864.0f,468.0f };
+	static const Vec2<float>GROUND_LINE_CENTER_POS = { 864.0f,468.0f };
 	DrawFunc2D::DrawRotaGraph2D(GROUND_LINE_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_groundLineTex);
 
 	//ゲージの草の左端と右端
-	const float LEAF_CENTER_POS_X_MIN = 568.0f;
-	const float LEAF_CENTER_POS_X_MAX = 1158.0f;
+	static const float LEAF_CENTER_POS_X_MIN = 568.0f;
+	static const float LEAF_CENTER_POS_X_MAX = 1158.0f;
 	//ゲージの草の高さ
-	const float LEAF_CENTER_POS_Y = 369.0f;
+	static const float LEAF_CENTER_POS_Y = 369.0f;
 	//ゲージの草の間隔
-	const float LEAF_SPACE_X = (LEAF_CENTER_POS_X_MAX - GROUND_LINE_CENTER_POS.x) / static_cast<float>(CAM_SENSITIVITY_PLUS_MINUS_STAGE_NUM);
+	static const float LEAF_SPACE_X = (LEAF_CENTER_POS_X_MAX - GROUND_LINE_CENTER_POS.x) / static_cast<float>(CAM_SENSITIVITY_PLUS_MINUS_STAGE_NUM);
 
 	//ゲージの草の描画
 	DrawFunc2D::DrawRotaGraph2D({ GROUND_LINE_CENTER_POS.x + LEAF_SPACE_X * m_camSensitivityParam,LEAF_CENTER_POS_Y }, { 1.0f,1.0f }, 0.0f, m_leafTex);
