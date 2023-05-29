@@ -54,9 +54,9 @@ void MiniBug::OnInit()
 
 void MiniBug::Update(Player &arg_player)
 {
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	m_hitBoxSize = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_MINIBUG);
-#endif // _DEBUG
+//#endif // _DEBUG
 
 
 	m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());
@@ -115,18 +115,14 @@ void MiniBug::Update(Player &arg_player)
 	//生きていたら丸影を元に戻す。
 	m_shadowInfluenceRange = KuroEngine::Math::Lerp(m_shadowInfluenceRange, SHADOW_INFLUENCE_RANGE, 0.1f);
 
-	////敵発見時(プレイヤーが視界に入った)
-	//if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_1))
-	//{
-	//	OnInit();
-	//}
 
 	bool findFlag = m_sightArea.IsFind(arg_player.GetTransform().GetPos(), 180.0f);
 	//プレイヤーが違う法線の面にいたら見ないようにする。
-	bool isDifferentWall = m_transform.GetUp().Dot(arg_player.GetTransform().GetUpWorld()) <= 0.5f;
+	bool isDifferentWall = IsActive(m_transform, arg_player.GetTransform());
 	bool isPlayerWallChange = arg_player.GetIsJump();
 	bool isAttackOrNotice = m_nowStatus == MiniBug::ATTACK || m_nowStatus == MiniBug::NOTICE;
-	if ((isDifferentWall || isPlayerWallChange) && isAttackOrNotice) {
+	if ((isDifferentWall || isPlayerWallChange) && isAttackOrNotice)
+	{
 		findFlag = false;
 		m_nowStatus = MiniBug::NOTICE;
 	}
@@ -393,9 +389,6 @@ void MiniBug::Update(Player &arg_player)
 	}
 	else
 	{
-
-
-
 		//現在の座標からプレイヤーに向かう回転を求める。
 		KuroEngine::Vec3<float> axisZ = m_dir;
 		axisZ.Normalize();
@@ -463,7 +456,7 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 	{
 		m_sightArea.DebugDraw(arg_cam);
 	}
-	DebugDraw(arg_cam);
+	//DebugDraw(arg_cam);
 
 }
 

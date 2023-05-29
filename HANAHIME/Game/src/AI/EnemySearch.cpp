@@ -87,6 +87,45 @@ bool SightSearch::IsFind(const KuroEngine::Vec3<float> &pos, float viewAngle)
 
 void SightSearch::DebugDraw(KuroEngine::Camera &camera)
 {
+	//ÉvÉåÉCÉÑÅ[Ç∆ÇÃãóó£
+
+	//êÓÇÃîÕàÕ
+	struct ViewRay
+	{
+		KuroEngine::Transform m_start;
+		KuroEngine::Transform m_end;
+		float m_length;
+		float m_radian;
+
+		ViewRay(KuroEngine::Transform *parent, float length, float angle)
+		{
+			m_start.SetParent(parent);
+			m_end.SetParent(parent);
+			m_length = length;
+			m_radian = KuroEngine::Angle::ConvertToRadian(angle);
+		}
+
+		KuroEngine::Vec3<float>Dir()
+		{
+			return KuroEngine::Vec3<float>(m_end.GetPosWorld() - m_start.GetPosWorld()).GetNormal();
+		}
+
+		void Update()
+		{
+			m_end.SetPos(KuroEngine::Vec3<float>(cosf(m_radian) * m_length, 0.0f, sinf(m_radian) * m_length));
+		}
+	};
+	float viewAngle = 20.0f;
+	float halfViewAngle = viewAngle / 2.0f;
+	float length = 25.0f;
+	ViewRay leftRay(m_transformPtr, length, -halfViewAngle), rightRay(m_transformPtr, length, halfViewAngle);
+	leftRay.Update();
+	rightRay.Update();
+
+	KuroEngine::DrawFunc3D::DrawLine(camera, leftRay.m_start.GetPosWorld(), leftRay.m_end.GetPosWorld(), KuroEngine::Color(0, 0, 200, 255), 1.0f);
+	KuroEngine::DrawFunc3D::DrawLine(camera, rightRay.m_start.GetPosWorld(), rightRay.m_end.GetPosWorld(), KuroEngine::Color(0, 0, 200, 255), 1.0f);
+
+
 	for (auto &obj : m_sightRay)
 	{
 		if (obj.hitFlag)
