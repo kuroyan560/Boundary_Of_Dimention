@@ -218,7 +218,7 @@ void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, Kuro
 				arg_hitInfo->m_terrianNormal = m_refPlayer->m_transform.GetUp();
 			}
 			//ジャンプができる状態だったらジャンプする。
-			else if (m_refPlayer->m_canJump || m_refPlayer->CAN_JUMP_DELAY <= m_refPlayer->m_canJumpDelayTimer) {
+			else if (m_refPlayer->m_canJump || m_refPlayer->m_canJumpDelayTimer <= 0) {
 
 				//最短の衝突点を求めたら、それをジャンプ先にする。
 				arg_hitInfo->m_terrianNormal = arg_castRayArgment.m_impactPoint[minIndex].m_normal;
@@ -257,7 +257,7 @@ void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, Kuro
 				}
 
 				//ジャンプしたのでタイマーを初期化
-				m_refPlayer->m_canJumpDelayTimer = 0;
+				m_refPlayer->m_canJumpDelayTimer = m_refPlayer->CAN_JUMP_DELAY;
 
 			}
 			//ジャンプができない状態だったら押し戻す。
@@ -268,9 +268,6 @@ void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, Kuro
 
 				m_refPlayer->m_isWallFrontDir = true;
 				m_refPlayer->m_frontWallNormal = arg_hitInfo->m_terrianNormal;
-
-				//引っ掛かりのタイマーを更新 この値が一定値をこえたらジャンプできるようになる
-				++m_refPlayer->m_canJumpDelayTimer;
 
 			}
 
@@ -284,9 +281,6 @@ void PlayerCollision::CheckHitAround(const KuroEngine::Vec3<float>arg_from, Kuro
 
 	//どことも当たっていなかったら現在の上ベクトルを地形の上ベクトルとしてみる。
 	arg_hitInfo->m_terrianNormal = m_refPlayer->m_transform.GetUp();
-
-	//どこにも引っかかってないのでタイマーを初期化する。
-	m_refPlayer->m_canJumpDelayTimer = 0;
 
 
 }
@@ -332,7 +326,7 @@ void PlayerCollision::CheckHitGround(const KuroEngine::Vec3<float>arg_from, Kuro
 	for (auto& index : m_impactPoint[static_cast<int>(RAY_DIR_ID::RIGHT)]) {
 
 		float minLength = std::numeric_limits<float>().max();
-		KuroEngine::Vec3<float> castPos = arg_newPos + rightDir * m_refPlayer->WALL_JUMP_LENGTH - m_refPlayer->m_transform.GetUp() * m_checkUnderRayLength;
+		KuroEngine::Vec3<float> castPos = arg_newPos + rightDir * m_refPlayer->WALL_CAN_JUMP_LENGTH - m_refPlayer->m_transform.GetUp() * m_checkUnderRayLength;
 		float length = KuroEngine::Vec3<float>(castPos - index).Length();
 		if (length < minLength) {
 			minLength = length;
@@ -346,7 +340,7 @@ void PlayerCollision::CheckHitGround(const KuroEngine::Vec3<float>arg_from, Kuro
 	for (auto& index : m_impactPoint[static_cast<int>(RAY_DIR_ID::LEFT)]) {
 
 		float minLength = std::numeric_limits<float>().max();
-		KuroEngine::Vec3<float> castPos = arg_newPos - rightDir * m_refPlayer->WALL_JUMP_LENGTH - m_refPlayer->m_transform.GetUp() * m_checkUnderRayLength;
+		KuroEngine::Vec3<float> castPos = arg_newPos - rightDir * m_refPlayer->WALL_CAN_JUMP_LENGTH - m_refPlayer->m_transform.GetUp() * m_checkUnderRayLength;
 		float length = KuroEngine::Vec3<float>(castPos - index).Length();
 		if (length < minLength) {
 			minLength = length;
@@ -360,7 +354,7 @@ void PlayerCollision::CheckHitGround(const KuroEngine::Vec3<float>arg_from, Kuro
 	for (auto& index : m_impactPoint[static_cast<int>(RAY_DIR_ID::FRONT)]) {
 
 		float minLength = std::numeric_limits<float>().max();
-		KuroEngine::Vec3<float> castPos = arg_newPos + frontDir * m_refPlayer->WALL_JUMP_LENGTH - m_refPlayer->m_transform.GetUp() * m_checkUnderRayLength;
+		KuroEngine::Vec3<float> castPos = arg_newPos + frontDir * m_refPlayer->WALL_CAN_JUMP_LENGTH - m_refPlayer->m_transform.GetUp() * m_checkUnderRayLength;
 		float length = KuroEngine::Vec3<float>(castPos - index).Length();
 		if (length < minLength) {
 			minLength = length;
@@ -373,7 +367,7 @@ void PlayerCollision::CheckHitGround(const KuroEngine::Vec3<float>arg_from, Kuro
 	for (auto& index : m_impactPoint[static_cast<int>(RAY_DIR_ID::BEHIND)]) {
 
 		float minLength = std::numeric_limits<float>().max();
-		KuroEngine::Vec3<float> castPos = arg_newPos - frontDir * m_refPlayer->WALL_JUMP_LENGTH - m_refPlayer->m_transform.GetUp() * m_checkUnderRayLength;
+		KuroEngine::Vec3<float> castPos = arg_newPos - frontDir * m_refPlayer->WALL_CAN_JUMP_LENGTH - m_refPlayer->m_transform.GetUp() * m_checkUnderRayLength;
 		float length = KuroEngine::Vec3<float>(castPos - index).Length();
 		if (length < minLength) {
 			minLength = length;
@@ -604,7 +598,7 @@ void PlayerCollision::CheckCliff(PlayerCollision::ImpactPointData& arg_impactPoi
 	if (!arg_impactPointData.m_isActive) return;
 
 	//崖判定用のレイの長さ
-	const float CLIFF_RAY_LENGTH = m_refPlayer->WALL_JUMP_LENGTH + m_refPlayer->m_transform.GetScale().Length();
+	const float CLIFF_RAY_LENGTH = m_refPlayer->WALL_CAN_JUMP_LENGTH + m_refPlayer->m_transform.GetScale().Length();
 
 	//地形配列走査
 	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
@@ -802,7 +796,7 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 	if (!arg_impactPointData.m_isActive) return;
 
 	//崖判定用のレイの長さ
-	const float CLIFF_RAY_LENGTH = m_refPlayer->WALL_JUMP_LENGTH + m_refPlayer->m_transform.GetScale().Length();
+	const float CLIFF_RAY_LENGTH = m_refPlayer->WALL_CAN_JUMP_LENGTH + m_refPlayer->m_transform.GetScale().Length();
 
 	//地形配列走査
 	for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
@@ -820,7 +814,7 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 			std::vector<TerrianHitPolygon> mesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
 
 			//下方向にレイを飛ばす。
-			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
+			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_CAN_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
 
 			//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
@@ -860,7 +854,7 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 			std::vector<TerrianHitPolygon> mesh = moveScaffold->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
 			//下方向にレイを飛ばす。
-			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
+			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_CAN_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
 
 			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
 
@@ -902,7 +896,7 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 			std::vector<TerrianHitPolygon> mesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
 			//下方向にレイを飛ばす。
-			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
+			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_CAN_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
 
 			//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
@@ -942,7 +936,7 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 			std::vector<TerrianHitPolygon> mesh = appearWall->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
 			//下方向にレイを飛ばす。
-			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
+			CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_CAN_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
 
 			//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 			if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
@@ -983,7 +977,7 @@ void PlayerCollision::CheckCanJump(PlayerCollision::ImpactPointData& arg_impactP
 				std::vector<TerrianHitPolygon> mesh = appearWall->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
 
 				//下方向にレイを飛ばす。
-				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
+				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision((arg_impactPointData.m_impactPos + arg_impactPointData.m_normal * m_refPlayer->m_transform.GetScale().x) + m_refPlayer->m_transform.GetUp() * m_refPlayer->WALL_CAN_JUMP_LENGTH, -arg_impactPointData.m_normal, mesh);
 
 				//レイがメッシュに衝突しており、衝突地点までの距離がレイの長さより小さかったら衝突している。
 				if (output.m_isHit && std::fabs(output.m_distance) < CLIFF_RAY_LENGTH) {
@@ -1092,7 +1086,7 @@ bool PlayerCollision::CastRay(KuroEngine::Vec3<float>& arg_charaPos, const KuroE
 			output.m_pos += m_refPlayer->m_transform.GetUp() * m_checkUnderRayLength;
 
 			//押し戻した位置に座標を設定。
-			arg_charaPos = output.m_pos - (output.m_normal * m_refPlayer->m_transform.GetScale().x * (m_refPlayer->WALL_JUMP_LENGTH - OFFSET));
+			arg_charaPos = output.m_pos - (output.m_normal * m_refPlayer->m_transform.GetScale().x * (m_refPlayer->WALL_CAN_JUMP_LENGTH - OFFSET));
 
 		}
 		break;
@@ -1450,7 +1444,7 @@ void PlayerCollision::CheckHitCliff_Under(KuroEngine::Vec3<float>& arg_newPos, c
 	if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::RIGHT)]) {
 
 		//下方向にレイを飛ばしてそこが崖かをチェックする。
-		KuroEngine::Vec3<float> rayPos = arg_newPos + rightDir * m_refPlayer->WALL_JUMP_LENGTH;
+		KuroEngine::Vec3<float> rayPos = arg_newPos + rightDir * m_refPlayer->WALL_CAN_JUMP_LENGTH;
 		m_isHitCliff[static_cast<int>(RAY_DIR_ID::RIGHT)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), m_checkUnderRayLength, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
 
 	}
@@ -1459,7 +1453,7 @@ void PlayerCollision::CheckHitCliff_Under(KuroEngine::Vec3<float>& arg_newPos, c
 	if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::LEFT)]) {
 
 		//下方向にレイを飛ばしてそこが崖かをチェックする。
-		KuroEngine::Vec3<float> rayPos = arg_newPos - rightDir * m_refPlayer->WALL_JUMP_LENGTH;
+		KuroEngine::Vec3<float> rayPos = arg_newPos - rightDir * m_refPlayer->WALL_CAN_JUMP_LENGTH;
 		m_isHitCliff[static_cast<int>(RAY_DIR_ID::LEFT)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), m_checkUnderRayLength, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
 
 	}
@@ -1468,7 +1462,7 @@ void PlayerCollision::CheckHitCliff_Under(KuroEngine::Vec3<float>& arg_newPos, c
 	if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::FRONT)]) {
 
 		//下方向にレイを飛ばしてそこが崖かをチェックする。
-		KuroEngine::Vec3<float> rayPos = arg_newPos + frontDir * m_refPlayer->WALL_JUMP_LENGTH;
+		KuroEngine::Vec3<float> rayPos = arg_newPos + frontDir * m_refPlayer->WALL_CAN_JUMP_LENGTH;
 		m_isHitCliff[static_cast<int>(RAY_DIR_ID::FRONT)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), m_checkUnderRayLength, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
 
 	}
@@ -1477,7 +1471,7 @@ void PlayerCollision::CheckHitCliff_Under(KuroEngine::Vec3<float>& arg_newPos, c
 	if (!arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::BEHIND)]) {
 
 		//下方向にレイを飛ばしてそこが崖かをチェックする。
-		KuroEngine::Vec3<float> rayPos = arg_newPos - frontDir * m_refPlayer->WALL_JUMP_LENGTH;
+		KuroEngine::Vec3<float> rayPos = arg_newPos - frontDir * m_refPlayer->WALL_CAN_JUMP_LENGTH;
 		m_isHitCliff[static_cast<int>(RAY_DIR_ID::BEHIND)] |= CastRay(arg_newPos, rayPos, -m_refPlayer->m_transform.GetUp(), m_checkUnderRayLength, arg_castRayArgment, RAY_ID::CHECK_CLIFF);
 
 	}
@@ -1577,16 +1571,16 @@ void PlayerCollision::CheckHitAround_Around(KuroEngine::Vec3<float>& arg_newPos,
 	KuroEngine::Vec3<float> frontDir = localTrans.GetFront();
 
 	//右方向にレイを飛ばす。これは壁にくっつく用。
-	arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::RIGHT)] |= CastRay(arg_newPos, arg_from, rightDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
+	arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::RIGHT)] |= CastRay(arg_newPos, arg_from, rightDir, m_refPlayer->WALL_CAN_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
 
 	//左方向にレイを飛ばす。これは壁にくっつく用。
-	arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::LEFT)] |= CastRay(arg_newPos, arg_from, -rightDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
+	arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::LEFT)] |= CastRay(arg_newPos, arg_from, -rightDir, m_refPlayer->WALL_CAN_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
 
 	//後ろ方向にレイを飛ばす。これは壁にくっつく用。
-	arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::BEHIND)] |= CastRay(arg_newPos, arg_from, -frontDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
+	arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::BEHIND)] |= CastRay(arg_newPos, arg_from, -frontDir, m_refPlayer->WALL_CAN_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
 
 	//正面方向にレイを飛ばす。これは壁にくっつく用。
-	arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::FRONT)] |= CastRay(arg_newPos, arg_from, frontDir, m_refPlayer->WALL_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
+	arg_castRayArgment.m_checkHitAround[static_cast<int>(RAY_DIR_ID::FRONT)] |= CastRay(arg_newPos, arg_from, frontDir, m_refPlayer->WALL_CAN_JUMP_LENGTH, arg_castRayArgment, RAY_ID::AROUND);
 
 }
 
