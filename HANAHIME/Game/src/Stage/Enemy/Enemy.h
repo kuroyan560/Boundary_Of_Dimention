@@ -17,6 +17,17 @@ namespace KuroEngine
 	class ModelAnimator;
 }
 
+//プレイヤーの攻撃範囲に敵がいるときにエフェクトをつける用のデータをまとめた構造体。
+struct EnemyInSphereEffectInfo {
+	KuroEngine::Vec3<float> m_upVec;
+	int m_inSphere;
+	float m_lightRate;
+};
+struct EnemyInSphereEffectConstBufferData {
+	EnemyInSphereEffectInfo m_info;
+	std::shared_ptr<KuroEngine::ConstantBuffer> m_constBuffer;
+};
+
 //敵の攻撃パターン
 enum ENEMY_ATTACK_PATTERN
 {
@@ -57,6 +68,16 @@ public:
 			m_patrol = std::make_unique<PatrolBasedOnControlPoint>(posArray, 0, loopFlag);
 		}
 
+		//定数バッファを生成。
+		m_inSphereEffectConstBufferData.m_info.m_inSphere = false;
+		m_inSphereEffectConstBufferData.m_info.m_lightRate = 0.0f;
+		m_inSphereEffectConstBufferData.m_info.m_upVec = KuroEngine::Vec3<float>(0, 1, 0);
+		m_inSphereEffectConstBufferData.m_constBuffer = KuroEngine::D3D12App::Instance()->GenerateConstantBuffer(
+			sizeof(EnemyInSphereEffectInfo),
+			1,
+			nullptr,
+			"Enemy - Effect");
+
 		m_animator = std::make_shared<KuroEngine::ModelAnimator>(arg_model);
 		OnInit();
 	}
@@ -84,6 +105,8 @@ private:
 
 	Status m_nowStatus;
 	Status m_prevStatus;
+
+	EnemyInSphereEffectConstBufferData m_inSphereEffectConstBufferData;
 
 	KuroEngine::Vec3<float>m_pos, m_prevPos;
 	float m_scale;
@@ -278,6 +301,16 @@ public:
 		m_attackRingModel = 
 			KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "impactWave.glb");
 
+		//定数バッファを生成。
+		m_inSphereEffectConstBufferData.m_info.m_inSphere = false;
+		m_inSphereEffectConstBufferData.m_info.m_lightRate = 0.0f;
+		m_inSphereEffectConstBufferData.m_info.m_upVec = KuroEngine::Vec3<float>(0, 1, 0);
+		m_inSphereEffectConstBufferData.m_constBuffer = KuroEngine::D3D12App::Instance()->GenerateConstantBuffer(
+			sizeof(EnemyInSphereEffectInfo),
+			1,
+			nullptr,
+			"Enemy - Effect");
+
 	}
 	void OnInit()override;
 	void Update(Player &arg_player)override;
@@ -332,6 +365,8 @@ private:
 
 
 	std::shared_ptr<KuroEngine::Model>m_hitBoxModel;
+
+	EnemyInSphereEffectConstBufferData m_inSphereEffectConstBufferData;
 };
 
 class Battery : public StageParts,IEnemyAI
@@ -370,5 +405,7 @@ private:
 	bool m_deadFlag;
 
 	bool m_noticeFlag;
+
+	EnemyInSphereEffectConstBufferData m_inSphereEffectConstBufferData;
 
 };

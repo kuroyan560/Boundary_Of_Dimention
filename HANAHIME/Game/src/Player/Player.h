@@ -389,6 +389,9 @@ public:
 	};
 	CHECK_HIT_GRASS_STATUS CheckHitGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, KuroEngine::Vec3<float> arg_enemyUp, float arg_enemySize);
 
+	//敵が攻撃範囲内にいるかの演出のために作った関数。CheckHitGrassSphereでは攻撃中しか判定がとれないため、純粋に範囲にいるかをチェックするための関数。
+	bool CheckInGrassSphere(KuroEngine::Vec3<float> arg_enemyPos, KuroEngine::Vec3<float> arg_enemyUp, float arg_enemySize);
+
 	Sphere m_sphere;
 	float m_radius;
 
