@@ -4,7 +4,7 @@
 //データファイルのディレクトリ
 const std::string SaveDataManager::DIR = "resource/user/data/";
 //データファイルの名前
-const std::string SaveDataManager::FILE_NAME = "info";
+const std::string SaveDataManager::FILE_NAME = "info.sd";
 //データファイルの総合パス
 const std::string SaveDataManager::FILE_PATH = DIR + FILE_NAME;
 
