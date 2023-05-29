@@ -196,16 +196,24 @@ bool OperationConfig::GetSelectVec(SELECT_VEC arg_vec)
 	switch (arg_vec)
 	{
 		case SELECT_VEC_UP:
-			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_UP, STICK_DEAD_RANGE) || UsersInput::Instance()->KeyOnTrigger(DIK_W);
+			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_UP, STICK_DEAD_RANGE) 
+				|| UsersInput::Instance()->ControllerOnTrigger(0,XBOX_BUTTON::DPAD_UP)
+				|| UsersInput::Instance()->KeyOnTrigger(DIK_W);
 			break;
 		case SELECT_VEC_DOWN:
-			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_DOWN, STICK_DEAD_RANGE) || UsersInput::Instance()->KeyOnTrigger(DIK_S);
+			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_DOWN, STICK_DEAD_RANGE)
+				|| UsersInput::Instance()->ControllerOnTrigger(0,XBOX_BUTTON::DPAD_DOWN)
+				|| UsersInput::Instance()->KeyOnTrigger(DIK_S);
 			break;
 		case SELECT_VEC_LEFT:
-			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_LEFT, STICK_DEAD_RANGE) || UsersInput::Instance()->KeyOnTrigger(DIK_A);
+			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_LEFT, STICK_DEAD_RANGE) 
+				|| UsersInput::Instance()->ControllerOnTrigger(0,XBOX_BUTTON::DPAD_LEFT)
+				|| UsersInput::Instance()->KeyOnTrigger(DIK_A);
 			break;
 		case SELECT_VEC_RIGHT:
-			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_RIGHT, STICK_DEAD_RANGE) || UsersInput::Instance()->KeyOnTrigger(DIK_D);
+			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_RIGHT, STICK_DEAD_RANGE)
+				|| UsersInput::Instance()->ControllerOnTrigger(0,XBOX_BUTTON::DPAD_RIGHT)
+				|| UsersInput::Instance()->KeyOnTrigger(DIK_D);
 			break;
 		default:
 			break;
