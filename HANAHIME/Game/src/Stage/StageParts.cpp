@@ -695,7 +695,9 @@ IvyBlock::IvyBlock(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Trans
 {
 	m_nonExistModel = std::shared_ptr<KuroEngine::Model>(new KuroEngine::Model(*arg_model.lock()));
 	m_nonExistMaterial = std::shared_ptr<KuroEngine::Material>(new KuroEngine::Material(*arg_model.lock()->m_meshes[0].material));
-	m_nonExistMaterial->texBuff[KuroEngine::MATERIAL_TEX_TYPE::COLOR_TEX] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/invisibleIvyBlock.png");
+	m_invisibleIvyBlockTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/invisibleIvyBlock.png");
+	m_invisibleIvyBlockReadyTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/invisibleIvyBlock_Ready.png");
+	m_nonExistMaterial->texBuff[KuroEngine::MATERIAL_TEX_TYPE::COLOR_TEX] = m_invisibleIvyBlockReadyTex;
 	for (auto& mesh : m_nonExistModel->m_meshes)
 	{
 		mesh.material = m_nonExistMaterial;
@@ -747,6 +749,17 @@ void IvyBlock::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_l
 		arg_ligMgr,
 		m_model.lock(),
 		m_transform);
+
+	if (m_onPlayer) {
+		m_nonExistMaterial->texBuff[KuroEngine::MATERIAL_TEX_TYPE::COLOR_TEX] = m_invisibleIvyBlockReadyTex;
+	}
+	else {
+		m_nonExistMaterial->texBuff[KuroEngine::MATERIAL_TEX_TYPE::COLOR_TEX] = m_invisibleIvyBlockTex;
+	}
+	for (auto& mesh : m_nonExistModel->m_meshes)
+	{
+		mesh.material = m_nonExistMaterial;
+	}
 
 	KuroEngine::Transform invisibleTrans = m_transform;
 	invisibleTrans.SetScale(SCALE_DEF);

@@ -416,6 +416,9 @@ class IvyBlock : public StageParts
 	bool m_prevOnPlayer;
 	bool m_onPlayer;	//プレイヤーが乗っているか
 
+	std::shared_ptr<KuroEngine::TextureBuffer> m_invisibleIvyBlockTex;
+	std::shared_ptr<KuroEngine::TextureBuffer> m_invisibleIvyBlockReadyTex;
+
 	//イージングタイマー系
 	float m_easingTimer;
 	const float EASING_TIMER = 0.03f;
