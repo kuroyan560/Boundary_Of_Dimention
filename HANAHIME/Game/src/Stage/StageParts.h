@@ -603,8 +603,9 @@ public:
 class BackGround : public StageParts
 {
 	std::shared_ptr<KuroEngine::TextureBuffer> m_backGroundObjectTexBuffer;
+	bool m_shadowShader = false;
 public:
-	BackGround(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform);
+	BackGround(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, bool arg_shadowShader);
 
 	void Update(Player& arg_player)override {};
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;

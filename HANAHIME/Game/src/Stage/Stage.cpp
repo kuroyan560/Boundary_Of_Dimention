@@ -257,7 +257,12 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	//背景
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::BACKGROUND))
 	{
-		m_gimmickArray.emplace_back(std::make_shared<BackGround>(model, transform));
+		//必要なパラメータがない
+		if (!CheckJsonKeyExist(arg_fileName, arg_json, "ShadowShader"))return;
+
+		bool isShadowShader = arg_json["ShadowShader"].get<int>();
+
+		m_gimmickArray.emplace_back(std::make_shared<BackGround>(model, transform, isShadowShader));
 		newPart = m_gimmickArray.back().get();
 	}
 	//チビ虫

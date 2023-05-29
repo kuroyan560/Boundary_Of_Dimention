@@ -1015,8 +1015,8 @@ void StarCoin::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_l
 	}
 }
 
-BackGround::BackGround(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform)
-	:StageParts(BACKGROUND, arg_model, arg_initTransform)
+BackGround::BackGround(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, bool arg_shadowShader)
+	:StageParts(BACKGROUND, arg_model, arg_initTransform), m_shadowShader(arg_shadowShader)
 {
 	m_backGroundObjectTexBuffer = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/BackGroundObjectTexture.png");
 }
@@ -1024,12 +1024,23 @@ BackGround::BackGround(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::T
 void BackGround::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 
-	BasicDraw::Instance()->Draw_BackGround(
-		m_backGroundObjectTexBuffer,
-		arg_cam,
-		arg_ligMgr,
-		m_model,
-		m_transform,
-		IndividualDrawParameter::GetDefault());
-
+	if (m_shadowShader)
+	{
+		BasicDraw::Instance()->Draw_BackGround(
+			m_backGroundObjectTexBuffer,
+			arg_cam,
+			arg_ligMgr,
+			m_model,
+			m_transform,
+			IndividualDrawParameter::GetDefault());
+	}
+	else
+	{
+		BasicDraw::Instance()->Draw_Stage(
+			arg_cam,
+			arg_ligMgr,
+			m_model,
+			m_transform,
+			IndividualDrawParameter::GetDefault());
+	}
 }
