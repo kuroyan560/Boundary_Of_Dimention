@@ -51,6 +51,7 @@ void Title::MenuUpdate(bool arg_inputUp, bool arg_inputDown, bool arg_inputDone,
 				{
 					arg_gameScene->StartGame(0, StageManager::Instance()->GetStartPointTransform());
 					SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
+					SaveDataManager::Instance()->ResetData();
 				}
 				break;
 				//Ý’è
@@ -115,7 +116,11 @@ void Title::ConfirmNewGameUpdate(bool arg_inputLeft, bool arg_inputRight, bool a
 		//‚¢‚¢‚¦
 		if (m_confirmNewGame.m_isNo)m_mode = MODE_MENU;
 		//‚Í‚¢
-		else arg_gameScene->StartGame(0, StageManager::Instance()->GetStartPointTransform());
+		else
+		{
+			arg_gameScene->StartGame(0, StageManager::Instance()->GetStartPointTransform());
+			SaveDataManager::Instance()->ResetData();
+		}
 		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
 	}
 }

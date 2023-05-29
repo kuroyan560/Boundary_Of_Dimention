@@ -72,5 +72,11 @@ public:
 
 	//操作方法に関するデータ
 	const OperationData& GetOperationData() { return m_saveData.m_operationSetting; }
+
+	//データ削除
+	void ResetData()
+	{
+		m_saveData = GameSaveData();
+	}
 };
 
