@@ -432,6 +432,26 @@ void MiniBug::DebugDraw(KuroEngine::Camera &camera)
 
 
 #pragma region Dossun
+DossunRing::DossunRing(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, ENEMY_ATTACK_PATTERN status)
+	:StageParts(DOSSUN_RING, arg_model, arg_initTransform)
+{
+	m_modelAnimator = std::make_shared<KuroEngine::ModelAnimator>(m_model);
+
+	OnInit();
+
+	m_hitBoxModel =
+		KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "RedSphere.glb");
+
+	m_shadowInfluenceRange = SHADOW_INFLUENCE_RANGE;
+
+	//ŠÛ‰e—p‚É“G‚Ìƒf[ƒ^‚ÌŽQÆ‚ð“n‚·B
+	EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_shadowInfluenceRange, &m_deadFlag);
+
+
+	m_attackRingModel =
+		KuroEngine::Importer::Instance()->LoadModel("resource/user/model/", "impactWave.glb");
+}
+
 void DossunRing::OnInit()
 {
 	m_attackHitBoxRadius = 0.0f;
@@ -460,6 +480,8 @@ void DossunRing::OnInit()
 
 	m_hitBox.m_centerPos = &m_transform.GetPos();
 	m_hitBox.m_radius = &m_attackHitBoxRadius;
+
+	m_modelAnimator->SetStartPosture("Bounce_Start");
 }
 
 void DossunRing::Update(Player &arg_player)
@@ -579,6 +601,8 @@ void DossunRing::Update(Player &arg_player)
 	}
 
 	m_reaction->Update(m_transform.GetPos());
+
+	m_modelAnimator->Update(TimeScaleMgr::s_inGame.GetTimeScale());
 }
 
 void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
@@ -596,7 +620,9 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 		arg_ligMgr,
 		m_model,
 		m_transform,
-		edgeColor);
+		edgeColor,
+		KuroEngine::AlphaBlendMode_None,
+		m_modelAnimator->GetBoneMatBuff());
 
 	KuroEngine::Transform transform = m_transform;
 	transform.SetPos(*(m_hitBox.m_centerPos));
