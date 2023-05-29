@@ -1184,7 +1184,7 @@ Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<floa
 	}
 
 	//プレイヤーから敵までのベクトルと敵の上ベクトルを内積して、その結果が0以下だったらライトが当たっている判定(草が当たっている判定。)
-	bool isLight = (arg_enemyPos - m_transform.GetPosWorld()).GetNormal().Dot(arg_enemyUp) < 0.1f;
+	bool isLight = (arg_enemyPos - m_transform.GetPosWorld()).GetNormal().Dot(arg_enemyUp) < 0.5f;
 
 	//ライトに当たっている判定
 	if (!isLight) {

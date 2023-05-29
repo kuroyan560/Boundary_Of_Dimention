@@ -252,7 +252,7 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
     //if (inSphereData.inSphre)
     //{
         //float3 playerColor = float3(0.35f, 0.90f, 0.57f);
-        float3 playerColor = float3(1,0,0);
+        float3 playerColor = float3(0.45f, 0.02f, 0.27f);
         float rate = 1.0f * inSphereData.rate;
         result.xyz += CalcLimLight(-normalize(input.worldpos - cam.eyePos), playerColor, input.normal, normalize(input.worldpos - cam.eyePos));
         //result.xyz += saturate(dot(normalize(inSphereData.upVec + float3(0, 0, 5.0f)), input.normal) * playerColor) * rate;
