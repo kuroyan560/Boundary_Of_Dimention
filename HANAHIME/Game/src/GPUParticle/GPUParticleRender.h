@@ -2,9 +2,10 @@
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"DrawExcuteIndirect.h"
 #include"Render/GraphicsManager.h"
+#include"Common/Singleton.h"
 
 //演出で使われている全てのパーティクルの情報をスタックして一気に描画するクラスです
-class GPUParticleRender
+class GPUParticleRender : public KuroEngine::DesignPattern::Singleton<GPUParticleRender>
 {
 public:
 	GPUParticleRender(int MAXNUM = 3000000);
@@ -28,7 +29,7 @@ private:
 	};
 
 
-	int particleMaxNum = 1024 * 10;
+	int particleMaxNum = 1024 * 50;
 	/*ResouceBufferHelper computeCovertWorldMatToDrawMat;
 	KazGPUParticle::RESOURCE_HANDLE  worldMatHandle, outputHandle, viewProjMatHandle;
 

@@ -120,7 +120,6 @@ Player::Player()
 {
 	using namespace KuroEngine;
 
-	AddCustomParameter("Sensitivity", { "camera", "sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity, "Camera");
 	AddCustomParameter("Default_AccelSpeed", { "move","default","accelSpeed" }, PARAM_TYPE::FLOAT, &m_defaultAccelSpeed, "Move");
 	AddCustomParameter("Default_MaxSpeed", { "move","default","maxSpeed" }, PARAM_TYPE::FLOAT, &m_defaultMaxSpeed, "Move");
 	AddCustomParameter("Default_Brake", { "move","default","brake" }, PARAM_TYPE::FLOAT, &m_defaultBrake, "Move");
@@ -262,9 +261,16 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_cameraReturnTimer.Reset(CAMERA_RETURN_TIMER);
 	m_cameraReturnTimer.ForciblyTimeUp();
 
+	//プレイヤーのY軸方向でカメラを反転させるかを決める。
+	if (m_transform.GetUp().y <= -0.9f) {
+		m_isCameraUpInverse = true;
+	}
+	m_camController.Respawn(m_transform, m_isCameraUpInverse);
+	m_camController.LerpForcedToEnd(m_cameraRotYStorage);
+
 }
 
-void Player::Respawn(KuroEngine::Transform arg_initTransform)
+void Player::Respawn(KuroEngine::Transform arg_initTransform, const std::weak_ptr<Stage>arg_nowStage)
 {
 
 	//スケール打ち消し
@@ -302,7 +308,7 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform)
 	m_isOldCameraDefault = false;
 	m_playerMoveStatus = PLAYER_MOVE_STATUS::MOVE;
 	m_isWallFrontDir = false;
-	m_cameraNoCollisionTimer.Reset(10);
+	m_cameraNoCollisionTimer.Reset(60);
 	m_cameraMode = CameraController::CAMERA_STATUS::NORMAL;
 
 	m_growPlantPtLig.Register();
@@ -358,6 +364,14 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform)
 	m_cameraReturnTimer.Reset(CAMERA_RETURN_TIMER);
 	m_cameraReturnTimer.ForciblyTimeUp();
 
+	//プレイヤーのY軸方向でカメラを反転させるかを決める。
+	if (m_transform.GetUp().y <= -0.9f) {
+		m_isCameraUpInverse = true;
+	}
+	m_camController.Respawn(m_transform, m_isCameraUpInverse);
+	m_camController.LerpForcedToEnd(m_cameraRotYStorage);
+
+
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
@@ -368,12 +382,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	if (CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger) {
 		m_checkPointRotY = m_cameraRotYStorage;
 		m_isCheckPointUpInverse = m_isCameraUpInverse;
-	}
-
-
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_J))
-	{
-		Damage();
 	}
 
 
@@ -404,6 +412,11 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//プレイヤーが天井にいたら左右のカメラ走査を反転。
 	if (m_onCeiling || m_isCameraUpInverse) {
 		scopeMove *= -1.0f;
+	}
+
+	//リスポーンしてから数フレームは入力を受け付けない。(カメラが正しい位置にセットされるまで待つ。)
+	if (!m_cameraNoCollisionTimer.IsTimeUp()) {
+		scopeMove = KuroEngine::Vec3<float>();
 	}
 
 	//ジャンプができるかどうか。	一定時間地形に引っ掛かってたらジャンプできる。
@@ -492,13 +505,16 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 				//地中にいたらコントローラーを振動させる。
 				if (m_isUnderGround) {
-					UsersInput::Instance()->ShakeController(0, 1.0f, 10);
+
+					if (0 < TimeScaleMgr::s_inGame.GetTimeScale()) {
+						UsersInput::Instance()->ShakeController(0, 1.0f * TimeScaleMgr::s_inGame.GetTimeScale(), 10);
+					}
 
 					//画面を少しシェイク。
-					m_underGroundShake = UNDER_GROUND_SHAKE;
+					m_underGroundShake = UNDER_GROUND_SHAKE * TimeScaleMgr::s_inGame.GetTimeScale();
 
 					//地中から出た瞬間に大量にパーティクルを出す。
-					for (int index = 0; index < 50; ++index) {
+					for (int index = 0; index < 50.0f * TimeScaleMgr::s_inGame.GetTimeScale(); ++index) {
 
 						//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
 						auto upVec = m_transform.GetUp();
@@ -526,7 +542,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 				//オーバーヒート中は煙も出す。
 				if (m_isPlayerOverHeat) {
 
-					for (int index = 0; index < 50; ++index) {
+					for (int index = 0; index < 50.0f * TimeScaleMgr::s_inGame.GetTimeScale(); ++index) {
 
 						//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
 						auto upVec = m_transform.GetUp();
@@ -545,7 +561,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 					}
 
 					//地中から出た瞬間に大量にパーティクルを出す。
-					for (int index = 0; index < 50; ++index) {
+					for (int index = 0; index < 50.0f * TimeScaleMgr::s_inGame.GetTimeScale(); ++index) {
 
 						//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
 						auto upVec = m_transform.GetUp();
@@ -566,16 +582,18 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 						m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), upVec.GetNormal() * m_growPlantPtLig.m_defInfluenceRange / 3.0f, m_moveSpeed - playerDir * 0.75f);
 					}
 
-					UsersInput::Instance()->ShakeController(0, 1.0f, 60);
+					if (0 < TimeScaleMgr::s_inGame.GetTimeScale()) {
+						UsersInput::Instance()->ShakeController(0, 1.0f * TimeScaleMgr::s_inGame.GetTimeScale(), 60);
+					}
 
 					//画面を少しシェイク。
-					m_underGroundShake = UNDER_GROUND_SHAKE * 5.0f;
+					m_underGroundShake = (UNDER_GROUND_SHAKE * 5.0f) * TimeScaleMgr::s_inGame.GetTimeScale();
 
 				}
 				else {
 
 					//地中から出た瞬間に大量にパーティクルを出す。
-					for (int index = 0; index < 50; ++index) {
+					for (int index = 0; index < 50.0f * TimeScaleMgr::s_inGame.GetTimeScale(); ++index) {
 
 						//上ベクトルを基準に各軸を90度以内でランダムに回転させる。
 						auto upVec = m_transform.GetUp();
@@ -596,10 +614,12 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 						m_playerMoveParticle.GenerateOrb(m_transform.GetPos(), upVec.GetNormal() * m_growPlantPtLig.m_defInfluenceRange * 0.8f, m_moveSpeed - playerDir * 0.25f);
 					}
 
-					UsersInput::Instance()->ShakeController(0, 1.0f, 10);
+					if (0 < TimeScaleMgr::s_inGame.GetTimeScale()) {
+						UsersInput::Instance()->ShakeController(0, 1.0f * TimeScaleMgr::s_inGame.GetTimeScale(), 10);
+					}
 
 					//画面を少しシェイク。
-					m_underGroundShake = UNDER_GROUND_SHAKE;
+					m_underGroundShake = UNDER_GROUND_SHAKE * TimeScaleMgr::s_inGame.GetTimeScale();
 				}
 
 			}
@@ -693,6 +713,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 			//SEを鳴らす。
 			SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
+
 
 		}
 
@@ -865,7 +886,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_baseCameraFar, m_baseCameraFar, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_cameraMode, m_hitPointData);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_baseCameraFar, m_baseCameraFar, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, !m_cameraNoCollisionTimer.IsTimeUp(), m_cameraMode, m_hitPointData);
 
 		m_deathEffectCameraZ = m_baseCameraFar;
 	}
@@ -875,7 +896,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_shake);
 
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, m_baseCameraFar, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, m_cameraNoCollisionTimer.IsTimeUp(), m_cameraMode, m_hitPointData);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, m_baseCameraFar, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, !m_cameraNoCollisionTimer.IsTimeUp(), m_cameraMode, m_hitPointData);
 
 	}
 	//シェイクを計算。
@@ -963,7 +984,19 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//プレイヤーが動いた時のパーティクル挙動
 	m_playerMoveParticle.Update();
 
-	m_cameraNoCollisionTimer.UpdateTimer();
+	m_cameraNoCollisionTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
+
+
+	//ジャンプ後のクールタイムを修正。
+	m_canJumpDelayTimer = std::clamp(m_canJumpDelayTimer - 1, 0, 100);
+
+
+
+
+
+	////テスト用
+	//FastTravel::Instance()->Update();
+	//m_camController.GetCamera().lock()->GetTransform() = FastTravel::Instance()->GetCamera()->GetTransform();
 
 }
 

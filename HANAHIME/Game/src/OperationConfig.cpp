@@ -1,6 +1,7 @@
 #include "OperationConfig.h"
 #include"FrameWork/UsersInput.h"
 #include"FrameWork/WinApp.h"
+#include"System/SaveDataManager.h"
 
 using namespace KuroEngine;
 
@@ -159,8 +160,16 @@ KuroEngine::Vec3<float> OperationConfig::GetScopeMove()
 {
 	if (!m_isAllInputActive || !m_isInGameOperationActive)return { 0,0,0 };
 
-	float sensitivity = m_params[m_nowInputDevice].m_camSensitivity;
+	float sensitivity = m_params[m_nowInputDevice].m_camSensitivity * SaveDataManager::Instance()->GetOperationData().m_camSensitivity;
 	Vec3<float>result;
+
+	//ミラー
+	Vec3<float>mirror =
+	{
+		SaveDataManager::Instance()->GetOperationData().m_camMirrorX ? -1.0f : 1.0f,
+		SaveDataManager::Instance()->GetOperationData().m_camMirrorY ? -1.0f : 1.0f,
+		1.0f
+	};
 
 	//マウス入力
 	auto mouseMove = UsersInput::Instance()->GetMouseMove();
@@ -170,14 +179,14 @@ KuroEngine::Vec3<float> OperationConfig::GetScopeMove()
 	if (!result.IsZero())
 	{
 		RegisterLatestDevice(INPUT_DEVICE::KEY_BOARD_MOUSE);
-		return result;
+		return result * mirror;
 	}
 
 	//右スティックの入力を変換
 	auto input = UsersInput::Instance()->GetRightStickVec(0);
 	result = { input.x * sensitivity, -input.y * sensitivity, 0.0f };
 	if (!input.IsZero())RegisterLatestDevice(INPUT_DEVICE::CONTROLLER);
-	return result;
+	return result * mirror;
 }
 
 bool OperationConfig::GetSelectVec(SELECT_VEC arg_vec)
@@ -187,16 +196,24 @@ bool OperationConfig::GetSelectVec(SELECT_VEC arg_vec)
 	switch (arg_vec)
 	{
 		case SELECT_VEC_UP:
-			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_UP, STICK_DEAD_RANGE) || UsersInput::Instance()->KeyOnTrigger(DIK_W);
+			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_UP, STICK_DEAD_RANGE) 
+				|| UsersInput::Instance()->ControllerOnTrigger(0,XBOX_BUTTON::DPAD_UP)
+				|| UsersInput::Instance()->KeyOnTrigger(DIK_W);
 			break;
 		case SELECT_VEC_DOWN:
-			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_DOWN, STICK_DEAD_RANGE) || UsersInput::Instance()->KeyOnTrigger(DIK_S);
+			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_DOWN, STICK_DEAD_RANGE)
+				|| UsersInput::Instance()->ControllerOnTrigger(0,XBOX_BUTTON::DPAD_DOWN)
+				|| UsersInput::Instance()->KeyOnTrigger(DIK_S);
 			break;
 		case SELECT_VEC_LEFT:
-			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_LEFT, STICK_DEAD_RANGE) || UsersInput::Instance()->KeyOnTrigger(DIK_A);
+			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_LEFT, STICK_DEAD_RANGE) 
+				|| UsersInput::Instance()->ControllerOnTrigger(0,XBOX_BUTTON::DPAD_LEFT)
+				|| UsersInput::Instance()->KeyOnTrigger(DIK_A);
 			break;
 		case SELECT_VEC_RIGHT:
-			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_RIGHT, STICK_DEAD_RANGE) || UsersInput::Instance()->KeyOnTrigger(DIK_D);
+			return UsersInput::Instance()->ControllerOnTrigger(0, XBOX_STICK::L_RIGHT, STICK_DEAD_RANGE)
+				|| UsersInput::Instance()->ControllerOnTrigger(0,XBOX_BUTTON::DPAD_RIGHT)
+				|| UsersInput::Instance()->KeyOnTrigger(DIK_D);
 			break;
 		default:
 			break;

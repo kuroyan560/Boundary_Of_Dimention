@@ -104,7 +104,6 @@ class Player : public KuroEngine::Debugger
 	CameraController m_camController;
 
 	//カメラ感度
-	float m_camSensitivity = 1.0f;
 	float CAMERA_FAR = -100.0f;
 	float CAMERA_NEAR_ENEMY_FAR = -40.0f;
 	float m_cameraFar;		//現在のカメラのFar
@@ -155,7 +154,8 @@ class Player : public KuroEngine::Debugger
 	KuroEngine::Vec3<float> m_gimmickVel;
 
 	//壁移動の距離
-	const float WALL_JUMP_LENGTH = 3.0f;
+	const float WALL_JUMP_LENGTH = 6.0f;	//ジャンプして動く量
+	const float WALL_CAN_JUMP_LENGTH = 2.0f;	//ジャンプできるまでの距離
 
 	//接地フラグ
 	bool m_isFirstOnGround;	//開始時に空中から始まるので、着地済みだということを判断する用変数。
@@ -255,7 +255,7 @@ private:
 	const float JUMP_TIMER = 0.05f;
 	bool m_canJump;									//ジャンプができるかのフラグ
 	int m_canJumpDelayTimer;						//ジャンプができるようになるまでの引っ掛かり
-	const int CAN_JUMP_DELAY = 1;
+	const int CAN_JUMP_DELAY = 30;
 	const int CAN_JUMP_DELAY_FAST = 1;
 
 	//正面方向に壁があるかのフラグ
@@ -313,7 +313,7 @@ private:
 public:
 	Player();
 	void Init(KuroEngine::Transform arg_initTransform);		//ステージに入るとき用。
-	void Respawn(KuroEngine::Transform arg_initTransform);	//Backキーとかを押してリスポーンするとき用。
+	void Respawn(KuroEngine::Transform arg_initTransform, const std::weak_ptr<Stage>arg_nowStage);	//Backキーとかを押してリスポーンするとき用。
 	void Update(const std::weak_ptr<Stage>arg_nowStage);
 	void Draw(KuroEngine::Camera& arg_cam, std::weak_ptr<KuroEngine::DepthStencil>arg_ds, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw = false);
 	void DrawParticle(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);

@@ -15,7 +15,8 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 		sizeof(InputData),
 		particleMaxNum,
 		nullptr,
-		"FireFlyParticleData - RWStructuredBuffer");
+		"FireFlyParticleData - RWStructuredBuffer"
+	);
 
 	//蛍の描画情報
 	KuroEngine::D3D12App::Instance()->GenerateRWStructuredBuffer(
@@ -23,7 +24,8 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 		sizeof(DrawData),
 		particleMaxNum,
 		nullptr,
-		"FireFlyDrawData - RWStructuredBuffer");
+		"FireFlyDrawData - RWStructuredBuffer"
+	);
 
 	//ビュープロジェクション行列
 	m_viewPorjBuffer = KuroEngine::D3D12App::Instance()->GenerateConstantBuffer(
@@ -63,11 +65,15 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 	SHADERS.m_ps = KuroEngine::D3D12App::Instance()->CompileShader("resource/user/shaders/DrawInstancing.hlsl", "PSmain", "ps_6_4");
 
 	DXGI_FORMAT renderTargetFormat = BasicDraw::Instance()->GetRenderTarget(BasicDraw::MAIN)->GetDesc().Format;
-	//DXGI_FORMAT renderTargetFormat = KuroEngine::D3D12App::Instance()->GetBackBuffFormat();
-	
-	std::vector<KuroEngine::RenderTargetInfo>RENDER_TARGET_INFO;
-	RENDER_TARGET_INFO.emplace_back(renderTargetFormat, KuroEngine::AlphaBlendMode_Trans);
-
+	std::vector<KuroEngine::RenderTargetInfo> renderTargetInfo =
+	{
+		KuroEngine::RenderTargetInfo(KuroEngine::D3D12App::Instance()->GetBackBuffFormat(), (KuroEngine::AlphaBlendMode)KuroEngine::AlphaBlendMode_Trans),	//通常描画
+		KuroEngine::RenderTargetInfo(DXGI_FORMAT_R32G32B32A32_FLOAT, KuroEngine::AlphaBlendMode_Trans),	//エミッシブマップ
+		KuroEngine::RenderTargetInfo(DXGI_FORMAT_R16_FLOAT, KuroEngine::AlphaBlendMode_None),	//深度マップ
+		KuroEngine::RenderTargetInfo(KuroEngine::D3D12App::Instance()->GetBackBuffFormat(), KuroEngine::AlphaBlendMode_None),	//エッジカラーマップ
+		KuroEngine::RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, KuroEngine::AlphaBlendMode_None),	//草むらマップ
+		KuroEngine::RenderTargetInfo(DXGI_FORMAT_R16G16B16A16_FLOAT, KuroEngine::AlphaBlendMode_None),	//ノーマルマップ
+	};
 
 	static std::vector<KuroEngine::InputLayoutParam>INPUT_LAYOUT =
 	{
@@ -80,11 +86,10 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 		SHADERS,
 		INPUT_LAYOUT,
 		graphicRootParam,
-		RENDER_TARGET_INFO,
+		renderTargetInfo,
 		{ KuroEngine::WrappedSampler(true, false) }
 	);
 	//パイプラインの生成----------------------------------------
-
 
 
 

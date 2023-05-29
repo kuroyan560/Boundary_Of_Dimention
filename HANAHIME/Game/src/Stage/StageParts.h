@@ -8,6 +8,8 @@
 #include"../Graphics/BasicDrawParameters.h"
 #include"ForUser/Timer.h"
 #include"../HUD/CheckPointUI.h"
+#include"../Effect/GuideInsect.h"
+#include"../GPUParticle/FireWork.h"
 
 namespace KuroEngine
 {
@@ -35,7 +37,7 @@ struct AABB {
 		KuroEngine::Vec3<float> m_pushBack;
 	};
 	//AABBの当たり判定
-	std::optional<CollisionInfo> CheckAABBCollision(const AABB& arg_aabb1);
+	std::optional<CollisionInfo> CheckAABBCollision(const AABB &arg_aabb1);
 };
 
 class TerrianMeshCollider
@@ -51,10 +53,10 @@ public:
 	//当たり判定用メッシュを作成。
 	void BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_transform);
 	//当たり判定用ポリゴンコンテナゲッタ
-	const std::vector<std::vector<TerrianHitPolygon>>& GetCollisionMesh()const { return m_collisionMesh; }
+	const std::vector<std::vector<TerrianHitPolygon>> &GetCollisionMesh()const { return m_collisionMesh; }
 private:
 	//3頂点から立方体を生成する。
-	AABB CreateCubeFromPolygon(const KuroEngine::Vec3<float>& arg_v1, const KuroEngine::Vec3<float>& arg_v2, const KuroEngine::Vec3<float>& arg_v3, const KuroEngine::Vec3<float>& arg_normal);
+	AABB CreateCubeFromPolygon(const KuroEngine::Vec3<float> &arg_v1, const KuroEngine::Vec3<float> &arg_v2, const KuroEngine::Vec3<float> &arg_v3, const KuroEngine::Vec3<float> &arg_normal);
 };
 
 //地形情報
@@ -85,7 +87,7 @@ public:
 
 		NUM, NONE
 	};
-	static const std::string& GetTypeKeyOnJson(STAGE_PARTS_TYPE arg_type);
+	static const std::string &GetTypeKeyOnJson(STAGE_PARTS_TYPE arg_type);
 
 private:
 	static std::array<std::string, STAGE_PARTS_TYPE::NUM>s_typeKeyOnJson;
@@ -111,24 +113,24 @@ public:
 	virtual ~StageParts() {}
 
 	void Init();
-	virtual void Update(Player& arg_player) = 0;
-	virtual void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
+	virtual void Update(Player &arg_player) = 0;
+	virtual void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr);
 
 	//地形情報種別ゲッタ
-	const STAGE_PARTS_TYPE& GetType()const { return m_type; }
+	const STAGE_PARTS_TYPE &GetType()const { return m_type; }
 
 	//トランスフォームゲッタ
-	KuroEngine::Transform& GetTransform() { return m_transform; }
-	const KuroEngine::Transform& GetInitTransform() { return m_initializedTransform; }
+	KuroEngine::Transform &GetTransform() { return m_transform; }
+	const KuroEngine::Transform &GetInitTransform() { return m_initializedTransform; }
 
-	void SetTransform(const KuroEngine::Transform& transform)
+	void SetTransform(const KuroEngine::Transform &transform)
 	{
 		m_transform = transform;
 	}
 	KuroEngine::Vec3<float> GetMoveAmount() { return m_moveAmount; }
 
 	//ステージ情報のゲッタ
-	const std::weak_ptr<KuroEngine::Model>& GetModel()const { return m_model; }
+	const std::weak_ptr<KuroEngine::Model> &GetModel()const { return m_model; }
 };
 
 //ギミックとは別の通常の地形
@@ -142,9 +144,9 @@ public:
 	{
 		m_collider.BuilCollisionMesh(arg_collisionModel, m_initializedTransform);
 	}
-	void Update(Player& arg_player)override {}
-	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
-	const std::vector<std::vector<TerrianHitPolygon>>& GetCollisionMesh()const { return m_collider.GetCollisionMesh(); }
+	void Update(Player &arg_player)override {}
+	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
+	const std::vector<std::vector<TerrianHitPolygon>> &GetCollisionMesh()const { return m_collider.GetCollisionMesh(); }
 };
 
 //スタート地点
@@ -170,10 +172,10 @@ public:
 	{
 		m_offset.SetScale({ 0.0f, 0.0f, 0.0f });
 	}
-	void Update(Player& arg_player)override;
-	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
+	void Update(Player &arg_player)override;
+	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
 
-	const bool& HitPlayer()const { return m_hitPlayer; }
+	const bool &HitPlayer()const { return m_hitPlayer; }
 
 	//描画時のオフセット
 	KuroEngine::Transform m_offset;
@@ -189,8 +191,8 @@ public:
 	static void ModelsUpdate();
 
 	Appearance(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::weak_ptr<KuroEngine::Model>arg_collisionModel);
-	void Update(Player& arg_player)override {}
-	const std::vector<std::vector<TerrianHitPolygon>>& GetCollisionMesh()const { return m_collider.GetCollisionMesh(); }
+	void Update(Player &arg_player)override {}
+	const std::vector<std::vector<TerrianHitPolygon>> &GetCollisionMesh()const { return m_collider.GetCollisionMesh(); }
 };
 
 //動く足場
@@ -241,11 +243,11 @@ public:
 	}
 
 	void OnInit()override;
-	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
+	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
 
-	void Update(Player& arg_player)override;
+	void Update(Player &arg_player)override;
 
-	const std::vector<std::vector<TerrianHitPolygon>>& GetCollisionMesh()const { return m_collider.GetCollisionMesh(); }
+	const std::vector<std::vector<TerrianHitPolygon>> &GetCollisionMesh()const { return m_collider.GetCollisionMesh(); }
 
 	//有効化 無効化
 	void Activate() { m_isActive = true; }
@@ -283,7 +285,7 @@ private:
 	int m_id = INVALID_ID;
 
 	//動作するスイッチのポインタ
-	Switch* m_parentSwitch = nullptr;
+	Switch *m_parentSwitch = nullptr;
 
 	//箱コライダーの情報
 	struct BoxCollider
@@ -310,10 +312,10 @@ public:
 	Lever(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_id, bool arg_initFlg = false);
 
 	void OnInit()override;
-	void Update(Player& arg_player)override;
-	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
+	void Update(Player &arg_player)override;
+	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
 
-	const bool& GetLeverFlg()const { return m_flg; }
+	const bool &GetLeverFlg()const { return m_flg; }
 
 };
 
@@ -371,8 +373,8 @@ public:
 
 	}
 
-	void Update(Player& arg_player)override;
-	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
+	void Update(Player &arg_player)override;
+	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
 
 	//始点か終点に当たったら
 	void CheckHit(bool arg_isHitStartPos);
@@ -414,12 +416,15 @@ class IvyBlock : public StageParts
 	bool m_prevOnPlayer;
 	bool m_onPlayer;	//プレイヤーが乗っているか
 
+	std::shared_ptr<KuroEngine::TextureBuffer> m_invisibleIvyBlockTex;
+	std::shared_ptr<KuroEngine::TextureBuffer> m_invisibleIvyBlockReadyTex;
+
 	//イージングタイマー系
 	float m_easingTimer;
 	const float EASING_TIMER = 0.03f;
 
-	const float HIT_SCALE_MIN = 7.5f * 2.0f;
-	const float HIT_SCALE_MAX = 15.5f * 2.0f;
+	const float HIT_SCALE_MIN = 10.5f * 2.0f;
+	const float HIT_SCALE_MAX = 12.5f * 2.0f;
 	const float SCALE_DEF = 15.0f;
 
 	std::weak_ptr<KuroEngine::Model>m_collisionModel;
@@ -432,8 +437,8 @@ class IvyBlock : public StageParts
 public:
 	IvyBlock(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, KuroEngine::Vec3<float>arg_leftTopFront, KuroEngine::Vec3<float>arg_rightBottomBack, std::weak_ptr<KuroEngine::Model>arg_collisionModel);
 
-	void Update(Player& arg_player)override;
-	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
+	void Update(Player &arg_player)override;
+	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
 
 	void OnInit()override
 	{
@@ -461,7 +466,7 @@ public:
 	float GetHitScaleMin() { return HIT_SCALE_MIN; }
 	float GetHitScaleMax() { return HIT_SCALE_MAX; }
 
-	const std::vector<std::vector<TerrianHitPolygon>>& GetCollisionMesh()const { return m_collider.GetCollisionMesh(); }
+	const std::vector<std::vector<TerrianHitPolygon>> &GetCollisionMesh()const { return m_collider.GetCollisionMesh(); }
 };
 
 //スプラトゥーン風フェンス（くぐって通る）
@@ -474,10 +479,10 @@ public:
 		:StageParts(SPLATOON_FENCE, arg_model, arg_initTransform) {
 		m_collider.BuilCollisionMesh(arg_collisionModel, m_initializedTransform);
 	}
-	void Update(Player& arg_player)override {};
-	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
+	void Update(Player &arg_player)override {};
+	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
 
-	const std::vector<std::vector<TerrianHitPolygon>>& GetCollisionMesh()const { return m_collider.GetCollisionMesh(); }
+	const std::vector<std::vector<TerrianHitPolygon>> &GetCollisionMesh()const { return m_collider.GetCollisionMesh(); }
 };
 
 class Gate : public StageParts
@@ -488,6 +493,7 @@ class Gate : public StageParts
 	//ゲートのテクスチャ
 	static const int GATE_TEX_ARRAY_SIZE = 6;
 	static std::array<std::shared_ptr<KuroEngine::TextureBuffer>, GATE_TEX_ARRAY_SIZE>s_texArray;
+
 	//テクスチャアニメーション
 	int m_texIdx = 0;
 	KuroEngine::Timer m_animTimer;
@@ -500,6 +506,7 @@ class Gate : public StageParts
 	int m_destStageNum;
 	int m_destGateId;
 
+	std::shared_ptr<GuideInsect::CheckPointData>m_guideData;
 
 	//出口専用
 	bool IsExit() 
@@ -513,14 +520,14 @@ class Gate : public StageParts
 	}
 
 public:
-	Gate(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_id, int arg_destStageNum, int arg_destGateId);
+	Gate(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_id, int arg_destStageNum, int arg_destGateId, std::shared_ptr<GuideInsect::CheckPointData>checkPointData);
 
 	void Update(Player& arg_player)override;
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 
 	bool CheckID(int arg_id);
-	const int& GetDestStageNum()const { return m_destStageNum; }
-	const int& GetDestGateID()const { return m_destGateId; }
+	const int &GetDestStageNum()const { return m_destStageNum; }
+	const int &GetDestGateID()const { return m_destGateId; }
 };
 
 class CheckPoint : public StageParts
@@ -536,25 +543,33 @@ class CheckPoint : public StageParts
 	int m_order;
 	bool m_touched = false;
 
+	std::shared_ptr<GuideInsect::CheckPointData>m_guideData;
+	FireWork m_fireWork;
+
 public:
-	static std::weak_ptr<CheckPointUI>UI() 
+	static std::weak_ptr<CheckPointUI>UI()
 	{
 		if (!s_ui)s_ui = std::make_shared<CheckPointUI>();
-		return s_ui; 
+		return s_ui;
 	}
 
 	//最後に訪れたチェックポイントのトランスフォームゲッタ
-	static KuroEngine::Transform GetLatestVistTransform(const KuroEngine::Transform& arg_alternative)
+	static KuroEngine::Transform GetLatestVistTransform(const KuroEngine::Transform &arg_alternative)
 	{
 		//まだ１つも訪れていないなら引数のトランスフォームをそのまま返す
 		if (!s_visit)return arg_alternative;
 		return s_latestVisitTransform;
 	}
 
-	CheckPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_order);
+	CheckPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_order, std::shared_ptr<GuideInsect::CheckPointData>checkPointData);
 
-	void Update(Player& arg_player)override;
-	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
+	void OnInit() override;
+	void Update(Player &arg_player)override;
+	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
+
+	const int &GetOrder()const { return m_order; }
+	//触った状態にする
+	void SetTouch(bool arg_flg) { m_touched = arg_flg; }
 };
 
 class StarCoin : public StageParts
@@ -563,7 +578,7 @@ private:
 	//累計の入手数
 	static int GET_SUM;
 public:
-	static const int& GetFlowerSum() { return GET_SUM; }
+	static const int &GetFlowerSum() { return GET_SUM; }
 
 private:
 	bool m_get = false;
@@ -574,17 +589,18 @@ public:
 	StarCoin(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
 		:StageParts(CHECK_POINT, arg_model, arg_initTransform) {}
 
-	void Update(Player& arg_player)override;
-	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
+	void Update(Player &arg_player)override;
+	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
 
-	const bool& IsGet()const { return m_get; }
+	const bool &IsGet()const { return m_get; }
 };
 
 class BackGround : public StageParts
 {
+	std::shared_ptr<KuroEngine::TextureBuffer> m_backGroundObjectTexBuffer;
 public:
-	BackGround(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
-		:StageParts(BACKGROUND, arg_model, arg_initTransform) {}
+	BackGround(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform);
 
 	void Update(Player& arg_player)override {};
+	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 };

@@ -400,7 +400,7 @@ void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam)
 
 		//①視点ベクトル(カメラからオブジェクトまでのベクトル)を求める。
 		KuroEngine::Vec3<float>eyePos = m_cameraPos;
-		KuroEngine::Vec3<float>eyeDir = StageManager::Instance()->GetNowStage().lock()->GetPlayerSpawnTransform().GetPosWorld() - eyePos;
+		KuroEngine::Vec3<float>eyeDir = StageManager::Instance()->GetNowStage().lock()->GetStartPointTransform().GetPosWorld() - eyePos;
 		eyeDir.Normalize();
 
 		//②上ベクトルを固定し、右ベクトルを求める。

@@ -1,6 +1,7 @@
 #include "SoundConfig.h"
 #include"FrameWork/AudioApp.h"
 #include"KuroEngine.h"
+#include"System/SaveDataManager.h"
 
 std::vector<int> SoundConfig::LoadSoundArray(std::string arg_dir, std::string arg_name, float arg_volume)
 {
@@ -120,7 +121,7 @@ SoundConfig::SoundConfig() : Debugger("SoundConfig")
 	LoadParameterLog();
 
 	//‰¹—ÊŒÂ•ÊÝ’è
-	SetIndividualVolume();
+	UpdateIndividualVolume();
 }
 
 int SoundConfig::SoundSE::GetPlaySoundHandle()
@@ -164,19 +165,21 @@ void SoundConfig::SoundSE::SetVolume(float arg_vol)
 	}
 }
 
-void SoundConfig::SetIndividualVolume()
+void SoundConfig::UpdateIndividualVolume()
 {
+	const auto& volData = SaveDataManager::Instance()->GetSoundVolumeData();
+
 	for (int seIdx = 0; seIdx < SE_NUM; ++seIdx)
 	{
-		m_seTable[seIdx].SetVolume(m_seEachVol[seIdx]);
+		m_seTable[seIdx].SetVolume(m_seEachVol[seIdx] * volData.m_masterVolume * volData.m_seVolume);
 	}
 	for (int jingleIdx = 0; jingleIdx < JINGLE_NUM; ++jingleIdx)
 	{
-		KuroEngine::AudioApp::Instance()->ChangeVolume(m_jingleTable[jingleIdx], m_jingleEachVol[jingleIdx]);
+		KuroEngine::AudioApp::Instance()->ChangeVolume(m_jingleTable[jingleIdx], m_jingleEachVol[jingleIdx] * volData.m_masterVolume * volData.m_seVolume);
 	}
 	for (int bgmIdx = 0; bgmIdx < BGM_NUM; ++bgmIdx)
 	{
-		KuroEngine::AudioApp::Instance()->ChangeVolume(m_bgmTable[bgmIdx], m_bgmEachVol[bgmIdx]);
+		KuroEngine::AudioApp::Instance()->ChangeVolume(m_bgmTable[bgmIdx], m_bgmEachVol[bgmIdx] * volData.m_masterVolume * volData.m_bgmVolume);
 	}
 }
 

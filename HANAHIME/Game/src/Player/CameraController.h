@@ -31,6 +31,7 @@ class CameraController : public KuroEngine::Debugger
 
 	//プレイヤーの正面に壁があるフラグ
 	bool m_isOldFrontWall;
+	KuroEngine::Vec3<float> m_oldHitFrontWallNormal;
 
 	//カメラをZ方向に回転させる量。
 	float m_rotateZ;
@@ -134,12 +135,18 @@ public:
 	void Init(bool arg_isRespawn = false);
 	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, float arg_defaultCameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode, std::vector<HIT_POINT> arg_hitPointData);
 
+	//リスポーン時のカメラ挙動
+	void Respawn(KuroEngine::Transform arg_playerTransform, bool arg_isCameraUpInverse);
+
 	//ジャンプを開始した瞬間、X軸回転とY軸回転を本来あるべき値に近づける。
 	void JumpStart(const KuroEngine::Transform& arg_playerTransform, const KuroEngine::Vec3<float>& arg_jumpEndNormal, bool arg_isCameraUpInverse, float arg_scale = 1.0f);
 
 	const KuroEngine::Quaternion& GetPosRotate() {
 		return m_camParentTransform.GetRotate();
 	}
+
+	//ラープを強制的に終わらせる。
+	void LerpForcedToEnd(float& arg_playerRotY);
 
 	std::weak_ptr<KuroEngine::Camera> GetCamera() { return m_attachedCam; }
 

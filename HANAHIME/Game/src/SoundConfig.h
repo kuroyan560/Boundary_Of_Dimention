@@ -98,8 +98,7 @@ private:
 	//Œ»İÄ¶’†‚ÌBGM‚Ìƒnƒ“ƒhƒ‹
 	int m_nowPlayBGMHandle = INVALID_SOUND;
 
-	void SetIndividualVolume();
-	void OnImguiItems() { if (CustomParamDirty())SetIndividualVolume(); }
+	void OnImguiItems() { if (CustomParamDirty())UpdateIndividualVolume(); }
 
 public:
 	void Init();
@@ -109,5 +108,7 @@ public:
 	void Play(BGM arg_bgm);
 
 	bool NowPlay(JINGLE arg_jingle);
+
+	void UpdateIndividualVolume();
 };
 

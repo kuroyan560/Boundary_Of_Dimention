@@ -186,8 +186,10 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\CPUParticle\GlitterEmitter.cpp" />
     <ClCompile Include="src\DebugController.cpp" />
     <ClCompile Include="src\Effect\EnemyEyeEffect.cpp" />
+    <ClCompile Include="src\Effect\GuideInsect.cpp" />
     <ClCompile Include="src\GPUParticle\DrawExcuteIndirect.cpp" />
     <ClCompile Include="src\GPUParticle\FireFlyOutStage.cpp" />
+    <ClCompile Include="src\GPUParticle\FireWork.cpp" />
     <ClCompile Include="src\GPUParticle\FireWorkParticle.cpp" />
     <ClCompile Include="src\GPUParticle\GPUParticleRender.cpp" />
     <ClCompile Include="src\GPUParticle\SplineParticle.cpp" />
@@ -234,6 +236,9 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Stage\StageManager.cpp" />
     <ClCompile Include="src\Stage\StageParts.cpp" />
     <ClCompile Include="src\Stage\Switch.cpp" />
+    <ClCompile Include="src\System\FastTravel.cpp" />
+    <ClCompile Include="src\System\SaveDataManager.cpp" />
+    <ClCompile Include="src\System\SystemSetting.cpp" />
     <ClCompile Include="src\TimeScaleMgr.cpp" />
     <ClCompile Include="src\Tutorial.cpp" />
   </ItemGroup>
@@ -324,7 +329,6 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="..\..\src\engine\Render\RenderObject\ModelInfo\Skeleton.h" />
     <ClInclude Include="..\..\src\engine\Render\RenderObject\SpriteMesh.h" />
     <ClInclude Include="..\..\src\engine\Render\ShadowMapDevice.h" />
-    <ClInclude Include="CheckPointPillar.h" />
     <ClInclude Include="src\AI\EnemyAttack.h" />
     <ClInclude Include="src\AI\EnemyPatrol.h" />
     <ClInclude Include="src\AI\EnemySearch.h" />
@@ -334,9 +338,11 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\CPUParticle\GlitterEmitter.h" />
     <ClInclude Include="src\DebugController.h" />
     <ClInclude Include="src\Effect\EnemyEyeEffect.h" />
+    <ClInclude Include="src\Effect\GuideInsect.h" />
     <ClInclude Include="src\GameScene.h" />
     <ClInclude Include="src\GPUParticle\DrawExcuteIndirect.h" />
     <ClInclude Include="src\GPUParticle\FireFlyOutStage.h" />
+    <ClInclude Include="src\GPUParticle\FireWork.h" />
     <ClInclude Include="src\GPUParticle\FireWorkParitlce.h" />
     <ClInclude Include="src\GPUParticle\GPUParticleRender.h" />
     <ClInclude Include="src\GPUParticle\SplineParticle.h" />
@@ -384,6 +390,9 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Stage\StageManager.h" />
     <ClInclude Include="src\Stage\StageParts.h" />
     <ClInclude Include="src\Stage\Switch.h" />
+    <ClInclude Include="src\System\FastTravel.h" />
+    <ClInclude Include="src\System\SaveDataManager.h" />
+    <ClInclude Include="src\System\SystemSetting.h" />
     <ClInclude Include="src\TimeScaleMgr.h" />
     <ClInclude Include="src\Tutorial.h" />
   </ItemGroup>

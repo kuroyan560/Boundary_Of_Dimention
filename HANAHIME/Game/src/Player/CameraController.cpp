@@ -77,6 +77,7 @@ void CameraController::Init(bool arg_isRespawn)
 	m_isCameraModeLookAround = false;
 	m_isLookAroundFinish = false;
 	m_isLookAroundFinishComplete = false;
+	m_oldHitFrontWallNormal = KuroEngine::Vec3<float>();
 }
 
 void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, float arg_defaultCameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode, std::vector<HIT_POINT> arg_hitPointData)
@@ -220,6 +221,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	//フラグを保存しておく。
 	m_isOldFrontWall = arg_isFrontWall;
+	m_oldHitFrontWallNormal = arg_frontWallNormal;
 
 	//マップピンの座標の受け皿
 	KuroEngine::Transform mapPinPos;
@@ -300,131 +302,151 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 	//当たり判定変数を初期化。
 	m_isHitTerrian = false;
 
-	//無限平面との当たり判定
-	Vec3<float> push;
-	bool isHit = RayPlaneIntersection(m_playerLerpPos, Vec3<float>(pushBackPos - m_playerLerpPos).GetNormal(), m_playerLerpPos - arg_targetPos.GetUp() * 0.1f, arg_targetPos.GetUp(), push);
-	if (isHit) {
+	if (!arg_isNoCollision) {
 
-		//上下側の壁だったら
-		if (0.9f < fabs(arg_targetPos.GetUp().Dot(Vec3<float>(0, 1, 0)))) {
-			m_nowParam.m_xAxisAngle = fromXAngle;
+		//無限平面との当たり判定
+		Vec3<float> push;
+		bool isHit = RayPlaneIntersection(m_playerLerpPos, Vec3<float>(pushBackPos - m_playerLerpPos).GetNormal(), m_playerLerpPos - arg_targetPos.GetUp() * 0.1f, arg_targetPos.GetUp(), push);
+		if (isHit) {
+
+			//上下側の壁だったら
+			if (0.9f < fabs(arg_targetPos.GetUp().Dot(Vec3<float>(0, 1, 0)))) {
+				m_nowParam.m_xAxisAngle = fromXAngle;
+			}
+			else {
+				m_nowParam.m_yAxisAngle = fromYAngle;
+				arg_playerRotY = fromYAngle;
+			}
+
+			//カメラの座標を再度取得。
+			localPos = { 0,0,0 };
+			localPos.z = m_nowParam.m_posOffsetZ;
+			localPos.y = m_gazePointOffset.y + tan(-m_nowParam.m_xAxisAngle) * m_nowParam.m_posOffsetZ;
+			m_cameraLocalTransform.SetPos(Math::Lerp(m_cameraLocalTransform.GetPos(), localPos, m_camForwardPosLerpRate));
+			m_cameraLocalTransform.SetRotate(Vec3<float>::GetXAxis(), m_nowParam.m_xAxisAngle);
+
+			//コントローラーのトランスフォーム（対象の周囲、左右移動）更新
+			m_camParentTransform.SetRotate(Vec3<float>::GetYAxis(), m_nowParam.m_yAxisAngle);
+			m_camParentTransform.SetPos(Math::Lerp(m_camParentTransform.GetPos(), m_playerLerpPos, m_camFollowLerpRate));
+			pushBackPos = m_cameraLocalTransform.GetPosWorldByMatrix();
+
 		}
-		else {
-			m_nowParam.m_yAxisAngle = fromYAngle;
-			arg_playerRotY = fromYAngle;
-		}
 
-		//カメラの座標を再度取得。
-		localPos = { 0,0,0 };
-		localPos.z = m_nowParam.m_posOffsetZ;
-		localPos.y = m_gazePointOffset.y + tan(-m_nowParam.m_xAxisAngle) * m_nowParam.m_posOffsetZ;
-		m_cameraLocalTransform.SetPos(Math::Lerp(m_cameraLocalTransform.GetPos(), localPos, m_camForwardPosLerpRate));
-		m_cameraLocalTransform.SetRotate(Vec3<float>::GetXAxis(), m_nowParam.m_xAxisAngle);
+		if (!arg_isPlayerJump && !arg_isCameraDefaultPos) {
 
-		//コントローラーのトランスフォーム（対象の周囲、左右移動）更新
-		m_camParentTransform.SetRotate(Vec3<float>::GetYAxis(), m_nowParam.m_yAxisAngle);
-		m_camParentTransform.SetPos(Math::Lerp(m_camParentTransform.GetPos(), m_playerLerpPos, m_camFollowLerpRate));
-		pushBackPos = m_cameraLocalTransform.GetPosWorldByMatrix();
-
-	}
-
-	if (!arg_isPlayerJump && !arg_isCameraDefaultPos) {
-
-		//通常の地形を走査
-		Vec3<float> checkHitRay = m_cameraLocalTransform.GetPosWorldByMatrix() - m_oldCameraWorldPos;	//まずはデフォルトのレイに設定。
-		auto& cameraTransform = m_attachedCam.lock()->GetTransform();
-		for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
-		{
-			//モデル情報取得
-			auto model = terrian.GetModel().lock();
-
-			//メッシュを走査
-			for (auto& modelMesh : model->m_meshes)
+			//通常の地形を走査
+			Vec3<float> checkHitRay = m_cameraLocalTransform.GetPosWorldByMatrix() - m_oldCameraWorldPos;	//まずはデフォルトのレイに設定。
+			auto& cameraTransform = m_attachedCam.lock()->GetTransform();
+			for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
 			{
+				//モデル情報取得
+				auto model = terrian.GetModel().lock();
 
-				//当たり判定に使用するメッシュ
-				auto checkHitMesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+				//メッシュを走査
+				for (auto& modelMesh : model->m_meshes)
+				{
 
-				//判定↓============================================
+					//当たり判定に使用するメッシュ
+					auto checkHitMesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+
+					//判定↓============================================
 
 
-				//純粋な地形とレイの当たり判定を実行
-				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_oldCameraWorldPos, checkHitRay.GetNormal(), checkHitMesh);
-				if (output.m_isHit && 0 < output.m_distance && output.m_distance < checkHitRay.Length()) {
+					//純粋な地形とレイの当たり判定を実行
+					CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_oldCameraWorldPos, checkHitRay.GetNormal(), checkHitMesh);
+					if (output.m_isHit && 0 < output.m_distance && output.m_distance < checkHitRay.Length()) {
 
-					pushBackPos = output.m_pos + output.m_normal;
-					m_isHitTerrian = true;
+						//上下側の壁だったら
+						if (0.9f < fabs(output.m_normal.Dot(Vec3<float>(0, 1, 0)))) {
+							m_nowParam.m_xAxisAngle = fromXAngle;
+						}
+						else {
+							m_nowParam.m_yAxisAngle = fromYAngle;
+							arg_playerRotY = fromYAngle;
+						}
 
-					PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse, true);
+						//カメラの座標を再度取得。
+						localPos = { 0,0,0 };
+						localPos.z = m_nowParam.m_posOffsetZ;
+						localPos.y = m_gazePointOffset.y + tan(-m_nowParam.m_xAxisAngle) * m_nowParam.m_posOffsetZ;
+						m_cameraLocalTransform.SetPos(Math::Lerp(m_cameraLocalTransform.GetPos(), localPos, m_camForwardPosLerpRate));
+						m_cameraLocalTransform.SetRotate(Vec3<float>::GetXAxis(), m_nowParam.m_xAxisAngle);
+
+						//コントローラーのトランスフォーム（対象の周囲、左右移動）更新
+						m_camParentTransform.SetRotate(Vec3<float>::GetYAxis(), m_nowParam.m_yAxisAngle);
+						m_camParentTransform.SetPos(Math::Lerp(m_camParentTransform.GetPos(), m_playerLerpPos, m_camFollowLerpRate));
+						pushBackPos = m_cameraLocalTransform.GetPosWorldByMatrix();
+
+					}
+
+					//プレイヤー方向のレイトの当たり判定を実行
+					//Vec3<float> playerDir = m_playerLerpPos - pushBackPos;
+					//output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos, playerDir.GetNormal(), checkHitMesh);
+					//if (output.m_isHit && 0 < output.m_distance && output.m_distance < playerDir.Length()) {
+
+					//	PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse, false);
+
+					//}
 
 				}
-
-				//プレイヤー方向のレイトの当たり判定を実行
-				Vec3<float> playerDir = m_playerLerpPos - pushBackPos;
-				output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos, playerDir.GetNormal(), checkHitMesh);
-				if (output.m_isHit && 0 < output.m_distance && output.m_distance < playerDir.Length()) {
-
-					PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse, false);
-
-				}
-
 			}
-		}
 
-		//通常の地形を走査
-		bool isHitPlayerRay = false;
-		checkHitRay = arg_targetPos.GetPos() - m_cameraLocalTransform.GetPosWorldByMatrix();	//まずはデフォルトのレイに設定。
-		for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
-		{
-			//モデル情報取得
-			auto model = terrian.GetModel().lock();
-
-			//メッシュを走査
-			for (auto& modelMesh : model->m_meshes)
+			//通常の地形を走査
+			bool isHitPlayerRay = false;
+			checkHitRay = arg_targetPos.GetPos() - m_cameraLocalTransform.GetPosWorldByMatrix();	//まずはデフォルトのレイに設定。
+			for (auto& terrian : arg_nowStage.lock()->GetTerrianArray())
 			{
+				//モデル情報取得
+				auto model = terrian.GetModel().lock();
 
-				//当たり判定に使用するメッシュ
-				auto checkHitMesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+				//メッシュを走査
+				for (auto& modelMesh : model->m_meshes)
+				{
 
-				//判定↓============================================
+					//当たり判定に使用するメッシュ
+					auto checkHitMesh = terrian.GetCollisionMesh()[static_cast<int>(&modelMesh - &model->m_meshes[0])];
+
+					//判定↓============================================
 
 
-				//純粋な地形とレイの当たり判定を実行
-				Vec3<float> rayOrigin = m_cameraLocalTransform.GetPosWorldByMatrix();
-				float playerLength = checkHitRay.Length();
-				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(rayOrigin, checkHitRay.GetNormal(), checkHitMesh);
-				bool isHit = output.m_isHit && 0 < output.m_distance && output.m_distance < playerLength;
-				if (isHit && output.m_distance <= fabs(ADD_CAMERA_HIT_TERRIAN_Z)) {
+					//純粋な地形とレイの当たり判定を実行
+					Vec3<float> rayOrigin = m_cameraLocalTransform.GetPosWorldByMatrix();
+					float playerLength = checkHitRay.Length();
+					CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(rayOrigin, checkHitRay.GetNormal(), checkHitMesh);
+					bool isHit = output.m_isHit && 0 < output.m_distance && output.m_distance < playerLength;
+					if (isHit && output.m_distance <= fabs(ADD_CAMERA_HIT_TERRIAN_Z)) {
 
-					m_cameraHitTerrianZ -= fabs(ADD_CAMERA_HIT_TERRIAN_Z) - output.m_distance;
+						m_cameraHitTerrianZ -= fabs(ADD_CAMERA_HIT_TERRIAN_Z) - output.m_distance;
 
-					isHitPlayerRay = true;
+						isHitPlayerRay = true;
 
-					m_cameraHitTerrianZTimer.Reset(CAMERA_HIT_TERRIAN_Z_TIMER);
+						m_cameraHitTerrianZTimer.Reset(CAMERA_HIT_TERRIAN_Z_TIMER);
+
+					}
+					else if (isHit && output.m_distance <= Vec3<float>(arg_targetPos.GetPos() - rayOrigin).Length()) {
+
+						isHitPlayerRay = true;
+
+						m_cameraHitTerrianZTimer.Reset(CAMERA_HIT_TERRIAN_Z_TIMER);
+
+					}
 
 				}
-				else if (isHit && output.m_distance <= Vec3<float>(arg_targetPos.GetPos() - rayOrigin).Length()) {
 
-					isHitPlayerRay = true;
+				//=================================================
+			}
 
-					m_cameraHitTerrianZTimer.Reset(CAMERA_HIT_TERRIAN_Z_TIMER);
+			if (!isHitPlayerRay) {
+
+				m_cameraHitTerrianZTimer.UpdateTimer();
+				if (m_cameraHitTerrianZTimer.IsTimeUp()) {
+
+					m_cameraHitTerrianZ = 0;
 
 				}
-
-			}
-
-			//=================================================
-		}
-
-		if (!isHitPlayerRay) {
-
-			m_cameraHitTerrianZTimer.UpdateTimer();
-			if (m_cameraHitTerrianZTimer.IsTimeUp()) {
-
-				m_cameraHitTerrianZ = 0;
-
 			}
 		}
+
 	}
 
 	//補間する。
@@ -509,7 +531,7 @@ void CameraController::JumpStart(const KuroEngine::Transform& arg_playerTransfor
 
 	}
 	//プレイヤーがZ面にいたら and Y面にジャンプしていたら。
-	if (0.9f < fabs(arg_playerTransform.GetUp().z) && 0.9f < fabs(arg_jumpEndNormal.y)) {
+	if ((0.9f < fabs(arg_playerTransform.GetUp().z) || 0.9f < fabs(arg_playerTransform.GetUp().x)) && 0.9f < fabs(arg_jumpEndNormal.y)) {
 
 		//カメラをいい感じの位置に補間する量。
 		const float CAMERA_LERP_AMOUNT = 0.25f;	//内積で使用するので、つまり地面から見て45度の位置に補間する。
@@ -540,6 +562,61 @@ void CameraController::JumpStart(const KuroEngine::Transform& arg_playerTransfor
 		}
 
 	}
+
+}
+
+void CameraController::Respawn(KuroEngine::Transform arg_playerTransform, bool arg_isCameraUpInverse)
+{
+
+	using namespace KuroEngine;
+
+	//カメラをいい感じの位置に補間する量。
+	const float CAMERA_LERP_AMOUNT = 0.25f;	//内積で使用するので、つまり地面から見て45度の位置に補間する。
+
+	//つまり現在はXY平面上にいるということなので、カメラからプレイヤーまでのベクトルを2Dに射影。
+	Vec3<float> cameraVec = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_playerTransform.GetPos()).GetNormal();
+	Vec2<float> cameraVec2D = Project3Dto2D(cameraVec, Vec3<float>(1, 0, 0), Vec3<float>(0, 1, 0));
+	Vec2<float> jumpEndNormal2D = Project3Dto2D(arg_playerTransform.GetUp(), Vec3<float>(1, 0, 0), Vec3<float>(0, 1, 0));
+
+	//回転量を二次元で得る。
+	float dot = jumpEndNormal2D.Dot(cameraVec2D);
+
+	//ベクトルの差がCAMERA_LARP_AMOUNTより下だったら補間の処理を入れる。
+	//if (dot < CAMERA_LERP_AMOUNT) {
+
+		//ラジアンに直す。
+		float rad = acos(dot);
+
+		//面移動の瞬間だったら。
+		bool isUpInverseTrigger = (!arg_isCameraUpInverse && arg_playerTransform.GetUp().y < -0.9f) || (arg_isCameraUpInverse && 0.9f < arg_playerTransform.GetUp().y);
+
+		//補間する方向を求める。
+		float inverse = arg_isCameraUpInverse ? -1.0f : 1.0f;
+
+		//補間させる。
+		m_cameraXAngleLerpAmount += (rad - CAMERA_LERP_AMOUNT) * inverse;
+
+	//}
+
+	//上方向も回転させておく。
+	if (arg_isCameraUpInverse) {
+		m_rotateZ = DirectX::XM_PI;
+	}
+	else {
+		m_rotateZ = 0;
+	}
+
+}
+
+void CameraController::LerpForcedToEnd(float& arg_playerRotY)
+{
+
+	arg_playerRotY += m_rotateYLerpAmount;
+	m_nowParam.m_yAxisAngle += m_rotateYLerpAmount;
+	m_rotateYLerpAmount = 0;
+
+	m_nowParam.m_xAxisAngle += m_cameraXAngleLerpAmount;
+	m_cameraXAngleLerpAmount = 0;
 
 }
 

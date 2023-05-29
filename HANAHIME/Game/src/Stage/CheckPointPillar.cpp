@@ -29,12 +29,15 @@ void CheckPointPillar::Init()
 
 }
 
-void CheckPointPillar::Update(const KuroEngine::Vec3<float>& arg_playerPos)
+void CheckPointPillar::Update(const KuroEngine::Transform& arg_playerPos)
 {
-
 	//次のチェックポイントの情報を取得
 	KuroEngine::Transform nextCheckPointTransform;
-	StageManager::Instance()->GetNowMapPinTransform(&nextCheckPointTransform);
+	if (!StageManager::Instance()->GetNowMapPinTransform(&nextCheckPointTransform))
+	{
+		m_isDraw = false;
+		return;
+	}
 
 	//そのままの座標を保存。
 	KuroEngine::Vec3<float> rawPos = nextCheckPointTransform.GetPosWorld();
@@ -43,8 +46,9 @@ void CheckPointPillar::Update(const KuroEngine::Vec3<float>& arg_playerPos)
 	if (!m_isFirstFrame) {
 
 		//座標をオフセットをつけて保存。
-		const KuroEngine::Vec3<float> OFFSET = KuroEngine::Vec3<float>(0, 20000.0f, 0);
-		m_transform.SetPos(nextCheckPointTransform.GetPosWorld() - OFFSET);
+		const float OFFSET = 20000.0f;
+		m_transform.SetPos(nextCheckPointTransform.GetPosWorld() - nextCheckPointTransform.GetUp() * OFFSET);
+		m_transform.SetRotate(nextCheckPointTransform.GetRotate());
 
 	}
 
@@ -70,10 +74,13 @@ void CheckPointPillar::Update(const KuroEngine::Vec3<float>& arg_playerPos)
 
 		//アルファを下げる距離
 		const float ALPHA_DEADLINE = 100.0f;
-		float distance = KuroEngine::Vec3<float>(arg_playerPos - rawPos).Length();
+		float distance = KuroEngine::Vec3<float>(arg_playerPos.GetPos() - rawPos).Length();
+
+		//法線方向を比べる。
+		bool isNormal = 0.9f < arg_playerPos.GetUp().Dot(m_transform.GetUp());
 
 		//近づいているときはアルファを下げる。
-		if (distance < ALPHA_DEADLINE) {
+		if (distance < ALPHA_DEADLINE && isNormal) {
 
 			m_alpha = KuroEngine::Math::Lerp(m_alpha, 0.0f, 0.2f);
 
@@ -88,7 +95,7 @@ void CheckPointPillar::Update(const KuroEngine::Vec3<float>& arg_playerPos)
 		m_transform.SetScale(KuroEngine::Vec3<float>(1.0f, 100.0f, 1.0f));
 
 		//チェックポイントに当たった瞬間だったらAPPEARの処理を行わわセル。
-		if (CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger || KuroEngine::UsersInput::Instance()->KeyInput(DIK_P)) {
+		if (CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger) {
 			m_status = STATUS::EXIT;
 			m_appearModeTimer.Reset();
 			m_exitModeTimer.Reset();
@@ -118,8 +125,9 @@ void CheckPointPillar::Update(const KuroEngine::Vec3<float>& arg_playerPos)
 			m_status = CheckPointPillar::APPEAR;
 
 			//座標をオフセットをつけて保存。
-			const KuroEngine::Vec3<float> OFFSET = KuroEngine::Vec3<float>(0, 20000.0f, 0);
-			m_transform.SetPos(nextCheckPointTransform.GetPosWorld() - OFFSET);
+			const float OFFSET = 20000.0f;
+			m_transform.SetPos(nextCheckPointTransform.GetPosWorld() - nextCheckPointTransform.GetUp() * OFFSET);
+			m_transform.SetRotate(nextCheckPointTransform.GetRotate());
 
 		}
 
@@ -134,7 +142,7 @@ void CheckPointPillar::Update(const KuroEngine::Vec3<float>& arg_playerPos)
 
 		//スケールとアルファを変更。
 		float timeRate = m_appearModeTimer.GetTimeRate(1.0f);
-		float scaleRate = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, timeRate, 0.0f, 1.0f);
+		float scaleRate = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, timeRate, 0.0f, 1.0f);
 
 		m_alpha = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Sine, timeRate, 0.0f, 1.0f);
 		m_transform.SetScale(KuroEngine::Vec3<float>(SCALE_EXIT - scaleRate * (SCALE_EXIT - SCALE_DEFAULT), 100.0f, SCALE_EXIT - scaleRate * (SCALE_EXIT - SCALE_DEFAULT)));

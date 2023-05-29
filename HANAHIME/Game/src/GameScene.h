@@ -21,10 +21,17 @@
 #include"HUD/OperationInfoUI.h"
 #include"HUD/StageInfoUI.h"
 #include"HUD/PauseUI.h"
+#include"Effect/GuideInsect.h"
 #include"Stage/CheckPointPillar.h"
+#include"System/FastTravel.h"
+#include"System/SystemSetting.h"
 
 class GameScene : public KuroEngine::BaseScene
 {
+	enum SCENE_STATUS { SCENE_TITLE, SCENE_IN_GAME }m_nowScene = SCENE_TITLE;
+	SCENE_STATUS m_nextScene = m_nowScene;
+	KuroEngine::Transform m_playerInitTransform;
+
 	//スカイドーム
 	KuroEngine::Transform m_skyDomeTransform;
 	IndividualDrawParameter m_skyDomeDrawParam;
@@ -62,20 +69,22 @@ class GameScene : public KuroEngine::BaseScene
 	int m_stageNum;
 	SceneChange m_gateSceneChange;
 
-	MovieCamera m_movieCamera;
+	//MovieCamera m_movieCamera;
 
 	std::shared_ptr<KuroEngine::Camera>m_nowCam;
 
-	bool m_gobackTitleFlag;
-	TitleMode m_eTitleMode;
 	Title m_title;
 	bool m_clearFlag;
-	KuroEngine::Timer m_1flameStopTimer;
 
-	//GPUパーティクルの描画
-	GPUParticleRender m_particleRender;
+	//ファストトラベル
+	FastTravel m_fastTravel;
+	//設定画面
+	SystemSetting m_sysSetting;
+
 	//ステージ外の蛍描画
 	FireFlyOutStage m_fireFlyStage;
+
+	SignSpotFireFly m_guideFly;
 
 	Tutorial tutorial;
 
@@ -87,7 +96,15 @@ class GameScene : public KuroEngine::BaseScene
 	PauseUI m_pauseUI;
 
 	KuroEngine::LightBloomDevice m_lightBloomDevice;
+
+	GuideInsect m_guideInsect;
+
 	bool m_deadFlag;
+
+	bool IsSystemAplicationActive()const
+	{
+		return m_fastTravel.IsActive() || m_sysSetting.IsActive();
+	}
 
 	void GameInit();
 
@@ -99,5 +116,8 @@ class GameScene : public KuroEngine::BaseScene
 public:
 	GameScene();
 	void Retry();
+	void StartGame(int arg_stageNum, KuroEngine::Transform arg_playerInitTransform);
 	void GoBackTitle();
+	void ActivateFastTravel();
+	void ActivateSystemSetting();
 };

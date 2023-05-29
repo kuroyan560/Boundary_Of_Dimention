@@ -2,6 +2,7 @@
 #include"ForUser/DrawFunc/2D/DrawFunc2D.h"
 #include"DirectX12/D3D12App.h"
 #include"FrameWork/WinApp.h"
+#include"../OperationConfig.h"
 
 SceneChange::SceneChange() :
 	SCENE_CHANGE_TIME(60),
@@ -48,6 +49,9 @@ void SceneChange::Update()
 		m_startFlag = false;
 		m_countTimeUpNum = 0;
 		m_time.Reset();
+
+		//“ü—Í‚ðŽó‚¯•t‚¯‚é‚æ‚¤‚É
+		OperationConfig::Instance()->SetAllInputActive(true);
 	}
 
 
@@ -77,6 +81,9 @@ void SceneChange::Start()
 		m_alphaOffset = 0.0f;
 		m_time.Reset(SCENE_CHANGE_TIME);
 	}
+
+	//“ü—Í‚ðŽó‚¯•t‚¯‚È‚¢‚æ‚¤‚É
+	OperationConfig::Instance()->SetAllInputActive(false);
 }
 
 bool SceneChange::IsHide()

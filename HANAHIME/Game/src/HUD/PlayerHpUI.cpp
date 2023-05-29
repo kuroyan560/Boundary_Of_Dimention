@@ -50,6 +50,10 @@ PlayerHpUI::PlayerHpUI()
 		m_numTexArray.data(), dir + "num_until_" + std::to_string(LEAF_NUM) + ".png", NUM_TEX, { NUM_TEX,1 });
 
 	m_hpStrTex = D3D12App::Instance()->GenerateTextureBuffer(dir + "str.png");
+
+	//出現後絶対に表示させる時間
+	static const float APPEAR_IDLE_INTERVAL = 300.0f;
+	m_idleTimer.Reset(APPEAR_IDLE_INTERVAL);
 }
 
 void PlayerHpUI::Init()
@@ -100,6 +104,13 @@ void PlayerHpUI::Update(float arg_timeScale, int arg_defaultHp, int arg_nowHp, c
 		if (m_hpMax && m_isDamageAppear && m_appearTimer.IsTimeUp())
 		{
 			SetHpUIStatus(DISAPPEAR);
+		}
+
+		if (m_idleTimer.UpdateTimer(arg_timeScale) && m_disappearCall)
+		{
+			//予約された退場の実行
+			Disappear();
+			m_disappearCall = false;
 		}
 	}
 	else if (m_hpUiStatus == DISAPPEAR)
@@ -238,6 +249,7 @@ void PlayerHpUI::Appear()
 	if (m_hpUiStatus != DISAPPEAR)return;
 	m_isDamageAppear = false;
 	SetHpUIStatus(APPEAR);
+	m_idleTimer.Reset();
 }
 
 void PlayerHpUI::Disappear()
@@ -246,5 +258,13 @@ void PlayerHpUI::Disappear()
 	if (m_hpUiStatus != DRAW)return;
 	//ダメージを受けてるときは常に描画
 	if (!m_hpMax)return;
+	//出現後の表示アイドル時間が終わっていないなら
+	if (!m_idleTimer.IsTimeUp())
+	{
+		//予約
+		m_disappearCall = true;
+		return;
+	}
+
 	SetHpUIStatus(DISAPPEAR);
 }

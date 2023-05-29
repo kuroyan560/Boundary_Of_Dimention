@@ -5,6 +5,7 @@
 #include"StageParts.h"
 #include"../HUD/MapPinUI.h"
 #include"../HUD/CheckPointUI.h"
+#include"../Effect/GuideInsect.h"
 
 #include<memory>
 namespace KuroEngine
@@ -33,12 +34,12 @@ class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>, 
 
 	//現在のステージ
 	std::shared_ptr<Stage>m_nowStage;
+	int m_nowStageIdx;
 
 	//マップピンUI
 	MapPinUI m_mapPinUI;
 	//現在マップピンが指す地点のインデックス
 	int m_nowMapPinPointIdx;
-
 public:
 	void SetStage(int stage_num = -1);
 
@@ -48,6 +49,7 @@ public:
 
 	//現在のステージのゲッタ
 	std::weak_ptr<Stage>GetNowStage() { return m_nowStage; }
+	const int& GetNowStageIdx()const{ return m_nowStageIdx; }
 
 	KuroEngine::Transform GetGateTransform(int arg_stageIdx, int arg_gateID)const;
 
@@ -61,7 +63,7 @@ public:
 	bool IsClearNowStage()const;
 
 	//プレイヤーの初期化トランスフォーム
-	KuroEngine::Transform GetPlayerSpawnTransform()const;
+	KuroEngine::Transform GetStartPointTransform()const;
 
 	bool GetNowMapPinTransform(KuroEngine::Transform* arg_destPos);
 
@@ -76,4 +78,11 @@ public:
 
 	//スカイドームのスケーリングゲッタ
 	const float& GetSkyDomeScaling()const { return m_skydomeScaling; }
+
+	//解放済のチェックポイントのトランスフォーム配列
+	//std::vector<std::vector<KuroEngine::Transform>>GetUnlockedCheckPointTransformArray()const;
+	bool GetUnlockedCheckPointInfo(std::vector<std::vector<KuroEngine::Transform>>* arg_transformArray, int* arg_recentStageNum, int* arg_recentIdx)const;
+
+	//チェックポイント解放のリセット
+	void AllStageCheckPointReset();
 };

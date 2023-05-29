@@ -95,6 +95,9 @@
     <Filter Include="src\user\HUD">
       <UniqueIdentifier>{26f1d3f6-d0ac-4ca7-9719-8ce68f26d6c9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\user\System">
+      <UniqueIdentifier>{b72f3bed-31e1-4e34-9abe-46cc497c2d56}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\KuroEngineDevice.cpp">
@@ -475,8 +478,26 @@
     <ClCompile Include="src\AI\IEnemyAI.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\Effect\GuideInsect.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
     <ClCompile Include="src\HUD\CameraModeUI.cpp">
       <Filter>src\user\HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="src\System\SaveDataManager.cpp">
+      <Filter>src\user\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GPUParticle\FireWork.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Stage\CheckPointPillar.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\System\FastTravel.cpp">
+      <Filter>src\user\System</Filter>
+    </ClCompile>
+    <ClCompile Include="src\System\SystemSetting.cpp">
+      <Filter>src\user\System</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -910,8 +931,20 @@
     <ClInclude Include="src\HUD\StageInfoUI.h" />
     <ClInclude Include="src\Stage\CheckPointHitFlag.h" />
     <ClInclude Include="src\AI\IEnemyAI.h" />
+    <ClInclude Include="src\Effect\GuideInsect.h" />
     <ClInclude Include="src\HUD\CameraModeUI.h">
       <Filter>src\user\HUD</Filter>
+    </ClInclude>
+    <ClInclude Include="src\System\SaveDataManager.h">
+      <Filter>src\user\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\GPUParticle\FireWork.h" />
+    <ClInclude Include="src\Stage\CheckPointPillar.h" />
+    <ClInclude Include="src\System\FastTravel.h">
+      <Filter>src\user\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\System\SystemSetting.h">
+      <Filter>src\user\System</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

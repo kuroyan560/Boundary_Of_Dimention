@@ -23,11 +23,20 @@ void StageInfoUI::Appear()
 {
 	if (m_status != DISAPPEAR)return;
 	SetUIStatus(APPEAR);
+	m_idleTimer.Reset();
 }
 
 void StageInfoUI::Disappear()
 {
 	if (m_status != DRAW)return;
+
+	//出現後の表示アイドル時間が終わっていないなら
+	if (!m_idleTimer.IsTimeUp())
+	{
+		//予約
+		m_disappearCall = true;
+		return;
+	}
 	SetUIStatus(DISAPPEAR);
 }
 
@@ -56,6 +65,10 @@ StageInfoUI::StageInfoUI()
 	m_miniFlowerTex = D3D12App::Instance()->GenerateTextureBuffer(flowerTexDir + "flower_mini.png");
 	//収集した花の数字（最後のインデックスの画像は 「 / 」）
 	D3D12App::Instance()->GenerateTextureBuffer(m_flowerNumTex.data(), flowerTexDir + "flower_num.png", FLOWER_NUM_TEX_SIZE, { FLOWER_NUM_TEX_SIZE ,1 });
+
+	//出現後絶対に表示させる時間
+	static const float APPEAR_IDLE_INTERVAL = 300.0f;
+	m_idleTimer.Reset(APPEAR_IDLE_INTERVAL);
 }
 
 void StageInfoUI::Init(int arg_stageNum, int arg_getFlowerNum)
@@ -95,6 +108,13 @@ void StageInfoUI::Update(float arg_timeScale, int arg_getFlowerNum)
 		{
 			m_addFlowerNum = 0;
 			SetUIStatus(DISAPPEAR);
+		}
+
+		if (m_idleTimer.UpdateTimer(arg_timeScale) && m_disappearCall)
+		{
+			//予約された退場の実行
+			Disappear();
+			m_disappearCall = false;
 		}
 	}
 	else if (m_status == DISAPPEAR)
