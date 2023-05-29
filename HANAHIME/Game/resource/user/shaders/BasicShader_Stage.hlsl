@@ -94,6 +94,11 @@ struct PSOutputStage
     float4 worldPos : SV_Target7;
 };
 
+float4 SRGBtoLinear(float4 srgb)
+{
+    return pow(srgb, float4(2.2, 2.2, 2.2, 1.0));
+}
+
 PSOutputStage PSmain(VSOutput input) : SV_TARGET
 {
     
@@ -207,6 +212,9 @@ PSOutputStage PSmain(VSOutput input) : SV_TARGET
     float3 ligEffect = diffuseEf;
 
     float4 texCol = baseTex.Sample(smp, input.uv);
+    
+    texCol = SRGBtoLinear(texCol);
+    
     texCol.xyz += material.baseColor.xyz;
     float4 ligEffCol = texCol;
     //ligEffCol.xyz = ((material.ambient * material.ambientFactor) + ligEffect) * ligEffCol.xyz;
