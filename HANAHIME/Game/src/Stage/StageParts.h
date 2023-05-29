@@ -565,6 +565,9 @@ public:
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
 
 	const int &GetOrder()const { return m_order; }
+	//G‚Á‚½ó‘Ô‚É‚·‚é
+	void SetTouch() { m_touched = true; }
+
 };
 
 class StarCoin : public StageParts

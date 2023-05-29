@@ -7,6 +7,7 @@
 #include"FrameWork/UsersInput.h"
 #include"CheckPointHitFlag.h"
 #include"../System/SaveDataManager.h"
+#include"StageParts.h"
 
 StageManager::StageManager()
 	:KuroEngine::Debugger("StageManager", true, true)
@@ -33,9 +34,22 @@ StageManager::StageManager()
 		m_stageArray.back()->Load(loadPazzleIdx, stageDir, "P_Stage_" + std::to_string(loadPazzleIdx++) + ".json", terrianScaling, false);
 	}
 
-	//m_stageArray.emplace_back(std::make_shared<Stage>());
-	//m_stageArray.back()->Load(loadPazzleIdx, stageDir, "P_Stage_1.json", terrianScaling, false);
+	//データからチェックポイントの解放を設定
+	int unlockedStageNum, unlockedCheckPointOrder;
+	if (SaveDataManager::Instance()->LoadStageSaveData(&unlockedStageNum, &unlockedCheckPointOrder))
+	{
+		for (int stageIdx = 0; stageIdx <= unlockedStageNum; ++stageIdx)
+		{
+			for (auto& checkPoint : m_stageArray[stageIdx]->GetCheckPointArray())
+			{
+				bool touched = checkPoint.lock()->GetOrder() <= unlockedCheckPointOrder;
+				if (!touched)touched = stageIdx < unlockedStageNum;
 
+				//チェックポイントを触った状態にする
+				if (touched)checkPoint.lock()->SetTouch();
+			}
+		}
+	}
 
 	//現在のステージ指定（デフォルトはホーム用ステージ）
 	m_nowStageIdx = 0;

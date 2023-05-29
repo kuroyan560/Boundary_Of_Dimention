@@ -920,7 +920,6 @@ void CheckPoint::Update(Player& arg_player)
 		m_fireWork.Init(m_transform.GetPosWorld());
 	}
 
-
 	m_touched = isHit;
 	m_guideData->m_isHitFlag = isHit;
 }
