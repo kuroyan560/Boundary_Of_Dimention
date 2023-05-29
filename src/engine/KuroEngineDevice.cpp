@@ -43,7 +43,7 @@ void KuroEngine::KuroEngineDevice::Render()
 	//グラフィックスマネージャのコマンドリスト全実行
 	m_gManager.CommandsExcute(m_d3d12App->GetCmdList());
 
-#ifdef _DEBUG
+//#ifdef _DEBUG
 	//Imgui
 	m_d3d12App->SetBackBufferRenderTarget();
 	m_imguiApp->BeginImgui(m_d3d12App->GetCmdList());
@@ -52,7 +52,7 @@ void KuroEngine::KuroEngineDevice::Render()
 	ImguiDebugInterface::DrawImguiDebugger();
 
 	m_imguiApp->EndImgui(m_d3d12App->GetCmdList());
-#endif
+//#endif
 }
 
 KuroEngine::KuroEngineDevice::~KuroEngineDevice()
