@@ -627,16 +627,16 @@ void DossunRing::Update(Player &arg_player)
 	switch (m_nowStatus)
 	{
 	case ENEMY_ATTACK_PATTERN_ALWAYS:
-#ifdef _DEBUG
+//#ifdef _DEBUG
 		SetParam();
-#endif
+//#endif
 		m_findPlayerFlag = true;
 		break;
 
 	case ENEMY_ATTACK_PATTERN_NORMAL:
-#ifdef _DEBUG
+//#ifdef _DEBUG
 		SetParam();
-#endif
+//#endif
 		break;
 	default:
 		break;

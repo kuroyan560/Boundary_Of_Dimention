@@ -97,8 +97,8 @@
   },
   "EnemyDebug": {
     "common": {
-      "draw_HitBox": true,
-      "draw_Sight": false
+      "draw_HitBox": false,
+      "draw_Sight": true
     },
     "debuggerSetting": {
       "active": true,
@@ -114,10 +114,10 @@
     "dossun_normal": {
       "status": {
         "attackCoolTime": 60,
-        "attackHitBoxRadius": 50.400001525878906,
+        "attackHitBoxRadius": 50.099998474121094,
         "attackTime": 120,
         "hitBoxRadius": 1.0,
-        "sightRadius": 5.0
+        "sightRadius": 6.25
       }
     }
   },
