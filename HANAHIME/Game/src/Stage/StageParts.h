@@ -566,8 +566,7 @@ public:
 
 	const int &GetOrder()const { return m_order; }
 	//G‚Á‚½ó‘Ô‚É‚·‚é
-	void SetTouch() { m_touched = true; }
-
+	void SetTouch(bool arg_flg) { m_touched = arg_flg; }
 };
 
 class StarCoin : public StageParts

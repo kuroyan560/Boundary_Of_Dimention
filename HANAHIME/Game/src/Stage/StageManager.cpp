@@ -46,7 +46,7 @@ StageManager::StageManager()
 				if (!touched)touched = stageIdx < unlockedStageNum;
 
 				//チェックポイントを触った状態にする
-				if (touched)checkPoint.lock()->SetTouch();
+				if (touched)checkPoint.lock()->SetTouch(true);
 			}
 		}
 	}
@@ -88,17 +88,22 @@ void StageManager::Update(Player& arg_player)
 	//マップピンインデックスが範囲外でない
 	if (!(m_nowMapPinPointIdx < 0 || static_cast<int>(mapPinPointArray.size()) <= m_nowMapPinPointIdx))
 	{
-		//目的地点座標取得
-		const auto destPos = mapPinPointArray[m_nowMapPinPointIdx].lock()->GetTransform().GetPosWorld();
-		//マップピンの当たり判定半径
-		const float MAP_PIN_RADIUS = 10.0f;
-		if (destPos.DistanceSq(arg_player.GetTransform().GetPosWorld()) < MAP_PIN_RADIUS * MAP_PIN_RADIUS)
-		{
-			//マップピンを次の目的地に変更
-			m_nowMapPinPointIdx++;
+		int oldMapPinPointIdx = m_nowMapPinPointIdx;
 
-			//全ての目的地を巡回完了
-			if (static_cast<int>(mapPinPointArray.size()) <= m_nowMapPinPointIdx)m_nowStage->SetCompleteMapPinFlg(true);
+		for (int pointIdx = m_nowMapPinPointIdx; pointIdx < static_cast<int>(mapPinPointArray.size()); ++pointIdx)
+		{
+			//目的地点座標取得
+			const auto destPos = mapPinPointArray[pointIdx].lock()->GetTransform().GetPosWorld();
+			//マップピンの当たり判定半径
+			const float MAP_PIN_RADIUS = 10.0f;
+			if (destPos.DistanceSq(arg_player.GetTransform().GetPosWorld()) < MAP_PIN_RADIUS * MAP_PIN_RADIUS)
+			{
+				//マップピンを次の目的地に変更
+				m_nowMapPinPointIdx = pointIdx + 1;
+
+				//全ての目的地を巡回完了
+				if (static_cast<int>(mapPinPointArray.size()) <= m_nowMapPinPointIdx)m_nowStage->SetCompleteMapPinFlg(true);
+			}
 		}
 	}
 
@@ -198,4 +203,9 @@ bool StageManager::GetUnlockedCheckPointInfo(std::vector<std::vector<KuroEngine:
 	*arg_recentStageNum = reachStageNum;
 
 	return true;
+}
+
+void StageManager::AllStageCheckPointReset()
+{
+	for (auto& stage : m_stageArray)stage->CheckPointReset();
 }

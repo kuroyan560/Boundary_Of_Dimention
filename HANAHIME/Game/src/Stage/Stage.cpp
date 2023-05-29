@@ -576,3 +576,8 @@ KuroEngine::Transform Stage::GetGateTransform(int arg_gateID) const
 	}
 	return KuroEngine::Transform();
 }
+
+void Stage::CheckPointReset()
+{
+	for (auto& checkPoint : m_checkPointArray)checkPoint.lock()->SetTouch(false);
+}

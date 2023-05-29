@@ -74,9 +74,10 @@ public:
 	const OperationData& GetOperationData() { return m_saveData.m_operationSetting; }
 
 	//ƒf[ƒ^íœ
-	void ResetData()
+	void ResetStageData()
 	{
-		m_saveData = GameSaveData();
+		m_saveData.m_reachStageNum = GameSaveData::INVALID;
+		m_saveData.m_reachCheckPointOrder = GameSaveData::INVALID;
 	}
 };
 
