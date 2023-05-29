@@ -11,6 +11,8 @@
 #include"../TimeScaleMgr.h"
 #include"GateManager.h"
 #include"CheckPointHitFlag.h"
+#include"../OperationConfig.h"
+#include"../System/SaveDataManager.h"
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
@@ -28,7 +30,7 @@ void StageParts::Init()
 	//m_transform.SetPos(m_initializedTransform.GetPos());
 	//m_transform.SetScale(m_initializedTransform.GetScale());
 	//m_transform.SetRotate(m_initializedTransform.GetRotate());
- 	m_transform = m_initializedTransform;
+	m_transform = m_initializedTransform;
 	OnInit();
 }
 
@@ -795,8 +797,8 @@ void Terrian::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_li
 
 std::array<std::shared_ptr<KuroEngine::TextureBuffer>, Gate::GATE_TEX_ARRAY_SIZE>Gate::s_texArray;
 
-Gate::Gate(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, int arg_id, int arg_destStageNum, int arg_destGateId)
-	:StageParts(GATE, arg_model, arg_initTransform), m_id(arg_id), m_destStageNum(arg_destStageNum), m_destGateId(arg_destGateId)
+Gate::Gate(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, int arg_id, int arg_destStageNum, int arg_destGateId, std::shared_ptr<GuideInsect::CheckPointData>checkPointData)
+	:StageParts(GATE, arg_model, arg_initTransform), m_id(arg_id), m_destStageNum(arg_destStageNum), m_destGateId(arg_destGateId), m_guideData(checkPointData)
 {
 	//テクスチャ読み込み
 	if (!s_texArray[0])
@@ -804,6 +806,7 @@ Gate::Gate(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg
 		KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(
 			s_texArray.data(), "resource/user/tex/stage/gate.png", GATE_TEX_ARRAY_SIZE, { GATE_TEX_ARRAY_SIZE,1 });
 	}
+	m_guideData->m_pos = m_transform.GetPosWorld();
 
 	static const float TEX_ANIM_INTERVAL = 4.0f;
 	m_animTimer.Reset(TEX_ANIM_INTERVAL);
@@ -834,7 +837,7 @@ void Gate::Update(Player& arg_player)
 	}
 
 	m_effectSinCurveAngle += Angle::ROUND() / EFFECT_INTERVAL;
-	m_effectScale = 1.0f + powf(sin(m_effectSinCurveAngle),2.0f) * EFFECT_SCALE_OFFSET;
+	m_effectScale = 1.0f + powf(sin(m_effectSinCurveAngle), 2.0f) * EFFECT_SCALE_OFFSET;
 }
 
 void Gate::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
@@ -846,7 +849,7 @@ void Gate::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMg
 
 	if (IsExit())return;
 
-	BasicDraw::Instance()->DrawBillBoard(arg_cam, 
+	BasicDraw::Instance()->DrawBillBoard(arg_cam,
 		m_transform.GetPosWorld() + m_transform.GetUpWorld() * DRAW_POS_OFFSET,
 		PLANE_SIZE * m_effectScale,
 		PLANE_SIZE * m_effectScale,
@@ -862,18 +865,39 @@ std::shared_ptr<CheckPointUI>CheckPoint::s_ui;
 KuroEngine::Transform CheckPoint::s_latestVisitTransform;
 bool CheckPoint::s_visit = false;
 
-CheckPoint::CheckPoint(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, int arg_order)
-	:StageParts(CHECK_POINT, arg_model, arg_initTransform), m_order(arg_order)
+CheckPoint::CheckPoint(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, int arg_order, std::shared_ptr<GuideInsect::CheckPointData>checkPointData)
+:StageParts(CHECK_POINT, arg_model, arg_initTransform), m_order(arg_order),m_guideData(checkPointData), m_fireWork(GPUParticleRender::Instance()->GetStackBuffer())
 {
 	//UI未生成なら生成
 	if (!s_ui)s_ui = std::make_shared<CheckPointUI>();
+	KuroEngine::Vec3<float>vec(m_transform.GetUpWorld());
+
+	if (1.0f <= abs(vec.x))
+	{
+		vec.x *= 10.0f;
+	}
+	if (1.0f <= abs(vec.y))
+	{
+		vec.y *= 10.0f;
+	}
+	if (1.0f <= abs(vec.z))
+	{
+		vec.z *= 10.0f;
+	}
 
 	m_bloomingFlowerModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/Stage/", "CheckPoint_Unlocked.glb");
+	m_guideData->m_pos = m_transform.GetPosWorld() + vec;
+}
+
+void CheckPoint::OnInit()
+{
 }
 
 void CheckPoint::Update(Player& arg_player)
 {
 	static const float CHECK_POINT_RADIUS = 10.0f;
+
+	m_fireWork.Update();
 
 	//起動済なら特に何もしない
 	if (m_touched)return;
@@ -884,15 +908,21 @@ void CheckPoint::Update(Player& arg_player)
 	//衝突した瞬間
 	if (!m_touched && isHit)
 	{
+		m_guideData->m_isHitFlag = true;
 		//UI出現
 		s_ui->Start();
 		//最後に訪れたチェックポイントのトランスフォームを記録
 		s_latestVisitTransform = m_transform;
 		s_visit = true;
 		CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger = true;
+		SaveDataManager::Instance()->Save(m_order);
+
+		m_fireWork.Init(m_transform.GetPosWorld());
 	}
 
+
 	m_touched = isHit;
+	m_guideData->m_isHitFlag = isHit;
 }
 
 void CheckPoint::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
@@ -971,4 +1001,23 @@ void StarCoin::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_l
 			m_transform,
 			halfAlphaParam);
 	}
+}
+
+BackGround::BackGround(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform)
+	:StageParts(BACKGROUND, arg_model, arg_initTransform)
+{
+	m_backGroundObjectTexBuffer = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/BackGroundObjectTexture.png");
+}
+
+void BackGround::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+{
+
+	BasicDraw::Instance()->Draw_BackGround(
+		m_backGroundObjectTexBuffer,
+		arg_cam,
+		arg_ligMgr,
+		m_model,
+		m_transform,
+		IndividualDrawParameter::GetDefault());
+
 }

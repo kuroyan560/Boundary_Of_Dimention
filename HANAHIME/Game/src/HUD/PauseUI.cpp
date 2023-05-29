@@ -7,6 +7,7 @@
 #include"../OperationConfig.h"
 #include"../SoundConfig.h"
 #include"../GameScene.h"
+#include"../System/SaveDataManager.h"
 
 void PauseUI::OnActive()
 {
@@ -175,13 +176,12 @@ void PauseUI::Update(GameScene* arg_gameScene, float arg_timeScale)
 			//SE再生
 			SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
 
-			//ファストトラベルと設定未実装
-			if (m_item == FAST_TRAVEL || m_item == SETTING)
+			//セーブデータがないのでファストトラベル出来ない
+			if (m_item == FAST_TRAVEL && !SaveDataManager::Instance()->LoadSaveData(nullptr))
 			{
-				if (m_item < oldItem)m_item = RETRY;
-				else if (oldItem < m_item)m_item = RETURN_TO_TITLE;
+				if (m_item < oldItem)m_item = PAUSE_ITEM(FAST_TRAVEL - 1);
+				else if (oldItem < m_item)m_item = PAUSE_ITEM(FAST_TRAVEL + 1);
 			}
-
 		}
 
 		//決定ボタン
@@ -199,8 +199,10 @@ void PauseUI::Update(GameScene* arg_gameScene, float arg_timeScale)
 					m_confirmMenu.m_confirmItem = ConfirmMenu::CONFIRM_ITEM::NONE;
 					break;
 				case FAST_TRAVEL:
+					arg_gameScene->ActivateFastTravel();
 					break;
 				case SETTING:
+					arg_gameScene->ActivateSystemSetting();
 					break;
 				case RETURN_TO_TITLE:
 					m_menuStatus = CONFIRM_MENU;
@@ -349,7 +351,8 @@ void PauseUI::Draw(int arg_totalGetFlowerNum)
 			//アルファ決定
 			float alpha = isSelected ? 1.0f : NO_SELECT_ITEM_ALPHA;
 
-			if (itemIdx == FAST_TRAVEL || itemIdx == SETTING)
+			//セーブデータがないのでファストトラベル出来ない
+			if (itemIdx == FAST_TRAVEL && !SaveDataManager::Instance()->LoadSaveData(nullptr))
 			{
 				itemStatus = DEFAULT;
 				alpha = 0.35f;

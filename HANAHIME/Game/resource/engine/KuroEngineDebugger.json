@@ -194,9 +194,6 @@
     }
   },
   "Player": {
-    "camera": {
-      "sensitivity": 1.0
-    },
     "debuggerSetting": {
       "active": false,
       "customParamActive": true,

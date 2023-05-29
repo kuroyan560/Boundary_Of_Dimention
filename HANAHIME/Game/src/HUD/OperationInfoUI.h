@@ -30,6 +30,11 @@ class OperationInfoUI : public InGameUI
 	//ボタン表記のアルファ
 	float m_opeButtonAlpha = 1.0f;
 
+	//無操作からしばらく出現させておく
+	KuroEngine::Timer m_idleTimer;
+	//退場の予約（アイドル時間のとき）
+	bool m_disappearCall = false;
+
 	void SetUIStatus(STATUS arg_status);
 
 	void Appear()override;

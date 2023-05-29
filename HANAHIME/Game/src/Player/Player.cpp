@@ -120,7 +120,6 @@ Player::Player()
 {
 	using namespace KuroEngine;
 
-	AddCustomParameter("Sensitivity", { "camera", "sensitivity" }, PARAM_TYPE::FLOAT, &m_camSensitivity, "Camera");
 	AddCustomParameter("Default_AccelSpeed", { "move","default","accelSpeed" }, PARAM_TYPE::FLOAT, &m_defaultAccelSpeed, "Move");
 	AddCustomParameter("Default_MaxSpeed", { "move","default","maxSpeed" }, PARAM_TYPE::FLOAT, &m_defaultMaxSpeed, "Move");
 	AddCustomParameter("Default_Brake", { "move","default","brake" }, PARAM_TYPE::FLOAT, &m_defaultBrake, "Move");
@@ -368,12 +367,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	if (CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger) {
 		m_checkPointRotY = m_cameraRotYStorage;
 		m_isCheckPointUpInverse = m_isCameraUpInverse;
-	}
-
-
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_J))
-	{
-		Damage();
 	}
 
 
@@ -694,6 +687,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 			//SEを鳴らす。
 			SoundConfig::Instance()->Play(SoundConfig::SE_CAM_MODE_CHANGE, -1, 0);
 
+
 		}
 
 	}
@@ -964,6 +958,18 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_playerMoveParticle.Update();
 
 	m_cameraNoCollisionTimer.UpdateTimer();
+
+
+	//ジャンプ後のクールタイムを修正。
+	m_canJumpDelayTimer = std::clamp(m_canJumpDelayTimer - 1, 0, 100);
+
+
+
+
+
+	////テスト用
+	//FastTravel::Instance()->Update();
+	//m_camController.GetCamera().lock()->GetTransform() = FastTravel::Instance()->GetCamera()->GetTransform();
 
 }
 
@@ -1485,3 +1491,17 @@ void Player::UpdateDamage()
 		m_damageShakeAmount = std::clamp(m_damageShakeAmount - SUB_DAMAGE_SHAKE_AMOUNT, 0.0f, 100.0f);
 	}
 }
+
+
+
+
+/*
+
+・オーバーヒートのバグ
+・IvyBlockの演出
+・目標地点に光の柱立てる
+・チェックポイントのゴールを切り替えたらモデルを切り替える。
+・浮島シェーダー
+・カメラ修正
+
+*/

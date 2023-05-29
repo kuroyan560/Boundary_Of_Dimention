@@ -115,11 +115,11 @@ void MiniBug::Update(Player &arg_player)
 	//生きていたら丸影を元に戻す。
 	m_shadowInfluenceRange = KuroEngine::Math::Lerp(m_shadowInfluenceRange, SHADOW_INFLUENCE_RANGE, 0.1f);
 
-	//敵発見時(プレイヤーが視界に入った)
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_1))
-	{
-		OnInit();
-	}
+	////敵発見時(プレイヤーが視界に入った)
+	//if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_1))
+	//{
+	//	OnInit();
+	//}
 
 	bool findFlag = m_sightArea.IsFind(arg_player.GetTransform().GetPos(), 180.0f);
 	//プレイヤーが違う法線の面にいたら見ないようにする。

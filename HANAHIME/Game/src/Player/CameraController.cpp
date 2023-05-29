@@ -77,6 +77,7 @@ void CameraController::Init(bool arg_isRespawn)
 	m_isCameraModeLookAround = false;
 	m_isLookAroundFinish = false;
 	m_isLookAroundFinishComplete = false;
+	m_oldHitFrontWallNormal = KuroEngine::Vec3<float>();
 }
 
 void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, float arg_defaultCameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode, std::vector<HIT_POINT> arg_hitPointData)
@@ -220,6 +221,7 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 
 	//フラグを保存しておく。
 	m_isOldFrontWall = arg_isFrontWall;
+	m_oldHitFrontWallNormal = arg_frontWallNormal;
 
 	//マップピンの座標の受け皿
 	KuroEngine::Transform mapPinPos;
@@ -352,21 +354,37 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(m_oldCameraWorldPos, checkHitRay.GetNormal(), checkHitMesh);
 				if (output.m_isHit && 0 < output.m_distance && output.m_distance < checkHitRay.Length()) {
 
-					pushBackPos = output.m_pos + output.m_normal;
-					m_isHitTerrian = true;
+					//上下側の壁だったら
+					if (0.9f < fabs(output.m_normal.Dot(Vec3<float>(0, 1, 0)))) {
+						m_nowParam.m_xAxisAngle = fromXAngle;
+					}
+					else {
+						m_nowParam.m_yAxisAngle = fromYAngle;
+						arg_playerRotY = fromYAngle;
+					}
 
-					PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse, true);
+					//カメラの座標を再度取得。
+					localPos = { 0,0,0 };
+					localPos.z = m_nowParam.m_posOffsetZ;
+					localPos.y = m_gazePointOffset.y + tan(-m_nowParam.m_xAxisAngle) * m_nowParam.m_posOffsetZ;
+					m_cameraLocalTransform.SetPos(Math::Lerp(m_cameraLocalTransform.GetPos(), localPos, m_camForwardPosLerpRate));
+					m_cameraLocalTransform.SetRotate(Vec3<float>::GetXAxis(), m_nowParam.m_xAxisAngle);
+
+					//コントローラーのトランスフォーム（対象の周囲、左右移動）更新
+					m_camParentTransform.SetRotate(Vec3<float>::GetYAxis(), m_nowParam.m_yAxisAngle);
+					m_camParentTransform.SetPos(Math::Lerp(m_camParentTransform.GetPos(), m_playerLerpPos, m_camFollowLerpRate));
+					pushBackPos = m_cameraLocalTransform.GetPosWorldByMatrix();
 
 				}
 
 				//プレイヤー方向のレイトの当たり判定を実行
-				Vec3<float> playerDir = m_playerLerpPos - pushBackPos;
-				output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos, playerDir.GetNormal(), checkHitMesh);
-				if (output.m_isHit && 0 < output.m_distance && output.m_distance < playerDir.Length()) {
+				//Vec3<float> playerDir = m_playerLerpPos - pushBackPos;
+				//output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(pushBackPos, playerDir.GetNormal(), checkHitMesh);
+				//if (output.m_isHit && 0 < output.m_distance && output.m_distance < playerDir.Length()) {
 
-					PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse, false);
+				//	PushBackGround(output, pushBackPos, arg_targetPos, arg_playerRotY, arg_isCameraUpInverse, false);
 
-				}
+				//}
 
 			}
 		}
@@ -509,7 +527,7 @@ void CameraController::JumpStart(const KuroEngine::Transform& arg_playerTransfor
 
 	}
 	//プレイヤーがZ面にいたら and Y面にジャンプしていたら。
-	if (0.9f < fabs(arg_playerTransform.GetUp().z) && 0.9f < fabs(arg_jumpEndNormal.y)) {
+	if ((0.9f < fabs(arg_playerTransform.GetUp().z) || 0.9f < fabs(arg_playerTransform.GetUp().x)) && 0.9f < fabs(arg_jumpEndNormal.y)) {
 
 		//カメラをいい感じの位置に補間する量。
 		const float CAMERA_LERP_AMOUNT = 0.25f;	//内積で使用するので、つまり地面から見て45度の位置に補間する。

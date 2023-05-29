@@ -36,6 +36,10 @@ OperationInfoUI::OperationInfoUI()
 			INPUT_STATUS_NUM, 
 			{ INPUT_STATUS_NUM,1 });
 	}
+
+	//出現後絶対に表示させる時間
+	static const float APPEAR_IDLE_INTERVAL = 300.0f;
+	m_idleTimer.Reset(APPEAR_IDLE_INTERVAL);
 }
 
 void OperationInfoUI::Init()
@@ -67,6 +71,12 @@ void OperationInfoUI::Update(float arg_timeScale)
 		{
 			SetUIStatus(DISAPPEAR);
 		}*/
+		if (m_idleTimer.UpdateTimer(arg_timeScale) && m_disappearCall)
+		{
+			//予約された退場の実行
+			Disappear();
+			m_disappearCall = false;
+		}
 	}
 	else if (m_status == DISAPPEAR)
 	{
@@ -105,10 +115,19 @@ void OperationInfoUI::Appear()
 {
 	if (m_status != DISAPPEAR)return;
 	SetUIStatus(APPEAR);
+	m_idleTimer.Reset();
 }
 
 void OperationInfoUI::Disappear()
 {
 	if (m_status != DRAW)return;
+
+	//出現後の表示アイドル時間が終わっていないなら
+	if (!m_idleTimer.IsTimeUp())
+	{
+		//予約
+		m_disappearCall = true;
+		return;
+	}
 	SetUIStatus(DISAPPEAR);
 }

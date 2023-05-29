@@ -22,7 +22,9 @@ private:
 		DirectX::XMFLOAT3 pos;
 		DirectX::XMFLOAT2 scale;
 		DirectX::XMFLOAT4 color;
-		DirectX::XMUINT2 timer;
+		DirectX::XMUINT3 timer;
+		DirectX::XMFLOAT2 angle;
+		DirectX::XMFLOAT3 basePos;
 	};
 	std::shared_ptr<KuroEngine::RWStructuredBuffer> m_fireFlyParticleData;
 	std::shared_ptr<KuroEngine::RWStructuredBuffer> m_fireFlyParticleCounterData;
