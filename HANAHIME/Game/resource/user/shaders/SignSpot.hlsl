@@ -49,10 +49,10 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
     float3 lenght = (dirPos - particle.pos);
     lenght = normalize(lenght);
     float3 vel = lenght * speed;
-    particle.vel = Larp(vel,particle.vel,0.01f);
+    particle.vel = Larp(vel * timeScale,particle.vel * timeScale,0.01f);
 
     //àÍê∂ÇΩÇ«ÇËíÖÇ©Ç»Ç¢ãììÆ
-    particle.pos += particle.vel * timeScale;
+    particle.pos += particle.vel;
 
 
     SignSpotBuffer[index] = particle;
