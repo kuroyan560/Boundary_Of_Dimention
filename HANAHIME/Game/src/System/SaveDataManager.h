@@ -11,6 +11,16 @@ struct SoundVolumeData
 	float m_bgmVolume = 1.0f;
 };
 
+struct OperationData
+{
+	//カメラミラーX
+	bool m_camMirrorX = false;
+	//カメラミラーY
+	bool m_camMirrorY = false;
+	//カメラ感度
+	float m_camSensitivity = 1.0f;
+};
+
 struct SaveData
 {
 	static const int INVALID = -1;
@@ -20,7 +30,10 @@ struct SaveData
 	//最後にたどり着いたチェックポイントのID（CheckPointOrder）
 	int m_reachCheckPointOrder = INVALID;
 	
+	//サウンド設定データ
 	SoundVolumeData m_soundVol;
+	//操作設定データ
+	OperationData m_operationSetting;
 
 	bool IsInvalid()const { return m_reachStageNum == INVALID || m_reachCheckPointOrder == INVALID; }
 };
@@ -48,5 +61,8 @@ public:
 
 	//サウンドボリュームに関するデータ
 	const SoundVolumeData& GetSoundVolumeData() { return m_saveData.m_soundVol; }
+
+	//操作方法に関するデータ
+	const OperationData& GetOperationData() { return m_saveData.m_operationSetting; }
 };
 

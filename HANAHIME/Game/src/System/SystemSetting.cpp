@@ -117,7 +117,7 @@ SystemSetting::SoundMenuGroup::SoundMenuGroup()
 	//サウンドボリュームデータ参照取得
 	auto& soundVolData = SaveDataManager::Instance()->m_saveData.m_soundVol;
 	m_gageParam[ITEM_MASTER].resize(static_cast<int>(soundVolData.m_masterVolume / VOL_CHANGE));
-	m_gageParam[ITEM_SE].resize(soundVolData.m_seVolume / VOL_CHANGE);
+	m_gageParam[ITEM_SE].resize(static_cast<int>(soundVolData.m_seVolume / VOL_CHANGE));
 	m_gageParam[ITEM_BGM].resize(static_cast<int>(soundVolData.m_bgmVolume / VOL_CHANGE));
 	//ゲージのパターンの決定
 	for (auto& patternArray : m_gageParam)
@@ -214,9 +214,9 @@ void SystemSetting::SoundMenuGroup::Draw()
 	//パターンごとの画像の高さ
 	const std::array<float, GAGE_PATTERN_NUM>GAGE_PATTERN_TEX_HEGIHT =
 	{
-		m_gagePatternTex[0]->GetGraphSize().y,
-		m_gagePatternTex[1]->GetGraphSize().y,
-		m_gagePatternTex[2]->GetGraphSize().y,
+		m_gagePatternTex[0]->GetGraphSize().Float().y,
+		m_gagePatternTex[1]->GetGraphSize().Float().y,
+		m_gagePatternTex[2]->GetGraphSize().Float().y,
 	};
 	//ゲージの間隔X
 	const float GAGE_SPACE_X = m_groundLineTex->GetGraphSize().x / static_cast<float>(VOL_STAGE_NUM);
@@ -251,6 +251,10 @@ void SystemSetting::SoundMenuGroup::Draw()
 	}
 }
 
+const float SystemSetting::OpeMenuGroup::CAM_SENSITIVITY_BASE = 1.0f;
+const float SystemSetting::OpeMenuGroup::CAM_SENSITIVITY_OFFSET_MAX = 0.5f;
+const float SystemSetting::OpeMenuGroup::CAM_SENSITIVITY_CHANGE = CAM_SENSITIVITY_OFFSET_MAX / static_cast<float>(CAM_SENSITIVITY_PLUS_MINUS_STAGE_NUM);
+
 SystemSetting::OpeMenuGroup::OpeMenuGroup()
 {
 	using namespace KuroEngine;
@@ -276,6 +280,10 @@ SystemSetting::OpeMenuGroup::OpeMenuGroup()
 	m_groundLineTex = D3D12App::Instance()->GenerateTextureBuffer(dir + "ground.png");
 	//地面ゲージのインデックスの葉
 	m_leafTex = D3D12App::Instance()->GenerateTextureBuffer(dir + "leaf.png");
+
+	//操作設定データ参照取得
+	auto& operationSettingData = SaveDataManager::Instance()->m_saveData.m_operationSetting;
+	m_camSensitivityParam = static_cast<int>((operationSettingData.m_camSensitivity - CAM_SENSITIVITY_BASE) / CAM_SENSITIVITY_CHANGE);
 }
 
 void SystemSetting::OpeMenuGroup::Update(SystemSetting* arg_parent)
@@ -297,6 +305,45 @@ void SystemSetting::OpeMenuGroup::Update(SystemSetting* arg_parent)
 
 	//項目変化あり
 	if (oldItem != m_nowItem)SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
+
+	//操作設定データ参照取得
+	auto& operationSettingData = SaveDataManager::Instance()->m_saveData.m_operationSetting;
+
+	//カメラ感度上げ下げ
+	if (m_nowItem == ITEM_SENSITIVITY)
+	{
+		bool camSensitivity = false;
+		if (leftInput)
+		{
+			operationSettingData.m_camSensitivity = std::clamp(
+				operationSettingData.m_camSensitivity - CAM_SENSITIVITY_CHANGE,
+				1.0f - CAM_SENSITIVITY_OFFSET_MAX, 1.0f + CAM_SENSITIVITY_OFFSET_MAX);
+
+			if (-CAM_SENSITIVITY_PLUS_MINUS_STAGE_NUM < m_camSensitivityParam)
+			{
+				m_camSensitivityParam--;
+				camSensitivity = true;
+			}
+		}
+		else if (rightInput)
+		{
+			operationSettingData.m_camSensitivity = std::clamp(
+				operationSettingData.m_camSensitivity + CAM_SENSITIVITY_CHANGE,
+				1.0f - CAM_SENSITIVITY_OFFSET_MAX, 1.0f + CAM_SENSITIVITY_OFFSET_MAX);
+
+			if (m_camSensitivityParam < CAM_SENSITIVITY_PLUS_MINUS_STAGE_NUM)
+			{
+				m_camSensitivityParam++;
+				camSensitivity = true;
+			}
+		}
+
+		//カメラ感度に変化あり
+		if (camSensitivity)
+		{
+			SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
+		}
+	}
 
 	//決定「戻る」
 	if (doneInput && m_nowItem == ITEM_BACK)
@@ -323,9 +370,10 @@ void SystemSetting::OpeMenuGroup::Draw()
 	const std::array<Vec2<float>, ITEM_NUM>ITEM_CENTER_POS =
 	{
 		Vec2<float>(563.0f,152.0f),
-		Vec2<float>(355.0f,373.0f),
+		Vec2<float>(335.0f,373.0f),
 		Vec2<float>(346.0f,642.0f),
 	};
+
 	for (int itemIdx = 0; itemIdx < ITEM_NUM; ++itemIdx)
 	{
 		int texIdx = (m_nowItem == itemIdx ? ITEM_STATUS::SELECTED : ITEM_STATUS::DEFAULT);
@@ -336,7 +384,19 @@ void SystemSetting::OpeMenuGroup::Draw()
 	DrawFunc2D::DrawRotaGraph2D({ 921.0f,ITEM_CENTER_POS[ITEM_MIRROR].y }, { 1.0f,1.0f }, 0.0f, m_camMirrorCheckBoxTex);
 
 	//地面ゲージ
-	DrawFunc2D::DrawGraph({ 504.0f,390.0f }, m_groundLineTex);
+	const Vec2<float>GROUND_LINE_CENTER_POS = { 864.0f,468.0f };
+	DrawFunc2D::DrawRotaGraph2D(GROUND_LINE_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_groundLineTex);
+
+	//ゲージの草の左端と右端
+	const float LEAF_CENTER_POS_X_MIN = 568.0f;
+	const float LEAF_CENTER_POS_X_MAX = 1158.0f;
+	//ゲージの草の高さ
+	const float LEAF_CENTER_POS_Y = 369.0f;
+	//ゲージの草の間隔
+	const float LEAF_SPACE_X = (LEAF_CENTER_POS_X_MAX - GROUND_LINE_CENTER_POS.x) / static_cast<float>(CAM_SENSITIVITY_PLUS_MINUS_STAGE_NUM);
+
+	//ゲージの草の描画
+	DrawFunc2D::DrawRotaGraph2D({ GROUND_LINE_CENTER_POS.x + LEAF_SPACE_X * m_camSensitivityParam,LEAF_CENTER_POS_Y }, { 1.0f,1.0f }, 0.0f, m_leafTex);
 }
 
 void SystemSetting::Update()

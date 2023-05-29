@@ -74,7 +74,6 @@ class SystemSetting
 
 		//パラメータの段階数
 		static const int VOL_STAGE_NUM = 10;
-		//ボリュームのオフセット
 		static const float VOL_CHANGE;
 
 	public:
@@ -106,6 +105,18 @@ class SystemSetting
 		std::shared_ptr<KuroEngine::TextureBuffer>m_groundLineTex;
 		//地面ゲージのインデックスの葉
 		std::shared_ptr<KuroEngine::TextureBuffer>m_leafTex;
+
+		//カメラ感度の段階数
+		static const int CAM_SENSITIVITY_PLUS_MINUS_STAGE_NUM = 5;
+		//カメラ感度の基準
+		static const float CAM_SENSITIVITY_BASE;
+		//カメラ感度最大オフセット
+		static const float CAM_SENSITIVITY_OFFSET_MAX;
+		//カメラ感度オフセット
+		static const float CAM_SENSITIVITY_CHANGE;
+
+		//カメラ感度のゲージ位置
+		int m_camSensitivityParam = 0;
 
 	public:
 		OpeMenuGroup();

@@ -1,6 +1,7 @@
 #include "OperationConfig.h"
 #include"FrameWork/UsersInput.h"
 #include"FrameWork/WinApp.h"
+#include"System/SaveDataManager.h"
 
 using namespace KuroEngine;
 
@@ -159,7 +160,7 @@ KuroEngine::Vec3<float> OperationConfig::GetScopeMove()
 {
 	if (!m_isAllInputActive || !m_isInGameOperationActive)return { 0,0,0 };
 
-	float sensitivity = m_params[m_nowInputDevice].m_camSensitivity;
+	float sensitivity = m_params[m_nowInputDevice].m_camSensitivity * SaveDataManager::Instance()->GetOperationData().m_camSensitivity;
 	Vec3<float>result;
 
 	//ƒ}ƒEƒX“ü—Í
