@@ -1,8 +1,8 @@
 #include "Enemy.h"
-#include"../../Player/Player.h"
 #include"FrameWork/UsersInput.h"
 #include"../../Graphics/BasicDraw.h"
 #include"../../OperationConfig.h"
+#include"../../Player/Player.h"
 
 int MiniBug::ENEMY_MAX_ID = 0;
 
@@ -561,6 +561,7 @@ void DossunRing::Update(Player &arg_player)
 
 	if (m_deadFlag && IsActive(m_transform, arg_player.GetTransform()))
 	{
+		Attack(arg_player);
 		return;
 	}
 	else
@@ -570,6 +571,8 @@ void DossunRing::Update(Player &arg_player)
 	//死亡準備処理
 	if (m_startDeadMotionFlag && !m_deadFlag)
 	{
+		Attack(arg_player);
+
 		m_deadScale = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, m_deadTimer.GetTimeRate(), 1.0f, 0.0f);
 		m_transform.SetScale(m_deadScale);
 
@@ -674,36 +677,8 @@ void DossunRing::Update(Player &arg_player)
 	m_larpScale = KuroEngine::Math::Lerp(m_larpScale, m_scale, larpRate);
 	m_transform.SetScale(m_larpScale);
 
-	//攻撃開始
-	if (m_attackFlag)
-	{
-		//当たり判定の広がり
-		m_attackHitBoxRadius = m_attackTimer.GetTimeRate() * m_attackhitBoxRadiusMax;
-		m_ringColor.m_a = m_attackTimer.GetInverseTimeRate();
+	Attack(arg_player);
 
-		//広がり切ったらインターバルに戻る
-		if (m_attackTimer.UpdateTimer())
-		{
-			m_attackHitBoxRadius = 0.0f;
-			m_attackInterval.Reset(m_maxAttackIntervalTime);
-			m_attackFlag = false;
-			m_findPlayerFlag = false;
-		}
-
-		KuroEngine::Vec3<float>playerPos(arg_player.GetTransform().GetPos());
-		KuroEngine::Vec3<float>playerUpVec(arg_player.GetTransform().GetUp());
-		KuroEngine::Vec3<float>enemyPlayerVec(arg_player.GetTransform().GetPos() - *(m_hitBox.m_centerPos));
-		enemyPlayerVec.Normalize();
-
-		if (!arg_player.GetIsUnderGround() && Collision::Instance()->CheckPointAndEdgeOfCircle(
-			m_hitBox,
-			playerPos,
-			playerUpVec,
-			enemyPlayerVec))
-		{
-			arg_player.Damage();
-		}
-	}
 }
 
 void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
@@ -711,10 +686,6 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 	if (m_deadFlag)
 	{
 		return;
-	}
-	if (m_attackFlag)
-	{
-		bool debug = false;
 	}
 
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
@@ -780,6 +751,40 @@ void DossunRing::DebugDraw(KuroEngine::Camera &camera)
 
 }
 #pragma endregion
+
+void DossunRing::Attack(Player &arg_player)
+{
+	//攻撃開始
+	if (m_attackFlag)
+	{
+		//当たり判定の広がり
+		m_attackHitBoxRadius = m_attackTimer.GetTimeRate() * m_attackhitBoxRadiusMax;
+		m_ringColor.m_a = m_attackTimer.GetInverseTimeRate();
+
+		//広がり切ったらインターバルに戻る
+		if (m_attackTimer.UpdateTimer())
+		{
+			m_attackHitBoxRadius = 0.0f;
+			m_attackInterval.Reset(m_maxAttackIntervalTime);
+			m_attackFlag = false;
+			m_findPlayerFlag = false;
+		}
+
+		KuroEngine::Vec3<float>playerPos(arg_player.GetTransform().GetPos());
+		KuroEngine::Vec3<float>playerUpVec(arg_player.GetTransform().GetUp());
+		KuroEngine::Vec3<float>enemyPlayerVec(arg_player.GetTransform().GetPos() - *(m_hitBox.m_centerPos));
+		enemyPlayerVec.Normalize();
+
+		if (!arg_player.GetIsUnderGround() && Collision::Instance()->CheckPointAndEdgeOfCircle(
+			m_hitBox,
+			playerPos,
+			playerUpVec,
+			enemyPlayerVec))
+		{
+			arg_player.Damage();
+		}
+	}
+}
 
 
 #pragma region Battery

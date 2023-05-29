@@ -369,6 +369,8 @@ private:
 		//攻撃のクールタイム
 		m_maxAttackTime = DebugEnemy::Instance()->GetDossunParam().m_attackCoolTime;
 	}
+
+	void Attack(Player &arg_player);
 };
 
 class Battery : public StageParts, IEnemyAI
