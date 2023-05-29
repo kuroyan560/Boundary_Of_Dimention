@@ -97,7 +97,7 @@
   },
   "EnemyDebug": {
     "common": {
-      "draw_HitBox": false,
+      "draw_HitBox": true,
       "draw_Sight": false
     },
     "debuggerSetting": {
