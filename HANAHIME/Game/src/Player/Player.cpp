@@ -261,6 +261,12 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_cameraReturnTimer.Reset(CAMERA_RETURN_TIMER);
 	m_cameraReturnTimer.ForciblyTimeUp();
 
+	//プレイヤーのY軸方向でカメラを反転させるかを決める。
+	if (m_transform.GetUp().y <= -0.9f) {
+		m_isCameraUpInverse = true;
+	}
+	m_camController.Respawn(m_transform, m_isCameraUpInverse);
+
 }
 
 void Player::Respawn(KuroEngine::Transform arg_initTransform, const std::weak_ptr<Stage>arg_nowStage)
