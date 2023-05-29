@@ -41,7 +41,6 @@ void SightSearch::Init(
 
 bool SightSearch::IsFind(const KuroEngine::Vec3<float> &pos, float viewAngle)
 {
-
 	bool findFlag = true;
 	for (int i = 0; i < m_rayArray.size(); ++i)
 	{

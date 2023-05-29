@@ -705,7 +705,7 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 		m_transform,
 		edgeColor);
 
-	KuroEngine::Transform transform = m_transform;
+	KuroEngine::Transform transform = m_initializedTransform;
 	transform.SetPos(*(m_hitBox.m_centerPos));
 	float scale = *(m_hitBox.m_radius);
 	transform.SetScale(KuroEngine::Vec3<float>(scale, 5.0f, scale));

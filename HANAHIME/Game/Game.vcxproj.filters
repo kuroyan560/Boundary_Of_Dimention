@@ -485,7 +485,7 @@
       <Filter>src\user\HUD</Filter>
     </ClCompile>
     <ClCompile Include="src\DebugEnemy.cpp">
-          </ClCompile>
+    </ClCompile>
     <ClCompile Include="src\System\SaveDataManager.cpp">
       <Filter>src\user\System</Filter>
     </ClCompile>
