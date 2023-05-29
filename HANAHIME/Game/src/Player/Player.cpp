@@ -960,7 +960,8 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	m_cameraNoCollisionTimer.UpdateTimer();
 
 
-
+	//ジャンプ後のクールタイムを修正。
+	m_canJumpDelayTimer = std::clamp(m_canJumpDelayTimer - 1, 0, 100);
 
 
 
