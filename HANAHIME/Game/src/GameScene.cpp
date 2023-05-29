@@ -137,6 +137,7 @@ void GameScene::OnInitialize()
 	&m_ligMgr,
 	m_fogPostEffect.get(),
 	SoundConfig::Instance(),
+	DebugEnemy::Instance()
 		});
 
 	m_debugCam.Init({ 0,5,-10 });
@@ -227,7 +228,7 @@ void GameScene::OnUpdate()
 		m_nowCam = m_debugCam;
 	}
 
-	m_grass.Update(1.0f, m_player.GetIsOverheat(), m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrowPlantLight().m_influenceRange, StageManager::Instance()->GetNowStage(), m_player.GetIsAttack(), m_player.GetMoveSpeed());
+	//m_grass.Update(1.0f, m_player.GetIsOverheat(), m_player.GetTransform(), m_player.GetCamera(), m_player.GetGrowPlantLight().m_influenceRange, StageManager::Instance()->GetNowStage(), m_player.GetIsAttack(), m_player.GetMoveSpeed());
 
 
 	if (m_player.GetIsFinishDeathAnimation() && !m_deadFlag)
@@ -239,6 +240,8 @@ void GameScene::OnUpdate()
 
 	if (m_gateSceneChange.IsHide())
 	{
+		DebugEnemy::Instance()->SetStageNum(m_stageNum);
+
 		m_deadFlag = false;
 
 		if (m_nextScene == SCENE_TITLE)
@@ -293,6 +296,31 @@ void GameScene::OnUpdate()
 		m_player.DisactiveLight();
 	}
 
+	//そのステージにいるすべての敵にワープする
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_0))
+	{
+		m_player.Init(DebugEnemy::Instance()->GetTransform());
+	}
+	//そのステージにいるミニバグにワープする
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_1))
+	{
+		m_player.Init(DebugEnemy::Instance()->GetSpecificTransform(ENEMY_MINIBUG));
+	}
+	//そのステージにいるミニバグにワープする
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_2))
+	{
+		m_player.Init(DebugEnemy::Instance()->GetSpecificTransform(ENEMY_DOSSUN_ALLWAYS));
+	}
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_3))
+	{
+		m_player.Init(DebugEnemy::Instance()->GetSpecificTransform(ENEMY_DOSSUN_NORMAL));
+	}
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_LSHIFT))
+	{
+		KuroEngine::Transform &transform = m_nowCam->GetTransform();
+		transform.SetPos(m_player.GetTransform().GetPos());
+	}
+
 	m_gateSceneChange.Update();
 	m_fireFlyStage.ComputeUpdate(m_player.GetTransform().GetPos());
 
@@ -329,7 +357,7 @@ void GameScene::OnDraw()
 	{
 		m_goal.Draw(*m_nowCam);
 		m_player.Draw(*m_nowCam, ds, m_ligMgr, DebugController::Instance()->IsActive());
-		m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
+		//m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
 	}
 
 	//ステージ描画

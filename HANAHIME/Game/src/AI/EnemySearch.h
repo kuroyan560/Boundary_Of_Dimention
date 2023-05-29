@@ -152,7 +152,7 @@ public:
 	void Init(const Sphere &sphere);
 	//Ž‹ŠE“à‚É–Ú•W‚Ì•¨‘Ì‚ÍŒ©‚Â‚©‚Á‚½‚©
 	bool IsFind(const Sphere &sphere);
-	void DebugDraw(KuroEngine::Camera &camera);
+	void DebugDraw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr);
 
 private:
 	Sphere m_hitBox;

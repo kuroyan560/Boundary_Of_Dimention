@@ -484,6 +484,8 @@
     <ClCompile Include="src\HUD\CameraModeUI.cpp">
       <Filter>src\user\HUD</Filter>
     </ClCompile>
+    <ClCompile Include="src\DebugEnemy.cpp">
+    </ClCompile>
     <ClCompile Include="src\System\SaveDataManager.cpp">
       <Filter>src\user\System</Filter>
     </ClCompile>
@@ -491,6 +493,9 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Stage\CheckPointPillar.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\AI\EnemyStatus.cpp">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\System\FastTravel.cpp">
@@ -935,6 +940,10 @@
     <ClInclude Include="src\HUD\CameraModeUI.h">
       <Filter>src\user\HUD</Filter>
     </ClInclude>
+    <ClInclude Include="src\DebugEnemy.h" />
+    <ClInclude Include="CheckPointPillar.h" />
+    <ClInclude Include="src\Stage\CheckPointPillar.h" />
+    <ClInclude Include="src\AI\EnemyStatus.h" />
     <ClInclude Include="src\System\SaveDataManager.h">
       <Filter>src\user\System</Filter>
     </ClInclude>

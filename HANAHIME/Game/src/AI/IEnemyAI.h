@@ -163,6 +163,16 @@ public:
 		return isTrueFlag;
 	}
 
+	//Rotaiton‚©‚çãƒxƒNƒgƒ‹‚ğ“¾‚é
+	KuroEngine::Vec3<float>GetUpNomal(const KuroEngine::Quaternion &quaternion)
+	{
+		KuroEngine::Vec3<float>vec;
+		vec.x = -std::clamp(quaternion.m128_f32[0], -1.0f, 1.0f);
+		vec.y = -std::clamp(quaternion.m128_f32[1], -1.0f, 1.0f);
+		vec.z = -std::clamp(quaternion.m128_f32[2], -1.0f, 1.0f);
+		return vec;
+	}
+
 
 	void DeadMotion(KuroEngine::Vec3<float> &pos, KuroEngine::Vec3<float> &vec, KuroEngine::Quaternion &rotation)
 	{
