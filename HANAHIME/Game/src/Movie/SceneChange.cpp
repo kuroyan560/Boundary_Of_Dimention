@@ -71,9 +71,9 @@ void SceneChange::Start()
 {
 	if (m_startFlag)
 	{
-		m_countTimeUpNum = 0;
-		m_alphaOffset = m_time.GetInverseTimeRate();
-		m_time.Reset(m_time.GetLeftTime());
+		//m_countTimeUpNum = 0;
+		//m_alphaOffset = m_time.GetInverseTimeRate();
+		//m_time.Reset(m_time.GetLeftTime());
 	}
 	else
 	{

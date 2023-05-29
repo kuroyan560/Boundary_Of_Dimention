@@ -171,11 +171,16 @@ public:
 	void OnInit()override
 	{
 		m_offset.SetScale({ 0.0f, 0.0f, 0.0f });
+		m_hitPlayer = false;
 	}
 	void Update(Player &arg_player)override;
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
 
-	const bool &HitPlayer()const { return m_hitPlayer; }
+	const bool &HitPlayer()const
+	{
+		bool flag = m_hitPlayer;
+		return m_hitPlayer;
+	}
 
 	//描画時のオフセット
 	KuroEngine::Transform m_offset;
