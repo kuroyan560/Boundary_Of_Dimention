@@ -15,7 +15,8 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 		sizeof(InputData),
 		particleMaxNum,
 		nullptr,
-		"FireFlyParticleData - RWStructuredBuffer");
+		"FireFlyParticleData - RWStructuredBuffer"
+	);
 
 	//蛍の描画情報
 	KuroEngine::D3D12App::Instance()->GenerateRWStructuredBuffer(
@@ -23,7 +24,8 @@ GPUParticleRender::GPUParticleRender(int MAXNUM)
 		sizeof(DrawData),
 		particleMaxNum,
 		nullptr,
-		"FireFlyDrawData - RWStructuredBuffer");
+		"FireFlyDrawData - RWStructuredBuffer"
+	);
 
 	//ビュープロジェクション行列
 	m_viewPorjBuffer = KuroEngine::D3D12App::Instance()->GenerateConstantBuffer(
