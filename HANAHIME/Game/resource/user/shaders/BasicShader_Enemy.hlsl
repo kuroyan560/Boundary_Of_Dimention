@@ -249,16 +249,16 @@ PSOutput_Player PSmain(VSOutput input) : SV_TARGET
     
     
     //ライティングを行う。
-    if (inSphereData.inSphre)
-    {
+    //if (inSphereData.inSphre)
+    //{
         //float3 playerColor = float3(0.35f, 0.90f, 0.57f);
-        float3 playerColor = float3(1.0f, 0.0f, 0.0f);
-        float rate = 0.5f * inSphereData.rate;
+        float3 playerColor = float3(1,0,0);
+        float rate = 1.0f * inSphereData.rate;
         result.xyz += CalcLimLight(-normalize(input.worldpos - cam.eyePos), playerColor, input.normal, normalize(input.worldpos - cam.eyePos));
         //result.xyz += saturate(dot(normalize(inSphereData.upVec + float3(0, 0, 5.0f)), input.normal) * playerColor) * rate;
         //result.xyz += saturate(dot(normalize(inSphereData.upVec + float3(0, 0, -5.0f)), input.normal) * playerColor) * rate;
         
-    }
+    //}
     
     
     

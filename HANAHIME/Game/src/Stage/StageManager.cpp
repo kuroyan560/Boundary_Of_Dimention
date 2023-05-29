@@ -30,6 +30,7 @@ StageManager::StageManager()
 	int loadPazzleIdx = 1;
 	while (KuroEngine::ExistFile(stageDir + "P_Stage_" + std::to_string(loadPazzleIdx) + ".json"))
 	{
+		DebugEnemy::Instance()->StackStage();
 		m_stageArray.emplace_back(std::make_shared<Stage>());
 		m_stageArray.back()->Load(loadPazzleIdx, stageDir, "P_Stage_" + std::to_string(loadPazzleIdx++) + ".json", terrianScaling, false);
 	}
@@ -140,6 +141,7 @@ bool StageManager::GetNowMapPinTransform(KuroEngine::Transform* arg_destPos)
 {
 	if (m_nowStage->GetCompleteMapPin())return false;
 	const auto& mapPinPointArray = m_nowStage->GetMapPinPointArray();
+	if (m_nowMapPinPointIdx < 0 || mapPinPointArray.size() <= m_nowMapPinPointIdx)return false;
 	if (arg_destPos)*arg_destPos = mapPinPointArray[m_nowMapPinPointIdx].lock()->GetTransform();
 	return true;
 }
