@@ -1036,7 +1036,7 @@ void BackGround::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg
 	}
 	else
 	{
-		BasicDraw::Instance()->Draw_Stage(
+		BasicDraw::Instance()->Draw(
 			arg_cam,
 			arg_ligMgr,
 			m_model,
