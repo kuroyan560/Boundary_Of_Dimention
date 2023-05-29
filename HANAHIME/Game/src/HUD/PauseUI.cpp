@@ -177,7 +177,7 @@ void PauseUI::Update(GameScene* arg_gameScene, float arg_timeScale)
 			SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
 
 			//セーブデータがないのでファストトラベル出来ない
-			if (m_item == FAST_TRAVEL && !SaveDataManager::Instance()->LoadSaveData(nullptr))
+			if (m_item == FAST_TRAVEL && !SaveDataManager::Instance()->LoadStageSaveData(nullptr, nullptr))
 			{
 				if (m_item < oldItem)m_item = PAUSE_ITEM(FAST_TRAVEL - 1);
 				else if (oldItem < m_item)m_item = PAUSE_ITEM(FAST_TRAVEL + 1);
@@ -352,7 +352,7 @@ void PauseUI::Draw(int arg_totalGetFlowerNum)
 			float alpha = isSelected ? 1.0f : NO_SELECT_ITEM_ALPHA;
 
 			//セーブデータがないのでファストトラベル出来ない
-			if (itemIdx == FAST_TRAVEL && !SaveDataManager::Instance()->LoadSaveData(nullptr))
+			if (itemIdx == FAST_TRAVEL && !SaveDataManager::Instance()->LoadStageSaveData(nullptr, nullptr))
 			{
 				itemStatus = DEFAULT;
 				alpha = 0.35f;

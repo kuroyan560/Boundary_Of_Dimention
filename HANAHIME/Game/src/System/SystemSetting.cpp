@@ -4,6 +4,7 @@
 #include"ForUser/DrawFunc/2D/DrawFunc2D.h"
 #include"FrameWork/WinApp.h"
 #include"../SoundConfig.h"
+#include"SaveDataManager.h"
 
 std::string SystemSetting::TEX_DIR = "resource/user/tex/setting/";
 
@@ -89,6 +90,8 @@ void SystemSetting::MainMenuGroup::Draw()
 	}
 }
 
+const float SystemSetting::SoundMenuGroup::VOL_CHANGE = 1.0f / static_cast<float>(VOL_STAGE_NUM);
+
 SystemSetting::SoundMenuGroup::SoundMenuGroup()
 {
 	using namespace KuroEngine;
@@ -108,6 +111,24 @@ SystemSetting::SoundMenuGroup::SoundMenuGroup()
 	m_groundLineTex = D3D12App::Instance()->GenerateTextureBuffer(dir + "ground_line.png");
 	//ゲージのパターン数
 	D3D12App::Instance()->GenerateTextureBuffer(m_gagePatternTex.data(), dir + "pattern.png", GAGE_PATTERN_NUM, { GAGE_PATTERN_NUM ,1 });
+
+	for (auto& array : m_gageParam)array.reserve(VOL_STAGE_NUM);
+
+	//サウンドボリュームデータ参照取得
+	auto& soundVolData = SaveDataManager::Instance()->m_saveData.m_soundVol;
+	m_gageParam[ITEM_MASTER].resize(static_cast<int>(soundVolData.m_masterVolume / VOL_CHANGE));
+	m_gageParam[ITEM_SE].resize(soundVolData.m_seVolume / VOL_CHANGE);
+	m_gageParam[ITEM_BGM].resize(static_cast<int>(soundVolData.m_bgmVolume / VOL_CHANGE));
+	//ゲージのパターンの決定
+	for (auto& patternArray : m_gageParam)
+	{
+		for (auto& patternIdx : patternArray)patternIdx = GetPattern();
+	}
+}
+
+void SystemSetting::SoundMenuGroup::Init()
+{
+	m_nowItem = ITEM_MASTER;
 }
 
 void SystemSetting::SoundMenuGroup::Update(SystemSetting* arg_parent)
@@ -121,14 +142,48 @@ void SystemSetting::SoundMenuGroup::Update(SystemSetting* arg_parent)
 
 	//変化前の項目
 	auto oldItem = m_nowItem;
-
 	//項目上へ
 	if (0 < m_nowItem && upInput)m_nowItem = (ITEM)(m_nowItem - 1);
 	//項目下へ
 	if (m_nowItem < ITEM_NUM - 1 && downInput)m_nowItem = (ITEM)(m_nowItem + 1);
-
 	//項目変化あり
 	if (oldItem != m_nowItem)SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
+
+	//サウンドボリュームデータ参照取得
+	auto& soundVolData = SaveDataManager::Instance()->m_saveData.m_soundVol;
+
+	//音量上げ下げ
+	bool volChange = false;
+	if (leftInput)
+	{
+		if (m_nowItem == ITEM_MASTER)soundVolData.m_masterVolume = std::clamp(soundVolData.m_masterVolume - VOL_CHANGE, 0.0f, 1.0f);
+		else if (m_nowItem == ITEM_SE)soundVolData.m_seVolume = std::clamp(soundVolData.m_seVolume - VOL_CHANGE, 0.0f, 1.0f);
+		else if (m_nowItem == ITEM_BGM)soundVolData.m_bgmVolume = std::clamp(soundVolData.m_bgmVolume - VOL_CHANGE, 0.0f, 1.0f);
+
+		if (!m_gageParam[m_nowItem].empty())
+		{
+			m_gageParam[m_nowItem].pop_back();
+			volChange = true;
+		}
+	}
+	else if (rightInput)
+	{
+		if (m_nowItem == ITEM_MASTER)soundVolData.m_masterVolume = std::clamp(soundVolData.m_masterVolume + VOL_CHANGE, 0.0f, 1.0f);
+		else if (m_nowItem == ITEM_SE)soundVolData.m_seVolume = std::clamp(soundVolData.m_seVolume + VOL_CHANGE, 0.0f, 1.0f);
+		else if (m_nowItem == ITEM_BGM)soundVolData.m_bgmVolume = std::clamp(soundVolData.m_bgmVolume + VOL_CHANGE, 0.0f, 1.0f);
+
+		if (static_cast<int>(m_gageParam[m_nowItem].size()) < VOL_STAGE_NUM)
+		{
+			m_gageParam[m_nowItem].emplace_back(GetPattern());
+			volChange = true;
+		}
+	}
+	//音量に変化あり
+	if (volChange)
+	{
+		SoundConfig::Instance()->UpdateIndividualVolume();
+		SoundConfig::Instance()->Play(SoundConfig::SE_GRASS);
+	}
 
 	//決定「戻る」
 	if (doneInput && m_nowItem == ITEM_BACK)
@@ -152,8 +207,19 @@ void SystemSetting::SoundMenuGroup::Draw()
 	DrawFunc2D::DrawGraph({ 0.0f,32.0f }, m_headTex);
 
 	//地面ゲージのX
-	const float GROUND_GAGE_X = 588.0f;
+	const float GROUND_GAGE_LEFT_X = 588.0f;
+	const float GROUND_GAGE_RIGHT_X = GROUND_GAGE_LEFT_X + m_groundLineTex->GetGraphSize().x;
 	const float GROUND_GAGE_OFFSEY_Y = 16.0f;
+
+	//パターンごとの画像の高さ
+	const std::array<float, GAGE_PATTERN_NUM>GAGE_PATTERN_TEX_HEGIHT =
+	{
+		m_gagePatternTex[0]->GetGraphSize().y,
+		m_gagePatternTex[1]->GetGraphSize().y,
+		m_gagePatternTex[2]->GetGraphSize().y,
+	};
+	//ゲージの間隔X
+	const float GAGE_SPACE_X = m_groundLineTex->GetGraphSize().x / static_cast<float>(VOL_STAGE_NUM);
 
 	//項目の描画
 	const std::array<Vec2<float>, ITEM_NUM>ITEM_CENTER_POS =
@@ -171,7 +237,16 @@ void SystemSetting::SoundMenuGroup::Draw()
 		//地面ゲージ
 		if (itemIdx != ITEM_BACK)
 		{
-			DrawFunc2D::DrawGraph({ GROUND_GAGE_X,ITEM_CENTER_POS[itemIdx].y + GROUND_GAGE_OFFSEY_Y }, m_groundLineTex);
+			Vec2<float>groundPos = { GROUND_GAGE_LEFT_X,ITEM_CENTER_POS[itemIdx].y + GROUND_GAGE_OFFSEY_Y };
+			DrawFunc2D::DrawGraph(groundPos, m_groundLineTex);
+
+			//ゲージの描画
+			for (int gageIdx = 0; gageIdx < static_cast<int>(m_gageParam[itemIdx].size()); ++gageIdx)
+			{
+				int patternIdx = m_gageParam[itemIdx][gageIdx];
+				Vec2<float>leftUpPos = { GROUND_GAGE_LEFT_X + GAGE_SPACE_X * gageIdx, groundPos.y - GAGE_PATTERN_TEX_HEGIHT[patternIdx] };
+				DrawFunc2D::DrawGraph(leftUpPos, m_gagePatternTex[patternIdx]);
+			}
 		}
 	}
 }

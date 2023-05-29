@@ -160,50 +160,28 @@ int StageManager::ExistStarCoinNum() const
 	return m_nowStage->ExistStarCoinNum();
 }
 
-//std::vector<std::vector<KuroEngine::Transform>> StageManager::GetUnlockedCheckPointTransformArray() const
-//{
-//	SaveData saveData;
-//	std::vector<std::vector<KuroEngine::Transform>>result;
-//
-//	if (!SaveDataManager::Instance()->LoadSaveData(&saveData))return result;
-//
-//	for (int stageIdx = 0; stageIdx <= saveData.m_reachStageNum; ++stageIdx)
-//	{
-//		result.emplace_back();
-//		for (auto& checkPoint : m_stageArray[stageIdx]->GetCheckPointArray())
-//		{
-//			if (stageIdx == saveData.m_reachStageNum && saveData.m_reachCheckPointOrder < checkPoint.lock()->GetOrder())break;
-//
-//			result.back().emplace_back(checkPoint.lock()->GetInitTransform());
-//		}
-//	}
-//
-//	return result;
-//}
-
 bool StageManager::GetUnlockedCheckPointInfo(std::vector<std::vector<KuroEngine::Transform>>* arg_transformArray, int* arg_recentStageNum, int* arg_recentIdx) const
 {
-	SaveData saveData;
-
 	if (!arg_transformArray || !arg_recentStageNum || !arg_recentIdx)return false;
 
-	if (!SaveDataManager::Instance()->LoadSaveData(&saveData))return false;
+	int reachStageNum, reachCheckPointOrder;
+	if (!SaveDataManager::Instance()->LoadStageSaveData(&reachStageNum, &reachCheckPointOrder))return false;
 
 	arg_transformArray->clear();
 
-	for (int stageIdx = 0; stageIdx <= saveData.m_reachStageNum; ++stageIdx)
+	for (int stageIdx = 0; stageIdx <= reachStageNum; ++stageIdx)
 	{
 		arg_transformArray->emplace_back();
 		for (auto& checkPoint : m_stageArray[stageIdx]->GetCheckPointArray())
 		{
-			if (stageIdx == saveData.m_reachStageNum && saveData.m_reachCheckPointOrder < checkPoint.lock()->GetOrder())break;
+			if (stageIdx == reachStageNum && reachCheckPointOrder < checkPoint.lock()->GetOrder())break;
 
 			arg_transformArray->back().emplace_back(checkPoint.lock()->GetInitTransform());
-			if (stageIdx == saveData.m_reachStageNum && saveData.m_reachCheckPointOrder == checkPoint.lock()->GetOrder())*arg_recentIdx = static_cast<int>(arg_transformArray->back().size()) - 1;
+			if (stageIdx == reachStageNum && reachCheckPointOrder == checkPoint.lock()->GetOrder())*arg_recentIdx = static_cast<int>(arg_transformArray->back().size()) - 1;
 		}
 	}
 
-	*arg_recentStageNum = saveData.m_reachStageNum;
+	*arg_recentStageNum = reachStageNum;
 
 	return true;
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include<memory>
 #include<array>
+#include<vector>
 #include<string>
 #include"Common/Vec.h"
 
@@ -51,17 +52,34 @@ class SystemSetting
 
 		//見出し
 		std::shared_ptr<KuroEngine::TextureBuffer>m_headTex;
+
 		//項目
 		std::array<SelectItem, ITEM_NUM>m_items;
+		//ゲージの植物（画像パターンのインデックス）
+		std::array<std::vector<int>, ITEM_NUM>m_gageParam;
+
+		static int GetPattern()
+		{
+			static int PATTERN = -1;
+			PATTERN++;
+			if (GAGE_PATTERN_NUM <= PATTERN)PATTERN = 0;
+			return PATTERN;
+		}
+
 		//地面ゲージ
 		std::shared_ptr<KuroEngine::TextureBuffer>m_groundLineTex;
 		//ゲージのパターン数
 		static const int GAGE_PATTERN_NUM = 3;
 		std::array<std::shared_ptr<KuroEngine::TextureBuffer>, GAGE_PATTERN_NUM>m_gagePatternTex;
 
+		//パラメータの段階数
+		static const int VOL_STAGE_NUM = 10;
+		//ボリュームのオフセット
+		static const float VOL_CHANGE;
+
 	public:
 		SoundMenuGroup();
-		void Init() { m_nowItem = ITEM_MASTER; }
+		void Init();
 		void Update(SystemSetting* arg_parent);
 		void Draw();
 	}m_soundMenu;
