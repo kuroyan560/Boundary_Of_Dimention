@@ -3,6 +3,7 @@
 #include"DirectX12/D3D12Data.h"
 #include<memory>
 #include<vector>
+#include"../AI/EnemyStatus.h"
 
 enum ReactionEnum
 {
@@ -178,6 +179,17 @@ public:
 	{
 		pos += KuroEngine::Vec3<float>(1.0f, 1.0f, 1.0f) * vec;
 		rotation.m128_f32[0] += 1.0f;
+	}
+
+
+	EnemyHeadAttack m_deadMotion;
+	void InitDead(KuroEngine::Transform &transform)
+	{
+		m_deadMotion.Init(transform, {});
+	}
+	void UpdateDead()
+	{
+		m_deadMotion.Update();
 	}
 
 

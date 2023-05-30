@@ -33,6 +33,15 @@ void EnemyHeadAttack::Init(const KuroEngine::Transform &transform, const KuroEng
 	m_rotationVec = { 1.0f,0.0f,0.0f };
 
 	m_timer.Reset(50);
+
+	//ジャンプ
+	m_vel = m_dir * m_speed;
+	m_vel += m_transform.GetUp() * 2.0f;	//上ベクトルに合わせて移動量を見る
+	m_gravity = {};
+	m_basePos = m_transform.GetPos();
+
+	m_initTransform = m_transform;
+	m_isHitGroundFlag = false;
 }
 
 HeadAttackData EnemyHeadAttack::Update()
@@ -41,10 +50,37 @@ HeadAttackData EnemyHeadAttack::Update()
 
 	//X軸に刺してぐるぐる回転させる処理
 	m_angle += 5.0f;
-
 	m_dir.y -= 0.01f;
+
+	//ヒットエフェクト
+
+
+	//重量ありのジャンプ
+	m_gravity += m_transform.GetUp() * 0.1f;
+	m_vel += -m_gravity;
+
+	float getBasePos = 0.0f;
+	if (1.0f <= abs(m_initTransform.GetUp().x))
+	{
+		getBasePos = m_initTransform.GetUp().x;
+	}
+	if (1.0f <= abs(m_initTransform.GetUp().y))
+	{
+		getBasePos = m_initTransform.GetUp().y;
+	}
+	if (1.0f <= abs(m_initTransform.GetUp().z))
+	{
+		getBasePos = m_initTransform.GetUp().z;
+	}
+	//地面に着地したらエフェクト
+	if (m_basePos.y <= getBasePos)
+	{
+		m_isHitGroundFlag = true;
+	}
+
+
 	HeadAttackData headAttackData;
-	headAttackData.m_dir = m_dir * m_speed;
+	headAttackData.m_dir = m_vel;
 	headAttackData.m_rotation = DirectX::XMQuaternionRotationAxis(m_rotationVec, KuroEngine::Angle::ConvertToRadian(m_angle));
 	return headAttackData;
 }

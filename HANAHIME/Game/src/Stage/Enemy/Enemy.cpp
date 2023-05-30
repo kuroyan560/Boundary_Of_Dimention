@@ -440,7 +440,7 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 	edgeColor.m_edgeColor = KuroEngine::Color(0.54f, 0.14f, 0.33f, 1.0f);
 
 	KuroEngine::Vec3<float>offset(5.0f, 5.0f, 5.0f);
-	offset *= m_transform.GetUp();
+	offset *= m_transform.GetUp() * 2.0f;
 	KuroEngine::Transform drawTransform(m_transform);
 	drawTransform.SetPos(m_transform.GetPos() + offset);
 

@@ -39,16 +39,23 @@ public:
 	HeadAttackData Update();
 	bool IsDone()
 	{
-		return m_timer.IsTimeUp();
+		return m_isHitGroundFlag;
 	}
 
 private:
 	KuroEngine::Transform m_transform;
+	KuroEngine::Transform m_initTransform;
 	KuroEngine::Vec3<float>m_dir;
 	KuroEngine::Vec3<float>m_rotationVec;
 
 	float m_angle;
 	KuroEngine::Vec3<float> m_speed;
 	KuroEngine::Timer m_timer;
+
+	//èdó çûÇ›ÇÃÉWÉÉÉìÉv
+	KuroEngine::Vec3<float> m_vel;
+	KuroEngine::Vec3<float> m_basePos;
+	KuroEngine::Vec3<float> m_gravity;
+	bool m_isHitGroundFlag;
 
 };
