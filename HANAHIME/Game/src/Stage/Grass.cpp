@@ -140,7 +140,6 @@ Grass::Grass()
 
 		m_grassWorldMatricies[modelIdx].reserve(s_plantGrassMax);
 	}
-	//m_modelArray.front() = Importer::Instance()->LoadModel("resource/user/model/", "flower.glb");
 }
 
 void Grass::Init()
@@ -194,7 +193,21 @@ void Grass::Update(const float arg_timeScale, bool arg_isPlayerOverheat, const K
 			m_plantGrassDataArray.back().m_pos = plantData[count].m_plantPos;
 			m_plantGrassDataArray.back().m_normal = plantData[count].m_plantNormal;
 			m_plantGrassDataArray.back().m_sineLength = KuroEngine::GetRand(40) / 100.0f;
-			m_plantGrassDataArray.back().m_modelIdx = KuroEngine::GetRand(2);
+
+			//0-10の乱数を生成し、規定値以下だったら草を生やす。
+			int random = KuroEngine::GetRand(10);
+			const int GRASS_VALUE = 8;
+			if (random < GRASS_VALUE) {
+				random = KuroEngine::GetRand(2);
+			}
+			else {
+				random = KuroEngine::GetRand(3, s_modelNumMax);
+			}
+
+			m_plantGrassDataArray.back().m_modelIdx = std::clamp(random, 0, s_modelNumMax - 1);
+
+
+
 			m_plantGrassDataArray.back().m_appearY = 0.1f;			//0で生やすとすぐ消えてしまう。
 			m_plantGrassDataArray.back().m_appearYTimer = 0.1f;
 			m_plantGrassDataArray.back().m_isCheckNear = false;

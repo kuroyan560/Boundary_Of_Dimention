@@ -107,7 +107,7 @@ PSOutput PSmain(VSOutput input)
     float4 color = baseTex.Sample(smp, input.uv);
     //F‚ğ•Û‘¶‚·‚éB
     color.xyz *= lumi;
-    output.color = color;
+    output.color = saturate(color + float4(material.baseColor, 1.0f));
 
     output.bright = float4(0, 0, 0, 0);
     output.depth = input.depthInView;
