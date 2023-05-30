@@ -2,7 +2,8 @@
 #include"../OperationConfig.h"
 
 Goal::Goal(std::shared_ptr<KuroEngine::RWStructuredBuffer> particle) :m_initFlag(false), m_clearEaseTimer(30),
-m_upEffectEase(60), m_downEffectEase(10), m_gpuParticleBuffer(particle), m_shake({ 1.0f,1.0f,1.0f })
+m_upEffectEase(60), m_downEffectEase(10), m_gpuParticleBuffer(particle), m_shake({ 1.0f,1.0f,1.0f }),
+m_fireWork(m_gpuParticleBuffer)
 {
 	m_startGoalEffectFlag = false;
 
@@ -15,9 +16,10 @@ m_upEffectEase(60), m_downEffectEase(10), m_gpuParticleBuffer(particle), m_shake
 
 	m_camera = std::make_shared<KuroEngine::Camera>("cameraName");
 
-
 	m_splineArray[0] = std::make_unique<SplineParticle>(m_gpuParticleBuffer);
 	m_splineArray[1] = std::make_unique<SplineParticle>(m_gpuParticleBuffer);
+
+	m_fireWork.SetParticleColorTex(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Particle/goal_particle_gradation.png"));
 }
 
 void Goal::Init(const KuroEngine::Transform &transform, std::shared_ptr<GoalPoint>goal_model)
@@ -48,7 +50,7 @@ void Goal::Init(const KuroEngine::Transform &transform, std::shared_ptr<GoalPoin
 	m_zoomOutTimer.Reset(60);
 	m_sceneChangeTimer.Reset(60);
 
-	m_glitterEmitt.Finalize();
+	//m_glitterEmitt.Finalize();
 	m_shake.Init();
 
 	m_goalTexSize = { 1.0f,1.0f };
@@ -88,7 +90,6 @@ void Goal::Update(KuroEngine::Transform *transform)
 
 	if (m_isStartFlag != m_prevStartFlag)
 	{
-		SoundConfig::Instance()->Play(SoundConfig::JINGLE_STAGE_CLEAR);
 		if (m_playerGoalFlag)
 		{
 			m_goalBasePos = transform->GetPos();
@@ -157,7 +158,7 @@ void Goal::Update(KuroEngine::Transform *transform)
 
 		if (m_zoomInTimer.IsTimeUp())
 		{
-			KuroEngine::Vec3<float>pos = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Quint, m_zoomOutTimer.GetTimeRate(), m_zoomCameraPos + distance * 0.5f, m_zoomCameraPos - distance * 1.0f);
+			KuroEngine::Vec3<float>pos = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Quint, m_zoomOutTimer.GetTimeRate(), m_zoomCameraPos + distance * 0.5f, m_zoomCameraPos - distance * 1.2f);
 			m_goalCamera->m_transform.SetPos(pos);
 
 			m_zoomOutTimer.UpdateTimer();
@@ -171,9 +172,13 @@ void Goal::Update(KuroEngine::Transform *transform)
 		float bigScale = 1.0f, smallScale = 0.0f;
 		if (!m_initParticleFlag)
 		{
-			m_glitterEmitt.Init(m_goalBasePos);
+			//m_glitterEmitt.Init(m_goalBasePos);
+			m_fireWork.Init(m_goalBasePos);
 			m_scaleOffset = { bigScale,bigScale,bigScale };
 			m_initParticleFlag = true;
+
+			SoundConfig::Instance()->Play(SoundConfig::JINGLE_STAGE_CLEAR);
+			m_goalModel->GrowUpWood();
 		}
 		m_scaleOffset = KuroEngine::Math::Lerp(m_scaleOffset, KuroEngine::Vec3<float>(smallScale, smallScale, smallScale), 0.1f);
 
@@ -182,7 +187,6 @@ void Goal::Update(KuroEngine::Transform *transform)
 			m_goalModel->m_offset.SetScale(m_scaleOffset);
 			m_goalModel->m_offset.SetPos({ 0.0f,0.0f,0.0f });
 		}
-
 
 		m_clearEaseTimer.UpdateTimer();
 
@@ -206,8 +210,8 @@ void Goal::Update(KuroEngine::Transform *transform)
 		}
 	}
 
-	m_glitterEmitt.Update();
-
+	//m_glitterEmitt.Update();
+	m_fireWork.Update();
 
 	//①視点ベクトル(カメラからオブジェクトまでのベクトル)を求める。
 	KuroEngine::Vec3<float>eyePos = m_goalCamera->m_transform.GetPos();
@@ -306,7 +310,7 @@ void Goal::Draw(KuroEngine::Camera &camera)
 	//KuroEngine::DrawFunc3D::DrawLine(camera, startPos, endPos, KuroEngine::Color(255, 0, 0, 255), 1.0f);
 
 #endif // _DEBUG
-	m_glitterEmitt.Draw(camera);
+	//m_glitterEmitt.Draw(camera);
 
 	//KuroEngine::DrawFunc3D::DrawNonShadingPlane(m_ddsTex, transform, camera);
 }

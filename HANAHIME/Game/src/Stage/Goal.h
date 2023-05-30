@@ -151,7 +151,7 @@ private:
 	KuroEngine::Timer m_zoomInTimer, m_zoomOutTimer, m_sceneChangeTimer;
 
 	bool m_initParticleFlag;
-	GlitterEmitter m_glitterEmitt;
+	//GlitterEmitter m_glitterEmitt;
 
 	KuroEngine::ImpactShake m_shake;
 	KuroEngine::Vec3<float>m_goalBasePos;
@@ -160,6 +160,8 @@ private:
 
 	std::array<CPULoucusEmitter, 2> m_loucusParticle;
 
+	
+	FireWork m_fireWork;
 
 	void InitCameraPosArray(const KuroEngine::Vec3<float> &pos)
 	{
