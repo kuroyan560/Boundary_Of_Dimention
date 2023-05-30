@@ -1161,7 +1161,11 @@ void Player::CheckHitFunaCamera(const std::weak_ptr<Stage> arg_nowStage)
 			isHitFuna = true;
 
 			//Ç±Ç±Ç≈IDÇì¸ÇÍÇÈÅB
-			//m_cameraFunaMode = static_cast<CameraController::CAMERA_FUNA_MODE>(Mode - 1);
+			m_cameraFunaMode = static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode - 1);
+
+			if (m_cameraFunaMode == CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U) {
+				m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
+			}
 
 			break;
 		}
