@@ -23,17 +23,26 @@ StageManager::StageManager()
 
 	//ホームステージ
 	m_homeStage = std::make_shared<Stage>();
-	//m_homeStage->Load(0, stageDir, "New_Home.json", 5.0f, false);
-	//m_homeStage->Load(0, stageDir, "P_Stage_1.json", terrianScaling, false);
 
-	//パズルステージ一括読み込み
-	int loadPazzleIdx = 1;
-	while (KuroEngine::ExistFile(stageDir + "P_Stage_" + std::to_string(loadPazzleIdx) + ".json"))
-	{
-		DebugEnemy::Instance()->StackStage();
-		m_stageArray.emplace_back(std::make_shared<Stage>());
-		m_stageArray.back()->Load(loadPazzleIdx, stageDir, "P_Stage_" + std::to_string(loadPazzleIdx++) + ".json", terrianScaling, false);
-	}
+	////パズルステージ一括読み込み
+	//int loadPazzleIdx = 1;
+	//while (KuroEngine::ExistFile(stageDir + "P_Stage_" + std::to_string(loadPazzleIdx) + ".json"))
+	//{
+	//	m_stageArray.emplace_back(std::make_shared<Stage>());
+	//	m_stageArray.back()->Load(loadPazzleIdx, stageDir, "P_Stage_" + std::to_string(loadPazzleIdx++) + ".json", terrianScaling, false);
+	//}
+
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load(0, stageDir, "Tutorial.json", terrianScaling, false);
+
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load(1, stageDir, "Stage1.json", terrianScaling, false);
+
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load(2, stageDir, "Stage2.json", terrianScaling, false);
+
+	m_stageArray.emplace_back(std::make_shared<Stage>());
+	m_stageArray.back()->Load(3, stageDir, "Stage3.json", terrianScaling, true);
 
 	//データからチェックポイントの解放を設定
 	int unlockedStageNum, unlockedCheckPointOrder;
@@ -61,6 +70,7 @@ StageManager::StageManager()
 
 void StageManager::SetStage(int stage_num)
 {
+
 	if (stage_num == -1)
 	{
 		m_nowStage = m_homeStage;
@@ -71,6 +81,25 @@ void StageManager::SetStage(int stage_num)
 	}
 	m_nowStage->Init();
 	m_nowStageIdx = stage_num;
+
+	int reachStageNum;
+	if (SaveDataManager::Instance()->LoadStageSaveData(&reachStageNum, nullptr))
+	{
+		if (reachStageNum < m_nowStageIdx)
+		{
+			m_nowMapPinPointIdx = 0;
+			SaveDataManager::Instance()->SaveStageNum(m_nowStageIdx);
+			m_drawMapPin = true;
+		}
+		else if (reachStageNum == m_nowStageIdx)m_drawMapPin = true;
+		else m_drawMapPin = false;
+	}
+	else
+	{
+		m_nowMapPinPointIdx = 0;
+		SaveDataManager::Instance()->SaveStageNum(m_nowStageIdx);
+		m_drawMapPin = true;
+	}
 
 	//チェックポイントUI初期化
 	CheckPoint::UI().lock()->Init();
@@ -86,7 +115,7 @@ void StageManager::Update(Player& arg_player)
 	//マップピンが示す目的地との当たり判定
 	const auto& mapPinPointArray = m_nowStage->GetMapPinPointArray();
 	//マップピンインデックスが範囲外でない
-	if (!(m_nowMapPinPointIdx < 0 || static_cast<int>(mapPinPointArray.size()) <= m_nowMapPinPointIdx))
+	if (m_drawMapPin && !(m_nowMapPinPointIdx < 0 || static_cast<int>(mapPinPointArray.size()) <= m_nowMapPinPointIdx))
 	{
 		int oldMapPinPointIdx = m_nowMapPinPointIdx;
 
@@ -145,6 +174,13 @@ void StageManager::DrawUI(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float>ar
 bool StageManager::GetNowMapPinTransform(KuroEngine::Transform* arg_destPos)
 {
 	if (m_nowStage->GetCompleteMapPin())return false;
+
+	int reachStageNum = 0;
+	int reachCheckPointOrder = 0;
+	if (SaveDataManager::Instance()->LoadStageSaveData(&reachStageNum, &reachCheckPointOrder))
+	{
+		if (m_nowStageIdx < reachStageNum)return false;
+	}
 	const auto& mapPinPointArray = m_nowStage->GetMapPinPointArray();
 	if (m_nowMapPinPointIdx < 0 || mapPinPointArray.size() <= m_nowMapPinPointIdx)return false;
 	if (arg_destPos)*arg_destPos = mapPinPointArray[m_nowMapPinPointIdx].lock()->GetTransform();
@@ -215,4 +251,5 @@ bool StageManager::GetUnlockedCheckPointInfo(std::vector<std::vector<KuroEngine:
 void StageManager::AllStageCheckPointReset()
 {
 	for (auto& stage : m_stageArray)stage->CheckPointReset();
+	m_nowMapPinPointIdx = 0;
 }

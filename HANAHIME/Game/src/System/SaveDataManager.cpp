@@ -53,8 +53,12 @@ SaveDataManager::~SaveDataManager()
 	}
 }
 
-void SaveDataManager::Save(int arg_checkPointOrder)
+void SaveDataManager::SaveCheckPointOrder(int arg_checkPointOrder)
 {
-	m_saveData.m_reachStageNum = StageManager::Instance()->GetNowStageIdx();
 	m_saveData.m_reachCheckPointOrder = arg_checkPointOrder;
+}
+
+void SaveDataManager::SaveStageNum(int arg_stageNum)
+{
+	m_saveData.m_reachStageNum = arg_stageNum;
 }

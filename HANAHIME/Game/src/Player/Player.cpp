@@ -377,7 +377,7 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform, const std::weak_pt
 	m_camController.Respawn(m_transform, m_isCameraUpInverse);
 	m_camController.LerpForcedToEnd(m_cameraRotYStorage);
 
-
+	m_isPlantLightExplosion = false;
 }
 
 void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
@@ -1037,9 +1037,18 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	//ジャンプ後のクールタイムを修正。
 	m_canJumpDelayTimer = std::clamp(m_canJumpDelayTimer - 1, 0, 100);
 
+	if (m_isPlantLightExplosion)
+	{
+		m_plantLightExplosionTimer.UpdateTimer();
 
+		float oldRange = m_growPlantPtLig.m_influenceRange;
+		static const float PLANT_LIGHT_EXPLOSION_SCALE = 10.0f;
+		m_growPlantPtLig.m_influenceRange = Math::Ease(Out, Circ,
+			m_plantLightExplosionTimer.GetTimeRate(), m_plantLightExplosionStart, m_plantLightExplosionStart * PLANT_LIGHT_EXPLOSION_SCALE);
 
-
+		m_growPlantPtLig.m_defInfluenceRange = Math::Ease(Out, Circ,
+			m_plantLightExplosionTimer.GetTimeRate(), m_plantLightExplosionStart, m_plantLightExplosionStart * PLANT_LIGHT_EXPLOSION_SCALE);
+	}
 
 	////テスト用
 	//FastTravel::Instance()->Update();

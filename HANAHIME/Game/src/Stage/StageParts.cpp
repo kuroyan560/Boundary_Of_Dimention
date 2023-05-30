@@ -194,20 +194,41 @@ std::optional<AABB::CollisionInfo> AABB::CheckAABBCollision(const AABB& arg_aabb
 	return CollisionInfo{ pushBack };
 }
 
+GoalPoint::GoalPoint(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform)
+	:StageParts(GOAL_POINT, arg_model, arg_initTransform) 
+{
+	m_saplingModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/stage/", "Goal.glb");
+	m_woodModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/stage/", "Goal_Wood.glb");
+}
+
 void GoalPoint::Update(Player& arg_player)
 {
+	using namespace KuroEngine;
+
 	const float HIT_RADIUS = 10.0f;
 
 	//プレイヤーとの当たり判定
 	float dist = arg_player.GetTransform().GetPosWorld().Distance(m_transform.GetPosWorld() + (-m_transform.GetUpWorld() * HIT_RADIUS));
-	if (!m_hitPlayer)m_hitPlayer = (dist < HIT_RADIUS);
+	if (!m_hitPlayer)
+	{
+		m_hitPlayer = (dist < HIT_RADIUS);
+	}
+
+	if (m_isGrowUp)
+	{
+		m_growUpTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
+		m_transform.SetScale(Math::Ease(Out, Elastic, m_growUpTimer.GetTimeRate(), 0.0f, 1.0f));
+	}
 }
 
 void GoalPoint::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 	using namespace KuroEngine;
+
+	static const Vec3<float> MODEL_OFFSET = m_transform.GetUpWorld() * -20.0f;
+
 	Transform drawTransform;
-	drawTransform.SetPos(m_transform.GetPosWorld() + m_offset.GetPosWorld());
+	drawTransform.SetPos(m_transform.GetPosWorld() + m_offset.GetPosWorld() + MODEL_OFFSET);
 	drawTransform.SetRotate(m_transform.GetRotate());
 	drawTransform.SetScale(m_transform.GetScaleWorld() + m_offset.GetScaleWorld());
 
@@ -283,7 +304,7 @@ void MoveScaffold::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 
 	//移動経路を描画する。
 	for (int index = 1; index <= m_maxTranslation; ++index) {
-		KuroEngine::DrawFunc3D::DrawLine(arg_cam, m_translationArray[index - 1], m_translationArray[index], KuroEngine::Color(255, 255, 255, 255), 1.0f);
+		KuroEngine::DrawFunc3D::DrawLine(arg_cam, m_translationArray[index - 1], m_translationArray[index], KuroEngine::Color(31, 247, 205, 255), 2.0f);
 	}
 
 }
@@ -932,7 +953,7 @@ void CheckPoint::Update(Player& arg_player)
 		s_latestVisitTransform = m_transform;
 		s_visit = true;
 		CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger = true;
-		SaveDataManager::Instance()->Save(m_order);
+		SaveDataManager::Instance()->SaveCheckPointOrder(m_order);
 
 		m_fireWork.Init(m_transform.GetPosWorld());
 	}

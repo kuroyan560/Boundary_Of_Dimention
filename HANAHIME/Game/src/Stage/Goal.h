@@ -22,6 +22,8 @@
 #include"../CPUParticle/CPULoucusParticle.h"
 #include"../Player/CollisionDetectionOfRayAndMesh.h"
 
+class Player;
+
 //ステージに配置されているゴール
 class Goal
 {
@@ -29,7 +31,7 @@ public:
 	Goal(std::shared_ptr<KuroEngine::RWStructuredBuffer> particle);
 	void Init(const KuroEngine::Transform &transform, std::shared_ptr<GoalPoint>goal_model);
 	void Finalize();
-	void Update(KuroEngine::Transform *transform);
+	void Update(KuroEngine::Transform* transform, Player& arg_player);
 	void Draw(KuroEngine::Camera &camera);
 	void Draw2D();
 
@@ -151,7 +153,7 @@ private:
 	KuroEngine::Timer m_zoomInTimer, m_zoomOutTimer, m_sceneChangeTimer;
 
 	bool m_initParticleFlag;
-	GlitterEmitter m_glitterEmitt;
+	//GlitterEmitter m_glitterEmitt;
 
 	KuroEngine::ImpactShake m_shake;
 	KuroEngine::Vec3<float>m_goalBasePos;
@@ -160,6 +162,8 @@ private:
 
 	std::array<CPULoucusEmitter, 2> m_loucusParticle;
 
+	
+	FireWork m_fireWork;
 
 	void InitCameraPosArray(const KuroEngine::Vec3<float> &pos)
 	{
