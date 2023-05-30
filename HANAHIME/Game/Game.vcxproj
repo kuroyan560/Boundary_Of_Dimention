@@ -231,6 +231,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\Stage\CheckPointPillar.cpp" />
     <ClCompile Include="src\Stage\Enemy\Enemy.cpp" />
     <ClCompile Include="src\Stage\Enemy\EnemyDataReferenceForCircleShadow.cpp" />
+    <ClCompile Include="src\Stage\FunaCameraPoint.cpp" />
     <ClCompile Include="src\Stage\GateManager.cpp" />
     <ClCompile Include="src\Stage\Goal.cpp" />
     <ClCompile Include="src\Stage\Grass.cpp" />
@@ -386,6 +387,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\Stage\CheckPointPillar.h" />
     <ClInclude Include="src\Stage\Enemy\Enemy.h" />
     <ClInclude Include="src\Stage\Enemy\EnemyDataReferenceForCircleShadow.h" />
+    <ClInclude Include="src\Stage\FunaCameraPoint.h" />
     <ClInclude Include="src\Stage\GateManager.h" />
     <ClInclude Include="src\Stage\Goal.h" />
     <ClInclude Include="src\Stage\Grass.h" />

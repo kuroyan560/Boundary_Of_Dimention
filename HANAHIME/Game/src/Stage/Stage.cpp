@@ -59,30 +59,19 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 
 	auto &obj = arg_json;
 
+	//共通パラメータ
+
 	//種別のパラメータがない
 	if (!CheckJsonKeyExist(arg_fileName, obj, "type"))return;
-
-	//モデルの名前のパラメータがない
-	if (!CheckJsonKeyExist(arg_fileName, obj, "file_name"))return;
+	//種別
+	auto typeKey = obj["type"].get<std::string>();
 
 	//トランスフォームのパラメータがない
 	if (!CheckJsonKeyExist(arg_fileName, obj, "transform"))return;
-
-	//共通パラメータ
-	//種別
-	auto typeKey = obj["type"].get<std::string>();
-	//モデル設定
-	auto glbPath = obj["file_name"].get<std::string>() + ".glb";
-	auto gltfPath = obj["file_name"].get<std::string>() + ".gltf";
-	auto fileName = (ExistFile(s_stageModelDir + glbPath) ? glbPath : gltfPath);
-	auto model = Importer::Instance()->LoadModel(s_stageModelDir, fileName);
-
 	//トランスフォーム取得
 	auto transformObj = obj["transform"];
-
 	//平行移動
 	Vec3<float>translation = GetConsiderCoordinate(transformObj["translation"]);
-
 	//回転
 	XMVECTOR quaternion =
 	{
@@ -91,15 +80,28 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		-(float)transformObj["rotation"][1],
 		(float)transformObj["rotation"][3]
 	};
-
 	//スケーリング
 	Vec3<float>scaling = { (float)transformObj["scaling"][0],(float)transformObj["scaling"][2] ,(float)transformObj["scaling"][1] };
-
 	//トランスフォーム設定
 	Transform transform;
 	transform.SetPos(translation * (arg_parent == nullptr ? m_terrianScaling : 1.0f));
 	transform.SetRotate(quaternion);
 	transform.SetScale(scaling * (arg_parent == nullptr ? m_terrianScaling : 1.0f));
+
+	//FunaCam
+	if (typeKey == "FunaCamera")
+	{
+		m_funaCamPtArray.emplace_back(scaling.x, translation);
+		return;
+	}
+
+	//モデルの名前のパラメータがない
+	if (!CheckJsonKeyExist(arg_fileName, obj, "file_name"))return;
+	//モデル設定
+	auto glbPath = obj["file_name"].get<std::string>() + ".glb";
+	auto gltfPath = obj["file_name"].get<std::string>() + ".gltf";
+	auto fileName = (ExistFile(s_stageModelDir + glbPath) ? glbPath : gltfPath);
+	auto model = Importer::Instance()->LoadModel(s_stageModelDir, fileName);
 
 	//親がいるならトランスフォームの親子関係形成
 	if (arg_parent)transform.SetParent(&arg_parent->GetTransform());

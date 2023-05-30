@@ -8,6 +8,7 @@
 #include<map>
 #include"../Effect/GuideInsect.h"
 #include"../GPUParticle/GPUParticleRender.h"
+#include"FunaCameraPoint.h"
 
 namespace KuroEngine
 {
@@ -53,6 +54,9 @@ private:
 
 	//スターコインのポインタ配列
 	std::vector<std::weak_ptr<StarCoin>>m_starCoinArray;
+
+	//FunaCameraの配列
+	std::vector<FunaCameraPoint>m_funaCamPtArray;
 
 	//モデル
 		//地形モデルの存在するディレクトリ
@@ -145,6 +149,8 @@ public:
 	std::vector<std::weak_ptr<StageParts>>GetMapPinPointArray()const { return m_mapPinPoint; }
 	//チェックポイント配列
 	std::vector<std::weak_ptr<CheckPoint>>GetCheckPointArray()const { return m_checkPointArray; }
+	//FunaCameraPoint配列
+	std::vector<FunaCameraPoint>GetFunaCamPtArray()const { return m_funaCamPtArray; }
 
 	//ガイド用の虫
 	GuideInsect m_guideInsect;
