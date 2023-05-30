@@ -43,8 +43,17 @@ SoundConfig::SoundConfig() : Debugger("SoundConfig")
 		"boot",
 		"shutdown",
 		"player_damage",
+		"player_damage_hit",
 		"star_coin_get",
-		"unlock_check_point"
+		"unlock_check_point",
+
+		"game_over",
+		"gate",
+
+		"enemy_notice",
+		"enemy_find",
+		"enemy_damage",
+		"enemy_dead",
 	};
 	//ジングルのファイル名指定
 	std::array<std::string, JINGLE_NUM>jingleFileName =
@@ -77,8 +86,17 @@ SoundConfig::SoundConfig() : Debugger("SoundConfig")
 	m_seTable[SE_BOOT].Load(audioApp->LoadAudio(seDir + seFileName[SE_BOOT] + ".wav"));
 	m_seTable[SE_SHUT_DOWN].Load(audioApp->LoadAudio(seDir + seFileName[SE_SHUT_DOWN] + ".wav"));
 	m_seTable[SE_PLAYER_DAMAGE].Load(audioApp->LoadAudio(seDir + seFileName[SE_PLAYER_DAMAGE] + ".wav"));
+	m_seTable[SE_PLAYER_DAMAGE_HIT].Load(audioApp->LoadAudio(seDir + seFileName[SE_PLAYER_DAMAGE_HIT] + ".wav"));
 	m_seTable[SE_GET_STAR_COIN].Load(audioApp->LoadAudio(seDir + seFileName[SE_GET_STAR_COIN] + ".wav"));
 	m_seTable[SE_UNLOCK_CHECK_POINT].Load(audioApp->LoadAudio(seDir + seFileName[SE_UNLOCK_CHECK_POINT] + ".wav"));
+
+	m_seTable[SE_GAME_OVER].Load(audioApp->LoadAudio(seDir + seFileName[SE_GAME_OVER] + ".wav"));
+	m_seTable[SE_GATE].Load(audioApp->LoadAudio(seDir + seFileName[SE_GATE] + ".wav"));
+
+	m_seTable[SE_ENEMY_NOTICE].Load(audioApp->LoadAudio(seDir + seFileName[SE_ENEMY_NOTICE] + ".wav"));
+	m_seTable[SE_ENEMY_FIND].Load(audioApp->LoadAudio(seDir + seFileName[SE_ENEMY_FIND] + ".wav"));
+	m_seTable[SE_ENEMY_DAMAGE].Load(audioApp->LoadAudio(seDir + seFileName[SE_ENEMY_DAMAGE] + ".wav"));
+	m_seTable[SE_ENEMY_DEAD].Load(audioApp->LoadAudio(seDir + seFileName[SE_ENEMY_DEAD] + ".wav"));
 
 	//ジングル読み込み
 	std::string jingleDir = "resource/user/sound/jingle/";

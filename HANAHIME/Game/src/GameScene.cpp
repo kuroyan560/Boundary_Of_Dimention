@@ -203,6 +203,7 @@ void GameScene::OnUpdate()
 		{
 			StartGame(GateManager::Instance()->GetDestStageNum(), 
 				StageManager::Instance()->GetGateTransform(GateManager::Instance()->GetDestStageNum(), GateManager::Instance()->GetDestGateID()));
+			SoundConfig::Instance()->Play(SoundConfig::SE_GATE);
 		}
 		//ゲームクリア演出を終えたら遷移開始
 		if (m_goal.IsEnd())
