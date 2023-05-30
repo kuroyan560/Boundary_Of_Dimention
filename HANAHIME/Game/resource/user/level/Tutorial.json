@@ -1,0 +1,802 @@
+{
+    "stage": {
+        "name": "scene",
+        "objects": [
+            {
+                "type": "Terrian",
+                "name": "Stage0_0.004",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Tutorial",
+                "CollisionModelFileName": "HitTutorial"
+            },
+            {
+                "type": "CheckPoint",
+                "name": "CheckPoint_0.012",
+                "transform": {
+                    "translation": [
+                        380.0,
+                        25.5,
+                        100.0
+                    ],
+                    "rotation": [
+                        0.7071068286895752,
+                        0.0,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "CheckPoint",
+                "CheckPointOrder": 1
+            },
+            {
+                "type": "CheckPoint",
+                "name": "CheckPoint_0.010",
+                "transform": {
+                    "translation": [
+                        720.0,
+                        0.0,
+                        125.77865600585938
+                    ],
+                    "rotation": [
+                        -0.0,
+                        -1.0,
+                        -0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "CheckPoint",
+                "CheckPointOrder": 2
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.008",
+                "transform": {
+                    "translation": [
+                        650.0,
+                        0.0,
+                        120.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        0.057583801448345184,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -0.057583801448345184,
+                        -1.0
+                    ]
+                },
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.013",
+                "transform": {
+                    "translation": [
+                        650.0,
+                        20.000001907348633,
+                        120.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        0.057583801448345184,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -0.057583801448345184,
+                        -1.0
+                    ]
+                },
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.024",
+                "transform": {
+                    "translation": [
+                        650.0,
+                        -19.999998092651367,
+                        120.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        0.057583801448345184,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -0.057583801448345184,
+                        -1.0
+                    ]
+                },
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.056",
+                "transform": {
+                    "translation": [
+                        790.0,
+                        -19.999996185302734,
+                        120.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        0.057583801448345184,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -0.057583801448345184,
+                        -1.0
+                    ]
+                },
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.060",
+                "transform": {
+                    "translation": [
+                        790.0,
+                        20.000003814697266,
+                        120.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        0.057583801448345184,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -0.057583801448345184,
+                        -1.0
+                    ]
+                },
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "SplatoonFence",
+                "name": "Fence_S0.068",
+                "transform": {
+                    "translation": [
+                        790.0,
+                        0.0,
+                        120.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7071068286895752,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "SplatoonFence",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        0.057583801448345184,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -0.057583801448345184,
+                        -1.0
+                    ]
+                },
+                "CollisionModelFileName": "SplatoonFence_Collision"
+            },
+            {
+                "type": "Gate",
+                "name": "Gate_1.002",
+                "transform": {
+                    "translation": [
+                        1100.0,
+                        0.0,
+                        120.0
+                    ],
+                    "rotation": [
+                        -0.7071068286895752,
+                        -0.7071068286895752,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Gate",
+                "GateID": 1,
+                "DestStageNum": 2,
+                "DestGateID": 2,
+                "CheckPointOrder": 3
+            },
+            {
+                "type": "MiniBug",
+                "name": "MiniBug_0.019",
+                "transform": {
+                    "translation": [
+                        880.0,
+                        0.0,
+                        128.60000610351562
+                    ],
+                    "rotation": [
+                        0.7071068286895752,
+                        -0.7071068286895752,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.5,
+                        1.5,
+                        1.5
+                    ]
+                },
+                "file_name": "MiniBug",
+                "translationArray": {},
+                "Loop": 1
+            },
+            {
+                "type": "Start",
+                "name": "Start_0.003",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        73.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Start"
+            },
+            {
+                "type": "BackGround",
+                "name": "Arrow1.011",
+                "transform": {
+                    "translation": [
+                        55.0,
+                        -35.0,
+                        72.625
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.3826834559440613,
+                        0.9238795638084412
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Arrow",
+                "ShadowShader": 0
+            },
+            {
+                "type": "BackGround",
+                "name": "Arrow1.012",
+                "transform": {
+                    "translation": [
+                        328.0,
+                        0.0,
+                        72.625
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Arrow",
+                "ShadowShader": 0
+            },
+            {
+                "type": "BackGround",
+                "name": "Arrow1.013",
+                "transform": {
+                    "translation": [
+                        492.5,
+                        31.90625,
+                        100.0
+                    ],
+                    "rotation": [
+                        0.5,
+                        0.5,
+                        0.5,
+                        0.5
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Arrow",
+                "ShadowShader": 0
+            },
+            {
+                "type": "BackGround",
+                "name": "Tree1.038",
+                "transform": {
+                    "translation": [
+                        60.0,
+                        -60.0,
+                        68.91865539550781
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        -0.4710118770599365,
+                        0.8821268677711487
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Tree",
+                "ShadowShader": 0
+            },
+            {
+                "type": "BackGround",
+                "name": "Tree1.039",
+                "transform": {
+                    "translation": [
+                        -60.0,
+                        -60.0,
+                        68.91865539550781
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.23938080668449402,
+                        0.9709257483482361
+                    ],
+                    "scaling": [
+                        10.000000953674316,
+                        10.000000953674316,
+                        10.0
+                    ]
+                },
+                "file_name": "Tree",
+                "ShadowShader": 0
+            },
+            {
+                "type": "BackGround",
+                "name": "Tree1.041",
+                "transform": {
+                    "translation": [
+                        60.0,
+                        60.0,
+                        68.91865539550781
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.27311983704566956,
+                        0.9619800448417664
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Tree",
+                "ShadowShader": 0
+            },
+            {
+                "type": "BackGround",
+                "name": "Tree1.042",
+                "transform": {
+                    "translation": [
+                        -60.0,
+                        60.0,
+                        68.91865539550781
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.8763067126274109,
+                        0.4817536175251007
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Tree",
+                "ShadowShader": 0
+            },
+            {
+                "type": "BackGround",
+                "name": "Tree1.037",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        -80.0,
+                        68.91865539550781
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.7169106006622314,
+                        0.6971651315689087
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Tree",
+                "ShadowShader": 0
+            },
+            {
+                "type": "BackGround",
+                "name": "Tree1.040",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        80.0,
+                        68.91865539550781
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.674302339553833,
+                        0.7384554147720337
+                    ],
+                    "scaling": [
+                        9.999999046325684,
+                        9.999999046325684,
+                        10.0
+                    ]
+                },
+                "file_name": "Tree",
+                "ShadowShader": 0
+            },
+            {
+                "type": "BackGround",
+                "name": "Tree1.043",
+                "transform": {
+                    "translation": [
+                        -80.0,
+                        0.0,
+                        68.91865539550781
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Tree",
+                "ShadowShader": 0
+            },
+            {
+                "type": "BackGround",
+                "name": "Tree1.044",
+                "transform": {
+                    "translation": [
+                        487.46875,
+                        32.59392166137695,
+                        72.75
+                    ],
+                    "rotation": [
+                        0.40659022331237793,
+                        -0.5785191655158997,
+                        0.5785191655158997,
+                        0.40659019351005554
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Tree",
+                "ShadowShader": 0
+            },
+            {
+                "type": "BackGround",
+                "name": "Tree1.045",
+                "transform": {
+                    "translation": [
+                        272.51751708984375,
+                        32.59391403198242,
+                        125.75442504882812
+                    ],
+                    "rotation": [
+                        0.40659022331237793,
+                        -0.5785191655158997,
+                        0.5785191655158997,
+                        0.40659019351005554
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Tree",
+                "ShadowShader": 0
+            },
+            {
+                "type": "BackGround",
+                "name": "Tree1.046",
+                "transform": {
+                    "translation": [
+                        327.0,
+                        -25.0,
+                        68.91865539550781
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        -0.4003489911556244,
+                        0.9163627624511719
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Tree",
+                "ShadowShader": 0
+            },
+            {
+                "type": "BackGround",
+                "name": "Tree1.047",
+                "transform": {
+                    "translation": [
+                        432.9375,
+                        -26.34375,
+                        133.125
+                    ],
+                    "rotation": [
+                        -0.8064445853233337,
+                        -0.5913097262382507,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Tree",
+                "ShadowShader": 0
+            },
+            {
+                "type": "BackGround",
+                "name": "Tree1.048",
+                "transform": {
+                    "translation": [
+                        720.0,
+                        -60.0,
+                        133.125
+                    ],
+                    "rotation": [
+                        -0.8064445853233337,
+                        -0.5913097262382507,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Tree",
+                "ShadowShader": 0
+            },
+            {
+                "type": "BackGround",
+                "name": "Tree1.049",
+                "transform": {
+                    "translation": [
+                        720.0,
+                        60.0,
+                        133.12501525878906
+                    ],
+                    "rotation": [
+                        -0.5664061903953552,
+                        -0.8241262435913086,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Tree",
+                "ShadowShader": 0
+            },
+            {
+                "type": "BackGround",
+                "name": "Tree1.050",
+                "transform": {
+                    "translation": [
+                        880.0,
+                        -60.0,
+                        133.125
+                    ],
+                    "rotation": [
+                        -0.45864954590797424,
+                        -0.8886172771453857,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Tree",
+                "ShadowShader": 0
+            },
+            {
+                "type": "BackGround",
+                "name": "Tree1.051",
+                "transform": {
+                    "translation": [
+                        880.0,
+                        60.0,
+                        133.12501525878906
+                    ],
+                    "rotation": [
+                        -0.8329211473464966,
+                        -0.553391695022583,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        10.0,
+                        10.0,
+                        10.0
+                    ]
+                },
+                "file_name": "Tree",
+                "ShadowShader": 0
+            }
+        ]
+    }
+}

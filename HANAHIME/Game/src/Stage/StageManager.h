@@ -41,6 +41,7 @@ class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>, 
 	MapPinUI m_mapPinUI;
 	//現在マップピンが指す地点のインデックス
 	int m_nowMapPinPointIdx;
+	bool m_drawMapPin = true;
 public:
 	void SetStage(int stage_num = -1);
 

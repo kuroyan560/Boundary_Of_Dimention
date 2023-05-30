@@ -493,6 +493,8 @@ void Stage::Load(int arg_ownStageIdx, std::string arg_dir, std::string arg_fileN
 {
 	using namespace KuroEngine;
 
+	DebugEnemy::Instance()->StackStage();
+
 	m_terrianScaling = arg_terrianScaling;
 
 	//地形情報クリア

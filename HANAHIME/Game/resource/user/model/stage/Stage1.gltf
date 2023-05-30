@@ -15,24 +15,18 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "ShowStage1_\u7acb\u65b9\u4f53.109",
-            "rotation" : [
-                0.7071068286895752,
-                0,
-                0,
-                0.7071067094802856
-            ],
+            "name" : "Stage1",
             "scale" : [
-                0.10000000149011612,
-                0.10000000149011612,
-                0.10000000149011612
+                10,
+                10,
+                10
             ]
         }
     ],
     "materials" : [
         {
             "doubleSided" : true,
-            "name" : "\u30de\u30c6\u30ea\u30a2\u30eb",
+            "name" : "\u30de\u30c6\u30ea\u30a2\u30eb.091",
             "pbrMetallicRoughness" : {
                 "baseColorTexture" : {
                     "index" : 0
@@ -44,7 +38,7 @@
     ],
     "meshes" : [
         {
-            "name" : "ShowStage1_\u7acb\u65b9\u4f53.109",
+            "name" : "\u7acb\u65b9\u4f53.195",
             "primitives" : [
                 {
                     "attributes" : {
@@ -75,58 +69,58 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 3309,
+            "count" : 3878,
             "max" : [
-                610,
-                390,
-                170.00006103515625
+                9,
+                17,
+                9
             ],
             "min" : [
-                -70,
-                -50.000003814697266,
-                -30.00000762939453
+                -25,
+                -7,
+                -21
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 3309,
+            "count" : 3878,
             "type" : "VEC3"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 3309,
+            "count" : 3878,
             "type" : "VEC2"
         },
         {
             "bufferView" : 3,
             "componentType" : 5123,
-            "count" : 5256,
+            "count" : 6132,
             "type" : "SCALAR"
         }
     ],
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 39708,
+            "byteLength" : 46536,
             "byteOffset" : 0
         },
         {
             "buffer" : 0,
-            "byteLength" : 39708,
-            "byteOffset" : 39708
+            "byteLength" : 46536,
+            "byteOffset" : 46536
         },
         {
             "buffer" : 0,
-            "byteLength" : 26472,
-            "byteOffset" : 79416
+            "byteLength" : 31024,
+            "byteOffset" : 93072
         },
         {
             "buffer" : 0,
-            "byteLength" : 10512,
-            "byteOffset" : 105888
+            "byteLength" : 12264,
+            "byteOffset" : 124096
         }
     ],
     "samplers" : [
@@ -137,7 +131,7 @@
     ],
     "buffers" : [
         {
-            "byteLength" : 116400,
+            "byteLength" : 136360,
             "uri" : "Stage1.bin"
         }
     ]

@@ -57,7 +57,8 @@ class SaveDataManager : public KuroEngine::DesignPattern::Singleton<SaveDataMana
 
 public:
 	~SaveDataManager();
-	void Save(int arg_checkPointOrder);
+	void SaveCheckPointOrder(int arg_checkPointOrder);
+	void SaveStageNum(int arg_stageNum);
 
 	//ステージに関するセーブデータ読み込み
 	bool LoadStageSaveData(int* arg_reachStageNum, int* arg_reachCheckPointOreder)

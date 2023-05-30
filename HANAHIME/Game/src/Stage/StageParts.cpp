@@ -304,7 +304,7 @@ void MoveScaffold::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 
 	//ˆÚ“®Œo˜H‚ğ•`‰æ‚·‚éB
 	for (int index = 1; index <= m_maxTranslation; ++index) {
-		KuroEngine::DrawFunc3D::DrawLine(arg_cam, m_translationArray[index - 1], m_translationArray[index], KuroEngine::Color(255, 255, 255, 255), 1.0f);
+		KuroEngine::DrawFunc3D::DrawLine(arg_cam, m_translationArray[index - 1], m_translationArray[index], KuroEngine::Color(31, 247, 205, 255), 2.0f);
 	}
 
 }
@@ -953,7 +953,7 @@ void CheckPoint::Update(Player& arg_player)
 		s_latestVisitTransform = m_transform;
 		s_visit = true;
 		CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger = true;
-		SaveDataManager::Instance()->Save(m_order);
+		SaveDataManager::Instance()->SaveCheckPointOrder(m_order);
 
 		m_fireWork.Init(m_transform.GetPosWorld());
 	}

@@ -14,7 +14,7 @@ KuroEngine::Transform DebugEnemy::GetTransform()
 
 void DebugEnemy::Stack(const KuroEngine::Transform &transform, EnemyType type)
 {
-	m_transformArray.back().emplace_back(EnemyData(transform, type));
+	m_transformArray.back().emplace_back(transform, type);
 }
 
 void DebugEnemy::StackStage()
