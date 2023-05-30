@@ -714,7 +714,11 @@ void IvyBlock::Update(Player& arg_player)
 	//イージングタイマーを更新。
 	m_easingTimer = std::clamp(m_easingTimer + EASING_TIMER * TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, 1.0f);
 
-	ReuilCollisionMesh();
+	if (m_easingTimer < 1.0f) {
+
+		ReuilCollisionMesh();
+
+	}
 
 	//出現中だったら。
 	if (m_isAppear) {

@@ -301,34 +301,34 @@ void GameScene::OnUpdate()
 		m_player.DisactiveLight();
 	}
 
-	//そのステージにいるすべての敵にワープする
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_0))
-	{
-		m_player.Init(DebugEnemy::Instance()->GetTransform());
-	}
-	//そのステージにいるミニバグにワープする
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_1))
-	{
-		m_player.Init(DebugEnemy::Instance()->GetSpecificTransform(ENEMY_MINIBUG));
-	}
-	//そのステージにいるミニバグにワープする
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_2))
-	{
-		m_player.Init(DebugEnemy::Instance()->GetSpecificTransform(ENEMY_DOSSUN_ALLWAYS));
-	}
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_3))
-	{
-		m_player.Init(DebugEnemy::Instance()->GetSpecificTransform(ENEMY_DOSSUN_NORMAL));
-	}
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_LSHIFT))
-	{
-		KuroEngine::Transform &transform = m_nowCam->GetTransform();
-		transform.SetPos(m_player.GetTransform().GetPos());
-	}
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_LSHIFT))
-	{
-		m_player.Init(StageManager::Instance()->GetGoalTransform());
-	}
+	////そのステージにいるすべての敵にワープする
+	//if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_0))
+	//{
+	//	m_player.Init(DebugEnemy::Instance()->GetTransform());
+	//}
+	////そのステージにいるミニバグにワープする
+	//if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_1))
+	//{
+	//	m_player.Init(DebugEnemy::Instance()->GetSpecificTransform(ENEMY_MINIBUG));
+	//}
+	////そのステージにいるミニバグにワープする
+	//if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_2))
+	//{
+	//	m_player.Init(DebugEnemy::Instance()->GetSpecificTransform(ENEMY_DOSSUN_ALLWAYS));
+	//}
+	//if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_3))
+	//{
+	//	m_player.Init(DebugEnemy::Instance()->GetSpecificTransform(ENEMY_DOSSUN_NORMAL));
+	//}
+	//if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_LSHIFT))
+	//{
+	//	KuroEngine::Transform &transform = m_nowCam->GetTransform();
+	//	transform.SetPos(m_player.GetTransform().GetPos());
+	//}
+	//if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_LSHIFT))
+	//{
+	//	m_player.Init(StageManager::Instance()->GetGoalTransform());
+	//}
 
 	m_gateSceneChange.Update();
 	m_fireFlyStage.ComputeUpdate(m_player.GetTransform().GetPos());

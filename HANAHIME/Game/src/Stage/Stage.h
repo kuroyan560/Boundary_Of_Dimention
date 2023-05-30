@@ -70,6 +70,8 @@ private:
 
 	std::shared_ptr<KuroEngine::Model>m_woodsCylinderModel;
 
+	KuroEngine::Vec3<float>m_mapPIPos;
+
 	//全てをオン状態にすることがクリア条件となるレバーの識別番号
 	int m_goalLeverID = Lever::INVALID_ID;
 	//クリアのスイッチ
@@ -156,4 +158,9 @@ public:
 	GuideInsect m_guideInsect;
 
 	void CheckPointReset();
+
+	void SetMapPIN(const KuroEngine::Vec3<float> &pos)
+	{
+		m_mapPIPos = pos;
+	}
 };
