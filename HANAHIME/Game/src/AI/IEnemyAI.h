@@ -3,14 +3,13 @@
 #include"DirectX12/D3D12Data.h"
 #include<memory>
 #include<vector>
+#include"../AI/EnemyStatus.h"
 
 enum ReactionEnum
 {
 	FIND,
-	HIT,
 	LOOK,
 	FAR_AWAY,
-	DEAD,
 	MAX
 };
 
@@ -149,10 +148,8 @@ public:
 		m_tex.reserve(MAX);
 		m_tex.resize(MAX);
 		m_tex[FIND] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/Find.png");
-		m_tex[HIT] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/Find.png");
 		m_tex[LOOK] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/hatena.png");
 		m_tex[FAR_AWAY] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/hatena.png");
-		m_tex[DEAD] = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/reaction/Find.png");
 
 		m_reaction = std::make_unique<Reaction>(m_tex);
 	}
@@ -178,6 +175,18 @@ public:
 	{
 		pos += KuroEngine::Vec3<float>(1.0f, 1.0f, 1.0f) * vec;
 		rotation.m128_f32[0] += 1.0f;
+	}
+
+
+	EnemyHeadAttack m_deadMotion;
+
+	void InitDead()
+	{
+		m_deadMotion.Init({}, {});
+	}
+	void UpdateDead()
+	{
+		m_deadMotion.Update();
 	}
 
 
