@@ -43,7 +43,7 @@ public:
 		{
 			m_pos = pos;
 			m_vel = vel;
-			m_speed = KuroEngine::GetRand(0.1f, 1.0f);
+			m_speed = KuroEngine::GetRand(0.1f, 0.5f);
 			m_timer.Reset(30);
 			m_tex = tex;
 			m_initFlag = true;

@@ -20,7 +20,7 @@ KuroEngine::Vec3<float> EnemyKnockBack::Update()
 	return vel;
 }
 
-EnemyHeadAttack::EnemyHeadAttack()
+EnemyHeadAttack::EnemyHeadAttack() :m_isHitGroundFlag(false)
 {
 }
 
@@ -41,7 +41,7 @@ void EnemyHeadAttack::Init(const KuroEngine::Transform &transform, const KuroEng
 
 	m_initTransform = m_transform;
 	m_isHitGroundFlag = false;
-
+	m_prevIsHitGroundFlag = m_isHitGroundFlag;
 
 	float timer = 50.0f;
 	float length = 10.0f;
@@ -76,6 +76,7 @@ void EnemyHeadAttack::Init(const KuroEngine::Transform &transform, const KuroEng
 
 	m_nowPos = SplinePosition(m_limitPosArray, m_splineIndex, m_splineTimer.GetTimeRate(), false);
 	m_prevPos = m_nowPos;
+
 }
 
 HeadAttackData EnemyHeadAttack::Update(const KuroEngine::Vec3<float> &pos)
@@ -91,7 +92,7 @@ HeadAttackData EnemyHeadAttack::Update(const KuroEngine::Vec3<float> &pos)
 	}
 	if (m_limitPosArray.size() - 2 <= m_splineIndex)
 	{
-		m_initFlag = true;
+		m_isHitGroundFlag = true;
 	}
 	else
 	{
@@ -131,11 +132,11 @@ HeadAttackData EnemyHeadAttack::Update(const KuroEngine::Vec3<float> &pos)
 void EnemyHeadAttack::ParticleUpdate()
 {
 	//着地パーティクル
-	if (m_initFlag && !m_initTriggerFlag)
+	if (m_isHitGroundFlag && !m_prevIsHitGroundFlag)
 	{
 		m_hitGroundEffecct.Init(m_nowPos);
 	}
-	m_initTriggerFlag = m_initFlag;
+	m_prevIsHitGroundFlag = m_isHitGroundFlag;
 	m_hitGroundEffecct.Update();
 	//着地パーティクル
 }

@@ -42,7 +42,7 @@ public:
 	void ParticleUpdate();
 	void ParticleDraw(KuroEngine::Camera &camera);
 
-	bool IsDone()
+	bool IsHitGround()
 	{
 		return m_isHitGroundFlag;
 	}
@@ -60,7 +60,7 @@ private:
 	KuroEngine::Vec3<float> m_vel;
 	KuroEngine::Vec3<float> m_basePos;
 	KuroEngine::Vec3<float> m_gravity;
-	bool m_isHitGroundFlag;
+	bool m_isHitGroundFlag, m_prevIsHitGroundFlag;
 
 
 	KuroEngine::Vec3<float> SplinePosition(const std::vector<KuroEngine::Vec3<float>> &points, size_t startIndex, float t, bool Loop);
@@ -75,7 +75,7 @@ private:
 	std::vector<KuroEngine::Vec3<float>>m_limitPosArray;
 	KuroEngine::Timer m_splineTimer;
 	size_t m_splineIndex;
-	bool m_initFlag, m_initTriggerFlag;
+	bool m_initFlag;
 	float m_timer;
 
 	AfterHeadEffectEffect m_hitGroundEffecct;

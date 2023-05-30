@@ -32,7 +32,13 @@ void AfterHeadEffectEffect::Init(const KuroEngine::Vec3<float> &pos)
 		KuroEngine::Vec3<float> pos(KuroEngine::GetRand(pos - range, pos + range));
 		float angle = KuroEngine::GetRand(0.0f, 360.0f);
 
-		KuroEngine::Vec3<float> vel(cosf(KuroEngine::Angle::ConvertToRadian(angle)), sinf(KuroEngine::Angle::ConvertToRadian(angle)), 0.0f);
+		float radian = KuroEngine::Angle::ConvertToRadian(angle);
+		KuroEngine::Vec3<float> vel(
+			sinf(radian) * cosf(radian),
+			sinf(radian) * sinf(radian),
+			cosf(radian)
+		);
+
 		m_cloudParticleArray[i].Init(pos, vel, m_cloudTex);
 	}
 
@@ -42,7 +48,12 @@ void AfterHeadEffectEffect::Init(const KuroEngine::Vec3<float> &pos)
 		KuroEngine::Vec3<float> pos(KuroEngine::GetRand(pos - range, pos + range));
 		float angle = KuroEngine::GetRand(0.0f, 360.0f);
 
-		KuroEngine::Vec3<float> vel(cosf(KuroEngine::Angle::ConvertToRadian(angle)), sinf(KuroEngine::Angle::ConvertToRadian(angle)), 0.0f);
+		float radian = KuroEngine::Angle::ConvertToRadian(angle);
+		KuroEngine::Vec3<float> vel(
+			sinf(radian) * cosf(radian),
+			sinf(radian) * sinf(radian),
+			cosf(radian)
+		);
 		m_lightTexArray[i].Init(pos, vel, m_orbTex);
 	}
 }

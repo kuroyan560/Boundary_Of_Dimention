@@ -135,7 +135,7 @@ void MiniBug::Update(Player &arg_player)
 		m_shadowInfluenceRange = KuroEngine::Math::Lerp(m_shadowInfluenceRange, 0.0f, 0.01f);
 
 		//if (m_deadTimer.UpdateTimer() && m_deadTimer.GetElaspedTime() != 0.0f)
-		if (m_deadMotion.IsDone())
+		if (m_deadMotion.IsHitGround())
 		{
 			m_deadTimer.Reset(120);
 			m_deadFlag = true;
@@ -366,7 +366,7 @@ void MiniBug::Update(Player &arg_player)
 		//HeadAttackData data = m_headAttack.Update();
 		//vel = data.m_dir;
 		//m_larpRotation = data.m_rotation;
-		if (m_headAttack.IsDone())
+		if (m_headAttack.IsHitGround())
 		{
 			m_startDeadMotionFlag = true;
 		}
@@ -467,6 +467,10 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 	{
 		return;
 	}
+	if (m_startDeadMotionFlag)
+	{
+		bool debug = false;
+	}
 
 
 	m_deadMotion.ParticleDraw(arg_cam);
@@ -474,28 +478,29 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.54f, 0.14f, 0.33f, 1.0f);
 	//€‚ñ‚Å‚¢‚é‚Íoffset‚Ìl—¶‚ğœ‚«‚È‚ª‚çˆ—‚ğs‚¤
-	if (!m_startDeadMotionFlag)
+	if (!m_deadMotion.IsHitGround())
 	{
 		KuroEngine::Vec3<float>offset(5.0f, 5.0f, 5.0f);
 		offset *= m_transform.GetUp() * 2.0f;
 		m_drawTransform = m_transform;
 		m_drawTransform.SetPos(m_transform.GetPos() + offset);
+
+		BasicDraw::Instance()->Draw_Enemy(
+			m_inSphereEffectConstBufferData.m_constBuffer,
+			arg_cam,
+			arg_ligMgr,
+			m_model,
+			m_drawTransform,
+			edgeColor,
+			KuroEngine::AlphaBlendMode_None,
+			m_animator->GetBoneMatBuff());
 	}
 
-	BasicDraw::Instance()->Draw_Enemy(
-		m_inSphereEffectConstBufferData.m_constBuffer,
-		arg_cam,
-		arg_ligMgr,
-		m_model,
-		m_drawTransform,
-		edgeColor,
-		KuroEngine::AlphaBlendMode_None,
-		m_animator->GetBoneMatBuff());
 
 	m_reaction->Draw(arg_cam);
 
 	//m_dashEffect.Draw(arg_cam);
-	m_eyeEffect.Draw(arg_cam);
+	//m_eyeEffect.Draw(arg_cam);
 
 
 	if (DebugEnemy::Instance()->VisualizeEnemyHitBox())
