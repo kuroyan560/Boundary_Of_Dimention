@@ -918,15 +918,6 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::NORMAL;
 	}
 
-#ifdef _DEBUG
-
-	//デバッグで状態を切り替える。
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_Y)) {
-		m_cameraFunaMode = ((m_cameraFunaMode == CameraController::CAMERA_FUNA_MODE::NORMAL) ? CameraController::CAMERA_FUNA_MODE::STAGE1_C : CameraController::CAMERA_FUNA_MODE::NORMAL);
-	}
-
-#endif
-
 
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {

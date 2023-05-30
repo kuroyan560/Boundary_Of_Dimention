@@ -202,7 +202,7 @@ void CameraController::Respawn(KuroEngine::Transform arg_playerTransform, bool a
 		float inverse = arg_isCameraUpInverse ? -1.0f : 1.0f;
 
 		//ï‚ä‘Ç≥ÇπÇÈÅB
-		m_cameraXAngleLerpAmount += (rad - CAMERA_LERP_AMOUNT) * inverse;
+		m_nowParam.m_xAxisAngle = m_xAxisAngleMax * inverse;
 
 	//}
 
