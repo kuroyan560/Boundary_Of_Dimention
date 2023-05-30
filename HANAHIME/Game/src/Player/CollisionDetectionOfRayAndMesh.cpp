@@ -8,7 +8,7 @@ CollisionDetectionOfRayAndMesh::MeshCollisionOutput CollisionDetectionOfRayAndMe
 
 	/*-- ① ポリゴンを法線情報をもとにカリングする --*/
 
-	const float CHECK_HIT_MESH_DEADLINE = 150.0f;
+	const float CHECK_HIT_MESH_DEADLINE = 500.0f;
 
 	//法線とレイの方向の内積が0より大きかった場合、そのポリゴンは背面なのでカリングする。
 	for (auto& index : arg_targetMesh) {
@@ -23,19 +23,19 @@ CollisionDetectionOfRayAndMesh::MeshCollisionOutput CollisionDetectionOfRayAndMe
 
 		}
 
-		//一定以上離れていたら無効化。
-		bool isNear = false;
+		////一定以上離れていたら無効化。
+		//bool isNear = false;
 
-		isNear |= KuroEngine::Vec3<float>(arg_rayPos - index.m_p0.pos).Length() < CHECK_HIT_MESH_DEADLINE;
-		isNear |= KuroEngine::Vec3<float>(arg_rayPos - index.m_p1.pos).Length() < CHECK_HIT_MESH_DEADLINE;
-		isNear |= KuroEngine::Vec3<float>(arg_rayPos - index.m_p2.pos).Length() < CHECK_HIT_MESH_DEADLINE;
+		//isNear |= KuroEngine::Vec3<float>(arg_rayPos - index.m_p0.pos).Length() < CHECK_HIT_MESH_DEADLINE;
+		//isNear |= KuroEngine::Vec3<float>(arg_rayPos - index.m_p1.pos).Length() < CHECK_HIT_MESH_DEADLINE;
+		//isNear |= KuroEngine::Vec3<float>(arg_rayPos - index.m_p2.pos).Length() < CHECK_HIT_MESH_DEADLINE;
 
-		if (!isNear) {
+		//if (!isNear) {
 
-			index.m_isActive = false;
-			continue;
+		//	index.m_isActive = false;
+		//	continue;
 
-		}
+		//}
 
 	}
 

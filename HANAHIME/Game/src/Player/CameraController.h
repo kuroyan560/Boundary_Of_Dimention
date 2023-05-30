@@ -126,6 +126,11 @@ public:
 		LOOK_AROUND
 	};
 
+	//C字の対策で作ったカメラモード
+	enum class CAMERA_FUNA_MODE {
+		NORMAL,					//通常状態
+		STAGE1_C,				//C字の更新処理
+	};
 
 	//コンストラクタ
 	CameraController();
@@ -133,7 +138,7 @@ public:
 	void AttachCamera(std::shared_ptr<KuroEngine::Camera>arg_cam);
 
 	void Init(bool arg_isRespawn = false);
-	void Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, float arg_defaultCameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode, std::vector<HIT_POINT> arg_hitPointData);
+	void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode, CAMERA_FUNA_MODE arg_cameraFunaMode);
 
 	//リスポーン時のカメラ挙動
 	void Respawn(KuroEngine::Transform arg_playerTransform, bool arg_isCameraUpInverse);
@@ -147,6 +152,10 @@ public:
 
 	//ラープを強制的に終わらせる。
 	void LerpForcedToEnd(float& arg_playerRotY);
+
+	//FUNA 通常状態の更新処理
+	void UpdateFunaNormal(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode);
+	void UpdateFunaStage1C(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode);
 
 	std::weak_ptr<KuroEngine::Camera> GetCamera() { return m_attachedCam; }
 

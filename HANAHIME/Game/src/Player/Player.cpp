@@ -425,6 +425,11 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		scopeMove = KuroEngine::Vec3<float>();
 	}
 
+	//C字用のカメラだったら入力を切る。
+	if (m_cameraFunaMode != CameraController::CAMERA_FUNA_MODE::NORMAL) {
+		scopeMove = KuroEngine::Vec3<float>();
+	}
+
 	//ジャンプができるかどうか。	一定時間地形に引っ掛かってたらジャンプできる。
 	m_canJump = CAN_JUMP_DELAY <= m_canJumpDelayTimer;
 
@@ -889,10 +894,35 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_baseCameraFar = KuroEngine::Math::Lerp(m_baseCameraFar, CAMERA_FAR, 0.08f);
 	}
 
+
+	//FunaSphereとの当たり判定
+	bool isHitFuna = false;
+	for (auto& funaSphere : arg_nowStage.lock()->GetFunaCamPtArray()) {
+
+		//まずは距離で当たり判定
+		float distance = Vec3<float>(funaSphere.m_pos - m_transform.GetPos()).Length();
+		if (!(distance <= funaSphere.m_radius * 1.5f)) {
+			continue;
+		}
+
+		//プレイヤーの上ベクトルがY軸方向kを向いていたら当たっていない。
+		if (fabs(m_transform.GetUp().y) < 0.9f) {
+			isHitFuna = true;
+		}
+
+	}
+	//当たっていたら状態を切り替える。
+	if (isHitFuna) {
+		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_C;
+	}else{
+		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::NORMAL;
+	}
+
+
 	//死んでいたら死亡の更新処理を入れる。
 	if (!m_isDeath) {
 		//カメラ操作	//死んでいたら死んでいたときのカメラの処理に変えるので、ここの条件式に入れる。
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_baseCameraFar, m_baseCameraFar, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, !m_cameraNoCollisionTimer.IsTimeUp(), m_cameraMode, m_hitPointData);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_baseCameraFar, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, !m_cameraNoCollisionTimer.IsTimeUp(), m_cameraMode, m_cameraFunaMode);
 
 		m_deathEffectCameraZ = m_baseCameraFar;
 	}
@@ -902,7 +932,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_camController.GetCamera().lock()->GetTransform().SetPos(m_camController.GetCamera().lock()->GetTransform().GetPos() - m_shake);
 
 		m_playerMoveStatus = PLAYER_MOVE_STATUS::DEATH;
-		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, m_baseCameraFar, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, !m_cameraNoCollisionTimer.IsTimeUp(), m_cameraMode, m_hitPointData);
+		m_camController.Update(scopeMove, m_transform, m_cameraRotYStorage, m_deathEffectCameraZ, arg_nowStage, m_isCameraUpInverse, m_isCameraDefault, m_isHitUnderGroundCamera, isMovePlayer, m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP, m_cameraQ, m_isWallFrontDir, m_drawTransform, m_frontWallNormal, !m_cameraNoCollisionTimer.IsTimeUp(), m_cameraMode, m_cameraFunaMode);
 
 	}
 	//シェイクを計算。
