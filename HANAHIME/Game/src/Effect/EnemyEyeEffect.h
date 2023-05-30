@@ -12,7 +12,7 @@ public:
 	EnemyEyeEffect(KuroEngine::Transform *transform)
 	{
 		m_transform.SetParent(transform);
-		m_tex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Cloud.png");
+		m_tex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Particle/Cloud.png");
 	}
 
 	void Update(const KuroEngine::Vec3<float> &pos)
