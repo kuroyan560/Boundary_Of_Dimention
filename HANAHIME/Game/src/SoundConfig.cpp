@@ -64,7 +64,10 @@ SoundConfig::SoundConfig() : Debugger("SoundConfig")
 	std::array<std::string, BGM_NUM>bgmFileName =
 	{
 		"title",
-		"in_game",
+		"in_game_0",
+		"in_game_1",
+		"in_game_2",
+		"in_game_3",
 	};
 
 	auto audioApp = AudioApp::Instance();
@@ -105,7 +108,10 @@ SoundConfig::SoundConfig() : Debugger("SoundConfig")
 	//BGM“Ç‚İ‚İ
 	std::string bgmDir = "resource/user/sound/bgm/";
 	m_bgmTable[BGM_TITLE] = audioApp->LoadAudio(bgmDir + "title.wav");
-	m_bgmTable[BGM_IN_GAME] = audioApp->LoadAudio(bgmDir + "in_game.wav");
+	m_bgmTable[BGM_IN_GAME_0] = audioApp->LoadAudio(bgmDir + "in_game_0.wav");
+	m_bgmTable[BGM_IN_GAME_1] = audioApp->LoadAudio(bgmDir + "in_game_1.wav");
+	m_bgmTable[BGM_IN_GAME_2] = audioApp->LoadAudio(bgmDir + "in_game_2.wav");
+	m_bgmTable[BGM_IN_GAME_3] = audioApp->LoadAudio(bgmDir + "in_game_3.wav");
 
 	//‘S•”“Ç‚İ‚ñ‚¾‚©Šm”F
 	for (int seIdx = 0; seIdx < SE_NUM; ++seIdx)

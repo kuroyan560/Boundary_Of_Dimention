@@ -241,7 +241,10 @@
     },
     "individualVolme": {
       "bgm": {
-        "in_game": 0.30000001192092896,
+        "in_game_0": 1.0,
+        "in_game_1": 1.0,
+        "in_game_2": 1.0,
+        "in_game_3": 1.0,
         "title": 0.2800000011920929
       },
       "jingle": {

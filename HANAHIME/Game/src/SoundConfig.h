@@ -50,7 +50,10 @@ public:
 	enum BGM
 	{
 		BGM_TITLE,
-		BGM_IN_GAME,
+		BGM_IN_GAME_0,
+		BGM_IN_GAME_1,
+		BGM_IN_GAME_2,
+		BGM_IN_GAME_3,
 		BGM_NUM
 	};
 

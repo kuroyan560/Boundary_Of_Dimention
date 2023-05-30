@@ -60,7 +60,7 @@ m_guideFly(GPUParticleRender::Instance()->GetStackBuffer()), m_guideInsect(GPUPa
 
 void GameScene::GameInit()
 {
-	SoundConfig::Instance()->Play(SoundConfig::BGM_IN_GAME);
+	SoundConfig::Instance()->Play(SoundConfig::BGM(SoundConfig::BGM_IN_GAME_0 + StageManager::Instance()->GetNowStageIdx()));
 	GrowPlantLight::ResetRegisteredLight();
 	StageManager::Instance()->SetStage(m_stageNum);
 
