@@ -99,7 +99,7 @@ class Grass
 	};
 
 	//モデル
-	static const int s_modelNumMax = 3;
+	static const int s_modelNumMax = 6;
 	std::array<std::shared_ptr<KuroEngine::Model>, s_modelNumMax>m_modelArray;
 
 	//光っているかの判定結果の確報バッファ
