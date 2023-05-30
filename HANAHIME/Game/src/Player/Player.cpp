@@ -168,7 +168,6 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_prevTransform = arg_initTransform;
 	m_transform = arg_initTransform;
 	m_drawTransform = arg_initTransform;
-	m_camController.Init();
 	m_cameraRotY = 0;
 	m_cameraRotYStorage = arg_initTransform.GetRotateAsEuler().x;
 	m_cameraRotMove = 0;
@@ -268,12 +267,13 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	else {
 		m_isCameraUpInverse = false;
 	}
+	m_camController.Init(arg_initTransform, m_isCameraUpInverse);
 	m_camController.Respawn(m_transform, m_isCameraUpInverse);
 	m_camController.LerpForcedToEnd(m_cameraRotYStorage);
 
 }
 
-void Player::Respawn(KuroEngine::Transform arg_initTransform, const std::weak_ptr<Stage>arg_nowStage)
+void Player::Respawn(KuroEngine::Transform arg_initTransform, const std::weak_ptr<Stage>arg_nowStage, int arg_nowStageIndex, int arg_nowCheckPointIndex)
 {
 
 	//スケール打ち消し
@@ -283,7 +283,6 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform, const std::weak_pt
 	m_prevTransform = arg_initTransform;
 	m_transform = arg_initTransform;
 	m_drawTransform = arg_initTransform;
-	m_camController.Init(true);
 	m_cameraRotY = m_checkPointRotY;
 	m_cameraRotYStorage = m_checkPointRotY;
 	m_cameraRotMove = 0;
@@ -374,7 +373,48 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform, const std::weak_pt
 	else {
 		m_isCameraUpInverse = false;
 	}
-	m_camController.Respawn(m_transform, m_isCameraUpInverse);
+	m_camController.Init(arg_initTransform, m_isCameraUpInverse, true);
+
+	//リスポーン位置によってカメラの初期設定を変える。
+	if (arg_nowStageIndex == 0 && arg_nowCheckPointIndex == 0) {
+		m_camController.SetParam(0.240949869f, 4.01524258f, false);
+		m_cameraRotYStorage = 4.01524258f;
+	}else if (arg_nowStageIndex == 0 && arg_nowCheckPointIndex == 1) {
+		m_camController.SetParam(-0.662380993f, 4.65234709f, true);
+		m_cameraRotYStorage = 4.65234709f;
+	}
+	else if (arg_nowStageIndex == 1 && arg_nowCheckPointIndex == 0) {
+		m_camController.SetParam(0.603274345f, 1.61108458f, false);
+		m_cameraRotYStorage = 1.61108458f;
+	}
+	else if (arg_nowStageIndex == 1 && arg_nowCheckPointIndex == 1) {
+		m_camController.SetParam(0.404909104f, 1.61935687f, false);
+		m_cameraRotYStorage = 1.61935687f;
+	}
+	else if (arg_nowStageIndex == 1 && arg_nowCheckPointIndex == 2) {
+		m_camController.SetParam(0.698131680f, 0.0527084842f, false);
+		m_cameraRotYStorage = 0.0527084842f;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 0) {
+		m_camController.SetParam(0.443914831f, -1.54169261f, false);
+		m_cameraRotYStorage = -1.54169261f;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 1) {
+		m_cameraFar = -100.0f;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 2) {
+		m_camController.SetParam(-0.349065840f, 0.755516231f, true);
+		m_cameraRotYStorage = 0.755516231f;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 3) {
+		m_camController.SetParam(-0.481665850f, 4.70555067f, true);
+		m_cameraRotYStorage = 4.70555067f;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 4) {
+		m_camController.SetParam(-0.578085601f, 4.65286255f, true);
+		m_cameraRotYStorage = 4.65286255f;
+	}
+
 	m_camController.LerpForcedToEnd(m_cameraRotYStorage);
 
 	m_isPlantLightExplosion = false;

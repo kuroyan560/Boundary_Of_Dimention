@@ -87,7 +87,7 @@ namespace ImageAdjust {
 }
 
 //ファストトラベル
-class FastTravel 
+class FastTravel
 {
 private:
 	bool m_isActive = false;
@@ -135,6 +135,9 @@ public:
 		result = static_cast<int>(mod_value / pow(10, arg_disit));
 		return result;
 	}
+
+	int GetNowStageIndex(){return m_nowStageNum;}
+	int GetNowCheckPointIndex() { return m_nowTargetCheckPoint; }
 
 	void Activate(std::vector<std::vector<KuroEngine::Transform>>arg_checkPointVector, int arg_selectStageNum, int arg_selectTransIdx);
 	void DisActivate() { m_isActive = false; }
