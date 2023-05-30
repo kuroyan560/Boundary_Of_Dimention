@@ -20,7 +20,7 @@ void KuroEngine::D3D12App::Initialize(const HWND& Hwnd, const Vec2<int>& ScreenS
 	}
 	ComPtr<ID3D12Debug1> spDebugController1;
 	spDebugController0->QueryInterface(IID_PPV_ARGS(&spDebugController1));
-	//spDebugController1->SetEnableGPUBasedValidation(true);
+	spDebugController1->SetEnableGPUBasedValidation(true);
 
 #endif
 
@@ -535,7 +535,8 @@ std::shared_ptr<KuroEngine::RWStructuredBuffer> KuroEngine::D3D12App::GenerateRW
 	desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 
 	//リソースバリア
-	auto barrier = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	//auto barrier = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	auto barrier = D3D12_RESOURCE_STATE_COMMON;
 
 	//ヒーププロパティ
 	D3D12_HEAP_PROPERTIES prop{};
@@ -565,10 +566,10 @@ std::shared_ptr<KuroEngine::RWStructuredBuffer> KuroEngine::D3D12App::GenerateRW
 
 	//ビューを作成した位置のディスクリプタハンドルを取得
 	DescHandles handles(m_descHeapCBV_SRV_UAV->GetCpuHandleTail(), m_descHeapCBV_SRV_UAV->GetGpuHandleTail());
-
 	//専用の構造化バッファクラスにまとめる
 	std::shared_ptr<RWStructuredBuffer>result;
 	result = std::make_shared<RWStructuredBuffer>(buff, barrier, handles, DataSize, ElementNum);
+	result->GetResource()->ChangeBarrier(GetCmdList(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	if(InitSendData)result->Mapping(InitSendData);
 
 	return result;
@@ -587,7 +588,8 @@ void KuroEngine::D3D12App::GenerateRWStructuredBuffer(std::shared_ptr<RWStructur
 	desc.Flags = D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
 
 	//リソースバリア
-	auto barrier = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	//auto barrier = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
+	auto barrier = D3D12_RESOURCE_STATE_COMMON;
 
 	//ヒーププロパティ
 	D3D12_HEAP_PROPERTIES prop{};
@@ -621,6 +623,7 @@ void KuroEngine::D3D12App::GenerateRWStructuredBuffer(std::shared_ptr<RWStructur
 	//専用の構造化バッファクラスにまとめる
 	std::shared_ptr<RWStructuredBuffer>result;
 	result = std::make_shared<RWStructuredBuffer>(buff, barrier, handles, DataSize, ElementNum);
+	result->GetResource()->ChangeBarrier(GetCmdList(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 	if (InitSendData)result->Mapping(InitSendData);
 
 	*Dest = result;
