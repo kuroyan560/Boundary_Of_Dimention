@@ -79,30 +79,30 @@ int int_cmpr(const void *a, const void *b)
 	}
 }
 
-void GuideInsect::GoToCheckPoint(const KuroEngine::Vec3<float> &pos)
+void GuideInsect::GoToCheckPoint(const KuroEngine::Vec3<float> &pos, const KuroEngine::Vec3<float> &nextPos)
 {
 	if (!m_goToCheckPointFlag)
 	{
 		m_tiemr.Reset(60 * 10);
 		m_guideInsect.Init(pos);
 
-		//接触していない&&最も近いチェックポイントに飛ばすようにする
-		std::vector<IndexData>distanceArray;
-		for (int i = 0; i < m_checkPointArray.size(); ++i)
-		{
-			if (m_checkPointArray[i]->m_isHitFlag)
-			{
-				continue;
-			}
+		////接触していない&&最も近いチェックポイントに飛ばすようにする
+		//std::vector<IndexData>distanceArray;
+		//for (int i = 0; i < m_checkPointArray.size(); ++i)
+		//{
+		//	if (m_checkPointArray[i]->m_isHitFlag)
+		//	{
+		//		continue;
+		//	}
 
-			distanceArray.emplace_back();
-			distanceArray.back().distance = pos.Distance(m_checkPointArray[i]->m_pos);
-			distanceArray.back().index = i;
-		}
-		std::qsort(distanceArray.data(), distanceArray.size(), sizeof(IndexData), int_cmpr);
+		//	distanceArray.emplace_back();
+		//	distanceArray.back().distance = pos.Distance(m_checkPointArray[i]->m_pos);
+		//	distanceArray.back().index = i;
+		//}
+		//std::qsort(distanceArray.data(), distanceArray.size(), sizeof(IndexData), int_cmpr);
 
 		//接近命令
-		m_guideInsect.GoThisPos(pos, m_checkPointArray[distanceArray.back().index]->m_pos);
+		m_guideInsect.GoThisPos(pos, nextPos);
 		m_goToCheckPointFlag = true;
 	}
 	else

@@ -28,7 +28,7 @@ public:
 	}
 
 
-	void GoToCheckPoint(const KuroEngine::Vec3<float> &pos);
+	void GoToCheckPoint(const KuroEngine::Vec3<float> &pos, const KuroEngine::Vec3<float> &nextPos);
 
 private:
 	int m_index;

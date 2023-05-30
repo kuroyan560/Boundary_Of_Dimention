@@ -438,7 +438,7 @@ void Stage::Update(Player &arg_player)
 	//チェックポイントまで飛ぶ処理
 	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_RESET, OperationConfig::ON_TRIGGER))
 	{
-		m_guideInsect.GoToCheckPoint(arg_player.GetTransform().GetPos());
+		m_guideInsect.GoToCheckPoint(arg_player.GetTransform().GetPos(), m_mapPIPos);
 	}
 	m_guideInsect.Update();
 

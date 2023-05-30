@@ -107,6 +107,12 @@ void StageManager::Update(Player& arg_player)
 		}
 	}
 
+	KuroEngine::Transform mapPinPos;
+	if (GetNowMapPinTransform(&mapPinPos))
+	{
+		m_nowStage->SetMapPIN(mapPinPos.GetPos());
+	}
+
 	//チェックポイントUI更新
 	CheckPoint::UI().lock()->Update();
 
@@ -128,7 +134,7 @@ void StageManager::DrawUI(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float>ar
 	if (GetNowMapPinTransform(&mapPinPos))
 	{
 		const auto& mapPinPointArray = m_nowStage->GetMapPinPointArray();
-		
+
 		m_mapPinUI.Draw(arg_cam, mapPinPos.GetPosWorld(), arg_playerPos);
 	}
 
