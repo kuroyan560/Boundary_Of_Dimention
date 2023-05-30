@@ -164,14 +164,24 @@ class GoalPoint : public StageParts
 {
 	bool m_hitPlayer = false;
 
+	//苗木モデル
+	std::shared_ptr<KuroEngine::Model>m_saplingModel;
+	//木モデル
+	std::shared_ptr<KuroEngine::Model>m_woodModel;
+
+	//木に育つ時間タイマー
+	KuroEngine::Timer m_growUpTimer;
+	bool m_isGrowUp;
+
 public:
-	GoalPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
-		:StageParts(GOAL_POINT, arg_model, arg_initTransform) {
-	}
+	GoalPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform);
+
 	void OnInit()override
 	{
 		m_offset.SetScale({ 0.0f, 0.0f, 0.0f });
 		m_hitPlayer = false;
+		m_model = m_saplingModel;
+		m_isGrowUp = false;
 	}
 	void Update(Player &arg_player)override;
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;
@@ -180,6 +190,12 @@ public:
 	{
 		bool flag = m_hitPlayer;
 		return m_hitPlayer;
+	}
+	void GrowUpWood()
+	{
+		m_model = m_woodModel;
+		m_growUpTimer.Reset(60.0f);
+		m_isGrowUp = true;
 	}
 
 	//描画時のオフセット

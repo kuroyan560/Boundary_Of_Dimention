@@ -194,20 +194,38 @@ std::optional<AABB::CollisionInfo> AABB::CheckAABBCollision(const AABB& arg_aabb
 	return CollisionInfo{ pushBack };
 }
 
+GoalPoint::GoalPoint(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform)
+	:StageParts(GOAL_POINT, arg_model, arg_initTransform) 
+{
+	m_saplingModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/stage/", "Goal.glb");
+	m_woodModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/stage/", "Goal_Wood.glb");
+}
+
 void GoalPoint::Update(Player& arg_player)
 {
+	using namespace KuroEngine;
+
 	const float HIT_RADIUS = 10.0f;
 
 	//ÉvÉåÉCÉÑÅ[Ç∆ÇÃìñÇΩÇËîªíË
 	float dist = arg_player.GetTransform().GetPosWorld().Distance(m_transform.GetPosWorld() + (-m_transform.GetUpWorld() * HIT_RADIUS));
 	if (!m_hitPlayer)m_hitPlayer = (dist < HIT_RADIUS);
+
+	if (m_isGrowUp)
+	{
+		m_growUpTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
+		m_transform.SetScale(Math::Ease(Out, Elastic, m_growUpTimer.GetTimeRate(), 0.0f, 1.0f));
+	}
 }
 
 void GoalPoint::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 	using namespace KuroEngine;
+
+	static const Vec3<float> MODEL_OFFSET = m_transform.GetUpWorld() * -20.0f;
+
 	Transform drawTransform;
-	drawTransform.SetPos(m_transform.GetPosWorld() + m_offset.GetPosWorld());
+	drawTransform.SetPos(m_transform.GetPosWorld() + m_offset.GetPosWorld() + MODEL_OFFSET);
 	drawTransform.SetRotate(m_transform.GetRotate());
 	drawTransform.SetScale(m_transform.GetScaleWorld() + m_offset.GetScaleWorld());
 
