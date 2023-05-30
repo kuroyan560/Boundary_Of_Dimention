@@ -265,6 +265,9 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	if (m_transform.GetUp().y <= -0.9f) {
 		m_isCameraUpInverse = true;
 	}
+	else {
+		m_isCameraUpInverse = false;
+	}
 	m_camController.Respawn(m_transform, m_isCameraUpInverse);
 	m_camController.LerpForcedToEnd(m_cameraRotYStorage);
 
@@ -367,6 +370,9 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform, const std::weak_pt
 	//プレイヤーのY軸方向でカメラを反転させるかを決める。
 	if (m_transform.GetUp().y <= -0.9f) {
 		m_isCameraUpInverse = true;
+	}
+	else {
+		m_isCameraUpInverse = false;
 	}
 	m_camController.Respawn(m_transform, m_isCameraUpInverse);
 	m_camController.LerpForcedToEnd(m_cameraRotYStorage);

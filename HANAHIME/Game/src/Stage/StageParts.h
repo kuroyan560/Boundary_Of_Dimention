@@ -428,7 +428,7 @@ class IvyBlock : public StageParts
 	const float EASING_TIMER = 0.03f;
 
 	const float HIT_SCALE_MIN = 10.5f * 2.0f;
-	const float HIT_SCALE_MAX = 12.5f * 2.0f;
+	const float HIT_SCALE_MAX = 14.5f * 2.0f;
 	const float SCALE_DEF = 15.0f;
 
 	std::weak_ptr<KuroEngine::Model>m_collisionModel;
