@@ -43,8 +43,8 @@ void EnemyHeadAttack::Init(const KuroEngine::Transform &transform, const KuroEng
 	m_isHitGroundFlag = false;
 	m_prevIsHitGroundFlag = m_isHitGroundFlag;
 
-	float timer = 50.0f;
-	float length = 10.0f;
+	float timer = 25.0f;
+	float length = 25.0f;
 	float height = 10.0f;
 
 
@@ -99,27 +99,6 @@ HeadAttackData EnemyHeadAttack::Update(const KuroEngine::Vec3<float> &pos)
 		m_nowPos = SplinePosition(m_limitPosArray, m_splineIndex, m_splineTimer.GetTimeRate(), false);
 	}
 
-	//m_gravity += m_transform.GetUp() * 0.1f;
-	//m_vel += -m_gravity;
-
-	//float getBasePos = 0.0f;
-	//if (1.0f <= abs(m_initTransform.GetUp().x))
-	//{
-	//	getBasePos = m_initTransform.GetPos().x;
-	//}
-	//else if (1.0f <= abs(m_initTransform.GetUp().y))
-	//{
-	//	getBasePos = m_initTransform.GetPos().y;
-	//}
-	//else if (1.0f <= abs(m_initTransform.GetUp().z))
-	//{
-	//	getBasePos = m_initTransform.GetPos().z;
-	//}
-	////地面に着地したらエフェクト
-	//if (pos.y <= getBasePos)
-	//{
-	//	m_isHitGroundFlag = true;
-	//}
 	m_angle += 15.0f;
 	HeadAttackData headAttackData;
 	headAttackData.m_dir = m_nowPos - m_prevPos;

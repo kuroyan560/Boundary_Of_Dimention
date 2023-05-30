@@ -48,7 +48,8 @@ public:
 			m_tex = tex;
 			m_initFlag = true;
 
-			m_size = KuroEngine::GetRand(KuroEngine::Vec2<float>(3.0f, 3.3f), KuroEngine::Vec2<float>(15.0f, 15.0f));
+			float minScale = 3.0f, maxScale = 5.0f;
+			m_size = KuroEngine::GetRand(KuroEngine::Vec2<float>(minScale, minScale), KuroEngine::Vec2<float>(maxScale, maxScale));
 		}
 
 		void Update()
@@ -103,9 +104,9 @@ public:
 
 	//‚»‚ÌŒã
 	//‰Œ------------
-	std::array<Particle, 25>m_cloudParticleArray;
+	std::array<Particle, 10>m_cloudParticleArray;
 	//Œõ---------------------------------------
-	std::array<Particle, 25>m_lightTexArray;
+	std::array<Particle, 10>m_lightTexArray;
 	//Œõ‚Ì‚­‚è”²‚«‰~
 	KuroEngine::Vec3<float>m_lightCirclePos;
 	KuroEngine::Vec2<float>m_lightCircleSize;
