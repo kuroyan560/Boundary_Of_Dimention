@@ -56,7 +56,8 @@ void EnemyHeadAttack::Init(const KuroEngine::Transform &transform, const KuroEng
 	m_limitPosArray.emplace_back(startPos);
 
 	KuroEngine::Vec3<float>distance(endPos - startPos);
-	KuroEngine::Vec3<float>yPos(startPos + distance / 2.0f + KuroEngine::Vec3<float>(0.0f, height, 0.0f));
+	KuroEngine::Vec3<float>distanceFromStartPos(startPos + distance / 2.0f);
+	KuroEngine::Vec3<float>yPos(distanceFromStartPos + m_transform.GetUp() * KuroEngine::Vec3<float>(height, height, height));
 	m_limitPosArray.emplace_back(yPos);
 
 	m_limitPosArray.emplace_back(endPos);
