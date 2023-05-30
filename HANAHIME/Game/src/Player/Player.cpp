@@ -894,6 +894,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	if (!m_cameraReturnTimer.IsTimeUp()) {
 		m_baseCameraFar = KuroEngine::Math::Lerp(m_baseCameraFar, CAMERA_NEAR_ENEMY_FAR, 0.08f);
 	}
+	else if (m_cameraFunaMode == CameraController::CAMERA_FUNA_MODE::STAGE1_4_FAR) {
+		m_baseCameraFar = KuroEngine::Math::Lerp(m_baseCameraFar, CAMERA_FUNAMODE_FAR, 0.08f);
+	}
 	else {
 		m_baseCameraFar = KuroEngine::Math::Lerp(m_baseCameraFar, CAMERA_FAR, 0.08f);
 	}
@@ -918,6 +921,9 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	}
 	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_4)) {
 		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_3_HEIGHT_LIMIT;
+	}
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_5)) {
+		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_4_FAR;
 	}
 
 
