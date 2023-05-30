@@ -8,6 +8,11 @@ public:
 	void Init(const KuroEngine::Vec3<float> &emittPos);
 	void Update();
 
+	void SetParticleColorTex(std::shared_ptr<KuroEngine::TextureBuffer>arg_particleColor)
+	{
+		m_particleColor = arg_particleColor;
+	}
+
 private:
 
 	static const int DISPATCH_NUM = 1;
