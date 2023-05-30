@@ -74,9 +74,6 @@ void MiniBug::Update(Player &arg_player)
 		}
 		return;
 	}
-	else
-	{
-	}
 
 	m_inSphereEffectConstBufferData.m_info.m_upVec = m_transform.GetUp();
 	m_inSphereEffectConstBufferData.m_info.m_inSphere = arg_player.CheckInGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), *(m_hitBox.m_radius));

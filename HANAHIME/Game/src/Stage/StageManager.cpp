@@ -78,11 +78,10 @@ void StageManager::SetStage(int stage_num)
 
 void StageManager::Update(Player& arg_player)
 {
-
 	CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger = false;
 
 	m_nowStage->Update(arg_player);
-	Appearance::ModelsUpdate();
+	Appearance::ModelsUvUpdate(TimeScaleMgr::s_inGame.GetTimeScale());
 
 	//マップピンが示す目的地との当たり判定
 	const auto& mapPinPointArray = m_nowStage->GetMapPinPointArray();

@@ -193,7 +193,7 @@ class Appearance : public StageParts
 
 	TerrianMeshCollider m_collider;
 public:
-	static void ModelsUpdate();
+	static void ModelsUvUpdate(float arg_timeScale);
 
 	Appearance(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::weak_ptr<KuroEngine::Model>arg_collisionModel);
 	void Update(Player &arg_player)override {}
@@ -408,7 +408,6 @@ class IvyBlock : public StageParts
 	//消失している間に描画するモデルのマテリアル
 	std::shared_ptr<KuroEngine::Material>m_nonExistMaterial;
 	IndividualDrawParameter m_nonExistDrawParam;
-
 
 	//ブロックの左上手前座標
 	KuroEngine::Vec3<float>m_leftTopFront;

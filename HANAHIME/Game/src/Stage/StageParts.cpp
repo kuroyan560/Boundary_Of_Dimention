@@ -220,7 +220,7 @@ void GoalPoint::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_
 
 std::map<std::string, std::weak_ptr<KuroEngine::Model>>Appearance::s_models;
 
-void Appearance::ModelsUpdate()
+void Appearance::ModelsUvUpdate(float arg_timeScale)
 {
 	//UVアニメーション
 	for (auto& modelPtr : s_models)
