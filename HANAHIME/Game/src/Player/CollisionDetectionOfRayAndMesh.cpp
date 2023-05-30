@@ -8,7 +8,7 @@ CollisionDetectionOfRayAndMesh::MeshCollisionOutput CollisionDetectionOfRayAndMe
 
 	/*-- ① ポリゴンを法線情報をもとにカリングする --*/
 
-	const float CHECK_HIT_MESH_DEADLINE = 15000.0f;
+	const float CHECK_HIT_MESH_DEADLINE = 500.0f;
 
 	//法線とレイの方向の内積が0より大きかった場合、そのポリゴンは背面なのでカリングする。
 	for (auto& index : arg_targetMesh) {
