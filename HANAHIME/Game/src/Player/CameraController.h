@@ -142,7 +142,7 @@ public:
 
 	void AttachCamera(std::shared_ptr<KuroEngine::Camera>arg_cam);
 
-	void Init(bool arg_isRespawn = false);
+	void Init(KuroEngine::Transform arg_targetPos, bool arg_isCameraUpInverse, bool arg_isRespawn = false);
 	void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode, CAMERA_FUNA_MODE arg_cameraFunaMode);
 
 	//リスポーン時のカメラ挙動
@@ -177,6 +177,9 @@ public:
 	void EndLookAround() { m_isLookAroundFinish = true; }
 	bool IsFinishLookAround() { return m_isLookAroundFinish; }
 	bool IsCompleteFinishLookAround() { return m_isLookAroundFinishComplete; }
+
+	//パラメーターをセット。
+	void SetParam(float arg_x, float arg_y, bool arg_isCameraUpInverse);
 
 private:
 

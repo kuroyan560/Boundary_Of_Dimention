@@ -321,7 +321,7 @@ private:
 public:
 	Player();
 	void Init(KuroEngine::Transform arg_initTransform);		//ステージに入るとき用。
-	void Respawn(KuroEngine::Transform arg_initTransform, const std::weak_ptr<Stage>arg_nowStage);	//Backキーとかを押してリスポーンするとき用。
+	void Respawn(KuroEngine::Transform arg_initTransform, const std::weak_ptr<Stage>arg_nowStage, int arg_nowStageIndex, int arg_nowCheckPointIndex);	//Backキーとかを押してリスポーンするとき用。
 	void Update(const std::weak_ptr<Stage>arg_nowStage);
 	void Draw(KuroEngine::Camera& arg_cam, std::weak_ptr<KuroEngine::DepthStencil>arg_ds, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw = false);
 	void DrawParticle(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);

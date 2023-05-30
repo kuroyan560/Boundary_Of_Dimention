@@ -59,7 +59,7 @@ void CameraController::AttachCamera(std::shared_ptr<KuroEngine::Camera> arg_cam)
 	m_cameraLocalTransform.SetParent(&m_camParentTransform);
 }
 
-void CameraController::Init(bool arg_isRespawn)
+void CameraController::Init(KuroEngine::Transform arg_targetPos, bool arg_isCameraUpInverse, bool arg_isRespawn)
 {
 	if (arg_isRespawn) {
 		m_nowParam = m_checkPointTriggerParam;
@@ -78,6 +78,8 @@ void CameraController::Init(bool arg_isRespawn)
 	m_isLookAroundFinish = false;
 	m_isLookAroundFinishComplete = false;
 	m_oldHitFrontWallNormal = KuroEngine::Vec3<float>();
+
+	CalCameraPosAndRotate(arg_targetPos, arg_isCameraUpInverse);
 }
 
 void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode, CAMERA_FUNA_MODE arg_cameraFunaMode)
@@ -198,21 +200,23 @@ void CameraController::Respawn(KuroEngine::Transform arg_playerTransform, bool a
 
 	using namespace KuroEngine;
 
-	//カメラをいい感じの位置に補間する量。
-	const float CAMERA_LERP_AMOUNT = 0.25f;	//内積で使用するので、つまり地面から見て45度の位置に補間する。
+	{
 
-	//つまり現在はXY平面上にいるということなので、カメラからプレイヤーまでのベクトルを2Dに射影。
-	Vec3<float> cameraVec = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_playerTransform.GetPos()).GetNormal();
-	Vec2<float> cameraVec2D = Project3Dto2D(cameraVec, Vec3<float>(1, 0, 0), Vec3<float>(0, 1, 0));
-	Vec2<float> jumpEndNormal2D = Project3Dto2D(arg_playerTransform.GetUp(), Vec3<float>(1, 0, 0), Vec3<float>(0, 1, 0));
+		//カメラをいい感じの位置に補間する量。
+		const float CAMERA_LERP_AMOUNT = 0.25f;	//内積で使用するので、つまり地面から見て45度の位置に補間する。
 
-	//回転量を二次元で得る。
-	float dot = jumpEndNormal2D.Dot(cameraVec2D);
+		//つまり現在はXY平面上にいるということなので、カメラからプレイヤーまでのベクトルを2Dに射影。
+		Vec3<float> cameraVec = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_playerTransform.GetPos()).GetNormal();
+		Vec2<float> cameraVec2D = Project3Dto2D(cameraVec, Vec3<float>(1, 0, 0), Vec3<float>(0, 1, 0));
+		Vec2<float> jumpEndNormal2D = Project3Dto2D(arg_playerTransform.GetUp(), Vec3<float>(1, 0, 0), Vec3<float>(0, 1, 0));
 
-	//ベクトルの差がCAMERA_LARP_AMOUNTより下だったら補間の処理を入れる。
-	//if (dot < CAMERA_LERP_AMOUNT) {
+		//回転量を二次元で得る。
+		float dot = jumpEndNormal2D.Dot(cameraVec2D);
 
-		//ラジアンに直す。
+		//ベクトルの差がCAMERA_LARP_AMOUNTより下だったら補間の処理を入れる。
+		//if (dot < CAMERA_LERP_AMOUNT) {
+
+			//ラジアンに直す。
 		float rad = acos(dot);
 
 		//面移動の瞬間だったら。
@@ -224,7 +228,47 @@ void CameraController::Respawn(KuroEngine::Transform arg_playerTransform, bool a
 		//補間させる。
 		m_nowParam.m_xAxisAngle = m_xAxisAngleMax * inverse;
 
-	//}
+		//}
+
+	}
+
+
+	{
+
+		//プレイヤーがY面にいたら
+		//if (0.9f < fabs(arg_playerTransform.GetUp().y)) {
+
+			//カメラをいい感じの位置に補間する量。
+			const float CAMERA_LERP_AMOUNT = 0.5f;	//内積で使用するので、つまり地面から見て45度の位置に補間する。
+
+			//つまり現在はXZ平面上にいるということなので、カメラからプレイヤーまでのベクトルを2Dに射影。
+			Vec3<float> cameraVec = Vec3<float>(m_attachedCam.lock()->GetTransform().GetPos() - arg_playerTransform.GetPos()).GetNormal();
+			Vec2<float> cameraVec2D = Project3Dto2D(cameraVec, Vec3<float>(1, 0, 0), Vec3<float>(0, 0, 1));
+			Vec2<float> jumpEndNormal2D = Project3Dto2D(arg_playerTransform.GetUp(), Vec3<float>(1, 0, 0), Vec3<float>(0, 0, 1));
+
+			//回転量を二次元で得る。
+			float dot = jumpEndNormal2D.Dot(cameraVec2D);
+
+			//ベクトルの差がCAMERA_LARP_AMOUNTより下だったら補間の処理を入れる。
+			//if (dot < CAMERA_LERP_AMOUNT) {
+
+				//ラジアンに直す。
+				float rad = acos(dot);
+
+				//補間する方向を求める。
+				float cross = std::signbit(jumpEndNormal2D.Cross(cameraVec2D)) ? -1.0f : 1.0f;
+
+				//補間させる。
+				m_rotateYLerpAmount -= rad * cross;
+
+			//}
+
+
+		//}
+
+
+
+	}
 
 	//上方向も回転させておく。
 	if (arg_isCameraUpInverse) {
@@ -1156,5 +1200,21 @@ void CameraController::UpdateLookAround(KuroEngine::Vec3<float> arg_scopeMove, K
 
 
 	m_isCameraModeLookAround = arg_cameraMode == CAMERA_STATUS::LOOK_AROUND;
+
+}
+
+void CameraController::SetParam(float arg_x, float arg_y, bool arg_isCameraUpInverse) {
+
+	m_nowParam.m_xAxisAngle = arg_x;
+	m_nowParam.m_yAxisAngle = arg_y;
+	m_initializedParam.m_xAxisAngle = arg_x;
+	m_initializedParam.m_yAxisAngle = arg_y;
+
+	if (arg_isCameraUpInverse) {
+		m_rotateZ = DirectX::XM_PI;
+	}
+	else {
+		m_rotateZ = 0.0f;
+	}
 
 }

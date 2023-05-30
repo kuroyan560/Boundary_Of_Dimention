@@ -64,7 +64,7 @@ void GameScene::GameInit()
 	GrowPlantLight::ResetRegisteredLight();
 	StageManager::Instance()->SetStage(m_stageNum);
 
-	m_player.Respawn(m_playerInitTransform, StageManager::Instance()->GetNowStage());
+	m_player.Respawn(m_playerInitTransform, StageManager::Instance()->GetNowStage(), m_fastTravel.GetNowStageIndex(), m_fastTravel.GetNowCheckPointIndex());
 
 	SoundConfig::Instance()->Init();
 	GateManager::Instance()->Init();
