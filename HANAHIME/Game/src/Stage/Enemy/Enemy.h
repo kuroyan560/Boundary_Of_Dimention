@@ -49,44 +49,7 @@ enum ENEMY_BARREL_PATTERN
 class MiniBug :public StageParts, IEnemyAI
 {
 public:
-	MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>posArray, bool loopFlag)
-		:StageParts(MINI_BUG, arg_model, arg_initTransform), m_deadTimer(120), m_eyeEffect(&m_transform), ENEMY_ID(ENEMY_MAX_ID)
-	{
-		//丸影用に敵のデータの参照を渡す。
-		EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_shadowInfluenceRange, &m_deadFlag);
-		m_finalizeFlag = false;
-		++ENEMY_MAX_ID;
-
-		if (posArray.size() == 0 || posArray.size() == 1)
-		{
-			std::vector<KuroEngine::Vec3<float>>limitPosArray;
-			limitPosArray.emplace_back(arg_initTransform.GetPos());
-			m_patrol = std::make_unique<PatrolBasedOnControlPoint>(limitPosArray, 0, loopFlag);
-			m_posArray = m_patrol->GetLimitPosArray();
-		}
-		else
-		{
-			m_patrol = std::make_unique<PatrolBasedOnControlPoint>(posArray, 0, loopFlag);
-		}
-
-		//定数バッファを生成。
-		m_inSphereEffectConstBufferData.m_info.m_inSphere = false;
-		m_inSphereEffectConstBufferData.m_info.m_lightRate = 0.0f;
-		m_inSphereEffectConstBufferData.m_info.m_upVec = KuroEngine::Vec3<float>(0, 1, 0);
-		m_inSphereEffectConstBufferData.m_constBuffer = KuroEngine::D3D12App::Instance()->GenerateConstantBuffer(
-			sizeof(EnemyInSphereEffectInfo),
-			1,
-			nullptr,
-			"Enemy - Effect");
-
-		m_animator = std::make_shared<KuroEngine::ModelAnimator>(arg_model);
-		OnInit();
-
-
-		DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_MINIBUG);
-
-		m_debugHitBox = std::make_unique<EnemyHitBox>(m_hitBox, KuroEngine::Color(1.0f, 1.0f, 1.0f, 1.0f));
-	}
+	MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>posArray, bool loopFlag);
 
 	void OnInit()override;
 	void Update(Player &arg_player)override;
@@ -117,6 +80,7 @@ private:
 	EnemyInSphereEffectConstBufferData m_inSphereEffectConstBufferData;
 
 	KuroEngine::Vec3<float>m_pos, m_prevPos;
+	float m_flootOffset;
 	float m_scale;
 	KuroEngine::Vec3<float>m_dir;
 	std::unique_ptr<PatrolBasedOnControlPoint> m_patrol;
@@ -225,7 +189,7 @@ private:
 	Sphere m_hitBox;
 
 	//死亡処理------------------------------------------------------------------------------
-
+	KuroEngine::Transform m_drawTransform;
 
 
 	//思考処理

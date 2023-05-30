@@ -597,17 +597,19 @@ class StarCoin : public StageParts
 private:
 	//—İŒv‚Ì“üè”
 	static int GET_SUM;
+	static int s_id;
 public:
 	static const int &GetFlowerSum() { return GET_SUM; }
 
 private:
+	std::shared_ptr<KuroEngine::Model>m_getModel;
 	bool m_get = false;
 	bool m_touched = false;
+	int m_id;
 
 	void OnInit()override;
 public:
-	StarCoin(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform)
-		:StageParts(CHECK_POINT, arg_model, arg_initTransform) {}
+	StarCoin(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform);
 
 	void Update(Player &arg_player)override;
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)override;

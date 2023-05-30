@@ -1,6 +1,8 @@
 #pragma once
 #include"Common/Singleton.h"
 #include<string>
+#include<map>
+#include<vector>
 
 struct SoundVolumeData
 {
@@ -25,6 +27,17 @@ struct OperationData
 struct GameSaveData
 {
 	static const int INVALID = -1;
+
+	struct GetStarCoinInfo
+	{
+		int m_stageNum;
+		int m_id;
+		GetStarCoinInfo() {}
+		GetStarCoinInfo(int arg_stageNum, int arg_id) :m_stageNum(arg_stageNum), m_id(arg_id) {}
+	};
+
+	//ステージ番号 → 入手したスターコインのID
+	std::vector<GetStarCoinInfo>m_getStarCoinInfoArray;
 
 	//たどり着いたステージ
 	int m_reachStageNum = INVALID;
@@ -59,6 +72,10 @@ public:
 	~SaveDataManager();
 	void SaveCheckPointOrder(int arg_checkPointOrder);
 	void SaveStageNum(int arg_stageNum);
+	void SaveStarCoin(int arg_stageNum, int arg_id)
+	{
+		m_saveData.m_getStarCoinInfoArray.emplace_back(arg_stageNum, arg_id);
+	}
 
 	//ステージに関するセーブデータ読み込み
 	bool LoadStageSaveData(int* arg_reachStageNum, int* arg_reachCheckPointOreder)
@@ -68,6 +85,17 @@ public:
 		return m_saveData.m_reachStageNum != GameSaveData::INVALID && m_saveData.m_reachCheckPointOrder != GameSaveData::INVALID;
 	}
 
+	//既に入手したスターコインか
+	bool IsGetStarCoin(int arg_stageNum, int arg_id)const
+	{
+		for (auto& coin : m_saveData.m_getStarCoinInfoArray)
+		{
+			if (coin.m_stageNum == arg_stageNum && coin.m_id == arg_id)return true;
+		}
+
+		return false;
+	}
+
 	//サウンドボリュームに関するデータ
 	const SoundVolumeData& GetSoundVolumeData() { return m_saveData.m_soundVol; }
 
@@ -75,10 +103,11 @@ public:
 	const OperationData& GetOperationData() { return m_saveData.m_operationSetting; }
 
 	//データ削除
-	void ResetStageData()
+	void ResetSaveData()
 	{
 		m_saveData.m_reachStageNum = GameSaveData::INVALID;
 		m_saveData.m_reachCheckPointOrder = GameSaveData::INVALID;
+		m_saveData.m_getStarCoinInfoArray.clear();
 	}
 };
 
