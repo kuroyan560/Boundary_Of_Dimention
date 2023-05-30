@@ -80,6 +80,7 @@ private:
 	EnemyInSphereEffectConstBufferData m_inSphereEffectConstBufferData;
 
 	KuroEngine::Vec3<float>m_pos, m_prevPos;
+	float m_flootOffset;
 	float m_scale;
 	KuroEngine::Vec3<float>m_dir;
 	std::unique_ptr<PatrolBasedOnControlPoint> m_patrol;

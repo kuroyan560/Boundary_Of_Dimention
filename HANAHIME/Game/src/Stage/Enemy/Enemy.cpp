@@ -88,6 +88,7 @@ void MiniBug::OnInit()
 	m_animator->SetStartPosture("To_Angry");
 
 	m_knockBackTime = 10;
+	m_flootOffset = 5.0f;
 }
 
 void MiniBug::Update(Player &arg_player)
@@ -104,7 +105,9 @@ void MiniBug::Update(Player &arg_player)
 	//‹¤’Êˆ—
 	if (m_deadFlag)
 	{
-		m_reaction->Update(m_pos);
+		KuroEngine::Vec3<float>offset(m_flootOffset, m_flootOffset, m_flootOffset);
+		offset *= m_transform.GetUp();
+		m_reaction->Update(m_pos + offset);
 
 		if (!m_finalizeFlag)
 		{
@@ -131,7 +134,6 @@ void MiniBug::Update(Player &arg_player)
 		//Ž€‚ñ‚Å‚¢‚½‚çŠÛ‰e‚ð¬‚³‚­‚·‚éB
 		m_shadowInfluenceRange = KuroEngine::Math::Lerp(m_shadowInfluenceRange, 0.0f, 0.01f);
 
-		//if (m_deadTimer.UpdateTimer() && m_deadTimer.GetElaspedTime() != 0.0f)
 		if (m_deadMotion.IsHitGround())
 		{
 			m_deadTimer.Reset(120);
@@ -144,8 +146,9 @@ void MiniBug::Update(Player &arg_player)
 		m_drawTransform.SetPos(m_pos);
 		m_drawTransform.SetRotate(data.m_rotation);
 
-
-		m_reaction->Update(m_pos);
+		KuroEngine::Vec3<float>offset(m_flootOffset, m_flootOffset, m_flootOffset);
+		offset *= m_transform.GetUp();
+		m_reaction->Update(m_pos + offset);
 
 		return;
 	}
@@ -391,7 +394,10 @@ void MiniBug::Update(Player &arg_player)
 		m_startDeadMotionFlag = true;
 	}
 
-	m_reaction->Update(m_pos);
+	KuroEngine::Vec3<float>offset(m_flootOffset, m_flootOffset, m_flootOffset);
+	offset *= m_transform.GetUp();
+	m_reaction->Update(m_pos + offset);
+
 	if (1.0f <= m_initializedTransform.GetUp().x)
 	{
 		vel.x = 0.0f;
@@ -472,7 +478,7 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 	//Ž€‚ñ‚Å‚¢‚éŽž‚Íoffset‚Ìl—¶‚ðœ‚«‚È‚ª‚çˆ—‚ðs‚¤
 	if (!m_startDeadMotionFlag)
 	{
-		KuroEngine::Vec3<float>offset(5.0f, 5.0f, 5.0f);
+		KuroEngine::Vec3<float>offset(m_flootOffset, m_flootOffset, m_flootOffset);
 		offset *= m_transform.GetUp() * 2.0f;
 		m_drawTransform = m_transform;
 		m_drawTransform.SetPos(m_transform.GetPos() + offset);
