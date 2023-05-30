@@ -36,7 +36,7 @@ public:
 	EnemyHeadAttack();
 
 	void Init(const KuroEngine::Transform &transform, const KuroEngine::Vec3<float> &dir);
-	HeadAttackData Update();
+	HeadAttackData Update(const KuroEngine::Vec3<float> &pos);
 	bool IsDone()
 	{
 		return m_isHitGroundFlag;
@@ -50,12 +50,27 @@ private:
 
 	float m_angle;
 	KuroEngine::Vec3<float> m_speed;
-	KuroEngine::Timer m_timer;
 
 	//èdó çûÇ›ÇÃÉWÉÉÉìÉv
 	KuroEngine::Vec3<float> m_vel;
 	KuroEngine::Vec3<float> m_basePos;
 	KuroEngine::Vec3<float> m_gravity;
 	bool m_isHitGroundFlag;
+
+
+	KuroEngine::Vec3<float> SplinePosition(const std::vector<KuroEngine::Vec3<float>> &points, size_t startIndex, float t, bool Loop);
+	XMVECTOR ConvertVec3toXMVECTOR(const KuroEngine::Vec3<float> &vec)
+	{
+		return { vec.x, vec.y , vec.z , 0.0f };
+	}
+
+	KuroEngine::Timer m_blowTimer;
+
+	KuroEngine::Vec3<float>m_nowPos, m_prevPos;
+	std::vector<KuroEngine::Vec3<float>>m_limitPosArray;
+	KuroEngine::Timer m_splineTimer;
+	size_t m_splineIndex;
+	bool m_initFlag;
+	float m_timer;
 
 };
