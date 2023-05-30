@@ -3,7 +3,7 @@
 DashEffect::DashEffect()
 {
 	m_timer.Reset(RESET_TIMER);
-	m_tex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Cloud.png");
+	m_tex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Particle/Cloud.png");
 }
 
 void DashEffect::Finalize()

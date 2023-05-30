@@ -128,6 +128,25 @@ HeadAttackData EnemyHeadAttack::Update(const KuroEngine::Vec3<float> &pos)
 	return headAttackData;
 }
 
+void EnemyHeadAttack::ParticleUpdate()
+{
+	//着地パーティクル
+	if (m_initFlag && !m_initTriggerFlag)
+	{
+		m_hitGroundEffecct.Init(m_nowPos);
+	}
+	m_initTriggerFlag = m_initFlag;
+	m_hitGroundEffecct.Update();
+	//着地パーティクル
+}
+
+void EnemyHeadAttack::ParticleDraw(KuroEngine::Camera &camera)
+{
+	//着地パーティクル
+	m_hitGroundEffecct.Draw(camera);
+	//着地パーティクル
+}
+
 KuroEngine::Vec3<float> EnemyHeadAttack::SplinePosition(const std::vector<KuroEngine::Vec3<float>> &points, size_t startIndex, float t, bool Loop)
 {
 	if (startIndex < 1)

@@ -32,7 +32,7 @@ private:
 	class Bullet
 	{
 	public:
-		Bullet() :m_isAliveFlag(false), m_tex(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Cloud.png"))
+		Bullet() :m_isAliveFlag(false), m_tex(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Particle/Cloud.png"))
 		{
 			m_sphere.m_centerPos = &m_pos;
 			m_sphere.m_radius = &m_radius;

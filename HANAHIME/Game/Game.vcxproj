@@ -189,6 +189,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClCompile Include="src\DebugEnemy.cpp" />
     <ClCompile Include="src\Effect\EnemyEyeEffect.cpp" />
     <ClCompile Include="src\Effect\GuideInsect.cpp" />
+    <ClCompile Include="src\Effect\HitEffect.cpp" />
     <ClCompile Include="src\GPUParticle\DrawExcuteIndirect.cpp" />
     <ClCompile Include="src\GPUParticle\FireFlyOutStage.cpp" />
     <ClCompile Include="src\GPUParticle\FireWork.cpp" />
@@ -343,6 +344,7 @@ xcopy "$(SolutionDir)dxil.dll" $(TargetDir) /Y</Command>
     <ClInclude Include="src\DebugEnemy.h" />
     <ClInclude Include="src\Effect\EnemyEyeEffect.h" />
     <ClInclude Include="src\Effect\GuideInsect.h" />
+    <ClInclude Include="src\Effect\HitEffect.h" />
     <ClInclude Include="src\GameScene.h" />
     <ClInclude Include="src\GPUParticle\DrawExcuteIndirect.h" />
     <ClInclude Include="src\GPUParticle\FireFlyOutStage.h" />

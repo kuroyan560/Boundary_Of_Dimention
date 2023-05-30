@@ -504,6 +504,9 @@
     <ClCompile Include="src\System\SystemSetting.cpp">
       <Filter>src\user\System</Filter>
     </ClCompile>
+    <ClCompile Include="src\Effect\HitEffect.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -941,7 +944,6 @@
       <Filter>src\user\HUD</Filter>
     </ClInclude>
     <ClInclude Include="src\DebugEnemy.h" />
-    <ClInclude Include="CheckPointPillar.h" />
     <ClInclude Include="src\Stage\CheckPointPillar.h" />
     <ClInclude Include="src\AI\EnemyStatus.h" />
     <ClInclude Include="src\System\SaveDataManager.h">
@@ -954,6 +956,9 @@
     </ClInclude>
     <ClInclude Include="src\System\SystemSetting.h">
       <Filter>src\user\System</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Effect\HitEffect.h">
+      <Filter>src</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

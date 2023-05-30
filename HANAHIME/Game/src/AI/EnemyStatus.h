@@ -4,6 +4,7 @@
 #include"ForUser/DrawFunc/3D/DrawFunc3D.h"
 #include"FrameWork/Importer.h"
 #include"Common/Singleton.h"
+#include"../Effect/HitEffect.h"
 
 class EnemyKnockBack
 {
@@ -37,6 +38,10 @@ public:
 
 	void Init(const KuroEngine::Transform &transform, const KuroEngine::Vec3<float> &dir);
 	HeadAttackData Update(const KuroEngine::Vec3<float> &pos);
+
+	void ParticleUpdate();
+	void ParticleDraw(KuroEngine::Camera &camera);
+
 	bool IsDone()
 	{
 		return m_isHitGroundFlag;
@@ -70,7 +75,9 @@ private:
 	std::vector<KuroEngine::Vec3<float>>m_limitPosArray;
 	KuroEngine::Timer m_splineTimer;
 	size_t m_splineIndex;
-	bool m_initFlag;
+	bool m_initFlag, m_initTriggerFlag;
 	float m_timer;
+
+	AfterHeadEffectEffect m_hitGroundEffecct;
 
 };

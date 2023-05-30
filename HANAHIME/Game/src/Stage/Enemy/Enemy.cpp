@@ -97,8 +97,9 @@ void MiniBug::Update(Player &arg_player)
 //#endif // _DEBUG
 
 
-	m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());
-	m_eyeEffect.Update(m_larpPos);
+	//m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());
+	//m_eyeEffect.Update(m_larpPos);
+	m_deadMotion.ParticleUpdate();
 
 	//‹¤’Êˆ—
 	if (m_deadFlag)
@@ -467,6 +468,9 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 		return;
 	}
 
+
+	m_deadMotion.ParticleDraw(arg_cam);
+
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.54f, 0.14f, 0.33f, 1.0f);
 	//Ž€‚ñ‚Å‚¢‚éŽž‚Íoffset‚Ìl—¶‚ðœ‚«‚È‚ª‚çˆ—‚ðs‚¤
@@ -492,6 +496,7 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 
 	//m_dashEffect.Draw(arg_cam);
 	m_eyeEffect.Draw(arg_cam);
+
 
 	if (DebugEnemy::Instance()->VisualizeEnemyHitBox())
 	{
