@@ -13,6 +13,7 @@
 #include"CheckPointHitFlag.h"
 #include"../OperationConfig.h"
 #include"../System/SaveDataManager.h"
+#include"StageManager.h"
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
@@ -982,11 +983,19 @@ void CheckPoint::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg
 	}
 }
 
+int StarCoin::s_id = 0;
 int StarCoin::GET_SUM = 0;
 
 void StarCoin::OnInit()
 {
 	m_touched = false;
+	m_get = SaveDataManager::Instance()->IsGetStarCoin(StageManager::Instance()->GetNowStageIdx(), m_id);
+}
+
+StarCoin::StarCoin(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform)
+	:StageParts(CHECK_POINT, arg_model, arg_initTransform), m_id(s_id++)
+{
+	m_getModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/stage/", "StarCoin_Get.glb");
 }
 
 void StarCoin::Update(Player& arg_player)
@@ -1009,6 +1018,7 @@ void StarCoin::Update(Player& arg_player)
 		if (!m_get)
 		{
 			GET_SUM++;
+			SaveDataManager::Instance()->SaveStarCoin(StageManager::Instance()->GetNowStageIdx(), m_id);
 		}
 	}
 
@@ -1024,17 +1034,25 @@ void StarCoin::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_l
 	//“üŽè‚µ‚½‚±‚Æ‚ª‚È‚¢‚È‚ç’Êí•`‰æ
 	if (!m_get)
 	{
+		BasicDraw::Instance()->Draw(
+			arg_cam,
+			arg_ligMgr,
+			m_model.lock(),
+			m_transform);
 		StageParts::Draw(arg_cam, arg_ligMgr);
 	}
 	//“üŽè‚µ‚½‚±‚Æ‚ª‚ ‚é‚È‚ç”¼“§–¾
 	else
 	{
+		auto drawTransform = m_transform;
+		drawTransform.SetRotate(XMQuaternionIdentity());
+
 		static IndividualDrawParameter halfAlphaParam;
 		halfAlphaParam.m_alpha = 0.5f;
 		BasicDraw::Instance()->Draw(
 			arg_cam,
 			arg_ligMgr,
-			m_model.lock(),
+			m_getModel,
 			m_transform,
 			halfAlphaParam);
 	}
