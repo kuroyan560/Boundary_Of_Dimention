@@ -23,7 +23,8 @@
                         10.0
                     ]
                 },
-                "file_name": "Stage2"
+                "file_name": "Stage2",
+                "CollisionModelFileName": "HitStage2"
             },
             {
                 "type": "Goal",

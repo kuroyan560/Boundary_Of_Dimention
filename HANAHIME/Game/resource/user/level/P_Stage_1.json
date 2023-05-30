@@ -71,7 +71,8 @@
                         0.9999998807907104
                     ]
                 },
-                "file_name": "Stage1"
+                "file_name": "Stage1",
+                "CollisionModelFileName": "HitStage1"
             },
             {
                 "type": "CheckPoint",
@@ -96,6 +97,28 @@
                 },
                 "file_name": "CheckPoint",
                 "CheckPointOrder": 1
+            },
+            {
+                "type": "FunaCamera",
+                "name": "FunaCamera",
+                "transform": {
+                    "translation": [
+                        220.0,
+                        10.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        50.0,
+                        50.0,
+                        50.0
+                    ]
+                }
             },
             {
                 "type": "StarCoin",
