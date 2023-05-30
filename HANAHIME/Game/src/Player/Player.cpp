@@ -414,6 +414,22 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform, const std::weak_pt
 		m_camController.SetParam(-0.578085601f, 4.65286255f, true);
 		m_cameraRotYStorage = 4.65286255f;
 	}
+	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 0) {
+		m_camController.SetParam(0.577849329f, -0.0259443577f, false);
+		m_cameraRotYStorage = -0.0259443577f;
+	}
+	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 1) {
+		m_camController.SetParam(-0.698131680f, 3.10489941f, true);
+		m_cameraRotYStorage = 3.10489941f;
+	}
+	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 2) {
+		m_camController.SetParam(0.682992816f, 7.86075068f, false);
+		m_cameraRotYStorage = 7.86075068f;
+	}
+	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 3) {
+		m_camController.SetParam(-0.608131647f, 1.60718691f, true);
+		m_cameraRotYStorage = 1.60718691f;
+	}
 
 	m_camController.LerpForcedToEnd(m_cameraRotYStorage);
 
