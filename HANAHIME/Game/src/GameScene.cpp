@@ -399,16 +399,19 @@ void GameScene::OnDraw()
 	//UI描画
 	if (!IsSystemAplicationActive() && m_nowScene == SCENE_IN_GAME)
 	{
-		//ポーズ画面
-		m_pauseUI.Draw(StarCoin::GetFlowerSum());
-
-		//ポーズ画面でなければ
-		if (!m_pauseUI.IsActive())
+		if (!m_clearFlag)
 		{
-			m_player.DrawUI(*m_nowCam);
-			StageManager::Instance()->DrawUI(*m_nowCam, m_player.GetTransform().GetPosWorld());
-			m_opeInfoUI.Draw();
-			m_stageInfoUI.Draw(StageManager::Instance()->ExistStarCoinNum(), StageManager::Instance()->GetStarCoinNum());
+			//ポーズ画面
+			m_pauseUI.Draw(StarCoin::GetFlowerSum());
+
+			//ポーズ画面でなければ
+			if (!m_pauseUI.IsActive())
+			{
+				m_player.DrawUI(*m_nowCam);
+				StageManager::Instance()->DrawUI(*m_nowCam, m_player.GetTransform().GetPosWorld());
+				m_opeInfoUI.Draw();
+				m_stageInfoUI.Draw(StageManager::Instance()->ExistStarCoinNum(), StageManager::Instance()->GetStarCoinNum());
+			}
 		}
 		m_goal.Draw2D();
 	}
