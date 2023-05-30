@@ -6,6 +6,44 @@
 
 int MiniBug::ENEMY_MAX_ID = 0;
 
+MiniBug::MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, std::vector<KuroEngine::Vec3<float>>posArray, bool loopFlag)
+	:StageParts(MINI_BUG, arg_model, arg_initTransform), m_deadTimer(120), m_eyeEffect(&m_transform), ENEMY_ID(ENEMY_MAX_ID)
+{
+	//丸影用に敵のデータの参照を渡す。
+	EnemyDataReferenceForCircleShadow::Instance()->SetData(&m_transform, &m_shadowInfluenceRange, &m_deadFlag);
+	m_finalizeFlag = false;
+	++ENEMY_MAX_ID;
+
+	if (posArray.size() == 0 || posArray.size() == 1)
+	{
+		std::vector<KuroEngine::Vec3<float>>limitPosArray;
+		limitPosArray.emplace_back(arg_initTransform.GetPos());
+		m_patrol = std::make_unique<PatrolBasedOnControlPoint>(limitPosArray, 0, loopFlag);
+		m_posArray = m_patrol->GetLimitPosArray();
+	}
+	else
+	{
+		m_patrol = std::make_unique<PatrolBasedOnControlPoint>(posArray, 0, loopFlag);
+	}
+
+	//定数バッファを生成。
+	m_inSphereEffectConstBufferData.m_info.m_inSphere = false;
+	m_inSphereEffectConstBufferData.m_info.m_lightRate = 0.0f;
+	m_inSphereEffectConstBufferData.m_info.m_upVec = KuroEngine::Vec3<float>(0, 1, 0);
+	m_inSphereEffectConstBufferData.m_constBuffer = KuroEngine::D3D12App::Instance()->GenerateConstantBuffer(
+		sizeof(EnemyInSphereEffectInfo),
+		1,
+		nullptr,
+		"Enemy - Effect");
+
+	m_animator = std::make_shared<KuroEngine::ModelAnimator>(arg_model);
+	OnInit();
+
+
+	DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_MINIBUG);
+
+	m_debugHitBox = std::make_unique<EnemyHitBox>(m_hitBox, KuroEngine::Color(1.0f, 1.0f, 1.0f, 1.0f));
+}
 
 #pragma region MiniBug
 void MiniBug::OnInit()
@@ -50,6 +88,7 @@ void MiniBug::OnInit()
 	m_animator->SetStartPosture("To_Angry");
 
 	m_knockBackTime = 10;
+	m_flootOffset = 5.0f;
 }
 
 void MiniBug::Update(Player &arg_player)
@@ -59,13 +98,16 @@ void MiniBug::Update(Player &arg_player)
 //#endif // _DEBUG
 
 
-	m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());
-	m_eyeEffect.Update(m_larpPos);
+	//m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());
+	//m_eyeEffect.Update(m_larpPos);
+	m_deadMotion.ParticleUpdate();
 
 	//共通処理
 	if (m_deadFlag)
 	{
-		m_reaction->Update(m_pos);
+		KuroEngine::Vec3<float>offset(m_flootOffset, m_flootOffset, m_flootOffset);
+		offset *= m_transform.GetUp();
+		m_reaction->Update(m_pos + offset);
 
 		if (!m_finalizeFlag)
 		{
@@ -92,29 +134,21 @@ void MiniBug::Update(Player &arg_player)
 		//死んでいたら丸影を小さくする。
 		m_shadowInfluenceRange = KuroEngine::Math::Lerp(m_shadowInfluenceRange, 0.0f, 0.01f);
 
-		if (m_deadTimer.UpdateTimer() && m_deadTimer.GetElaspedTime() != 0.0f)
+		if (m_deadMotion.IsHitGround())
 		{
 			m_deadTimer.Reset(120);
 			m_deadFlag = true;
 		}
 
-		//死亡時の座標
-		KuroEngine::Vec3<float>vel = m_initializedTransform.GetUp();
-		m_pos += vel * 0.1f;
-		m_transform.SetPos(m_pos);
+		//ジャンプ
+		HeadAttackData data = m_deadMotion.Update(m_pos);
+		m_pos += data.m_dir;
+		m_drawTransform.SetPos(m_pos);
+		m_drawTransform.SetRotate(data.m_rotation);
 
-		//死亡時のスケール
-		m_scale = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, m_deadTimer.GetTimeRate(), m_initializedTransform.GetScale().x, 0.0f);
-		m_transform.SetScale(m_scale);
-
-		//死亡時の回転
-		DirectX::XMVECTOR vec = { 0.0f,0.0f,1.0f,1.0f };
-		m_larpRotation = DirectX::XMQuaternionRotationAxis(vec, KuroEngine::Angle::ConvertToRadian(360.0f));
-		KuroEngine::Quaternion rotation = m_transform.GetRotate();
-		rotation = DirectX::XMQuaternionSlerp(m_transform.GetRotate(), m_larpRotation, 0.1f);
-		m_transform.SetRotate(rotation);
-
-		m_reaction->Update(m_pos);
+		KuroEngine::Vec3<float>offset(m_flootOffset, m_flootOffset, m_flootOffset);
+		offset *= m_transform.GetUp();
+		m_reaction->Update(m_pos + offset);
 
 		return;
 	}
@@ -329,10 +363,10 @@ void MiniBug::Update(Player &arg_player)
 		break;
 	case MiniBug::HEAD_ATTACK:
 	{
-		HeadAttackData data = m_headAttack.Update();
-		vel = data.m_dir;
-		m_larpRotation = data.m_rotation;
-		if (m_headAttack.IsDone())
+		//HeadAttackData data = m_headAttack.Update();
+		//vel = data.m_dir;
+		//m_larpRotation = data.m_rotation;
+		if (m_headAttack.IsHitGround())
 		{
 			m_startDeadMotionFlag = true;
 		}
@@ -356,10 +390,14 @@ void MiniBug::Update(Player &arg_player)
 	//草の当たり判定
 	if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()) != Player::CHECK_HIT_GRASS_STATUS::NOHIT && !m_startDeadMotionFlag)
 	{
+		m_deadMotion.Init(m_transform, KuroEngine::Vec3<float>(m_pos - arg_player.GetTransform().GetPos()).GetNormal());
 		m_startDeadMotionFlag = true;
 	}
 
-	m_reaction->Update(m_pos);
+	KuroEngine::Vec3<float>offset(m_flootOffset, m_flootOffset, m_flootOffset);
+	offset *= m_transform.GetUp();
+	m_reaction->Update(m_pos + offset);
+
 	if (1.0f <= m_initializedTransform.GetUp().x)
 	{
 		vel.x = 0.0f;
@@ -428,6 +466,8 @@ void MiniBug::Update(Player &arg_player)
 
 void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
+	m_deadMotion.ParticleDraw(arg_cam);
+
 	if (m_deadFlag)
 	{
 		return;
@@ -435,26 +475,32 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.54f, 0.14f, 0.33f, 1.0f);
+	//死んでいる時はoffsetの考慮を除きながら処理を行う
+	if (!m_startDeadMotionFlag)
+	{
+		KuroEngine::Vec3<float>offset(m_flootOffset, m_flootOffset, m_flootOffset);
+		offset *= m_transform.GetUp() * 2.0f;
+		m_drawTransform = m_transform;
+		m_drawTransform.SetPos(m_transform.GetPos() + offset);
+	}
 
-	KuroEngine::Vec3<float>offset(5.0f, 5.0f, 5.0f);
-	offset *= m_transform.GetUp();
-	KuroEngine::Transform drawTransform(m_transform);
-	drawTransform.SetPos(m_transform.GetPos() + offset);
-
-	BasicDraw::Instance()->Draw_Enemy(
-		m_inSphereEffectConstBufferData.m_constBuffer,
-		arg_cam,
-		arg_ligMgr,
-		m_model,
-		drawTransform,
-		edgeColor,
-		KuroEngine::AlphaBlendMode_None,
-		m_animator->GetBoneMatBuff());
-
+	if (!m_deadMotion.IsHitGround())
+	{
+		BasicDraw::Instance()->Draw_Enemy(
+			m_inSphereEffectConstBufferData.m_constBuffer,
+			arg_cam,
+			arg_ligMgr,
+			m_model,
+			m_drawTransform,
+			edgeColor,
+			KuroEngine::AlphaBlendMode_None,
+			m_animator->GetBoneMatBuff());
+	}
 	m_reaction->Draw(arg_cam);
 
 	//m_dashEffect.Draw(arg_cam);
-	m_eyeEffect.Draw(arg_cam);
+	//m_eyeEffect.Draw(arg_cam);
+
 
 	if (DebugEnemy::Instance()->VisualizeEnemyHitBox())
 	{
@@ -666,16 +712,16 @@ void DossunRing::Update(Player &arg_player)
 	switch (m_nowStatus)
 	{
 	case ENEMY_ATTACK_PATTERN_ALWAYS:
-//#ifdef _DEBUG
+		//#ifdef _DEBUG
 		SetParam();
-//#endif
+		//#endif
 		m_findPlayerFlag = true;
 		break;
 
 	case ENEMY_ATTACK_PATTERN_NORMAL:
-//#ifdef _DEBUG
+		//#ifdef _DEBUG
 		SetParam();
-//#endif
+		//#endif
 		break;
 	default:
 		break;
