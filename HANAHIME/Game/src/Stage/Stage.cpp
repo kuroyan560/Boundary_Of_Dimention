@@ -91,7 +91,9 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	//FunaCam
 	if (typeKey == "FunaCamera")
 	{
-		m_funaCamPtArray.emplace_back(scaling.x, translation);
+		if (!CheckJsonKeyExist(arg_fileName, obj, "CamMode"))return;
+		int camMode = obj["CamMode"].get<int>();
+		m_funaCamPtArray.emplace_back(scaling.x, translation, camMode);
 		return;
 	}
 
