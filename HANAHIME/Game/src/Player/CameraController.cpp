@@ -107,7 +107,12 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 		break;
 	case CameraController::CAMERA_FUNA_MODE::STAGE1_4_FAR:
 
-		UpdateFunaStage1_3HeightLimit(arg_scopeMove, arg_targetPos, arg_playerRotY, arg_cameraZ, arg_nowStage, arg_isCameraUpInverse, arg_isCameraDefaultPos, arg_isHitUnderGround, arg_isMovePlayer, arg_isPlayerJump, arg_cameraQ, arg_isFrontWall, arg_drawTransform, arg_frontWallNormal, arg_isNoCollision, arg_cameraMode);
+		UpdateFunaStage1_4Far(arg_scopeMove, arg_targetPos, arg_playerRotY, arg_cameraZ, arg_nowStage, arg_isCameraUpInverse, arg_isCameraDefaultPos, arg_isHitUnderGround, arg_isMovePlayer, arg_isPlayerJump, arg_cameraQ, arg_isFrontWall, arg_drawTransform, arg_frontWallNormal, arg_isNoCollision, arg_cameraMode);
+
+		break;
+	case CameraController::CAMERA_FUNA_MODE::STAGE1_6_NEAR_GOAL:
+
+		UpdateFunaStage1_6NearGoal(arg_scopeMove, arg_targetPos, arg_playerRotY, arg_cameraZ, arg_nowStage, arg_isCameraUpInverse, arg_isCameraDefaultPos, arg_isHitUnderGround, arg_isMovePlayer, arg_isPlayerJump, arg_cameraQ, arg_isFrontWall, arg_drawTransform, arg_frontWallNormal, arg_isNoCollision, arg_cameraMode);
 
 		break;
 	default:
@@ -255,6 +260,8 @@ void CameraController::UpdateFunaNormal(KuroEngine::Vec3<float> arg_scopeMove, K
 		m_checkPointCameraZ = m_rotateZ;
 
 	}
+
+	float test = fabs(fmod(m_nowParam.m_yAxisAngle, DirectX::XM_2PI));
 
 	//プレイヤーの座標をラープ
 	m_playerLerpPos = KuroEngine::Math::Lerp(m_playerLerpPos, arg_targetPos.GetPos(), 0.4f);
@@ -816,6 +823,23 @@ void CameraController::UpdateFunaStage1_4Far(KuroEngine::Vec3<float> arg_scopeMo
 {
 
 	using namespace KuroEngine;
+
+	UpdateFunaNormal(arg_scopeMove, arg_targetPos, arg_playerRotY, arg_cameraZ, arg_nowStage, arg_isCameraUpInverse, arg_isCameraDefaultPos, arg_isHitUnderGround, arg_isMovePlayer, arg_isPlayerJump, arg_cameraQ, arg_isFrontWall, arg_drawTransform, arg_frontWallNormal, arg_isNoCollision, arg_cameraMode);
+
+}
+
+void CameraController::UpdateFunaStage1_6NearGoal(KuroEngine::Vec3<float> arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage> arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode)
+{
+
+	using namespace KuroEngine;
+
+	//X軸回転に制限を設ける。
+	arg_playerRotY = fabs(fmod(arg_playerRotY, DirectX::XM_2PI));
+	arg_playerRotY = std::clamp(arg_playerRotY, 0.680975914f, 5.54572487f);
+	m_nowParam.m_yAxisAngle = arg_playerRotY;
+
+	//Y軸を固定。
+	m_nowParam.m_xAxisAngle = -0.644131660f;
 
 	UpdateFunaNormal(arg_scopeMove, arg_targetPos, arg_playerRotY, arg_cameraZ, arg_nowStage, arg_isCameraUpInverse, arg_isCameraDefaultPos, arg_isHitUnderGround, arg_isMovePlayer, arg_isPlayerJump, arg_cameraQ, arg_isFrontWall, arg_drawTransform, arg_frontWallNormal, arg_isNoCollision, arg_cameraMode);
 

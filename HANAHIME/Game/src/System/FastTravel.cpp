@@ -47,6 +47,8 @@ FastTravel::FastTravel()
 		path = STAGE_NAME_DIR + std::to_string(++stageIdx) + ".png";
 	}
 
+	m_nowTargetCheckPoint = 0;
+
 	m_fastTravelCamera = std::make_shared<KuroEngine::Camera>("FastTravelCamera");
 	m_underLineTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/stage/under_line.png");
 

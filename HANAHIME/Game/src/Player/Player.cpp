@@ -1,4 +1,4 @@
-#include "Player.h"
+#include"Player.h"
 #include"Render/RenderObject/Camera.h"
 #include"../OperationConfig.h"
 #include"FrameWork/Importer.h"
@@ -29,14 +29,14 @@ void Player::OnImguiItems()
 		auto pos = m_transform.GetPos();
 		auto angle = m_transform.GetRotateAsEuler();
 
-		if (ImGui::DragFloat3("Position", (float *)&pos, 0.5f))
+		if (ImGui::DragFloat3("Position", (float*)&pos, 0.5f))
 		{
 			m_transform.SetPos(pos);
 		}
 
 		//操作しやすいようにオイラー角に変換
 		KuroEngine::Vec3<float>eular = { angle.x.GetDegree(),angle.y.GetDegree(),angle.z.GetDegree() };
-		if (ImGui::DragFloat3("Eular", (float *)&eular, 0.5f))
+		if (ImGui::DragFloat3("Eular", (float*)&eular, 0.5f))
 		{
 			m_transform.SetRotate(Angle::ConvertToRadian(eular.x), Angle::ConvertToRadian(eular.y), Angle::ConvertToRadian(eular.z));
 		}
@@ -55,7 +55,7 @@ void Player::OnImguiItems()
 	}
 }
 
-void Player::AnimationSpecification(const KuroEngine::Vec3<float> &arg_beforePos, const KuroEngine::Vec3<float> &arg_newPos)
+void Player::AnimationSpecification(const KuroEngine::Vec3<float>& arg_beforePos, const KuroEngine::Vec3<float>& arg_newPos)
 {
 	//移動ステータス
 	if (m_playerMoveStatus == PLAYER_MOVE_STATUS::MOVE || m_playerMoveStatus == PLAYER_MOVE_STATUS::LOOK_AROUND)
@@ -874,7 +874,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 		}
 	}
-	else if(!(m_isPlayerOverHeat && m_isUnderGround)) {
+	else if (!(m_isPlayerOverHeat && m_isUnderGround)) {
 		m_growPlantPtLig.m_influenceRange = std::clamp(m_growPlantPtLig.m_influenceRange + ADD_INFLUENCE_RANGE * TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, MAX_INFLUENCE_RANGE);
 
 
@@ -903,7 +903,12 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 
 	//FunaSphereとの当たり判定
-	//CheckHitFunaCamera(arg_nowStage);
+	if (m_playerMoveStatus == PLAYER_MOVE_STATUS::MOVE) {
+		CheckHitFunaCamera(arg_nowStage);
+	}
+	else if (m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP && m_cameraFunaMode == CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U) {
+		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::NORMAL;
+	}
 
 
 	//デバッグ用
@@ -924,6 +929,10 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	}
 	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_5)) {
 		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_4_FAR;
+	}
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_6)) {
+		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_6_NEAR_GOAL;
+		m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
 	}
 
 
@@ -1056,7 +1065,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 }
 
-void Player::Draw(KuroEngine::Camera &arg_cam, std::weak_ptr<KuroEngine::DepthStencil>arg_ds, KuroEngine::LightManager &arg_ligMgr, bool arg_cameraDraw)
+void Player::Draw(KuroEngine::Camera& arg_cam, std::weak_ptr<KuroEngine::DepthStencil>arg_ds, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
 {
 
 	/*
@@ -1121,14 +1130,14 @@ void Player::Draw(KuroEngine::Camera &arg_cam, std::weak_ptr<KuroEngine::DepthSt
 	}
 }
 
-void Player::DrawParticle(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
+void Player::DrawParticle(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 	//プレイヤーが動いた時のパーティクル挙動
 	m_playerMoveParticle.Draw(arg_cam, arg_ligMgr);
 	//m_dashEffect.Draw(arg_cam);
 }
 
-void Player::DrawUI(KuroEngine::Camera &arg_cam)
+void Player::DrawUI(KuroEngine::Camera& arg_cam)
 {
 	using namespace KuroEngine;
 
@@ -1165,17 +1174,86 @@ void Player::CheckHitFunaCamera(const std::weak_ptr<Stage> arg_nowStage)
 			continue;
 		}
 
-		//プレイヤーの上ベクトルがY軸方向kを向いていたら当たっていない。
-		if (fabs(m_transform.GetUp().y) < 0.9f) {
-			isHitFuna = true;
+		switch (static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode))
+		{
+		case CameraController::CAMERA_FUNA_MODE::NORMAL:
 
-			//ここでIDを入れる。
-			m_cameraFunaMode = static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode - 1);
 
-			if (m_cameraFunaMode == CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U) {
+			break;
+		case CameraController::CAMERA_FUNA_MODE::STAGE1_1_C:
+
+			//プレイヤーの上ベクトルがY軸方向kを向いていたら当たっていない。
+			if (fabs(m_transform.GetUp().y) < 0.9f) {
+
+				isHitFuna = true;
+
+				//ここでIDを入れる。
+				m_cameraFunaMode = static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode);
+
+			}
+
+			break;
+		case CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U:
+		{
+
+			//プレイヤーのZ軸座標が50より下でY軸方向の法線を向いていたらやめる。
+			if (0.9f < fabs(m_transform.GetUp().y)) {
+
+				if (m_transform.GetPos().z < 25.0f) {
+					break;
+				}
+
+				if (m_transform.GetPos().y < -100.0f) {
+					break;
+				}
+
+			}
+
+			if (static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode) != CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U) {
 				m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
 			}
 
+			isHitFuna = true;
+
+			//ここでIDを入れる。
+			m_cameraFunaMode = static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode);
+
+		}
+		break;
+		case CameraController::CAMERA_FUNA_MODE::STAGE1_3_HEIGHT_LIMIT:
+
+			isHitFuna = true;
+
+			//ここでIDを入れる。
+			m_cameraFunaMode = static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode);
+
+			break;
+		case CameraController::CAMERA_FUNA_MODE::STAGE1_4_FAR:
+
+			isHitFuna = true;
+
+			//ここでIDを入れる。
+			m_cameraFunaMode = static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode);
+
+			break;
+		//case CameraController::CAMERA_FUNA_MODE::STAGE1_6_NEAR_GOAL:
+
+		//	isHitFuna = true;
+
+		//	if (static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode) != CameraController::CAMERA_FUNA_MODE::STAGE1_6_NEAR_GOAL) {
+		//		m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
+		//	}
+
+		//	//ここでIDを入れる。
+		//	m_cameraFunaMode = static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode);
+
+		//	break;
+		default:
+			break;
+		}
+
+		//当たっていたら処理を終える。
+		if (isHitFuna) {
 			break;
 		}
 
@@ -1302,7 +1380,7 @@ Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<floa
 
 }
 
-void Player::Move(KuroEngine::Vec3<float> &arg_newPos) {
+void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 
 	//落下中は入力を無効化。
 	if (!m_onGround) {
