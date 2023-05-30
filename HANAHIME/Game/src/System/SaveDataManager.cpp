@@ -31,7 +31,10 @@ SaveDataManager::SaveDataManager()
 
 		if (dataSize == sizeof(m_saveData))
 		{
-			LoadData(fp, FILE_NAME, m_saveData.m_getStarCoinInfoArray.data(), sizeof(GameSaveData::GetStarCoinInfo), static_cast<int>(starCoinNum));
+			if (starCoinNum)
+			{
+				LoadData(fp, FILE_NAME, m_saveData.m_getStarCoinInfoArray.data(), sizeof(GameSaveData::GetStarCoinInfo), static_cast<int>(starCoinNum));
+			}
 
 			LoadData(fp, FILE_NAME, &m_saveData.m_reachStageNum, sizeof(int), 1);
 			LoadData(fp, FILE_NAME, &m_saveData.m_reachCheckPointOrder, sizeof(int), 1);
@@ -61,7 +64,10 @@ SaveDataManager::~SaveDataManager()
 		size_t starCoinNum = m_saveData.m_getStarCoinInfoArray.size();
 		SaveData(fp, FILE_NAME + "'s StarCoinNum", &starCoinNum, sizeof(size_t), 1);
 
-		SaveData(fp, FILE_NAME, m_saveData.m_getStarCoinInfoArray.data(), sizeof(GameSaveData::GetStarCoinInfo), static_cast<int>(starCoinNum));
+		if (starCoinNum)
+		{
+			SaveData(fp, FILE_NAME, m_saveData.m_getStarCoinInfoArray.data(), sizeof(GameSaveData::GetStarCoinInfo), static_cast<int>(starCoinNum));
+		}
 
 		SaveData(fp, FILE_NAME, &m_saveData.m_reachStageNum, sizeof(int), 1);
 		SaveData(fp, FILE_NAME, &m_saveData.m_reachCheckPointOrder, sizeof(int), 1);
