@@ -95,6 +95,11 @@ void CameraController::Update(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::
 		UpdateFunaStage1C(arg_scopeMove, arg_targetPos, arg_playerRotY, arg_cameraZ, arg_nowStage, arg_isCameraUpInverse, arg_isCameraDefaultPos, arg_isHitUnderGround, arg_isMovePlayer, arg_isPlayerJump, arg_cameraQ, arg_isFrontWall, arg_drawTransform, arg_frontWallNormal, arg_isNoCollision, arg_cameraMode);
 
 		break;
+	case CameraController::CAMERA_FUNA_MODE::STAGE1_INV_U:
+
+		UpdateFunaStage1InvU(arg_scopeMove, arg_targetPos, arg_playerRotY, arg_cameraZ, arg_nowStage, arg_isCameraUpInverse, arg_isCameraDefaultPos, arg_isHitUnderGround, arg_isMovePlayer, arg_isPlayerJump, arg_cameraQ, arg_isFrontWall, arg_drawTransform, arg_frontWallNormal, arg_isNoCollision, arg_cameraMode);
+
+		break;
 	default:
 		break;
 	}
@@ -661,6 +666,23 @@ void CameraController::UpdateFunaStage1C(KuroEngine::Vec3<float> arg_scopeMove, 
 	//移動量を求める。
 	KuroEngine::Vec3<float> moveAmount = KuroEngine::Vec3<float>(m_playerOldPos - arg_targetPos.GetPos());
 
+	//カメラの位置を計算。
+	CalCameraPosAndRotate(arg_targetPos, arg_isCameraUpInverse, moveAmount);
+
+	//プレイヤーが移動していたら保存。
+	if (0.1f < moveAmount.Length()) {
+		m_playerOldPos = arg_targetPos.GetPos();
+	}
+
+	m_playerLerpPos = arg_targetPos.GetPos();
+
+}
+
+void CameraController::CalCameraPosAndRotate(KuroEngine::Transform arg_targetPos, bool arg_isCameraUpInverse, KuroEngine::Vec3<float> arg_moveAmount, KuroEngine::Vec3<float>* arg_insertPos)
+{
+
+	using namespace KuroEngine;
+
 	//操作するカメラのトランスフォーム（前後移動）更新
 	Vec3<float> localPos = { 0,0,0 };
 	localPos.z = m_nowParam.m_posOffsetZ;
@@ -671,10 +693,15 @@ void CameraController::UpdateFunaStage1C(KuroEngine::Vec3<float> arg_scopeMove, 
 	//コントローラーのトランスフォーム（対象の周囲、左右移動）更新
 	m_camParentTransform.SetRotate(Vec3<float>::GetYAxis(), m_nowParam.m_yAxisAngle);
 	m_camParentTransform.SetPos(Math::Lerp(m_camParentTransform.GetPos(), arg_targetPos.GetPos(), m_camFollowLerpRate));
-	m_camParentTransform.SetPos(m_camParentTransform.GetPos() + moveAmount);
+	m_camParentTransform.SetPos(m_camParentTransform.GetPos() + arg_moveAmount);
 
 	//補間する。
-	m_attachedCam.lock()->GetTransform().SetPos(KuroEngine::Math::Lerp(m_attachedCam.lock()->GetTransform().GetPos(), m_cameraLocalTransform.GetPosWorldByMatrix(), 0.3f));
+	KuroEngine::Vec3<float> pos = m_attachedCam.lock()->GetTransform().GetPos();
+	m_attachedCam.lock()->GetTransform().SetPos(KuroEngine::Math::Lerp(m_attachedCam.lock()->GetTransform().GetPos(), m_cameraLocalTransform.GetPosWorldByMatrix(), 0.08f));
+
+	if (arg_insertPos != nullptr) {
+		m_attachedCam.lock()->GetTransform().SetPos(*arg_insertPos);
+	}
 
 	//現在の座標からプレイヤーに向かう回転を求める。
 	Vec3<float> axisZ = arg_targetPos.GetPos() - m_attachedCam.lock()->GetTransform().GetPosWorld();
@@ -709,6 +736,49 @@ void CameraController::UpdateFunaStage1C(KuroEngine::Vec3<float> arg_scopeMove, 
 	//回転を適用。
 	m_attachedCam.lock()->GetTransform().SetRotate(rotate);
 
+}
+
+void CameraController::UpdateFunaStage1InvU(KuroEngine::Vec3<float> arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage> arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode)
+{
+
+	using namespace KuroEngine;
+
+	//平地にいるか。
+	bool isPlane = false;
+	if (arg_targetPos.GetUp().x < -0.9f) {
+		arg_playerRotY = KuroEngine::Math::Lerp(arg_playerRotY, 0.787079573f, 0.08f);
+	}
+	else if(0.9f < arg_targetPos.GetUp().x){
+		arg_playerRotY = KuroEngine::Math::Lerp(arg_playerRotY, -0.871097386f, 0.08f);
+	}
+	else {
+		arg_playerRotY = KuroEngine::Math::Lerp(arg_playerRotY, 0.0133255757f, 0.08f);
+		isPlane = true;
+	}
+
+	m_nowParam.m_yAxisAngle = arg_playerRotY;
+
+	//割合を求める。
+	m_nowParam.m_xAxisAngle = m_xAxisAngleMin;
+
+	//移動量を求める。
+	KuroEngine::Vec3<float> moveAmount;
+
+	//無理やり決める座標
+	Vec3<float> insertPos(-60.4218903f, -99.3099213f, 3.32962036f);
+
+	//カメラの位置を計算。
+	if (isPlane) {
+
+		//代入する座標に現在の座標を近づける。
+		insertPos = KuroEngine::Math::Lerp(m_attachedCam.lock()->GetTransform().GetPos(), insertPos, 0.08f);
+
+		CalCameraPosAndRotate(arg_targetPos, arg_isCameraUpInverse, moveAmount, &insertPos);
+
+	}
+	else {
+		CalCameraPosAndRotate(arg_targetPos, arg_isCameraUpInverse, moveAmount);
+	}
 
 	//プレイヤーが移動していたら保存。
 	if (0.1f < moveAmount.Length()) {

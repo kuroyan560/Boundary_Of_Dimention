@@ -426,8 +426,12 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	}
 
 	//C字用のカメラだったら入力を切る。
-	if (m_cameraFunaMode != CameraController::CAMERA_FUNA_MODE::NORMAL) {
+	if (m_cameraFunaMode == CameraController::CAMERA_FUNA_MODE::STAGE1_C) {
 		scopeMove = KuroEngine::Vec3<float>();
+	}
+	if (m_cameraFunaMode == CameraController::CAMERA_FUNA_MODE::STAGE1_INV_U) {
+		scopeMove = KuroEngine::Vec3<float>();
+		m_isCameraUpInverse = true;
 	}
 
 	//ジャンプができるかどうか。	一定時間地形に引っ掛かってたらジャンプできる。
@@ -896,27 +900,25 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 
 	//FunaSphereとの当たり判定
-	bool isHitFuna = false;
-	for (auto& funaSphere : arg_nowStage.lock()->GetFunaCamPtArray()) {
+	//CheckHitFunaCamera(arg_nowStage);
 
-		//まずは距離で当たり判定
-		float distance = Vec3<float>(funaSphere.m_pos - m_transform.GetPos()).Length();
-		if (!(distance <= funaSphere.m_radius * 1.5f)) {
-			continue;
-		}
 
-		//プレイヤーの上ベクトルがY軸方向kを向いていたら当たっていない。
-		if (fabs(m_transform.GetUp().y) < 0.9f) {
-			isHitFuna = true;
-		}
+	//デバッグ用
+#ifdef _DEBUG
 
-	}
-	//当たっていたら状態を切り替える。
-	if (isHitFuna) {
-		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_C;
-	}else{
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_1)) {
 		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::NORMAL;
 	}
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_2)) {
+		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_C;
+	}
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_3)) {
+		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_INV_U;
+		m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
+	}
+
+
+#endif
 
 
 	//死んでいたら死亡の更新処理を入れる。
@@ -1130,6 +1132,37 @@ void Player::DrawUI(KuroEngine::Camera &arg_cam)
 
 void Player::Finalize()
 {
+}
+
+void Player::CheckHitFunaCamera(const std::weak_ptr<Stage> arg_nowStage)
+{
+	using namespace KuroEngine;
+
+	bool isHitFuna = false;
+	for (auto& funaSphere : arg_nowStage.lock()->GetFunaCamPtArray()) {
+
+		//まずは距離で当たり判定
+		float distance = Vec3<float>(funaSphere.m_pos - m_transform.GetPos()).Length();
+		if (!(distance <= funaSphere.m_radius * 1.5f)) {
+			continue;
+		}
+
+		//プレイヤーの上ベクトルがY軸方向kを向いていたら当たっていない。
+		if (fabs(m_transform.GetUp().y) < 0.9f) {
+			isHitFuna = true;
+
+			//ここでIDを入れる。
+			//m_cameraFunaMode = static_cast<CameraController::CAMERA_FUNA_MODE>(Mode - 1);
+
+			break;
+		}
+
+	}
+	//当たっていたら状態を切り替える。
+	if (!isHitFuna) {
+		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::NORMAL;
+	}
+
 }
 
 KuroEngine::Vec3<float> Player::CalculateBezierPoint(float arg_time, KuroEngine::Vec3<float> arg_startPoint, KuroEngine::Vec3<float> arg_endPoint, KuroEngine::Vec3<float> arg_controlPoint) {

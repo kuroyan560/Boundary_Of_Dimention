@@ -323,6 +323,9 @@ public:
 	void DrawUI(KuroEngine::Camera& arg_cam);
 	void Finalize();
 
+	//Funaカメラ用当たり判定関数
+	void CheckHitFunaCamera(const std::weak_ptr<Stage>arg_nowStage);
+
 	//当たり判定クラス
 	PlayerCollision m_collision;
 

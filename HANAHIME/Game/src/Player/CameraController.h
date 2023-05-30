@@ -130,6 +130,7 @@ public:
 	enum class CAMERA_FUNA_MODE {
 		NORMAL,					//通常状態
 		STAGE1_C,				//C字の更新処理
+		STAGE1_INV_U,			//逆U字の更新処理
 	};
 
 	//コンストラクタ
@@ -156,6 +157,10 @@ public:
 	//FUNA 通常状態の更新処理
 	void UpdateFunaNormal(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode);
 	void UpdateFunaStage1C(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode);
+	void UpdateFunaStage1InvU(KuroEngine::Vec3<float>arg_scopeMove, KuroEngine::Transform arg_targetPos, float& arg_playerRotY, float arg_cameraZ, const std::weak_ptr<Stage>arg_nowStage, bool arg_isCameraUpInverse, bool arg_isCameraDefaultPos, bool& arg_isHitUnderGround, bool arg_isMovePlayer, bool arg_isPlayerJump, KuroEngine::Quaternion arg_cameraQ, bool arg_isFrontWall, KuroEngine::Transform arg_drawTransform, KuroEngine::Vec3<float> arg_frontWallNormal, bool arg_isNoCollision, CAMERA_STATUS arg_cameraMode);
+
+	//カメラの位置を計算。
+	void CalCameraPosAndRotate(KuroEngine::Transform arg_targetPos, bool arg_isCameraUpInverse, KuroEngine::Vec3<float> arg_moveAmount = KuroEngine::Vec3<float>(), KuroEngine::Vec3<float>* arg_insertPos = nullptr);
 
 	std::weak_ptr<KuroEngine::Camera> GetCamera() { return m_attachedCam; }
 
