@@ -105,6 +105,7 @@ class Player : public KuroEngine::Debugger
 
 	//カメラ感度
 	float CAMERA_FAR = -100.0f;
+	float CAMERA_FUNAMODE_FAR = -200.0f;
 	float CAMERA_NEAR_ENEMY_FAR = -40.0f;
 	float m_cameraFar;		//現在のカメラのFar
 	float m_baseCameraFar;	//現在のカメラのFarの補間先
@@ -326,6 +327,9 @@ public:
 	void DrawParticle(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
 	void DrawUI(KuroEngine::Camera& arg_cam);
 	void Finalize();
+
+	//Funaカメラ用当たり判定関数
+	void CheckHitFunaCamera(const std::weak_ptr<Stage>arg_nowStage);
 
 	//当たり判定クラス
 	PlayerCollision m_collision;
