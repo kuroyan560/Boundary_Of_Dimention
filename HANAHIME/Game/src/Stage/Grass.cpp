@@ -346,7 +346,6 @@ void Grass::Update(const float arg_timeScale, bool arg_isPlayerOverheat, const K
 
 void Grass::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr, float arg_plantInfluenceRange, bool arg_isAttack)
 {
-	return;
 	using namespace KuroEngine;
 
 	KuroEngineDevice::Instance()->Graphics().SetGraphicsPipeline(m_pipeline);
