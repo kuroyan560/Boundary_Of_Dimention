@@ -426,10 +426,10 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	}
 
 	//Cš—p‚ÌƒJƒƒ‰‚¾‚Á‚½‚ç“ü—Í‚ğØ‚éB
-	if (m_cameraFunaMode == CameraController::CAMERA_FUNA_MODE::STAGE1_C) {
+	if (m_cameraFunaMode == CameraController::CAMERA_FUNA_MODE::STAGE1_1_C) {
 		scopeMove = KuroEngine::Vec3<float>();
 	}
-	if (m_cameraFunaMode == CameraController::CAMERA_FUNA_MODE::STAGE1_INV_U) {
+	if (m_cameraFunaMode == CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U) {
 		scopeMove = KuroEngine::Vec3<float>();
 		m_isCameraUpInverse = true;
 	}
@@ -910,11 +910,14 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::NORMAL;
 	}
 	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_2)) {
-		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_C;
+		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_1_C;
 	}
 	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_3)) {
-		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_INV_U;
+		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U;
 		m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
+	}
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_4)) {
+		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_3_HEIGHT_LIMIT;
 	}
 
 
