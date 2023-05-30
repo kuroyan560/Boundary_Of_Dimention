@@ -1,5 +1,6 @@
 #include"Goal.h"
 #include"../OperationConfig.h"
+#include"../Player/Player.h"
 
 Goal::Goal(std::shared_ptr<KuroEngine::RWStructuredBuffer> particle) :m_initFlag(false), m_clearEaseTimer(30),
 m_upEffectEase(60), m_downEffectEase(10), m_gpuParticleBuffer(particle), m_shake({ 1.0f,1.0f,1.0f }),
@@ -81,7 +82,7 @@ void Goal::Finalize()
 	m_initFlag = false;
 }
 
-void Goal::Update(KuroEngine::Transform *transform)
+void Goal::Update(KuroEngine::Transform* transform, Player& arg_player)
 {
 	if (!m_initFlag)
 	{
@@ -179,6 +180,7 @@ void Goal::Update(KuroEngine::Transform *transform)
 
 			SoundConfig::Instance()->Play(SoundConfig::JINGLE_STAGE_CLEAR);
 			m_goalModel->GrowUpWood();
+			arg_player.PlantLightExplosion();
 		}
 		m_scaleOffset = KuroEngine::Math::Lerp(m_scaleOffset, KuroEngine::Vec3<float>(smallScale, smallScale, smallScale), 0.1f);
 

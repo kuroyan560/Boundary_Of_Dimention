@@ -290,7 +290,7 @@ void GameScene::OnUpdate()
 		if (!IsSystemAplicationActive())
 		{
 			m_player.Update(StageManager::Instance()->GetNowStage());
-			m_goal.Update(&m_player.GetTransform());
+			m_goal.Update(&m_player.GetTransform(), m_player);
 			//ステージ選択画面ではギミックを作動させない
 			StageManager::Instance()->Update(m_player);
 		}

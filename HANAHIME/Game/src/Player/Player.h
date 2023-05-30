@@ -313,6 +313,10 @@ private:
 		return m_transform.GetScale().x;
 	}
 
+	bool m_isPlantLightExplosion = false;
+	float m_plantLightExplosionStart = 0.0f;
+	KuroEngine::Timer m_plantLightExplosionTimer;
+
 public:
 	Player();
 	void Init(KuroEngine::Transform arg_initTransform);		//ステージに入るとき用。
@@ -397,6 +401,13 @@ public:
 
 	Sphere m_sphere;
 	float m_radius;
+
+	void PlantLightExplosion()
+	{
+		m_isPlantLightExplosion = true;
+		m_plantLightExplosionStart = m_growPlantPtLig.m_influenceRange;
+		m_plantLightExplosionTimer.Reset(120.0f);
+	}
 
 private:
 

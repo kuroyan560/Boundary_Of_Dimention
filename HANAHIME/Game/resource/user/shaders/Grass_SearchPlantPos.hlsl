@@ -49,9 +49,10 @@ void SearchPlantPos(uint3 GlobalID : SV_DispatchThreadID, uint3 GroupID : SV_Gro
     uint2 screenPos = uint2(1280 / 2, 720 / 2);
     
     //ランダムで散らす。
-    uint randomScatter = 200;
-    uint2 random = uint2(RandomIntInRange(constData.m_seed * LocalID.x * GlobalID.y) * (randomScatter * 2), RandomIntInRange(constData.m_seed * LocalID.y * GlobalID.x) * (randomScatter * 2));
-    random -= uint2(randomScatter, randomScatter);
+    //uint randomScatter = 200;
+    uint2 randomScatter = uint2(640, 360);
+    uint2 random = uint2(RandomIntInRange(constData.m_seed * LocalID.x * GlobalID.y) * (randomScatter.x * 2), RandomIntInRange(constData.m_seed * LocalID.y * GlobalID.x) * (randomScatter.y * 2));
+    random -= randomScatter;
     screenPos += random;
     
     //サンプリングした座標がライトに当たっている位置かどうかを判断。

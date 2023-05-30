@@ -209,7 +209,10 @@ void GoalPoint::Update(Player& arg_player)
 
 	//ƒvƒŒƒCƒ„[‚Æ‚Ì“–‚½‚è”»’è
 	float dist = arg_player.GetTransform().GetPosWorld().Distance(m_transform.GetPosWorld() + (-m_transform.GetUpWorld() * HIT_RADIUS));
-	if (!m_hitPlayer)m_hitPlayer = (dist < HIT_RADIUS);
+	if (!m_hitPlayer)
+	{
+		m_hitPlayer = (dist < HIT_RADIUS);
+	}
 
 	if (m_isGrowUp)
 	{
