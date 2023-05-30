@@ -178,6 +178,9 @@ class Player : public KuroEngine::Debugger
 	bool m_isCameraDefault;
 	bool m_isOldCameraDefault;
 
+	//ƒJƒƒ‰‚Ìó‘Ô(Cš‚Ì•Ç‘Îô—p)
+	CameraController::CAMERA_FUNA_MODE m_cameraFunaMode;
+
 public:
 
 	//“–‚½‚è”»’è‚ÌŒ‹‰Ê•Û‘¶—p
