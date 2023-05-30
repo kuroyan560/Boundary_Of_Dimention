@@ -463,28 +463,26 @@ void MiniBug::Update(Player &arg_player)
 
 void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
+	m_deadMotion.ParticleDraw(arg_cam);
+
 	if (m_deadFlag)
 	{
 		return;
 	}
-	if (m_startDeadMotionFlag)
-	{
-		bool debug = false;
-	}
-
-
-	m_deadMotion.ParticleDraw(arg_cam);
 
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.54f, 0.14f, 0.33f, 1.0f);
 	//€‚ñ‚Å‚¢‚é‚Íoffset‚Ìl—¶‚ğœ‚«‚È‚ª‚çˆ—‚ğs‚¤
-	if (!m_deadMotion.IsHitGround())
+	if (!m_startDeadMotionFlag)
 	{
 		KuroEngine::Vec3<float>offset(5.0f, 5.0f, 5.0f);
 		offset *= m_transform.GetUp() * 2.0f;
 		m_drawTransform = m_transform;
 		m_drawTransform.SetPos(m_transform.GetPos() + offset);
+	}
 
+	if (!m_deadMotion.IsHitGround())
+	{
 		BasicDraw::Instance()->Draw_Enemy(
 			m_inSphereEffectConstBufferData.m_constBuffer,
 			arg_cam,
@@ -495,8 +493,6 @@ void MiniBug::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_li
 			KuroEngine::AlphaBlendMode_None,
 			m_animator->GetBoneMatBuff());
 	}
-
-
 	m_reaction->Draw(arg_cam);
 
 	//m_dashEffect.Draw(arg_cam);

@@ -72,12 +72,10 @@ public:
 			{
 				return;
 			}
-			m_timer.GetInverseTimeRate();
-
 			KuroEngine::Transform transform;
 			transform.SetPos(m_pos);
 			transform.SetScale({ m_size.x, m_size.y,m_size.y });
-			BasicDraw::Instance()->DrawBillBoard(camera, transform, m_tex);
+			BasicDraw::Instance()->DrawBillBoard(camera, transform, m_tex, KuroEngine::Color(1.0f, 1.0f, 1.0f, m_timer.GetInverseTimeRate()));
 		}
 
 	private:
