@@ -956,6 +956,9 @@ void CheckPoint::Update(Player& arg_player)
 		CheckPointHitFlag::Instance()->m_isHitCheckPointTrigger = true;
 		SaveDataManager::Instance()->SaveCheckPointOrder(m_order);
 
+		//SEÄ¶
+		SoundConfig::Instance()->Play(SoundConfig::SE_UNLOCK_CHECK_POINT);
+
 		m_fireWork.Init(m_transform.GetPosWorld());
 	}
 
@@ -1020,6 +1023,9 @@ void StarCoin::Update(Player& arg_player)
 			GET_SUM++;
 			SaveDataManager::Instance()->SaveStarCoin(StageManager::Instance()->GetNowStageIdx(), m_id);
 		}
+
+		//SEÄ¶
+		SoundConfig::Instance()->Play(SoundConfig::SE_GET_STAR_COIN);
 	}
 
 	m_touched = isHit;

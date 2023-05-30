@@ -26,6 +26,8 @@ public:
 		SE_BOOT,	//起動
 		SE_SHUT_DOWN,	//シャットダウン
 		SE_PLAYER_DAMAGE,	//プレイヤーの被ダメージ
+		SE_GET_STAR_COIN,	//スターコイン回収
+		SE_UNLOCK_CHECK_POINT,	//チェックポイント解放
 		SE_NUM
 	};
 	//ジングル（現在再生中かの確認なども行う、ループ再生しない）

@@ -101,7 +101,7 @@
       "draw_Sight": false
     },
     "debuggerSetting": {
-      "active": true,
+      "active": false,
       "customParamActive": true,
       "imageColor": [
         0.800000011920929,
@@ -229,7 +229,7 @@
   },
   "SoundConfig": {
     "debuggerSetting": {
-      "active": false,
+      "active": true,
       "customParamActive": true,
       "imageColor": [
         0.800000011920929,
@@ -262,7 +262,9 @@
         "player_damage": 0.6000000238418579,
         "select": 1.0,
         "shutdown": 1.0,
-        "surface_jump": 0.5
+        "star_coin_get": 1.399999976158142,
+        "surface_jump": 0.5,
+        "unlock_check_point": 1.399999976158142
       }
     }
   },
