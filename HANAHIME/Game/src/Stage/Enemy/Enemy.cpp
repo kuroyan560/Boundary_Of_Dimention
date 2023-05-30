@@ -3,6 +3,7 @@
 #include"../../Graphics/BasicDraw.h"
 #include"../../OperationConfig.h"
 #include"../../Player/Player.h"
+#include"../../SoundConfig.h"
 
 int MiniBug::ENEMY_MAX_ID = 0;
 
@@ -138,6 +139,7 @@ void MiniBug::Update(Player &arg_player)
 		{
 			m_deadTimer.Reset(120);
 			m_deadFlag = true;
+			SoundConfig::Instance()->Play(SoundConfig::SE_ENEMY_DEAD);
 		}
 
 		//ƒWƒƒƒ“ƒv
@@ -209,8 +211,11 @@ void MiniBug::Update(Player &arg_player)
 			//“{‚è–Ú
 			m_animator->SetEndPosture("To_Angry");
 
+			SoundConfig::Instance()->Play(SoundConfig::SE_ENEMY_FIND);
+
 			break;
 		case MiniBug::NOTICE:
+			SoundConfig::Instance()->Play(SoundConfig::SE_ENEMY_NOTICE);
 			m_reaction->Init(LOOK, m_transform.GetUp());
 			break;
 		case MiniBug::RETURN:
@@ -392,6 +397,7 @@ void MiniBug::Update(Player &arg_player)
 	{
 		m_deadMotion.Init(m_transform, KuroEngine::Vec3<float>(m_pos - arg_player.GetTransform().GetPos()).GetNormal());
 		m_startDeadMotionFlag = true;
+		SoundConfig::Instance()->Play(SoundConfig::SE_ENEMY_DAMAGE);
 	}
 
 	KuroEngine::Vec3<float>offset(m_flootOffset, m_flootOffset, m_flootOffset);
@@ -664,6 +670,7 @@ void DossunRing::Update(Player &arg_player)
 		{
 			m_deadTimer.Reset(120);
 			m_deadFlag = true;
+			SoundConfig::Instance()->Play(SoundConfig::SE_ENEMY_DEAD);
 		}
 
 		DirectX::XMVECTOR vec = { 0.0f,0.0f,1.0f,1.0f };
@@ -684,6 +691,7 @@ void DossunRing::Update(Player &arg_player)
 	if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()) != Player::CHECK_HIT_GRASS_STATUS::NOHIT)
 	{
 		m_startDeadMotionFlag = true;
+		SoundConfig::Instance()->Play(SoundConfig::SE_ENEMY_DAMAGE);
 		return;
 	}
 
@@ -949,6 +957,7 @@ void Battery::Update(Player &arg_player)
 	}
 	if (m_startDeadMotionFlag)
 	{
+		SoundConfig::Instance()->Play(SoundConfig::SE_ENEMY_DEAD);
 		m_deadFlag = true;
 	}
 
@@ -989,6 +998,7 @@ void Battery::Update(Player &arg_player)
 	if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()) != Player::CHECK_HIT_GRASS_STATUS::NOHIT && !m_startDeadMotionFlag)
 	{
 		m_startDeadMotionFlag = true;
+		SoundConfig::Instance()->Play(SoundConfig::SE_ENEMY_DAMAGE);
 	}
 
 	switch (m_barrelPattern)

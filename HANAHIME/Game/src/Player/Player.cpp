@@ -1331,6 +1331,8 @@ void Player::Damage()
 	//HPを減らす。
 	m_hp = std::clamp(m_hp - 1, 0, std::numeric_limits<int>().max());
 
+	SoundConfig::Instance()->Play(SoundConfig::SE_PLAYER_DAMAGE_HIT);
+
 	//HPUI演出
 	m_hpUi.OnDamage();
 
@@ -1681,6 +1683,8 @@ void Player::UpdateDeath() {
 
 			//シェイクをかける。
 			m_deathShakeAmount = DEATH_SHAKE_AMOUNT;
+
+			SoundConfig::Instance()->Play(SoundConfig::SE_GAME_OVER);
 		}
 
 	}
