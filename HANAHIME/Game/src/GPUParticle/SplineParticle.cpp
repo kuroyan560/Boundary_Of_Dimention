@@ -1,5 +1,6 @@
 #include "SplineParticle.h"
 #include"FrameWork/UsersInput.h"
+#include"../OperationConfig.h"
 
 SplineParticle::SplineParticle(std::shared_ptr<KuroEngine::RWStructuredBuffer> particle) :
 	m_gpuParticleBuffer(particle), m_splineTimer(10)
@@ -61,7 +62,7 @@ void SplineParticle::Update()
 		return;
 	}
 
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE))
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_SPACE))
 	{
 		std::vector<KuroEngine::RegisterDescriptorData>descData =
 		{
