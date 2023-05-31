@@ -72,6 +72,19 @@ void GameScene::GameInit()
 		m_isFastTravel = false;
 
 	}
+	else if (m_isRetry) {
+
+		std::vector<std::vector<KuroEngine::Transform>> checkPointTransform;
+		int stageNum = 0;
+		int checkPointNum = 0;
+
+		//現在のチェックポイントを検索。
+		auto nowStage = StageManager::Instance()->GetUnlockedCheckPointInfo(&checkPointTransform, &stageNum, &checkPointNum);
+
+		m_player.Respawn(m_playerInitTransform, StageManager::Instance()->GetNowStage(), m_stageNum, checkPointNum);
+		m_isRetry = false;
+
+	}
 	else {
 
 		m_player.Respawn(m_playerInitTransform, StageManager::Instance()->GetNowStage(), m_stageNum, 0);
@@ -100,16 +113,17 @@ void GameScene::GameInit()
 
 void GameScene::Retry()
 {
-	StartGame(m_stageNum, CheckPoint::GetLatestVistTransform(StageManager::Instance()->GetStartPointTransform()));
+	StartGame(m_stageNum, CheckPoint::GetLatestVistTransform(StageManager::Instance()->GetStartPointTransform()), false, true);
 }
 
-void GameScene::StartGame(int arg_stageNum, KuroEngine::Transform arg_playerInitTransform, bool arg_isFastTravel)
+void GameScene::StartGame(int arg_stageNum, KuroEngine::Transform arg_playerInitTransform, bool arg_isFastTravel, bool arg_isRetry)
 {
 	m_stageNum = arg_stageNum;
 	m_gateSceneChange.Start();
 	m_nextScene = SCENE_IN_GAME;
 	m_playerInitTransform = arg_playerInitTransform;
 	m_isFastTravel = arg_isFastTravel;
+	m_isRetry = arg_isRetry;
 }
 
 void GameScene::GoBackTitle()

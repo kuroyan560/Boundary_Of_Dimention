@@ -89,6 +89,7 @@ class GameScene : public KuroEngine::BaseScene
 
 	//ファストトラベル中か
 	bool m_isFastTravel;
+	bool m_isRetry;
 
 	Tutorial tutorial;
 
@@ -120,7 +121,7 @@ class GameScene : public KuroEngine::BaseScene
 public:
 	GameScene();
 	void Retry();
-	void StartGame(int arg_stageNum, KuroEngine::Transform arg_playerInitTransform, bool arg_isFastTravel = false);
+	void StartGame(int arg_stageNum, KuroEngine::Transform arg_playerInitTransform, bool arg_isFastTravel = false, bool arg_isRetry = false);
 	void GoBackTitle();
 	void ActivateFastTravel();
 	void ActivateSystemSetting();

@@ -176,6 +176,7 @@ void Player::Init(KuroEngine::Transform arg_initTransform, int arg_nowStageIndex
 	m_cameraQ = DirectX::XMQuaternionIdentity();
 	m_canJumpDelayTimer = 0;
 	m_deathTimer = 0;
+	m_isFinishDeadEffect = false;
 
 	m_checkPointRotY = {};
 	m_isCheckPointUpInverse = false;
@@ -364,6 +365,7 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform, const std::weak_pt
 	m_cameraQ = DirectX::XMQuaternionIdentity();
 	m_canJumpDelayTimer = 0;
 	m_deathTimer = 0;
+	m_isFinishDeadEffect = false;
 
 	m_moveSpeed = KuroEngine::Vec3<float>();
 	m_gimmickVel = KuroEngine::Vec3<float>();
@@ -1817,6 +1819,8 @@ void Player::UpdateDeath() {
 		if (DEATH_EFFECT_FINISH_TIMER <= m_deathEffectTimer) {
 
 			m_isFinishDeathAnimation = true;
+			m_isFinishDeadEffect = true;
+
 		}
 
 	}
