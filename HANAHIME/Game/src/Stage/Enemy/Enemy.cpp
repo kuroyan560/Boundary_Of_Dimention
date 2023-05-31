@@ -190,15 +190,16 @@ void MiniBug::Update(Player &arg_player)
 	bool isAttackOrNotice = m_nowStatus == MiniBug::ATTACK || m_nowStatus == MiniBug::NOTICE;
 	const bool isMoveFlag = 0.1f < KuroEngine::Vec3<float>(arg_player.GetNowPos() - arg_player.GetOldPos()).Length();
 
-	if (ENEMY_ID == 1)
-	{
-		bool debug = false;
-	}
 
 	//柵の先にいるかどうか
 	float lenght = m_transform.GetPos().Distance(arg_player.GetTransform().GetPos());
 	KuroEngine::Vec3<float>vec(m_transform.GetPos() - arg_player.GetTransform().GetPos());
-	bool isHitWallFlag = IsHitWall(m_transform, vec.GetNormal(), lenght);
+
+	bool isHitWallFlag = false;
+	if (findFlag)
+	{
+		isHitWallFlag = IsHitWall(m_transform, vec.GetNormal(), lenght);
+	}
 
 	//同じ階かつ違う面に居ないなら思考開始
 	if (sameFloorFlag && isDifferentWall && !isHitWallFlag)
