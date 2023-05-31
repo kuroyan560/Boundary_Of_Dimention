@@ -75,7 +75,7 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 3309,
+            "count" : 3303,
             "max" : [
                 610,
                 390,
@@ -91,42 +91,42 @@
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 3309,
+            "count" : 3303,
             "type" : "VEC3"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 3309,
+            "count" : 3303,
             "type" : "VEC2"
         },
         {
             "bufferView" : 3,
             "componentType" : 5123,
-            "count" : 5256,
+            "count" : 5244,
             "type" : "SCALAR"
         }
     ],
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 39708,
+            "byteLength" : 39636,
             "byteOffset" : 0
         },
         {
             "buffer" : 0,
-            "byteLength" : 39708,
-            "byteOffset" : 39708
+            "byteLength" : 39636,
+            "byteOffset" : 39636
         },
         {
             "buffer" : 0,
-            "byteLength" : 26472,
-            "byteOffset" : 79416
+            "byteLength" : 26424,
+            "byteOffset" : 79272
         },
         {
             "buffer" : 0,
-            "byteLength" : 10512,
-            "byteOffset" : 105888
+            "byteLength" : 10488,
+            "byteOffset" : 105696
         }
     ],
     "samplers" : [
@@ -137,7 +137,7 @@
     ],
     "buffers" : [
         {
-            "byteLength" : 116400,
+            "byteLength" : 116184,
             "uri" : "Stage2.bin"
         }
     ]

@@ -1,10 +1,11 @@
 #include "FireFlyOutStage.h"
 
-FireFlyOutStage::FireFlyOutStage(std::shared_ptr<KuroEngine::RWStructuredBuffer> particle_buffer):m_particleData(particle_buffer)
+FireFlyOutStage::FireFlyOutStage(std::shared_ptr<KuroEngine::RWStructuredBuffer> particle_buffer) :m_particleData(particle_buffer)
 {
 	std::vector<KuroEngine::RootParam>rootParam =
 	{
-		KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"蛍パーティクルの情報(RWStructuredBuffer)")
+		KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_UAV,"蛍パーティクルの情報(RWStructuredBuffer)"),
+			KuroEngine::RootParam(D3D12_DESCRIPTOR_RANGE_TYPE_CBV,"プレイヤーの情報(ConstantBuffer)")
 	};
 	auto cs_init = KuroEngine::D3D12App::Instance()->CompileShader("resource/user/shaders/FireFlyOutStage.hlsl", "InitMain", "cs_6_4");
 	m_initPipeline = KuroEngine::D3D12App::Instance()->GenerateComputePipeline(cs_init, rootParam, { KuroEngine::WrappedSampler(true,true) });
@@ -34,21 +35,24 @@ FireFlyOutStage::FireFlyOutStage(std::shared_ptr<KuroEngine::RWStructuredBuffer>
 
 
 	m_playerData = KuroEngine::D3D12App::Instance()->GenerateConstantBuffer(sizeof(DirectX::XMFLOAT3), 1);
-
-	ComputeInit();
 }
 
-void FireFlyOutStage::ComputeInit()
+void FireFlyOutStage::ComputeInit(const KuroEngine::Vec3<float> &arg_pos)
 {
+	DirectX::XMFLOAT3 pos = { 0.0f,0.0f,0.0f };
+	m_playerData->Mapping(&pos);
+
 	std::vector<KuroEngine::RegisterDescriptorData>descData =
 	{
 		{m_fireFlyParticleData,KuroEngine::UAV},
+		{m_playerData,KuroEngine::CBV}
 	};
-	KuroEngine::D3D12App::Instance()->DispathOneShot(m_initPipeline, { 1,1,1 }, descData);
+	KuroEngine::D3D12App::Instance()->DispathOneShot(m_initPipeline, { DISPATCH_MAX,1,1 }, descData);
 }
 
-void FireFlyOutStage::ComputeUpdate(const KuroEngine::Vec3<float> &pos)
+void FireFlyOutStage::ComputeUpdate(const KuroEngine::Vec3<float> &arg_pos)
 {
+	DirectX::XMFLOAT3 pos = { arg_pos.x,arg_pos.y,arg_pos.z };
 	m_playerData->Mapping(&pos);
 
 	std::vector<KuroEngine::RegisterDescriptorData>descData =
@@ -58,5 +62,5 @@ void FireFlyOutStage::ComputeUpdate(const KuroEngine::Vec3<float> &pos)
 		{m_scaleRotateData,KuroEngine::CBV},
 		{m_playerData,KuroEngine::CBV}
 	};
-	KuroEngine::D3D12App::Instance()->DispathOneShot(m_updatePipeline, { 1,1,1 }, descData);
+	KuroEngine::D3D12App::Instance()->DispathOneShot(m_updatePipeline, { DISPATCH_MAX,1,1 }, descData);
 }

@@ -26,6 +26,12 @@ cbuffer PlayerBuffer : register(b1)
     float3 playerPos;
 };
 
+cbuffer InitPlayerBuffer : register(b0)
+{    
+    float3 initPlayerPos;
+};
+
+
 float ConvertToRadian(float Degree)
 {
     return 3.14f / 180.0f * Degree;
@@ -48,16 +54,16 @@ void InitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 
     //ステージの範囲外かつ天球の間
 
     //300 ~ 500
-    float radius = Rand(index * 100,500,0);
+    float radius = Rand(index * 100,1000,0);
     float radian = AngleToRadian(Rand(index * 50,360,0));
-    float3 pos = float3(cos(radian) * radius, Rand(index * 10,400,0),sin(radian) * radius);
+    float3 pos = initPlayerPos + float3(cos(radian) * radius, Rand(index * 10,400,0),sin(radian) * radius);
 
     float4 color = float4(0.12f, 0.97f, 0.8f,1);
     //初期値生成----------------------------------------
 
     //出力--------------------------------------------
     FireFlyParticleData outputMat;
-    outputMat.pos = pos;
+    outputMat.pos = initPlayerPos + pos;
     outputMat.vel = float3(0.0f,-Rand(index,0.5f,0.1f),0.0f);
     float scale = Rand(index,5.0f,3.0f);
     outputMat.scale = float2(scale,scale);
@@ -84,7 +90,7 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
     uint index = (groupThreadID.y * 1204) + groupThreadID.x + groupThreadID.z;
     index += 1024 * groupId.x;
 
-    const int PARTICLE_NUM_MAX = 10000;
+    const int PARTICLE_NUM_MAX = 1024 * 5;
     if(PARTICLE_NUM_MAX <= index)
     {
         return;
@@ -92,19 +98,6 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
 
     //プレイヤーに近づいたらパーティクルの拡縮を早める
     int vel = 1;
-
-    float distanceNum = distance(playerPos,fireFlyDataBuffer[index].pos);
-    float maxLength = 50.0f;
-    float2 particleScaleOffset = float2(1.0f,1.0f);
-    if(distanceNum <= maxLength)
-    {
-        float rate = distanceNum / maxLength;
-        vel = 1 + 5 * (1.0f - rate);
-
-        float scale = 1.0f + 1 * (1.0f - rate);
-        particleScaleOffset = float2(scale,scale);
-    }
-
 
     if(fireFlyDataBuffer[index].flashTimer.y)
     {
@@ -128,13 +121,15 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
 
     float rate = fireFlyDataBuffer[index].flashTimer.x / 60.0f;
     fireFlyDataBuffer[index].color.a = rate;
-    float2 scale = fireFlyDataBuffer[index].scale * float2(rate,rate);
-    scale *= particleScaleOffset;
+    float2 scale = fireFlyDataBuffer[index].scale;
 
     fireFlyDataBuffer[index].angle.x += fireFlyDataBuffer[index].angle.y;
-    fireFlyDataBuffer[index].pos.x = fireFlyDataBuffer[index].basePos.x + sin(ConvertToRadian(fireFlyDataBuffer[index].angle.x)) * 5.0f;
+
+    fireFlyDataBuffer[index].vel.x = sin(ConvertToRadian(fireFlyDataBuffer[index].angle.x)) * 0.3f;
     fireFlyDataBuffer[index].pos += fireFlyDataBuffer[index].vel;
-    if(fireFlyDataBuffer[index].pos.y <= fireFlyDataBuffer[index].basePos.y - 200.0f)
+
+    float minHightPosY = fireFlyDataBuffer[index].basePos.y - 200.0f;
+    if(fireFlyDataBuffer[index].pos.y <= minHightPosY)
     {
         fireFlyDataBuffer[index].pos = 
         float3(

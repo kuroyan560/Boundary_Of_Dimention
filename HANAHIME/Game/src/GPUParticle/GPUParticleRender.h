@@ -29,7 +29,8 @@ private:
 	};
 
 
-	int particleMaxNum = 1024 * 50;
+	int dispatchNum = 50;
+	int particleMaxNum = 1024 * dispatchNum;
 	/*ResouceBufferHelper computeCovertWorldMatToDrawMat;
 	KazGPUParticle::RESOURCE_HANDLE  worldMatHandle, outputHandle, viewProjMatHandle;
 
@@ -73,6 +74,7 @@ private:
 	{
 		DirectX::XMMATRIX scaleRotateBillboardMat;
 		DirectX::XMMATRIX viewprojMat;
+		UINT particleMaxNum;
 	};
 	std::shared_ptr<KuroEngine::ConstantBuffer>m_viewPorjBuffer;
 

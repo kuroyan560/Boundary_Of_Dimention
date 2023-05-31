@@ -126,6 +126,29 @@
                 "CheckPointOrder": 0
             },
             {
+                "type": "Appearance",
+                "name": "Appearance2",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        -0.0,
+                        -0.0,
+                        -1.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Appearance2"
+            },
+            {
                 "type": "StarCoin",
                 "name": "StarCoin_0.001",
                 "transform": {
