@@ -64,7 +64,17 @@ void GameScene::GameInit()
 	GrowPlantLight::ResetRegisteredLight();
 	StageManager::Instance()->SetStage(m_stageNum);
 
-	m_player.Respawn(m_playerInitTransform, StageManager::Instance()->GetNowStage(), m_fastTravel.GetNowStageIndex(), m_fastTravel.GetNowCheckPointIndex());
+	if (m_isFastTravel) {
+
+		m_player.Respawn(m_playerInitTransform, StageManager::Instance()->GetNowStage(), m_fastTravel.GetNowStageIndex(), m_fastTravel.GetNowCheckPointIndex());
+		m_isFastTravel = false;
+
+	}
+	else {
+
+		m_player.Respawn(m_playerInitTransform, StageManager::Instance()->GetNowStage(), m_stageNum, 0);
+
+	}
 
 	SoundConfig::Instance()->Init();
 	GateManager::Instance()->Init();
@@ -91,12 +101,13 @@ void GameScene::Retry()
 	StartGame(m_stageNum, CheckPoint::GetLatestVistTransform(StageManager::Instance()->GetStartPointTransform()));
 }
 
-void GameScene::StartGame(int arg_stageNum, KuroEngine::Transform arg_playerInitTransform)
+void GameScene::StartGame(int arg_stageNum, KuroEngine::Transform arg_playerInitTransform, bool arg_isFastTravel)
 {
 	m_stageNum = arg_stageNum;
 	m_gateSceneChange.Start();
 	m_nextScene = SCENE_IN_GAME;
 	m_playerInitTransform = arg_playerInitTransform;
+	m_isFastTravel = arg_isFastTravel;
 }
 
 void GameScene::GoBackTitle()
@@ -142,7 +153,7 @@ void GameScene::OnInitialize()
 
 	m_debugCam.Init({ 0,5,-10 });
 
-	m_player.Init(StageManager::Instance()->GetStartPointTransform());
+	m_player.Init(StageManager::Instance()->GetStartPointTransform(), m_fastTravel.GetNowStageIndex(), m_fastTravel.GetNowCheckPointIndex());
 
 	m_grass.Init();
 
@@ -282,7 +293,7 @@ void GameScene::OnUpdate()
 		transform.SetPos(KuroEngine::Vec3<float>(-99.0f,-67.5f,105.0f));
 		KuroEngine::Quaternion rotate = { 0.0f, 0.0f, -0.7f, 0.7f };
 		transform.SetRotate(rotate);
-		m_player.Init(transform);
+		m_player.Init(transform, m_fastTravel.GetNowStageIndex(), m_fastTravel.GetNowCheckPointIndex());
 	}
 
 	//ゲームシーンでのみ使う物
