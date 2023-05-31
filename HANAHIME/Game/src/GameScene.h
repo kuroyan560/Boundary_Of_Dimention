@@ -78,6 +78,7 @@ class GameScene : public KuroEngine::BaseScene
 
 	//ファストトラベル
 	FastTravel m_fastTravel;
+	int m_prevIndex;
 	//設定画面
 	SystemSetting m_sysSetting;
 

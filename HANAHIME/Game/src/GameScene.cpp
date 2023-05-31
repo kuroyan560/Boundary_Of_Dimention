@@ -95,7 +95,7 @@ void GameScene::GameInit()
 	//buff.SetPos(KuroEngine::Vec3<float>(0, -100, 100));
 	//testTransform.emplace_back(buff);
 	//FastTravel::Instance()->Init(testTransform);
-
+	m_fireFlyStage.ComputeInit(m_fastTravel.GetNowSelectCheckPointTransform().GetPos());
 }
 
 void GameScene::Retry()
@@ -179,6 +179,12 @@ void GameScene::OnUpdate()
 
 	//ファストトラベル画面更新
 	m_fastTravel.Update(this);
+
+	if (m_fastTravel.GetNowSelectStage() != m_prevIndex)
+	{
+		m_fireFlyStage.ComputeInit(m_fastTravel.GetNowSelectCheckPointTransform().GetPos());
+	}
+	m_prevIndex = m_fastTravel.GetNowSelectStage();
 
 	//ファストトラベル
 	if (m_fastTravel.IsActive())

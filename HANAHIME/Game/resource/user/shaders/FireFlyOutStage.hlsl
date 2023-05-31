@@ -54,9 +54,9 @@ void InitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 
     //ステージの範囲外かつ天球の間
 
     //300 ~ 500
-    float radius = Rand(index * 100,1000,0);
+    float radius = Rand(index * 100,5000,0);
     float radian = AngleToRadian(Rand(index * 50,360,0));
-    float3 pos = initPlayerPos + float3(cos(radian) * radius, Rand(index * 10,400,0),sin(radian) * radius);
+    float3 pos = initPlayerPos + float3(cos(radian) * radius, Rand(index * 10,400,-400),sin(radian) * radius);
 
     float4 color = float4(0.12f, 0.97f, 0.8f,1);
     //初期値生成----------------------------------------
