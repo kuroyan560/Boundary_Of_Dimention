@@ -1055,32 +1055,32 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	}
 
 
-	//デバッグ用
-#ifdef _DEBUG
-
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_1)) {
-		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::NORMAL;
-	}
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_2)) {
-		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_1_C;
-	}
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_3)) {
-		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U;
-		m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
-	}
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_4)) {
-		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_3_HEIGHT_LIMIT;
-	}
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_5)) {
-		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_4_FAR;
-	}
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_6)) {
-		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_6_NEAR_GOAL;
-		m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
-	}
-
-
-#endif
+//	//デバッグ用
+//#ifdef _DEBUG
+//
+//	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_1)) {
+//		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::NORMAL;
+//	}
+//	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_2)) {
+//		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_1_C;
+//	}
+//	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_3)) {
+//		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U;
+//		m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
+//	}
+//	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_4)) {
+//		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_3_HEIGHT_LIMIT;
+//	}
+//	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_5)) {
+//		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_4_FAR;
+//	}
+//	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_6)) {
+//		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_6_NEAR_GOAL;
+//		m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
+//	}
+//
+//
+//#endif
 
 
 	//死んでいたら死亡の更新処理を入れる。
@@ -1494,16 +1494,7 @@ Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<floa
 	bool isHit = distance < std::clamp(m_growPlantPtLig.m_influenceRange, PLAYER_HEAD_SIZE, m_growPlantPtLig.m_defInfluenceRange) + arg_enemySize;
 
 	//当たっていなかったら処理を飛ばす。
-	if (!isHit) {
-		return Player::CHECK_HIT_GRASS_STATUS::NOHIT;
-	}
-
-	//プレイヤーから敵までのベクトルと敵の上ベクトルを内積して、その結果が0以下だったらライトが当たっている判定(草が当たっている判定。)
-	float dot = (arg_enemyPos - m_transform.GetPosWorld()).GetNormal().Dot(arg_enemyUp);
-	bool isLight = dot < -0.1f;
-
-	//ライトに当たっている判定
-	if (!isLight) {
+	if (isHit) {
 
 		//距離によって頭に当たっているかを判断
 		if (distance < PLAYER_HEAD_SIZE) {
@@ -1516,7 +1507,6 @@ Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<floa
 			return Player::CHECK_HIT_GRASS_STATUS::AROUND;
 
 		}
-
 	}
 	else {
 

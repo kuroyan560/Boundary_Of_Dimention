@@ -19,8 +19,7 @@ cbuffer RootConstants : register(b0)
 [numthreads(1024, 1, 1)]
 void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 groupThreadID : SV_GroupThreadID)
 {
-    uint index = (groupThreadID.y * 1204) + groupThreadID.x + groupThreadID.z;
-    index += 1024 * groupId.x;
+    uint index = GetIndex(groupId,groupThreadID);
 
     if(particleMax <= index)
     {

@@ -39,7 +39,7 @@ FireFlyOutStage::FireFlyOutStage(std::shared_ptr<KuroEngine::RWStructuredBuffer>
 
 void FireFlyOutStage::ComputeInit(const KuroEngine::Vec3<float> &arg_pos)
 {
-	DirectX::XMFLOAT3 pos = { 0.0f,0.0f,0.0f };
+	DirectX::XMFLOAT3 pos = { arg_pos.x,arg_pos.y,arg_pos.z };
 	m_playerData->Mapping(&pos);
 
 	std::vector<KuroEngine::RegisterDescriptorData>descData =

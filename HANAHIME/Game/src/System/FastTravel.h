@@ -143,4 +143,16 @@ public:
 	void DisActivate() { m_isActive = false; }
 
 	const bool& IsActive()const { return m_isActive; }
+
+	KuroEngine::Transform GetNowSelectCheckPointTransform()
+	{
+		if (m_checkPointVector.size()!=0)
+		{
+			return m_checkPointVector[m_nowStageNum][m_nowTargetCheckPoint];
+		}
+		else
+		{
+			return KuroEngine::Transform();
+		}
+	}
 };
