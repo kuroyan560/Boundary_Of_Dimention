@@ -513,6 +513,9 @@
     <ClCompile Include="src\Effect\HitEffect.cpp">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\AI\EnemyHitBoxDataBase.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\engine\KuroEngineDevice.h">
@@ -972,6 +975,7 @@
     <ClInclude Include="..\..\src\engine\resource.h">
       <Filter>リソースファイル</Filter>
     </ClInclude>
+    <ClInclude Include="src\AI\EnemyHitBoxDataBase.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resource\user\tex\icon.ico">

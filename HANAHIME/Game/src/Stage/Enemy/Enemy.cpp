@@ -4,6 +4,7 @@
 #include"../../OperationConfig.h"
 #include"../../Player/Player.h"
 #include"../../SoundConfig.h"
+#include"../../AI/EnemyHitBoxDataBase.h"
 
 int MiniBug::ENEMY_MAX_ID = 0;
 
@@ -44,6 +45,9 @@ MiniBug::MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transfor
 	DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_MINIBUG);
 
 	m_debugHitBox = std::make_unique<EnemyHitBox>(m_hitBox, KuroEngine::Color(1.0f, 1.0f, 1.0f, 1.0f));
+
+
+	EnemyHitBoxDataBase::Instance()->Stack(&m_hitBox);
 }
 
 #pragma region MiniBug
@@ -57,8 +61,6 @@ void MiniBug::OnInit()
 	m_deadTimer.Reset(120);
 	m_scale = 1.0f;
 
-	m_hitBox.m_centerPos = &m_pos;
-	m_hitBox.m_radius = &m_scale;
 
 	m_shadowInfluenceRange = SHADOW_INFLUENCE_RANGE;
 
@@ -80,6 +82,9 @@ void MiniBug::OnInit()
 	m_deadTimer.Reset(120);
 
 	m_hitBoxSize = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_MINIBUG);
+
+	m_hitBox.m_centerPos = &m_pos;
+	m_hitBox.m_radius = &m_scale;
 	m_hitBox.m_centerPos = &m_transform.GetPos();
 	m_hitBox.m_radius = &m_hitBoxSize;
 
@@ -90,6 +95,8 @@ void MiniBug::OnInit()
 
 	m_knockBackTime = 10;
 	m_flootOffset = 5.0f;
+
+	m_deadMotion.Finalize();
 }
 
 void MiniBug::Update(Player &arg_player)
@@ -97,6 +104,7 @@ void MiniBug::Update(Player &arg_player)
 	//#ifdef _DEBUG
 	m_hitBoxSize = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_MINIBUG);
 	//#endif // _DEBUG
+
 
 
 		//m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());
@@ -158,25 +166,48 @@ void MiniBug::Update(Player &arg_player)
 	//生きていたら丸影を元に戻す。
 	m_shadowInfluenceRange = KuroEngine::Math::Lerp(m_shadowInfluenceRange, SHADOW_INFLUENCE_RANGE, 0.1f);
 
+	//上ベクトルは一緒だが違う階にいる対策処理
+	bool sameFloorFlag = false;
+	if (1.0f <= m_initializedTransform.GetUp().x)
+	{
+		float distance = m_transform.GetPos().x - arg_player.GetTransform().GetPos().x;
+		sameFloorFlag = abs(distance) <= 15.0f;
+	}
+	if (1.0f <= m_initializedTransform.GetUp().y)
+	{
+		float distance = m_transform.GetPos().y - arg_player.GetTransform().GetPos().y;
+		sameFloorFlag = abs(distance) <= 15.0f;
+	}
+	if (1.0f <= m_initializedTransform.GetUp().z)
+	{
+		float distance = m_transform.GetPos().z - arg_player.GetTransform().GetPos().z;
+		sameFloorFlag = abs(distance) <= 15.0f;
+	}
+
 
 	bool findFlag = m_sightArea.IsFind(arg_player.GetTransform().GetPos(), 180.0f);
 	//プレイヤーが違う法線の面にいたら見ないようにする。
-	bool isDifferentWall = IsActive(m_transform, arg_player.GetTransform());
+	bool isDifferentWall = !IsActive(m_initializedTransform, arg_player.GetTransform());
 	bool isPlayerWallChange = arg_player.GetIsJump();
 	bool isAttackOrNotice = m_nowStatus == MiniBug::ATTACK || m_nowStatus == MiniBug::NOTICE;
-	if ((isDifferentWall || isPlayerWallChange) && isAttackOrNotice)
-	{
-		findFlag = false;
-		m_nowStatus = MiniBug::NOTICE;
-	}
 	const bool isMoveFlag = 0.1f < KuroEngine::Vec3<float>(arg_player.GetNowPos() - arg_player.GetOldPos()).Length();
-	if (findFlag && arg_player.GetIsUnderGround() && m_nowStatus != MiniBug::RETURN && isMoveFlag)
+
+	//同じ階かつ違う面に居ないなら思考開始
+	if (sameFloorFlag && isDifferentWall)
 	{
-		m_nowStatus = MiniBug::NOTICE;
-	}
-	else if (findFlag && !arg_player.GetIsUnderGround() && !isDifferentWall && m_nowStatus != MiniBug::KNOCK_BACK)
-	{
-		m_nowStatus = MiniBug::ATTACK;
+		if (isPlayerWallChange && isAttackOrNotice)
+		{
+			findFlag = false;
+			m_nowStatus = MiniBug::NOTICE;
+		}
+		if (findFlag && arg_player.GetIsUnderGround() && m_nowStatus != MiniBug::RETURN && isMoveFlag)
+		{
+			m_nowStatus = MiniBug::NOTICE;
+		}
+		else if (findFlag && !arg_player.GetIsUnderGround() && m_nowStatus != MiniBug::KNOCK_BACK)
+		{
+			m_nowStatus = MiniBug::ATTACK;
+		}
 	}
 
 	//初期化---------------------------------------------------
@@ -435,7 +466,7 @@ void MiniBug::Update(Player &arg_player)
 	rptaVel *= (0 < frontVec2D.Cross(moveDir2D)) ? 1.0f : -1.0f;
 
 	//プレイヤーが違う面にるか、ジャンプで壁面移動中はプレイヤーの方を見ない。
-	if ((isDifferentWall || isPlayerWallChange) && isAttackOrNotice) {
+	if ((!isDifferentWall || isPlayerWallChange) && isAttackOrNotice) {
 
 	}
 	else
@@ -464,6 +495,9 @@ void MiniBug::Update(Player &arg_player)
 
 
 	m_larpPos = KuroEngine::Math::Lerp(m_larpPos, m_pos, 0.1f);
+
+	KuroEngine::Vec3<float>pushBackVel(EnemyHitBoxDataBase::Instance()->Update(m_hitBox));
+	m_larpPos += pushBackVel;
 
 	m_transform.SetPos(m_larpPos);
 	m_animator->Update(TimeScaleMgr::s_inGame.GetTimeScale());

@@ -40,6 +40,40 @@ public:
 
 		return isInCirlceFlag && isTouchEdgeFlag;
 	}
+
+
+	KuroEngine::Vec3<float>PushBackEnemy(const Sphere &attack_hitBoxA, const Sphere &attack_hitBoxB)
+	{
+		//“–‚½‚Á‚Ä‚¢‚éŠm”F
+		if (!CheckCircleAndCircle(attack_hitBoxA, attack_hitBoxB))
+		{
+			return KuroEngine::Vec3<float>();
+		}
+
+		KuroEngine::Vec3<float>aPos(*(attack_hitBoxA.m_centerPos)), bPos(*(attack_hitBoxB.m_centerPos));
+		float aRadius(*(attack_hitBoxA.m_radius)), bRadius(*(attack_hitBoxB.m_radius));
+
+		//‹——£‚ğ‹‚ß‚é
+		KuroEngine::Vec3<float>distance(bPos - aPos);
+		float length = (aRadius + bRadius) - distance.Length();
+
+		if (distance.Length() <= 0.0f)
+		{
+			return KuroEngine::Vec3<float>();
+		}
+		if (length <= 0.0f)
+		{
+			return KuroEngine::Vec3<float>();
+		}
+
+
+		KuroEngine::Vec3<float> dir(distance.GetNormal());
+
+		//‚ß‚è‚İ—Ê‚ğ‹‚ß‚é
+		KuroEngine::Vec3<float>pushBackOffset(dir * length);
+		return pushBackOffset;
+	}
+
 };
 
 //ü•ª‚Æ“_‚Ì”»’è
