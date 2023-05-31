@@ -68,9 +68,8 @@ StageManager::StageManager()
 	CameraData::Instance()->RegistCameraData("");
 }
 
-void StageManager::SetStage(int stage_num)
+void StageManager::SetStage(int stage_num, bool arg_init)
 {
-
 	if (stage_num == -1)
 	{
 		m_nowStage = m_homeStage;
@@ -79,7 +78,10 @@ void StageManager::SetStage(int stage_num)
 	{
 		m_nowStage = m_stageArray[stage_num];
 	}
-	m_nowStage->Init();
+	if (arg_init)
+	{
+		m_nowStage->Init();
+	}
 	m_nowStageIdx = stage_num;
 
 	int reachStageNum;
@@ -90,6 +92,7 @@ void StageManager::SetStage(int stage_num)
 			m_nowMapPinPointIdx = 0;
 			SaveDataManager::Instance()->SaveStageNum(m_nowStageIdx);
 			m_drawMapPin = true;
+			CheckPoint::InitVisit();
 		}
 		else if (reachStageNum == m_nowStageIdx)m_drawMapPin = true;
 		else m_drawMapPin = false;

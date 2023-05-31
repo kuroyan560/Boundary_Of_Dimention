@@ -415,30 +415,6 @@
             },
             {
                 "type": "BackGround",
-                "name": "Arrow1.013",
-                "transform": {
-                    "translation": [
-                        492.5,
-                        31.90625,
-                        100.0
-                    ],
-                    "rotation": [
-                        0.5,
-                        0.5,
-                        0.5,
-                        0.5
-                    ],
-                    "scaling": [
-                        10.0,
-                        10.0,
-                        10.0
-                    ]
-                },
-                "file_name": "Arrow",
-                "ShadowShader": 0
-            },
-            {
-                "type": "BackGround",
                 "name": "Tree1.038",
                 "transform": {
                     "translation": [
@@ -1016,6 +992,54 @@
                         1.0
                     ]
                 }
+            },
+            {
+                "type": "BackGround",
+                "name": "Info",
+                "transform": {
+                    "translation": [
+                        55.0,
+                        35.0,
+                        74.65625
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.9238795638084412,
+                        0.3826834559440613
+                    ],
+                    "scaling": [
+                        20.0,
+                        20.0,
+                        20.0
+                    ]
+                },
+                "file_name": "Info",
+                "ShadowShader": 0
+            },
+            {
+                "type": "BackGround",
+                "name": "Info2",
+                "transform": {
+                    "translation": [
+                        640.0,
+                        -20.0,
+                        125.53125
+                    ],
+                    "rotation": [
+                        0.1736481636762619,
+                        -0.9848077893257141,
+                        0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        20.0,
+                        20.0,
+                        20.0
+                    ]
+                },
+                "file_name": "Info2",
+                "ShadowShader": 0
             }
         ]
     }

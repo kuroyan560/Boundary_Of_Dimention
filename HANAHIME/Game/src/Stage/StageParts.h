@@ -581,6 +581,8 @@ public:
 		if (!s_visit)return arg_alternative;
 		return s_latestVisitTransform;
 	}
+	//
+	static void InitVisit() { s_visit = false; }
 
 	CheckPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, int arg_order, std::shared_ptr<GuideInsect::CheckPointData>checkPointData);
 

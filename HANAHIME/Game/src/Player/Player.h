@@ -262,6 +262,9 @@ private:
 	const int CAN_JUMP_DELAY = 30;
 	const int CAN_JUMP_DELAY_FAST = 1;
 
+	//死亡演出が終わったかどうか。
+	bool m_isFinishDeadEffect;
+
 	//正面方向に壁があるかのフラグ
 	bool m_isWallFrontDir;
 	KuroEngine::Vec3<float> m_frontWallNormal;
@@ -375,6 +378,9 @@ public:
 	//攻撃中か？
 	bool GetIsAttack() { return 0 < m_attackTimer; }
 
+	//死亡演出が終わったかどうか。
+	bool GetIsFinishDeadEffect() { return m_isFinishDeadEffect; }
+
 	//オーバーヒート中か？
 	bool GetIsOverheat() { return m_isPlayerOverHeat; }
 
@@ -412,6 +418,9 @@ public:
 		m_plantLightExplosionStart = m_growPlantPtLig.m_influenceRange;
 		m_plantLightExplosionTimer.Reset(120.0f);
 	}
+
+	//死亡演出が終わったかどうか。
+
 
 private:
 

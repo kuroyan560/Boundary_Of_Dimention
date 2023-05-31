@@ -43,7 +43,7 @@ class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>, 
 	int m_nowMapPinPointIdx;
 	bool m_drawMapPin = true;
 public:
-	void SetStage(int stage_num = -1);
+	void SetStage(int stage_num = -1, bool arg_init = true);
 
 	void Update(Player &arg_player);
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr);
