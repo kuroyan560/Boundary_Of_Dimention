@@ -1,6 +1,6 @@
 #include "FireFlyOutStage.h"
 
-FireFlyOutStage::FireFlyOutStage(std::shared_ptr<KuroEngine::RWStructuredBuffer> particle_buffer):m_particleData(particle_buffer)
+FireFlyOutStage::FireFlyOutStage(std::shared_ptr<KuroEngine::RWStructuredBuffer> particle_buffer) :m_particleData(particle_buffer)
 {
 	std::vector<KuroEngine::RootParam>rootParam =
 	{
@@ -44,11 +44,12 @@ void FireFlyOutStage::ComputeInit()
 	{
 		{m_fireFlyParticleData,KuroEngine::UAV},
 	};
-	KuroEngine::D3D12App::Instance()->DispathOneShot(m_initPipeline, { 1,1,1 }, descData);
+	KuroEngine::D3D12App::Instance()->DispathOneShot(m_initPipeline, { FIRE_FLY_MAX / 1024,1,1 }, descData);
 }
 
-void FireFlyOutStage::ComputeUpdate(const KuroEngine::Vec3<float> &pos)
+void FireFlyOutStage::ComputeUpdate(const KuroEngine::Vec3<float> &arg_pos)
 {
+	DirectX::XMFLOAT3 pos = { arg_pos.x,arg_pos.y,arg_pos.z };
 	m_playerData->Mapping(&pos);
 
 	std::vector<KuroEngine::RegisterDescriptorData>descData =
@@ -58,5 +59,5 @@ void FireFlyOutStage::ComputeUpdate(const KuroEngine::Vec3<float> &pos)
 		{m_scaleRotateData,KuroEngine::CBV},
 		{m_playerData,KuroEngine::CBV}
 	};
-	KuroEngine::D3D12App::Instance()->DispathOneShot(m_updatePipeline, { 1,1,1 }, descData);
+	KuroEngine::D3D12App::Instance()->DispathOneShot(m_updatePipeline, { FIRE_FLY_MAX / 1024,1,1 }, descData);
 }

@@ -13,13 +13,14 @@ public:
 	void ComputeUpdate(const KuroEngine::Vec3<float> &pos);
 
 private:
-	static const int FIRE_FLY_MAX = 1024;
+	static const int FIRE_FLY_MAX = 1024 * 5;
 	std::shared_ptr<KuroEngine::ComputePipeline> m_initPipeline;
 	std::shared_ptr<KuroEngine::ComputePipeline> m_updatePipeline;
 
 	struct FireFlyData
 	{
 		DirectX::XMFLOAT3 pos;
+		DirectX::XMFLOAT3 vel;
 		DirectX::XMFLOAT2 scale;
 		DirectX::XMFLOAT4 color;
 		DirectX::XMUINT3 timer;

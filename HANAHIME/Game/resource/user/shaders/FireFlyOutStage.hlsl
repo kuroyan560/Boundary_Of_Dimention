@@ -132,8 +132,10 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
     scale *= particleScaleOffset;
 
     fireFlyDataBuffer[index].angle.x += fireFlyDataBuffer[index].angle.y;
-    fireFlyDataBuffer[index].pos.x = fireFlyDataBuffer[index].basePos.x + sin(ConvertToRadian(fireFlyDataBuffer[index].angle.x)) * 5.0f;
-    fireFlyDataBuffer[index].pos += fireFlyDataBuffer[index].vel;
+
+    fireFlyDataBuffer[index].vel.x = sin(ConvertToRadian(fireFlyDataBuffer[index].angle.x)) * 0.3f;
+    fireFlyDataBuffer[index].pos += fireFlyDataBuffer[index].vel;    
+
     if(fireFlyDataBuffer[index].pos.y <= fireFlyDataBuffer[index].basePos.y - 200.0f)
     {
         fireFlyDataBuffer[index].pos = 
