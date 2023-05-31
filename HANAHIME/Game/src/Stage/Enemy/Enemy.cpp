@@ -105,10 +105,8 @@ void MiniBug::Update(Player &arg_player)
 	m_hitBoxSize = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_MINIBUG);
 	//#endif // _DEBUG
 
-
-
-		//m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());
-		//m_eyeEffect.Update(m_larpPos);
+	//m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());
+	//m_eyeEffect.Update(m_larpPos);
 	m_deadMotion.ParticleUpdate();
 
 	//共通処理
@@ -192,8 +190,19 @@ void MiniBug::Update(Player &arg_player)
 	bool isAttackOrNotice = m_nowStatus == MiniBug::ATTACK || m_nowStatus == MiniBug::NOTICE;
 	const bool isMoveFlag = 0.1f < KuroEngine::Vec3<float>(arg_player.GetNowPos() - arg_player.GetOldPos()).Length();
 
+
+	//柵の先にいるかどうか
+	float lenght = m_transform.GetPos().Distance(arg_player.GetTransform().GetPos());
+	KuroEngine::Vec3<float>vec(m_transform.GetPos() - arg_player.GetTransform().GetPos());
+
+	bool isHitWallFlag = false;
+	if (findFlag)
+	{
+		isHitWallFlag = IsHitWall(m_transform, vec.GetNormal(), lenght);
+	}
+
 	//同じ階かつ違う面に居ないなら思考開始
-	if (sameFloorFlag && isDifferentWall)
+	if (sameFloorFlag && isDifferentWall && !isHitWallFlag)
 	{
 		if (isPlayerWallChange && isAttackOrNotice)
 		{
@@ -229,6 +238,11 @@ void MiniBug::Update(Player &arg_player)
 
 			break;
 		case MiniBug::ATTACK:
+			if (ENEMY_ID == 1)
+			{
+				bool debug = false;
+			}
+
 			m_attackIntervalTimer.Reset(120);
 			m_readyToGoToPlayerTimer.Reset(120);
 			m_sightArea.Init(&m_transform);
@@ -341,8 +355,8 @@ void MiniBug::Update(Player &arg_player)
 		distance = arg_player.GetTransform().GetPos().Distance(m_pos);
 
 		m_attackFlag = false;
-		//プレイヤーと一定以上距離が離れた場合
-		if (125.0f <= distance)
+		//プレイヤーと一定以上距離が離れた場合か策を超えた場合
+		if (125.0f <= distance || isHitWallFlag)
 		{
 			//暫く止まり、何もなければ思考を切り替える。
 			if (m_thinkTimer.UpdateTimer())
@@ -367,7 +381,7 @@ void MiniBug::Update(Player &arg_player)
 			m_nowStatus = MiniBug::RETURN;
 		}
 		//動いたら注視する
-		if (isMoveFlag)
+		if (isMoveFlag && !isHitWallFlag)
 		{
 			m_dir = KuroEngine::Vec3<float>(arg_player.GetTransform().GetPos() - m_pos).GetNormal();
 			m_thinkTimer.Reset(120);

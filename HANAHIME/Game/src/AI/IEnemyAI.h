@@ -179,7 +179,7 @@ public:
 	}
 
 
-	bool IsHitWall(KuroEngine::Transform arg_transform)
+	bool IsHitWall(KuroEngine::Transform arg_transform, const KuroEngine::Vec3<float> &sightVec, float sightLength)
 	{
 		auto nowStage = StageManager::Instance()->GetNowStage();
 
@@ -210,10 +210,10 @@ public:
 				//”»’è«============================================
 
 				//“–‚½‚è”»’è‚ğÀs
-				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_transform.GetPosWorld(), arg_transform.GetFrontWorld(), hitmesh);
+				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_transform.GetPosWorld(), sightVec, hitmesh);
 
 				//“–‚½‚è”»’è‚ğ‘å‚«‚­‚µ‚½‚¢ê‡‚Í«‚ğ•Ï‚¦‚Ä‰º‚³‚¢I
-				if (output.m_isHit && fabs(output.m_distance) < arg_transform.GetScale().x * 2.0f) {
+				if (output.m_isHit && fabs(output.m_distance) < sightLength) {
 
 
 					return true;
