@@ -251,12 +251,13 @@ PSOutputStage PSmain(VSOutput input) : SV_TARGET
         if (!pointLight_Plant[i].m_active)
             continue;
         
-        float3 ligRay = input.worldpos - pointLight_Plant[i].m_pos;
+        float3 lightPos = float3(pointLight_Plant[i].m_posX, pointLight_Plant[i].m_posY, pointLight_Plant[i].m_posZ);
+        float3 ligRay = input.worldpos - lightPos;
         float bright = dot(-normalize(ligRay), input.normal);
         //-1 ~ 1 から 0 ~ 1の範囲に収める
-        bright = saturate(bright);
-        isBright += 1.0f - step(pointLight_Plant[i].m_influenceRange, length(ligRay) * int(bright == 0 ? pointLight_Plant[i].m_influenceRange : 1));
-        isBrightDefRange += 1.0f - step(pointLight_Plant[i].m_defInfluenceRange, length(ligRay) * int(bright == 0 ? pointLight_Plant[i].m_defInfluenceRange : 1));
+
+        isBright += 1.0f - step(pointLight_Plant[i].m_influenceRange, length(ligRay));
+        isBrightDefRange += 1.0f - step(pointLight_Plant[i].m_defInfluenceRange, length(ligRay));
         
     }
     //植物を繁殖させるスポットライト
@@ -268,7 +269,7 @@ PSOutputStage PSmain(VSOutput input) : SV_TARGET
     
     float3 albedo = result;
     
-    isBright = min(isBright, 1);
+    //isBright = min(isBright, 1);
     isBrightDefRange = min(isBrightDefRange, 1);
     result.xyz *= lerp(0.7f, 1.0f, saturate(isBright + isBrightDefRange));
     
@@ -277,8 +278,12 @@ PSOutputStage PSmain(VSOutput input) : SV_TARGET
     
     //アルファ値適用
     result.w *= toonIndividualParam.m_alpha;
+
+
+    //float3 ligRay = input.worldpos - pointLight_Plant[0].m_pos;
     
-    
+    //result.x = 1.0f - saturate((int)(length(ligRay) / pointLight_Plant[0].m_influenceRange));
+    //result.x = 1.0f - step(pointLight_Plant[0].m_defInfluenceRange, length(ligRay));
     
     
     //ここでさらに敵用の丸影を出す。

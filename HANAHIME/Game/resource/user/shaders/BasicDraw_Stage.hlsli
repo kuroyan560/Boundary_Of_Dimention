@@ -35,10 +35,14 @@ struct LightInfo_Plant
 //植物繁殖ポイントライト
 struct PointLight_Plant
 {
-    float3 m_pos;
+    float m_posX;
+    float m_posY;
+    float m_posZ;
     float m_influenceRange;
     float m_defInfluenceRange;
-    uint m_active;
+    float m_active;
+    float m_pad;
+    float m_pad2;
 };
 
 //植物繁殖スポットライト

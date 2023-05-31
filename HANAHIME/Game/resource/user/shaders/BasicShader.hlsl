@@ -198,7 +198,8 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
         if (!pointLight_Plant[i].m_active)
             continue;
         
-        float3 ligRay = input.worldpos - pointLight_Plant[i].m_pos;
+        float3 lightPos = float3(pointLight_Plant[i].m_posX, pointLight_Plant[i].m_posY, pointLight_Plant[i].m_posZ);
+        float3 ligRay = input.worldpos - lightPos;
         float bright = dot(-normalize(ligRay), input.normal);
         //-1 ~ 1 ‚©‚ç 0 ~ 1‚Ì”ÍˆÍ‚ÉŽû‚ß‚é
         bright = saturate(bright);
