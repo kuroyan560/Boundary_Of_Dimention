@@ -77,21 +77,28 @@ public:
 	class ConstData
 	{
 	public:
-		KuroEngine::Vec3<float>m_pos = { 0,0,0 };
+		float m_posX;
+		float m_posY;
+		float m_posZ;
 		float m_influenceRange = 8.0f;
 		float m_defInfluenceRange = 8.0f;
-		unsigned int m_active = 1;
-		int pad[2];
+		float m_active = 1;
+		float m_pad;
+		float m_pad2;
 	};
 
 	//GPUに送信するデータ形式になおして出力
 	ConstData GetSendData()
 	{
 		ConstData data;
-		data.m_pos = m_transform.GetPosWorld();
+		data.m_posX = m_transform.GetPosWorld().x;
+		data.m_posY = m_transform.GetPosWorld().y;
+		data.m_posZ = m_transform.GetPosWorld().z;
 		data.m_influenceRange = m_influenceRange;
 		data.m_defInfluenceRange = m_defInfluenceRange;
-		data.m_active = m_active ? 1 : 0;
+		data.m_active = m_active ? 1.0f : 0.0f;
+		data.m_pad = 0.0f;
+		data.m_pad2 = 0.0f;
 		return data;
 	}
 

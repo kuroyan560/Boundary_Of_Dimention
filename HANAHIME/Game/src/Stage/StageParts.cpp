@@ -21,7 +21,7 @@ std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyO
 	"MiniBug","DossunRing","Battery",
 };
 
-const std::string& StageParts::GetTypeKeyOnJson(STAGE_PARTS_TYPE arg_type)
+const std::string &StageParts::GetTypeKeyOnJson(STAGE_PARTS_TYPE arg_type)
 {
 	return s_typeKeyOnJson[arg_type];
 }
@@ -35,7 +35,7 @@ void StageParts::Init()
 	OnInit();
 }
 
-void StageParts::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void StageParts::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 	BasicDraw::Instance()->Draw(
 		arg_cam,
@@ -53,7 +53,7 @@ void TerrianMeshCollider::BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_
 	//当たり判定用メッシュを作成。
 	for (int meshIdx = 0; meshIdx < meshNum; ++meshIdx)
 	{
-		auto& mesh = arg_model.lock()->m_meshes[meshIdx].mesh;
+		auto &mesh = arg_model.lock()->m_meshes[meshIdx].mesh;
 
 		/*-- ① モデル情報から当たり判定用のポリゴンを作り出す --*/
 
@@ -69,7 +69,7 @@ void TerrianMeshCollider::BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_
 		m_collisionMesh[meshIdx].resize(mesh->indices.size() / static_cast<size_t>(3));
 
 		//当たり判定用ポリゴンコンテナにデータを入れていく。
-		for (auto& index : m_collisionMesh[meshIdx]) {
+		for (auto &index : m_collisionMesh[meshIdx]) {
 
 			// 現在のIndex数。
 			int nowIndex = static_cast<int>(&index - &m_collisionMesh[meshIdx][0]);
@@ -87,7 +87,7 @@ void TerrianMeshCollider::BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_
 		/*-- ② ポリゴンをワールド変換する --*/
 		//ワールド行列
 		DirectX::XMMATRIX targetWorldMat = arg_transform.GetMatWorld();
-		for (auto& index : m_collisionMesh[meshIdx]) {
+		for (auto &index : m_collisionMesh[meshIdx]) {
 			//頂点を変換
 			index.m_p0.pos = KuroEngine::Math::TransformVec3(index.m_p0.pos, targetWorldMat);
 			index.m_p1.pos = KuroEngine::Math::TransformVec3(index.m_p1.pos, targetWorldMat);
@@ -104,12 +104,12 @@ void TerrianMeshCollider::BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_
 
 	//上記で作った当たり判定用ポリゴンを元に、当たり判定用のBOXを作る。
 	m_aabb.clear();
-	for (auto& stage : m_collisionMesh) {
+	for (auto &stage : m_collisionMesh) {
 
 		//格納するデータを保存。
 		m_aabb.emplace_back();
 
-		for (auto& index : stage) {
+		for (auto &index : stage) {
 
 			//当たり判定BOXを入れるデータ
 			m_aabb.back().emplace_back(CreateCubeFromPolygon(index.m_p0.pos, index.m_p1.pos, index.m_p2.pos, index.m_p0.normal));
@@ -120,7 +120,7 @@ void TerrianMeshCollider::BuilCollisionMesh(std::weak_ptr<KuroEngine::Model>arg_
 
 }
 
-AABB TerrianMeshCollider::CreateCubeFromPolygon(const KuroEngine::Vec3<float>& arg_v1, const KuroEngine::Vec3<float>& arg_v2, const KuroEngine::Vec3<float>& arg_v3, const KuroEngine::Vec3<float>& arg_normal) {
+AABB TerrianMeshCollider::CreateCubeFromPolygon(const KuroEngine::Vec3<float> &arg_v1, const KuroEngine::Vec3<float> &arg_v2, const KuroEngine::Vec3<float> &arg_v3, const KuroEngine::Vec3<float> &arg_normal) {
 
 	KuroEngine::Vec3<float> edge1 = arg_v2 - arg_v1;
 	KuroEngine::Vec3<float> edge2 = arg_v3 - arg_v1;
@@ -142,7 +142,7 @@ AABB TerrianMeshCollider::CreateCubeFromPolygon(const KuroEngine::Vec3<float>& a
 	aabb.m_min = cubeVertices[0];
 	aabb.m_max = cubeVertices[0];
 
-	for (auto& index : cubeVertices) {
+	for (auto &index : cubeVertices) {
 		aabb.m_min.x = std::min(aabb.m_min.x, index.x);
 		aabb.m_min.y = std::min(aabb.m_min.y, index.y);
 		aabb.m_min.z = std::min(aabb.m_min.z, index.z);
@@ -154,7 +154,7 @@ AABB TerrianMeshCollider::CreateCubeFromPolygon(const KuroEngine::Vec3<float>& a
 	return aabb;
 }
 
-std::optional<AABB::CollisionInfo> AABB::CheckAABBCollision(const AABB& arg_aabb1) {
+std::optional<AABB::CollisionInfo> AABB::CheckAABBCollision(const AABB &arg_aabb1) {
 	KuroEngine::Vec3<float> pushBack(0.0f, 0.0f, 0.0f);
 	float minOverlap = std::numeric_limits<float>::max();
 	int minOverlapAxis = -1;
@@ -196,13 +196,13 @@ std::optional<AABB::CollisionInfo> AABB::CheckAABBCollision(const AABB& arg_aabb
 }
 
 GoalPoint::GoalPoint(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform)
-	:StageParts(GOAL_POINT, arg_model, arg_initTransform) 
+	:StageParts(GOAL_POINT, arg_model, arg_initTransform)
 {
 	m_saplingModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/stage/", "Goal.glb");
 	m_woodModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/stage/", "Goal_Wood.glb");
 }
 
-void GoalPoint::Update(Player& arg_player)
+void GoalPoint::Update(Player &arg_player)
 {
 	using namespace KuroEngine;
 
@@ -222,7 +222,7 @@ void GoalPoint::Update(Player& arg_player)
 	}
 }
 
-void GoalPoint::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void GoalPoint::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 	using namespace KuroEngine;
 
@@ -245,13 +245,13 @@ std::map<std::string, std::weak_ptr<KuroEngine::Model>>Appearance::s_models;
 void Appearance::ModelsUvUpdate(float arg_timeScale)
 {
 	//UVアニメーション
-	for (auto& modelPtr : s_models)
+	for (auto &modelPtr : s_models)
 	{
 		auto model = modelPtr.second.lock();
 
-		for (auto& mesh : model->m_meshes)
+		for (auto &mesh : model->m_meshes)
 		{
-			for (auto& vertex : mesh.mesh->vertices)
+			for (auto &vertex : mesh.mesh->vertices)
 			{
 				vertex.uv.y += 0.002f * TimeScaleMgr::s_inGame.GetTimeScale();
 				//if (1.0f < vertex.uv.y)vertex.uv.y -= 1.0f;
@@ -295,7 +295,7 @@ void MoveScaffold::OnInit()
 	ReBuildCollisionMesh();
 }
 
-void MoveScaffold::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void MoveScaffold::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 
 	StageParts::Draw(arg_cam, arg_ligMgr);
@@ -310,7 +310,7 @@ void MoveScaffold::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& a
 
 }
 
-void MoveScaffold::Update(Player& arg_player)
+void MoveScaffold::Update(Player &arg_player)
 {
 
 	m_moveAmount = {};
@@ -491,7 +491,7 @@ const std::string Lever::TURN_OFF_ANIM_NAME = "turn_off";
 Lever::Lever(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, int arg_id, bool arg_initFlg)
 	:StageParts(LEVER, arg_model, arg_initTransform), m_id(arg_id), m_initFlg(arg_initFlg)
 {
-	auto& anims = arg_model.lock()->m_skelton->animations;
+	auto &anims = arg_model.lock()->m_skelton->animations;
 	if (anims.find(TURN_OFF_ANIM_NAME) == anims.end() && anims.find(TURN_ON_ANIM_NAME) == anims.end())
 	{
 
@@ -512,7 +512,7 @@ void Lever::OnInit()
 	m_modelAnimator->SetStartPosture(TURN_ON_ANIM_NAME);
 }
 
-void Lever::Update(Player& arg_player)
+void Lever::Update(Player &arg_player)
 {
 	//スイッチの状態が固定されている
 	if (m_parentSwitch->IsFixed())return;
@@ -522,7 +522,7 @@ void Lever::Update(Player& arg_player)
 	m_isHit = false;
 
 	//植物繁殖光との当たり判定
-	for (auto& lig : GrowPlantLight::GrowPlantLightArray())
+	for (auto &lig : GrowPlantLight::GrowPlantLightArray())
 	{
 		//内積でライトの法線とプレイヤーの上座標が離れてたら無効化する。
 		if (DirectX::XM_PIDIV4 < acosf(arg_player.GetTransform().GetUpWorld().Dot(m_transform.GetUpWorld()))) continue;
@@ -556,7 +556,7 @@ void Lever::Update(Player& arg_player)
 	m_modelAnimator->Update(TimeScaleMgr::s_inGame.GetTimeScale());
 }
 
-void Lever::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void Lever::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 	BasicDraw::Instance()->Draw(
 		arg_cam,
@@ -574,7 +574,7 @@ void Lever::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligM
 
 }
 
-void IvyZipLine::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void IvyZipLine::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 
 	//蔦を描画
@@ -634,7 +634,7 @@ KuroEngine::Vec3<float> IvyZipLine::GetPoint(bool arg_isEaseStart) {
 	}
 }
 
-void IvyZipLine::Update(Player& arg_player)
+void IvyZipLine::Update(Player &arg_player)
 {
 
 	//ジップラインが有効化されている かつ プレイヤーの移動準備が出来ていたらプレイヤーを動かす。
@@ -720,7 +720,7 @@ IvyBlock::IvyBlock(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Trans
 	m_invisibleIvyBlockTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/invisibleIvyBlock.png");
 	m_invisibleIvyBlockReadyTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/invisibleIvyBlock_Ready.png");
 	m_nonExistMaterial->texBuff[KuroEngine::MATERIAL_TEX_TYPE::COLOR_TEX] = m_invisibleIvyBlockReadyTex;
-	for (auto& mesh : m_nonExistModel->m_meshes)
+	for (auto &mesh : m_nonExistModel->m_meshes)
 	{
 		mesh.material = m_nonExistMaterial;
 	}
@@ -728,7 +728,7 @@ IvyBlock::IvyBlock(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Trans
 	OnInit();
 }
 
-void IvyBlock::Update(Player& arg_player)
+void IvyBlock::Update(Player &arg_player)
 {
 
 	m_prevOnPlayer = m_onPlayer;
@@ -768,7 +768,7 @@ void IvyBlock::Update(Player& arg_player)
 
 }
 
-void IvyBlock::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void IvyBlock::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 	BasicDraw::Instance()->Draw(
 		arg_cam,
@@ -782,7 +782,7 @@ void IvyBlock::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_l
 	else {
 		m_nonExistMaterial->texBuff[KuroEngine::MATERIAL_TEX_TYPE::COLOR_TEX] = m_invisibleIvyBlockTex;
 	}
-	for (auto& mesh : m_nonExistModel->m_meshes)
+	for (auto &mesh : m_nonExistModel->m_meshes)
 	{
 		mesh.material = m_nonExistMaterial;
 	}
@@ -815,12 +815,12 @@ void IvyBlock::Disappear()
 	m_easingTimer = 0;
 }
 
-void SplatoonFence::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void SplatoonFence::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 	StageParts::Draw(arg_cam, arg_ligMgr);
 }
 
-void Terrian::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void Terrian::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 
 	IndividualDrawParameter param = IndividualDrawParameter::GetDefault();
@@ -851,7 +851,7 @@ Gate::Gate(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg
 	m_animTimer.Reset(TEX_ANIM_INTERVAL);
 }
 
-void Gate::Update(Player& arg_player)
+void Gate::Update(Player &arg_player)
 {
 	using namespace KuroEngine;
 	static const float HIT_RADIUS = 8.0f;
@@ -864,7 +864,7 @@ void Gate::Update(Player& arg_player)
 	const float timeScale = TimeScaleMgr::s_inGame.GetTimeScale();
 
 	float dist = (m_transform.GetPosWorld() + m_transform.GetUpWorld() * HIT_SPHERE_OFFSET_Y).Distance(arg_player.GetNowPos());
-	bool enter = dist < HIT_RADIUS* m_transform.GetScaleWorld().x;
+	bool enter = dist < HIT_RADIUS *m_transform.GetScaleWorld().x;
 	GateManager::Instance()->SetEnter(enter, m_destStageNum, m_destGateId);
 
 	//テクスチャアニメーション
@@ -879,7 +879,7 @@ void Gate::Update(Player& arg_player)
 	m_effectScale = 1.0f + powf(sin(m_effectSinCurveAngle), 2.0f) * EFFECT_SCALE_OFFSET;
 }
 
-void Gate::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void Gate::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 	static const float SIZE_HALF = 10.0f;
 	static const float DRAW_POS_OFFSET = -5.0f;
@@ -905,7 +905,7 @@ KuroEngine::Transform CheckPoint::s_latestVisitTransform;
 bool CheckPoint::s_visit = false;
 
 CheckPoint::CheckPoint(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform, int arg_order, std::shared_ptr<GuideInsect::CheckPointData>checkPointData)
-:StageParts(CHECK_POINT, arg_model, arg_initTransform), m_order(arg_order),m_guideData(checkPointData), m_fireWork(GPUParticleRender::Instance()->GetStackBuffer())
+	:StageParts(CHECK_POINT, arg_model, arg_initTransform), m_order(arg_order), m_guideData(checkPointData), m_fireWork(GPUParticleRender::Instance()->GetStackBuffer())
 {
 	//UI未生成なら生成
 	if (!s_ui)s_ui = std::make_shared<CheckPointUI>();
@@ -932,7 +932,7 @@ void CheckPoint::OnInit()
 {
 }
 
-void CheckPoint::Update(Player& arg_player)
+void CheckPoint::Update(Player &arg_player)
 {
 	static const float CHECK_POINT_RADIUS = 13.0f;
 
@@ -965,7 +965,7 @@ void CheckPoint::Update(Player& arg_player)
 	m_guideData->m_isHitFlag = isHit;
 }
 
-void CheckPoint::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void CheckPoint::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 	if (m_touched) {
 		BasicDraw::Instance()->Draw_NoGrass(
@@ -988,25 +988,29 @@ void CheckPoint::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg
 int StarCoin::s_id = 0;
 int StarCoin::GET_SUM = 0;
 
-void StarCoin::OnInit()
-{
-	m_touched = false;
-	m_get = SaveDataManager::Instance()->IsGetStarCoin(StageManager::Instance()->GetNowStageIdx(), m_id);
-}
-
 StarCoin::StarCoin(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Transform arg_initTransform)
 	:StageParts(CHECK_POINT, arg_model, arg_initTransform), m_id(s_id++)
 {
 	m_getModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/stage/", "StarCoin_Get.glb");
 }
 
-void StarCoin::Update(Player& arg_player)
+void StarCoin::OnInit()
+{
+	m_touched = false;
+	m_get = SaveDataManager::Instance()->IsGetStarCoin(StageManager::Instance()->GetNowStageIdx(), m_id);
+	m_basePos = m_transform.GetPos();
+	m_angle = 0.0f;
+	m_isFinishEffectFlag = false;
+	m_scale = m_transform.GetScale().x;
+}
+
+void StarCoin::Update(Player &arg_player)
 {
 	const float STAR_COIN_RADIUS = 10.0f;
 	const float STAR_COIN_OFFSET_Y = -5.0f;
 
 	//拾われたなら何もしない
-	if (m_touched)return;
+	if (m_isFinishEffectFlag)return;
 
 	//プレイヤーとの当たり判定
 	KuroEngine::Vec3<float>playerPos = arg_player.GetTransform().GetPosWorld();
@@ -1022,19 +1026,61 @@ void StarCoin::Update(Player& arg_player)
 			GET_SUM++;
 			SaveDataManager::Instance()->SaveStarCoin(StageManager::Instance()->GetNowStageIdx(), m_id);
 		}
-
 		//SE再生
 		SoundConfig::Instance()->Play(SoundConfig::SE_GET_STAR_COIN);
+
+		m_basePos = m_transform.GetPos();
+		m_baseAngle = m_angle;
+		m_timer.Reset(60 * 1.5f);
+		m_disappearTimer.Reset(30);
+		m_touched = true;
 	}
 
-	m_touched = isHit;
+	//待機中
+	if (!m_touched)
+	{
+		m_angle += 3.0f;
+
+		KuroEngine::Vec3<float>pos(m_basePos);
+		pos.y = m_basePos.y + sinf(KuroEngine::Angle::ConvertToRadian(m_angle)) * 2.0f;
+		m_transform.SetPos(pos);
+	}
+	//触れた
+	else
+	{
+		m_angle = m_baseAngle + KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, m_timer.GetTimeRate(), 0.0f, 360.0f * 5);
+
+		DirectX::XMVECTOR axis = { 0.0f,1.0f,0.0f,0.0f };
+		KuroEngine::Quaternion rotation = DirectX::XMQuaternionRotationAxis(axis, KuroEngine::Angle::ConvertToRadian(m_angle));
+
+		KuroEngine::Vec3<float>pos(m_basePos);
+		pos.y = m_basePos.y + KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Cubic, m_timer.GetTimeRate(), 0.0f, 10.0f);
+		m_transform.SetPos(pos);
+		m_transform.SetRotate(rotation);
+
+		if (m_timer.UpdateTimer())
+		{
+			//消滅処理
+			m_transform.SetScale(
+				m_scale - KuroEngine::Math::Ease(KuroEngine::In, KuroEngine::Back, m_disappearTimer.GetTimeRate(), 0.0f, m_scale)
+			);
+			//消滅したら描画を切る
+			if (m_disappearTimer.UpdateTimer())
+			{
+				m_isFinishEffectFlag = true;
+			}
+		}
+	}
+
+
+	//m_touched = isHit;
 	if (isHit)m_get = true;
 }
 
-void StarCoin::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void StarCoin::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 	//拾われたら描画しない
-	if (m_touched)return;
+	if (m_isFinishEffectFlag)return;
 
 	//入手したことがないなら通常描画
 	if (!m_get)
@@ -1069,7 +1115,7 @@ BackGround::BackGround(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::T
 	m_backGroundObjectTexBuffer = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/BackGroundObjectTexture.png");
 }
 
-void BackGround::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+void BackGround::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 
 	if (m_shadowShader)
