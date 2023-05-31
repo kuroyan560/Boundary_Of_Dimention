@@ -110,7 +110,7 @@ void FastTravel::Update(GameScene* arg_gameScene)
 	}
 
 	//ステージ変化
-	if (oldStageNum != m_nowStageNum)StageManager::Instance()->SetStage(m_nowStageNum);
+	if (oldStageNum != m_nowStageNum)StageManager::Instance()->SetStage(m_nowStageNum, m_beforeStageNum != m_nowStageNum);
 
 	//選択SE
 	if (leftInput || rightInput)
@@ -124,7 +124,7 @@ void FastTravel::Update(GameScene* arg_gameScene)
 		m_isActive = false;
 		SoundConfig::Instance()->Play(SoundConfig::SE_CANCEL);
 		//元のステージに戻しておく
-		StageManager::Instance()->SetStage(m_beforeStageNum);
+		StageManager::Instance()->SetStage(m_beforeStageNum, false);
 	}
 
 	//決定

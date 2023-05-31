@@ -68,9 +68,8 @@ StageManager::StageManager()
 	CameraData::Instance()->RegistCameraData("");
 }
 
-void StageManager::SetStage(int stage_num)
+void StageManager::SetStage(int stage_num, bool arg_init)
 {
-
 	if (stage_num == -1)
 	{
 		m_nowStage = m_homeStage;
@@ -79,7 +78,10 @@ void StageManager::SetStage(int stage_num)
 	{
 		m_nowStage = m_stageArray[stage_num];
 	}
-	m_nowStage->Init();
+	if (arg_init)
+	{
+		m_nowStage->Init();
+	}
 	m_nowStageIdx = stage_num;
 
 	int reachStageNum;
