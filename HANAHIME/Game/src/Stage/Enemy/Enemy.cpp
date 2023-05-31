@@ -166,17 +166,17 @@ void MiniBug::Update(Player &arg_player)
 
 	//ãƒxƒNƒgƒ‹‚Íˆê‚¾‚ªˆá‚¤ŠK‚É‚¢‚é‘Îôˆ—
 	bool sameFloorFlag = false;
-	if (1.0f <= m_initializedTransform.GetUp().x)
+	if (1.0f <= abs(m_initializedTransform.GetUp().x))
 	{
 		float distance = m_transform.GetPos().x - arg_player.GetTransform().GetPos().x;
 		sameFloorFlag = abs(distance) <= 15.0f;
 	}
-	if (1.0f <= m_initializedTransform.GetUp().y)
+	if (1.0f <= abs(m_initializedTransform.GetUp().y))
 	{
 		float distance = m_transform.GetPos().y - arg_player.GetTransform().GetPos().y;
 		sameFloorFlag = abs(distance) <= 15.0f;
 	}
-	if (1.0f <= m_initializedTransform.GetUp().z)
+	if (1.0f <= abs(m_initializedTransform.GetUp().z))
 	{
 		float distance = m_transform.GetPos().z - arg_player.GetTransform().GetPos().z;
 		sameFloorFlag = abs(distance) <= 15.0f;
