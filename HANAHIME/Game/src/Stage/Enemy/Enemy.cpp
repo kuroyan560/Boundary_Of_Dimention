@@ -94,13 +94,13 @@ void MiniBug::OnInit()
 
 void MiniBug::Update(Player &arg_player)
 {
-//#ifdef _DEBUG
+	//#ifdef _DEBUG
 	m_hitBoxSize = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_MINIBUG);
-//#endif // _DEBUG
+	//#endif // _DEBUG
 
 
-	//m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());
-	//m_eyeEffect.Update(m_larpPos);
+		//m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());
+		//m_eyeEffect.Update(m_larpPos);
 	m_deadMotion.ParticleUpdate();
 
 	//‹¤’Êˆ—
@@ -459,14 +459,13 @@ void MiniBug::Update(Player &arg_player)
 		XMVECTOR rotate, scale, position;
 		DirectX::XMMatrixDecompose(&scale, &rotate, &position, matWorld);
 
-		m_transform.SetRotate(DirectX::XMQuaternionSlerp(m_transform.GetRotate(), rotate, 0.08f));
+		m_transform.SetRotate(DirectX::XMQuaternionSlerp(m_transform.GetRotate(), rotate, 0.08f * TimeScaleMgr::s_inGame.GetTimeScale()));
 	}
 
 
 	m_larpPos = KuroEngine::Math::Lerp(m_larpPos, m_pos, 0.1f);
 
 	m_transform.SetPos(m_larpPos);
-
 	m_animator->Update(TimeScaleMgr::s_inGame.GetTimeScale());
 }
 
