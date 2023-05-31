@@ -47,6 +47,8 @@ FastTravel::FastTravel()
 		path = STAGE_NAME_DIR + std::to_string(++stageIdx) + ".png";
 	}
 
+	m_nowTargetCheckPoint = 0;
+
 	m_fastTravelCamera = std::make_shared<KuroEngine::Camera>("FastTravelCamera");
 	m_underLineTex = KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/stage/under_line.png");
 
@@ -128,7 +130,7 @@ void FastTravel::Update(GameScene* arg_gameScene)
 	//Œˆ’è
 	if (doneInput)
 	{
-		arg_gameScene->StartGame(m_nowStageNum, m_checkPointVector[m_nowStageNum][m_nowTargetCheckPoint]);
+		arg_gameScene->StartGame(m_nowStageNum, m_checkPointVector[m_nowStageNum][m_nowTargetCheckPoint], true);
 		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
 	}
 

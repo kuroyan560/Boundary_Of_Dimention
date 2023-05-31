@@ -179,17 +179,6 @@ public:
 
 
 	EnemyHeadAttack m_deadMotion;
-
-	void InitDead()
-	{
-		m_deadMotion.Init({}, {});
-	}
-	void UpdateDead()
-	{
-		m_deadMotion.Update();
-	}
-
-
 	std::unique_ptr<Reaction> m_reaction;
 	std::vector<std::shared_ptr<KuroEngine::TextureBuffer>>m_tex;
 

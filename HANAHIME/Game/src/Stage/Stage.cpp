@@ -102,7 +102,7 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	//モデル設定
 	auto glbPath = obj["file_name"].get<std::string>() + ".glb";
 	auto gltfPath = obj["file_name"].get<std::string>() + ".gltf";
-	auto fileName = (ExistFile(s_stageModelDir + glbPath) ? glbPath : gltfPath);
+	auto fileName = (ExistFile(s_stageModelDir + gltfPath) ? gltfPath : glbPath);
 	auto model = Importer::Instance()->LoadModel(s_stageModelDir, fileName);
 
 	//親がいるならトランスフォームの親子関係形成

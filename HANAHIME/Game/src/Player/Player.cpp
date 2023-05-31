@@ -1,4 +1,4 @@
-#include "Player.h"
+#include"Player.h"
 #include"Render/RenderObject/Camera.h"
 #include"../OperationConfig.h"
 #include"FrameWork/Importer.h"
@@ -29,14 +29,14 @@ void Player::OnImguiItems()
 		auto pos = m_transform.GetPos();
 		auto angle = m_transform.GetRotateAsEuler();
 
-		if (ImGui::DragFloat3("Position", (float *)&pos, 0.5f))
+		if (ImGui::DragFloat3("Position", (float*)&pos, 0.5f))
 		{
 			m_transform.SetPos(pos);
 		}
 
 		//操作しやすいようにオイラー角に変換
 		KuroEngine::Vec3<float>eular = { angle.x.GetDegree(),angle.y.GetDegree(),angle.z.GetDegree() };
-		if (ImGui::DragFloat3("Eular", (float *)&eular, 0.5f))
+		if (ImGui::DragFloat3("Eular", (float*)&eular, 0.5f))
 		{
 			m_transform.SetRotate(Angle::ConvertToRadian(eular.x), Angle::ConvertToRadian(eular.y), Angle::ConvertToRadian(eular.z));
 		}
@@ -55,7 +55,7 @@ void Player::OnImguiItems()
 	}
 }
 
-void Player::AnimationSpecification(const KuroEngine::Vec3<float> &arg_beforePos, const KuroEngine::Vec3<float> &arg_newPos)
+void Player::AnimationSpecification(const KuroEngine::Vec3<float>& arg_beforePos, const KuroEngine::Vec3<float>& arg_newPos)
 {
 	//移動ステータス
 	if (m_playerMoveStatus == PLAYER_MOVE_STATUS::MOVE || m_playerMoveStatus == PLAYER_MOVE_STATUS::LOOK_AROUND)
@@ -159,7 +159,7 @@ Player::Player()
 	m_cameraReturnTimer.ForciblyTimeUp();
 }
 
-void Player::Init(KuroEngine::Transform arg_initTransform)
+void Player::Init(KuroEngine::Transform arg_initTransform, int arg_nowStageIndex, int arg_nowCheckPointIndex)
 {
 	//スケール打ち消し
 	arg_initTransform.SetScale(1.0f);
@@ -168,7 +168,6 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	m_prevTransform = arg_initTransform;
 	m_transform = arg_initTransform;
 	m_drawTransform = arg_initTransform;
-	m_camController.Init();
 	m_cameraRotY = 0;
 	m_cameraRotYStorage = arg_initTransform.GetRotateAsEuler().x;
 	m_cameraRotMove = 0;
@@ -268,12 +267,86 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 	else {
 		m_isCameraUpInverse = false;
 	}
+	m_camController.Init(arg_initTransform, m_isCameraUpInverse);
+
+	//リスポーン位置によってカメラの初期設定を変える。
+	if (arg_nowStageIndex == 0 && arg_nowCheckPointIndex == 0) {
+		m_camController.SetParam(0.240949869f, 4.01524258f, false);
+		m_cameraRotYStorage = 4.01524258f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 0 && arg_nowCheckPointIndex == 1) {
+		m_camController.SetParam(-0.662380993f, 4.65234709f, true);
+		m_cameraRotYStorage = 4.65234709f;
+		m_isCameraUpInverse = true;
+	}
+	else if (arg_nowStageIndex == 1 && arg_nowCheckPointIndex == 0) {
+		m_camController.SetParam(0.603274345f, 1.61108458f, false);
+		m_cameraRotYStorage = 1.61108458f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 1 && arg_nowCheckPointIndex == 1) {
+		m_camController.SetParam(0.404909104f, 1.61935687f, false);
+		m_cameraRotYStorage = 1.61935687f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 1 && arg_nowCheckPointIndex == 2) {
+		m_camController.SetParam(0.698131680f, 0.0527084842f, false);
+		m_cameraRotYStorage = 0.0527084842f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 0) {
+		m_camController.SetParam(0.443914831f, -1.54169261f, false);
+		m_cameraRotYStorage = -1.54169261f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 1) {
+		m_camController.SetParam(-0.301829696f, -0.415091008f, true);
+		m_cameraRotYStorage = -0.415091008f;
+		m_isCameraUpInverse = true;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 2) {
+		m_camController.SetParam(-0.349065840f, 0.755516231f, true);
+		m_cameraRotYStorage = 0.755516231f;
+		m_isCameraUpInverse = true;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 3) {
+		m_camController.SetParam(-0.481665850f, 4.70555067f, true);
+		m_cameraRotYStorage = 4.70555067f;
+		m_isCameraUpInverse = true;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 4) {
+		m_camController.SetParam(-0.578085601f, 4.65286255f, true);
+		m_cameraRotYStorage = 4.65286255f;
+		m_isCameraUpInverse = true;
+	}
+	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 0) {
+		m_camController.SetParam(0.577849329f, -0.0259443577f, false);
+		m_cameraRotYStorage = -0.0259443577f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 1) {
+		m_camController.SetParam(-0.698131680f, 3.10489941f, true);
+		m_cameraRotYStorage = 3.10489941f;
+		m_isCameraUpInverse = true;
+	}
+	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 2) {
+		m_camController.SetParam(0.682992816f, 7.86075068f, false);
+		m_cameraRotYStorage = 7.86075068f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 3) {
+		m_camController.SetParam(-0.608131647f, 1.60718691f, true);
+		m_cameraRotYStorage = 1.60718691f;
+		m_isCameraUpInverse = true;
+	}
+
 	m_camController.Respawn(m_transform, m_isCameraUpInverse);
 	m_camController.LerpForcedToEnd(m_cameraRotYStorage);
 
 }
 
-void Player::Respawn(KuroEngine::Transform arg_initTransform, const std::weak_ptr<Stage>arg_nowStage)
+void Player::Respawn(KuroEngine::Transform arg_initTransform, const std::weak_ptr<Stage>arg_nowStage, int arg_nowStageIndex, int arg_nowCheckPointIndex)
 {
 
 	//スケール打ち消し
@@ -283,7 +356,6 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform, const std::weak_pt
 	m_prevTransform = arg_initTransform;
 	m_transform = arg_initTransform;
 	m_drawTransform = arg_initTransform;
-	m_camController.Init(true);
 	m_cameraRotY = m_checkPointRotY;
 	m_cameraRotYStorage = m_checkPointRotY;
 	m_cameraRotMove = 0;
@@ -374,7 +446,79 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform, const std::weak_pt
 	else {
 		m_isCameraUpInverse = false;
 	}
-	m_camController.Respawn(m_transform, m_isCameraUpInverse);
+	m_camController.Init(arg_initTransform, m_isCameraUpInverse, true);
+
+	//リスポーン位置によってカメラの初期設定を変える。
+	if (arg_nowStageIndex == 0 && arg_nowCheckPointIndex == 0) {
+		m_camController.SetParam(0.240949869f, 4.01524258f, false);
+		m_cameraRotYStorage = 4.01524258f;
+		m_isCameraUpInverse = false;
+	}else if (arg_nowStageIndex == 0 && arg_nowCheckPointIndex == 1) {
+		m_camController.SetParam(-0.662380993f, 4.65234709f, true);
+		m_cameraRotYStorage = 4.65234709f;
+		m_isCameraUpInverse = true;
+	}
+	else if (arg_nowStageIndex == 1 && arg_nowCheckPointIndex == 0) {
+		m_camController.SetParam(0.603274345f, 1.61108458f, false);
+		m_cameraRotYStorage = 1.61108458f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 1 && arg_nowCheckPointIndex == 1) {
+		m_camController.SetParam(0.404909104f, 1.61935687f, false);
+		m_cameraRotYStorage = 1.61935687f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 1 && arg_nowCheckPointIndex == 2) {
+		m_camController.SetParam(0.698131680f, 0.0527084842f, false);
+		m_cameraRotYStorage = 0.0527084842f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 0) {
+		m_camController.SetParam(0.443914831f, -1.54169261f, false);
+		m_cameraRotYStorage = -1.54169261f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 1) {
+		m_camController.SetParam(-0.301829696f, -0.415091008f, true);
+		m_cameraRotYStorage = -0.415091008f;
+		m_isCameraUpInverse = true;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 2) {
+		m_camController.SetParam(-0.349065840f, 0.755516231f, true);
+		m_cameraRotYStorage = 0.755516231f;
+		m_isCameraUpInverse = true;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 3) {
+		m_camController.SetParam(-0.481665850f, 4.70555067f, true);
+		m_cameraRotYStorage = 4.70555067f;
+		m_isCameraUpInverse = true;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 4) {
+		m_camController.SetParam(-0.578085601f, 4.65286255f, true);
+		m_cameraRotYStorage = 4.65286255f;
+		m_isCameraUpInverse = true;
+	}
+	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 0) {
+		m_camController.SetParam(0.577849329f, -0.0259443577f, false);
+		m_cameraRotYStorage = -0.0259443577f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 1) {
+		m_camController.SetParam(-0.698131680f, 3.10489941f, true);
+		m_cameraRotYStorage = 3.10489941f;
+		m_isCameraUpInverse = true;
+	}
+	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 2) {
+		m_camController.SetParam(0.682992816f, 7.86075068f, false);
+		m_cameraRotYStorage = 7.86075068f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 3) {
+		m_camController.SetParam(-0.608131647f, 1.60718691f, true);
+		m_cameraRotYStorage = 1.60718691f;
+		m_isCameraUpInverse = true;
+	}
+
 	m_camController.LerpForcedToEnd(m_cameraRotYStorage);
 
 	m_isPlantLightExplosion = false;
@@ -426,8 +570,12 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	}
 
 	//C字用のカメラだったら入力を切る。
-	if (m_cameraFunaMode != CameraController::CAMERA_FUNA_MODE::NORMAL) {
+	if (m_cameraFunaMode == CameraController::CAMERA_FUNA_MODE::STAGE1_1_C) {
 		scopeMove = KuroEngine::Vec3<float>();
+	}
+	if (m_cameraFunaMode == CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U) {
+		scopeMove = KuroEngine::Vec3<float>();
+		m_isCameraUpInverse = true;
 	}
 
 	//ジャンプができるかどうか。	一定時間地形に引っ掛かってたらジャンプできる。
@@ -870,7 +1018,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 		}
 	}
-	else if(!(m_isPlayerOverHeat && m_isUnderGround)) {
+	else if (!(m_isPlayerOverHeat && m_isUnderGround)) {
 		m_growPlantPtLig.m_influenceRange = std::clamp(m_growPlantPtLig.m_influenceRange + ADD_INFLUENCE_RANGE * TimeScaleMgr::s_inGame.GetTimeScale(), 0.0f, MAX_INFLUENCE_RANGE);
 
 
@@ -890,33 +1038,49 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	if (!m_cameraReturnTimer.IsTimeUp()) {
 		m_baseCameraFar = KuroEngine::Math::Lerp(m_baseCameraFar, CAMERA_NEAR_ENEMY_FAR, 0.08f);
 	}
+	else if (m_cameraFunaMode == CameraController::CAMERA_FUNA_MODE::STAGE1_4_FAR) {
+		m_baseCameraFar = KuroEngine::Math::Lerp(m_baseCameraFar, CAMERA_FUNAMODE_FAR, 0.08f);
+	}
 	else {
 		m_baseCameraFar = KuroEngine::Math::Lerp(m_baseCameraFar, CAMERA_FAR, 0.08f);
 	}
 
 
 	//FunaSphereとの当たり判定
-	bool isHitFuna = false;
-	for (auto& funaSphere : arg_nowStage.lock()->GetFunaCamPtArray()) {
-
-		//まずは距離で当たり判定
-		float distance = Vec3<float>(funaSphere.m_pos - m_transform.GetPos()).Length();
-		if (!(distance <= funaSphere.m_radius * 1.5f)) {
-			continue;
-		}
-
-		//プレイヤーの上ベクトルがY軸方向kを向いていたら当たっていない。
-		if (fabs(m_transform.GetUp().y) < 0.9f) {
-			isHitFuna = true;
-		}
-
+	if (m_playerMoveStatus == PLAYER_MOVE_STATUS::MOVE) {
+		CheckHitFunaCamera(arg_nowStage);
 	}
-	//当たっていたら状態を切り替える。
-	if (isHitFuna) {
-		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_C;
-	}else{
+	else if (m_playerMoveStatus == PLAYER_MOVE_STATUS::JUMP && m_cameraFunaMode == CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U) {
 		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::NORMAL;
 	}
+
+
+	//デバッグ用
+#ifdef _DEBUG
+
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_1)) {
+		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::NORMAL;
+	}
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_2)) {
+		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_1_C;
+	}
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_3)) {
+		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U;
+		m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
+	}
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_4)) {
+		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_3_HEIGHT_LIMIT;
+	}
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_5)) {
+		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_4_FAR;
+	}
+	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_6)) {
+		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_6_NEAR_GOAL;
+		m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
+	}
+
+
+#endif
 
 
 	//死んでいたら死亡の更新処理を入れる。
@@ -1045,7 +1209,7 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 
 }
 
-void Player::Draw(KuroEngine::Camera &arg_cam, std::weak_ptr<KuroEngine::DepthStencil>arg_ds, KuroEngine::LightManager &arg_ligMgr, bool arg_cameraDraw)
+void Player::Draw(KuroEngine::Camera& arg_cam, std::weak_ptr<KuroEngine::DepthStencil>arg_ds, KuroEngine::LightManager& arg_ligMgr, bool arg_cameraDraw)
 {
 
 	/*
@@ -1110,14 +1274,14 @@ void Player::Draw(KuroEngine::Camera &arg_cam, std::weak_ptr<KuroEngine::DepthSt
 	}
 }
 
-void Player::DrawParticle(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
+void Player::DrawParticle(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
 	//プレイヤーが動いた時のパーティクル挙動
 	m_playerMoveParticle.Draw(arg_cam, arg_ligMgr);
 	//m_dashEffect.Draw(arg_cam);
 }
 
-void Player::DrawUI(KuroEngine::Camera &arg_cam)
+void Player::DrawUI(KuroEngine::Camera& arg_cam)
 {
 	using namespace KuroEngine;
 
@@ -1139,6 +1303,110 @@ void Player::DrawUI(KuroEngine::Camera &arg_cam)
 
 void Player::Finalize()
 {
+}
+
+void Player::CheckHitFunaCamera(const std::weak_ptr<Stage> arg_nowStage)
+{
+	using namespace KuroEngine;
+
+	bool isHitFuna = false;
+	for (auto& funaSphere : arg_nowStage.lock()->GetFunaCamPtArray()) {
+
+		//まずは距離で当たり判定
+		float distance = Vec3<float>(funaSphere.m_pos - m_transform.GetPos()).Length();
+		if (!(distance <= funaSphere.m_radius * 1.5f)) {
+			continue;
+		}
+
+		switch (static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode))
+		{
+		case CameraController::CAMERA_FUNA_MODE::NORMAL:
+
+
+			break;
+		case CameraController::CAMERA_FUNA_MODE::STAGE1_1_C:
+
+			//プレイヤーの上ベクトルがY軸方向kを向いていたら当たっていない。
+			if (fabs(m_transform.GetUp().y) < 0.9f) {
+
+				isHitFuna = true;
+
+				//ここでIDを入れる。
+				m_cameraFunaMode = static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode);
+
+			}
+
+			break;
+		//case CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U:
+		//{
+
+		//	//プレイヤーのZ軸座標が50より下でY軸方向の法線を向いていたらやめる。
+		//	if (0.9f < fabs(m_transform.GetUp().y)) {
+
+		//		if (m_transform.GetPos().z < 25.0f) {
+		//			break;
+		//		}
+
+		//		if (m_transform.GetPos().y < -100.0f) {
+		//			break;
+		//		}
+
+		//	}
+
+		//	if (static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode) != CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U) {
+		//		m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
+		//	}
+
+		//	isHitFuna = true;
+
+		//	//ここでIDを入れる。
+		//	m_cameraFunaMode = static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode);
+
+		//}
+		//break;
+		case CameraController::CAMERA_FUNA_MODE::STAGE1_3_HEIGHT_LIMIT:
+
+			isHitFuna = true;
+
+			//ここでIDを入れる。
+			m_cameraFunaMode = static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode);
+
+			break;
+		case CameraController::CAMERA_FUNA_MODE::STAGE1_4_FAR:
+
+			isHitFuna = true;
+
+			//ここでIDを入れる。
+			m_cameraFunaMode = static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode);
+
+			break;
+		//case CameraController::CAMERA_FUNA_MODE::STAGE1_6_NEAR_GOAL:
+
+		//	isHitFuna = true;
+
+		//	if (static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode) != CameraController::CAMERA_FUNA_MODE::STAGE1_6_NEAR_GOAL) {
+		//		m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
+		//	}
+
+		//	//ここでIDを入れる。
+		//	m_cameraFunaMode = static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode);
+
+		//	break;
+		default:
+			break;
+		}
+
+		//当たっていたら処理を終える。
+		if (isHitFuna) {
+			break;
+		}
+
+	}
+	//当たっていたら状態を切り替える。
+	if (!isHitFuna) {
+		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::NORMAL;
+	}
+
 }
 
 KuroEngine::Vec3<float> Player::CalculateBezierPoint(float arg_time, KuroEngine::Vec3<float> arg_startPoint, KuroEngine::Vec3<float> arg_endPoint, KuroEngine::Vec3<float> arg_controlPoint) {
@@ -1166,6 +1434,8 @@ void Player::Damage()
 
 	//HPを減らす。
 	m_hp = std::clamp(m_hp - 1, 0, std::numeric_limits<int>().max());
+
+	SoundConfig::Instance()->Play(SoundConfig::SE_PLAYER_DAMAGE_HIT);
 
 	//HPUI演出
 	m_hpUi.OnDamage();
@@ -1256,7 +1526,7 @@ Player::CHECK_HIT_GRASS_STATUS Player::CheckHitGrassSphere(KuroEngine::Vec3<floa
 
 }
 
-void Player::Move(KuroEngine::Vec3<float> &arg_newPos) {
+void Player::Move(KuroEngine::Vec3<float>& arg_newPos) {
 
 	//落下中は入力を無効化。
 	if (!m_onGround) {
@@ -1517,6 +1787,8 @@ void Player::UpdateDeath() {
 
 			//シェイクをかける。
 			m_deathShakeAmount = DEATH_SHAKE_AMOUNT;
+
+			SoundConfig::Instance()->Play(SoundConfig::SE_GAME_OVER);
 		}
 
 	}

@@ -86,6 +86,9 @@ class GameScene : public KuroEngine::BaseScene
 
 	SignSpotFireFly m_guideFly;
 
+	//ファストトラベル中か
+	bool m_isFastTravel;
+
 	Tutorial tutorial;
 
 	Goal m_goal;
@@ -116,7 +119,7 @@ class GameScene : public KuroEngine::BaseScene
 public:
 	GameScene();
 	void Retry();
-	void StartGame(int arg_stageNum, KuroEngine::Transform arg_playerInitTransform);
+	void StartGame(int arg_stageNum, KuroEngine::Transform arg_playerInitTransform, bool arg_isFastTravel = false);
 	void GoBackTitle();
 	void ActivateFastTravel();
 	void ActivateSystemSetting();

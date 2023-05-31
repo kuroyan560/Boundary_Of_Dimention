@@ -26,6 +26,18 @@ public:
 		SE_BOOT,	//起動
 		SE_SHUT_DOWN,	//シャットダウン
 		SE_PLAYER_DAMAGE,	//プレイヤーの被ダメージ
+		SE_PLAYER_DAMAGE_HIT,	//プレイヤーの被ダメージ（ヒット）
+		SE_GET_STAR_COIN,	//スターコイン回収
+		SE_UNLOCK_CHECK_POINT,	//チェックポイント解放
+
+		SE_GAME_OVER,
+		SE_GATE,
+
+		SE_ENEMY_NOTICE,
+		SE_ENEMY_FIND,
+		SE_ENEMY_DAMAGE,
+		SE_ENEMY_DEAD,
+
 		SE_NUM
 	};
 	//ジングル（現在再生中かの確認なども行う、ループ再生しない）
@@ -38,7 +50,10 @@ public:
 	enum BGM
 	{
 		BGM_TITLE,
-		BGM_IN_GAME,
+		BGM_IN_GAME_0,
+		BGM_IN_GAME_1,
+		BGM_IN_GAME_2,
+		BGM_IN_GAME_3,
 		BGM_NUM
 	};
 

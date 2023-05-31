@@ -98,6 +98,9 @@
     <Filter Include="src\user\System">
       <UniqueIdentifier>{b72f3bed-31e1-4e34-9abe-46cc497c2d56}</UniqueIdentifier>
     </Filter>
+    <Filter Include="リソースファイル">
+      <UniqueIdentifier>{eef69f9a-36b8-40b7-967d-8def5a135e5b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\engine\KuroEngineDevice.cpp">
@@ -506,6 +509,9 @@
     </ClCompile>
     <ClCompile Include="src\Stage\FunaCameraPoint.cpp">
       <Filter>src\user\Stage</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Effect\HitEffect.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -960,5 +966,21 @@
     <ClInclude Include="src\Stage\FunaCameraPoint.h">
       <Filter>src\user\Stage</Filter>
     </ClInclude>
+    <ClInclude Include="src\Effect\HitEffect.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\engine\resource.h">
+      <Filter>リソースファイル</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="resource\user\tex\icon.ico">
+      <Filter>リソースファイル</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Game.rc">
+      <Filter>リソースファイル</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

@@ -42,7 +42,18 @@ SoundConfig::SoundConfig() : Debugger("SoundConfig")
 		"grass",
 		"boot",
 		"shutdown",
-		"player_damage"
+		"player_damage",
+		"player_damage_hit",
+		"star_coin_get",
+		"unlock_check_point",
+
+		"game_over",
+		"gate",
+
+		"enemy_notice",
+		"enemy_find",
+		"enemy_damage",
+		"enemy_dead",
 	};
 	//ジングルのファイル名指定
 	std::array<std::string, JINGLE_NUM>jingleFileName =
@@ -53,7 +64,10 @@ SoundConfig::SoundConfig() : Debugger("SoundConfig")
 	std::array<std::string, BGM_NUM>bgmFileName =
 	{
 		"title",
-		"in_game",
+		"in_game_0",
+		"in_game_1",
+		"in_game_2",
+		"in_game_3",
 	};
 
 	auto audioApp = AudioApp::Instance();
@@ -75,6 +89,17 @@ SoundConfig::SoundConfig() : Debugger("SoundConfig")
 	m_seTable[SE_BOOT].Load(audioApp->LoadAudio(seDir + seFileName[SE_BOOT] + ".wav"));
 	m_seTable[SE_SHUT_DOWN].Load(audioApp->LoadAudio(seDir + seFileName[SE_SHUT_DOWN] + ".wav"));
 	m_seTable[SE_PLAYER_DAMAGE].Load(audioApp->LoadAudio(seDir + seFileName[SE_PLAYER_DAMAGE] + ".wav"));
+	m_seTable[SE_PLAYER_DAMAGE_HIT].Load(audioApp->LoadAudio(seDir + seFileName[SE_PLAYER_DAMAGE_HIT] + ".wav"));
+	m_seTable[SE_GET_STAR_COIN].Load(audioApp->LoadAudio(seDir + seFileName[SE_GET_STAR_COIN] + ".wav"));
+	m_seTable[SE_UNLOCK_CHECK_POINT].Load(audioApp->LoadAudio(seDir + seFileName[SE_UNLOCK_CHECK_POINT] + ".wav"));
+
+	m_seTable[SE_GAME_OVER].Load(audioApp->LoadAudio(seDir + seFileName[SE_GAME_OVER] + ".wav"));
+	m_seTable[SE_GATE].Load(audioApp->LoadAudio(seDir + seFileName[SE_GATE] + ".wav"));
+
+	m_seTable[SE_ENEMY_NOTICE].Load(audioApp->LoadAudio(seDir + seFileName[SE_ENEMY_NOTICE] + ".wav"));
+	m_seTable[SE_ENEMY_FIND].Load(audioApp->LoadAudio(seDir + seFileName[SE_ENEMY_FIND] + ".wav"));
+	m_seTable[SE_ENEMY_DAMAGE].Load(audioApp->LoadAudio(seDir + seFileName[SE_ENEMY_DAMAGE] + ".wav"));
+	m_seTable[SE_ENEMY_DEAD].Load(audioApp->LoadAudio(seDir + seFileName[SE_ENEMY_DEAD] + ".wav"));
 
 	//ジングル読み込み
 	std::string jingleDir = "resource/user/sound/jingle/";
@@ -83,7 +108,10 @@ SoundConfig::SoundConfig() : Debugger("SoundConfig")
 	//BGM読み込み
 	std::string bgmDir = "resource/user/sound/bgm/";
 	m_bgmTable[BGM_TITLE] = audioApp->LoadAudio(bgmDir + "title.wav");
-	m_bgmTable[BGM_IN_GAME] = audioApp->LoadAudio(bgmDir + "in_game.wav");
+	m_bgmTable[BGM_IN_GAME_0] = audioApp->LoadAudio(bgmDir + "in_game_0.wav");
+	m_bgmTable[BGM_IN_GAME_1] = audioApp->LoadAudio(bgmDir + "in_game_1.wav");
+	m_bgmTable[BGM_IN_GAME_2] = audioApp->LoadAudio(bgmDir + "in_game_2.wav");
+	m_bgmTable[BGM_IN_GAME_3] = audioApp->LoadAudio(bgmDir + "in_game_3.wav");
 
 	//全部読み込んだか確認
 	for (int seIdx = 0; seIdx < SE_NUM; ++seIdx)
