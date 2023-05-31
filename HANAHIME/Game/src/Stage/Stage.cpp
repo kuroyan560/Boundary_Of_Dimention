@@ -118,6 +118,15 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		auto gltfPath = obj["file_name"].get<std::string>() + ".gltf";
 		auto fileName = (ExistFile(s_stageModelDir + gltfPath) ? gltfPath : glbPath);
 		model = Importer::Instance()->LoadModel(s_stageModelDir, fileName);
+
+		if (fileName.find("Info") != std::string::npos)
+		{
+			for (auto& mesh : model->m_meshes)
+			{
+				mesh.material->constData.lambert.diffuse = { 1.0f,1.0f,1.0f };
+				mesh.material->Mapping();
+			}
+		}
 	}
 
 	//親がいるならトランスフォームの親子関係形成

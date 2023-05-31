@@ -1164,7 +1164,7 @@ Kinoko::Kinoko(KuroEngine::Transform arg_initTransform)
 			s_kinokoModel[kinokoIdx]->m_meshes[0].material->Mapping();
 			s_brightKinokoModel[kinokoIdx] = Importer::Instance()->LoadModel(dir, "bright_" + std::to_string(kinokoIdx) + ".glb");
 			s_brightKinokoModel[kinokoIdx]->m_meshes[0].material->constData.lambert.emissive = { 0.52f,0.98f,1.0f };
-			s_brightKinokoModel[kinokoIdx]->m_meshes[0].material->constData.lambert.emissive *= 0.4f;
+			s_brightKinokoModel[kinokoIdx]->m_meshes[0].material->constData.lambert.emissive *= 0.3f;
 			s_brightKinokoModel[kinokoIdx]->m_meshes[0].material->Mapping();
 		}
 	}

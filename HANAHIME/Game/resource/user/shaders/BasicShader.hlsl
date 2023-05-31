@@ -232,7 +232,7 @@ PSOutput PSmain(VSOutput input) : SV_TARGET
     //–¾‚é‚³ŒvŽZ
     float bright = dot(result.xyz, float3(0.2125f, 0.7154f, 0.0721f));
     output.emissive.xyz = material.emissive.xyz * material.emissiveFactor + emissiveTex.Sample(smp, input.uv).xyz;
-    //output.emissive.z = 1.0f;
+    output.emissive.w *= 0.7f;
     //if (1.0f < bright)
     //    output.emissive += result;
     output.emissive.w = result.w;
