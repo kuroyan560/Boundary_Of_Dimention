@@ -29,10 +29,15 @@ m_guideFly(GPUParticleRender::Instance()->GetStackBuffer()), m_guideInsect(GPUPa
 	m_dirLigArray.back().SetDir(dir.GetNormal());
 	m_dirLigArray.back().SetColor(KuroEngine::Color(0.8f, 0.8f, 0.8f, 1.0f));
 
-	dir = { 1.0f,-0.5f,0.0f };
+	dir = { -1.0f,0.5f,0.0f };
 	m_dirLigArray.emplace_back();
 	m_dirLigArray.back().SetDir(dir.GetNormal());
-	m_dirLigArray.back().SetColor(KuroEngine::Color(0.8f, 0.8f, 0.8f, 1.0f));
+	m_dirLigArray.back().SetColor(KuroEngine::Color(0.6f, 0.7f, 0.7f, 1.0f));
+
+	dir = { 0.0f,0.0f,-1.0f };
+	m_dirLigArray.emplace_back();
+	m_dirLigArray.back().SetDir(dir.GetNormal());
+	m_dirLigArray.back().SetColor(KuroEngine::Color(0.3f, 0.4f, 0.4f, 1.0f));
 
 	for (auto &dirLig : m_dirLigArray)
 	{
