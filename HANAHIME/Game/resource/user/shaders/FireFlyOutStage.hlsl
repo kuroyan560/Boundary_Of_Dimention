@@ -68,7 +68,7 @@ void InitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 
     float scale = Rand(index,5.0f,3.0f);
     outputMat.scale = float2(scale,scale);
     outputMat.color = color;
-    outputMat.flashTimer.x = Rand((pos.x+pos.y) * index + 200 / scale,120,0);
+    outputMat.flashTimer.x = Rand((pos.x+pos.y) * index + 200 / scale,120,60);
     outputMat.flashTimer.y = 1;
     outputMat.flashTimer.z = outputMat.flashTimer.x;
     outputMat.angle.x = 0.0f;
@@ -120,12 +120,12 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
     }
 
     float rate = fireFlyDataBuffer[index].flashTimer.x / 60.0f;
-    fireFlyDataBuffer[index].color.a = rate;
+    //fireFlyDataBuffer[index].color.a = rate;
     float2 scale = fireFlyDataBuffer[index].scale;
 
     fireFlyDataBuffer[index].angle.x += fireFlyDataBuffer[index].angle.y;
 
-    fireFlyDataBuffer[index].vel.x = sin(ConvertToRadian(fireFlyDataBuffer[index].angle.x)) * 0.3f;
+    //fireFlyDataBuffer[index].vel.x = sin(ConvertToRadian(fireFlyDataBuffer[index].angle.x)) * 0.3f;
     fireFlyDataBuffer[index].pos += fireFlyDataBuffer[index].vel;
 
     float minHightPosY = fireFlyDataBuffer[index].basePos.y - 200.0f;
@@ -143,7 +143,7 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
 
     //èoóÕ--------------------------------------------
     ParticleData outputMat;
-    matrix mat = SetScaleInMatrix(float3(scale.x,scale.y,scale.y));
+    matrix mat = SetScaleInMatrix(float3(5.0f,5.0f,5.0f));
     outputMat.world = SetPosInMatrix(mat,fireFlyDataBuffer[index].pos);
     outputMat.color = fireFlyDataBuffer[index].color;
     particleData.Append(outputMat);

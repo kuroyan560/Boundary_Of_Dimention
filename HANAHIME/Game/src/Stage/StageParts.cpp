@@ -943,7 +943,6 @@ void CheckPoint::Update(Player& arg_player)
 
 	//‰~‚ÌÕ“Ë
 	bool isHit = arg_player.GetTransform().GetPosWorld().DistanceSq(m_transform.GetPosWorld()) < (CHECK_POINT_RADIUS * CHECK_POINT_RADIUS);
-
 	//Õ“Ë‚µ‚½uŠÔ
 	if (!m_touched && isHit)
 	{
