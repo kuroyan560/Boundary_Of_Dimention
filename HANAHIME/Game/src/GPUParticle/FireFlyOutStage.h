@@ -9,11 +9,13 @@ class FireFlyOutStage
 public:
 	FireFlyOutStage(std::shared_ptr<KuroEngine::RWStructuredBuffer> particle_buffer);
 
-	void ComputeInit();
-	void ComputeUpdate(const KuroEngine::Vec3<float> &pos);
+	void ComputeInit(const KuroEngine::Vec3<float> &arg_pos);
+	void ComputeUpdate(const KuroEngine::Vec3<float> &arg_pos);
 
 private:
-	static const int FIRE_FLY_MAX = 1024 * 5;
+	static const int DISPATCH_MAX = 5;
+	static const int FIRE_FLY_MAX = 1024 * DISPATCH_MAX;
+
 	std::shared_ptr<KuroEngine::ComputePipeline> m_initPipeline;
 	std::shared_ptr<KuroEngine::ComputePipeline> m_updatePipeline;
 

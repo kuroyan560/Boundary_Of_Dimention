@@ -141,6 +141,7 @@ void GPUParticleRender::Draw(KuroEngine::Camera &camera)
 	ViewProjMatData mat;
 	mat.viewprojMat = camera.GetViewMat() * camera.GetProjectionMat();
 	mat.scaleRotateBillboardMat = camera.GetBillBoardMat();
+	mat.particleMaxNum = particleMaxNum;
 	m_viewPorjBuffer->Mapping(&mat);
 
 	std::vector<KuroEngine::RegisterDescriptorData>descData =
