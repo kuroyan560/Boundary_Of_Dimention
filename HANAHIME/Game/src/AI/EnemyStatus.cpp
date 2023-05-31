@@ -24,6 +24,11 @@ EnemyHeadAttack::EnemyHeadAttack() :m_isHitGroundFlag(false)
 {
 }
 
+void EnemyHeadAttack::Finalize()
+{
+	m_isHitGroundFlag = false;
+}
+
 void EnemyHeadAttack::Init(const KuroEngine::Transform &transform, const KuroEngine::Vec3<float> &dir)
 {
 	m_transform = transform;

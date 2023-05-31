@@ -6,7 +6,7 @@ SightSearch::SightSearch()
 	KuroEngine::Vec3<float>basePos(0.0f, 0.0f, 0.0f);
 	float nearScale = 1.0f;
 	float farScale = 6.0f;
-	float length = 25.0f;
+	float length = 15.0f;
 	float nearHeight = 1.0f;
 	float farHeight = 5.0f;
 
