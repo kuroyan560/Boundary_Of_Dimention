@@ -288,7 +288,7 @@ private:
 	KuroEngine::Color m_ringColor;
 	//攻撃フェーズ---------------
 
-
+	KuroEngine::Vec3<float>m_pos;
 	Sphere m_hitBox;
 	Sphere m_enemyHitBox;
 	float m_radius;
