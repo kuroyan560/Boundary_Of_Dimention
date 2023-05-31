@@ -23,6 +23,10 @@ public:
 	{
 		return data.alpha;
 	}
+	bool IsFinish()
+	{
+		return m_finishFlag;
+	}
 
 	void SetAlpha(float alpha)
 	{

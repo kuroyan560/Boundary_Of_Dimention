@@ -29,7 +29,6 @@ void GuideInsect::Update()
 		++m_index;
 		//GoToCheckPoint(m_checkPointArray[m_index]->m_pos);
 	}
-	m_guideInsect.Update();
 
 	if (m_tiemr.UpdateTimer())
 	{
@@ -37,10 +36,16 @@ void GuideInsect::Update()
 		m_guideInsect.Finish();
 	}
 
-	if (m_guideInsect.GetAlphaRate() <= 0.0f)
+	if (m_guideInsect.GetAlphaRate() <= 0.0f && m_guideInsect.IsFinish())
 	{
 		m_goToCheckPointFlag = false;
 	}
+
+	if (m_goToCheckPointFlag)
+	{
+		m_guideInsect.Update();
+	}
+
 }
 
 void GuideInsect::Draw(KuroEngine::Camera &camera, KuroEngine::LightManager &light)

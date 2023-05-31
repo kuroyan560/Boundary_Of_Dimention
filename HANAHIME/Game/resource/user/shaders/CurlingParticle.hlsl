@@ -21,9 +21,9 @@ void CSmain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 gr
 {
     uint index = GetIndex(groupId,groupThreadID);
 
-    if(particleMax <= index)
+    //if(particleMax <= index)
     {
-        return;
+    //    return;
     }
 
     //s—ñŒvŽZ-------------------------

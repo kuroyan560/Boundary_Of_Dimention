@@ -293,8 +293,6 @@ void GameScene::OnUpdate()
 		m_fastTravel.DisActivate();
 
 		m_nowScene = m_nextScene;
-
-		m_fireFlyStage.ComputeInit(StageManager::Instance()->GetStartPointTransform().GetPos());
 	}
 
 	//ゲームシーンでのみ使う物

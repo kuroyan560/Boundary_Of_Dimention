@@ -58,7 +58,7 @@ void InitMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint3 
     float radian = AngleToRadian(Rand(index * 50,360,0));
     float3 pos = initPlayerPos + float3(cos(radian) * radius, Rand(index * 10,400,-400),sin(radian) * radius);
 
-    float4 color = float4(0.12f, 0.97f, 0.8f,1);
+    float4 color = float4(0.12f, 0.97f, 0.8f,1.0f);
     //èâä˙ílê∂ê¨----------------------------------------
 
     //èoóÕ--------------------------------------------
@@ -120,12 +120,12 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
     }
 
     float rate = fireFlyDataBuffer[index].flashTimer.x / 60.0f;
-    //fireFlyDataBuffer[index].color.a = rate;
+    fireFlyDataBuffer[index].color.a = rate;
     float2 scale = fireFlyDataBuffer[index].scale;
 
     fireFlyDataBuffer[index].angle.x += fireFlyDataBuffer[index].angle.y;
 
-    //fireFlyDataBuffer[index].vel.x = sin(ConvertToRadian(fireFlyDataBuffer[index].angle.x)) * 0.3f;
+    fireFlyDataBuffer[index].vel.x = sin(ConvertToRadian(fireFlyDataBuffer[index].angle.x)) * 0.3f;
     fireFlyDataBuffer[index].pos += fireFlyDataBuffer[index].vel;
 
     float minHightPosY = fireFlyDataBuffer[index].basePos.y - 200.0f;
@@ -138,8 +138,6 @@ void UpdateMain(uint3 groupId : SV_GroupID, uint groupIndex : SV_GroupIndex,uint
             playerPos.z + fireFlyDataBuffer[index].basePos.z
         );
     }
-
-
 
     //èoóÕ--------------------------------------------
     ParticleData outputMat;

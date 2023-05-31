@@ -60,15 +60,19 @@ void FireWork::Init(const KuroEngine::Vec3<float> &emittPos)
 		{m_emitterBuffer,KuroEngine::CBV}
 	};
 	KuroEngine::D3D12App::Instance()->DispathOneShot(m_fireWorkInitPipeline, { DISPATCH_NUM,1,1 }, descData);
+	m_timer.Reset(60 * 4);
 }
 
 void FireWork::Update()
 {
-	std::vector<KuroEngine::RegisterDescriptorData>descData =
+	if (!m_timer.UpdateTimer())
 	{
-		{m_fireUploadBuffer,KuroEngine::UAV},
-		{m_gpuParticleBuffer,KuroEngine::UAV},
-		{m_particleColor,KuroEngine::SRV}
-	};
-	KuroEngine::D3D12App::Instance()->DispathOneShot(m_fireWorkUpdatePipeline, { DISPATCH_NUM,1,1 }, descData);
+		std::vector<KuroEngine::RegisterDescriptorData>descData =
+		{
+			{m_fireUploadBuffer,KuroEngine::UAV},
+			{m_gpuParticleBuffer,KuroEngine::UAV},
+			{m_particleColor,KuroEngine::SRV}
+		};
+		KuroEngine::D3D12App::Instance()->DispathOneShot(m_fireWorkUpdatePipeline, { DISPATCH_NUM,1,1 }, descData);
+	}
 }

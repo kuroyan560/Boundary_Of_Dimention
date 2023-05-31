@@ -1,5 +1,12 @@
 #pragma once
 #include"DirectX12/D3D12App.h"
+#include"DirectX12/D3D12Data.h"
+#include"../Graphics/BasicDraw.h"
+#include"ForUser/Object/Object.h"
+#include"ForUser/DrawFunc/3D/DrawFunc3D.h"
+#include"Render/RenderObject/Camera.h"
+#include"FrameWork/Importer.h"
+
 
 class FireWork
 {
@@ -45,4 +52,6 @@ private:
 	std::shared_ptr<KuroEngine::TextureBuffer>m_particleColor;
 
 	KuroEngine::Vec3<float>m_emitterPos;
+
+	KuroEngine::Timer m_timer;
 };
