@@ -2,6 +2,7 @@
 #include"DirectX12/D3D12App.h"
 #include"ForUser/DrawFunc/2D/DrawFunc2D.h"
 #include"../OperationConfig.h"
+#include"../Stage/StageManager.h"
 
 void OperationInfoUI::SetUIStatus(STATUS arg_status)
 {
@@ -71,7 +72,7 @@ void OperationInfoUI::Update(float arg_timeScale)
 		{
 			SetUIStatus(DISAPPEAR);
 		}*/
-		if (m_idleTimer.UpdateTimer(arg_timeScale) && m_disappearCall)
+		if (m_idleTimer.UpdateTimer(arg_timeScale) && m_disappearCall && StageManager::Instance()->GetNowStageIdx() != 0)
 		{
 			//—\–ñ‚³‚ê‚½‘Şê‚ÌÀs
 			Disappear();
