@@ -27,9 +27,14 @@ m_guideFly(GPUParticleRender::Instance()->GetStackBuffer()), m_guideInsect(GPUPa
 	KuroEngine::Vec3<float>dir = { 0.0f,-1.0f,0.0f };
 	m_dirLigArray.emplace_back();
 	m_dirLigArray.back().SetDir(dir.GetNormal());
-	m_dirLigArray.back().SetColor(KuroEngine::Color(0.8f, 0.8f, 0.8f, 1.0f));
+	m_dirLigArray.back().SetColor(KuroEngine::Color(0.7f, 0.7f, 0.7f, 1.0f));
 
 	dir = { -1.0f,0.5f,0.0f };
+	m_dirLigArray.emplace_back();
+	m_dirLigArray.back().SetDir(dir.GetNormal());
+	m_dirLigArray.back().SetColor(KuroEngine::Color(0.7f, 0.6f, 0.65f, 1.0f));
+
+	dir = { 1.0f,-0.5f,0.0f };
 	m_dirLigArray.emplace_back();
 	m_dirLigArray.back().SetDir(dir.GetNormal());
 	m_dirLigArray.back().SetColor(KuroEngine::Color(0.6f, 0.7f, 0.7f, 1.0f));
@@ -45,8 +50,8 @@ m_guideFly(GPUParticleRender::Instance()->GetStackBuffer()), m_guideInsect(GPUPa
 	}
 	m_ligMgr.RegisterPointLight(m_player.GetPointLig());
 
-	m_hemiLig.SetSkyColor(KuroEngine::Color(107, 196, 198, 255));
-	m_hemiLig.SetGroundColor(KuroEngine::Color(0, 0, 0, 1));
+	m_hemiLig.SetSkyColor(KuroEngine::Color(115, 221, 249, 255));
+	m_hemiLig.SetGroundColor(KuroEngine::Color(81, 151, 118, 255));
 	m_ligMgr.RegisterHemiSphereLight(&m_hemiLig);
 
 	auto backBuffTarget = KuroEngine::D3D12App::Instance()->GetBackBuffRenderTarget();
