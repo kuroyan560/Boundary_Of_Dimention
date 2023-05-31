@@ -4,6 +4,7 @@
 #include<memory>
 #include<vector>
 #include"../AI/EnemyStatus.h"
+#include"../Stage/StageManager.h"
 
 enum ReactionEnum
 {
@@ -175,6 +176,56 @@ public:
 	{
 		pos += KuroEngine::Vec3<float>(1.0f, 1.0f, 1.0f) * vec;
 		rotation.m128_f32[0] += 1.0f;
+	}
+
+
+	bool IsHitWall(KuroEngine::Transform arg_transform, const KuroEngine::Vec3<float> &sightVec, float sightLength)
+	{
+		auto nowStage = StageManager::Instance()->GetNowStage();
+
+		//フェンスとの当たり判定
+		for (auto &terrian : nowStage.lock()->GetGimmickArray())
+		{
+			//動く足場でない
+			if (terrian->GetType() != StageParts::SPLATOON_FENCE)continue;
+
+			//距離によってカリング
+			const float DEADLINE = terrian->GetTransform().GetScale().Length() * 5.0f;
+			float distance = KuroEngine::Vec3<float>(terrian->GetTransform().GetPosWorld() - arg_transform.GetPosWorld()).Length();
+			if (DEADLINE < distance) continue;
+
+			//動く足場としてキャスト
+			auto ivyBlock = dynamic_pointer_cast<SplatoonFence>(terrian);
+
+			//モデル情報取得
+			auto model = terrian->GetModel();
+
+			//メッシュを走査
+			for (auto &modelMesh : model.lock()->m_meshes)
+			{
+
+				//CastRayに渡す引数を更新。
+				auto hitmesh = ivyBlock->GetCollisionMesh()[static_cast<int>(&modelMesh - &model.lock()->m_meshes[0])];
+
+				//判定↓============================================
+
+				//当たり判定を実行
+				CollisionDetectionOfRayAndMesh::MeshCollisionOutput output = CollisionDetectionOfRayAndMesh::Instance()->MeshCollision(arg_transform.GetPosWorld(), sightVec, hitmesh);
+
+				//当たり判定を大きくしたい場合は↓を変えて下さい！
+				if (output.m_isHit && fabs(output.m_distance) < sightLength) {
+
+
+					return true;
+
+				}
+
+				//=================================================
+			}
+		}
+
+
+		return false;
 	}
 
 

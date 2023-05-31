@@ -8,6 +8,7 @@
 #include<optional>
 #include"../OperationConfig.h"
 #include"../Player/Player.h"
+#include"../AI/EnemyHitBoxDataBase.h"
 
 std::string Stage::s_stageModelDir = "resource/user/model/stage/";
 
@@ -88,6 +89,9 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	transform.SetRotate(quaternion);
 	transform.SetScale(scaling * (arg_parent == nullptr ? m_terrianScaling : 1.0f));
 
+	StageParts* newPart = nullptr;
+
+
 	//FunaCam
 	if (typeKey == "FunaCamera")
 	{
@@ -96,14 +100,25 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		m_funaCamPtArray.emplace_back(scaling.x, transform.GetPos(), camMode);
 		return;
 	}
+	//きのこ
+	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::KINOKO))
+	{
+		m_gimmickArray.emplace_back(std::make_shared<Kinoko>(transform));
+		newPart = m_gimmickArray.back().get();
+	}
 
-	//モデルの名前のパラメータがない
-	if (!CheckJsonKeyExist(arg_fileName, obj, "file_name"))return;
-	//モデル設定
-	auto glbPath = obj["file_name"].get<std::string>() + ".glb";
-	auto gltfPath = obj["file_name"].get<std::string>() + ".gltf";
-	auto fileName = (ExistFile(s_stageModelDir + gltfPath) ? gltfPath : glbPath);
-	auto model = Importer::Instance()->LoadModel(s_stageModelDir, fileName);
+	std::shared_ptr<KuroEngine::Model>model;
+
+	if (typeKey != StageParts::GetTypeKeyOnJson(StageParts::KINOKO))
+	{
+		//モデルの名前のパラメータがない
+		if (!CheckJsonKeyExist(arg_fileName, obj, "file_name"))return;
+		//モデル設定
+		auto glbPath = obj["file_name"].get<std::string>() + ".glb";
+		auto gltfPath = obj["file_name"].get<std::string>() + ".gltf";
+		auto fileName = (ExistFile(s_stageModelDir + gltfPath) ? gltfPath : glbPath);
+		model = Importer::Instance()->LoadModel(s_stageModelDir, fileName);
+	}
 
 	//親がいるならトランスフォームの親子関係形成
 	if (arg_parent)transform.SetParent(&arg_parent->GetTransform());
@@ -114,8 +129,6 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	{
 		collisionModel = Importer::Instance()->LoadModel(s_stageModelDir, obj["CollisionModelFileName"].get<std::string>() + ".glb");
 	}
-
-	StageParts *newPart = nullptr;
 
 	//種別に応じて変わるパラメータ
 		//通常の地形
@@ -268,6 +281,9 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 
 		m_gimmickArray.emplace_back(std::make_shared<BackGround>(model, transform, isShadowShader));
 		newPart = m_gimmickArray.back().get();
+	}
+	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::KINOKO))
+	{
 	}
 	//チビ虫
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::MINI_BUG))
@@ -437,6 +453,7 @@ void Stage::Update(Player &arg_player)
 		enemy->Update(arg_player);
 	}
 
+
 	//チェックポイントまで飛ぶ処理
 	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_RESET, OperationConfig::ON_TRIGGER))
 	{
@@ -494,6 +511,8 @@ void Stage::Load(int arg_ownStageIdx, std::string arg_dir, std::string arg_fileN
 	using namespace KuroEngine;
 
 	DebugEnemy::Instance()->StackStage();
+	EnemyHitBoxDataBase::Instance()->StackStage();
+
 
 	m_terrianScaling = arg_terrianScaling;
 
