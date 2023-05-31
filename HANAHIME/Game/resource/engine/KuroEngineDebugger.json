@@ -52,7 +52,7 @@
     "FollowLerpRate": 0.800000011920929,
     "InitializedParameter": {
       "posOffsetZ": -18.0,
-      "xAxisAngle": -0.3018296957015991
+      "xAxisAngle": 0.6032743453979492
     },
     "PosLerpRate": 0.800000011920929,
     "debuggerSetting": {

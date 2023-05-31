@@ -607,6 +607,13 @@ private:
 	bool m_touched = false;
 	int m_id;
 
+	float m_angle, m_baseAngle;
+	float m_scale;
+	KuroEngine::Vec3<float>m_basePos;
+	KuroEngine::Timer m_timer;
+	KuroEngine::Timer m_disappearTimer;
+	bool m_isFinishEffectFlag;
+
 	void OnInit()override;
 public:
 	StarCoin(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform);
