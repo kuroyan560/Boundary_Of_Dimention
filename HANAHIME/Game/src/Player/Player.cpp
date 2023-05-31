@@ -1055,32 +1055,32 @@ void Player::Update(const std::weak_ptr<Stage>arg_nowStage)
 	}
 
 
-	//デバッグ用
-#ifdef _DEBUG
-
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_1)) {
-		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::NORMAL;
-	}
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_2)) {
-		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_1_C;
-	}
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_3)) {
-		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U;
-		m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
-	}
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_4)) {
-		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_3_HEIGHT_LIMIT;
-	}
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_5)) {
-		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_4_FAR;
-	}
-	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_6)) {
-		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_6_NEAR_GOAL;
-		m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
-	}
-
-
-#endif
+//	//デバッグ用
+//#ifdef _DEBUG
+//
+//	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_1)) {
+//		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::NORMAL;
+//	}
+//	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_2)) {
+//		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_1_C;
+//	}
+//	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_3)) {
+//		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U;
+//		m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
+//	}
+//	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_4)) {
+//		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_3_HEIGHT_LIMIT;
+//	}
+//	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_5)) {
+//		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_4_FAR;
+//	}
+//	if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_6)) {
+//		m_cameraFunaMode = CameraController::CAMERA_FUNA_MODE::STAGE1_6_NEAR_GOAL;
+//		m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
+//	}
+//
+//
+//#endif
 
 
 	//死んでいたら死亡の更新処理を入れる。
