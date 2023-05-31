@@ -638,7 +638,10 @@ void DossunRing::OnInit()
 	m_attackHitBoxRadius = 0.0f;
 	m_findPlayerFlag = false;
 	m_preFindPlayerFlag = false;
+	m_attackFlag = false;
 
+	m_larpScale = m_initializedTransform.GetScale();
+	m_scale = m_initializedTransform.GetScale();
 
 	switch (m_nowStatus)
 	{
@@ -676,7 +679,8 @@ void DossunRing::OnInit()
 	m_deadTimer.Reset(120);
 	//死亡処理---------------------------------------
 
-	m_hitBox.m_centerPos = &m_transform.GetPos();
+	m_pos = m_transform.GetPos();
+	m_hitBox.m_centerPos = &m_pos;
 	m_hitBox.m_radius = &m_attackHitBoxRadius;
 
 	m_ringColor.m_r = 1.0f;
@@ -687,11 +691,14 @@ void DossunRing::OnInit()
 	m_intervalFlag = false;
 
 	m_modelAnimator->SetStartPosture("Bounce_Start");
+
+	m_deadMotion.Finalize();
 }
 
 void DossunRing::Update(Player &arg_player)
 {
 	m_reaction->Update(m_transform.GetPos());
+	m_deadMotion.ParticleUpdate();
 
 	if (m_deadFlag && IsActive(m_transform, arg_player.GetTransform()))
 	{
@@ -707,24 +714,23 @@ void DossunRing::Update(Player &arg_player)
 	{
 		Attack(arg_player);
 
-		m_deadScale = KuroEngine::Math::Ease(KuroEngine::Out, KuroEngine::Back, m_deadTimer.GetTimeRate(), 1.0f, 0.0f);
-		m_transform.SetScale(m_deadScale);
-
 		//死んでいたら丸影を小さくする。
 		m_shadowInfluenceRange = KuroEngine::Math::Lerp(m_shadowInfluenceRange, 0.0f, 0.01f);
 
-		if (m_deadTimer.UpdateTimer() && m_deadTimer.GetElaspedTime() != 0.0f)
+		if (m_deadMotion.IsHitGround())
 		{
 			m_deadTimer.Reset(120);
 			m_deadFlag = true;
 			SoundConfig::Instance()->Play(SoundConfig::SE_ENEMY_DEAD);
 		}
 
-		DirectX::XMVECTOR vec = { 0.0f,0.0f,1.0f,1.0f };
-		m_larpRotation = DirectX::XMQuaternionRotationAxis(vec, KuroEngine::Angle::ConvertToRadian(90.0f));
-		KuroEngine::Quaternion rotation = m_transform.GetRotate();
-		rotation = DirectX::XMQuaternionSlerp(m_transform.GetRotate(), m_larpRotation, 0.1f);
-		m_transform.SetRotate(rotation);
+		KuroEngine::Vec3<float>pos(m_transform.GetPos());
+		//ジャンプ
+		HeadAttackData data = m_deadMotion.Update(pos);
+		pos += data.m_dir;
+		m_transform.SetPos(pos);
+		m_transform.SetRotate(data.m_rotation);
+		m_reaction->Update(pos);
 
 		return;
 	}
@@ -735,11 +741,11 @@ void DossunRing::Update(Player &arg_player)
 
 
 	//プレイヤーと敵の当たり判定の処理をここに書く
-	if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()) != Player::CHECK_HIT_GRASS_STATUS::NOHIT)
+	if (arg_player.CheckHitGrassSphere(m_transform.GetPosWorld(), m_transform.GetUpWorld(), m_transform.GetScale().Length()) != Player::CHECK_HIT_GRASS_STATUS::NOHIT && !m_startDeadMotionFlag)
 	{
+		m_deadMotion.Init(m_transform, KuroEngine::Vec3<float>(m_transform.GetPos() - arg_player.GetTransform().GetPos()).GetNormal());
 		m_startDeadMotionFlag = true;
 		SoundConfig::Instance()->Play(SoundConfig::SE_ENEMY_DAMAGE);
-		return;
 	}
 
 	//プレイヤーと敵の判定
@@ -799,7 +805,7 @@ void DossunRing::Update(Player &arg_player)
 	float attackScaleOffset = m_attackInterval.GetTimeRate();
 	float larpRate = 0.08f;
 	//攻撃予備動作中
-	if (m_attackInterval.UpdateTimer() && !m_attackFlag)
+	if (m_attackInterval.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale()) && !m_attackFlag)
 	{
 		m_attackTimer.Reset(m_maxAttackTime);
 		m_attackFlag = true;
@@ -817,15 +823,42 @@ void DossunRing::Update(Player &arg_player)
 	m_larpScale = KuroEngine::Math::Lerp(m_larpScale, m_scale, larpRate);
 	m_transform.SetScale(m_larpScale);
 
+	//現在の座標からプレイヤーに向かう回転を求める。
+	KuroEngine::Vec3<float> axisZ = KuroEngine::Vec3<float>(arg_player.GetTransform().GetPos() - m_pos).GetNormal();
+	axisZ.Normalize();
+
+	//プレイヤーの法線との外積から仮のXベクトルを得る。
+	KuroEngine::Vec3<float> axisX = m_initializedTransform.GetUp().Cross(axisZ);
+
+	//Xベクトルから上ベクトルを得る。
+	KuroEngine::Vec3<float> axisY = axisZ.Cross(axisX);
+
+	//姿勢を得る。
+	DirectX::XMMATRIX matWorld = DirectX::XMMatrixIdentity();
+	matWorld.r[0] = { axisX.x, axisX.y, axisX.z, 0.0f };
+	matWorld.r[1] = { axisY.x, axisY.y, axisY.z, 0.0f };
+	matWorld.r[2] = { axisZ.x, axisZ.y, axisZ.z, 0.0f };
+
+	XMVECTOR rotate, scale, position;
+	DirectX::XMMatrixDecompose(&scale, &rotate, &position, matWorld);
+
+	m_transform.SetRotate(DirectX::XMQuaternionSlerp(m_transform.GetRotate(), rotate, 0.08f * TimeScaleMgr::s_inGame.GetTimeScale()));
+
+
+
+
 	Attack(arg_player);
 
-	m_reaction->Update(m_transform.GetPos());
 
+
+	m_reaction->Update(m_transform.GetPos());
 	m_modelAnimator->Update(TimeScaleMgr::s_inGame.GetTimeScale());
 }
 
 void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
+	m_deadMotion.ParticleDraw(arg_cam);
+
 	if (m_deadFlag)
 	{
 		return;
@@ -834,15 +867,18 @@ void DossunRing::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 	IndividualDrawParameter edgeColor = IndividualDrawParameter::GetDefault();
 	edgeColor.m_edgeColor = KuroEngine::Color(0.0f, 0.0f, 0.0f, 0.0f);
 
-	BasicDraw::Instance()->Draw_Enemy(
-		m_inSphereEffectConstBufferData.m_constBuffer,
-		arg_cam,
-		arg_ligMgr,
-		m_model,
-		m_transform,
-		edgeColor,
-		KuroEngine::AlphaBlendMode_None,
-		m_modelAnimator->GetBoneMatBuff());
+	if (!m_deadMotion.IsHitGround())
+	{
+		BasicDraw::Instance()->Draw_Enemy(
+			m_inSphereEffectConstBufferData.m_constBuffer,
+			arg_cam,
+			arg_ligMgr,
+			m_model,
+			m_transform,
+			edgeColor,
+			KuroEngine::AlphaBlendMode_None,
+			m_modelAnimator->GetBoneMatBuff());
+	}
 
 	KuroEngine::Transform transform = m_initializedTransform;
 	transform.SetPos(*(m_hitBox.m_centerPos));
@@ -908,7 +944,7 @@ void DossunRing::Attack(Player &arg_player)
 		m_ringColor.m_a = m_attackTimer.GetInverseTimeRate();
 
 		//広がり切ったらインターバルに戻る
-		if (m_attackTimer.UpdateTimer())
+		if (m_attackTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale()))
 		{
 			m_attackHitBoxRadius = 0.0f;
 			m_attackInterval.Reset(m_maxAttackIntervalTime);
