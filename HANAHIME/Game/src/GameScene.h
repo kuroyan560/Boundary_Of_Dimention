@@ -104,6 +104,8 @@ class GameScene : public KuroEngine::BaseScene
 
 	GuideInsect m_guideInsect;
 
+	KuroEngine::Transform m_latestVisitGateTransform;
+
 	bool m_deadFlag;
 
 	bool IsSystemAplicationActive()const

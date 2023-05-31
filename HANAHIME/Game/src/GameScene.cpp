@@ -57,6 +57,8 @@ m_guideFly(GPUParticleRender::Instance()->GetStackBuffer()), m_guideInsect(GPUPa
 	m_skyDomeTransform.SetScale(StageManager::Instance()->GetSkyDomeScaling());
 
 	m_fireFlyStage.ComputeInit({ 0.0f,0.0f,0.0f });
+
+	m_latestVisitGateTransform = StageManager::Instance()->GetStartPointTransform();
 }
 
 
@@ -113,7 +115,7 @@ void GameScene::GameInit()
 
 void GameScene::Retry()
 {
-	StartGame(m_stageNum, CheckPoint::GetLatestVistTransform(StageManager::Instance()->GetStartPointTransform()), false, true);
+	StartGame(m_stageNum, CheckPoint::GetLatestVistTransform(m_latestVisitGateTransform), false, true);
 }
 
 void GameScene::StartGame(int arg_stageNum, KuroEngine::Transform arg_playerInitTransform, bool arg_isFastTravel, bool arg_isRetry)
@@ -124,6 +126,8 @@ void GameScene::StartGame(int arg_stageNum, KuroEngine::Transform arg_playerInit
 	m_playerInitTransform = arg_playerInitTransform;
 	m_isFastTravel = arg_isFastTravel;
 	m_isRetry = arg_isRetry;
+
+	m_latestVisitGateTransform = arg_playerInitTransform;
 }
 
 void GameScene::GoBackTitle()

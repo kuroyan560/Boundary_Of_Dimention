@@ -90,6 +90,7 @@ void StageManager::SetStage(int stage_num)
 			m_nowMapPinPointIdx = 0;
 			SaveDataManager::Instance()->SaveStageNum(m_nowStageIdx);
 			m_drawMapPin = true;
+			CheckPoint::InitVisit();
 		}
 		else if (reachStageNum == m_nowStageIdx)m_drawMapPin = true;
 		else m_drawMapPin = false;
