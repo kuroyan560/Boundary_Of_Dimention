@@ -130,7 +130,7 @@ void FastTravel::Update(GameScene* arg_gameScene)
 	//Œˆ’è
 	if (doneInput)
 	{
-		arg_gameScene->StartGame(m_nowStageNum, m_checkPointVector[m_nowStageNum][m_nowTargetCheckPoint]);
+		arg_gameScene->StartGame(m_nowStageNum, m_checkPointVector[m_nowStageNum][m_nowTargetCheckPoint], true);
 		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
 	}
 

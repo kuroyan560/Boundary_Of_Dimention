@@ -159,7 +159,7 @@ Player::Player()
 	m_cameraReturnTimer.ForciblyTimeUp();
 }
 
-void Player::Init(KuroEngine::Transform arg_initTransform)
+void Player::Init(KuroEngine::Transform arg_initTransform, int arg_nowStageIndex, int arg_nowCheckPointIndex)
 {
 	//スケール打ち消し
 	arg_initTransform.SetScale(1.0f);
@@ -268,6 +268,79 @@ void Player::Init(KuroEngine::Transform arg_initTransform)
 		m_isCameraUpInverse = false;
 	}
 	m_camController.Init(arg_initTransform, m_isCameraUpInverse);
+
+	//リスポーン位置によってカメラの初期設定を変える。
+	if (arg_nowStageIndex == 0 && arg_nowCheckPointIndex == 0) {
+		m_camController.SetParam(0.240949869f, 4.01524258f, false);
+		m_cameraRotYStorage = 4.01524258f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 0 && arg_nowCheckPointIndex == 1) {
+		m_camController.SetParam(-0.662380993f, 4.65234709f, true);
+		m_cameraRotYStorage = 4.65234709f;
+		m_isCameraUpInverse = true;
+	}
+	else if (arg_nowStageIndex == 1 && arg_nowCheckPointIndex == 0) {
+		m_camController.SetParam(0.603274345f, 1.61108458f, false);
+		m_cameraRotYStorage = 1.61108458f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 1 && arg_nowCheckPointIndex == 1) {
+		m_camController.SetParam(0.404909104f, 1.61935687f, false);
+		m_cameraRotYStorage = 1.61935687f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 1 && arg_nowCheckPointIndex == 2) {
+		m_camController.SetParam(0.698131680f, 0.0527084842f, false);
+		m_cameraRotYStorage = 0.0527084842f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 0) {
+		m_camController.SetParam(0.443914831f, -1.54169261f, false);
+		m_cameraRotYStorage = -1.54169261f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 1) {
+		m_camController.SetParam(-0.301829696f, -0.415091008f, true);
+		m_cameraRotYStorage = -0.415091008f;
+		m_isCameraUpInverse = true;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 2) {
+		m_camController.SetParam(-0.349065840f, 0.755516231f, true);
+		m_cameraRotYStorage = 0.755516231f;
+		m_isCameraUpInverse = true;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 3) {
+		m_camController.SetParam(-0.481665850f, 4.70555067f, true);
+		m_cameraRotYStorage = 4.70555067f;
+		m_isCameraUpInverse = true;
+	}
+	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 4) {
+		m_camController.SetParam(-0.578085601f, 4.65286255f, true);
+		m_cameraRotYStorage = 4.65286255f;
+		m_isCameraUpInverse = true;
+	}
+	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 0) {
+		m_camController.SetParam(0.577849329f, -0.0259443577f, false);
+		m_cameraRotYStorage = -0.0259443577f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 1) {
+		m_camController.SetParam(-0.698131680f, 3.10489941f, true);
+		m_cameraRotYStorage = 3.10489941f;
+		m_isCameraUpInverse = true;
+	}
+	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 2) {
+		m_camController.SetParam(0.682992816f, 7.86075068f, false);
+		m_cameraRotYStorage = 7.86075068f;
+		m_isCameraUpInverse = false;
+	}
+	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 3) {
+		m_camController.SetParam(-0.608131647f, 1.60718691f, true);
+		m_cameraRotYStorage = 1.60718691f;
+		m_isCameraUpInverse = true;
+	}
+
 	m_camController.Respawn(m_transform, m_isCameraUpInverse);
 	m_camController.LerpForcedToEnd(m_cameraRotYStorage);
 
@@ -379,56 +452,71 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform, const std::weak_pt
 	if (arg_nowStageIndex == 0 && arg_nowCheckPointIndex == 0) {
 		m_camController.SetParam(0.240949869f, 4.01524258f, false);
 		m_cameraRotYStorage = 4.01524258f;
+		m_isCameraUpInverse = false;
 	}else if (arg_nowStageIndex == 0 && arg_nowCheckPointIndex == 1) {
 		m_camController.SetParam(-0.662380993f, 4.65234709f, true);
 		m_cameraRotYStorage = 4.65234709f;
+		m_isCameraUpInverse = true;
 	}
 	else if (arg_nowStageIndex == 1 && arg_nowCheckPointIndex == 0) {
 		m_camController.SetParam(0.603274345f, 1.61108458f, false);
 		m_cameraRotYStorage = 1.61108458f;
+		m_isCameraUpInverse = false;
 	}
 	else if (arg_nowStageIndex == 1 && arg_nowCheckPointIndex == 1) {
 		m_camController.SetParam(0.404909104f, 1.61935687f, false);
 		m_cameraRotYStorage = 1.61935687f;
+		m_isCameraUpInverse = false;
 	}
 	else if (arg_nowStageIndex == 1 && arg_nowCheckPointIndex == 2) {
 		m_camController.SetParam(0.698131680f, 0.0527084842f, false);
 		m_cameraRotYStorage = 0.0527084842f;
+		m_isCameraUpInverse = false;
 	}
 	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 0) {
 		m_camController.SetParam(0.443914831f, -1.54169261f, false);
 		m_cameraRotYStorage = -1.54169261f;
+		m_isCameraUpInverse = false;
 	}
 	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 1) {
-		m_cameraFar = -100.0f;
+		m_camController.SetParam(-0.301829696f, -0.415091008f, true);
+		m_cameraRotYStorage = -0.415091008f;
+		m_isCameraUpInverse = true;
 	}
 	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 2) {
 		m_camController.SetParam(-0.349065840f, 0.755516231f, true);
 		m_cameraRotYStorage = 0.755516231f;
+		m_isCameraUpInverse = true;
 	}
 	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 3) {
 		m_camController.SetParam(-0.481665850f, 4.70555067f, true);
 		m_cameraRotYStorage = 4.70555067f;
+		m_isCameraUpInverse = true;
 	}
 	else if (arg_nowStageIndex == 2 && arg_nowCheckPointIndex == 4) {
 		m_camController.SetParam(-0.578085601f, 4.65286255f, true);
 		m_cameraRotYStorage = 4.65286255f;
+		m_isCameraUpInverse = true;
 	}
 	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 0) {
 		m_camController.SetParam(0.577849329f, -0.0259443577f, false);
 		m_cameraRotYStorage = -0.0259443577f;
+		m_isCameraUpInverse = false;
 	}
 	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 1) {
 		m_camController.SetParam(-0.698131680f, 3.10489941f, true);
 		m_cameraRotYStorage = 3.10489941f;
+		m_isCameraUpInverse = true;
 	}
 	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 2) {
 		m_camController.SetParam(0.682992816f, 7.86075068f, false);
 		m_cameraRotYStorage = 7.86075068f;
+		m_isCameraUpInverse = false;
 	}
 	else if (arg_nowStageIndex == 3 && arg_nowCheckPointIndex == 3) {
 		m_camController.SetParam(-0.608131647f, 1.60718691f, true);
 		m_cameraRotYStorage = 1.60718691f;
+		m_isCameraUpInverse = true;
 	}
 
 	m_camController.LerpForcedToEnd(m_cameraRotYStorage);
@@ -1249,33 +1337,33 @@ void Player::CheckHitFunaCamera(const std::weak_ptr<Stage> arg_nowStage)
 			}
 
 			break;
-		case CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U:
-		{
+		//case CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U:
+		//{
 
-			//プレイヤーのZ軸座標が50より下でY軸方向の法線を向いていたらやめる。
-			if (0.9f < fabs(m_transform.GetUp().y)) {
+		//	//プレイヤーのZ軸座標が50より下でY軸方向の法線を向いていたらやめる。
+		//	if (0.9f < fabs(m_transform.GetUp().y)) {
 
-				if (m_transform.GetPos().z < 25.0f) {
-					break;
-				}
+		//		if (m_transform.GetPos().z < 25.0f) {
+		//			break;
+		//		}
 
-				if (m_transform.GetPos().y < -100.0f) {
-					break;
-				}
+		//		if (m_transform.GetPos().y < -100.0f) {
+		//			break;
+		//		}
 
-			}
+		//	}
 
-			if (static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode) != CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U) {
-				m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
-			}
+		//	if (static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode) != CameraController::CAMERA_FUNA_MODE::STAGE1_2_INV_U) {
+		//		m_cameraRotYStorage = fabs(fmod(m_cameraRotYStorage, DirectX::XM_2PI));
+		//	}
 
-			isHitFuna = true;
+		//	isHitFuna = true;
 
-			//ここでIDを入れる。
-			m_cameraFunaMode = static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode);
+		//	//ここでIDを入れる。
+		//	m_cameraFunaMode = static_cast<CameraController::CAMERA_FUNA_MODE>(funaSphere.m_camMode);
 
-		}
-		break;
+		//}
+		//break;
 		case CameraController::CAMERA_FUNA_MODE::STAGE1_3_HEIGHT_LIMIT:
 
 			isHitFuna = true;
