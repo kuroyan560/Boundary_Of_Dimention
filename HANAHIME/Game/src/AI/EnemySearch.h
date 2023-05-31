@@ -74,8 +74,6 @@ public:
 		return pushBackOffset;
 	}
 
-
-
 };
 
 //ü•ª‚Æ“_‚Ì”»’è

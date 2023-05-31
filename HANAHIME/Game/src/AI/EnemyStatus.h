@@ -37,6 +37,7 @@ public:
 	EnemyHeadAttack();
 
 	void Init(const KuroEngine::Transform &transform, const KuroEngine::Vec3<float> &dir);
+	void Finalize();
 	HeadAttackData Update(const KuroEngine::Vec3<float> &pos);
 
 	void ParticleUpdate();

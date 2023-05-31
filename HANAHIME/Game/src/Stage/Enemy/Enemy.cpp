@@ -95,6 +95,8 @@ void MiniBug::OnInit()
 
 	m_knockBackTime = 10;
 	m_flootOffset = 5.0f;
+
+	m_deadMotion.Finalize();
 }
 
 void MiniBug::Update(Player &arg_player)
