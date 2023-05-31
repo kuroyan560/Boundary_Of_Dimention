@@ -4,6 +4,7 @@
 #include"../../OperationConfig.h"
 #include"../../Player/Player.h"
 #include"../../SoundConfig.h"
+#include"../../AI/EnemyHitBoxDataBase.h"
 
 int MiniBug::ENEMY_MAX_ID = 0;
 
@@ -44,6 +45,9 @@ MiniBug::MiniBug(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transfor
 	DebugEnemy::Instance()->Stack(m_initializedTransform, ENEMY_MINIBUG);
 
 	m_debugHitBox = std::make_unique<EnemyHitBox>(m_hitBox, KuroEngine::Color(1.0f, 1.0f, 1.0f, 1.0f));
+
+
+	EnemyHitBoxDataBase::Instance()->Stack(&m_hitBox);
 }
 
 #pragma region MiniBug
@@ -57,8 +61,6 @@ void MiniBug::OnInit()
 	m_deadTimer.Reset(120);
 	m_scale = 1.0f;
 
-	m_hitBox.m_centerPos = &m_pos;
-	m_hitBox.m_radius = &m_scale;
 
 	m_shadowInfluenceRange = SHADOW_INFLUENCE_RANGE;
 
@@ -80,6 +82,9 @@ void MiniBug::OnInit()
 	m_deadTimer.Reset(120);
 
 	m_hitBoxSize = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_MINIBUG);
+
+	m_hitBox.m_centerPos = &m_pos;
+	m_hitBox.m_radius = &m_scale;
 	m_hitBox.m_centerPos = &m_transform.GetPos();
 	m_hitBox.m_radius = &m_hitBoxSize;
 
@@ -97,6 +102,7 @@ void MiniBug::Update(Player &arg_player)
 	//#ifdef _DEBUG
 	m_hitBoxSize = m_transform.GetScale().Length() * DebugEnemy::Instance()->HitBox(ENEMY_MINIBUG);
 	//#endif // _DEBUG
+
 
 
 		//m_dashEffect.Update(m_larpPos, m_nowStatus == MiniBug::ATTACK && m_jumpMotion.IsDone());
@@ -464,6 +470,9 @@ void MiniBug::Update(Player &arg_player)
 
 
 	m_larpPos = KuroEngine::Math::Lerp(m_larpPos, m_pos, 0.1f);
+
+	KuroEngine::Vec3<float>pushBackVel(EnemyHitBoxDataBase::Instance()->Update(m_hitBox));
+	m_larpPos += pushBackVel;
 
 	m_transform.SetPos(m_larpPos);
 	m_animator->Update(TimeScaleMgr::s_inGame.GetTimeScale());

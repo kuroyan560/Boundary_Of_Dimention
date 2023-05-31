@@ -8,6 +8,7 @@
 #include<optional>
 #include"../OperationConfig.h"
 #include"../Player/Player.h"
+#include"../AI/EnemyHitBoxDataBase.h"
 
 std::string Stage::s_stageModelDir = "resource/user/model/stage/";
 
@@ -437,6 +438,7 @@ void Stage::Update(Player &arg_player)
 		enemy->Update(arg_player);
 	}
 
+
 	//チェックポイントまで飛ぶ処理
 	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_RESET, OperationConfig::ON_TRIGGER))
 	{
@@ -494,6 +496,8 @@ void Stage::Load(int arg_ownStageIdx, std::string arg_dir, std::string arg_fileN
 	using namespace KuroEngine;
 
 	DebugEnemy::Instance()->StackStage();
+	EnemyHitBoxDataBase::Instance()->StackStage();
+
 
 	m_terrianScaling = arg_terrianScaling;
 

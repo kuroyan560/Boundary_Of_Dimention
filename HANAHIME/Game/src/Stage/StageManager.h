@@ -45,13 +45,13 @@ class StageManager : public KuroEngine::DesignPattern::Singleton<StageManager>, 
 public:
 	void SetStage(int stage_num = -1);
 
-	void Update(Player& arg_player);
-	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr);
-	void DrawUI(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float>arg_playerPos);
+	void Update(Player &arg_player);
+	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr);
+	void DrawUI(KuroEngine::Camera &arg_cam, KuroEngine::Vec3<float>arg_playerPos);
 
 	//現在のステージのゲッタ
 	std::weak_ptr<Stage>GetNowStage() { return m_nowStage; }
-	const int& GetNowStageIdx()const{ return m_nowStageIdx; }
+	const int &GetNowStageIdx()const { return m_nowStageIdx; }
 
 	KuroEngine::Transform GetGateTransform(int arg_stageIdx, int arg_gateID)const;
 
@@ -67,7 +67,7 @@ public:
 	//プレイヤーの初期化トランスフォーム
 	KuroEngine::Transform GetStartPointTransform()const;
 
-	bool GetNowMapPinTransform(KuroEngine::Transform* arg_destPos);
+	bool GetNowMapPinTransform(KuroEngine::Transform *arg_destPos);
 
 	KuroEngine::Transform GetGoalTransform()const;
 
@@ -79,11 +79,11 @@ public:
 	int ExistStarCoinNum()const;
 
 	//スカイドームのスケーリングゲッタ
-	const float& GetSkyDomeScaling()const { return m_skydomeScaling; }
+	const float &GetSkyDomeScaling()const { return m_skydomeScaling; }
 
 	//解放済のチェックポイントのトランスフォーム配列
 	//std::vector<std::vector<KuroEngine::Transform>>GetUnlockedCheckPointTransformArray()const;
-	bool GetUnlockedCheckPointInfo(std::vector<std::vector<KuroEngine::Transform>>* arg_transformArray, int* arg_recentStageNum, int* arg_recentIdx)const;
+	bool GetUnlockedCheckPointInfo(std::vector<std::vector<KuroEngine::Transform>> *arg_transformArray, int *arg_recentStageNum, int *arg_recentIdx)const;
 
 	//チェックポイント解放のリセット
 	void AllStageCheckPointReset();
