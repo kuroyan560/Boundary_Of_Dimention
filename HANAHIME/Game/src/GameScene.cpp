@@ -326,6 +326,11 @@ void GameScene::OnUpdate()
 		m_player.DisactiveLight();
 	}
 
+	//プレイヤーが死んでいたらリトライ。
+	if (m_player.GetIsFinishDeadEffect()) {
+		Retry();
+	}
+
 	////そのステージにいるすべての敵にワープする
 	//if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_0))
 	//{

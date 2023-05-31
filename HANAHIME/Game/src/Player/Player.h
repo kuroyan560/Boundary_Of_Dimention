@@ -378,6 +378,9 @@ public:
 	//攻撃中か？
 	bool GetIsAttack() { return 0 < m_attackTimer; }
 
+	//死亡演出が終わったかどうか。
+	bool GetIsFinishDeadEffect() { return m_isFinishDeadEffect; }
+
 	//オーバーヒート中か？
 	bool GetIsOverheat() { return m_isPlayerOverHeat; }
 

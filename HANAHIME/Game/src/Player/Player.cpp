@@ -1819,6 +1819,10 @@ void Player::UpdateDeath() {
 		if (DEATH_EFFECT_FINISH_TIMER <= m_deathEffectTimer) {
 
 			m_isFinishDeathAnimation = true;
+
+		}
+		else if (m_deathEffectTimer == 90) {
+
 			m_isFinishDeadEffect = true;
 
 		}
