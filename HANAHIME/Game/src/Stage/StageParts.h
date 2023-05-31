@@ -79,6 +79,7 @@ public:
 		CHECK_POINT,
 		STAR_COIN,
 		BACKGROUND,
+		KINOKO,
 
 		//敵など静的オブジェクト
 		MINI_BUG,	//チビ虫
@@ -632,5 +633,25 @@ public:
 	BackGround(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform, bool arg_shadowShader);
 
 	void Update(Player& arg_player)override {};
+	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
+};
+
+class Kinoko : public StageParts
+{
+	static const int KINOKO_PATTERN_NUM = 5;
+	static std::array<std::shared_ptr<KuroEngine::Model>, KINOKO_PATTERN_NUM>s_kinokoModel;
+	static std::array<std::shared_ptr<KuroEngine::Model>, KINOKO_PATTERN_NUM>s_brightKinokoModel;
+
+	bool oldHit = false;
+	bool m_isHit;
+	int m_patternIdx;
+	KuroEngine::Timer m_expandTimer;
+	float m_smallScale = 0.0f;
+
+	void OnInit()override;
+public:
+	Kinoko(KuroEngine::Transform arg_initTransform);
+
+	void Update(Player& arg_player)override;
 	void Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)override;
 };

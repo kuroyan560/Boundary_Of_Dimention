@@ -17,7 +17,7 @@
 
 std::array<std::string, StageParts::STAGE_PARTS_TYPE::NUM>StageParts::s_typeKeyOnJson =
 {
-	"Terrian","Start","Goal","Appearance","MoveScaffold","Lever","Ivy_Zipline","IvyBlock","SplatoonFence","Gate","CheckPoint","StarCoin","BackGround",
+	"Terrian","Start","Goal","Appearance","MoveScaffold","Lever","Ivy_Zipline","IvyBlock","SplatoonFence","Gate","CheckPoint","StarCoin","BackGround","Kinoko",
 	"MiniBug","DossunRing","Battery",
 };
 
@@ -934,7 +934,7 @@ void CheckPoint::OnInit()
 
 void CheckPoint::Update(Player &arg_player)
 {
-	static const float CHECK_POINT_RADIUS = 10.0f;
+	static const float CHECK_POINT_RADIUS = 13.0f;
 
 	m_fireWork.Update();
 
@@ -1137,4 +1137,70 @@ void BackGround::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg
 			m_transform,
 			IndividualDrawParameter::GetDefault());
 	}
+}
+
+std::array<std::shared_ptr<KuroEngine::Model>,Kinoko::KINOKO_PATTERN_NUM>Kinoko::s_kinokoModel;
+std::array<std::shared_ptr<KuroEngine::Model>,Kinoko::KINOKO_PATTERN_NUM>Kinoko::s_brightKinokoModel;
+
+void Kinoko::OnInit()
+{
+	m_isHit = false;
+	m_patternIdx = std::clamp(KuroEngine::GetRand(KINOKO_PATTERN_NUM), 0, KINOKO_PATTERN_NUM - 1);
+	m_expandTimer.Reset(0.0f);
+}
+
+Kinoko::Kinoko(KuroEngine::Transform arg_initTransform)
+	:StageParts(KINOKO, s_kinokoModel[0], arg_initTransform)
+{
+	using namespace KuroEngine;
+	if (!s_kinokoModel[0])
+	{
+		std::string dir = "resource/user/model/stage/kinoko/";
+
+		for (int kinokoIdx = 0; kinokoIdx < KINOKO_PATTERN_NUM; ++kinokoIdx)
+		{
+			s_kinokoModel[kinokoIdx] = Importer::Instance()->LoadModel(dir, std::to_string(kinokoIdx) + ".glb");
+			s_kinokoModel[kinokoIdx]->m_meshes[0].material->constData.lambert.emissive *= 0.2f;
+			s_kinokoModel[kinokoIdx]->m_meshes[0].material->Mapping();
+			s_brightKinokoModel[kinokoIdx] = Importer::Instance()->LoadModel(dir, "bright_" + std::to_string(kinokoIdx) + ".glb");
+			s_brightKinokoModel[kinokoIdx]->m_meshes[0].material->constData.lambert.emissive = { 0.52f,0.98f,1.0f };
+			s_brightKinokoModel[kinokoIdx]->m_meshes[0].material->constData.lambert.emissive *= 0.4f;
+			s_brightKinokoModel[kinokoIdx]->m_meshes[0].material->Mapping();
+		}
+	}
+	OnInit();
+}
+
+void Kinoko::Update(Player& arg_player)
+{
+	using namespace KuroEngine;
+
+	m_expandTimer.UpdateTimer(TimeScaleMgr::s_inGame.GetTimeScale());
+
+	m_transform.SetScale(KuroEngine::Math::Ease(Out, Elastic, m_expandTimer.GetTimeRate(), m_smallScale, 1.0f));
+
+	static const float HIT_RADIUS = 8.0f;
+	bool hit = arg_player.GetTransform().GetPosWorld().DistanceSq(m_transform.GetPosWorld()) < HIT_RADIUS * HIT_RADIUS;
+	if (!oldHit && hit)
+	{
+		m_expandTimer.Reset(30.0f);
+		m_smallScale = 0.6f;
+		if (!m_isHit)
+		{
+			m_isHit = true;
+			m_smallScale = 0.0f;
+		}
+	}
+	oldHit = hit;
+}
+
+void Kinoko::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
+{
+	auto model = m_isHit ? s_brightKinokoModel[m_patternIdx] : s_kinokoModel[m_patternIdx];
+
+	BasicDraw::Instance()->Draw(
+		arg_cam,
+		arg_ligMgr,
+		model,
+		m_transform);
 }
