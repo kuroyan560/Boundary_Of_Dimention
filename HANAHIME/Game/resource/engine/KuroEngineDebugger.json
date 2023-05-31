@@ -51,8 +51,7 @@
   "CameraController": {
     "FollowLerpRate": 0.800000011920929,
     "InitializedParameter": {
-      "posOffsetZ": -18.0,
-      "xAxisAngle": 0.6032743453979492
+      "posOffsetZ": -18.0
     },
     "PosLerpRate": 0.800000011920929,
     "debuggerSetting": {
