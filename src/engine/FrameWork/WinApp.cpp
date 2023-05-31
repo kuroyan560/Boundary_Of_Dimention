@@ -1,5 +1,6 @@
 #include "WinApp.h"
 #include"KuroEngine.h"
+#include"resource.h"
 
 KuroEngine::WinApp* KuroEngine::WinApp::s_instance = nullptr;
 
@@ -35,9 +36,8 @@ void KuroEngine::WinApp::Initialize(const std::string& arg_winName, const Vec2<i
     //ウィンドウアイコン設定
     if (arg_iconPath != nullptr)
     {
-        m_wc.hIcon = (HICON)LoadImage(
-            NULL, arg_iconPath, IMAGE_ICON,
-            0, 0, LR_SHARED | LR_LOADFROMFILE);
+        m_wc.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
+        m_wc.hIconSm = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
     }
     
     //ウィンドウクラスをOSに登録

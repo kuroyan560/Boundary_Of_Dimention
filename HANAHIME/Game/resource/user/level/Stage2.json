@@ -126,6 +126,29 @@
                 "CheckPointOrder": 0
             },
             {
+                "type": "Appearance",
+                "name": "Appearance2",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        0.0
+                    ],
+                    "rotation": [
+                        -0.0,
+                        -0.0,
+                        -1.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Appearance2"
+            },
+            {
                 "type": "StarCoin",
                 "name": "StarCoin_0.001",
                 "transform": {
@@ -2796,213 +2819,6 @@
                 },
                 "file_name": "Tree",
                 "ShadowShader": 0
-            },
-            {
-                "type": "FunaCamera",
-                "name": "FunaCamera",
-                "transform": {
-                    "translation": [
-                        220.0,
-                        10.0,
-                        0.0
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        55.0,
-                        55.0,
-                        55.0
-                    ]
-                },
-                "CamMode": 1
-            },
-            {
-                "type": "FunaCamera",
-                "name": "FunaCamera.001",
-                "transform": {
-                    "translation": [
-                        65.0,
-                        -90.0,
-                        -67.375
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        80.0,
-                        80.0,
-                        80.0
-                    ]
-                },
-                "CamMode": 2
-            },
-            {
-                "type": "FunaCamera",
-                "name": "FunaCamera.002",
-                "transform": {
-                    "translation": [
-                        -46.15625,
-                        -30.3125,
-                        -48.59375
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        100.0,
-                        100.0,
-                        100.0
-                    ]
-                },
-                "CamMode": 2
-            },
-            {
-                "type": "FunaCamera",
-                "name": "FunaCamera.003",
-                "transform": {
-                    "translation": [
-                        65.0,
-                        -269.6875,
-                        -63.75
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        30.0,
-                        30.0,
-                        30.0
-                    ]
-                },
-                "CamMode": 3
-            },
-            {
-                "type": "FunaCamera",
-                "name": "FunaCamera.004",
-                "transform": {
-                    "translation": [
-                        21.40625,
-                        -269.6875,
-                        -63.75
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        30.0,
-                        30.0,
-                        30.0
-                    ]
-                },
-                "CamMode": 3
-            },
-            {
-                "type": "FunaCamera",
-                "name": "FunaCamera.005",
-                "transform": {
-                    "translation": [
-                        -21.75,
-                        -269.6875,
-                        -63.75
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        30.0,
-                        30.0,
-                        30.0
-                    ]
-                },
-                "CamMode": 3
-            },
-            {
-                "type": "FunaCamera",
-                "name": "FunaCamera.006",
-                "transform": {
-                    "translation": [
-                        -98.81523132324219,
-                        -370.8255310058594,
-                        -103.4126968383789
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        100.0,
-                        100.0,
-                        100.0
-                    ]
-                },
-                "CamMode": 4
-            },
-            {
-                "type": "FunaCamera",
-                "name": "FunaCamera.007",
-                "transform": {
-                    "translation": [
-                        500.091796875,
-                        -312.90625,
-                        -107.9375
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        40.0,
-                        40.0,
-                        40.0
-                    ]
-                },
-                "CamMode": 5
-            },
-            {
-                "type": "FunaCamera",
-                "name": "FunaCamera.008",
-                "transform": {
-                    "translation": [
-                        528.5781860351562,
-                        -230.4617156982422,
-                        -112.80873107910156
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        40.0,
-                        40.0,
-                        40.0
-                    ]
-                },
-                "CamMode": 6
             }
         ]
     }

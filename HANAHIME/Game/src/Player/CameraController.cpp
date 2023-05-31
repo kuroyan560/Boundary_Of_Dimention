@@ -131,7 +131,10 @@ void CameraController::JumpStart(const KuroEngine::Transform& arg_playerTransfor
 	//カメラが既定の位置に達していなかったら補間をかける。
 
 	//プレイヤーがY面にいたら
-	if (0.9f < fabs(arg_playerTransform.GetUp().y)) {
+	bool isPlayerUp = 0.9f < fabs(arg_playerTransform.GetUp().y);
+	bool isPlayerXZ = 0.9f < fabs(arg_playerTransform.GetUp().x) && 0.9f < fabs(arg_jumpEndNormal.z);
+	isPlayerXZ |= 0.9f < fabs(arg_jumpEndNormal.x) && 0.9f < fabs(arg_playerTransform.GetUp().z);
+	if (isPlayerUp || isPlayerXZ) {
 
 		//カメラをいい感じの位置に補間する量。
 		const float CAMERA_LERP_AMOUNT = 0.5f;	//内積で使用するので、つまり地面から見て45度の位置に補間する。
