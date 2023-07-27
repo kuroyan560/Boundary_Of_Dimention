@@ -44,7 +44,7 @@ m_guideFly(GPUParticleRender::Instance()->GetStackBuffer()), m_guideInsect(GPUPa
 	m_dirLigArray.back().SetDir(dir.GetNormal());
 	m_dirLigArray.back().SetColor(KuroEngine::Color(0.3f, 0.4f, 0.4f, 1.0f));
 
-	for (auto &dirLig : m_dirLigArray)
+	for (auto& dirLig : m_dirLigArray)
 	{
 		m_ligMgr.RegisterDirLight(&dirLig);
 	}
@@ -80,7 +80,7 @@ void GameScene::GameInit()
 
 	if (m_isFastTravel) {
 
-		m_player.Respawn(m_playerInitTransform, StageManager::Instance()->GetNowStage(), m_fastTravel.GetNowStageIndex(), m_fastTravel.GetNowCheckPointIndex());
+		m_player.Respawn(m_playerInitTransform, StageManager::Instance()->GetNowStage().lock()->GetStartPointTransform().GetPos(), m_fastTravel.GetNowStageIndex(), m_fastTravel.GetNowCheckPointIndex());
 		m_isFastTravel = false;
 
 	}
@@ -93,14 +93,12 @@ void GameScene::GameInit()
 		//現在のチェックポイントを検索。
 		auto nowStage = StageManager::Instance()->GetUnlockedCheckPointInfo(&checkPointTransform, &stageNum, &checkPointNum);
 
-		m_player.Respawn(m_playerInitTransform, StageManager::Instance()->GetNowStage(), m_stageNum, checkPointNum);
+		m_player.Respawn(m_playerInitTransform, StageManager::Instance()->GetNowStage().lock()->GetStartPointTransform().GetPos(), m_stageNum, checkPointNum);
 		m_isRetry = false;
 
 	}
 	else {
-
-		m_player.Respawn(m_playerInitTransform, StageManager::Instance()->GetNowStage(), m_stageNum, 0);
-
+		m_player.Respawn(m_playerInitTransform, StageManager::Instance()->GetNowStage().lock()->GetStartPointTransform().GetPos(), m_stageNum, 0);
 	}
 
 	SoundConfig::Instance()->Init();
@@ -132,7 +130,7 @@ void GameScene::StartGame(int arg_stageNum, KuroEngine::Transform arg_playerInit
 {
 	m_stageNum = arg_stageNum;
 	m_gateSceneChange.Start();
-	m_nextScene = SCENE_IN_GAME;
+	m_nextScene = SCENE_STAGESELECT;
 	m_playerInitTransform = arg_playerInitTransform;
 	m_isFastTravel = arg_isFastTravel;
 	m_isRetry = arg_isRetry;
@@ -248,7 +246,7 @@ void GameScene::OnUpdate()
 		//ゲートをくぐった
 		if (GateManager::Instance()->IsEnter() && !m_gateSceneChange.IsActive())
 		{
-			StartGame(GateManager::Instance()->GetDestStageNum(), 
+			StartGame(GateManager::Instance()->GetDestStageNum(),
 				StageManager::Instance()->GetGateTransform(GateManager::Instance()->GetDestStageNum(), GateManager::Instance()->GetDestGateID()));
 			SoundConfig::Instance()->Play(SoundConfig::SE_GATE);
 		}
@@ -271,6 +269,18 @@ void GameScene::OnUpdate()
 		m_stageInfoUI.Update(TimeScaleMgr::s_inGame.GetTimeScale(), StageManager::Instance()->GetStarCoinNum());
 		m_pauseUI.Update(this);
 	}
+	else if (m_nowScene == SCENE_STAGESELECT)
+	{
+		if (m_gateSceneChange.IsAppear() && m_stageSelect.Done())
+		{
+			m_stageNum = m_stageSelect.GetNumber();
+			m_nextScene = SCENE_IN_GAME;
+			m_gateSceneChange.Start();
+		}
+
+		m_stageSelect.Update(m_nowCam);
+	}
+
 
 	//設定画面更新
 	m_sysSetting.Update();
@@ -309,6 +319,10 @@ void GameScene::OnUpdate()
 			GameInit();
 			m_goal.Init(StageManager::Instance()->GetGoalTransform(), StageManager::Instance()->GetGoalModel());
 		}
+		else if (m_nextScene == SCENE_STAGESELECT)
+		{
+			m_stageSelect.Init();
+		}
 
 		//ゲームクリア時に遷移する処理
 		if (m_clearFlag)
@@ -344,6 +358,7 @@ void GameScene::OnUpdate()
 	if (m_player.GetIsFinishDeadEffect()) {
 		Retry();
 	}
+
 
 	////そのステージにいるすべての敵にワープする
 	//if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_0))
@@ -386,7 +401,7 @@ void GameScene::OnUpdate()
 
 	//チェックポイントの円柱を更新。
 	m_checkPointPillar.Update(m_player.GetTransform());
-	
+
 
 }
 
@@ -403,6 +418,7 @@ void GameScene::OnDraw()
 	DrawFunc3D::DrawNonShadingModel(m_skyDomeModel, m_skyDomeTransform, *m_nowCam, 1.0f, nullptr, AlphaBlendMode_None);
 	//BasicDraw::Instance()->Draw_Stage(*m_nowCam, m_ligMgr, m_skyDomeModel, m_skyDomeTransform, m_skyDomeDrawParam);
 
+
 	//スカイドームを最背面描画するため、デプスステンシルのクリア
 	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 
@@ -412,7 +428,7 @@ void GameScene::OnDraw()
 		m_player.Draw(*m_nowCam, ds, m_ligMgr, DebugController::Instance()->IsActive());
 		m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
 	}
-
+	
 	//ステージ描画
 	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
 
@@ -462,6 +478,10 @@ void GameScene::OnDraw()
 	else if (!IsSystemAplicationActive() && m_nowScene == SCENE_TITLE)
 	{
 		m_title.Draw(*m_nowCam, m_ligMgr);
+	}
+	else if (m_nowScene == SCENE_STAGESELECT)
+	{
+		m_stageSelect.Draw(*m_nowCam);
 	}
 
 	//ファストトラベル画面描画

@@ -24,25 +24,25 @@ StageManager::StageManager()
 	//ホームステージ
 	m_homeStage = std::make_shared<Stage>();
 
-	////パズルステージ一括読み込み
-	//int loadPazzleIdx = 1;
-	//while (KuroEngine::ExistFile(stageDir + "P_Stage_" + std::to_string(loadPazzleIdx) + ".json"))
-	//{
-	//	m_stageArray.emplace_back(std::make_shared<Stage>());
-	//	m_stageArray.back()->Load(loadPazzleIdx, stageDir, "P_Stage_" + std::to_string(loadPazzleIdx++) + ".json", terrianScaling, false);
-	//}
+	//パズルステージ一括読み込み
+	int loadPazzleIdx = 1;
+	while (KuroEngine::ExistFile(stageDir + "P_Stage_" + std::to_string(loadPazzleIdx) + ".json"))
+	{
+		m_stageArray.emplace_back(std::make_shared<Stage>());
+		m_stageArray.back()->Load(loadPazzleIdx, stageDir, "P_Stage_" + std::to_string(loadPazzleIdx++) + ".json", terrianScaling, false);
+	}
 
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load(0, stageDir, "Tutorial.json", terrianScaling, false);
+	//m_stageArray.emplace_back(std::make_shared<Stage>());
+	//m_stageArray.back()->Load(0, stageDir, "Tutorial.json", terrianScaling, false);
 
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load(1, stageDir, "Stage1.json", terrianScaling, false);
+	//m_stageArray.emplace_back(std::make_shared<Stage>());
+	//m_stageArray.back()->Load(1, stageDir, "Stage1.json", terrianScaling, false);
 
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load(2, stageDir, "Stage2.json", terrianScaling, false);
+	//m_stageArray.emplace_back(std::make_shared<Stage>());
+	//m_stageArray.back()->Load(2, stageDir, "Stage2.json", terrianScaling, false);
 
-	m_stageArray.emplace_back(std::make_shared<Stage>());
-	m_stageArray.back()->Load(3, stageDir, "Stage3.json", terrianScaling, true);
+	//m_stageArray.emplace_back(std::make_shared<Stage>());
+	//m_stageArray.back()->Load(3, stageDir, "Stage3.json", terrianScaling, true);
 
 	//データからチェックポイントの解放を設定
 	int unlockedStageNum, unlockedCheckPointOrder;

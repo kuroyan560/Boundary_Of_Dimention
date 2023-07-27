@@ -42,6 +42,16 @@ public:
 	{
 		m_stageSelectArray[m_nowStageNum.y][m_nowStageNum.x].m_isClearFlag = true;
 	};
+	bool Done()
+	{
+		bool inputFlag = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::XBOX_BUTTON::A);
+		bool tmpDoneFlag = m_doneFlag;
+		if (inputFlag)
+		{
+			m_doneFlag = true;
+		}
+		return inputFlag && !tmpDoneFlag && !m_stopFlag;
+	};
 
 	std::weak_ptr<KuroEngine::Camera>GetCamera()
 	{
@@ -141,6 +151,8 @@ private:
 	//プレビューモード
 	bool m_previweFlag, m_triggerPreviewFlag;
 	bool stop1FlameFlag;
+
+	bool m_doneFlag;
 	KuroEngine::Vec2<float>m_hideVel;
 	KuroEngine::Timer m_hideTiemr;
 	KuroEngine::Timer m_appearTimer;

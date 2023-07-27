@@ -269,10 +269,10 @@ void Goal::Draw(KuroEngine::Camera &camera)
 		return;
 	}
 
-	for (auto &obj : m_loucusParticle)
-	{
-		obj.Draw(camera);
-	}
+	//for (auto &obj : m_loucusParticle)
+	//{
+	//	//obj.Draw(camera);
+	//}
 
 
 #ifdef _DEBUG

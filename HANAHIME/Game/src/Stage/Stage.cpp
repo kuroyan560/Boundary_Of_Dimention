@@ -156,7 +156,7 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	//ゴール地点
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::GOAL_POINT))
 	{
-		if (!CheckJsonKeyExist(arg_fileName, arg_json, "CheckPointOrder"))return;
+		//if (!CheckJsonKeyExist(arg_fileName, arg_json, "CheckPointOrder"))return;
 
 		//全てのレバーをオンにすることがクリア条件
 		if (obj.contains("leverID") && obj["leverID"] != -1)
@@ -171,9 +171,9 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		newPart = m_goalPoint.get();
 
 		//マップピンデータに追加
-		arg_mapPinDataArray.emplace_back();
-		arg_mapPinDataArray.back().m_order = arg_json["CheckPointOrder"].get<int>();
-		arg_mapPinDataArray.back().m_part = m_goalPoint;
+		//arg_mapPinDataArray.emplace_back();
+		//arg_mapPinDataArray.back().m_order = arg_json["CheckPointOrder"].get<int>();
+		//arg_mapPinDataArray.back().m_part = m_goalPoint;
 	}
 	//見かけだけのオブジェクト
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::APPEARANCE))

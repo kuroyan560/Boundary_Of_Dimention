@@ -226,12 +226,12 @@ void GoalPoint::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_
 {
 	using namespace KuroEngine;
 
-	static const Vec3<float> MODEL_OFFSET = m_transform.GetUpWorld() * -20.0f;
+	static const Vec3<float> MODEL_OFFSET = m_transform.GetUpWorld() * -10.0f;
 
 	Transform drawTransform;
 	drawTransform.SetPos(m_transform.GetPosWorld() + m_offset.GetPosWorld() + MODEL_OFFSET);
 	drawTransform.SetRotate(m_transform.GetRotate());
-	drawTransform.SetScale(m_transform.GetScaleWorld() + m_offset.GetScaleWorld());
+	drawTransform.SetScale(m_transform.GetScaleWorld());
 
 	BasicDraw::Instance()->Draw(
 		arg_cam,
