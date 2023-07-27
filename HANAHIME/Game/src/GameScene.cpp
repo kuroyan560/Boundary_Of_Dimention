@@ -22,7 +22,7 @@
 #include"System/SaveDataManager.h"
 
 GameScene::GameScene() :m_fireFlyStage(GPUParticleRender::Instance()->GetStackBuffer()), tutorial(GPUParticleRender::Instance()->GetStackBuffer()), m_goal(GPUParticleRender::Instance()->GetStackBuffer()),
-m_guideFly(GPUParticleRender::Instance()->GetStackBuffer()), m_guideInsect(GPUParticleRender::Instance()->GetStackBuffer())
+m_guideFly(GPUParticleRender::Instance()->GetStackBuffer()), m_guideInsect(GPUParticleRender::Instance()->GetStackBuffer()), m_isGameClearFlag(false)
 {
 	KuroEngine::Vec3<float>dir = { 0.0f,-1.0f,0.0f };
 	m_dirLigArray.emplace_back();
@@ -254,7 +254,7 @@ void GameScene::OnUpdate()
 		if (m_goal.IsEnd())
 		{
 			m_gateSceneChange.Start();
-			GoBackTitle();
+			m_nextScene = SCENE_STAGESELECT;
 		}
 
 		//ポーズ画面
@@ -276,6 +276,7 @@ void GameScene::OnUpdate()
 			m_stageNum = m_stageSelect.GetNumber();
 			m_nextScene = SCENE_IN_GAME;
 			m_gateSceneChange.Start();
+			m_isGameClearFlag = true;
 		}
 
 		m_stageSelect.Update(m_nowCam);
@@ -321,7 +322,13 @@ void GameScene::OnUpdate()
 		}
 		else if (m_nextScene == SCENE_STAGESELECT)
 		{
+			const int stageIndex = StageManager::Instance()->GetNowStageIdx() + 1;
 			m_stageSelect.Init();
+			if (m_isGameClearFlag)
+			{
+				m_stageSelect.SetSelectStageNum(stageIndex);
+				m_isGameClearFlag = false;
+			}
 		}
 
 		//ゲームクリア時に遷移する処理
