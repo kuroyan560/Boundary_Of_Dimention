@@ -103,6 +103,18 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	//‚«‚Ì‚±
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::KINOKO))
 	{
+
+		KuroEngine::Vec3<float> xAxis(-1.0f, 0.0f, 0.0f);
+		float dot = xAxis.Dot(transform.GetUp());
+		if (0.5f < dot) {
+			transform.SetRotate(DirectX::XMQuaternionMultiply(transform.GetRotate(), DirectX::XMQuaternionRotationAxis({ 0.0f, 1.0f, 0.0f }, DirectX::XM_PI)));
+		}
+		//KuroEngine::Vec3<float> zAxis(0.0f, 0.0f, 1.0f);
+		//dot = zAxis.Dot(transform.GetUp());
+		//if (0.5f < dot) {
+			//transform.SetRotate(DirectX::XMQuaternionMultiply(transform.GetRotate(), DirectX::XMQuaternionRotationAxis({ 0.0f, 1.0f, 0.0f }, DirectX::XM_PI)));
+		//}
+
 		m_gimmickArray.emplace_back(std::make_shared<Kinoko>(transform));
 		newPart = m_gimmickArray.back().get();
 	}

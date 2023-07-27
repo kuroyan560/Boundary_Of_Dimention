@@ -1151,6 +1151,7 @@ Kinoko::Kinoko(KuroEngine::Transform arg_initTransform)
 	:StageParts(KINOKO, s_kinokoModel[0], arg_initTransform)
 {
 	using namespace KuroEngine;
+
 	if (!s_kinokoModel[0])
 	{
 		std::string dir = "resource/user/model/stage/kinoko/";
