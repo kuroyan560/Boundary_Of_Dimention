@@ -241,6 +241,7 @@ void GameScene::OnUpdate()
 			}
 			OperationConfig::Instance()->SetAllInputActive(false);
 			m_clearFlag = true;
+			m_isGameClearFlag = true;
 		}
 
 		//ÉQÅ[ÉgÇÇ≠ÇÆÇ¡ÇΩ
@@ -276,7 +277,6 @@ void GameScene::OnUpdate()
 			m_stageNum = m_stageSelect.GetNumber();
 			m_nextScene = SCENE_IN_GAME;
 			m_gateSceneChange.Start();
-			m_isGameClearFlag = true;
 		}
 
 		m_stageSelect.Update(m_nowCam);
@@ -327,6 +327,7 @@ void GameScene::OnUpdate()
 			m_stageSelect.Init();
 			if (m_isGameClearFlag)
 			{
+				m_stageSelect.Clear();
 				m_stageSelect.SetSelectStageNum(stageIndex);
 				m_isGameClearFlag = false;
 			}
