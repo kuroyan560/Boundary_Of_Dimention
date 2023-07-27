@@ -554,8 +554,8 @@ void PazzleStageSelect::Draw(KuroEngine::Camera& arg_cam)
 
 			//Œ…—pˆÓ
 			std::vector<int>timeArray = CountNumber(stageNumber + 1);
-			//KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_nowPos[y][x] - m_hideVel, size, 0.0f, m_nowNumTexArray[timeArray[0]], m_nowAlpha[y][x]);
-			//KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_nowPos[y][x] + digitsBetween - m_hideVel, size, 0.0f, m_nowNumTexArray[timeArray[1]], m_nowAlpha[y][x]);
+			KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_nowPos[y][x] - m_hideVel, size, 0.0f, m_nowNumTexArray[timeArray[0]], m_nowAlpha[y][x]);
+			KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_nowPos[y][x] + digitsBetween - m_hideVel, size, 0.0f, m_nowNumTexArray[timeArray[1]], m_nowAlpha[y][x]);
 
 		}
 		yNum += static_cast<int>(m_stageSelectArray[y].size());
