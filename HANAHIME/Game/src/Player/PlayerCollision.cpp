@@ -305,8 +305,8 @@ void PlayerCollision::CheckHitGround(const KuroEngine::Vec3<float>arg_from, Kuro
 	m_refPlayer->m_onGround = false;
 
 	//崖チェックで下方向にレイを伸ばす際のレイの長さ
-	m_checkUnderRayLength = m_refPlayer->m_transform.GetScale().y * 2.0f;
-	m_checkCliffRayLength = m_refPlayer->m_transform.GetScale().y * 10.0f;
+	m_checkUnderRayLength = m_refPlayer->m_transform.GetScale().y * 1.0f;
+	m_checkCliffRayLength = m_refPlayer->m_transform.GetScale().y * 5.0f;
 
 	//崖判定用フラグ
 	m_isHitCliff = { false,false,false,false };
