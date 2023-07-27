@@ -235,6 +235,8 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		//‰E‰º‰œ
 		Vec3<float>rightBottomBack = GetConsiderCoordinate(arg_json["block"]["right_bottom_back_pos"]);
 
+		transform.SetScale(transform.GetScale());
+
 		m_gimmickArray.emplace_back(std::make_shared<IvyBlock>(model, transform, leftTopFront, rightBottomBack, collisionModel));
 		newPart = m_gimmickArray.back().get();
 	}
