@@ -252,7 +252,7 @@ private:
 	KuroEngine::Vec3<float> m_nowPos;
 	KuroEngine::Vec3<float> m_oldPos;
 
-	const float MOVE_SPEED = 0.2f;
+	const float MOVE_SPEED = 0.1f;
 
 	std::weak_ptr<KuroEngine::Model>m_collisionModel;
 
