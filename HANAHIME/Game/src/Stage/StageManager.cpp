@@ -24,6 +24,8 @@ StageManager::StageManager()
 	//ホームステージ
 	m_homeStage = std::make_shared<Stage>();
 
+
+
 	//パズルステージ一括読み込み
 	int loadPazzleIdx = 1;
 	while (KuroEngine::ExistFile(stageDir + "P_Stage_" + std::to_string(loadPazzleIdx) + ".json"))
