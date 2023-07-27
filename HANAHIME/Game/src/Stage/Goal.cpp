@@ -179,7 +179,9 @@ void Goal::Update(KuroEngine::Transform* transform, Player& arg_player)
 			m_initParticleFlag = true;
 
 			SoundConfig::Instance()->Play(SoundConfig::JINGLE_STAGE_CLEAR);
-			m_goalModel->GrowUpWood();
+			if (m_goalModel) {
+				m_goalModel->GrowUpWood();
+			}
 			arg_player.PlantLightExplosion();
 		}
 		m_scaleOffset = KuroEngine::Math::Lerp(m_scaleOffset, KuroEngine::Vec3<float>(smallScale, smallScale, smallScale), 0.1f);
