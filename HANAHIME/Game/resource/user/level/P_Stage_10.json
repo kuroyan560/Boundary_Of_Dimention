@@ -4,7 +4,7 @@
         "objects": [
             {
                 "type": "Start",
-                "name": "Start_5",
+                "name": "Start_11",
                 "transform": {
                     "translation": [
                         0.0,
@@ -26,130 +26,126 @@
                 "file_name": "Start"
             },
             {
-                "type": "Goal",
-                "name": "Goal_5",
+                "type": "Terrian",
+                "name": "Stage11_0",
                 "transform": {
                     "translation": [
                         0.0,
                         0.0,
-                        -9.0
+                        -2.0
                     ],
                     "rotation": [
-                        -0.0,
-                        -1.0,
-                        -0.0,
-                        0.0
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "Stage11"
+            },
+            {
+                "type": "Lever",
+                "name": "Lever11_0",
+                "transform": {
+                    "translation": [
+                        30.0,
+                        0.0,
+                        3.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
                     ],
                     "scaling": [
                         1.0,
                         1.0,
                         1.0
+                    ]
+                },
+                "file_name": "Lever",
+                "id": 1,
+                "initFlg": false
+            },
+            {
+                "type": "Lever",
+                "name": "Lever11_1",
+                "transform": {
+                    "translation": [
+                        30.0,
+                        5.0,
+                        18.0
+                    ],
+                    "rotation": [
+                        0.7071067094802856,
+                        0.0,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Lever",
+                "id": 1,
+                "initFlg": false
+            },
+            {
+                "type": "Lever",
+                "name": "Lever11_2",
+                "transform": {
+                    "translation": [
+                        10.0,
+                        0.0,
+                        3.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Lever",
+                "id": 1,
+                "initFlg": false
+            },
+            {
+                "type": "Goal",
+                "name": "Goal_11",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        0.10000000149011612,
+                        0.10000000149011612,
+                        0.10000000149011612
                     ]
                 },
                 "file_name": "Goal",
-                "leverID": -1
-            },
-            {
-                "type": "Terrian",
-                "name": "Stage5_0",
-                "transform": {
-                    "translation": [
-                        0.0,
-                        0.0,
-                        -1.0
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        5.0,
-                        5.0,
-                        4.0
-                    ]
-                },
-                "file_name": "Stage5"
-            },
-            {
-                "type": "MoveScaffold",
-                "name": "MoveScaffoldStage5_0",
-                "transform": {
-                    "translation": [
-                        10.0,
-                        0.0,
-                        -1.0
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        5.0,
-                        5.0,
-                        4.0
-                    ]
-                },
-                "file_name": "MoveScaffoldStage5",
-                "translationArray": {
-                    "translation_0": [
-                        10.0,
-                        0.0,
-                        -1.0
-                    ],
-                    "translation_1": [
-                        20.0,
-                        0.0,
-                        -1.0
-                    ]
-                }
-            },
-            {
-                "type": "Kinoko",
-                "name": "Mushroom.003",
-                "transform": {
-                    "translation": [
-                        24.875,
-                        -13.5,
-                        11.53125
-                    ],
-                    "rotation": [
-                        0.0,
-                        -0.7071068286895752,
-                        0.0,
-                        0.7071068286895752
-                    ],
-                    "scaling": [
-                        0.5,
-                        0.5,
-                        0.5
-                    ]
-                }
-            },
-            {
-                "type": "Kinoko",
-                "name": "Mushroom.004",
-                "transform": {
-                    "translation": [
-                        24.875001907348633,
-                        3.5625,
-                        -13.8125
-                    ],
-                    "rotation": [
-                        0.0,
-                        -0.7071068286895752,
-                        0.0,
-                        0.7071068286895752
-                    ],
-                    "scaling": [
-                        0.5,
-                        0.5,
-                        0.5
-                    ]
-                }
+                "leverID": 1
             }
         ]
     }

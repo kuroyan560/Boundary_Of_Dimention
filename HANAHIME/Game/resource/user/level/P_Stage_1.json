@@ -4,7 +4,7 @@
         "objects": [
             {
                 "type": "Start",
-                "name": "Start_1",
+                "name": "Start_1.002",
                 "transform": {
                     "translation": [
                         0.0,
@@ -12,10 +12,10 @@
                         6.5
                     ],
                     "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
+                        -0.0,
+                        -0.0,
+                        -1.0,
+                        0.0
                     ],
                     "scaling": [
                         1.0,
@@ -27,7 +27,7 @@
             },
             {
                 "type": "Terrian",
-                "name": "Stage1_0",
+                "name": "Stage1_0.002",
                 "transform": {
                     "translation": [
                         0.0,
@@ -50,7 +50,7 @@
             },
             {
                 "type": "Goal",
-                "name": "Goal_1",
+                "name": "Goal_1.001",
                 "transform": {
                     "translation": [
                         30.0,

@@ -3,8 +3,31 @@
         "name": "scene",
         "objects": [
             {
+                "type": "Goal",
+                "name": "Goal_15",
+                "transform": {
+                    "translation": [
+                        10.0,
+                        -10.0,
+                        -3.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Goal"
+            },
+            {
                 "type": "Start",
-                "name": "Start_2",
+                "name": "Start_15",
                 "transform": {
                     "translation": [
                         0.0,
@@ -12,10 +35,10 @@
                         6.5
                     ],
                     "rotation": [
-                        -0.0,
-                        -0.0,
-                        -1.0,
-                        0.0
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
                     ],
                     "scaling": [
                         1.0,
@@ -26,37 +49,13 @@
                 "file_name": "Start"
             },
             {
-                "type": "Goal",
-                "name": "Goal_2",
-                "transform": {
-                    "translation": [
-                        0.0,
-                        0.0,
-                        -9.0
-                    ],
-                    "rotation": [
-                        -0.0,
-                        -1.0,
-                        -0.0,
-                        0.0
-                    ],
-                    "scaling": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                },
-                "file_name": "Goal",
-                "leverID": -1
-            },
-            {
                 "type": "Terrian",
-                "name": "Stage2_0.002",
+                "name": "Stage15_0",
                 "transform": {
                     "translation": [
                         0.0,
                         0.0,
-                        -1.0
+                        -2.0
                     ],
                     "rotation": [
                         0.0,
@@ -67,30 +66,43 @@
                     "scaling": [
                         5.0,
                         5.0,
-                        4.0
+                        5.0
                     ]
                 },
-                "file_name": "Stage2"
+                "file_name": "Stage15"
             },
             {
-                "type": "Kinoko",
-                "name": "Mushroom.1",
+                "type": "IvyBlock",
+                "name": "IvyBlock_15",
                 "transform": {
                     "translation": [
-                        32.71875,
-                        4.8125,
-                        11.3125
+                        10.0,
+                        0.0,
+                        -2.0
                     ],
                     "rotation": [
-                        0.7071068286895752,
                         0.0,
                         0.0,
-                        0.7071068286895752
+                        0.0,
+                        1.0
                     ],
                     "scaling": [
-                        0.5,
-                        0.5,
-                        0.5
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "IvyBlock",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -1.0,
+                        -1.0
                     ]
                 }
             }

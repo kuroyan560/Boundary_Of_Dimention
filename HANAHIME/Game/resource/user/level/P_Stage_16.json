@@ -3,8 +3,31 @@
         "name": "scene",
         "objects": [
             {
+                "type": "Goal",
+                "name": "Goal_17",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        -9.0,
+                        -3.0
+                    ],
+                    "rotation": [
+                        0.7071068286895752,
+                        0.0,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Goal"
+            },
+            {
                 "type": "Start",
-                "name": "Start_5",
+                "name": "Start_17",
                 "transform": {
                     "translation": [
                         0.0,
@@ -26,37 +49,13 @@
                 "file_name": "Start"
             },
             {
-                "type": "Goal",
-                "name": "Goal_5",
-                "transform": {
-                    "translation": [
-                        0.0,
-                        0.0,
-                        -9.0
-                    ],
-                    "rotation": [
-                        -0.0,
-                        -1.0,
-                        -0.0,
-                        0.0
-                    ],
-                    "scaling": [
-                        1.0,
-                        1.0,
-                        1.0
-                    ]
-                },
-                "file_name": "Goal",
-                "leverID": -1
-            },
-            {
                 "type": "Terrian",
-                "name": "Stage5_0",
+                "name": "Stage17_0",
                 "transform": {
                     "translation": [
                         0.0,
                         0.0,
-                        -1.0
+                        -2.0
                     ],
                     "rotation": [
                         0.0,
@@ -67,19 +66,19 @@
                     "scaling": [
                         5.0,
                         5.0,
-                        4.0
+                        5.0
                     ]
                 },
-                "file_name": "Stage5"
+                "file_name": "Stage17"
             },
             {
-                "type": "MoveScaffold",
-                "name": "MoveScaffoldStage5_0",
+                "type": "IvyBlock",
+                "name": "IvyBlock_17",
                 "transform": {
                     "translation": [
-                        10.0,
+                        30.0,
                         0.0,
-                        -1.0
+                        -2.0
                     ],
                     "rotation": [
                         0.0,
@@ -90,57 +89,35 @@
                     "scaling": [
                         5.0,
                         5.0,
-                        4.0
+                        5.0
                     ]
                 },
-                "file_name": "MoveScaffoldStage5",
-                "translationArray": {
-                    "translation_0": [
-                        10.0,
-                        0.0,
-                        -1.0
+                "file_name": "IvyBlock",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        1.0,
+                        1.0
                     ],
-                    "translation_1": [
-                        20.0,
-                        0.0,
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -1.0,
                         -1.0
                     ]
                 }
             },
             {
                 "type": "Kinoko",
-                "name": "Mushroom.003",
+                "name": "Mushroom.017",
                 "transform": {
                     "translation": [
-                        24.875,
-                        -13.5,
-                        11.53125
+                        44.0625,
+                        -4.531250476837158,
+                        11.84375
                     ],
                     "rotation": [
+                        0.7071068286895752,
                         0.0,
-                        -0.7071068286895752,
-                        0.0,
-                        0.7071068286895752
-                    ],
-                    "scaling": [
-                        0.5,
-                        0.5,
-                        0.5
-                    ]
-                }
-            },
-            {
-                "type": "Kinoko",
-                "name": "Mushroom.004",
-                "transform": {
-                    "translation": [
-                        24.875001907348633,
-                        3.5625,
-                        -13.8125
-                    ],
-                    "rotation": [
-                        0.0,
-                        -0.7071068286895752,
                         0.0,
                         0.7071068286895752
                     ],
