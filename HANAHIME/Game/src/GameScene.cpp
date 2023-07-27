@@ -130,7 +130,7 @@ void GameScene::StartGame(int arg_stageNum, KuroEngine::Transform arg_playerInit
 {
 	m_stageNum = arg_stageNum;
 	m_gateSceneChange.Start();
-	m_nextScene = SCENE_STAGESELECT;
+	m_nextScene = SCENE_IN_GAME;
 	m_playerInitTransform = arg_playerInitTransform;
 	m_isFastTravel = arg_isFastTravel;
 	m_isRetry = arg_isRetry;
@@ -283,6 +283,7 @@ void GameScene::OnUpdate()
 	}
 
 
+
 	//Ý’è‰æ–ÊXV
 	m_sysSetting.Update();
 
@@ -328,6 +329,10 @@ void GameScene::OnUpdate()
 			{
 				m_stageSelect.SetSelectStageNum(stageIndex);
 				m_isGameClearFlag = false;
+			}
+			if (m_player.GetIsDeath())
+			{
+				m_stageSelect.SetSelectStageNum(StageManager::Instance()->GetNowStageIdx());
 			}
 		}
 
