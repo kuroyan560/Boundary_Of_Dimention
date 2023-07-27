@@ -90,6 +90,7 @@ class GameScene : public KuroEngine::BaseScene
 	//ファストトラベル中か
 	bool m_isFastTravel;
 	bool m_isRetry;
+	bool m_isGameClearFlag;
 
 	Tutorial tutorial;
 

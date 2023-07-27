@@ -65,6 +65,11 @@ public:
 		}
 	}
 
+	void SetSelectStageNum(int arg_stageNum)
+	{
+		m_nowStageNum.x = arg_stageNum;
+	}
+
 	MovieCamera m_camera;
 private:
 
