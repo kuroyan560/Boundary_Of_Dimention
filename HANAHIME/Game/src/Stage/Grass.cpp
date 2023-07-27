@@ -285,7 +285,7 @@ void Grass::Update(const float arg_timeScale, bool arg_isPlayerOverheat, const K
 
 			//草にトランスフォームを適応。
 			//Indexが-1だったら処理を飛ばす。
-			if (grass.m_terrianIdx != -1) {
+			if (grass.m_terrianIdx != -1 && 0 < arg_nowStage.lock()->GetGimmickArray().size()) {
 
 				auto terrian = arg_nowStage.lock()->GetGimmickArray().begin();
 				std::advance(terrian, grass.m_terrianIdx);
