@@ -4,7 +4,7 @@
         "objects": [
             {
                 "type": "Start",
-                "name": "Start_5",
+                "name": "Start_10",
                 "transform": {
                     "translation": [
                         0.0,
@@ -27,17 +27,17 @@
             },
             {
                 "type": "Goal",
-                "name": "Goal_5",
+                "name": "Goal_10",
                 "transform": {
                     "translation": [
                         0.0,
-                        0.0,
-                        -9.0
+                        10.0,
+                        -0.5
                     ],
                     "rotation": [
                         -0.0,
-                        -1.0,
                         -0.0,
+                        -1.0,
                         0.0
                     ],
                     "scaling": [
@@ -50,35 +50,12 @@
                 "leverID": -1
             },
             {
-                "type": "Terrian",
-                "name": "Stage5_0",
-                "transform": {
-                    "translation": [
-                        0.0,
-                        0.0,
-                        -1.0
-                    ],
-                    "rotation": [
-                        0.0,
-                        0.0,
-                        0.0,
-                        1.0
-                    ],
-                    "scaling": [
-                        5.0,
-                        5.0,
-                        4.0
-                    ]
-                },
-                "file_name": "Stage5"
-            },
-            {
                 "type": "MoveScaffold",
-                "name": "MoveScaffoldStage5_0",
+                "name": "MoveScaffoldStage10b_0",
                 "transform": {
                     "translation": [
-                        10.0,
                         0.0,
+                        20.0,
                         -1.0
                     ],
                     "rotation": [
@@ -93,34 +70,92 @@
                         4.0
                     ]
                 },
-                "file_name": "MoveScaffoldStage5",
+                "file_name": "MoveScaffoldStage10b",
                 "translationArray": {
                     "translation_0": [
-                        10.0,
                         0.0,
+                        20.0,
                         -1.0
                     ],
                     "translation_1": [
+                        30.0,
                         20.0,
-                        0.0,
                         -1.0
                     ]
                 }
             },
             {
-                "type": "Kinoko",
-                "name": "Mushroom.003",
+                "type": "Terrian",
+                "name": "Stage10_0",
                 "transform": {
                     "translation": [
-                        24.875,
-                        -13.5,
-                        11.53125
+                        -10.0,
+                        10.0,
+                        -1.0
                     ],
                     "rotation": [
                         0.0,
-                        -0.7071068286895752,
                         0.0,
-                        0.7071068286895752
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        4.0
+                    ]
+                },
+                "file_name": "Stage10"
+            },
+            {
+                "type": "MoveScaffold",
+                "name": "MoveScaffoldStage10a_0",
+                "transform": {
+                    "translation": [
+                        30.0,
+                        -10.0,
+                        9.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        4.0
+                    ]
+                },
+                "file_name": "MoveScaffoldStage10a",
+                "translationArray": {
+                    "translation_0": [
+                        30.0,
+                        -10.0,
+                        9.0
+                    ],
+                    "translation_1": [
+                        0.0,
+                        -10.0,
+                        9.0
+                    ]
+                }
+            },
+            {
+                "type": "Kinoko",
+                "name": "Mushroom.013",
+                "transform": {
+                    "translation": [
+                        43.8125,
+                        -23.90625,
+                        3.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
                     ],
                     "scaling": [
                         0.5,
@@ -131,18 +166,18 @@
             },
             {
                 "type": "Kinoko",
-                "name": "Mushroom.004",
+                "name": "Mushroom.014",
                 "transform": {
                     "translation": [
-                        24.875001907348633,
-                        3.5625,
-                        -13.8125
+                        -13.96875,
+                        33.875,
+                        3.0
                     ],
                     "rotation": [
                         0.0,
-                        -0.7071068286895752,
                         0.0,
-                        0.7071068286895752
+                        0.0,
+                        1.0
                     ],
                     "scaling": [
                         0.5,
