@@ -1,5 +1,4 @@
 #pragma once
-#pragma once
 #include<array>
 #include<memory>
 #include<optional>
@@ -173,6 +172,8 @@ class GoalPoint : public StageParts
 	//木に育つ時間タイマー
 	KuroEngine::Timer m_growUpTimer;
 	bool m_isGrowUp;
+
+	KuroEngine::Transform m_drawTransform;
 
 public:
 	GoalPoint(std::weak_ptr<KuroEngine::Model>arg_model, KuroEngine::Transform arg_initTransform);
