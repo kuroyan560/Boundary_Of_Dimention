@@ -54,6 +54,8 @@ public:
 		return m_camera;
 	}
 
+	bool IsZoomOut();
+
 
 	void InitLimitPos(const KuroEngine::Vec3<float> &pos)
 	{
@@ -82,6 +84,7 @@ private:
 	bool m_initFlag;
 	bool m_isStartFlag, m_prevStartFlag, m_startGoalEffectFlag;
 	bool m_startCameraFlag;
+	bool m_zoomOutFlag;
 	MovieCamera m_movieCamera;					//ゴール時のカメラワーク
 	bool m_goalFlag, m_goalTriggerFlag;
 	KuroEngine::Transform m_cameraTransform;
