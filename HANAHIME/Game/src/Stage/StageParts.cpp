@@ -1,5 +1,4 @@
 #include"StageParts.h"
-#include"StageParts.h"
 #include"ForUser/Object/Model.h"
 #include"../Graphics/BasicDraw.h"
 #include"../Player/Player.h"
@@ -200,13 +199,21 @@ GoalPoint::GoalPoint(std::weak_ptr<KuroEngine::Model> arg_model, KuroEngine::Tra
 {
 	m_saplingModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/stage/", "Goal.glb");
 	m_woodModel = KuroEngine::Importer::Instance()->LoadModel("resource/user/model/stage/", "Goal_Wood.glb");
+
+	const KuroEngine::Vec3<float> MODEL_OFFSET = m_transform.GetUpWorld() * -10.0f;
+	m_drawTransform.SetPos(m_transform.GetPosWorld() + m_offset.GetPosWorld() + MODEL_OFFSET);
+	m_drawTransform.SetRotate(m_transform.GetRotate());
+	m_drawTransform.SetScale(m_transform.GetScaleWorld());
+
+	m_transform = m_drawTransform;
+	m_hitPlayer = false;
 }
 
 void GoalPoint::Update(Player &arg_player)
 {
 	using namespace KuroEngine;
 
-	const float HIT_RADIUS = 10.0f;
+	const float HIT_RADIUS = 5.0f;
 
 	//ÉvÉåÉCÉÑÅ[Ç∆ÇÃìñÇΩÇËîªíË
 	float dist = arg_player.GetTransform().GetPosWorld().Distance(m_transform.GetPosWorld() + (-m_transform.GetUpWorld() * HIT_RADIUS));
@@ -224,20 +231,11 @@ void GoalPoint::Update(Player &arg_player)
 
 void GoalPoint::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
-	using namespace KuroEngine;
-
-	static const Vec3<float> MODEL_OFFSET = m_transform.GetUpWorld();
-
-	Transform drawTransform;
-	drawTransform.SetPos(m_transform.GetPosWorld() + m_offset.GetPosWorld() + MODEL_OFFSET);
-	drawTransform.SetRotate(m_transform.GetRotate());
-	drawTransform.SetScale(m_transform.GetScaleWorld());
-
 	BasicDraw::Instance()->Draw(
 		arg_cam,
 		arg_ligMgr,
 		m_model.lock(),
-		drawTransform);
+		m_drawTransform);
 }
 
 std::map<std::string, std::weak_ptr<KuroEngine::Model>>Appearance::s_models;
