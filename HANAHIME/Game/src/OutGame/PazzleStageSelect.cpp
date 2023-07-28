@@ -146,7 +146,6 @@ void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam, Game
 		m_cameraLength = FAR_CAMERA_LENGTH;
 		m_arrowSineLengthNow[RIGHT] = ARROW_SINE_INIT_LENGTH_ADD;
 		m_arrowSinTimerAddNow[RIGHT] = ARROW_SINE_TIMER_ADD;
-		SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
 	}
 
 	if (OperationConfig::Instance()->GetSelectVec(OperationConfig::SELECT_VEC_LEFT))
@@ -156,7 +155,6 @@ void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam, Game
 		m_cameraLength = FAR_CAMERA_LENGTH;
 		m_arrowSineLengthNow[LEFT] = ARROW_SINE_INIT_LENGTH_ADD;
 		m_arrowSinTimerAddNow[LEFT] = ARROW_SINE_TIMER_ADD;
-		SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
 	}
 	if (OperationConfig::Instance()->GetSelectVec(OperationConfig::SELECT_VEC_UP))
 	{
@@ -309,15 +307,16 @@ void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam, Game
 		m_previweFlag = true;
 	}
 
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::XBOX_BUTTON::A) && !m_doneFlag)
+	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::DONE, OperationConfig::ON_TRIGGER) && !m_doneFlag)
 	{
 		if (m_previweFlag)
 		{
 			stop1FlameFlag = true;
 		}
 		m_previweFlag = false;
-	}
 
+		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
+	}
 
 	//プレビューモードのカメラ
 	if (m_previweFlag)
