@@ -107,7 +107,10 @@ private:
 
 	//新しいやつ↓==============================================================
 	enum TITLE_MODE { MODE_MENU, MODE_CONFIRM_NEW_GAME }m_mode;
-	enum TITLE_MENU_ITEM { CONTINUE, NEW_GAME, SETTING, QUIT, TITLE_MENU_ITEM_NUM }m_nowItem;
+	//enum TITLE_MENU_ITEM { CONTINUE, NEW_GAME, SETTING, QUIT, TITLE_MENU_ITEM_NUM }m_nowItem;
+	//ゲームダンジョン用
+	enum TITLE_MENU_ITEM { NEW_GAME, STAGE_SELECT, SETTING, QUIT, TITLE_MENU_ITEM_NUM }m_nowItem;
+
 	enum ITEM_STATUS { DEFAULT, SELECT, ITEM_STATUS_NUM };
 	struct Item
 	{
@@ -125,6 +128,7 @@ private:
 	std::shared_ptr<KuroEngine::TextureBuffer>m_selectShadowTex;
 
 	//「はじめから」の最終確認
+	/*
 	struct ConfirmNewGame
 	{
 		bool m_isNo = true;
@@ -149,6 +153,7 @@ private:
 		}
 
 	}m_confirmNewGame;
+	*/
 
 	
 	//ゲームダンジョン用

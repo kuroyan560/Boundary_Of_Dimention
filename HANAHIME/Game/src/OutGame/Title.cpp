@@ -20,7 +20,7 @@ void Title::MenuUpdate(bool arg_inputUp, bool arg_inputDown, bool arg_inputDone,
 	}
 
 	//セーブデータがないときは「つづきから」を選べない
-	if (m_nowItem == CONTINUE && !SaveDataManager::Instance()->LoadStageSaveData(nullptr, nullptr))m_nowItem = oldItem;
+	//if (m_nowItem == CONTINUE && !SaveDataManager::Instance()->LoadStageSaveData(nullptr, nullptr))m_nowItem = oldItem;
 
 	//選択項目が変わった
 	if (m_nowItem != oldItem)
@@ -28,7 +28,8 @@ void Title::MenuUpdate(bool arg_inputUp, bool arg_inputDown, bool arg_inputDone,
 		m_itemArray[m_nowItem].m_status = ITEM_STATUS::SELECT;
 		m_itemArray[oldItem].m_status = ITEM_STATUS::DEFAULT;
 	}
-
+	
+	/*
 	//決定
 	if (arg_inputDone)
 	{
@@ -67,16 +68,55 @@ void Title::MenuUpdate(bool arg_inputUp, bool arg_inputDown, bool arg_inputDone,
 				break;
 		}
 	}
+	*/
+
+	//ゲームダンジョン用
+	if (arg_inputDone)
+	{
+		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
+		switch (m_nowItem)
+		{
+
+			//はじめから
+			case NEW_GAME:
+				arg_gameScene->StartGame(0, StageManager::Instance()->GetStartPointTransform());
+				SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
+				SaveDataManager::Instance()->ResetSaveData();
+				StageManager::Instance()->AllStageCheckPointReset();
+				break;
+			//ステージセレクト
+			case STAGE_SELECT:
+				break;
+			//設定
+			case SETTING:
+				arg_gameScene->ActivateSystemSetting();
+				break;
+				//ゲームをやめる
+			case QUIT:
+				KuroEngine::KuroEngineDevice::Instance()->GameEnd();
+				break;
+			default:
+				break;
+		}
+	}
 }
 
 void Title::MenuDraw()
 {
 	using namespace KuroEngine;
 
+	/*
 	//項目の描画中心座標
 	static const Vec2<float>ITEM_DRAW_CENTER_POS = { 1044.0f,200.0f };
 	//項目間の行間
 	static const float ITEM_LINE_SPACE = 70.0f;
+	*/
+
+	//ゲームダンジョン用
+	//項目の描画中心座標
+	const Vec2<float>ITEM_DRAW_CENTER_POS = { 1068.0f,451.0f };
+	//項目間の行間
+	const float ITEM_LINE_SPACE = 28.0f;
 
 	//項目の描画
 	float offsetY = 0.0f;
@@ -87,7 +127,7 @@ void Title::MenuDraw()
 
 		//セーブデータがなければつづきからは選択不可
 		float alpha = 1.0f;
-		if (itemIdx == CONTINUE && !SaveDataManager::Instance()->LoadStageSaveData(nullptr, nullptr))alpha = 0.3f;
+		//if (itemIdx == CONTINUE && !SaveDataManager::Instance()->LoadStageSaveData(nullptr, nullptr))alpha = 0.3f;
 
 		//選択項目
 		if (itemIdx == m_nowItem)
@@ -105,6 +145,7 @@ void Title::MenuDraw()
 
 void Title::ConfirmNewGameUpdate(bool arg_inputLeft, bool arg_inputRight, bool arg_inputDone, GameScene* arg_gameScene)
 {
+	/*
 	//「はい」「いいえ」選択
 	if ((!m_confirmNewGame.m_isNo && arg_inputLeft) || (m_confirmNewGame.m_isNo && arg_inputRight))
 	{
@@ -125,10 +166,12 @@ void Title::ConfirmNewGameUpdate(bool arg_inputLeft, bool arg_inputRight, bool a
 		}
 		SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
 	}
+	*/
 }
 
 void Title::ConfirmNewGameDraw()
 {
+	/*
 	using namespace KuroEngine;
 
 	const float CENTER_X = 1004.0f;
@@ -156,6 +199,7 @@ void Title::ConfirmNewGameDraw()
 	DrawFunc2D::DrawRotaGraph2D(YES_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_confirmNewGame.GetYesTex());
 	//「いいえ」
 	DrawFunc2D::DrawRotaGraph2D(NO_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_confirmNewGame.GetNoTex());
+	*/
 }
 
 Title::Title()
@@ -173,10 +217,19 @@ Title::Title()
 	m_titleLogoTex = D3D12App::Instance()->GenerateTextureBuffer(DIR + "logo_bright.png");
 
 	//項目のテクスチャ
+	/*
 	const std::array<std::string, TITLE_MENU_ITEM_NUM>TEX_FILE_NAME =
 	{
 		"continue.png",
 		"new_game.png",
+		"setting.png",
+		"quit.png"
+	};
+	*/
+	const std::array<std::string, TITLE_MENU_ITEM_NUM>TEX_FILE_NAME =
+	{
+		"new_game.png",
+		"stage_select.png",
 		"setting.png",
 		"quit.png"
 	};
@@ -189,15 +242,18 @@ Title::Title()
 	m_selectShadowTex = D3D12App::Instance()->GenerateTextureBuffer(DIR + "shadow.png");
 
 	//「はじめから」の最終確認のテクスチャ
+	/*
 	static const std::string CONFIRM_DIR = "resource/user/tex/title/confirm/";
 	m_confirmNewGame.m_iconTex = D3D12App::Instance()->GenerateTextureBuffer(CONFIRM_DIR + "icon.png");
 	m_confirmNewGame.m_strTex = D3D12App::Instance()->GenerateTextureBuffer(CONFIRM_DIR + "str.png");
 	D3D12App::Instance()->GenerateTextureBuffer(m_confirmNewGame.m_yesTex.data(), CONFIRM_DIR + "yes.png", ITEM_STATUS_NUM, { 1,ITEM_STATUS_NUM });
 	D3D12App::Instance()->GenerateTextureBuffer(m_confirmNewGame.m_noTex.data(), CONFIRM_DIR + "no.png", ITEM_STATUS_NUM, { 1,ITEM_STATUS_NUM });
 	m_confirmNewGame.m_shadowTex = D3D12App::Instance()->GenerateTextureBuffer(CONFIRM_DIR + "shadow.png");
+	*/
 
 	//セーブデータが存在に応じて選択項目の初期化
-	m_nowItem = SaveDataManager::Instance()->LoadStageSaveData(nullptr, nullptr) ? CONTINUE : NEW_GAME;
+	//m_nowItem = SaveDataManager::Instance()->LoadStageSaveData(nullptr, nullptr) ? CONTINUE : NEW_GAME;
+	m_nowItem = NEW_GAME;
 	m_itemArray[m_nowItem].m_status = SELECT;
 
 	//ゲームダンジョン用
@@ -411,6 +467,13 @@ void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligM
 		float effectAlpha = (sin(Angle::ROUND() * m_backGroundEffectTimer.GetTimeRate()) + 2.0f) / 2.0f;
 		DrawFunc2D::DrawGraph({ 0,0 }, m_backGroundShadowTex, effectAlpha, 1.0f, AlphaBlendMode_Trans);
 		DrawFunc2D::DrawGraph({ 0,0 }, m_backGroundAddTex, effectAlpha, 1.0f, AlphaBlendMode_Add);
+
+		//タイトルロゴ
+		const Vec2<float>TITLE_LOGO_LEFT_UP_POS = { 654.0f,8.0f };
+		DrawFunc2D::DrawGraph(TITLE_LOGO_LEFT_UP_POS, m_titleLogoTex, 1.0f, 0.8f);
+
+		//メニューの描画
+		MenuDraw();
 	}
 	return;
 
