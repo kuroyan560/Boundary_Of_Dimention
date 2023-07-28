@@ -200,10 +200,22 @@ Title::Title()
 	m_nowItem = SaveDataManager::Instance()->LoadStageSaveData(nullptr, nullptr) ? CONTINUE : NEW_GAME;
 	m_itemArray[m_nowItem].m_status = SELECT;
 
+	//ゲームダンジョン用
+	{
+		m_backGroundTex = D3D12App::Instance()->GenerateTextureBuffer(DIR + "back.png");
+		m_backGroundShadowTex = D3D12App::Instance()->GenerateTextureBuffer(DIR + "back_dark.png");
+		m_backGroundAddTex = D3D12App::Instance()->GenerateTextureBuffer(DIR + "back_add.png");
+	}
 }
 
 void Title::Init()
 {
+	//ゲームダンジョン用
+	{
+		m_backGroundEffectTimer.Reset(180.0f);
+	}
+	return;
+
 	//m_startGameFlag = false;
 	//m_isFinishFlag = false;
 	//m_startOPFlag = false;
@@ -274,6 +286,11 @@ void Title::Init()
 
 void Title::Update(KuroEngine::Transform* player_camera, std::shared_ptr<KuroEngine::Camera> arg_cam, GameScene* arg_gameScene)
 {
+	//ゲームダンジョン用
+	{
+		if (m_backGroundEffectTimer.UpdateTimer())m_backGroundEffectTimer.Reset();
+	}
+
 	//入力
 	bool inputUp = OperationConfig::Instance()->GetSelectVec(OperationConfig::SELECT_VEC_UP);
 	bool inputDown = OperationConfig::Instance()->GetSelectVec(OperationConfig::SELECT_VEC_DOWN);
@@ -386,6 +403,16 @@ void Title::Update(KuroEngine::Transform* player_camera, std::shared_ptr<KuroEng
 void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
 {
 	using namespace KuroEngine;
+
+	//ゲームダンジョン用
+	{
+		DrawFunc2D::DrawGraph({ 0,0 }, m_backGroundTex);
+
+		float effectAlpha = (sin(Angle::ROUND() * m_backGroundEffectTimer.GetTimeRate()) + 2.0f) / 2.0f;
+		DrawFunc2D::DrawGraph({ 0,0 }, m_backGroundShadowTex, effectAlpha, 1.0f, AlphaBlendMode_Trans);
+		DrawFunc2D::DrawGraph({ 0,0 }, m_backGroundAddTex, effectAlpha, 1.0f, AlphaBlendMode_Add);
+	}
+	return;
 
 	//if (m_isFinishFlag)
 	//{

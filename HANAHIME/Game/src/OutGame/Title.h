@@ -149,5 +149,17 @@ private:
 		}
 
 	}m_confirmNewGame;
+
+	
+	//ƒQ[ƒ€ƒ_ƒ“ƒWƒ‡ƒ“—p
+private:
+	//”wŒi‰æ‘œ
+	std::shared_ptr<KuroEngine::TextureBuffer>m_backGroundTex;
+	//”wŒi‰æ‘œi‰ej
+	std::shared_ptr<KuroEngine::TextureBuffer>m_backGroundShadowTex;
+	//”wŒi‚Ì‰ÁZ‰ÁH
+	std::shared_ptr<KuroEngine::TextureBuffer>m_backGroundAddTex;
+	//”wŒi‚Ì‰ÁH‰æ‘œ‚ÌƒAƒ‹ƒtƒ@ƒ^ƒCƒ}[
+	KuroEngine::Timer m_backGroundEffectTimer;
 };
 
