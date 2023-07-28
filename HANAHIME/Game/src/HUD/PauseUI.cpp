@@ -93,6 +93,9 @@ PauseUI::PauseUI()
 			pauseTexDir + "flower_num.png", DefaultMenu::FLOWER_NUM_TEX_SIZE, { DefaultMenu::FLOWER_NUM_TEX_SIZE,1 });
 		//収集花の「 x 」テクスチャ読み込み
 		m_defaultMenu.m_flowerMulTex = D3D12App::Instance()->GenerateTextureBuffer(pauseTexDir + "mul.png");
+
+		//「ポーズ」
+		m_defaultMenu.m_pauseStrTex = D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/pause/pause_str.png");
 	}
 
 	//最終確認メニュー
@@ -331,6 +334,7 @@ void PauseUI::Draw(int arg_totalGetFlowerNum)
 	//通常メニュー
 	if (m_menuStatus == DEFAULT_MENU)
 	{
+		/*
 		//ステージ名の中心座標
 		static const Vec2<float>STAGE_NAME_CENTER_POS = { WIN_CENTER_X,91.0f };
 		//ステージ名描画
@@ -341,14 +345,26 @@ void PauseUI::Draw(int arg_totalGetFlowerNum)
 		//ステージ名の装飾下線描画
 		static const Vec2<float>UNDER_LINE_CENTER_POS = { WIN_CENTER_X,132.0f };
 		DrawFunc2D::DrawRotaGraph2D(UNDER_LINE_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_defaultMenu.m_underLineTex);
+		*/
+
+		//ゲームダンジョン用
+		{
+			//ステージ名の中心座標
+			static const Vec2<float>STAGE_NAME_CENTER_POS = { WIN_CENTER_X,91.0f };
+
+			//「ポーズ」
+			DrawFunc2D::DrawRotaGraph2D(STAGE_NAME_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_defaultMenu.m_pauseStrTex);
+
+			//ステージ名の装飾下線描画
+			static const Vec2<float>UNDER_LINE_CENTER_POS = { WIN_CENTER_X,132.0f };
+			DrawFunc2D::DrawRotaGraph2D(UNDER_LINE_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_defaultMenu.m_underLineTex);
+		}
 
 		//一番上の項目の中心座標
-		//const Vec2<float>TOP_ITEM_CENTER_POS = { WIN_CENTER_X,215.0f };
-		//一番上の項目の中心座標（ファストトラベル飛ばし）
-		const Vec2<float>TOP_ITEM_CENTER_POS = { WIN_CENTER_X,242.0f };
+		const Vec2<float>TOP_ITEM_CENTER_POS = { WIN_CENTER_X,215.0f };
 
 		//項目の行間
-		const float ITEM_SPACE_Y = 79.0f;
+		const float ITEM_SPACE_Y = 86.0f;
 
 		//項目の描画
 		for (int itemIdx = 0; itemIdx < PAUSE_ITEM_NUM; ++itemIdx)
@@ -389,6 +405,7 @@ void PauseUI::Draw(int arg_totalGetFlowerNum)
 			DrawFunc2D::DrawRotaGraph2D(pos, { 1.0f,1.0f }, 0.0f, tex, alpha);
 		}
 
+		/*
 		//花描画
 		const Vec2<float>FLOWER_CENTER_POS = { 1128.0f,86.0f };
 		DrawFunc2D::DrawRotaGraph2D(FLOWER_CENTER_POS, { 1.0f,1.0f }, 0.0f, m_defaultMenu.m_flowerTex);
@@ -398,6 +415,7 @@ void PauseUI::Draw(int arg_totalGetFlowerNum)
 		//花の数描画
 		const Vec2<float>FLOWER_NUM_LEFT_UP_POS = { 1180.0f,102.0f };
 		DrawFunc2D::DrawNumber2D(arg_totalGetFlowerNum, FLOWER_NUM_LEFT_UP_POS, m_defaultMenu.m_flowerNumTexArray.data());
+		*/
 	}
 	else if (m_menuStatus == CONFIRM_MENU)
 	{

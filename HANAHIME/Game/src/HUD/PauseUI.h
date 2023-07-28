@@ -68,6 +68,9 @@ class PauseUI
 		std::array<std::shared_ptr<KuroEngine::TextureBuffer>, FLOWER_NUM_TEX_SIZE>m_flowerNumTexArray;
 		//収集花の「 x 」テクスチャ
 		std::shared_ptr<KuroEngine::TextureBuffer>m_flowerMulTex;
+
+		//ポーズ
+		std::shared_ptr<KuroEngine::TextureBuffer>m_pauseStrTex;
 	}m_defaultMenu;
 
 	//最終確認
