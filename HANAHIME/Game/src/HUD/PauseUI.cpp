@@ -196,8 +196,17 @@ void PauseUI::Update(GameScene* arg_gameScene, float arg_timeScale)
 					break;
 				//リトライ
 				case RETRY:
+					//ゲームダンジョン用
+					arg_gameScene->Retry();
+					//ゲーム内時間を再開
+					TimeScaleMgr::s_inGame.Set(m_latestTimeScale);
+					m_isActive = false;
+					//※インゲーム操作入力は受け付けないまま
+
+					/*
 					m_menuStatus = CONFIRM_MENU;
 					m_confirmMenu.m_confirmItem = ConfirmMenu::CONFIRM_ITEM::NONE;
+					*/
 					break;
 					/*
 				case FAST_TRAVEL:
@@ -211,8 +220,16 @@ void PauseUI::Update(GameScene* arg_gameScene, float arg_timeScale)
 					arg_gameScene->ActivateSystemSetting();
 					break;
 				case RETURN_TO_TITLE:
+					arg_gameScene->GoBackTitle();
+					//ゲーム内時間を再開
+					TimeScaleMgr::s_inGame.Set(m_latestTimeScale);
+					m_isActive = false;
+					//※インゲーム操作入力は受け付けないまま
+
+					/*
 					m_menuStatus = CONFIRM_MENU;
 					m_confirmMenu.m_confirmItem = ConfirmMenu::CONFIRM_ITEM::NONE;
+					*/
 					break;
 				default:
 					break;
