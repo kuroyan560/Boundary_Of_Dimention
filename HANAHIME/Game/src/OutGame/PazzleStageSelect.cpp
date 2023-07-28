@@ -122,6 +122,12 @@ void PazzleStageSelect::Init()
 		m_arrowSineLengthNow[index] = ARROW_SINE_INIT_LENGTH;
 		m_arrowSineLengthBase[index] = ARROW_SINE_INIT_LENGTH;
 	}
+	for (int i = 0; i < 3; ++i)
+	{
+		StageManager::Instance()->SetStage(i);
+	}
+	StageManager::Instance()->SetStage(0);
+	m_doneFlag = false;
 }
 
 void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam)
@@ -135,27 +141,27 @@ void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam)
 	KuroEngine::Vec2<float> contollerLeftStickInput = KuroEngine::UsersInput::Instance()->GetLeftStickVecFuna(0);
 
 	const float DEADLINE = 0.8f;
-	bool isInputRightController = m_prevContollerLeftStick.x < DEADLINE&& DEADLINE < contollerLeftStickInput.x;
+	bool isInputRightController = m_prevContollerLeftStick.x < DEADLINE && DEADLINE < contollerLeftStickInput.x;
 	bool selectFlag = false;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_D) || isInputRightController)
 	{
-		//++m_nowStageNum.x;
-		//selectFlag = true;
-		//m_cameraLength = FAR_CAMERA_LENGTH;
-		//m_arrowSineLengthNow[RIGHT] = ARROW_SINE_INIT_LENGTH_ADD;
-		//m_arrowSinTimerAddNow[RIGHT] = ARROW_SINE_TIMER_ADD;
-		//SoundConfig::Instance()->Play(SoundConfig::SE_CANCEL);
+		++m_nowStageNum.x;
+		selectFlag = true;
+		m_cameraLength = FAR_CAMERA_LENGTH;
+		m_arrowSineLengthNow[RIGHT] = ARROW_SINE_INIT_LENGTH_ADD;
+		m_arrowSinTimerAddNow[RIGHT] = ARROW_SINE_TIMER_ADD;
+		SoundConfig::Instance()->Play(SoundConfig::SE_CANCEL);
 	}
-	bool isInputLeftController = -DEADLINE < m_prevContollerLeftStick.x&& contollerLeftStickInput.x < -DEADLINE;
+	bool isInputLeftController = -DEADLINE < m_prevContollerLeftStick.x && contollerLeftStickInput.x < -DEADLINE;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_A) || isInputLeftController)
 	{
-		//--m_nowStageNum.x;
-		//selectFlag = true;
-		//m_cameraLength = FAR_CAMERA_LENGTH;
-		//m_arrowSineLengthNow[LEFT] = ARROW_SINE_INIT_LENGTH_ADD;
-		//m_arrowSinTimerAddNow[LEFT] = ARROW_SINE_TIMER_ADD;
+		--m_nowStageNum.x;
+		selectFlag = true;
+		m_cameraLength = FAR_CAMERA_LENGTH;
+		m_arrowSineLengthNow[LEFT] = ARROW_SINE_INIT_LENGTH_ADD;
+		m_arrowSinTimerAddNow[LEFT] = ARROW_SINE_TIMER_ADD;
 	}
-	bool isInputUpController = -DEADLINE < m_prevContollerLeftStick.y&& contollerLeftStickInput.y < -DEADLINE;
+	bool isInputUpController = -DEADLINE < m_prevContollerLeftStick.y && contollerLeftStickInput.y < -DEADLINE;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_W) || isInputUpController)
 	{
 		//--m_nowStageNum.y;
@@ -164,7 +170,7 @@ void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam)
 		//m_arrowSineLengthNow[RIGHT] = ARROW_SINE_INIT_LENGTH_ADD;
 		//m_arrowSinTimerAddNow[RIGHT] = ARROW_SINE_TIMER_ADD;
 	}
-	bool isInputDownController = m_prevContollerLeftStick.y < DEADLINE&& DEADLINE < contollerLeftStickInput.y;
+	bool isInputDownController = m_prevContollerLeftStick.y < DEADLINE && DEADLINE < contollerLeftStickInput.y;
 	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_S) || isInputDownController)
 	{
 		//++m_nowStageNum.y;
@@ -222,7 +228,7 @@ void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam)
 
 	if (0 <= GetNumber() && GetNumber() < StageManager::Instance()->GetAllStageNum())
 	{
-		//if (GetNumber() != m_preStageNum)
+		if (GetNumber() != m_preStageNum)
 		{
 			StageManager::Instance()->SetStage(GetNumber());
 		}
@@ -303,7 +309,7 @@ void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam)
 		m_previweFlag = true;
 	}
 
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::XBOX_BUTTON::A))
+	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::XBOX_BUTTON::A) && !m_doneFlag)
 	{
 		if (m_previweFlag)
 		{
@@ -548,8 +554,8 @@ void PazzleStageSelect::Draw(KuroEngine::Camera& arg_cam)
 
 			//Œ…—pˆÓ
 			std::vector<int>timeArray = CountNumber(stageNumber + 1);
-			//KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_nowPos[y][x] - m_hideVel, size, 0.0f, m_nowNumTexArray[timeArray[0]], m_nowAlpha[y][x]);
-			//KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_nowPos[y][x] + digitsBetween - m_hideVel, size, 0.0f, m_nowNumTexArray[timeArray[1]], m_nowAlpha[y][x]);
+			KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_nowPos[y][x] - m_hideVel, size, 0.0f, m_nowNumTexArray[timeArray[0]], m_nowAlpha[y][x]);
+			KuroEngine::DrawFunc2D::DrawRotaGraph2D(m_nowPos[y][x] + digitsBetween - m_hideVel, size, 0.0f, m_nowNumTexArray[timeArray[1]], m_nowAlpha[y][x]);
 
 		}
 		yNum += static_cast<int>(m_stageSelectArray[y].size());

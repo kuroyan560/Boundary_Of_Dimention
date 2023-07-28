@@ -1,0 +1,155 @@
+{
+    "stage": {
+        "name": "scene",
+        "objects": [
+            {
+                "type": "Goal",
+                "name": "Goal_7",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        -11.0
+                    ],
+                    "rotation": [
+                        -0.0,
+                        -1.0,
+                        -0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Goal"
+            },
+            {
+                "type": "Start",
+                "name": "Start_7",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        6.5
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Start"
+            },
+            {
+                "type": "MoveScaffold",
+                "name": "MoveScaffoldStage7_0",
+                "transform": {
+                    "translation": [
+                        10.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "MoveScaffoldStage7",
+                "translationArray": {
+                    "translation_0": [
+                        10.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "translation_1": [
+                        20.0,
+                        0.0,
+                        -2.0
+                    ]
+                }
+            },
+            {
+                "type": "Terrian",
+                "name": "Stage7_0",
+                "transform": {
+                    "translation": [
+                        30.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "Stage7"
+            },
+            {
+                "type": "Kinoko",
+                "name": "Mushroom.007",
+                "transform": {
+                    "translation": [
+                        -13.9375,
+                        -14.1875,
+                        3.09375
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                }
+            },
+            {
+                "type": "Kinoko",
+                "name": "Mushroom.008",
+                "transform": {
+                    "translation": [
+                        25.21875,
+                        -13.4375,
+                        11.25
+                    ],
+                    "rotation": [
+                        0.0,
+                        -0.7071068286895752,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                }
+            }
+        ]
+    }
+}

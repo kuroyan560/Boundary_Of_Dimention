@@ -11,7 +11,8 @@ SceneChange::SceneChange() :
 	m_countTimeUpNum(0),
 	m_blackTexBuff(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer(KuroEngine::Color(0, 0, 0, 255))),
 	m_alpha(0.0f),
-	m_size(KuroEngine::WinApp::Instance()->GetWinSize().Float())
+	m_size(KuroEngine::WinApp::Instance()->GetWinSize().Float()),
+	m_appearFlag(false)
 {
 }
 
@@ -52,6 +53,7 @@ void SceneChange::Update()
 
 		//“ü—Í‚ðŽó‚¯•t‚¯‚é‚æ‚¤‚É
 		OperationConfig::Instance()->SetAllInputActive(true);
+		m_appearFlag = true;
 	}
 
 
@@ -84,9 +86,15 @@ void SceneChange::Start()
 
 	//“ü—Í‚ðŽó‚¯•t‚¯‚È‚¢‚æ‚¤‚É
 	OperationConfig::Instance()->SetAllInputActive(false);
+	m_appearFlag = false;
 }
 
 bool SceneChange::IsHide()
 {
 	return m_blackOutFlag;
+}
+
+bool SceneChange::IsAppear()
+{
+	return m_appearFlag;
 }

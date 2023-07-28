@@ -72,7 +72,7 @@ bool PlayerCollision::HitCheckAndPushBack(const KuroEngine::Vec3<float>arg_from,
 void PlayerCollision::CheckDeath(const KuroEngine::Vec3<float> arg_from, KuroEngine::Vec3<float>& arg_newPos, std::weak_ptr<Stage> arg_nowStage, HitCheckResult* arg_hitInfo, PlayerCollision::CastRayArgument& arg_castRayArgment)
 {
 
-	const float DEATH_LENGTH = 1.0f;
+	const float DEATH_LENGTH = 0.5f;
 
 	//全方向にレイを飛ばして死亡チェック。
 	CheckHitAllObject(&PlayerCollision::CheckHitDeath_Around, arg_newPos, arg_from, arg_castRayArgment, arg_nowStage);
@@ -306,7 +306,7 @@ void PlayerCollision::CheckHitGround(const KuroEngine::Vec3<float>arg_from, Kuro
 
 	//崖チェックで下方向にレイを伸ばす際のレイの長さ
 	m_checkUnderRayLength = m_refPlayer->m_transform.GetScale().y * 2.0f;
-	m_checkCliffRayLength = m_refPlayer->m_transform.GetScale().y * 10.0f;
+	m_checkCliffRayLength = m_refPlayer->m_transform.GetScale().y * 5.0f;
 
 	//崖判定用フラグ
 	m_isHitCliff = { false,false,false,false };

@@ -15,21 +15,41 @@
     "nodes" : [
         {
             "mesh" : 0,
-            "name" : "Stage1",
+            "name" : "Stage1_0.002",
             "scale" : [
-                10,
-                10,
-                10
+                5,
+                4,
+                5
+            ],
+            "translation" : [
+                0,
+                -1,
+                0
             ]
         }
     ],
     "materials" : [
         {
+            "alphaCutoff" : 0.5,
+            "alphaMode" : "MASK",
             "doubleSided" : true,
-            "name" : "\u30de\u30c6\u30ea\u30a2\u30eb.091",
+            "emissiveFactor" : [
+                1,
+                1,
+                1
+            ],
+            "emissiveTexture" : {
+                "index" : 0
+            },
+            "name" : "terrain_3_dark",
+            "pbrMetallicRoughness" : {}
+        },
+        {
+            "doubleSided" : true,
+            "name" : "\u30de\u30c6\u30ea\u30a2\u30eb.113",
             "pbrMetallicRoughness" : {
                 "baseColorTexture" : {
-                    "index" : 0
+                    "index" : 1
                 },
                 "metallicFactor" : 0,
                 "roughnessFactor" : 0.5
@@ -38,7 +58,7 @@
     ],
     "meshes" : [
         {
-            "name" : "\u7acb\u65b9\u4f53.195",
+            "name" : "\u7acb\u65b9\u4f53.004",
             "primitives" : [
                 {
                     "attributes" : {
@@ -48,6 +68,15 @@
                     },
                     "indices" : 3,
                     "material" : 0
+                },
+                {
+                    "attributes" : {
+                        "POSITION" : 4,
+                        "NORMAL" : 5,
+                        "TEXCOORD_0" : 6
+                    },
+                    "indices" : 7,
+                    "material" : 1
                 }
             ]
         }
@@ -56,9 +85,18 @@
         {
             "sampler" : 0,
             "source" : 0
+        },
+        {
+            "sampler" : 1,
+            "source" : 1
         }
     ],
     "images" : [
+        {
+            "mimeType" : "image/png",
+            "name" : "terrain_3_dark",
+            "uri" : "terrain_3_dark.png"
+        },
         {
             "mimeType" : "image/png",
             "name" : "terrain_3",
@@ -69,61 +107,119 @@
         {
             "bufferView" : 0,
             "componentType" : 5126,
-            "count" : 3878,
+            "count" : 12,
             "max" : [
-                9,
-                17,
-                9
+                7,
+                3.5,
+                -1
             ],
             "min" : [
-                -25,
-                -7,
-                -21
+                3,
+                1,
+                -1
             ],
             "type" : "VEC3"
         },
         {
             "bufferView" : 1,
             "componentType" : 5126,
-            "count" : 3878,
+            "count" : 12,
             "type" : "VEC3"
         },
         {
             "bufferView" : 2,
             "componentType" : 5126,
-            "count" : 3878,
+            "count" : 12,
             "type" : "VEC2"
         },
         {
             "bufferView" : 3,
             "componentType" : 5123,
-            "count" : 6132,
+            "count" : 24,
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 4,
+            "componentType" : 5126,
+            "count" : 173,
+            "max" : [
+                7,
+                6,
+                1
+            ],
+            "min" : [
+                -1,
+                -1,
+                -3
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 5,
+            "componentType" : 5126,
+            "count" : 173,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 6,
+            "componentType" : 5126,
+            "count" : 173,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 7,
+            "componentType" : 5123,
+            "count" : 300,
             "type" : "SCALAR"
         }
     ],
     "bufferViews" : [
         {
             "buffer" : 0,
-            "byteLength" : 46536,
+            "byteLength" : 144,
             "byteOffset" : 0
         },
         {
             "buffer" : 0,
-            "byteLength" : 46536,
-            "byteOffset" : 46536
+            "byteLength" : 144,
+            "byteOffset" : 144
         },
         {
             "buffer" : 0,
-            "byteLength" : 31024,
-            "byteOffset" : 93072
+            "byteLength" : 96,
+            "byteOffset" : 288
         },
         {
             "buffer" : 0,
-            "byteLength" : 12264,
-            "byteOffset" : 124096
+            "byteLength" : 48,
+            "byteOffset" : 384
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2076,
+            "byteOffset" : 432
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 2076,
+            "byteOffset" : 2508
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 1384,
+            "byteOffset" : 4584
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 600,
+            "byteOffset" : 5968
         }
     ],
     "samplers" : [
+        {
+            "magFilter" : 9728,
+            "minFilter" : 9984
+        },
         {
             "magFilter" : 9729,
             "minFilter" : 9987
@@ -131,7 +227,7 @@
     ],
     "buffers" : [
         {
-            "byteLength" : 136360,
+            "byteLength" : 6568,
             "uri" : "Stage1.bin"
         }
     ]

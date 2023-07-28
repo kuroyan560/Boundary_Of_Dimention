@@ -23,6 +23,8 @@ class Switch;
 class Stage
 {
 private:
+	bool m_isClearFlag;
+
 	//地形のスケール
 	float m_terrianScaling = 1.0f;
 
@@ -99,7 +101,7 @@ public:
 	void Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr);
 
 	//クリア判定
-	bool IsClear()const;
+	bool IsClear();
 
 	//ステージ情報読み込み
 	void Load(int arg_ownStageIdx, std::string arg_dir, std::string arg_fileName, float arg_terrianScaling, bool arg_hasGoal = true);

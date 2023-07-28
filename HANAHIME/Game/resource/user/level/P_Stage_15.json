@@ -1,0 +1,111 @@
+{
+    "stage": {
+        "name": "scene",
+        "objects": [
+            {
+                "type": "Goal",
+                "name": "Goal_16",
+                "transform": {
+                    "translation": [
+                        30.0,
+                        -1.0,
+                        7.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Goal"
+            },
+            {
+                "type": "Start",
+                "name": "Start_16",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        6.5
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Start"
+            },
+            {
+                "type": "Terrian",
+                "name": "Stage16_0",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "Stage16"
+            },
+            {
+                "type": "IvyBlock",
+                "name": "IvyBlock_16",
+                "transform": {
+                    "translation": [
+                        20.0,
+                        0.0,
+                        8.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "IvyBlock",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -1.0,
+                        -1.0
+                    ]
+                }
+            }
+        ]
+    }
+}

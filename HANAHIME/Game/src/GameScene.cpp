@@ -22,7 +22,7 @@
 #include"System/SaveDataManager.h"
 
 GameScene::GameScene() :m_fireFlyStage(GPUParticleRender::Instance()->GetStackBuffer()), tutorial(GPUParticleRender::Instance()->GetStackBuffer()), m_goal(GPUParticleRender::Instance()->GetStackBuffer()),
-m_guideFly(GPUParticleRender::Instance()->GetStackBuffer()), m_guideInsect(GPUParticleRender::Instance()->GetStackBuffer())
+m_guideFly(GPUParticleRender::Instance()->GetStackBuffer()), m_guideInsect(GPUParticleRender::Instance()->GetStackBuffer()), m_isGameClearFlag(false)
 {
 	KuroEngine::Vec3<float>dir = { 0.0f,-1.0f,0.0f };
 	m_dirLigArray.emplace_back();
@@ -44,7 +44,7 @@ m_guideFly(GPUParticleRender::Instance()->GetStackBuffer()), m_guideInsect(GPUPa
 	m_dirLigArray.back().SetDir(dir.GetNormal());
 	m_dirLigArray.back().SetColor(KuroEngine::Color(0.3f, 0.4f, 0.4f, 1.0f));
 
-	for (auto &dirLig : m_dirLigArray)
+	for (auto& dirLig : m_dirLigArray)
 	{
 		m_ligMgr.RegisterDirLight(&dirLig);
 	}
@@ -74,13 +74,13 @@ m_guideFly(GPUParticleRender::Instance()->GetStackBuffer()), m_guideInsect(GPUPa
 
 void GameScene::GameInit()
 {
-	SoundConfig::Instance()->Play(SoundConfig::BGM(SoundConfig::BGM_IN_GAME_0 + StageManager::Instance()->GetNowStageIdx()));
+	SoundConfig::Instance()->Play(SoundConfig::BGM(SoundConfig::BGM_IN_GAME_3));
 	GrowPlantLight::ResetRegisteredLight();
 	StageManager::Instance()->SetStage(m_stageNum);
 
 	if (m_isFastTravel) {
 
-		m_player.Respawn(m_playerInitTransform, StageManager::Instance()->GetNowStage(), m_fastTravel.GetNowStageIndex(), m_fastTravel.GetNowCheckPointIndex());
+		m_player.Respawn(m_playerInitTransform, StageManager::Instance()->GetNowStage().lock()->GetStartPointTransform().GetPos(), m_fastTravel.GetNowStageIndex(), m_fastTravel.GetNowCheckPointIndex());
 		m_isFastTravel = false;
 
 	}
@@ -93,14 +93,12 @@ void GameScene::GameInit()
 		//現在のチェックポイントを検索。
 		auto nowStage = StageManager::Instance()->GetUnlockedCheckPointInfo(&checkPointTransform, &stageNum, &checkPointNum);
 
-		m_player.Respawn(m_playerInitTransform, StageManager::Instance()->GetNowStage(), m_stageNum, checkPointNum);
+		m_player.Respawn(m_playerInitTransform, StageManager::Instance()->GetNowStage().lock()->GetStartPointTransform().GetPos(), m_stageNum, checkPointNum);
 		m_isRetry = false;
 
 	}
 	else {
-
-		m_player.Respawn(m_playerInitTransform, StageManager::Instance()->GetNowStage(), m_stageNum, 0);
-
+		m_player.Respawn(m_playerInitTransform, StageManager::Instance()->GetNowStage().lock()->GetStartPointTransform().GetPos(), m_stageNum, 0);
 	}
 
 	SoundConfig::Instance()->Init();
@@ -243,12 +241,13 @@ void GameScene::OnUpdate()
 			}
 			OperationConfig::Instance()->SetAllInputActive(false);
 			m_clearFlag = true;
+			m_isGameClearFlag = true;
 		}
 
 		//ゲートをくぐった
 		if (GateManager::Instance()->IsEnter() && !m_gateSceneChange.IsActive())
 		{
-			StartGame(GateManager::Instance()->GetDestStageNum(), 
+			StartGame(GateManager::Instance()->GetDestStageNum(),
 				StageManager::Instance()->GetGateTransform(GateManager::Instance()->GetDestStageNum(), GateManager::Instance()->GetDestGateID()));
 			SoundConfig::Instance()->Play(SoundConfig::SE_GATE);
 		}
@@ -256,7 +255,7 @@ void GameScene::OnUpdate()
 		if (m_goal.IsEnd())
 		{
 			m_gateSceneChange.Start();
-			GoBackTitle();
+			m_nextScene = SCENE_STAGESELECT;
 		}
 
 		//ポーズ画面
@@ -271,6 +270,19 @@ void GameScene::OnUpdate()
 		m_stageInfoUI.Update(TimeScaleMgr::s_inGame.GetTimeScale(), StageManager::Instance()->GetStarCoinNum());
 		m_pauseUI.Update(this);
 	}
+	else if (m_nowScene == SCENE_STAGESELECT)
+	{
+		if (m_gateSceneChange.IsAppear() && m_stageSelect.Done())
+		{
+			m_stageNum = m_stageSelect.GetNumber();
+			m_nextScene = SCENE_IN_GAME;
+			m_gateSceneChange.Start();
+		}
+
+		m_stageSelect.Update(m_nowCam);
+	}
+
+
 
 	//設定画面更新
 	m_sysSetting.Update();
@@ -309,6 +321,21 @@ void GameScene::OnUpdate()
 			GameInit();
 			m_goal.Init(StageManager::Instance()->GetGoalTransform(), StageManager::Instance()->GetGoalModel());
 		}
+		else if (m_nextScene == SCENE_STAGESELECT)
+		{
+			const int stageIndex = StageManager::Instance()->GetNowStageIdx() + 1;
+			m_stageSelect.Init();
+			if (m_isGameClearFlag)
+			{
+				m_stageSelect.Clear();
+				m_stageSelect.SetSelectStageNum(stageIndex);
+				m_isGameClearFlag = false;
+			}
+			if (m_player.GetIsDeath())
+			{
+				m_stageSelect.SetSelectStageNum(StageManager::Instance()->GetNowStageIdx());
+			}
+		}
 
 		//ゲームクリア時に遷移する処理
 		if (m_clearFlag)
@@ -331,7 +358,10 @@ void GameScene::OnUpdate()
 			m_player.Update(StageManager::Instance()->GetNowStage());
 			m_goal.Update(&m_player.GetTransform(), m_player);
 			//ステージ選択画面ではギミックを作動させない
-			StageManager::Instance()->Update(m_player);
+			if (!m_goal.IsZoomOut())
+			{
+				StageManager::Instance()->Update(m_player);
+			}
 		}
 	}
 	else
@@ -344,6 +374,7 @@ void GameScene::OnUpdate()
 	if (m_player.GetIsFinishDeadEffect()) {
 		Retry();
 	}
+
 
 	////そのステージにいるすべての敵にワープする
 	//if (OperationConfig::Instance()->DebugKeyInputOnTrigger(DIK_0))
@@ -386,7 +417,7 @@ void GameScene::OnUpdate()
 
 	//チェックポイントの円柱を更新。
 	m_checkPointPillar.Update(m_player.GetTransform());
-	
+
 
 }
 
@@ -403,6 +434,7 @@ void GameScene::OnDraw()
 	DrawFunc3D::DrawNonShadingModel(m_skyDomeModel, m_skyDomeTransform, *m_nowCam, 1.0f, nullptr, AlphaBlendMode_None);
 	//BasicDraw::Instance()->Draw_Stage(*m_nowCam, m_ligMgr, m_skyDomeModel, m_skyDomeTransform, m_skyDomeDrawParam);
 
+
 	//スカイドームを最背面描画するため、デプスステンシルのクリア
 	KuroEngineDevice::Instance()->Graphics().ClearDepthStencil(ds);
 
@@ -412,7 +444,7 @@ void GameScene::OnDraw()
 		m_player.Draw(*m_nowCam, ds, m_ligMgr, DebugController::Instance()->IsActive());
 		m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
 	}
-
+	
 	//ステージ描画
 	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
 
@@ -462,6 +494,10 @@ void GameScene::OnDraw()
 	else if (!IsSystemAplicationActive() && m_nowScene == SCENE_TITLE)
 	{
 		m_title.Draw(*m_nowCam, m_ligMgr);
+	}
+	else if (m_nowScene == SCENE_STAGESELECT)
+	{
+		m_stageSelect.Draw(*m_nowCam);
 	}
 
 	//ファストトラベル画面描画

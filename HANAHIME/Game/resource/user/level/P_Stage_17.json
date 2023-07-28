@@ -1,0 +1,190 @@
+{
+    "stage": {
+        "name": "scene",
+        "objects": [
+            {
+                "type": "Start",
+                "name": "Start_18",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        6.5
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Start"
+            },
+            {
+                "type": "Goal",
+                "name": "Goal_18",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        -1.0,
+                        -11.0
+                    ],
+                    "rotation": [
+                        -0.0,
+                        -1.0,
+                        -0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Goal"
+            },
+            {
+                "type": "IvyBlock",
+                "name": "IvyBlock_18",
+                "transform": {
+                    "translation": [
+                        10.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "IvyBlock",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -1.0,
+                        -1.0
+                    ]
+                }
+            },
+            {
+                "type": "Terrian",
+                "name": "Stage18_0",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "Stage18"
+            },
+            {
+                "type": "MoveScaffold",
+                "name": "MoveScaffoldStage18_0",
+                "transform": {
+                    "translation": [
+                        10.0,
+                        -20.0,
+                        -12.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "MoveScaffoldStage18",
+                "translationArray": {
+                    "translation_0": [
+                        10.0,
+                        -20.0,
+                        -12.0
+                    ],
+                    "translation_1": [
+                        10.0,
+                        20.0,
+                        -12.0
+                    ]
+                }
+            },
+            {
+                "type": "Kinoko",
+                "name": "Mushroom.018",
+                "transform": {
+                    "translation": [
+                        5.78125,
+                        -34.1875,
+                        -7.218749523162842
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                }
+            },
+            {
+                "type": "Kinoko",
+                "name": "Mushroom.019",
+                "transform": {
+                    "translation": [
+                        24.0625,
+                        24.9375,
+                        1.78125
+                    ],
+                    "rotation": [
+                        0.7071068286895752,
+                        0.0,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                }
+            }
+        ]
+    }
+}

@@ -33,7 +33,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	engineOption.m_windowSize = { 1280,720 };
 	//engineOption.m_windowSize = { 1920,1080 };
 	engineOption.m_fullScreen = false;
-	engineOption.m_showCursor = false;
+	engineOption.m_showCursor = true;
 	engineOption.m_iconPath = L"resource/user/tex/icon.ico";
 	engineOption.m_backBuffClearColor = KuroEngine::Color(0, 0, 0, 0);
 	engineOption.m_useHDR = false;

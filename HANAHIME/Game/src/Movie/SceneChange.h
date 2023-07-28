@@ -16,12 +16,14 @@ public:
 
 	void Start();
 	bool IsHide();
+	bool IsAppear();
 
 	const bool& IsActive()const { return m_startFlag; }
 
 private:
 	bool m_startFlag;	//ŠJnƒtƒ‰ƒO
 	bool m_blackOutFlag;//ˆÃ“]‚µ‚½uŠÔ
+	bool m_appearFlag;	//–¾“]
 
 	//ˆÃ“]‚Æ–¾“]‚ÌŠÔŠÖ˜A----------------------------------------
 	KuroEngine::Timer m_time;

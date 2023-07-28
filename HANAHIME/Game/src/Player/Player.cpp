@@ -347,8 +347,9 @@ void Player::Init(KuroEngine::Transform arg_initTransform, int arg_nowStageIndex
 
 }
 
-void Player::Respawn(KuroEngine::Transform arg_initTransform, const std::weak_ptr<Stage>arg_nowStage, int arg_nowStageIndex, int arg_nowCheckPointIndex)
+void Player::Respawn(KuroEngine::Transform arg_initTransform, const KuroEngine::Vec3<float>& arg_nowStage, int arg_nowStageIndex, int arg_nowCheckPointIndex)
 {
+	
 
 	//ÉXÉPÅ[Éãë≈Çøè¡Çµ
 	arg_initTransform.SetScale(1.0f);
@@ -357,6 +358,10 @@ void Player::Respawn(KuroEngine::Transform arg_initTransform, const std::weak_pt
 	m_prevTransform = arg_initTransform;
 	m_transform = arg_initTransform;
 	m_drawTransform = arg_initTransform;
+
+	m_transform.SetPos(arg_nowStage);
+	m_drawTransform.SetPos(arg_nowStage);
+
 	m_cameraRotY = m_checkPointRotY;
 	m_cameraRotYStorage = m_checkPointRotY;
 	m_cameraRotMove = 0;

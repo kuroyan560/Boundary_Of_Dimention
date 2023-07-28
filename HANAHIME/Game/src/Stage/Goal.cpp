@@ -21,9 +21,10 @@ m_fireWork(m_gpuParticleBuffer)
 	m_splineArray[1] = std::make_unique<SplineParticle>(m_gpuParticleBuffer);
 
 	m_fireWork.SetParticleColorTex(KuroEngine::D3D12App::Instance()->GenerateTextureBuffer("resource/user/tex/Particle/goal_particle_gradation.png"));
+	m_zoomOutFlag = false;
 }
 
-void Goal::Init(const KuroEngine::Transform &transform, std::shared_ptr<GoalPoint>goal_model)
+void Goal::Init(const KuroEngine::Transform& transform, std::shared_ptr<GoalPoint>goal_model)
 {
 	m_initFlag = true;
 	m_startGoalEffectFlag = false;
@@ -60,6 +61,7 @@ void Goal::Init(const KuroEngine::Transform &transform, std::shared_ptr<GoalPoin
 
 	m_goalModel = goal_model;
 
+	m_zoomOutFlag = false;
 
 	if (!m_goalModel)
 	{
@@ -75,6 +77,7 @@ void Goal::Init(const KuroEngine::Transform &transform, std::shared_ptr<GoalPoin
 	InitCameraPosArray(m_goalBasePos);
 
 	//ƒJƒƒ‰”z’u---------------------------------------
+
 }
 
 void Goal::Finalize()
@@ -101,7 +104,7 @@ void Goal::Update(KuroEngine::Transform* transform, Player& arg_player)
 
 	if (m_isStartFlag)
 	{
-		for (auto &obj : m_splineArray)
+		for (auto& obj : m_splineArray)
 		{
 			obj->Update();
 		}
@@ -170,6 +173,7 @@ void Goal::Update(KuroEngine::Transform* transform, Player& arg_player)
 
 	if (m_isStartFlag && m_zoomInTimer.IsTimeUp())
 	{
+		m_zoomOutFlag = true;
 		float bigScale = 1.0f, smallScale = 0.0f;
 		if (!m_initParticleFlag)
 		{
@@ -179,7 +183,9 @@ void Goal::Update(KuroEngine::Transform* transform, Player& arg_player)
 			m_initParticleFlag = true;
 
 			SoundConfig::Instance()->Play(SoundConfig::JINGLE_STAGE_CLEAR);
-			m_goalModel->GrowUpWood();
+			if (m_goalModel) {
+				m_goalModel->GrowUpWood();
+			}
 			arg_player.PlantLightExplosion();
 		}
 		m_scaleOffset = KuroEngine::Math::Lerp(m_scaleOffset, KuroEngine::Vec3<float>(smallScale, smallScale, smallScale), 0.1f);
@@ -240,7 +246,7 @@ void Goal::Update(KuroEngine::Transform* transform, Player& arg_player)
 	m_cameraTransform.SetRotaMatrix(matA);
 	m_cameraTransform.CalucuratePosRotaBasedOnWorldMatrix();
 
-	auto &cameraTransform = m_camera->GetTransform();
+	auto& cameraTransform = m_camera->GetTransform();
 	cameraTransform.SetParent(&m_cameraTransform);
 
 
@@ -255,24 +261,24 @@ void Goal::Update(KuroEngine::Transform* transform, Player& arg_player)
 	}
 
 
-	for (auto &obj : m_loucusParticle)
+	for (auto& obj : m_loucusParticle)
 	{
 		obj.Update();
 	}
 
 }
 
-void Goal::Draw(KuroEngine::Camera &camera)
+void Goal::Draw(KuroEngine::Camera& camera)
 {
 	if (!m_initFlag)
 	{
 		return;
 	}
 
-	for (auto &obj : m_loucusParticle)
-	{
-		obj.Draw(camera);
-	}
+	//for (auto &obj : m_loucusParticle)
+	//{
+	//	//obj.Draw(camera);
+	//}
 
 
 #ifdef _DEBUG
@@ -333,4 +339,9 @@ bool Goal::IsEnd()
 		return true;
 	};
 	return false;
+}
+
+bool Goal::IsZoomOut()
+{
+	return m_zoomOutFlag;
 }

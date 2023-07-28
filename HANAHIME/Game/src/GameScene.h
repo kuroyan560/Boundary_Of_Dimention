@@ -28,7 +28,7 @@
 
 class GameScene : public KuroEngine::BaseScene
 {
-	enum SCENE_STATUS { SCENE_TITLE, SCENE_IN_GAME }m_nowScene = SCENE_TITLE;
+	enum SCENE_STATUS { SCENE_TITLE, SCENE_STAGESELECT,SCENE_IN_GAME }m_nowScene = SCENE_TITLE;
 	SCENE_STATUS m_nextScene = m_nowScene;
 	KuroEngine::Transform m_playerInitTransform;
 
@@ -90,6 +90,7 @@ class GameScene : public KuroEngine::BaseScene
 	//ファストトラベル中か
 	bool m_isFastTravel;
 	bool m_isRetry;
+	bool m_isGameClearFlag;
 
 	Tutorial tutorial;
 
@@ -103,6 +104,8 @@ class GameScene : public KuroEngine::BaseScene
 	KuroEngine::LightBloomDevice m_lightBloomDevice;
 
 	GuideInsect m_guideInsect;
+
+	PazzleStageSelect m_stageSelect;
 
 	KuroEngine::Transform m_latestVisitGateTransform;
 

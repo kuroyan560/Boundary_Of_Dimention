@@ -1,0 +1,99 @@
+{
+    "stage": {
+        "name": "scene",
+        "objects": [
+            {
+                "type": "Start",
+                "name": "Start_2",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        6.5
+                    ],
+                    "rotation": [
+                        -0.0,
+                        -0.0,
+                        -1.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Start"
+            },
+            {
+                "type": "Goal",
+                "name": "Goal_2",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        -9.0
+                    ],
+                    "rotation": [
+                        -0.0,
+                        -1.0,
+                        -0.0,
+                        0.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Goal",
+                "leverID": -1
+            },
+            {
+                "type": "Terrian",
+                "name": "Stage2_0.002",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        -1.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        4.0
+                    ]
+                },
+                "file_name": "Stage2"
+            },
+            {
+                "type": "Kinoko",
+                "name": "Mushroom.1",
+                "transform": {
+                    "translation": [
+                        32.71875,
+                        4.8125,
+                        11.3125
+                    ],
+                    "rotation": [
+                        0.7071068286895752,
+                        0.0,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                }
+            }
+        ]
+    }
+}

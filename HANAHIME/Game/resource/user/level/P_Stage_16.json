@@ -1,0 +1,133 @@
+{
+    "stage": {
+        "name": "scene",
+        "objects": [
+            {
+                "type": "Goal",
+                "name": "Goal_17",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        -9.0,
+                        -3.0
+                    ],
+                    "rotation": [
+                        0.7071068286895752,
+                        0.0,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Goal"
+            },
+            {
+                "type": "Start",
+                "name": "Start_17",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        6.5
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                },
+                "file_name": "Start"
+            },
+            {
+                "type": "Terrian",
+                "name": "Stage17_0",
+                "transform": {
+                    "translation": [
+                        0.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "Stage17"
+            },
+            {
+                "type": "IvyBlock",
+                "name": "IvyBlock_17",
+                "transform": {
+                    "translation": [
+                        30.0,
+                        0.0,
+                        -2.0
+                    ],
+                    "rotation": [
+                        0.0,
+                        0.0,
+                        0.0,
+                        1.0
+                    ],
+                    "scaling": [
+                        5.0,
+                        5.0,
+                        5.0
+                    ]
+                },
+                "file_name": "IvyBlock",
+                "block": {
+                    "left_top_front_pos": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ],
+                    "right_bottom_back_pos": [
+                        -1.0,
+                        -1.0,
+                        -1.0
+                    ]
+                }
+            },
+            {
+                "type": "Kinoko",
+                "name": "Mushroom.017",
+                "transform": {
+                    "translation": [
+                        44.0625,
+                        -4.531250476837158,
+                        11.84375
+                    ],
+                    "rotation": [
+                        0.7071068286895752,
+                        0.0,
+                        0.0,
+                        0.7071068286895752
+                    ],
+                    "scaling": [
+                        0.5,
+                        0.5,
+                        0.5
+                    ]
+                }
+            }
+        ]
+    }
+}

@@ -27,7 +27,7 @@ KuroEngine::Vec3<float> Stage::GetConsiderCoordinate(nlohmann::json arg_json)
 	return KuroEngine::Vec3<float>(-(float)arg_json[0], (float)arg_json[2], -(float)arg_json[1]);
 }
 
-bool Stage::LoadTranslationArray(std::string arg_fileName, std::vector<KuroEngine::Vec3<float>> *arg_result, nlohmann::json arg_json)
+bool Stage::LoadTranslationArray(std::string arg_fileName, std::vector<KuroEngine::Vec3<float>>* arg_result, nlohmann::json arg_json)
 {
 	using namespace KuroEngine;
 
@@ -54,11 +54,11 @@ bool Stage::LoadTranslationArray(std::string arg_fileName, std::vector<KuroEngin
 	return true;
 }
 
-void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, StageParts *arg_parent, std::vector<MapPinPointData> &arg_mapPinDataArray)
+void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, StageParts* arg_parent, std::vector<MapPinPointData>& arg_mapPinDataArray)
 {
 	using namespace KuroEngine;
 
-	auto &obj = arg_json;
+	auto& obj = arg_json;
 
 	//共通パラメータ
 
@@ -103,6 +103,18 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	//きのこ
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::KINOKO))
 	{
+
+		KuroEngine::Vec3<float> xAxis(-1.0f, 0.0f, 0.0f);
+		float dot = xAxis.Dot(transform.GetUp());
+		if (0.5f < dot) {
+			transform.SetRotate(DirectX::XMQuaternionMultiply(transform.GetRotate(), DirectX::XMQuaternionRotationAxis({ 0.0f, 1.0f, 0.0f }, DirectX::XM_PI)));
+		}
+		//KuroEngine::Vec3<float> zAxis(0.0f, 0.0f, 1.0f);
+		//dot = zAxis.Dot(transform.GetUp());
+		//if (0.5f < dot) {
+			//transform.SetRotate(DirectX::XMQuaternionMultiply(transform.GetRotate(), DirectX::XMQuaternionRotationAxis({ 0.0f, 1.0f, 0.0f }, DirectX::XM_PI)));
+		//}
+
 		m_gimmickArray.emplace_back(std::make_shared<Kinoko>(transform));
 		newPart = m_gimmickArray.back().get();
 	}
@@ -156,7 +168,7 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	//ゴール地点
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::GOAL_POINT))
 	{
-		if (!CheckJsonKeyExist(arg_fileName, arg_json, "CheckPointOrder"))return;
+		//if (!CheckJsonKeyExist(arg_fileName, arg_json, "CheckPointOrder"))return;
 
 		//全てのレバーをオンにすることがクリア条件
 		if (obj.contains("leverID") && obj["leverID"] != -1)
@@ -171,9 +183,9 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		newPart = m_goalPoint.get();
 
 		//マップピンデータに追加
-		arg_mapPinDataArray.emplace_back();
-		arg_mapPinDataArray.back().m_order = arg_json["CheckPointOrder"].get<int>();
-		arg_mapPinDataArray.back().m_part = m_goalPoint;
+		//arg_mapPinDataArray.emplace_back();
+		//arg_mapPinDataArray.back().m_order = arg_json["CheckPointOrder"].get<int>();
+		//arg_mapPinDataArray.back().m_part = m_goalPoint;
 	}
 	//見かけだけのオブジェクト
 	else if (typeKey == StageParts::GetTypeKeyOnJson(StageParts::APPEARANCE))
@@ -222,6 +234,8 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 		Vec3<float>leftTopFront = GetConsiderCoordinate(arg_json["block"]["left_top_front_pos"]);
 		//右下奥
 		Vec3<float>rightBottomBack = GetConsiderCoordinate(arg_json["block"]["right_bottom_back_pos"]);
+
+		transform.SetScale(transform.GetScale());
 
 		m_gimmickArray.emplace_back(std::make_shared<IvyBlock>(model, transform, leftTopFront, rightBottomBack, collisionModel));
 		newPart = m_gimmickArray.back().get();
@@ -368,19 +382,19 @@ void Stage::LoadWithType(std::string arg_fileName, nlohmann::json arg_json, Stag
 	}
 }
 
-Stage::Stage() :m_guideInsect(GPUParticleRender::Instance()->GetStackBuffer())
+Stage::Stage() :m_guideInsect(GPUParticleRender::Instance()->GetStackBuffer()), m_isClearFlag(false)
 {
 	using namespace KuroEngine;
 }
 
 void Stage::Init()
 {
-	for (auto &gimmick : m_gimmickArray)
+	for (auto& gimmick : m_gimmickArray)
 	{
 		gimmick->Init();
 	}
 
-	for (auto &enemy : m_enemyArray)
+	for (auto& enemy : m_enemyArray)
 	{
 		enemy->Init();
 	}
@@ -388,76 +402,80 @@ void Stage::Init()
 	if (m_goalPoint)m_goalPoint->Init();
 
 	m_guideInsect.Init();
+	m_isClearFlag = false;
 }
 
-void Stage::Update(Player &arg_player)
+void Stage::Update(Player& arg_player)
 {
-	for (auto &gimmick : m_gimmickArray)
+	//if (!m_isClearFlag)
 	{
-		gimmick->Update(arg_player);
-	}
+		for (auto& gimmick : m_gimmickArray)
+		{
+			gimmick->Update(arg_player);
+		}
 
-	//動く足場同士の当たり判定を行う。
-	for (auto &gimmickA : m_gimmickArray) {
-
-		//動く足場じゃなかったら処理を飛ばす。
-		if (gimmickA->GetType() != StageParts::STAGE_PARTS_TYPE::MOVE_SCAFFOLD) continue;
-
-		for (auto &gimmickB : m_gimmickArray) {
+		//動く足場同士の当たり判定を行う。
+		for (auto& gimmickA : m_gimmickArray) {
 
 			//動く足場じゃなかったら処理を飛ばす。
-			if (gimmickB->GetType() != StageParts::STAGE_PARTS_TYPE::MOVE_SCAFFOLD) continue;
+			if (gimmickA->GetType() != StageParts::STAGE_PARTS_TYPE::MOVE_SCAFFOLD) continue;
 
-			//同じオブジェクトだったら処理を飛ばす。
-			if (gimmickA == gimmickB) continue;
+			for (auto& gimmickB : m_gimmickArray) {
 
-			//当たり判定を行う。
-			auto moveScaffoldA = dynamic_pointer_cast<MoveScaffold>(gimmickA);
-			auto moveScaffoldB = dynamic_pointer_cast<MoveScaffold>(gimmickB);
-			std::optional<AABB::CollisionInfo> result;
+				//動く足場じゃなかったら処理を飛ばす。
+				if (gimmickB->GetType() != StageParts::STAGE_PARTS_TYPE::MOVE_SCAFFOLD) continue;
 
-			//すべてのメッシュを走査して当たり判定を行う。
-			for (auto &meshA : moveScaffoldA->m_collider.m_aabb) {
-				for (auto &aabbA : meshA) {
+				//同じオブジェクトだったら処理を飛ばす。
+				if (gimmickA == gimmickB) continue;
 
-					for (auto &meshB : moveScaffoldB->m_collider.m_aabb) {
-						for (auto &aabbB : meshB) {
+				//当たり判定を行う。
+				auto moveScaffoldA = dynamic_pointer_cast<MoveScaffold>(gimmickA);
+				auto moveScaffoldB = dynamic_pointer_cast<MoveScaffold>(gimmickB);
+				std::optional<AABB::CollisionInfo> result;
 
-							result = aabbA.CheckAABBCollision(aabbB);
-							if (!result) continue;
-							//極小の誤差は無視する。
-							if (result->m_pushBack.Length() < 0.001f) continue;
+				//すべてのメッシュを走査して当たり判定を行う。
+				for (auto& meshA : moveScaffoldA->m_collider.m_aabb) {
+					for (auto& aabbA : meshA) {
 
-							//当たっていたらギミックの動きを止める。
-							moveScaffoldA->Stop();
-							moveScaffoldB->Stop();
+						for (auto& meshB : moveScaffoldB->m_collider.m_aabb) {
+							for (auto& aabbB : meshB) {
 
-							////押し戻す。
-							//if (moveScaffoldA->GetIsActive() && moveScaffoldB->GetIsActive()) {
-							//	moveScaffoldA->PushBack(result->m_pushBack / 2.0f);
-							//	moveScaffoldB->PushBack(result->m_pushBack / 2.0f);
-							//}
-							//else if (moveScaffoldA->GetIsActive()) {
-							//	moveScaffoldA->PushBack(result->m_pushBack);
-							//}
-							//else if (moveScaffoldB->GetIsActive()) {
-							//	moveScaffoldB->PushBack(result->m_pushBack);
-							//}
+								result = aabbA.CheckAABBCollision(aabbB);
+								if (!result) continue;
+								//極小の誤差は無視する。
+								if (result->m_pushBack.Length() < 0.001f) continue;
 
-							//moveScaffoldA->BuildCollisionMesh();
-							//moveScaffoldB->BuildCollisionMesh();
+								//当たっていたらギミックの動きを止める。
+								moveScaffoldA->Stop();
+								moveScaffoldB->Stop();
 
+								////押し戻す。
+								//if (moveScaffoldA->GetIsActive() && moveScaffoldB->GetIsActive()) {
+								//	moveScaffoldA->PushBack(result->m_pushBack / 2.0f);
+								//	moveScaffoldB->PushBack(result->m_pushBack / 2.0f);
+								//}
+								//else if (moveScaffoldA->GetIsActive()) {
+								//	moveScaffoldA->PushBack(result->m_pushBack);
+								//}
+								//else if (moveScaffoldB->GetIsActive()) {
+								//	moveScaffoldB->PushBack(result->m_pushBack);
+								//}
+
+								//moveScaffoldA->BuildCollisionMesh();
+								//moveScaffoldB->BuildCollisionMesh();
+
+							}
 						}
 					}
+
 				}
 
 			}
 
 		}
-
 	}
 
-	for (auto &enemy : m_enemyArray)
+	for (auto& enemy : m_enemyArray)
 	{
 		enemy->Update(arg_player);
 	}
@@ -474,19 +492,19 @@ void Stage::Update(Player &arg_player)
 	if (m_goalPoint)m_goalPoint->Update(arg_player);
 }
 
-void Stage::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligMgr)
+void Stage::Draw(KuroEngine::Camera& arg_cam, KuroEngine::LightManager& arg_ligMgr)
 {
-	for (auto &terrian : m_terrianArray)
+	for (auto& terrian : m_terrianArray)
 	{
 		terrian.Draw(arg_cam, arg_ligMgr);
 	}
 
-	for (auto &enemy : m_enemyArray)
+	for (auto& enemy : m_enemyArray)
 	{
 		enemy->Draw(arg_cam, arg_ligMgr);
 	}
 
-	for (auto &gimmick : m_gimmickArray)
+	for (auto& gimmick : m_gimmickArray)
 	{
 		gimmick->Draw(arg_cam, arg_ligMgr);
 	}
@@ -503,10 +521,18 @@ void Stage::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligM
 	m_guideInsect.Draw(arg_cam, arg_ligMgr);
 }
 
-bool Stage::IsClear() const
+bool Stage::IsClear()
 {
 	//レバークリア
-	if (m_goalLeverID != Lever::INVALID_ID)return m_goalSwitch->IsBooting();
+	if (m_goalLeverID != Lever::INVALID_ID)
+	{
+		if (m_goalSwitch->IsBooting())
+		{
+			m_isClearFlag = true;
+		}
+		
+		return m_goalSwitch->IsBooting();
+	}
 
 	//目的地到達
 	if (m_goalPoint)return m_goalPoint->HitPlayer();
@@ -538,13 +564,13 @@ void Stage::Load(int arg_ownStageIdx, std::string arg_dir, std::string arg_fileN
 	std::vector<MapPinPointData>mapPinPointDataArray;
 
 	auto stageJsonData = jsonData.m_jsonData["stage"];
-	for (auto &obj : stageJsonData["objects"])
+	for (auto& obj : stageJsonData["objects"])
 	{
 		LoadWithType(arg_fileName, obj, nullptr, mapPinPointDataArray);
 	}
 
 	//マップピンデータ配列を順番通りにソート
-	std::sort(mapPinPointDataArray.begin(), mapPinPointDataArray.end(), [](MapPinPointData &a, MapPinPointData &b)
+	std::sort(mapPinPointDataArray.begin(), mapPinPointDataArray.end(), [](MapPinPointData& a, MapPinPointData& b)
 		{
 			return a.m_order < b.m_order;
 		});
@@ -578,7 +604,7 @@ void Stage::Load(int arg_ownStageIdx, std::string arg_dir, std::string arg_fileN
 		m_goalSwitch->m_leverID = m_goalLeverID;
 
 		std::vector<std::weak_ptr<Lever>>goalLeverArray;
-		for (auto &gimmick : m_gimmickArray)
+		for (auto& gimmick : m_gimmickArray)
 		{
 			//レバーじゃない
 			if (gimmick->GetType() != StageParts::LEVER)continue;
@@ -613,7 +639,7 @@ int Stage::GetStarCoinNum() const
 
 KuroEngine::Transform Stage::GetGateTransform(int arg_gateID) const
 {
-	for (auto &gate : m_gateArray)
+	for (auto& gate : m_gateArray)
 	{
 		if (!gate.lock()->CheckID(arg_gateID))continue;
 		return gate.lock()->GetInitTransform();
@@ -623,5 +649,5 @@ KuroEngine::Transform Stage::GetGateTransform(int arg_gateID) const
 
 void Stage::CheckPointReset()
 {
-	for (auto &checkPoint : m_checkPointArray)checkPoint.lock()->SetTouch(false);
+	for (auto& checkPoint : m_checkPointArray)checkPoint.lock()->SetTouch(false);
 }
