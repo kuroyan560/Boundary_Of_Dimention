@@ -270,6 +270,7 @@ void Title::Init()
 	//ゲームダンジョン用
 	{
 		m_backGroundEffectTimer.Reset(180.0f);
+		m_logoFloatTimer.Reset(300.0f);
 	}
 	return;
 
@@ -346,6 +347,7 @@ void Title::Update(KuroEngine::Transform* player_camera, std::shared_ptr<KuroEng
 	//ゲームダンジョン用
 	{
 		if (m_backGroundEffectTimer.UpdateTimer())m_backGroundEffectTimer.Reset();
+		if (m_logoFloatTimer.UpdateTimer())m_logoFloatTimer.Reset();
 	}
 
 	//入力
@@ -465,12 +467,18 @@ void Title::Draw(KuroEngine::Camera &arg_cam, KuroEngine::LightManager &arg_ligM
 	{
 		DrawFunc2D::DrawGraph({ 0,0 }, m_backGroundTex);
 
+		//乱数で点滅
+		bool flash = KuroEngine::GetRand(200.0f) < 2.0f;
+
 		float effectAlpha = (sin(Angle::ROUND() * m_backGroundEffectTimer.GetTimeRate()) + 2.0f) / 2.0f;
+		if (flash)effectAlpha = 0.1f;
 		DrawFunc2D::DrawGraph({ 0,0 }, m_backGroundShadowTex, effectAlpha, 1.0f, AlphaBlendMode_Trans);
 		DrawFunc2D::DrawGraph({ 0,0 }, m_backGroundAddTex, effectAlpha, 1.0f, AlphaBlendMode_Add);
 
 		//タイトルロゴ
-		const Vec2<float>TITLE_LOGO_LEFT_UP_POS = { 654.0f,8.0f };
+		const float OFFSET_Y_MAX = 8.0f;
+		float offsetY = sin(Angle::ROUND() * m_logoFloatTimer.GetTimeRate()) * OFFSET_Y_MAX;
+		const Vec2<float>TITLE_LOGO_LEFT_UP_POS = { 654.0f,8.0f + offsetY };
 		DrawFunc2D::DrawGraph(TITLE_LOGO_LEFT_UP_POS, m_titleLogoTex, 1.0f, 0.8f);
 
 		//メニューの描画

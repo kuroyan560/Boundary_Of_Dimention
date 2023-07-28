@@ -166,5 +166,7 @@ private:
 	std::shared_ptr<KuroEngine::TextureBuffer>m_backGroundAddTex;
 	//背景の加工画像のアルファタイマー
 	KuroEngine::Timer m_backGroundEffectTimer;
+	//ロゴの浮遊タイマー
+	KuroEngine::Timer m_logoFloatTimer;
 };
 
