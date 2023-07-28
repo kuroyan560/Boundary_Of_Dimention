@@ -209,6 +209,8 @@ void MapPinUI::UpdateArrow(PIN_STACK_STATUS arg_pinStackStatus)
 
 void MapPinUI::Draw(KuroEngine::Camera& arg_cam, KuroEngine::Vec3<float> arg_destinationPos, KuroEngine::Vec3<float>arg_playerPos)
 {
+	return;
+
 	using namespace KuroEngine;
 
 	//‰æ–ÊƒTƒCƒYŽæ“¾

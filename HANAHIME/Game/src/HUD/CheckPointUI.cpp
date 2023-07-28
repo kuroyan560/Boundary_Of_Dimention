@@ -70,6 +70,8 @@ void CheckPointUI::Update()
 
 void CheckPointUI::Draw()
 {
+	return;
+
 	using namespace KuroEngine;
 
 	//非アクティブ

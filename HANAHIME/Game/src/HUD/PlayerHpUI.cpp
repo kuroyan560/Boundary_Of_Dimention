@@ -148,6 +148,8 @@ void PlayerHpUI::Update(float arg_timeScale, int arg_defaultHp, int arg_nowHp, c
 
 void PlayerHpUI::Draw(int arg_defaultHp, int arg_nowHp, bool arg_isHitStop)
 {
+	return;
+
 	using namespace KuroEngine;
 
 	//HP‚ª‚O‚È‚ç”ñ•\Ž¦

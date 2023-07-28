@@ -136,6 +136,8 @@ void StageInfoUI::Update(float arg_timeScale, int arg_getFlowerNum)
 
 void StageInfoUI::Draw(int arg_existFlowerNum, int arg_getFlowerNum)
 {
+	return;
+
 	using namespace KuroEngine;
 
 	//ステージ名の右下の座標
