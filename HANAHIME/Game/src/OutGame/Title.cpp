@@ -86,6 +86,7 @@ void Title::MenuUpdate(bool arg_inputUp, bool arg_inputDown, bool arg_inputDone,
 				break;
 			//ステージセレクト
 			case STAGE_SELECT:
+				arg_gameScene->GoStageSelect();
 				break;
 			//設定
 			case SETTING:

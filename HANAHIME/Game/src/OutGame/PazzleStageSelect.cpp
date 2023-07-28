@@ -6,6 +6,7 @@
 #include <limits>
 #include <iostream>
 #include"../OperationConfig.h"
+#include"../GameScene.h"
 
 PazzleStageSelect::PazzleStageSelect() :m_beatTimer(30), m_appearTimer(60), m_hideTiemr(60)
 {
@@ -130,39 +131,34 @@ void PazzleStageSelect::Init()
 	m_doneFlag = false;
 }
 
-void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam)
+void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam, GameScene* arg_gameScene)
 {
 	if (m_stopFlag)
 	{
 		return;
 	}
 
-	//コントローラーの入力を保存。
-	KuroEngine::Vec2<float> contollerLeftStickInput = KuroEngine::UsersInput::Instance()->GetLeftStickVecFuna(0);
-
-	const float DEADLINE = 0.8f;
-	bool isInputRightController = m_prevContollerLeftStick.x < DEADLINE && DEADLINE < contollerLeftStickInput.x;
 	bool selectFlag = false;
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_D) || isInputRightController)
+	if (OperationConfig::Instance()->GetSelectVec(OperationConfig::SELECT_VEC_RIGHT))
 	{
 		++m_nowStageNum.x;
 		selectFlag = true;
 		m_cameraLength = FAR_CAMERA_LENGTH;
 		m_arrowSineLengthNow[RIGHT] = ARROW_SINE_INIT_LENGTH_ADD;
 		m_arrowSinTimerAddNow[RIGHT] = ARROW_SINE_TIMER_ADD;
-		SoundConfig::Instance()->Play(SoundConfig::SE_CANCEL);
+		SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
 	}
-	bool isInputLeftController = -DEADLINE < m_prevContollerLeftStick.x && contollerLeftStickInput.x < -DEADLINE;
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_A) || isInputLeftController)
+
+	if (OperationConfig::Instance()->GetSelectVec(OperationConfig::SELECT_VEC_LEFT))
 	{
 		--m_nowStageNum.x;
 		selectFlag = true;
 		m_cameraLength = FAR_CAMERA_LENGTH;
 		m_arrowSineLengthNow[LEFT] = ARROW_SINE_INIT_LENGTH_ADD;
 		m_arrowSinTimerAddNow[LEFT] = ARROW_SINE_TIMER_ADD;
+		SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
 	}
-	bool isInputUpController = -DEADLINE < m_prevContollerLeftStick.y && contollerLeftStickInput.y < -DEADLINE;
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_W) || isInputUpController)
+	if (OperationConfig::Instance()->GetSelectVec(OperationConfig::SELECT_VEC_UP))
 	{
 		//--m_nowStageNum.y;
 		//selectFlag = true;
@@ -170,8 +166,7 @@ void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam)
 		//m_arrowSineLengthNow[RIGHT] = ARROW_SINE_INIT_LENGTH_ADD;
 		//m_arrowSinTimerAddNow[RIGHT] = ARROW_SINE_TIMER_ADD;
 	}
-	bool isInputDownController = m_prevContollerLeftStick.y < DEADLINE && DEADLINE < contollerLeftStickInput.y;
-	if (KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_S) || isInputDownController)
+	if (OperationConfig::Instance()->GetSelectVec(OperationConfig::SELECT_VEC_DOWN))
 	{
 		//++m_nowStageNum.y;
 		//selectFlag = true;
@@ -179,15 +174,20 @@ void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam)
 		//m_arrowSineLengthNow[LEFT] = ARROW_SINE_INIT_LENGTH_ADD;
 		//m_arrowSinTimerAddNow[LEFT] = ARROW_SINE_TIMER_ADD;
 	}
+
+	//タイトルへ戻る
+	if (OperationConfig::Instance()->GetOperationInput(OperationConfig::CANCEL, OperationConfig::ON_TRIGGER)
+		|| OperationConfig::Instance()->GetOperationInput(OperationConfig::PAUSE, OperationConfig::ON_TRIGGER))
+	{
+		arg_gameScene->GoBackTitle();
+		SoundConfig::Instance()->Play(SoundConfig::SE_CANCEL);
+	}
+
 	if (selectFlag)
 	{
 		m_previweFlag = false;
 		SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
 	}
-
-
-	//コントローラーの入力を保存。
-	m_prevContollerLeftStick = contollerLeftStickInput;
 
 	int stageYMaxNum = static_cast<int>(m_stageSelectArray.size());
 	if (m_nowStageNum.y < 0)

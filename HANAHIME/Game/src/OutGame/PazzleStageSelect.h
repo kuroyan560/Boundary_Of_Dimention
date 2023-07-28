@@ -10,6 +10,8 @@
 #include"../Movie/MovieCamera.h"
 #include"../SoundConfig.h"
 
+class GameScene;
+
 /// <summary>
 /// タイトルから直接ステージを選択する
 /// </summary>
@@ -19,7 +21,7 @@ public:
 	PazzleStageSelect();
 
 	void Init();
-	void Update(std::shared_ptr<KuroEngine::Camera> arg_cam);
+	void Update(std::shared_ptr<KuroEngine::Camera> arg_cam, GameScene* arg_gameScene);
 	void Draw(KuroEngine::Camera& arg_cam);
 
 	int GetNumber();
@@ -88,7 +90,6 @@ private:
 	std::array<std::array<float, 30>, 1>m_nowAlpha;
 	KuroEngine::Vec2<int> m_nowStageNum;
 	int m_preStageNum;
-	KuroEngine::Vec2<float> m_prevContollerLeftStick;
 
 	enum {
 		LEFT = 0,

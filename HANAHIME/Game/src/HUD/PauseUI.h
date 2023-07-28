@@ -22,7 +22,8 @@ class PauseUI
 	{
 		RESUME,	//ゲームを再開
 		RETRY,	//リトライ
-		FAST_TRAVEL,	//ファストトラベル
+		//FAST_TRAVEL,	//ファストトラベル
+		STAGE_SELECT,	//ステージセレクト
 		SETTING,	//設定
 		RETURN_TO_TITLE,	//タイトルに戻る
 		PAUSE_ITEM_NUM,

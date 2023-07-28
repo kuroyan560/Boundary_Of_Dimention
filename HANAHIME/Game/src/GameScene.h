@@ -128,6 +128,7 @@ public:
 	void Retry();
 	void StartGame(int arg_stageNum, KuroEngine::Transform arg_playerInitTransform, bool arg_isFastTravel = false, bool arg_isRetry = false);
 	void GoBackTitle();
+	void GoStageSelect();
 	void ActivateFastTravel();
 	void ActivateSystemSetting();
 };

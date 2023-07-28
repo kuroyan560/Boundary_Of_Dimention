@@ -144,6 +144,12 @@ void GameScene::GoBackTitle()
 	m_nextScene = SCENE_TITLE;
 }
 
+void GameScene::GoStageSelect()
+{
+	m_gateSceneChange.Start();
+	m_nextScene = SCENE_STAGESELECT;
+}
+
 void GameScene::ActivateFastTravel()
 {
 	std::vector<std::vector<KuroEngine::Transform>>checkPointTransformArray;
@@ -254,8 +260,7 @@ void GameScene::OnUpdate()
 		//ゲームクリア演出を終えたら遷移開始
 		if (m_goal.IsEnd())
 		{
-			m_gateSceneChange.Start();
-			m_nextScene = SCENE_STAGESELECT;
+			GoStageSelect();
 		}
 
 		//ポーズ画面
@@ -279,7 +284,7 @@ void GameScene::OnUpdate()
 			m_gateSceneChange.Start();
 		}
 
-		m_stageSelect.Update(m_nowCam);
+		m_stageSelect.Update(m_nowCam, this);
 	}
 
 

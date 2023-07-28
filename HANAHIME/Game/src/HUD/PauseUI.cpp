@@ -52,7 +52,8 @@ PauseUI::PauseUI()
 	{
 		"resume.png",
 		"retry.png",
-		"fast_travel.png",
+		//"fast_travel.png",
+		"stage_select.png",
 		"setting.png",
 		"return_to_title.png"
 	};
@@ -176,13 +177,6 @@ void PauseUI::Update(GameScene* arg_gameScene, float arg_timeScale)
 			//SE再生
 			SoundConfig::Instance()->Play(SoundConfig::SE_SELECT);
 
-			//パズルゲーム用ファストトラベル消し
-			if (m_item == FAST_TRAVEL)
-			{
-				if (m_item < oldItem)m_item = PAUSE_ITEM(FAST_TRAVEL - 1);
-				else if (oldItem < m_item)m_item = PAUSE_ITEM(FAST_TRAVEL + 1);
-			}
-
 			//セーブデータがないのでファストトラベル出来ない
 			//if (m_item == FAST_TRAVEL && !SaveDataManager::Instance()->LoadStageSaveData(nullptr, nullptr))
 			//{
@@ -205,8 +199,13 @@ void PauseUI::Update(GameScene* arg_gameScene, float arg_timeScale)
 					m_menuStatus = CONFIRM_MENU;
 					m_confirmMenu.m_confirmItem = ConfirmMenu::CONFIRM_ITEM::NONE;
 					break;
+					/*
 				case FAST_TRAVEL:
 					arg_gameScene->ActivateFastTravel();
+					break;
+					*/
+				case STAGE_SELECT:
+					arg_gameScene->GoStageSelect();
 					break;
 				case SETTING:
 					arg_gameScene->ActivateSystemSetting();
@@ -332,93 +331,45 @@ void PauseUI::Draw(int arg_totalGetFlowerNum)
 		const Vec2<float>TOP_ITEM_CENTER_POS = { WIN_CENTER_X,242.0f };
 
 		//項目の行間
-		//const float ITEM_SPACE_Y = 79.0f;
-		//項目の行間（ファストトラベル飛ばし）
-		const float ITEM_SPACE_Y = 100.0f;
+		const float ITEM_SPACE_Y = 79.0f;
 
 		//項目の描画
-		/*
+		for (int itemIdx = 0; itemIdx < PAUSE_ITEM_NUM; ++itemIdx)
 		{
-			for (int itemIdx = 0; itemIdx < PAUSE_ITEM_NUM; ++itemIdx)
+			//座標計算
+			const auto pos = TOP_ITEM_CENTER_POS + Vec2<float>(0.0f, ITEM_SPACE_Y * itemIdx);
+			//項目が選択中か
+			bool isSelected = (PAUSE_ITEM)itemIdx == m_item;
+
+			//選択中なら影描画
+			if (isSelected)
 			{
-				//座標計算
-				const auto pos = TOP_ITEM_CENTER_POS + Vec2<float>(0.0f, ITEM_SPACE_Y * itemIdx);
-				//項目が選択中か
-				bool isSelected = (PAUSE_ITEM)itemIdx == m_item;
-
-				//選択中なら影描画
-				if (isSelected)
-				{
-					//回転あり1
-					DrawFunc2D::DrawRotaGraph2D(pos + m_selectItemShadowOffset, { 1.0f,1.0f }, m_selectItemShadowSpin, m_defaultMenu.m_selectItemShadowTex, SELECT_ITEM_SPIN_SHADOW_ALPHA);
-					//回転あり2
-					DrawFunc2D::DrawRotaGraph2D(pos - m_selectItemShadowOffset, { 1.0f,1.0f }, -m_selectItemShadowSpin, m_defaultMenu.m_selectItemShadowTex, SELECT_ITEM_SPIN_SHADOW_ALPHA);
-					//回転なし
-					DrawFunc2D::DrawRotaGraph2D(pos, { 1.0f,1.0f }, 0.0f, m_defaultMenu.m_selectItemShadowTex);
-				}
-
-				//ステータス
-				ITEM_STATUS itemStatus = isSelected ? SELECT : DEFAULT;
-
-				//テクスチャ決定
-				auto& tex = m_defaultMenu.m_itemTexArray[itemIdx][itemStatus];
-				//アルファ決定
-				float alpha = isSelected ? 1.0f : NO_SELECT_ITEM_ALPHA;
-
-				//セーブデータがないのでファストトラベル出来ない
-				if (itemIdx == FAST_TRAVEL && !SaveDataManager::Instance()->LoadStageSaveData(nullptr, nullptr))
-				{
-					itemStatus = DEFAULT;
-					alpha = 0.35f;
-				}
-
-				DrawFunc2D::DrawRotaGraph2D(pos, { 1.0f,1.0f }, 0.0f, tex, alpha);
+				//回転あり1
+				DrawFunc2D::DrawRotaGraph2D(pos + m_selectItemShadowOffset, { 1.0f,1.0f }, m_selectItemShadowSpin, m_defaultMenu.m_selectItemShadowTex, SELECT_ITEM_SPIN_SHADOW_ALPHA);
+				//回転あり2
+				DrawFunc2D::DrawRotaGraph2D(pos - m_selectItemShadowOffset, { 1.0f,1.0f }, -m_selectItemShadowSpin, m_defaultMenu.m_selectItemShadowTex, SELECT_ITEM_SPIN_SHADOW_ALPHA);
+				//回転なし
+				DrawFunc2D::DrawRotaGraph2D(pos, { 1.0f,1.0f }, 0.0f, m_defaultMenu.m_selectItemShadowTex);
 			}
-		}
-		*/
 
-		//項目の描画（ファストトラベル飛ばし）
-		{
-			int itemIdx = -1;
-			for (int itemIdxOrigin = 0; itemIdxOrigin < PAUSE_ITEM_NUM; ++itemIdxOrigin)
+			//ステータス
+			ITEM_STATUS itemStatus = isSelected ? SELECT : DEFAULT;
+
+			//テクスチャ決定
+			auto& tex = m_defaultMenu.m_itemTexArray[itemIdx][itemStatus];
+			//アルファ決定
+			float alpha = isSelected ? 1.0f : NO_SELECT_ITEM_ALPHA;
+
+			//セーブデータがないのでファストトラベル出来ない
+			/*
+			if (itemIdx == FAST_TRAVEL && !SaveDataManager::Instance()->LoadStageSaveData(nullptr, nullptr))
 			{
-				if (itemIdxOrigin == FAST_TRAVEL)continue;
-
-				itemIdx++;
-
-				//座標計算
-				const auto pos = TOP_ITEM_CENTER_POS + Vec2<float>(0.0f, ITEM_SPACE_Y * itemIdx);
-				//項目が選択中か
-				bool isSelected = (PAUSE_ITEM)itemIdxOrigin == m_item;
-
-				//選択中なら影描画
-				if (isSelected)
-				{
-					//回転あり1
-					DrawFunc2D::DrawRotaGraph2D(pos + m_selectItemShadowOffset, { 1.0f,1.0f }, m_selectItemShadowSpin, m_defaultMenu.m_selectItemShadowTex, SELECT_ITEM_SPIN_SHADOW_ALPHA);
-					//回転あり2
-					DrawFunc2D::DrawRotaGraph2D(pos - m_selectItemShadowOffset, { 1.0f,1.0f }, -m_selectItemShadowSpin, m_defaultMenu.m_selectItemShadowTex, SELECT_ITEM_SPIN_SHADOW_ALPHA);
-					//回転なし
-					DrawFunc2D::DrawRotaGraph2D(pos, { 1.0f,1.0f }, 0.0f, m_defaultMenu.m_selectItemShadowTex);
-				}
-
-				//ステータス
-				ITEM_STATUS itemStatus = isSelected ? SELECT : DEFAULT;
-
-				//テクスチャ決定
-				auto& tex = m_defaultMenu.m_itemTexArray[itemIdxOrigin][itemStatus];
-				//アルファ決定
-				float alpha = isSelected ? 1.0f : NO_SELECT_ITEM_ALPHA;
-
-				//セーブデータがないのでファストトラベル出来ない
-				if (itemIdxOrigin == FAST_TRAVEL && !SaveDataManager::Instance()->LoadStageSaveData(nullptr, nullptr))
-				{
-					itemStatus = DEFAULT;
-					alpha = 0.35f;
-				}
-
-				DrawFunc2D::DrawRotaGraph2D(pos, { 1.0f,1.0f }, 0.0f, tex, alpha);
+				itemStatus = DEFAULT;
+				alpha = 0.35f;
 			}
+			*/
+
+			DrawFunc2D::DrawRotaGraph2D(pos, { 1.0f,1.0f }, 0.0f, tex, alpha);
 		}
 
 		//花描画
