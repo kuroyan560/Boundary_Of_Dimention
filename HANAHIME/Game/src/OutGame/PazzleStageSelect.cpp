@@ -8,7 +8,7 @@
 #include"../OperationConfig.h"
 #include"../GameScene.h"
 
-PazzleStageSelect::PazzleStageSelect() :m_beatTimer(30), m_appearTimer(60), m_hideTiemr(60)
+PazzleStageSelect::PazzleStageSelect() :m_beatTimer(90), m_appearTimer(60), m_hideTiemr(60)
 {
 	const int STAGE_MAX_NUM = StageManager::Instance()->GetAllStageNum();
 	int yNum = 0;
@@ -238,10 +238,10 @@ void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam, Game
 		//クリアUIのビート表現
 		if (m_beatTimer.IsTimeUp())
 		{
-			float vel = 0.4f;
+			float vel = 0.2f;
 			m_hexaSize[0] += vel;
-			m_hexaSize[1] += vel;
-			m_clearSize += vel;
+			m_hexaSize[1] += vel * 0.7f;
+			m_clearSize += vel * 0.8f;
 			m_beatTimer.Reset();
 		}
 		m_beatTimer.UpdateTimer();
@@ -581,7 +581,7 @@ void PazzleStageSelect::Draw(KuroEngine::Camera& arg_cam)
 	stageUIPos.y += 170.0f;
 	//for (auto& uiTex : m_stageTex)
 	{
-		KuroEngine::DrawFunc2D::DrawRotaGraph2D(stageUIPos + m_hideVel * offsetVel, { 0.8f,0.8f }, 0.0f, m_stageTex[m_nowStageNum.x].m_stageTex);
+		KuroEngine::DrawFunc2D::DrawRotaGraph2D(stageUIPos + m_hideVel * offsetVel, { 1.0f,1.0f }, 0.0f, m_stageTex[m_nowStageNum.x].m_stageTex);
 		//KuroEngine::DrawFunc2D::DrawRotaGraph2D(stageUIPos + KuroEngine::Vec2<float>(80.0f, 120.0f) + m_hideVel * offsetVel, { 1.0f,1.0f }, 0.0f, uiTex.m_subStageTex, 80.0f / 255.0f);
 	}
 
