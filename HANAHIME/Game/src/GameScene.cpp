@@ -260,7 +260,19 @@ void GameScene::OnUpdate()
 		//ゲームクリア演出を終えたら遷移開始
 		if (m_goal.IsEnd())
 		{
-			GoStageSelect();
+			//GoStageSelect();
+
+			//ゲームダンジョン用
+			{
+				//次のステージへ
+				int nextStageNum = m_stageNum + 1;
+
+				//最後のステージなら選択画面に戻る
+				if (StageManager::Instance()->GetAllStageNum() <= nextStageNum)GoStageSelect();
+
+				//次のステージへ
+				else StartGame(m_stageNum + 1, StageManager::Instance()->GetStartPointTransform(m_stageNum + 1));
+			}
 		}
 
 		//ポーズ画面
