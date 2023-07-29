@@ -50,8 +50,9 @@ public:
 		//bool inputFlag = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::XBOX_BUTTON::A);
 		bool inputFlag = OperationConfig::Instance()->GetOperationInput(OperationConfig::DONE, OperationConfig::ON_TRIGGER);
 		bool tmpDoneFlag = m_doneFlag;
-		if (inputFlag)
+		if (inputFlag && !m_doneFlag)
 		{
+			SoundConfig::Instance()->Play(SoundConfig::SE_DONE);
 			m_doneFlag = true;
 		}
 		return inputFlag && !tmpDoneFlag && !m_stopFlag;
@@ -202,7 +203,7 @@ private:
 	{
 	public:
 
-		Band(const KuroEngine::Vec2<float> &pos, const KuroEngine::Vec2<float> &size, const KuroEngine::Vec2<float> &easeVel, float flame) :
+		Band(const KuroEngine::Vec2<float>& pos, const KuroEngine::Vec2<float>& size, const KuroEngine::Vec2<float>& easeVel, float flame) :
 			m_pos(pos), m_size(size), m_easeVel(easeVel), m_hideVel({}), m_appearTimer(flame), m_disappearTimer(flame), m_appearFlag(true)
 		{
 			m_appearTimer.ForciblyTimeUp();

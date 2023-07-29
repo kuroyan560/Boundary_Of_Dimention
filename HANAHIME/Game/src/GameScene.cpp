@@ -234,9 +234,9 @@ void GameScene::OnUpdate()
 	//インゲーム
 	else if (m_nowScene == SCENE_IN_GAME)
 	{
+		m_nowCam->GetTransform().UnbindMotherMat();
 		//通常のプレイヤーカメラ
 		m_nowCam = m_player.GetCamera().lock();
-
 		bool flag = StageManager::Instance()->IsClearNowStage();
 		//クリア時のカメラ
 		if (flag)
@@ -339,6 +339,8 @@ void GameScene::OnUpdate()
 		}
 		else if (m_nextScene == SCENE_STAGESELECT)
 		{
+			SoundConfig::Instance()->Play(SoundConfig::BGM_IN_GAME_0);
+
 			const int stageIndex = StageManager::Instance()->GetNowStageIdx();
 			m_stageSelect.Init();
 			if (m_isGameClearFlag)
@@ -459,7 +461,7 @@ void GameScene::OnDraw()
 		m_player.Draw(*m_nowCam, ds, m_ligMgr, DebugController::Instance()->IsActive());
 		m_grass.Draw(*m_nowCam, m_ligMgr, m_player.GetGrowPlantLight().m_influenceRange, m_player.GetIsAttack());
 	}
-	
+
 	//ステージ描画
 	StageManager::Instance()->Draw(*m_nowCam, m_ligMgr);
 

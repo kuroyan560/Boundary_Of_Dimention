@@ -123,7 +123,7 @@ void PazzleStageSelect::Init()
 		m_arrowSineLengthNow[index] = ARROW_SINE_INIT_LENGTH;
 		m_arrowSineLengthBase[index] = ARROW_SINE_INIT_LENGTH;
 	}
-	for (int i = 0; i < 3; ++i)
+	for (int i = 0; i < StageManager::Instance()->GetAllStageNum(); ++i)
 	{
 		StageManager::Instance()->SetStage(i);
 	}
@@ -425,6 +425,8 @@ void PazzleStageSelect::Update(std::shared_ptr<KuroEngine::Camera> arg_cam, Game
 		m_cameraTransform.SetRotaMatrix(matA);
 		m_cameraTransform.CalucuratePosRotaBasedOnWorldMatrix();
 
+		arg_cam->GetTransform().SetPos({});
+		arg_cam->GetTransform().SetRotate(KuroEngine::Quaternion());
 		auto& transform = arg_cam->GetTransform();
 		transform.SetParent(&m_cameraTransform);
 

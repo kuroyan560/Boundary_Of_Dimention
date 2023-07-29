@@ -219,6 +219,11 @@ namespace KuroEngine
 			m_pos = { m_worldMat.r[3].m128_f32[0], m_worldMat.r[3].m128_f32[1], m_worldMat.r[3].m128_f32[2] };
 			m_rotate = XMQuaternionRotationMatrix(m_worldMat);
 		}
+		void UnbindMotherMat()
+		{
+			m_parent = nullptr;
+			MatReset();
+		}
 		//‘åÎ‚ª’Ç‰Á‚µ‚½ŠÖ”----------------------------------------
 
 

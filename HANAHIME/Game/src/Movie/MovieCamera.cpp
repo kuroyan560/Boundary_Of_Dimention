@@ -81,6 +81,8 @@ void MovieCamera::Update()
 	
 	m_nowTransform.CalucuratePosRotaBasedOnWorldMatrix();
 	auto &copy = m_cam->GetTransform();
+	m_cam->GetTransform().SetPos({});
+	m_cam->GetTransform().SetRotate(KuroEngine::Quaternion());
 	copy.SetParent(&m_nowTransform);
 }
 
