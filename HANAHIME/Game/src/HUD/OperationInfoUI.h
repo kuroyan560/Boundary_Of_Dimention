@@ -21,7 +21,8 @@ class OperationInfoUI : public InGameUI
 
 	//“ü—Í‚µ‚Ä‚¢‚é‚©‚Ç‚¤‚©
 	enum INPUT_STATUS { ON, OFF, INPUT_STATUS_NUM };
-	enum BUTTON { X, LT, RT, BUTTON_NUM, };
+	//enum BUTTON { X, LT, RT, BUTTON_NUM, };
+	enum BUTTON { X, L_STICK, RT, BUTTON_NUM, };
 	//“ü—Í‚µ‚Ä‚¢‚é‚Æ‚«‚Æ‚µ‚Ä‚¢‚È‚¢‚Æ‚«‚Ì‰æ‘œŠe‚Q–‡•ª
 	std::array<std::array<std::shared_ptr<KuroEngine::TextureBuffer>, INPUT_STATUS_NUM>, BUTTON_NUM>m_opeButtonTexArray;
 
