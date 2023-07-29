@@ -339,7 +339,7 @@ void GameScene::OnUpdate()
 		}
 		else if (m_nextScene == SCENE_STAGESELECT)
 		{
-			const int stageIndex = StageManager::Instance()->GetNowStageIdx() + 1;
+			const int stageIndex = StageManager::Instance()->GetNowStageIdx();
 			m_stageSelect.Init();
 			if (m_isGameClearFlag)
 			{
