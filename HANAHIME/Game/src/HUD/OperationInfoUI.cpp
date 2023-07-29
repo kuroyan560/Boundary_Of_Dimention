@@ -28,7 +28,8 @@ OperationInfoUI::OperationInfoUI()
 	std::string dir = "resource/user/tex/in_game/operation/";
 	m_opeBaseTex = D3D12App::Instance()->GenerateTextureBuffer(dir + "base.png");
 
-	std::array<std::string, BUTTON_NUM>BUTTON_FILE_NAME = { "X","LT","RT" };
+	//std::array<std::string, BUTTON_NUM>BUTTON_FILE_NAME = { "X","LT","RT" };
+	std::array<std::string, BUTTON_NUM>BUTTON_FILE_NAME = { "X","L_stick","RT" };
 	for (int buttonIdx = 0; buttonIdx < BUTTON_NUM; ++buttonIdx)
 	{
 		D3D12App::Instance()->GenerateTextureBuffer(
@@ -89,7 +90,8 @@ void OperationInfoUI::Draw()
 {
 	using namespace KuroEngine;
 
-	const Vec2<float>opeButtonOffset = { m_opeButtonOffsetX,0.0f };
+	//const Vec2<float>opeButtonOffset = { m_opeButtonOffsetX,0.0f };
+	const Vec2<float>opeButtonOffset = { -48.0f,40.0f };
 
 	//入力方法画像のベース
 	static const Vec2<float>OPE_BASE_POS = { 151.0f,504.0f };
@@ -101,9 +103,16 @@ void OperationInfoUI::Draw()
 		m_opeButtonTexArray[X][OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_DIST_MODE_CHANGE_LOOK_AROUND, OperationConfig::HOLD) ? OFF : ON], m_opeButtonAlpha);
 
 	//LTボタン
+	/*
 	static const Vec2<float>LT_BUTTON_POS = { 110.0f,528.0f };
 	DrawFunc2D::DrawRotaGraph2D(LT_BUTTON_POS + opeButtonOffset, { 1.0f,1.0f }, 0.0f,
 		m_opeButtonTexArray[LT][OperationConfig::Instance()->GetOperationInput(OperationConfig::CAM_RESET, OperationConfig::HOLD) ? OFF : ON], m_opeButtonAlpha);
+	*/
+
+	//Lスティック
+	const Vec2<float>L_STICK_POS = { 110.0f,528.0f };
+	DrawFunc2D::DrawRotaGraph2D(L_STICK_POS + opeButtonOffset, { 1.0f,1.0f }, 0.0f,
+		m_opeButtonTexArray[L_STICK][!OperationConfig::Instance()->GetMoveVec(XMQuaternionIdentity()).IsZero() ? OFF : ON], m_opeButtonAlpha);
 
 	//RTボタン
 	static const Vec2<float>RT_BUTTON_POS = { 110.0f,604.0f };

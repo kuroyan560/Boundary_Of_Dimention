@@ -202,9 +202,9 @@ bool StageManager::IsClearNowStage() const
 	return m_nowStage->IsClear();
 }
 
-KuroEngine::Transform StageManager::GetStartPointTransform() const
+KuroEngine::Transform StageManager::GetStartPointTransform(int arg_stageNum) const
 {
-	return m_stageArray[0]->GetStartPointTransform();
+	return m_stageArray[arg_stageNum]->GetStartPointTransform();
 }
 
 KuroEngine::Transform StageManager::GetGoalTransform() const
