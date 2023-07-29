@@ -143,8 +143,8 @@ class Player : public KuroEngine::Debugger
 	//移動ベクトルのスカラー
 	KuroEngine::Vec3<float> m_moveSpeed;			//移動速度
 	//通常移動の移動パラメータ
-	float m_defaultAccelSpeed = 0.05f;
-	float m_defaultMaxSpeed = 0.5f;
+	float m_defaultAccelSpeed = 0.045f;
+	float m_defaultMaxSpeed = 0.45f;
 	float m_defaultBrake = 0.07f;
 	//地中での移動パラメータ
 	float m_underGroundAccelSpeed = 0.05f;
