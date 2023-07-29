@@ -24,7 +24,8 @@ void InGameUI::Update(float arg_timeScale)
 		if (!ui->IsDisappeared())isAllDisappeared = false;
 	}
 
-	if (isAllAppeared)
+	//if (isAllAppeared)
+	if (false)	//ゲームダンジョン用
 	{
 		if (s_initIdleTimer.IsTimeUp() && operationInput)
 		{
