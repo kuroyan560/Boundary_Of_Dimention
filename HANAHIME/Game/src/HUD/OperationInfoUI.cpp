@@ -72,11 +72,10 @@ void OperationInfoUI::Update(float arg_timeScale)
 		{
 			SetUIStatus(DISAPPEAR);
 		}*/
-		if (m_idleTimer.UpdateTimer(arg_timeScale) && m_disappearCall && StageManager::Instance()->GetNowStageIdx() != 0)
+		if (m_idleTimer.UpdateTimer(arg_timeScale) && m_disappearCall)
 		{
 			//予約された退場の実行
 			Disappear();
-			m_disappearCall = false;
 		}
 	}
 	else if (m_status == DISAPPEAR)
@@ -122,6 +121,7 @@ void OperationInfoUI::Appear()
 void OperationInfoUI::Disappear()
 {
 	if (m_status != DRAW)return;
+	if (StageManager::Instance()->GetNowStageIdx() <= 0)return;
 
 	//出現後の表示アイドル時間が終わっていないなら
 	if (!m_idleTimer.IsTimeUp())
@@ -130,5 +130,7 @@ void OperationInfoUI::Disappear()
 		m_disappearCall = true;
 		return;
 	}
+
 	SetUIStatus(DISAPPEAR);
+	m_disappearCall = false;
 }
