@@ -46,6 +46,9 @@ StageInfoUI::StageInfoUI()
 
 	//ステージ関連のテクスチャのディレクトリ
 	std::string stageTexDir = "resource/user/tex/stage/";
+
+	//オリジナル
+	/*
 	//ステージ名テクスチャ
 	int stageIdx = 0;
 	while (1)
@@ -55,7 +58,23 @@ StageInfoUI::StageInfoUI()
 
 		m_stageNameTex.emplace_back(D3D12App::Instance()->GenerateTextureBuffer(path));
 	}
+	*/
+
+	//ゲームダンジョン用
+	{
+		//ステージ名テクスチャ
+		int stageIdx = 1;
+		while (1)
+		{
+			std::string path = "resource/user/tex/stage_select/stage_name_main_" + std::to_string(stageIdx++) + ".png";
+			if (!ExistFile(path))break;
+
+			m_stageNameTex.emplace_back(D3D12App::Instance()->GenerateTextureBuffer(path));
+		}
+	}
+
 	m_stageNameDefaultTex = D3D12App::Instance()->GenerateTextureBuffer(stageTexDir + "default.png");
+
 	//ステージ名の装飾下線画像
 	m_underLineTex = D3D12App::Instance()->GenerateTextureBuffer(stageTexDir + "under_line.png");
 
@@ -136,25 +155,42 @@ void StageInfoUI::Update(float arg_timeScale, int arg_getFlowerNum)
 
 void StageInfoUI::Draw(int arg_existFlowerNum, int arg_getFlowerNum)
 {
-	return;
-
 	using namespace KuroEngine;
 
 	//ステージ名の右下の座標
-	static const Vec2<float>STAGE_NAME_RIGHT_BOTTOM_POS = { 1130.0f,150.0f };
+	//static const Vec2<float>STAGE_NAME_RIGHT_BOTTOM_POS = { 1130.0f,150.0f };
+	//ゲームダンジョン用
+	static const Vec2<float>STAGE_NAME_RIGHT_BOTTOM_POS = { 1230.0f,90.0f };
 
 	//オフセット
 	const Vec2<float>offsetX = { m_offsetX,0.0f };
 
 	//ステージ名描画
+	/*
 	auto stageNameTex = m_stageNameDefaultTex;
 	if (0 <= m_stageNameIdx && m_stageNameIdx < static_cast<int>(m_stageNameTex.size()))stageNameTex = m_stageNameTex[m_stageNameIdx];
 	const Vec2<float>stageNamePos = STAGE_NAME_RIGHT_BOTTOM_POS - stageNameTex->GetGraphSize().Float();
 	DrawFunc2D::DrawGraph(stageNamePos + offsetX, stageNameTex, m_alpha);
+	*/
+
+	//ステージ名描画（ゲームダンジョン用）
+	{
+		float scale = 0.5f;
+		auto stageNameTex = m_stageNameDefaultTex;
+		if (0 <= m_stageNameIdx && m_stageNameIdx < static_cast<int>(m_stageNameTex.size()))stageNameTex = m_stageNameTex[m_stageNameIdx];
+		const Vec2<float>stageNamePos = STAGE_NAME_RIGHT_BOTTOM_POS - stageNameTex->GetGraphSize().Float() * scale;
+		DrawFunc2D::DrawGraph(stageNamePos + offsetX, stageNameTex, m_alpha, scale);
+	}
 
 	//ステージ名の装飾下線描画
-	static const Vec2<float>UNDER_LINE_CENTER_POS = { 958.0f,161.0f };
+	//static const Vec2<float>UNDER_LINE_CENTER_POS = { 958.0f,161.0f };
+	//ゲームダンジョン用
+	static const Vec2<float>UNDER_LINE_CENTER_POS = { 1028.0f,101.0f };
+
 	DrawFunc2D::DrawRotaGraph2D(UNDER_LINE_CENTER_POS + offsetX, { 1.0f,1.0f }, 0.0f, m_underLineTex, m_alpha);
+
+	//ゲームダンジョン用
+	return;
 
 	//花アイコンの描画
 	static const Vec2<float>MINI_FLOWER_CENTER_POS = { 1012.0f,202.0f };
