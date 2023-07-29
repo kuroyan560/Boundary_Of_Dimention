@@ -9,6 +9,7 @@
 #include"ForUser/Timer.h"
 #include"../Movie/MovieCamera.h"
 #include"../SoundConfig.h"
+#include"../OperationConfig.h"
 
 class GameScene;
 
@@ -46,7 +47,8 @@ public:
 	};
 	bool Done()
 	{
-		bool inputFlag = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::XBOX_BUTTON::A);
+		//bool inputFlag = KuroEngine::UsersInput::Instance()->KeyOnTrigger(DIK_SPACE) || KuroEngine::UsersInput::Instance()->ControllerOnTrigger(0, KuroEngine::XBOX_BUTTON::A);
+		bool inputFlag = OperationConfig::Instance()->GetOperationInput(OperationConfig::DONE, OperationConfig::ON_TRIGGER);
 		bool tmpDoneFlag = m_doneFlag;
 		if (inputFlag)
 		{

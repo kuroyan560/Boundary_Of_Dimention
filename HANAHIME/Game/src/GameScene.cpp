@@ -110,6 +110,7 @@ void GameScene::GameInit()
 	m_checkPointPillar.Init();
 	OperationConfig::Instance()->SetInGameOperationActive(true);
 	TimeScaleMgr::s_inGame.Set(1.0f);
+	m_grass.Init();
 
 	//std::vector<KuroEngine::Transform> testTransform;
 	//KuroEngine::Transform buff;
@@ -291,9 +292,7 @@ void GameScene::OnUpdate()
 	{
 		if (m_gateSceneChange.IsAppear() && m_stageSelect.Done())
 		{
-			m_stageNum = m_stageSelect.GetNumber();
-			m_nextScene = SCENE_IN_GAME;
-			m_gateSceneChange.Start();
+			StartGame(m_stageSelect.GetNumber(), StageManager::Instance()->GetStartPointTransform(m_stageSelect.GetNumber()));
 		}
 
 		m_stageSelect.Update(m_nowCam, this);
@@ -357,7 +356,6 @@ void GameScene::OnUpdate()
 		//ƒQ[ƒ€ƒNƒŠƒAŽž‚É‘JˆÚ‚·‚éˆ—
 		if (m_clearFlag)
 		{
-			this->Initialize();
 			m_clearFlag = false;
 		}
 
