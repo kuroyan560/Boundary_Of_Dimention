@@ -104,7 +104,7 @@ class Player : public KuroEngine::Debugger
 	CameraController m_camController;
 
 	//ƒJƒƒ‰Š´“x
-	float CAMERA_FAR = -60.0f;
+	float CAMERA_FAR = -40.0f;
 	float CAMERA_FUNAMODE_FAR = -200.0f;
 	float CAMERA_NEAR_ENEMY_FAR = -40.0f;
 	float m_cameraFar;		//Œ»İ‚ÌƒJƒƒ‰‚ÌFar
