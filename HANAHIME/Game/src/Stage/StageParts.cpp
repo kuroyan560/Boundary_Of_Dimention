@@ -525,7 +525,7 @@ void Lever::Update(Player &arg_player)
 		//内積でライトの法線とプレイヤーの上座標が離れてたら無効化する。
 		if (DirectX::XM_PIDIV4 < acosf(arg_player.GetTransform().GetUpWorld().Dot(m_transform.GetUpWorld()))) continue;
 
-		if (lig->HitCheckWithBox(m_transform.GetPosWorld(), m_boxCollider.m_size * 2.5f))
+		if (lig->HitCheckWithBox(m_transform.GetPosWorld(), m_boxCollider.m_size * 5.0f))
 		{
 			//レバー操作でオンオフ切り替え
 			m_isHit = true;
