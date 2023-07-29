@@ -13,7 +13,7 @@ bool GrowPlantLight_Point::HitCheckWithBox(KuroEngine::Vec3<float> arg_center, K
 	static const float RADIUS_OFFSET = 2.0f;
 
 	//Õ“Ë”»’è‚ğ‚¨‚±‚È‚¤B
-	return distance <= arg_size.Length() + (m_influenceRange - RADIUS_OFFSET);
+	return distance <= arg_size.Length();
 
 }
 
